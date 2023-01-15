@@ -35,7 +35,6 @@ export const Container = styled.div`
     font-family: GilmerRegular;
     font-size: 15px;
     height: 100vh;
-    opacity: ${(props: { isLoading: boolean }) => (props.isLoading ? 0.3 : 1)};
 `;
 
 export const Header = styled.div`
@@ -46,7 +45,6 @@ export const Header = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    height: 50px;
     padding: 12px 12px 12px 20px;
 `;
 

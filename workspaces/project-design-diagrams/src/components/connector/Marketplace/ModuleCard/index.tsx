@@ -11,13 +11,13 @@
  * associated services.
  */
 
-import React, { useState } from "react";
+import React from "react";
 
 import { Grid } from "@material-ui/core";
 import { BallerinaConstruct } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import useStyles from "./style";
-import { DefaultConnectorIcon } from "../icons";
+import ModuleIcon from '../ModuleIcon';
 
 export interface ModuleCardProps {
     module: BallerinaConstruct;
@@ -31,31 +31,16 @@ function ModuleCard(this: any, props: ModuleCardProps) {
     const { module, selected, columns, onSelectModule } = props;
     const moduleName = (module.displayAnnotation?.label || `${module.package?.name} / ${module.name}`).replace(/["']/g, "");
     const itemWidth = columns === 2 ? 6 : 4;
-    const iconWidth = 42;
-
-    const [showDefaultIcon, setShowDefaultIcon] = useState(false);
 
     const handleOnSelect = () => {
         onSelectModule(module);
     }
 
-    const handleLoadingError = () => {
-        setShowDefaultIcon(true);
-    };
-
     return (
         <Grid item={true} xs={itemWidth} alignItems="center">
             <div key={moduleName + module.id} onClick={handleOnSelect} data-testid={moduleName.toLowerCase()}>
                 <div className={(selected && (selected.id == module.id)) ? classes.selectedBalModule : classes.balModule}>
-                    <div>
-                        {!showDefaultIcon && (<img
-                            src={module.icon}
-                            alt={module?.moduleName}
-                            style={{ width: "100%", height: "auto", maxWidth: iconWidth, maxHeight: iconWidth }}
-                            onError={handleLoadingError}
-                        />)}
-                        {showDefaultIcon && <DefaultConnectorIcon />}
-                    </div>
+                    <ModuleIcon module={module}/>
                     <div className={classes.balModuleName}>{moduleName}</div>
                     <div className={classes.orgName}>by {module.package.organization}</div>
                 </div>

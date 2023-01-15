@@ -11,12 +11,12 @@
  *  associated services.
  */
 
-import { Project, Component } from "./types";
+export interface CodiconProps {
+    name: string;
+}
 
-export interface IProjectManager {
-    // TODO Summayya: Add remaining methods
-    createComponent(componentDetails: unknown): Promise<string>;
-    getProjectDetails(): Promise<Project>;
-    getProjectRoot(): Promise<string | undefined>;
-    getLocalComponents(workspaceFilePath: string): Component[];
+export function Codicon(props: CodiconProps) {
+    return (
+        <div className="icon"><i className={`codicon codicon-${props.name}`}></i></div>
+    );
 }

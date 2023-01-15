@@ -11,13 +11,14 @@
  *  associated services.
  */
 
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { useContext, useState, useEffect } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ComponentList } from "./ComponentList";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -36,10 +37,12 @@ export interface ProjectOverviewProps {
     orgName?: string;
 }
 
+
 export function ProjectOverview(props: ProjectOverviewProps) {
     const [project, setProject] = useState<Project | undefined>(undefined);
     const [components, setComponents] = useState<Component[] | undefined>(undefined);
     const [location, setLocation] = useState<string | undefined>(undefined);
+    const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
     const projectId = props.projectId ? props.projectId : '';
     const orgName = props.orgName ? props.orgName : '';
 
@@ -56,9 +59,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         rpcInstance.getComponents(projectId).then(setComponents);
     }, []);
 
-    // Get project location
+    // Get project location & repo
     useEffect(() => {
         rpcInstance.getProjectLocation(projectId).then(setLocation);
+        rpcInstance.getProjectRepository(projectId).then(setProjectRepo);
     }, []);
 
     // Listen to changes in project selection
@@ -67,33 +71,31 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         // setProject(undefined); will not remove project to fix the glitch
         rpcInstance.getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
-        })
+        });
         rpcInstance.getComponents(newProjectId).then(setComponents);
         rpcInstance.getProjectLocation(newProjectId).then(setLocation);
     });
 
     const handleCloneProjectClick = (e: any) => {
         rpcInstance.cloneChoreoProject(project ? project.id : '');
-    }
+    };
 
     const handleOpenProjectClick = (e: any) => {
         rpcInstance.openChoreoProject(project ? project.id : '');
-    }
-
-    const handleOpenInConsoleClick = (e: any) => {
-        rpcInstance.openExternal(`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`);
-    }
+    };
 
     return (
         <>
             <WizardContainer>
                 <h1>{project?.name}&nbsp;</h1>
+                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
+                    Open in Choreo Console
+                </VSCodeLink>
                 {location === undefined ?
                     <>
-                        <p>To edit the project clone in to your local machine</p>
+                        <p>To open the project clone in to your local machine</p>
                         <ActionContainer>
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}>Clone Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" onClick={handleOpenInConsoleClick}>Open in Choreo Console</VSCodeButton>
                         </ActionContainer>
                     </>
                     :
@@ -101,27 +103,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <p>Found a local copy of the project at `{location}`. </p>
                         <ActionContainer>
                             <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" onClick={handleOpenInConsoleClick}>Open in Choreo Console</VSCodeButton>
                         </ActionContainer>
                     </>}
+                {projectRepo !== undefined && <p>Project repository: {projectRepo}</p>}
 
                 <h2>Components</h2>
-                {(components !== undefined) ? // TODO: if components are empty print message
-                    <VSCodeDataGrid aria-label="Components">
-                        <VSCodeDataGridRow rowType="header">
-                            <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>
-                            <VSCodeDataGridCell cellType={"columnheader"} gridColumn="2">Version</VSCodeDataGridCell>
-                        </VSCodeDataGridRow>
-                        {
-                            components.map((component) => {
-                                return <VSCodeDataGridRow>
-                                    <VSCodeDataGridCell gridColumn="1">{component.name}</VSCodeDataGridCell>
-                                    <VSCodeDataGridCell gridColumn="2">{component.version}</VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            })
-                        }
-                    </VSCodeDataGrid>
-                    : <p>Loading...</p>}
+                <ComponentList components={components} />
             </WizardContainer>
         </>
     );

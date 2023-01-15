@@ -45,6 +45,16 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         return env.openExternal(callbackUri);
     }
 
+
+    async triggerInstallFlow(): Promise<boolean> {
+        this._onGHAppAuthCallback.fire({ status: 'install-inprogress'});
+        const { installUrl }  = this._appConfig;
+        const callbackUri = await env.asExternalUri(
+            Uri.parse(`${installUrl}?state=VSCODE_CHOREO_GH_APP_AUTH`)
+        );
+        return env.openExternal(callbackUri);
+    }
+
     async obatainAccessToken(authCode: string): Promise<void> {
         const mutation = gql`
             mutation {
@@ -71,9 +81,6 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         
     }
 
-    async triggerInstallFlow(): Promise<boolean> {
-        throw new Error("Method not implemented.");
-    }
 
     async getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
         const query = gql`
