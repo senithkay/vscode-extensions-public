@@ -35,6 +35,16 @@ const LinkButton = styled.div`
     padding-top  : 5px;
 `;
 
+const ActiveLabel = styled.div`
+    font-size  : 12px;
+    display  : inline-block;
+`;
+
+const InlineIcon = styled.span`
+    vertical-align: sub;
+    padding-left: 5px;
+`;
+
 export interface ProjectOverviewProps {
     projectId?: string;
     orgName?: string;
@@ -53,6 +63,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const [components, setComponents] = useState<Component[] | undefined>(undefined);
     const [location, setLocation] = useState<string | undefined>(undefined);
     const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
+    const [isActive, setActive] = useState<boolean>(false);
     const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
     const projectId = props.projectId ? props.projectId : '';
     const orgName = props.orgName ? props.orgName : '';
@@ -70,6 +81,16 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         rpcInstance.getComponents(projectId).then(setComponents);
     }, []);
 
+    useEffect(() => {
+        rpcInstance.getChoreoProject().then((p) => {
+            if (p && p.id === projectId) {
+                setActive(true);
+            } else {
+                setActive(false);
+            }
+        });
+    }, []);
+
     // Get project location & repo
     useEffect(() => {
         rpcInstance.getProjectLocation(projectId).then(setLocation);
@@ -85,6 +106,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
         rpcInstance.getComponents(newProjectId).then(setComponents);
         rpcInstance.getProjectLocation(newProjectId).then(setLocation);
+        rpcInstance.getChoreoProject().then((p) => {
+            if (p && p.id === newProjectId) {
+                setActive(true);
+            } else {
+                setActive(false);
+            }
+        });
     });
 
     const handleCloneProjectClick = (e: any) => {
@@ -105,15 +133,14 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     return (
         <>
             <WizardContainer>
-                <h1>{project?.name}&nbsp;</h1>
-                {location === undefined ?
+                <h1>{project?.name}&nbsp;{isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}</h1>
+                {location === undefined &&
                     <>
-                        <p><Codicon name="info" /> To open the project clone in to your local machine</p>
+                        <p><InlineIcon><Codicon name="info" /></InlineIcon> To open the project clone in to your local machine</p>
                         <ActionContainer>
-                            <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}>
-                                <Codicon name="cloud-download" />&nbsp;
-                                Clone Project
-                            </VSCodeButton>
+                            <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
                             <LinkButton>
                                 <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
                                     Open in Choreo Console
@@ -121,18 +148,39 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             </LinkButton>
                         </ActionContainer>
                     </>
-                    :
+                }
+                {location !== undefined && !isActive &&
                     <>
-                        <p><Codicon name="info" /> Found a local copy of the project at `{location}`. </p>
+                        <p><InlineIcon><Codicon name="info" /></InlineIcon> Found a local copy of the project at `{location}`. </p>
                         <ActionContainer>
+                            <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
                             <LinkButton>
                                 <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
                                     Open in Choreo Console
                                 </VSCodeLink>
                             </LinkButton>
                         </ActionContainer>
-                    </>}
+                    </>
+                }
+                {isActive &&
+                    <>
+                        <p><InlineIcon><Codicon name="info" /></InlineIcon> Open the architecture view to add components. </p>
+                        <ActionContainer>
+                            <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
+                            <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Architecture View</VSCodeButton>
+                            <LinkButton>
+                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
+                                    Open in Choreo Console
+                                </VSCodeLink>
+                            </LinkButton>
+                        </ActionContainer>
+                    </>
+                }
+
+
                 <h2>Components</h2>
                 <ComponentList components={components} />
                 {components !== undefined && hasLocal(components) &&
