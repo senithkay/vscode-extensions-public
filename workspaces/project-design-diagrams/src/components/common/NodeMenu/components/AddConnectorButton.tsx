@@ -18,6 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
+import Tooltip from '@mui/material/Tooltip';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { Service } from '../../../../resources';
@@ -29,18 +30,25 @@ export function AddConnectorWidget(props: { service: Service }) {
     const { setTargetService } = useContext(DiagramContext);
 
     return (
-        <AddLinkIcon
-            onClick={() => { setTargetService(service) }}
-            onMouseOver={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            style={{
-                backgroundColor: isHovered ? 'orange' : '',
-                borderRadius: '50%',
-                color: isHovered ? 'whitesmoke' : 'orange',
-                cursor: 'pointer',
-                fontSize: '22px',
-                padding: '2px'
-            }}
-        />
+        <Tooltip
+            open={isHovered}
+            title={'Link Externally'}
+            arrow
+            placement='right'
+        >
+            <AddLinkIcon
+                onClick={() => { setTargetService(service) }}
+                onMouseOver={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                style={{
+                    backgroundColor: isHovered ? 'orange' : '',
+                    borderRadius: '50%',
+                    color: isHovered ? 'whitesmoke' : 'orange',
+                    cursor: 'pointer',
+                    fontSize: '22px',
+                    padding: '2px'
+                }}
+            />
+        </Tooltip>
     );
 }
