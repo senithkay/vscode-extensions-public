@@ -64,7 +64,7 @@ export function ComponentWizard() {
     }
 
     const canCreateComponent = (): boolean => {
-        if (name && projectId && accessibility && selectedType) {
+        if (name && projectId && accessibility && selectedType && description) {
             return true;
         }
         return false;

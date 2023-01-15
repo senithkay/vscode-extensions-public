@@ -34,7 +34,8 @@ export class WebviewWizard {
 
   private static createWebview(type: WizardTypes): vscode.WebviewPanel {
     const panel = vscode.window.createWebviewPanel(type,
-      `Create New ${type === WizardTypes.componentCreation ? 'Component' : 'Project'}`, vscode.ViewColumn.One,
+      `Create New ${type === WizardTypes.componentCreation ? 'Component' : 'Project'}`,
+      type === WizardTypes.componentCreation ? vscode.ViewColumn.Beside : vscode.ViewColumn.One,
       { enableScripts: true, retainContextWhenHidden: true }
     );
 
@@ -60,7 +61,7 @@ export class WebviewWizard {
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
               <meta name="theme-color" content="#000000">
-              <title>Choreo Project Wizard</title>
+              <title>Choreo Webview Wizard</title>
               <script src="${scriptUri}"></script>
             </head>
             <body>

@@ -18,6 +18,7 @@
 
 export { DiagramContainer } from './DiagramContainer/DiagramContainer';
 export { DiagramHeader } from './Header/HeaderWidget';
+export { PromptScreen } from './NewPromptScreen/PromptScreen';
 
 export { DesignDiagramContext, DiagramContext } from './DiagramContext/DiagramContext';
 

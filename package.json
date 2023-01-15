@@ -420,8 +420,8 @@
                 "icon": "$(notebook)"
             },
             {
-                "command": "ballerina.view.ProjectDesigns",
-                "title": "Project Design (Experimental)",
+                "command": "ballerina.view.architectureView",
+                "title": "Architecture View (Experimental)",
                 "category": "Ballerina"
             }
         ],

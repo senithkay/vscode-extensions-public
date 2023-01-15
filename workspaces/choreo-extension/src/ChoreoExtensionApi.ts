@@ -21,6 +21,8 @@ import { ProjectRegistry } from './registry/project-registry';
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
     waitForLogin(): Promise<boolean>;
+    isChoreoProject(): Promise<boolean>;
+    getChoreoProject(): Promise<Project | undefined>;
 }
 
 export class ChoreoExtensionApi {
