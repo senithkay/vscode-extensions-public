@@ -82,7 +82,7 @@ export function DefaultControls(props: DefaultControlProps) {
                         onClick={onClickProjectOverview}
                         startIcon={<AccountTreeIcon fontSize='medium' />}
                     >
-                        Project View
+                        Project Overview
                     </Button>
                 }
             </div>

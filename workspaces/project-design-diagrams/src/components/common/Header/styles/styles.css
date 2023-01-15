@@ -32,6 +32,7 @@
     border: 1px solid #808080 !important;
     border-radius: 4px !important;
     color: #595959 !important;
+    margin-right: 4px !important;
 }
 
 .button:hover, .iconButton:hover {
