@@ -30,6 +30,7 @@ export const getProjectRepository: RequestType<string, string> = { method: 'getP
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
+export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 
 
 // notification types

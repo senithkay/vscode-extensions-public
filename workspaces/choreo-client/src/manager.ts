@@ -252,7 +252,7 @@ export class ChoreoProjectManager implements IProjectManager {
         const content: WorkspaceFileContent = JSON.parse(contents.toString());
         const index = content.folders.findIndex(folder => folder.metadata?.displayName === component.displayName);
         if (index > -1) {
-            content.folders.splice(index, 1);
+            content.folders[index].metadata = undefined;
             writeFileSync(workspaceFilePath, JSON.stringify(content, null, 4));
         }
     }

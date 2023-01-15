@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { useState, useEffect } from "react";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
@@ -127,7 +127,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         setCreatingComponents(true);
         rpcInstance.pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
             setCreatingComponents(false);
+            rpcInstance.getComponents(project ? project.id : '').then(setComponents);
         });
+    };
+
+    const handleOpenArchitectureViewClick = (e: any) => {
+        rpcInstance.openArchitectureView();
     };
 
     return (
@@ -170,7 +175,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <ActionContainer>
                             <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
-                            <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Architecture View</VSCodeButton>
+                            <VSCodeButton appearance="primary" onClick={handleOpenArchitectureViewClick}>Architecture View</VSCodeButton>
                             <LinkButton>
                                 <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
                                     Open in Choreo Console
@@ -186,22 +191,19 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 {components !== undefined && hasLocal(components) &&
                     <>
                         <p>
-                            <Codicon name="lightbulb" />
+                            <InlineIcon><Codicon name="lightbulb" /></InlineIcon>
                             Some components are not created in Choreo. Please commit your changes to github repo and click `Push to Choreo`
                         </p>
                         <ActionContainer>
-                            <VSCodeButton appearance="secondary" onClick={handlePushToChoreoClick}>
+                            {creatingComponents && <VSCodeProgressRing />}
+                            <VSCodeButton
+                                appearance="secondary"
+                                disabled={creatingComponents}
+                                onClick={handlePushToChoreoClick}>
                                 <Codicon name="cloud-upload" />&nbsp;
                                 Push to Choreo
                             </VSCodeButton>
                         </ActionContainer>
-                    </>
-                }
-                {projectRepo !== undefined &&
-                    <>
-                        <h2>Repositories</h2>
-                        This project has a configured mono repository.
-                        <p>Mono Repo: {projectRepo}</p>
                     </>
                 }
             </WizardContainer>

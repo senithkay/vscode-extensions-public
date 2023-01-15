@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel, window, workspace, Uri } from "vscode";
+import { commands, WebviewPanel, window, workspace, Uri, ProgressLocation } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
@@ -21,7 +21,8 @@ import {
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
     ComponentWizardInput, CreateComponentRequest, ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
-    PushLocalComponentsToChoreo
+    PushLocalComponentsToChoreo,
+    OpenArchitectureView
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -131,14 +132,24 @@ export class WebViewRpc {
             return ext.api.getChoreoProject();
         });
 
-        this._messenger.onRequest(PushLocalComponentsToChoreo, (projectId: string) => {
-            if (ext.api.selectedOrg) {
-                return ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
-            }
-            else {
-                return Promise.reject();
-            }
+        this._messenger.onRequest(OpenArchitectureView, () => {
+            commands.executeCommand("ballerina.view.architectureView");
         });
+
+        this._messenger.onRequest(PushLocalComponentsToChoreo, async (projectId: string) => {
+            await window.withProgress({
+                title: `Pushing local components to Choreo.`,
+                location: ProgressLocation.Notification,
+                cancellable: true
+            }, async (_progress, cancellationToken) => {
+                // TODO Make the cancellation token work
+                if (ext.api.selectedOrg) {
+                    ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
+                }
+            });
+            return Promise.resolve();
+        });
+
 
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
