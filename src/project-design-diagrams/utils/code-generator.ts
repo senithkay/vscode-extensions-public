@@ -18,6 +18,7 @@
  */
 
 import { writeFileSync } from "fs";
+import { randomUUID } from "crypto";
 import { ExtendedLangClient } from "src/core";
 import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
 import {
@@ -27,6 +28,7 @@ import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edti
 import { STResponse } from "../activator";
 import { Service, ServiceTypes } from "../resources";
 import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "./connector-code-gen-utils";
+import { runBackgroundTerminalCommand } from "../../utils/runCommand";
 
 const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
 let clientName: string;
@@ -82,28 +84,56 @@ export async function linkServices(langClient: ExtendedLangClient, sourceService
     return false;
 }
 
-export async function addConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {
+export async function pullConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {
     const filePath: string = targetService.elementLocation.filePath;
+    const stResponse = (await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString(),
+        },
+    })) as GetSyntaxTreeResponse;
+    if (!(stResponse?.parseSuccess && connector.moduleName)) {
+        return false;
+    }
+    
+    const imports = getConnectorImports(stResponse.syntaxTree, connector.package.organization, connector.moduleName);
+    if (imports && imports?.size > 0) {
+        let pullCommand = "";
+        imports.forEach(function (impt) {
+            if (pullCommand !== "") {
+                pullCommand += ` && `;
+            }
+            pullCommand += `bal pull ${impt.replace(" as _", "")}`;
+        });
+        console.log("running terminal command:", pullCommand);
+        const cmdRes = await runBackgroundTerminalCommand(pullCommand);
+        console.log("terminal command message:", cmdRes);
+        if (cmdRes.error && cmdRes.message.indexOf("package already exists") < 0) {
+            return false;
+        }
+    }
+    return true;
+}
 
+export async function addConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {
+    const filePath: string = targetService.elementLocation.filePath;    
     const stResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(filePath).toString(),
         },
-    });
-    if (!(stResponse as GetSyntaxTreeResponse)?.parseSuccess) {
+    }) as GetSyntaxTreeResponse;
+    if (!stResponse?.parseSuccess) {
         return false;
     }
-
+    
+    clientName = genClientName(stResponse.syntaxTree.source, connector);
     const members: any[] = (stResponse as GetSyntaxTreeResponse).syntaxTree.members;
     const serviceDecl = getServiceDeclaration(members, targetService, true);
-
     const connectorInfo = await fetchConnectorInfo(langClient, connector);
     if (!(connectorInfo && connectorInfo.moduleName)) {
         return false;
     }
 
-    const imports = getConnectorImports((stResponse as GetSyntaxTreeResponse).syntaxTree,
-        connectorInfo.package.organization, connectorInfo.moduleName);
+    const imports = getConnectorImports(stResponse.syntaxTree, connectorInfo.package.organization, connectorInfo.moduleName);
 
     const initMember = getInitFunction(serviceDecl);
     if (initMember) {
@@ -290,13 +320,12 @@ function generateConnectorClientDecl(connector: BallerinaConnectorInfo): string 
         return "";
     }
     const moduleName = getFormattedModuleName(connector.moduleName);
-    const epName = genVarName(moduleName);
     let clientDeclaration: string = `
         @display {
             label: "${connector.displayName || moduleName}",
-            id: "${moduleName}-${connector.id}"
+            id: "${moduleName}-${randomUUID()}"
         }
-        ${moduleName}:${connector.name} ${epName};
+        ${moduleName}:${connector.name} ${clientName};
     `;
 
     return clientDeclaration;
@@ -306,8 +335,6 @@ function generateConnectorClientInit(connector: BallerinaConnectorInfo): string 
     if (!connector?.moduleName) {
         return "";
     }
-    const moduleName = getFormattedModuleName(connector.moduleName);
-    const epName = genVarName(moduleName);
 
     const initFunction = connector.functions?.find((func) => func.name === "init");
     if (!initFunction?.returnType) {
@@ -317,7 +344,7 @@ function generateConnectorClientInit(connector: BallerinaConnectorInfo): string 
     const defaultParameters = getDefaultParams(initFunction.parameters);
     const returnType = getFormFieldReturnType(initFunction.returnType);
 
-    return `self.${epName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
+    return `self.${clientName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
 }
 
 function getMissingImports(source: string, imports: Set<string>) {
@@ -332,8 +359,20 @@ function getMissingImports(source: string, imports: Set<string>) {
     return missingImports;
 }
 
-function genVarName(label: string) {
-    return `${label}Ep`; //TODO: validate name generation with duplications
+function genClientName(source: string, connector: Connector) {
+    if (!connector.moduleName) {
+        return "Ep";
+    }
+    const moduleName = getFormattedModuleName(connector.moduleName);
+
+    let index = 0;
+    let varName = moduleName + "Ep";
+    while (source.indexOf(varName) > 0) {
+        index++;
+        varName = varName + index;
+    }
+
+    return varName;
 }
 
 function transformLabel(label: string): string {

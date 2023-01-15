@@ -27,6 +27,7 @@
     "paths-js": "^0.4.11",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-lottie": "^1.2.3",
     "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
@@ -41,6 +42,7 @@
     "@storybook/testing-library": "^0.0.13",
     "@types/react": "^17.0.26",
     "@types/react-dom": "^17.0.9",
+    "@types/react-lottie": "^1.2.5",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "^1.0.0",
     "ts-loader": "^9.4.1",
     "babel-loader": "^8.2.5",
