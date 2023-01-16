@@ -42,7 +42,10 @@ export function activateWizards() {
         let selectedProjectId = project ? project?.id : undefined;
         if (!selectedProjectId && await ext.api.isChoreoProject()) {
             const choreoProject = await ext.api.getChoreoProject();
-            selectedProjectId = choreoProject?.id;
+            if (choreoProject) {
+                selectedProjectId = choreoProject.id;
+                project = choreoProject;
+            }
         }
         if (!selectedProjectId) {
             return;
