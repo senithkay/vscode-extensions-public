@@ -367,12 +367,13 @@ function genClientName(source: string, connector: Connector) {
 
     let index = 0;
     let varName = moduleName + "Ep";
-    while (source.indexOf(varName) > 0) {
+    let tempName = varName;
+    while (source.indexOf(tempName) > 0) {
         index++;
-        varName = varName + index;
+        tempName = varName + index;
     }
 
-    return varName;
+    return tempName;
 }
 
 function transformLabel(label: string): string {
