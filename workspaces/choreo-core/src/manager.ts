@@ -14,7 +14,7 @@
 import { Project, Component, Organization, ChoreoServiceComponentType, ComponentAccessibility } from "./types";
 
 export interface IProjectManager {
-    createComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string>;
+    createComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
     getProjectDetails(): Promise<Project>;
     getProjectRoot(): Promise<string | undefined>;
     getLocalComponents(workspaceFilePath: string): Component[];
@@ -28,12 +28,14 @@ export interface ChoreoComponentCreationParams {
     description: string;
     accessibility: ComponentAccessibility;
     workspaceFilePath: string;
-    repositoryInfo: {
-        org: string;
-        repo: string;
-        branch: string;
-        subPath: string;
-    };
+    repositoryInfo: RepositoryDetails;
+}
+
+export interface RepositoryDetails {
+    org: string;
+    repo: string;
+    branch: string;
+    subPath: string;
 }
 
 export interface BallerinaComponentCreationParams {

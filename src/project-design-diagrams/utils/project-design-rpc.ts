@@ -61,14 +61,13 @@ export class ProjectDesignRPC {
             this._projectManager = new BallerinaProjectManager();
         }
 
-        this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string> => {
+        this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string|boolean> => {
             if (this._projectManager instanceof ChoreoProjectManager && 'repositoryInfo' in args) {
                 return this._projectManager.createComponent(args);
             } else if (this._projectManager instanceof BallerinaProjectManager && 'directory' in args) {
                 return this._projectManager.createComponent(args);
-            } else {
-                window.showErrorMessage('Error while creating component.');
             }
+            window.showErrorMessage('Error while creating component.');
         });
 
         this._messenger.onRequest({ method: 'getProjectDetails' }, (): Promise<unknown> => {
