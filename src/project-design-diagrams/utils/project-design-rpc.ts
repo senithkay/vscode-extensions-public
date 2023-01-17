@@ -41,6 +41,7 @@ export class ProjectDesignRPC {
     private _isChoreoProject: boolean;
     private _projectManager: ChoreoProjectManager | BallerinaProjectManager;
     private _choreoExtApi: IChoreoExtensionAPI | undefined;
+    private _activeChoreoProject: Project;
 
     constructor(webview: WebviewPanel, langClient: ExtendedLangClient) {
         this._messenger.registerWebviewPanel(webview);
@@ -120,10 +121,10 @@ export class ProjectDesignRPC {
 
         this._messenger.onRequest({method: 'showChoreoProjectOverview'}, async (): Promise<boolean> => {
             if (this._choreoExtApi) {
-                const currentProject: Project = await this._choreoExtApi.getChoreoProject();
-                if (currentProject) {
-                    return commands.executeCommand('wso2.choreo.project.overview', currentProject);
+                if (!this._activeChoreoProject) {
+                    this._activeChoreoProject = await this._choreoExtApi.getChoreoProject();
                 }
+                return commands.executeCommand('wso2.choreo.project.overview', this._activeChoreoProject);
             }
             window.showErrorMessage('Error while loading Choreo project overview.');
             return false;
