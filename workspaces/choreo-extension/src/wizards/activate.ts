@@ -38,8 +38,19 @@ export function activateWizards() {
     ext.context.subscriptions.push(createProjectCmd, createComponentCmd);
 
     // Register Project Overview Wizard
-    const projectOverview = commands.registerCommand(choreoProjectOverview, (project: Project) => {
-        ext.api.selectedProjectId = project.id;
+    const projectOverview = commands.registerCommand(choreoProjectOverview, async (project: Project) => {
+        let selectedProjectId = project ? project?.id : undefined;
+        if (!selectedProjectId && await ext.api.isChoreoProject()) {
+            const choreoProject = await ext.api.getChoreoProject();
+            if (choreoProject) {
+                selectedProjectId = choreoProject.id;
+                project = choreoProject;
+            }
+        }
+        if (!selectedProjectId) {
+            return;
+        }
+        ext.api.selectedProjectId = selectedProjectId;
         const org: Organization | undefined = ext.api.selectedOrg;
         if (org !== undefined) {
             ProjectOverview.render(ext.context.extensionUri, project, org);

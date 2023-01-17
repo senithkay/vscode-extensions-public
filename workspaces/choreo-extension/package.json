@@ -17,7 +17,8 @@
   "activationEvents": [
     "onCommand:wso2.choreo.sign.in",
     "onView:choreo-projects",
-    "onView:choreo-account"
+    "onView:choreo-account",
+    "*"
   ],
   "main": "./dist/extension.js",
   "extensionDependencies": [

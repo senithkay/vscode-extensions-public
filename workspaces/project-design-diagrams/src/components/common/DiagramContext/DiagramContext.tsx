@@ -22,6 +22,7 @@ import { Location, Service, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
+    isChoreoProject: boolean;
     getTypeComposition: (entityID: string) => void;
     go2source: (location: Location) => void;
     currentView: Views;
@@ -30,6 +31,7 @@ interface DiagramContextProps {
 }
 
 interface IDiagramContext {
+    isChoreoProject: boolean;
     getTypeComposition: (entityID: string) => void;
     go2source: (location: Location) => void;
     currentView: Views;
@@ -53,9 +55,10 @@ export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
-    const { getTypeComposition, currentView, go2source, editingEnabled, children, setTargetService } = props;
+    const { isChoreoProject, getTypeComposition, currentView, go2source, editingEnabled, children, setTargetService } = props;
 
     const Ctx = {
+        isChoreoProject,
         getTypeComposition,
         go2source,
         currentView,

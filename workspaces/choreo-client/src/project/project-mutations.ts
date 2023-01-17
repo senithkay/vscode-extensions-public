@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { gql } from 'graphql-request';
-import { CreateProjectParams } from './types';
+import { CreateProjectParams, CreateComponentParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
     const { name, description, orgId, orgHandle, version = "1.0.0", region = "US" } = params;
@@ -27,3 +27,34 @@ export function getCreateProjectMutation(params: CreateProjectParams) {
         }
     `;
 }
+
+export function getCreateComponentMutation(params: CreateComponentParams) {
+    const { name, displayName, description, orgId, orgHandle, projectId,
+        accessibility, srcGitRepoUrl, repositorySubPath, repositoryBranch } = params;
+    return gql`mutation
+        { createComponent(component: {  
+            name: "${name}",  
+            orgId: ${orgId},  
+            orgHandler: "${orgHandle}",
+            displayName: "${displayName}",  
+            displayType: "restAPI",  
+            projectId: "${projectId}",  
+            labels: "", 
+            version: "1.0.0", 
+            description: "${description}",
+            apiId: "",
+            ballerinaVersion: "swan-lake-alpha5",
+            triggerChannels: "", 
+            triggerID: null,  
+            httpBase: true,
+            sampleTemplate: "", 
+            accessibility: "${accessibility}",
+            srcGitRepoUrl: "${srcGitRepoUrl}" 
+            repositorySubPath: "${repositorySubPath}", 
+            repositoryType: "UserManagedNonEmpty",
+            repositoryBranch: "${repositoryBranch}",})
+            {  id, orgId, projectId, handler}
+        }
+    `;
+}
+

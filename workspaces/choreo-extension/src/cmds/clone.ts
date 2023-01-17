@@ -53,9 +53,22 @@ export const cloneProject = async (project: Project) => {
         }
 
         mkdirSync(workspacePath);
+        
+        // Get Mono Repo if configured
+        const monoRepo = ProjectRegistry.getInstance().getProjectRepository(project.id);
 
         const workspaceFile: WorkspaceConfig = {
-            folders: []
+            folders: [{
+                name: "choreo-project-root",
+                path: "."
+            }],
+            metadata: {
+                choreo: {
+                    projectID: id,
+                    orgId: selectedOrg.id,
+                    monoRepo: monoRepo
+                }
+            }
         };
 
         await window.withProgress({
@@ -69,24 +82,39 @@ export const cloneProject = async (project: Project) => {
             cancellationToken.onCancellationRequested(async () => {
                 cancelled = true;
             });
+
             const components = await projectClient.getComponents({ orgHandle: selectedOrg.handle, projId: id });
-            const userManagedComponents = components.filter((cmp) => cmp.repository.isUserManage);
+            const userManagedComponents = components.filter((cmp) => cmp.repository && cmp.repository.isUserManage);
             const repos = components.map((cmp) => cmp.repository);
 
-            const choreoManagedRepos = repos.filter((repo) => !repo.isUserManage);
+            const choreoManagedRepos = repos.filter((repo) => repo && !repo.isUserManage);
             const userManagedRepos = userManagedComponents.map((cmp) => cmp.repository);
             const userManagedReposWithoutDuplicates: Repository[] = [];
 
             userManagedRepos.forEach(repo => {
-                if (!userManagedReposWithoutDuplicates.find((tarRepo) => tarRepo.organizationApp === repo.organizationApp && tarRepo.nameApp === repo.nameApp)) {
+                if (repo && !userManagedReposWithoutDuplicates.find((tarRepo) => tarRepo.organizationApp === repo.organizationApp && tarRepo.nameApp === repo.nameApp)) {
                     userManagedReposWithoutDuplicates.push(repo);
                 }
             });
 
-            workspaceFile.folders = userManagedComponents.map(({ name, repository: { appSubPath, nameApp } }) => ({
-                name: name,
-                path: appSubPath ? path.join(nameApp, appSubPath) : nameApp
-            }));
+            const folders = userManagedComponents.map(({ name, repository }) => {
+                if (repository) {
+                    const { organizationApp, nameApp, appSubPath } = repository;
+                    return {
+                        name: name,
+                        path: appSubPath ? path.join("repos", organizationApp, nameApp, appSubPath) : nameApp
+                    };
+                } else {
+                    // TODO: Make repository mandatory in the interface and get rid of this case
+                    return {
+                        name: name,
+                        path: path.join("repos", name)
+                    };
+                }
+            });
+            workspaceFile.folders.push(...folders);
+
+
             const workspaceFileName = `${projectName}.code-workspace`;
             const workspaceFilePath = path.join(workspacePath, workspaceFileName);
 
@@ -94,8 +122,21 @@ export const cloneProject = async (project: Project) => {
 
             while (!cancelled && currentCloneIndex < userManagedReposWithoutDuplicates.length) {
                 const { organizationApp, nameApp, branchApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
-                const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(workspacePath, nameApp), ["--recursive", "--branch", branchApp]);
+                const repoOrgPath = path.join(workspacePath, "repos", organizationApp);
+                mkdirSync(repoOrgPath, { recursive: true });
+                const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(repoOrgPath, nameApp), ["--recursive", "--branch", branchApp]);
                 currentCloneIndex = currentCloneIndex + 1;
+            }
+
+            // Clone mono repo if not already cloned
+            if (monoRepo) {
+                const monoRepoSplit = monoRepo.split("/");
+                if (monoRepoSplit.length === 2 && !existsSync(path.join(workspacePath, "repos", monoRepoSplit[0], monoRepoSplit[1]))) {
+                    const repoOrgPath = path.join(workspacePath, "repos", monoRepoSplit[0]);
+                    mkdirSync(repoOrgPath, { recursive: true });
+                    const monoRepoURL = `git@github.com:${monoRepo}.git`;
+                    const _result = await simpleGit().clone(monoRepoURL, path.join(repoOrgPath, monoRepoSplit[1]), ["--recursive"]);
+                }
             }
 
             // Register the project location in registry
@@ -114,6 +155,10 @@ export const cloneProject = async (project: Project) => {
 export const cloneComponentCmd = async (component: Component) => {
 
     const { repository } = component;
+    if (!repository) {
+        window.showErrorMessage(`Cannot clone repository.`);
+        return;
+    }
     const { isUserManage, organizationApp, nameApp } = repository;
 
     if (isUserManage) {

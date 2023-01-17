@@ -82,8 +82,8 @@ export function EditForm(props: EditFormProps) {
     }
 
     const verifyInputs = (): boolean => {
-        if (component && component.name && (component.package ? PackageNameRegex.test(component.package) : validatedComponentName)
-            && (component.org ? OrganizationRegex.test(component.org) : defaultOrg) && VersionRegex.test(component.version)) {
+        if (component && component.name && (component.package ? PackageNameRegex.test(component.package) : validatedComponentName) &&
+        (component.org ? OrganizationRegex.test(component.org) : defaultOrg) && VersionRegex.test(component.version) && component.directory) {
             return true;
         }
         return false;

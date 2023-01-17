@@ -103,6 +103,24 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             throw new Error("Error while fetching authorized repositories. " , { cause: error });
         }
     }
+
+    async getRepoBranches(orgName: string, repoName: string): Promise<string[]> {
+        const query = gql`
+            query {
+                repoBranchList(repositoryOrganization: "${orgName}", repositoryName: "${repoName}") {
+                    name
+                }
+            }
+        `;
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.repoBranchList.map((branch: { name: string }) => branch.name);
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            throw new Error("Error while fetching branches for repository. " , { cause: error });
+        }
+    }
     
     fireGHAppAuthCallback(status: GHAppAuthStatus): void {
         this._onGHAppAuthCallback.fire(status);

@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel, window, workspace, Uri } from "vscode";
+import { commands, WebviewPanel, window, workspace, Uri, ProgressLocation } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
@@ -20,7 +20,9 @@ import {
     CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
-    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage
+    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    PushLocalComponentsToChoreo,
+    OpenArchitectureView
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -72,7 +74,8 @@ export class WebViewRpc {
                         name: args.name,
                         displayType: args.type,
                         accessibility: args.accessibility,
-                        workspaceFilePath: workspaceFilePath
+                        workspaceFilePath: workspaceFilePath,
+                        repositoryInfo: args.repositoryInfo
                     });
                 } else {
                     throw new Error("Failed to detect the project workpsace.");
@@ -112,6 +115,40 @@ export class WebViewRpc {
                     });
             }
         });
+
+        this._messenger.onRequest(setProjectRepository, async (params) => {
+            ProjectRegistry.getInstance().setProjectRepository(params.projId, params.repo);
+        });
+
+        this._messenger.onRequest(getProjectRepository, (projectId: string) => {
+            return ProjectRegistry.getInstance().getProjectRepository(projectId);
+        });
+
+        this._messenger.onRequest(isChoreoProject, () => {
+            return ext.api.isChoreoProject();
+        });
+
+        this._messenger.onRequest(getChoreoProject, () => {
+            return ext.api.getChoreoProject();
+        });
+
+        this._messenger.onRequest(OpenArchitectureView, () => {
+            commands.executeCommand("ballerina.view.architectureView");
+        });
+
+        this._messenger.onRequest(PushLocalComponentsToChoreo, async (projectId: string): Promise<void> => {
+            return window.withProgress({
+                title: `Pushing local components to Choreo.`,
+                location: ProgressLocation.Notification,
+                cancellable: true
+            }, async (_progress, cancellationToken) => {
+                // TODO Make the cancellation token work
+                if (ext.api.selectedOrg) {
+                    await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
+                }
+            });
+        });
+
 
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);

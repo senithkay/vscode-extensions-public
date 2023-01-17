@@ -24,7 +24,7 @@ import { Colors } from '../../../../resources';
 interface ButtonProps {
     label: string;
     color: string;
-    disabled: boolean;
+    disabled?: boolean;
     onClick: () => void;
 }
 
@@ -33,7 +33,7 @@ export function CreateButton(props: ButtonProps) {
 
     return (
         <Button
-            disabled={disabled}
+            disabled={disabled || false}
             onClick={onClick}
             size='medium'
             variant='contained'

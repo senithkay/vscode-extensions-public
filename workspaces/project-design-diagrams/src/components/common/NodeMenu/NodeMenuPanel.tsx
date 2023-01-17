@@ -33,8 +33,12 @@ export function NodeMenuPanel(props: MenuProps) {
     return (
         <>
             <Go2SourceWidget location={location} />
-            {linkingEnabled && service && <LinkingWidget service={service} />}
-            {service && <AddConnectorWidget service={service} />}
+            {linkingEnabled && service &&
+                <>
+                    <LinkingWidget service={service} />
+                    <AddConnectorWidget service={service} />
+                </>
+            }
         </>
     );
 }

@@ -21,12 +21,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
-import { DesignDiagramContext, DiagramContainer, DiagramHeader } from './components/common';
-import {ConnectorWizard} from './components/connector/ConnectorWizard';
+import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
+import { ConnectorWizard } from './components/connector/ConnectorWizard';
 import { Colors, ComponentModel, Location, Service, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { ProjectDesignRPC } from './utils/rpc/project-design-rpc';
-import { AddButton, EditForm } from './editing';
+import { ControlsLayer, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 
@@ -47,6 +47,7 @@ interface DiagramProps {
 }
 
 export function DesignDiagram(props: DiagramProps) {
+    const rpcInstance = ProjectDesignRPC.getInstance();
     const { go2source, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
@@ -54,11 +55,16 @@ export function DesignDiagram(props: DiagramProps) {
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
     const [targetService, setTargetService] = useState<Service>(undefined);
+    const [isChoreoProject, setIsChoreoProject] = useState<boolean>(false);
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     useEffect(() => {
+        rpcInstance.isChoreoProject().then((response) => {
+            setIsChoreoProject(response);
+        });
+
         refreshDiagramResources();
     }, [props])
 
@@ -69,7 +75,6 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     const refreshDiagramResources = () => {
-        const rpcInstance = ProjectDesignRPC.getInstance();
         rpcInstance.fetchComponentModels().then((response) => {
             const components: Map<string, ComponentModel> = new Map(Object.entries(response));
             if (components && components.size > 0) {
@@ -80,42 +85,59 @@ export function DesignDiagram(props: DiagramProps) {
         })
     }
 
-    const onComponentAddClick = () => {
-        setShowEditForm(true);
+    const onComponentAddClick = async () => {
+        if (isChoreoProject) {
+            rpcInstance.executeCommand('wso2.choreo.component.create').catch((error: Error) => {
+                rpcInstance.showErrorMessage(error.message);
+            })
+        } else {
+            setShowEditForm(true);
+        }
     }
 
     const onConnectorWizardClose = () => {
         setTargetService(undefined);
     }
 
+    const ctx = {
+        getTypeComposition,
+        currentView,
+        go2source,
+        editingEnabled,
+        setTargetService,
+        isChoreoProject
+    }
+
     return (
-        <DesignDiagramContext {...{ getTypeComposition, currentView, go2source, editingEnabled, setTargetService }}>
+        <DesignDiagramContext {...ctx}>
             <Container>
-                {currentView && projectPkgs ?
-                    <>
-                        {currentView === Views.L1_SERVICES && editingEnabled && <AddButton onClick={onComponentAddClick} />}
-                        {showEditForm &&
-                            <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
-                        {targetService &&
-                            <ConnectorWizard service={targetService} onClose={onConnectorWizardClose} />}
-                        <DiagramHeader
-                            currentView={currentView}
-                            prevView={previousScreen.current}
-                            projectPackages={projectPkgs}
-                            switchView={setCurrentView}
-                            updateProjectPkgs={setProjectPkgs}
-                            onRefresh={refreshDiagramResources}
-                        />
-                        {projectComponents &&
+                {showEditForm &&
+                    <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
+                {editingEnabled && projectComponents && projectComponents.size < 1 ?
+                    <PromptScreen onComponentAdd={onComponentAddClick} /> :
+                    projectComponents ?
+                        <>
+                            {currentView === Views.L1_SERVICES && editingEnabled &&
+                                <ControlsLayer onComponentAddClick={onComponentAddClick} />
+                            }
+                            {editingEnabled && targetService &&
+                                <ConnectorWizard service={targetService} onClose={onConnectorWizardClose} />}
+                            <DiagramHeader
+                                currentView={currentView}
+                                prevView={previousScreen.current}
+                                projectPackages={projectPkgs}
+                                switchView={setCurrentView}
+                                updateProjectPkgs={setProjectPkgs}
+                                onRefresh={refreshDiagramResources}
+                            />
                             <DiagramContainer
                                 currentView={currentView}
                                 workspacePackages={projectPkgs}
                                 workspaceComponents={projectComponents}
                                 typeCompositionModel={typeCompositionModel.current}
                             />
-                        }
-                    </> :
-                    <CircularProgress sx={{ color: Colors.PRIMARY }} />
+                        </> :
+                        <CircularProgress sx={{ color: Colors.PRIMARY }} />
                 }
             </Container>
         </DesignDiagramContext>

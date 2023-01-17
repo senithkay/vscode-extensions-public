@@ -22,11 +22,12 @@ import {
     ComponentWizardInput,
     CreateComponentRequest,
     ShowErrorMessage, Component,
-    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject
+    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    PushLocalComponentsToChoreo, OpenArchitectureView
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
-import { ChoreoGithubAppClientRPCWebView  } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
+import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
@@ -82,6 +83,30 @@ export class ChoreoWebViewAPI {
 
     public async cloneChoreoProject(projectId: string): Promise<void> {
         return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
+    }
+
+    public async setProjectRepository(projId: string, repo: string): Promise<void> {
+        return this._messenger.sendRequest(setProjectRepository, HOST_EXTENSION, { projId, repo });
+    }
+
+    public async getProjectRepository(projId: string): Promise<string> {
+        return this._messenger.sendRequest(getProjectRepository, HOST_EXTENSION, projId);
+    }
+
+    public async isChoreoProject(): Promise<boolean> {
+        return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async getChoreoProject(): Promise<Project | undefined> {
+        return this._messenger.sendRequest(getChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async pushLocalComponentsToChoreo(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, projectId);
+    }
+
+    public async openArchitectureView(): Promise<void> {
+        return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {

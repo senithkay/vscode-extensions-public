@@ -11,20 +11,21 @@
  *  associated services.
  */
 
-import { Component, Project, serializeError } from "@wso2-enterprise/choreo-core";
+import { Component, Organization, Project, serializeError } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
-import { existsSync, PathLike } from 'fs';
+import { existsSync } from 'fs';
+import { ChoreoProjectManager, ComponentMetadata } from "@wso2-enterprise/choreo-client/lib/manager";
+import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
+const PROJECT_REPOSITORIES = "project-repositories";
 
 export class ProjectRegistry {
-
     static _registry: ProjectRegistry | undefined;
     private _dataProjects: Map<number, Project[]> = new Map<number, Project[]>([]);
     private _dataComponents: Map<string, Component[]> = new Map<string, Component[]>([]);
-    private _dataProjectLocation: Map<string, string> = new Map<string, string>([]);
 
     constructor() {
 
@@ -51,11 +52,11 @@ export class ProjectRegistry {
         throw new Error(`Method not implemented`);
     }
 
-    async sync(): Promise<undefined> {
+    async sync(): Promise<void> {
         return new Promise((resolve) => {
             this._dataProjects = new Map<number, Project[]>([]);
             this._dataComponents = new Map<string, Component[]>([]);
-            resolve(undefined);
+            resolve();
         });
     }
 
@@ -88,15 +89,15 @@ export class ProjectRegistry {
             return projectClient.getComponents({ projId: projectId, orgHandle: orgHandle })
                 .then((components) => {
                     this._dataComponents.set(projectId, components);
-                    return components;
+                    return this._addLocalComponents(projectId, components);
                 }).catch((e) => {
                     serializeError(e);
-                    return [];
+                    return this._addLocalComponents(projectId, []);
                 });
         } else {
             return new Promise((resolve) => {
                 const components: Component[] | undefined = this._dataComponents.get(projectId);
-                resolve(components ? components : []);
+                resolve(this._addLocalComponents(projectId, components ? components : []));
             });
         }
     }
@@ -127,6 +128,54 @@ export class ProjectRegistry {
         return undefined;
     }
 
+    setProjectRepository(projectId: string, repository: string) {
+        let projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
+        if (projectRepositories === undefined) {
+            projectRepositories = {};
+        }
+        projectRepositories[projectId] = repository;
+        ext.context.globalState.update(PROJECT_REPOSITORIES, projectRepositories);
+    }
+
+    getProjectRepository(projectId: string): string | undefined {
+        const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
+        return projectRepositories ? projectRepositories[projectId] : undefined;
+    }
+
+    pushLocalComponentsToChoreo(projectId: string, org: Organization): Promise<void> {
+        return new Promise(async (resolve) => {
+            const projectLocation: string | undefined = this.getProjectLocation(projectId);
+            if (projectLocation !== undefined) {
+                // Get local components
+                const choreoPM = new ChoreoProjectManager();
+                const localComponentMeta: ComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
+                await localComponentMeta.forEach(async componentMetadata => {
+                    const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+                    const componentRequest: CreateComponentParams = {
+                        name: componentMetadata.displayName,
+                        displayName: componentMetadata.displayName,
+                        displayType: componentMetadata.displayType,
+                        description: componentMetadata.description,
+                        orgId: componentMetadata.org.id,
+                        orgHandle: componentMetadata.org.handle,
+                        projectId: projectId,
+                        accessibility: componentMetadata.accessibility,
+                        srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+                        repositorySubPath: appSubPath,
+                        repositoryType: "UserManagedNonEmpty",
+                        repositoryBranch: branchApp
+                    };
+                    await projectClient.createComponent(componentRequest).then((component) => {
+                        choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+                    });
+                });
+                // Delete the components so they resolve from choreo
+                this._dataComponents.delete(projectId);
+            }
+            resolve();
+        });
+    }
+
     private _removeLocation(projectId: string) {
         let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);
         // If the locations are not set before create the location map
@@ -137,4 +186,12 @@ export class ProjectRegistry {
         ext.context.globalState.update(PROJECT_LOCATIONS, projectLocations);
     }
 
+    private _addLocalComponents(projectId: string, components: Component[]): Component[] {
+        const projectLocation: string | undefined = this.getProjectLocation(projectId);
+        if (projectLocation !== undefined) {
+            const localcomponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
+            components = components.concat(localcomponents);
+        }
+        return components;
+    }
 }

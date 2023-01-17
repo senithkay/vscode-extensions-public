@@ -50,6 +50,8 @@ export class ProjectOverview {
       "main.js"
     ]);
 
+    const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "resources", "codicons", "codicon.css"));
+
     return /*html*/ `
           <!DOCTYPE html>
           <html lang="en">
@@ -58,6 +60,7 @@ export class ProjectOverview {
               <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
               <meta name="theme-color" content="#000000">
               <title>Project Overview</title>
+              <link rel="stylesheet" href="${codiconUri}">
               <script src="${scriptUri}"></script>
             </head>
             <body>

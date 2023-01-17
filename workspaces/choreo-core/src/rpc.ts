@@ -25,6 +25,13 @@ export const GetProjectLocation: RequestType<string, string | undefined> = { met
 export const OpenExternal: RequestType<string, void> = { method: 'openExternal' };
 export const OpenChoreoProject: RequestType<string, void> = { method: 'openChoreoProject' };
 export const CloneChoreoProject: RequestType<string, void> = { method: 'cloneChoreoProject' };
+export const setProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setProjectRepository' };
+export const getProjectRepository: RequestType<string, string> = { method: 'getProjectRepository' };
+export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
+export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
+export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
+export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
+
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
