@@ -135,6 +135,7 @@ export function CodeActionButton(props: CodeActionButtonProps) {
                 transformOrigin={{ vertical: "top", horizontal: "left" }}
                 className={classes.menu}
                 data-testid="code-action-menu"
+                disableScrollLock={true}
             >
                 {actionMenuItems}
             </Menu>
