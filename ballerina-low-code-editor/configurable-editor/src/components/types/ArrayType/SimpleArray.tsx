@@ -110,7 +110,9 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     };
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        setAnchorEl(event.currentTarget);
+        if (connectionConfigs.length > 0) {
+            setAnchorEl(event.currentTarget);
+        }
     };
 
     const handleClose = () => {
