@@ -42,7 +42,8 @@ export class LetExpressionNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public value: ExpressionFunctionBody) {
+        public value: ExpressionFunctionBody,
+        public isWithinQuery?: boolean) {
         super(
             context,
             LET_EXPR_SOURCE_NODE_TYPE
@@ -76,7 +77,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
                         if (type && (type.typeName === PrimitiveBalType.Record)) {
                             const fields = type.fields;
                             fields.forEach((subField) => {
-                                this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT",
+                                this.numberOfFields += 1 + this.addPortsForInputRecordField(subField, "OUT",
                                     varName, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
                                     this.context.collapsedFields, parentPort.collapsed);
                             });

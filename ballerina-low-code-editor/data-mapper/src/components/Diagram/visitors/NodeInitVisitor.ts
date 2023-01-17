@@ -315,6 +315,15 @@ export class NodeInitVisitor implements Visitor {
                 this.intermediateNodes.push(queryNode);
                 queryNode.targetPorts = expandedHeaderPorts;
 
+                // create node for local variables
+                const letExprNode = new LetExpressionNode(
+                    this.context,
+                    this.context.functionST.functionBody as ExpressionFunctionBody,
+                    true
+                );
+                letExprNode.setPosition(OFFSETS.SOURCE_NODE.X + 80, 0);
+                this.inputNodes.push(letExprNode);
+
                 // create node for module variables
                 const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(node.selectClause.expression, this.context.stSymbolInfo);
                 if (moduleVariables.size > 0) {
