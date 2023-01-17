@@ -337,12 +337,12 @@ function generateConnectorClientInit(connector: BallerinaConnectorInfo): string 
     }
 
     const initFunction = connector.functions?.find((func) => func.name === "init");
-    if (!initFunction?.returnType) {
-        return "";
-    }
-
+    let returnType;
+    
     const defaultParameters = getDefaultParams(initFunction.parameters);
-    const returnType = getFormFieldReturnType(initFunction.returnType);
+    if (initFunction.returnType) {
+        returnType = getFormFieldReturnType(initFunction.returnType);
+    }
 
     return `self.${clientName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
 }
