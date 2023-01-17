@@ -11,12 +11,17 @@
  *  associated services.
  */
 
-import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing, VSCodeLink, VSCodePanelView, VSCodePanels } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ProjectSelector } from "../ProjectSelector/ProjectSelector";
+import { ComponentTypeSelector } from "./ComponetTypeSelector/ComponentTypeSelector";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ChoreoServiceComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
+import { GithubRepoBranchSelector } from "../GithubRepoBranchSelector/GithubRepoBranchSelector";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -32,29 +37,151 @@ const ActionContainer = styled.div`
     gap: 10px;
 `;
 
+const RepoInfoContainer = styled.div`
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+`;
+
 export function ComponentWizard() {
-    const { loginStatus, loginStatusPending } = useContext(ChoreoWebViewContext);
+    const { loginStatus, loginStatusPending, isChoreoProject, choreoProject } = useContext(ChoreoWebViewContext);
+
+    const [name, setName] = useState<string>('');
+    const [inProgress, setProgressStatus] = useState<boolean>(false);
+    const [projectId, setProjectId] = useState<string | undefined>(choreoProject?.id);
+    const [description, setDescription] = useState<string | undefined>('');
+    const [accessibility, setAccessibility] = useState<ComponentAccessibility>('external');
+    const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
+    const [repository, setRepository] = useState<string>('');
+    const [showRepoSelector, setShowRepoSelector] = useState<boolean>(false);
+    const [selectedBranch, setSelectedBranch] = useState<string>('');
+    const [folderName, setFolderName] = useState<string>(name);
+
+    useEffect(() => {
+        if (isChoreoProject && choreoProject) {
+            ChoreoWebViewAPI.getInstance().getProjectRepository(choreoProject?.id).then((repo: any) => {
+                if (repo) {
+                    setRepository(repo);
+                }
+            });
+        }
+    }, [isChoreoProject, choreoProject]);
+
+    useEffect(() => {
+        if (name) {
+            setFolderName(name);
+        }
+    }, [name]);
+
+    useEffect(() => {
+        if (isChoreoProject && choreoProject) {
+            setProjectId(choreoProject?.id);
+        }
+    }, [isChoreoProject, choreoProject]);
+
+    const canCreateComponent = name && projectId && accessibility && selectedType && selectedBranch && folderName;
+
+    const handleComponentCreation = async () => {
+        if (canCreateComponent) {
+            setProgressStatus(true);
+            await ChoreoWebViewAPI.getInstance().createComponent({
+                name: name,
+                projectId: projectId,
+                type: selectedType,
+                accessibility: accessibility,
+                description: description ?? '',
+                repositoryInfo: {
+                    org: repository.split('/')[0],
+                    repo: repository.split('/')[1],
+                    branch: selectedBranch,
+                    subPath: folderName
+                }
+            }).then(() => {
+                setProgressStatus(false);
+                closeWebView();
+            }).catch((err: Error) => {
+                ChoreoWebViewAPI.getInstance().showErrorMsg(err.message);
+            });
+        }
+    };
+
+
+    const closeWebView = () => {
+        ChoreoWebViewAPI.getInstance().closeWebView();
+    };
+
+    const handleRepoSelection = (org?: string, repo?: string) => {
+        if (org && repo) {
+            setRepository(`${org}/${repo}`);
+        }
+    };
 
     return (
         <>
             {loginStatus !== "LoggedIn" && <SignIn />}
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
-                    <h2>New Choreo Component</h2>
-                    <ProjectSelector />
-                    <VSCodeTextField autofocus placeholder="Name">Component Name</VSCodeTextField>
-                    <VSCodeTextArea autofocus placeholder="Description">Description</VSCodeTextArea>
+                    <h2>Create New Choreo Component {(isChoreoProject && choreoProject) ? ` in ${choreoProject?.name} Project` : ''}</h2>
+                    {!isChoreoProject && <ProjectSelector currentProject={projectId} setProject={setProjectId} />}
+                    <ComponentTypeSelector selectedType={selectedType} onChange={setSelectedType} />
+                    <VSCodeTextField
+                        autofocus
+                        placeholder="Name"
+                        onInput={(e: any) => setName(e.target.value)}
+                        value={name}
+                    >
+                        Component Name
+                    </VSCodeTextField>
+                    <VSCodeTextArea
+                        autofocus
+                        placeholder="Description"
+                        onInput={(e: any) => setDescription(e.target.value)}
+                        value={description}
+                    >
+                        Description
+                    </VSCodeTextArea>
 
                     <label htmlFor="access-mode">Access Mode</label>
-                    <VSCodeDropdown id="access-mode">
-                        <VSCodeOption><b>External:</b> API is publicly accessible</VSCodeOption>
-                        <VSCodeOption><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
+                    <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
+                        <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
+                        <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
                     </VSCodeDropdown>
 
+                    <VSCodePanels>
+                        <VSCodePanelView title="Repository Configuration">
+                            <RepoInfoContainer>
+                                <label htmlFor="repository">Selected Repository</label>
+                                <VSCodeTextField id="repository" value={repository} readOnly={!showRepoSelector} />
+                                <VSCodeLink onClick={() => setShowRepoSelector(!showRepoSelector)}>{showRepoSelector ? 'Hide Repositories' : 'Show Repositories'}</VSCodeLink>
+                                {showRepoSelector && <GithubRepoSelector onRepoSelect={handleRepoSelection} />}
+                                <GithubRepoBranchSelector repository={repository} onBranchSelected={setSelectedBranch} />
+                                <VSCodeTextField
+                                    placeholder="subfolder"
+                                    onInput={(e: any) => setFolderName(e.target.value)}
+                                    value={folderName}
+                                >
+                                    Sub Folder
+                                </VSCodeTextField>
+                            </RepoInfoContainer>
+                        </VSCodePanelView>
+                    </VSCodePanels>
 
                     <ActionContainer>
-                        <VSCodeButton appearance="secondary">Cancel</VSCodeButton>
-                        <VSCodeButton appearance="primary">Create</VSCodeButton>
+                        <VSCodeButton
+                            appearance="secondary"
+                            onClick={closeWebView}
+                        >
+                            Cancel
+                        </VSCodeButton>
+                        {inProgress && <VSCodeProgressRing />}
+                        <VSCodeButton
+                            appearance="primary"
+                            disabled={!canCreateComponent}
+                            onClick={handleComponentCreation}
+                        >
+                            Create
+                        </VSCodeButton>
                     </ActionContainer>
                 </WizardContainer>
             )}

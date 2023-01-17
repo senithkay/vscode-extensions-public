@@ -11,9 +11,9 @@
  *  associated services.
  */
 import * as assert from 'assert';
-
+import { suite } from 'mocha';
 import * as vscode from 'vscode';
 
 suite('Extension Test Suite', () => {
-	
+
 });

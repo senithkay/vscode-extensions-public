@@ -12,6 +12,8 @@
  */
 export type ChoreoLoginStatus = 'Initializing' | 'LoggingIn' | 'LoggedIn' | 'LoggedOut';
 
+export type ComponentAccessibility = 'internal' | 'external';
+
 export interface Owner {
     id: string;
     idpId: string;
@@ -19,7 +21,7 @@ export interface Owner {
 }
 
 export interface Organization {
-    id: string;
+    id: number;
     uuid: string;
     handle: string;
     name: string;
@@ -67,10 +69,13 @@ export interface Component {
     displayName: string;
     displayType: string;
     version: string;
-    createdAt: Date;
+    createdAt?: Date;
     orgHandler: string;
-    repository: Repository;
+    repository?: Repository;
     apiVersions: ApiVersion[];
+    // To store the accessibility of the component which are not created using Choreo
+    accessibility?: string;
+    local?: boolean;
 }
 
 export interface Repository {
@@ -125,4 +130,32 @@ export interface WorkspaceItem {
 }
 export interface WorkspaceConfig {
     folders: WorkspaceItem[];
+    metadata?: {
+        choreo?: {
+            projectID: string;
+            orgId: number;
+            monoRepo?: string;
+        }
+    }
+}
+
+export enum ChoreoServiceComponentType {
+    REST_API = 'REST_API',
+    GQL_API = 'GQL_API',
+    WEBSOCKET_API = 'WEBSOCKET_API',
+    GRPC_API = 'GRPC_API',
+}
+
+export interface ComponentWizardInput {
+    name: string;
+    projectId: string;
+    description: string;
+    type: ChoreoServiceComponentType;
+    accessibility: ComponentAccessibility;
+    repositoryInfo: {
+        org: string;
+        repo: string;
+        branch: string;
+        subPath: string;
+    }
 }

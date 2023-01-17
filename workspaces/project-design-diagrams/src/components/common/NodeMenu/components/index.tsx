@@ -19,3 +19,4 @@
 
 export { Go2SourceWidget } from './Go2SourceButton';
 export { LinkingWidget } from './LinkingButton';
+export { AddConnectorWidget } from './AddConnectorButton';

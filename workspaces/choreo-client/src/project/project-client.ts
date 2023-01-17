@@ -12,16 +12,14 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository } from "@wso2-enterprise/choreo-core";
-import { ComponentMutationParams, CreateProjectParams, IChoreoProjectClient, LinkRepoMutationParams } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "./types";
 import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './project-queries';
-import { getCreateProjectMutation } from './project-mutations';
-import { ITokenStorage } from '../auth';
-
-export const PROJECTS_API_URL = 'https://apis.choreo.dev/projects/1.0.0/graphql';
+import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
+import { IReadOnlyTokenStorage } from '../auth';
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
-    constructor(private _tokenStore: ITokenStorage, private _baseURL: string = PROJECTS_API_URL) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {
     }
 
     private async _getClient() {
@@ -37,19 +35,20 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         return client;
     }
 
-    async getProjects(orgId: string): Promise<Project[]> {
-        const query = getProjectsByOrgIdQuery(orgId);
+    async getProjects(params: GetProjectsParams): Promise<Project[]> {
+        const query = getProjectsByOrgIdQuery(params.orgId);
         try {
             const client = await this._getClient();
             const data = await client.request(query);
             return data.projects;
         } catch (error) {
-            throw new Error("Error while fetching projects.", { cause: error });
+            throw new Error("Error while fetching projects. ", { cause: error });
         }
 
     }
 
-    async getComponents(orgHandle: string, projId: string): Promise<Component[]> {
+    async getComponents(params: GetComponentsParams): Promise<Component[]> {
+        const { orgHandle, projId } = params;
         const query = getComponentsByProjectIdQuery(orgHandle, projId);
         try {
             const client = await this._getClient();
@@ -60,7 +59,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async createProject(params: CreateProjectParams): Promise<Project[]> {
+    async createProject(params: CreateProjectParams): Promise<Project> {
         const mutation = getCreateProjectMutation(params);
         try {
             const client = await this._getClient();
@@ -72,8 +71,17 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    createComponent(_params: ComponentMutationParams): Promise<Component> {
-        throw new Error("Method not implemented."); // TODO: Summaya
+    async createComponent(params: CreateComponentParams): Promise<Component> {
+        const mutation = getCreateComponentMutation(params);
+        console.log(mutation);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            console.log(data);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

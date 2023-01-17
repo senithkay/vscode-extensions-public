@@ -55,12 +55,14 @@ export class ServiceNodeModel extends SharedNodeModel {
 
 	getServiceType = (): ServiceTypes => {
 		if (this.serviceObject.serviceType) {
-			if (this.serviceObject.serviceType.includes('/grpc:')) {
+			if (this.serviceObject.serviceType.includes('ballerina/grpc:')) {
 				return ServiceTypes.GRPC;
-			} else if (this.serviceObject.serviceType.includes('/http:')) {
+			} else if (this.serviceObject.serviceType.includes('ballerina/http:')) {
 				return ServiceTypes.HTTP;
-			} else if (this.serviceObject.serviceType.includes('/graphql:')) {
+			} else if (this.serviceObject.serviceType.includes('ballerina/graphql:')) {
 				return ServiceTypes.GRAPHQL;
+			} else if (this.serviceObject.serviceType.includes('ballerina/websocket:')) {
+				return ServiceTypes.WEBSOCKET
 			}
 		}
 		return ServiceTypes.OTHER;

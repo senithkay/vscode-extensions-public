@@ -12,7 +12,7 @@
  */
 import { gql } from 'graphql-request';
 
-export function getProjectsByOrgIdQuery(orgId: string) {
+export function getProjectsByOrgIdQuery(orgId: number) {
     return gql`
         query {
             projects(orgId: ${orgId}) {

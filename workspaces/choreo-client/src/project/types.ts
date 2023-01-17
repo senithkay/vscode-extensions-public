@@ -10,16 +10,30 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-
 import { Project, Component, Repository } from "@wso2-enterprise/choreo-core";
 
 export interface CreateProjectParams {
     name: string;
     description: string;
     orgId: number;
-    orgHandler: string;
+    orgHandle: string;
     version?: string;
     region?: string;
+}
+
+export interface CreateComponentParams {
+    name: string;
+    displayName: string;
+    displayType: string;
+    description: string;
+    orgId: number;
+    orgHandle: string;
+    projectId: string;
+    accessibility: string;
+    srcGitRepoUrl: string;
+    repositorySubPath: string;
+    repositoryType: string;
+    repositoryBranch: string;
 }
 
 export interface ComponentMutationParams {
@@ -35,13 +49,22 @@ export interface LinkRepoMutationParams {
     repoPath: string;
 }
 
-export interface IChoreoProjectClient  {
+export interface GetProjectsParams {
+    orgId: number;
+}
+
+export interface GetComponentsParams {
+    orgHandle: string;
+    projId: string;
+}
+
+export interface IChoreoProjectClient {
     // queries
-    getProjects(orgId: string): Promise<Project[]>;
-    getComponents(orgHandle: string, projId: string): Promise<Component[]>;
+    getProjects(params: GetProjectsParams): Promise<Project[]>;
+    getComponents(params: GetComponentsParams): Promise<Component[]>;
 
     // mutations
-    createProject(params: CreateProjectParams): Promise<Project[]>;
+    createProject(params: CreateProjectParams): Promise<Project>;
     createComponent(params: ComponentMutationParams): Promise<Component>;
     linkRepo(params: LinkRepoMutationParams): Promise<Repository>;
 }

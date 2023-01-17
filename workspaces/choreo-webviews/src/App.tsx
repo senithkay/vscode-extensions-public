@@ -16,6 +16,7 @@ import { ComponentWizard } from "./ComponentWizard/ComponentWizard";
 import { ChoreoWebViewContext } from "./context/choreo-web-view-ctx";
 import { usePopulateContext } from "./hooks/context-populate";
 import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
+import { ProjectOverview } from "./ProjectOverview/ProjectOverview";
 
 export const Main = styled.main`
   display: flex;
@@ -25,6 +26,18 @@ export const Main = styled.main`
   height: 100vh;
 `;
 
+// switch between 
+function switchViews(props: ChoreoWebViewsProps) {
+  switch (props.type) {
+    case 'ProjectCreateForm':
+      return <ProjectWizard />;
+    case 'ComponentCreateForm':
+      return <ComponentWizard />;
+    case 'ProjectOverview':
+      return <ProjectOverview projectId={props.projectId} orgName={props.orgName} />;
+  }
+}
+
 function App(props: ChoreoWebViewsProps) {
 
   const contextVal = usePopulateContext();
@@ -32,10 +45,7 @@ function App(props: ChoreoWebViewsProps) {
   return (
     <Main>
       <ChoreoWebViewContext.Provider value={contextVal}>
-        {props.type === 'ProjectCreateForm' ? 
-          <ProjectWizard /> :
-          <ComponentWizard />
-        }
+        {switchViews(props)}
       </ChoreoWebViewContext.Provider>
     </Main>
   );
