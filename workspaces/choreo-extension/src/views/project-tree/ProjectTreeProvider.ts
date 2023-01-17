@@ -35,7 +35,16 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     }
 
     getTreeItem(element: TreeItem): TreeItem | Thenable<TreeItem> {
-        return element;
+        return new Promise(async (resolve, reject) => {
+            const isChoreoProject = await ext.api.isChoreoProject();
+            if (isChoreoProject) {
+                const project = await ext.api.getChoreoProject();
+                if (element instanceof ChoreoProjectTreeItem && project && project.id === element.project.id) {
+                    element.description = element.description + " (opened)";
+                }
+                resolve(element);
+            }
+        });
     }
 
     getChildren(element?: TreeItem): ProviderResult<ProjectTreeItem[]> {

@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ChoreoLoginStatus, Organization } from "@wso2-enterprise/choreo-core";
+import { ChoreoLoginStatus, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { useState, useEffect } from "react";
 import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -23,6 +23,25 @@ export function usePopulateContext(): IChoreoWebViewContext {
     const [selectedOrg, setSelectedOrg] = useState<Organization | undefined>(undefined);
     const [userOrgs, setUserOrgs] = useState<Organization[] | undefined>(undefined);
     const [error, setError] = useState<Error | undefined>(undefined);
+    const [isChoreoProject, setIsChoreoProject] = useState<boolean | undefined>(undefined);
+    const [choreoProject, setChoreoProject] = useState<Project | undefined>(undefined);
+
+    useEffect(() => {
+      const rpcInstance = ChoreoWebViewAPI.getInstance();
+      const checkIsChoreoProject = async () => {
+        try {
+          const isChoreoProject = await rpcInstance.isChoreoProject();
+          setIsChoreoProject(isChoreoProject);
+          if (isChoreoProject) {
+            const choreoProject = await rpcInstance.getChoreoProject();
+            setChoreoProject(choreoProject);
+          }
+        } catch (err: any) {
+          setError(err);
+        }
+      }
+      checkIsChoreoProject();
+    }, []);
   
     useEffect(() => {
       const rpcInstance = ChoreoWebViewAPI.getInstance();
@@ -62,6 +81,8 @@ export function usePopulateContext(): IChoreoWebViewContext {
         fetchingOrgInfo,
         selectedOrg,
         userOrgs,
-        error
+        error,
+        isChoreoProject,
+        choreoProject
     }
 }

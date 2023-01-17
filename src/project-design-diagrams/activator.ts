@@ -40,7 +40,7 @@ export interface STResponse {
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     context = <ExtensionContext>ballerinaExtInstance.context;
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand("ballerina.view.ProjectDesigns", () => {
+    const designDiagramRenderer = commands.registerCommand("ballerina.view.architectureView", () => {
         ballerinaExtInstance.onReady()
             .then(() => {
                 if (isCompatible(ballerinaExtInstance)) {
@@ -80,8 +80,8 @@ function setupWebviewPanel() {
         designDiagramWebview.reveal();
     } else {
         designDiagramWebview = window.createWebviewPanel(
-            "ballerinaProjectDesign",
-            "Ballerina Project Design",
+            "architectureView",
+            "Architecture View",
             { viewColumn: ViewColumn.One, preserveFocus: false },
             getCommonWebViewOptions()
         );

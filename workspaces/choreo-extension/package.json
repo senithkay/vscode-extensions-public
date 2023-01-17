@@ -17,7 +17,8 @@
   "activationEvents": [
     "onCommand:wso2.choreo.sign.in",
     "onView:choreo-projects",
-    "onView:choreo-account"
+    "onView:choreo-account",
+    "*"
   ],
   "main": "./dist/extension.js",
   "extensionDependencies": [
@@ -115,14 +116,6 @@
         {
           "command": "wso2.choreo.org.setAsSelected",
           "when": "view == choreo-account && viewItem == choreo.org"
-        },
-        {
-          "command": "wso2.choreo.component.clone",
-          "when": "view == choreo-projects && viewItem == choreo.component"
-        },
-        {
-          "command": "wso2.choreo.project.clone",
-          "when": "view == choreo-projects && viewItem == choreo.project"
         }
       ]
     }

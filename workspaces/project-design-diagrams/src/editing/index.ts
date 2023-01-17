@@ -17,5 +17,5 @@
  *
  */
 
-export { AddButton } from './AddBtn/AddBtn';
+export { ControlsLayer } from './ControlsLayer/Controls';
 export { EditForm } from './EditForm/EditForm';

@@ -11,11 +11,12 @@
  *  associated services.
  */
 
-import { Project } from "./types";
+import { Project, Component } from "./types";
 
 export interface IProjectManager {
     // TODO Summayya: Add remaining methods
     createComponent(componentDetails: unknown): Promise<string>;
     getProjectDetails(): Promise<Project>;
     getProjectRoot(): Promise<string | undefined>;
+    getLocalComponents(workspaceFilePath: string): Component[];
 }

@@ -22,29 +22,44 @@ import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
 import styled from '@emotion/styled';
 import { Colors } from '../../resources';
+import { SxProps } from '@mui/material';
 
 const Container = styled.div`
-    position: absolute;
+    position: ${(props: { letFloat: boolean }) => props.letFloat ? 'relative' : 'absolute'};
     bottom: 15px;
     left: 15px;
 `;
 
-export function AddButton(props: { onClick: () => void }) {
-    const { onClick } = props;
+const ButtonStyles: SxProps = {
+    backgroundColor: Colors.PRIMARY,
+    borderRadius: '2px',
+    color: 'white',
+    fontSize: '12px',
+    marginInline: '2.5px',
+    '&:hover': {
+        backgroundColor: '#4958ba'
+    }
+};
+
+interface ControlsProps {
+    onComponentAddClick: () => void;
+    float?: boolean;
+}
+
+export function ControlsLayer(props: ControlsProps) {
+    const { onComponentAddClick, float } = props;
 
     return (
-        <Container onClick={onClick}>
+        <Container letFloat={float}>
             <Fab
                 aria-label='add'
-                sx={{
-                    backgroundColor: Colors.PRIMARY,
-                    color: 'white',
-                    '&:hover': {
-                        backgroundColor: '#4958ba'
-                    }
-                }}
+                variant='extended'
+                size='small'
+                onClick={onComponentAddClick}
+                sx={ButtonStyles}
             >
-                <AddIcon />
+                <AddIcon sx={{ marginRight: '5px' }} />
+                Component
             </Fab>
         </Container>
     )

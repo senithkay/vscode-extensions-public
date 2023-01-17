@@ -16,23 +16,35 @@ import { useEffect, useState } from "react";
 import { Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
-export function ProjectSelector() {
+interface SelectorProps {
+    currentProject: string | undefined;
+    setProject: (project: string) => void;
+}
+
+export function ProjectSelector(props: SelectorProps) {
+    const { currentProject, setProject } = props
     const [projects, setProjects] = useState<Project[] | undefined>(undefined);
 
     useEffect(() => {
         const rpcInstance = ChoreoWebViewAPI.getInstance();
         rpcInstance.getAllProjects().then((fetchedProjects) => {
             setProjects(fetchedProjects);
+            if (fetchedProjects.length > 0) {
+                setProject(fetchedProjects[0].id);
+            }
         })
-    }, [])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <>
             <label htmlFor="project-dropdown">Select Project</label>
             {!projects && <VSCodeProgressRing />}
             {projects && (
-                <VSCodeDropdown id="project-dropdown">
-                    {projects?.map((project) => (<VSCodeOption>{project.name}</VSCodeOption>))}
+                <VSCodeDropdown id="project-dropdown" onChange={(e: any) => { setProject(e.target.value) }}>
+                    {projects?.map((project: Project) => (
+                        <VSCodeOption value={project.id} selected={currentProject === project.id}>{project.name}</VSCodeOption>
+                    ))}
                 </VSCodeDropdown>
             )}
         </>

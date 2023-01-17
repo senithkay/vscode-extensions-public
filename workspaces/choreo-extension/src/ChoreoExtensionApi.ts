@@ -10,15 +10,19 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Disposable, EventEmitter } from 'vscode';
+import { Disposable, EventEmitter, workspace } from 'vscode';
 import { ext } from "./extensionVariables";
 
-import { IProjectManager, Organization, Project, ChoreoLoginStatus } from "@wso2-enterprise/choreo-core";
+import { IProjectManager, Organization, Project, ChoreoLoginStatus, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { exchangeAuthToken } from "./auth/auth";
+import { readFileSync } from 'fs';
+import { ProjectRegistry } from './registry/project-registry';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
     waitForLogin(): Promise<boolean>;
+    isChoreoProject(): Promise<boolean>;
+    getChoreoProject(): Promise<Project | undefined>;
 }
 
 export class ChoreoExtensionApi {
@@ -90,8 +94,30 @@ export class ChoreoExtensionApi {
         }
     }
 
-    public isChoreoProject(): Promise<boolean> {
-        return Promise.resolve(false);
+    public async isChoreoProject(): Promise<boolean> {
+        const workspaceFile = workspace.workspaceFile;
+        if (workspaceFile) {
+            const workspaceFilePath = workspaceFile.fsPath;
+            const workspaceFileContent = readFileSync(workspaceFilePath, 'utf8');
+            const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
+            return workspaceConfig && workspaceConfig.metadata?.choreo?.projectID !== undefined;
+        }
+        return false;
+    }
+
+    public async getChoreoProject(): Promise<Project|undefined> {
+        const workspaceFile = workspace.workspaceFile;
+        if (workspaceFile) {
+            const workspaceFilePath = workspaceFile.fsPath;
+            const workspaceFileContent = readFileSync(workspaceFilePath, 'utf8');
+            const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
+            const projectID = workspaceConfig.metadata?.choreo?.projectID,
+                  orgId = workspaceConfig.metadata?.choreo?.orgId;
+            if (projectID && orgId) {
+                await ProjectRegistry.getInstance().sync();
+                return ProjectRegistry.getInstance().getProject(projectID, orgId);
+            }
+        }
     }
 
     public getProjectManager(projectId: string): Promise<IProjectManager | undefined> {

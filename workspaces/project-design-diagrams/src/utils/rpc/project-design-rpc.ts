@@ -21,6 +21,7 @@ import { Messenger } from 'vscode-messenger-webview';
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { WebviewApi } from 'vscode-webview';
 import { AddComponentDetails, ComponentModel, Service } from '../../resources';
+import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export class ProjectDesignRPC {
     private readonly _messenger: Messenger;
@@ -51,6 +52,18 @@ export class ProjectDesignRPC {
         return this._messenger.sendRequest({ method: 'getProjectRoot' }, HOST_EXTENSION, '');
     }
 
+    public async getConnectors(params: BallerinaConnectorsRequest): Promise<BallerinaConnectorsResponse> {
+        return this._messenger.sendRequest({ method: 'getConnectors' }, HOST_EXTENSION, [params]);
+    }
+
+    public async pullConnector(connector: Connector, targetService: Service): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'pullConnector' }, HOST_EXTENSION, [connector, targetService]);
+    }
+
+    public async addConnector(connector: Connector, targetService: Service): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'addConnector' }, HOST_EXTENSION, [connector, targetService]);
+    }
+
     public async addLink(source: Service, target: Service): Promise<boolean> {
         return this._messenger.sendRequest({ method: 'addLinks' }, HOST_EXTENSION, [source, target]);
     }
@@ -61,5 +74,21 @@ export class ProjectDesignRPC {
 
     public async fetchComponentModels(): Promise<Map<string, ComponentModel>> {
         return this._messenger.sendRequest({ method: 'getProjectResources' }, HOST_EXTENSION, '');
+    }
+
+    public async isChoreoProject(): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'isChoreoProject' }, HOST_EXTENSION, '');
+    }
+
+    public async executeCommand(cmd: string): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'executeCommand' }, HOST_EXTENSION, cmd);
+    }
+
+    public async showChoreoProjectOverview(): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'showChoreoProjectOverview' }, HOST_EXTENSION, '');
+    }
+
+    public showErrorMessage(msg: string) {
+        this._messenger.sendNotification({ method: 'showErrorMsg' }, HOST_EXTENSION, msg);
     }
 }
