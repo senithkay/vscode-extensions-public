@@ -32,12 +32,13 @@ export interface LetExpressionTreeWidgetProps {
     letVarDecls: DMLetVarDecl[];
     engine: DiagramEngine;
     context: IDataMapperContext;
+    isWithinQuery: boolean;
     getPort: (portId: string) => RecordFieldPortModel;
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
 }
 
 export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
-    const { engine, letVarDecls, context, getPort, handleCollapse } = props;
+    const { engine, letVarDecls, context, isWithinQuery, getPort, handleCollapse } = props;
     const classes = useStyles();
     const hasLetDecls = letVarDecls.length > 0;
 
@@ -51,11 +52,13 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                 <TreeContainer>
                     <LocalVarsHeader>
                         <HeaderText>Local Variables</HeaderText>
-                        <IconButton
-                            onClick={onClick}
-                        >
-                            <SquareEditIcon color={"#3d3b3b"} />
-                        </IconButton>
+                        {!isWithinQuery && (
+                            <IconButton
+                                onClick={onClick}
+                            >
+                                <SquareEditIcon color={"#3d3b3b"} />
+                            </IconButton>
+                        )}
                     </LocalVarsHeader>
                     {letVarDecls.map(decl => {
                         const isExprPlaceholder = decl.declaration.expression.source.trim() === "EXPRESSION";
@@ -78,7 +81,7 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                         );
                     })}
                 </TreeContainer>
-            ) : (
+            ) : !isWithinQuery && (
                 <LocalVarAddButton>
                     <Button
                         aria-label="add"
