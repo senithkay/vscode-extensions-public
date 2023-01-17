@@ -327,7 +327,7 @@ function DataMapperC(props: DataMapperProps) {
 
                     const selectedST = selection.selectedST.stNode;
                     const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                    await recordTypeDescriptors.storeTypeDescriptors(selectedST, context, isArraysSupported(ballerinaVersion));
+                    await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
 
                     const nodeInitVisitor = new NodeInitVisitor(context, selection);
                     traversNode(selectedST, nodeInitVisitor);

@@ -70,7 +70,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                     isAnonymous={node.entityObject.isAnonymous}
                     onClick={isClickable ? () => { getTypeComposition(node.getID()) } : () => { }}
                 >
-                    {displayName}
+                    {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
                 </EntityName>
                 {isHovered && node.entityObject.elementLocation &&
                     <NodeMenuWidget
@@ -78,7 +78,6 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                         location={node.entityObject.elementLocation}
                     />
                 }
-                {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
             <EntityPortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

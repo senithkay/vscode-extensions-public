@@ -39,6 +39,7 @@ export class LetExpressionNodeFactory extends AbstractReactFactory<LetExpression
                 context={event.model.context}
                 getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
                 handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                isWithinQuery={event.model.isWithinQuery}
             />
         );
     }

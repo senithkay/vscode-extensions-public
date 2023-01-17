@@ -87,24 +87,36 @@ jobs:
             https://uploads.github.com/repos/wso2/ballerina-plugin-vscode/releases/$id/assets?name=${{ steps.vsix.outputs.vsixName }}`         
       
       - name: Commit version
+        id: commit
         run: |
           git config --global user.name 'GithubAction'
           git config --global user.email 'action@github.com'
-          git commit -am "Update version"
-          git push
+          git add *.json
+          git commit -m "Update version to v${{ steps.vsix.outputs.version }}"
+          git checkout -b "v${{ steps.vsix.outputs.version }}"
+          git remote set-url origin https://x-access-token:${{secrets.GITHUB_TOKEN}}@github.com/$GITHUB_REPOSITORY.git
+          git tag v${{ steps.vsix.outputs.version }}
+          git push origin "refs/heads/v${{ steps.vsix.outputs.version }}" "refs/tags/v${{ steps.vsix.outputs.version }}"
+          pr=$(gh pr create -B main -H "v${{ steps.vsix.outputs.version }}" --title 'Merge "v${{ steps.vsix.outputs.version }}" into main' --body '$subject')
+          echo "prURL=$pr" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Release Notification"
         run: |
           body=$(cat << EOF
           {
             "cards": [
-              {
+              { 
+                "header": {
+                    "title": "New Release"
+                },
                 "sections": [
                   {
                     "widgets": [
                       {
                         "keyValue": {
-                          "topLabel": "New Release",
+                          "topLabel": "VSIX",
                           "content": "v${{ steps.vsix.outputs.version }}",
                           "onClick": {
                             "openLink": {
@@ -118,6 +130,22 @@ jobs:
                               "onClick": {
                                 "openLink": {
                                   "url": "https://github.com/wso2/ballerina-plugin-vscode/releases/download/v${{ steps.vsix.outputs.version }}/${{ steps.vsix.outputs.vsixName }}"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "keyValue": {
+                          "topLabel": "Pull Request",
+                          "content": "${{ steps.commit.outputs.prURL }}",
+                          "button": {
+                            "textButton": {
+                              "text": "Merge",
+                              "onClick": {
+                                "openLink": {
+                                  "url": "${{ steps.commit.outputs.prURL }}"
                                 }
                               }
                             }
