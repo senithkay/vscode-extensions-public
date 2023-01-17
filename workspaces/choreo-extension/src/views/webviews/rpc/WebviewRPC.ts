@@ -73,6 +73,7 @@ export class WebViewRpc {
                         projectId: args.projectId,
                         name: args.name,
                         displayType: args.type,
+                        description: args.description,
                         accessibility: args.accessibility,
                         workspaceFilePath: workspaceFilePath,
                         repositoryInfo: args.repositoryInfo

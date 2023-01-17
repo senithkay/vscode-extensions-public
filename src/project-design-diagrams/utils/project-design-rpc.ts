@@ -18,11 +18,11 @@
  */
 
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
-import { Project } from "@wso2-enterprise/choreo-core";
+import { BallerinaComponentCreationParams, ChoreoComponentCreationParams, Project } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { BallerinaProjectManager } from "./manager";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
-import { AddComponentDetails, ComponentModel, Service } from "../resources";
+import { ComponentModel, Service } from "../resources";
 import { ExtendedLangClient } from "src/core";
 import { addConnector, linkServices, pullConnector } from "./code-generator";
 import { getProjectResources } from "./utils";
@@ -60,8 +60,14 @@ export class ProjectDesignRPC {
             this._projectManager = new BallerinaProjectManager();
         }
 
-        this._messenger.onRequest({ method: 'createComponent' }, (addComponentDetails: AddComponentDetails): Promise<string> => {
-            return this._projectManager.createComponent(addComponentDetails);
+        this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string> => {
+            if (this._projectManager instanceof ChoreoProjectManager && 'repositoryInfo' in args) {
+                return this._projectManager.createComponent(args);
+            } else if (this._projectManager instanceof BallerinaProjectManager && 'directory' in args) {
+                return this._projectManager.createComponent(args);
+            } else {
+                window.showErrorMessage('Error while creating component.');
+            }
         });
 
         this._messenger.onRequest({ method: 'getProjectDetails' }, (): Promise<unknown> => {

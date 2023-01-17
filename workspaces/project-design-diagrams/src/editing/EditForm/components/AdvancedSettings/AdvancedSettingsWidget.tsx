@@ -18,10 +18,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { TextInputWidget } from '../InputWidget/TextInput';
 import { DirectoryPicker } from './DirectoryPicker';
 import { VisibilityButton } from '../Controls/VisibilityButton';
-import { AddComponentDetails } from '../../../../resources';
 import { ProjectDesignRPC } from '../../../../utils/rpc/project-design-rpc';
 import {
     OrganizationRegex, OrganizationRules, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex
@@ -29,7 +29,7 @@ import {
 import { AdvancedSettings, AdvancedControlsHeader, TitleText } from '../../resources/styles';
 
 interface AdvancedSettingsProps {
-    component: AddComponentDetails;
+    component: BallerinaComponentCreationParams;
     updatePackage: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     updateOrganization: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     updateVersion: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;

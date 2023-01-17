@@ -139,14 +139,6 @@ export interface ServiceModels {
     levelTwo: DiagramModel;
 }
 
-export interface AddComponentDetails {
-    name: string;
-    version: string;
-    org: string;
-    package: string;
-    directory: string;
-}
-
 export interface Location {
     filePath: string;
     startPosition: LinePosition;

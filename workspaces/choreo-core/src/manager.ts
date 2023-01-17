@@ -11,12 +11,35 @@
  *  associated services.
  */
 
-import { Project, Component } from "./types";
+import { Project, Component, Organization, ChoreoServiceComponentType, ComponentAccessibility } from "./types";
 
 export interface IProjectManager {
-    // TODO Summayya: Add remaining methods
-    createComponent(componentDetails: unknown): Promise<string>;
+    createComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string>;
     getProjectDetails(): Promise<Project>;
     getProjectRoot(): Promise<string | undefined>;
     getLocalComponents(workspaceFilePath: string): Component[];
+}
+
+export interface ChoreoComponentCreationParams {
+    org: Organization;
+    projectId: string;
+    displayType: ChoreoServiceComponentType;
+    name: string;
+    description: string;
+    accessibility: ComponentAccessibility;
+    workspaceFilePath: string;
+    repositoryInfo: {
+        org: string;
+        repo: string;
+        branch: string;
+        subPath: string;
+    };
+}
+
+export interface BallerinaComponentCreationParams {
+    name: string;
+    version: string;
+    org: string;
+    package: string;
+    directory: string;
 }

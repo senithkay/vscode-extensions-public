@@ -37,14 +37,6 @@ interface LinePosition {
     offset: number;
 }
 
-export interface AddComponentDetails {
-    name: string;
-    version: string;
-    org: string;
-    package: string;
-    directory: string;
-}
-
 export interface DeploymentMetadata {
     gateways: {
         internet: {

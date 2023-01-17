@@ -20,7 +20,6 @@
 export { Colors, Level, ServiceTypes, Views } from './model';
 
 export type {
-    AddComponentDetails,
     Attribute,
     Cardinality,
     ComponentModel,

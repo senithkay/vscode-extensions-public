@@ -11,28 +11,12 @@
  *  associated services.
  */
 
-import { ChoreoServiceComponentType, ComponentAccessibility, IProjectManager, Organization, Project, Component } from "@wso2-enterprise/choreo-core";
+import { ChoreoServiceComponentType, ComponentAccessibility, IProjectManager, Project, Component, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
 import { log } from "console";
 import { randomUUID } from "crypto";
 import child_process from "child_process";
 import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync, writeFileSync } from "fs";
 import path, { join } from "path";
-
-export interface ComponentCreationParams {
-    org: Organization;
-    projectId: string;
-    displayType: ChoreoServiceComponentType;
-    name: string;
-    description: string;
-    accessibility: ComponentAccessibility;
-    workspaceFilePath: string;
-    repositoryInfo: {
-        org: string;
-        repo: string;
-        branch: string;
-        subPath: string;
-    };
-}
 
 interface WorkspaceFileContent {
     folders: Folder[]
@@ -63,8 +47,8 @@ export interface ComponentMetadata {
 }
 
 export class ChoreoProjectManager implements IProjectManager {
-    createComponent(_addComponentDetails: unknown): Promise<string> {
-        return ChoreoProjectManager._createComponent(_addComponentDetails as ComponentCreationParams);
+    createComponent(params: ChoreoComponentCreationParams): Promise<string> {
+        return ChoreoProjectManager._createComponent(params);
     }
     getProjectDetails(): Promise<Project> {
         throw new Error("choreo getProjectDetails method not implemented.");
@@ -72,7 +56,7 @@ export class ChoreoProjectManager implements IProjectManager {
     getProjectRoot(): Promise<string | undefined> {
         throw new Error("choreo getProjectRoot method not implemented.");
     }
-    private static _createComponent(args: ComponentCreationParams): Promise<string> {
+    private static _createComponent(args: ChoreoComponentCreationParams): Promise<string> {
         return new Promise((resolve, reject) => {
             const { displayType, org, workspaceFilePath, repositoryInfo } = args;
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
@@ -159,7 +143,7 @@ export class ChoreoProjectManager implements IProjectManager {
         });
     }
 
-    private static _addToWorkspace(workspaceFilePath: string, args: ComponentCreationParams) {
+    private static _addToWorkspace(workspaceFilePath: string, args: ChoreoComponentCreationParams) {
         const { org, repositoryInfo, name, displayType, description, projectId, accessibility } = args;
 
         readFile(workspaceFilePath, 'utf-8', function (err, contents) {
