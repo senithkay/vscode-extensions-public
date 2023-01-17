@@ -95,6 +95,10 @@ export class DataMapper {
         this.getForm().contains("Save").should('not.be.disabled').click({force: true});
     }
 
+    static confirmSaveConfig = () => {
+        cy.contains("Continue").click({force: true});
+    }
+
     static openConfigureMenu = () => cy.contains("Configure").click()
 
     static getSourceNode = (name: string) => cy.get(`[data-testid="${name}-node"]`)
