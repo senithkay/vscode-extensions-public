@@ -104,6 +104,7 @@ const FIELD_COMPLETION_KIND = 5;
 const VARIABLE_COMPLETION_KIND = 6;
 export const PROPERTY_COMPLETION_KIND = 10;
 const TYPE_COMPLETION_KIND = 11;
+const TYPE_COMPLETION_KIND2 = 25;
 const VALUE_COMPLETION_KIND = 12;
 const ENUM_MEMBER_COMPLETION_KIND = 20;
 const STRUCT_COMPLETION_KIND = 22;
@@ -166,6 +167,7 @@ export enum SymbolParameterType {
 
 export const acceptedCompletionKindForTypes : number[] = [
     TYPE_COMPLETION_KIND,
+    TYPE_COMPLETION_KIND2,
     STRUCT_COMPLETION_KIND
 ];
 
