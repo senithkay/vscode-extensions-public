@@ -19,15 +19,13 @@
 
 import React from "react";
 
-import { Box, FormLabel, ThemeProvider, Tooltip, Typography } from "@material-ui/core";
+import { Box, FormLabel, ThemeProvider, Typography } from "@material-ui/core";
 
-import { InfoIcon } from "../../../assets/icons";
 import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
 import OutlinedLabel from "../OutlinedLabel";
 
 import { theme } from "./style";
-
 export interface FieldLabelProps {
     name: string;
     type: string;
@@ -46,20 +44,23 @@ export function FieldLabel(props: FieldLabelProps) {
     return (
         <Box className={classes.labelCont}>
             <Box className={classes.mainLabel}>
-                <FormLabel
-                    component="div"
-                    className={classes.mainLabelText}
-                >
-                    {fieldLabel}
-                </FormLabel>
-                {getDescription(description, classes)}
+                <ThemeProvider theme={theme}>
+                    <FormLabel
+                        component="div"
+                        className={classes.mainLabelText}
+                        required={required}
+                    >
+                        {fieldLabel}
+                    </FormLabel>
+                </ThemeProvider>
                 <OutlinedLabel
                     type="success"
                     label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType}
                     tooltipText={type === ConfigType.NUMBER ? ConfigType.FLOAT : type}
-                    shape="none"
+                    shape="square"
                 />
             </Box>
+            {getDescription(description, classes)}
         </Box>
     );
 }
@@ -67,11 +68,14 @@ export function FieldLabel(props: FieldLabelProps) {
 export const getDescription = (description: string, classes: ReturnType<typeof useStyles>) => {
     if (description) {
         return (
-            <Tooltip title={description} placement="right-start">
-                <Box className={classes.descriptionLabel}>
-                    <InfoIcon />
-                </Box>
-            </Tooltip>
+            <Box className={classes.descriptionLabel}>
+                <Typography
+                    component="div"
+                    className={classes.descriptionLabelText}
+                >
+                    {description}
+                </Typography>
+            </Box>
         );
     }
 };

@@ -19,35 +19,12 @@
 
 import React, { ReactElement, useEffect, useState } from "react";
 
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Collapse,
-    Grid,
-    IconButton,
-    List,
-    ListItem,
-    ListItemIcon,
-    ListItemText,
-    MenuItem,
-    Popover,
-    TextField,
-    Typography,
-} from "@material-ui/core";
-import ExpandLess from "@material-ui/icons/ExpandLess";
-import ExpandMore from "@material-ui/icons/ExpandMore";
+import { Box, Card, CardContent, Grid } from "@material-ui/core";
 
-import { SelectIcon } from "../../../assets/icons";
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-import OutlinedLabel from "../../elements/OutlinedLabel";
-import PopOverComponent, {
-    PopOverComponentProps,
-} from "../../elements/PopOverComponent";
 import { SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
 import { getConfigProperties, getRecordName } from "../../utils";
@@ -64,51 +41,6 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const returnElement: ReactElement[] = [];
     const [arrayValues, setArrayValues] = useState<ConfigElementProps[]>([]);
     const [counter, setCounter] = useState(arrayValues.length + 1);
-    const isLowCode = props.isLowCode;
-    const isInsideArray = props.isInsideArray;
-    const isFeaturePreview = props.isFeaturePreview;
-    const connectionConfigs = props.connectionConfig;
-    const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
-    const [connectionAnchorEl, setConnectionAnchorEl] =
-        React.useState<HTMLButtonElement | null>(null);
-    const open = Boolean(anchorEl);
-    const textId = open ? "simple-popover" : undefined;
-    const connectionOpen = Boolean(connectionAnchorEl);
-    const connectionId = open ? "simple-popover" : undefined;
-    const [openElement, setOpenElement] = React.useState(true);
-    const [openPopover, setOpenPopover] = React.useState(true);
-
-    const [selectedValue, setSelectedValue] = useState(props.value);
-    const [arrayValue, setArrayValue] = useState(props.value);
-    const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
-    const [openConnection, setOpenConnection] = React.useState(true);
-
-    const handleClickOpenConnection = () => {
-        setOpenConnection(!openConnection);
-    };
-
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleValueAdd = () => {
-        setSelectedValue(arrayValue);
-        setAnchorEl(null);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const handleConnectionClick = (
-        connectionEvent: React.MouseEvent<HTMLButtonElement>,
-    ) => {
-        setConnectionAnchorEl(connectionEvent.currentTarget);
-    };
-
-    const handleConnectionClose = () => {
-        setConnectionAnchorEl(null);
-    };
 
     const elementSchema: object[] = props.schema[SchemaConstants.ITEMS];
 
@@ -116,8 +48,6 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         arrayType: props.arrayType,
         description: props.description,
         id: props.id,
-        isFeaturePreview: props.isFeaturePreview,
-        isInsideArray: true,
         isRequired: props.isRequired,
         name: props.name,
         type: props.type,
@@ -130,19 +60,12 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
             let newCounter = counter;
             let configProperties: ConfigElementProps[];
             if (elementSchema[SchemaConstants.PROPERTIES]) {
-                configProperties = getConfigProperties(
-                    elementSchema,
-                    props.connectionConfig,
-                    props.isFeaturePreview,
-                    props.id + "-" + newCounter,
-                ).properties;
+                configProperties = getConfigProperties(elementSchema, props.id + "-" + newCounter).properties;
             }
             Object.keys(props.value).forEach((key) => {
                 const objectArrayProps: ObjectArrayProps = {
                     description: props.schema[SchemaConstants.DESCRIPTION],
                     id: props.id + "-" + newCounter,
-                    isFeaturePreview: props.isFeaturePreview,
-                    isInsideArray: true,
                     isRequired: true,
                     name: "",
                     properties: configProperties,
@@ -161,17 +84,11 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const addArrayElememt = () => {
         let propertiesValue: ConfigElementProps[];
         if (elementSchema[SchemaConstants.PROPERTIES]) {
-            propertiesValue = getConfigProperties(
-                elementSchema,
-                props.connectionConfig,
-                props.isFeaturePreview,
-                props.id + "-" + counter,
-            ).properties;
+            propertiesValue = getConfigProperties(elementSchema, props.id + "-" + counter).properties;
         }
         const objectArrayProps: ObjectArrayProps = {
             description: props.schema[SchemaConstants.DESCRIPTION],
             id: props.id + "-" + counter,
-            isFeaturePreview: props.isFeaturePreview,
             isRequired: true,
             name: "",
             properties: propertiesValue,
@@ -202,32 +119,6 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     };
 
     useEffect(() => {
-        let fullValue = "[ ";
-        for (const key in arrayValue) {
-            if (arrayValue.hasOwnProperty(key)) {
-                key === "0"
-                    ? (fullValue = fullValue + arrayValue[key])
-                    : (fullValue = fullValue + ", " + arrayValue[key]);
-            }
-        }
-        fullValue = fullValue + " ]";
-        setSelectedValue(fullValue);
-    }, [selectedValue]);
-
-    useEffect(() => {
-        let fullValue = "[ ";
-        for (const key in arrayValue) {
-            if (arrayValue.hasOwnProperty(key)) {
-                key === "0"
-                    ? (fullValue = fullValue + arrayValue[key])
-                    : (fullValue = fullValue + ", " + arrayValue[key]);
-            }
-        }
-        fullValue = fullValue + " ]";
-        setSelectedValue(fullValue);
-    }, [props.value]);
-
-    useEffect(() => {
         const newArrayValues: ConfigElementProps[] = [];
         arrayValues.forEach((entry) => {
             if (entry.properties !== undefined && entry.properties.length > 0) {
@@ -236,7 +127,6 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
             newArrayValues.push(entry);
         });
         element.value = newArrayValues;
-        setArrayValue(newArrayValues);
         props.setArrayElement(props.id, element);
     }, [arrayValues]);
 
@@ -248,208 +138,50 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
 
         returnElement.push(
             (
-                <Box key={arrayElement.id} display="flex">
-                    <Box key={arrayElement.id + "-ENTRY"} flexGrow={1}>
-                        <ObjectType {...objectTypeProps} />
-                    </Box>
-                    <Box pt={1}>
-                        <DeleteButton
-                            onDelete={removeArrayElement}
-                            id={arrayElement.id}
-                        />
-                    </Box>
-                </Box>
+                <Grid
+                    key={arrayElement.id}
+                    container={true}
+                    spacing={1}
+                    direction="row"
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    <Grid item={true} xs={11}>
+                        <Box key={arrayElement.id + "-ENTRY"}>
+                            <ObjectType {...objectTypeProps} />
+                        </Box>
+                    </Grid>
+                    <Grid item={true} xs={1}>
+                        <DeleteButton onDelete={removeArrayElement} id={arrayElement.id}/>
+                    </Grid>
+                </Grid>
             ),
         );
     });
 
-    const onSelected =
-        (index: string, mappingName: string, valueReference: string) => () => {
-            setSelectedValue(mappingName);
-            setSelectedValueRef(valueReference);
-            setConnectionAnchorEl(null);
-        };
-
-    const getConnection = connectionConfigs?.map((connections, index) => {
-        return (
-            <Box key={index} className={classes.accordionBox}>
-                <ListItem button={true} className={classes.accordion}>
-                    <ListItemText
-                        key={index}
-                        primary={connections.name}
-                        className={classes.heading}
-                        onClick={handleClickOpenConnection}
-                    />
-                    {openConnection ? <ExpandLess /> : <ExpandMore />}
-                </ListItem>
-                {connections.configurationData.map(
-                    (
-                        connectionFields: {
-                            configKey: string;
-                            valueType: string;
-                            valueRef: string;
-                        },
-                        sIndex: React.Key,
-                    ) => {
-                        return (
-                            <Collapse
-                                key={sIndex}
-                                in={openConnection}
-                                timeout="auto"
-                                unmountOnExit={true}
-                            >
-                                <List component="div" disablePadding={true}>
-                                    <MenuItem
-                                        button={true}
-                                        value={connectionFields.configKey}
-                                        className={classes.menuItem}
-                                        id={
-                                            "${" +
-                                            connections.name +
-                                            "." +
-                                            connectionFields.configKey +
-                                            "}"
-                                        }
-                                        onClick={onSelected(
-                                            connectionFields.configKey,
-                                            "${" +
-                                                connections.name +
-                                                "." +
-                                                connectionFields.configKey +
-                                                "}",
-                                            connectionFields.valueRef,
-                                        )}
-                                        title={connectionFields.valueRef}
-                                    >
-                                        <Box
-                                            className={classes.connectionField}
-                                        >
-                                            <ListItemText
-                                                key={sIndex}
-                                                primary={
-                                                    connectionFields.configKey.split(".").pop() +
-                                                    ":"
-                                                }
-                                            />
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
-                                        </Box>
-                                    </MenuItem>
-                                </List>
-                            </Collapse>
-                        );
-                    },
-                )}
-            </Box>
-        );
-    });
-
-    const iconButton = (
-        <Box>
-            <IconButton
-                size={"small"}
-                className={classes.buttonConnections}
-                data-toggle="tooltip"
-                data-placement="top"
-                onClick={handleConnectionClick}
-            >
-                <SelectIcon />
-            </IconButton>
-        </Box>
-    );
-
-    const popOverComponent = (
-        <PopOverComponent
-            id={textId}
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            onValueAdd={handleValueAdd}
-            returnElement={returnElement}
-            addArrayElememt={addArrayElememt}
-        />
-    );
-
-    const typeLabel: string =
-        props.schema[SchemaConstants.ITEMS][SchemaConstants.NAME];
+    const typeLabel: string = props.schema[SchemaConstants.ITEMS][SchemaConstants.NAME];
     const { fullRecordName, shortenedRecordName } = getRecordName(typeLabel);
     const fieldLabelProps: FieldLabelProps = {
         description: props.description,
         name: props.name,
         required: props.isRequired,
-        shortenedType:
-            (shortenedRecordName ? shortenedRecordName : "map") + " [ ]",
+        shortenedType: (shortenedRecordName ? shortenedRecordName : "map") + " [ ]",
         type: (fullRecordName ? fullRecordName : "map") + " [ ]",
     };
 
     return (
-        <Box mb={2}>
-            <Box display="flex" alignItems="center">
-                <Box flex="0 0 150px">
-                    <FieldLabel {...fieldLabelProps} />
-                </Box>
-
-                <Box
-                    flexGrow={1}
-                    display="flex"
-                    gridGap={4}
-                    alignItems="center"
-                >
-                    <Box flexGrow={1}>
-                        <TextField
-                            variant="outlined"
-                            fullWidth={true}
-                            margin="none"
-                            size="small"
-                            classes={{
-                                root: classes.textInputRoot,
-                            }}
-                            placeholder={"Select config or Add values"}
-                            InputLabelProps={{ shrink: false }}
-                            data-cyid={name}
-                            aria-describedby={textId}
-                            onClick={handleClick}
-                            value={selectedValue}
-                        />
+        <Box className={classes.innerBoxCard}>
+            <Card variant="outlined">
+                <CardContent className={classes.cardContent}>
+                    <FieldLabel {...fieldLabelProps}/>
+                    <Box className={classes.formInputBox}>
+                        {returnElement}
                     </Box>
-                    {!isInsideArray &&
-                        !isLowCode &&
-                        !isFeaturePreview &&
-                        iconButton}
-                </Box>
-            </Box>
-            <Box>
-                <Popover
-                    id={connectionId}
-                    open={connectionOpen}
-                    anchorEl={connectionAnchorEl}
-                    onClose={handleConnectionClose}
-                    anchorOrigin={{
-                        horizontal: "right",
-                        vertical: "bottom",
-                    }}
-                    transformOrigin={{
-                        horizontal: "right",
-                        vertical: "top",
-                    }}
-                    className={classes.popOver}
-                >
-                    <Box>
-                        <Typography className={classes.popOver}>
-                            {getConnection}
-                        </Typography>
-                    </Box>
-                </Popover>
-                {popOverComponent}
-            </Box>
+                    <div key={props.id + "-ADD"}>
+                        <AddInputButton onAdd={addArrayElememt} />
+                    </div>
+                </CardContent>
+            </Card>
         </Box>
     );
 };

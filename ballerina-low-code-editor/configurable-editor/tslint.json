@@ -7,7 +7,6 @@
     ],
     "jsRules": {},
     "rules": {
-        "jsx-no-multiline-js": false,
         "interface-name": false,
         "no-submodule-imports": [
             true,

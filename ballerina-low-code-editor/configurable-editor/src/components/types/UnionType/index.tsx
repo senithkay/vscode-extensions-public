@@ -44,10 +44,8 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
     const { typeMap, shortenedTypeMap } = getTypeMap(schema, props.id);
 
     const unionValue: ConfigElementProps = {
-        connectionConfig: props.connectionConfig,
         description: props.description,
         id: props.id,
-        isFeaturePreview: props.isFeaturePreview,
         isRequired: props.isRequired,
         name: props.name,
         schema: props.schema,
@@ -66,14 +64,11 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         const configProperty = property[SchemaConstants.PROPERTIES];
         let configProperties: ConfigElementProps[];
         if (configProperty) {
-            configProperties = getConfigProperties(property, props.connectionConfig,
-                                                   props.isFeaturePreview, props.id).properties;
+            configProperties = getConfigProperties(property, props.id).properties;
         }
         const configElementProps: ConfigElementProps = {
-            connectionConfig: props.connectionConfig,
             description: element.description,
             id: element.id,
-            isFeaturePreview: element.isFeaturePreview,
             isRequired: element.isRequired,
             name: element.name,
             properties: configProperties,
@@ -135,14 +130,8 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
 
     return(
         <div key={props.id + "-FIELD"}>
-            <Box display="flex" alignItems="center" mb={1}>
-                <Box flex="0 0 150px">
-                    <FieldLabel {...fieldLabelProps} />
-                </Box>
-                <Box flexGrow={1}>
-                    <RadioGroupInput {...radioGroupInputProps}/>
-                </Box>
-            </Box>
+            <FieldLabel {...fieldLabelProps} />
+            <RadioGroupInput {...radioGroupInputProps}/>
             <Box>
                 {getFieldElement}
             </Box>

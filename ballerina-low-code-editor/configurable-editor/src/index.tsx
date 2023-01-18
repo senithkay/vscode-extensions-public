@@ -23,34 +23,29 @@ import ReactDOM from "react-dom";
 import ConfigEditor from "./components/ConfigEditor";
 import { ConfigElementProps } from "./components/ConfigElement";
 import { ConfigForm } from "./components/ConfigForm";
-import { ConfigSchema, ConnectionSchema } from "./components/model";
+import { ConfigSchema } from "./components/model";
 
 export { ConfigForm, ConfigElementProps, ConfigSchema };
 
 export function renderConfigEditor(
-    connectionConfigData: ConnectionSchema[],
     data: ConfigSchema,
     existingConfigs: object,
     defaultButtonText: string,
     primaryButtonText: string,
     onClickDefaultButton: () => void,
     onClickPrimaryButton: (configProperties: ConfigElementProps) => void,
-    isLowCode: boolean,
-    isFeaturePreview: boolean,
 ) {
     ReactDOM.render(
             (
             <ConfigEditor>
                 <ConfigForm
                     configSchema={data}
-                    connectionConfig={connectionConfigData}
                     existingConfigs={existingConfigs}
                     defaultButtonText={defaultButtonText}
                     primaryButtonText={primaryButtonText}
                     onClickDefaultButton={onClickDefaultButton}
                     onClickPrimaryButton={onClickPrimaryButton}
-                    isLowCode={isLowCode}
-                    isFeaturePreview={isFeaturePreview}
+                    isLowCode={true}
                 />
             </ConfigEditor>
         ),
