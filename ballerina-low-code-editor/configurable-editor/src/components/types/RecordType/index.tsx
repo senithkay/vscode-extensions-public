@@ -39,15 +39,13 @@ export interface RecordTypeProps extends ObjectTypeProps {
 
 export const RecordType = (props: RecordTypeProps) => {
     const classes = useStyles();
-    const connectionConfigs = props.connectionConfig;
     const { fullRecordName, shortenedRecordName } = getRecordName(props.schema[SchemaConstants.NAME]);
-    const [recordValue, setRecordValue] =
-        useState<ConfigElementProps>(getObjectElement(props, fullRecordName, connectionConfigs));
+    const [recordValue, setRecordValue] = useState<ConfigElementProps>(getObjectElement(props, fullRecordName));
     const [expanded, setExpanded] = useState(true);
     const returnElement: ReactElement[] = [];
 
     useEffect(() => {
-        setRecordValue(getObjectElement(props, fullRecordName, connectionConfigs));
+        setRecordValue(getObjectElement(props, fullRecordName));
     }, [props.unionId]);
 
     useEffect(() => {
@@ -108,8 +106,8 @@ export const RecordType = (props: RecordTypeProps) => {
     return (
         <Box className={classes.innerBoxCard}>
             <Card variant="outlined">
-                <Box>
-                    <Box className={classes.valueInnerBoxHead}>
+                <CardContent className={classes.cardContent}>
+                    <Box className={classes.innerBoxHead}>
                         <FieldLabel {...fieldLabelProps} />
                         {docLink && triggerDocIconButton}
                         <ExpandMore
@@ -118,11 +116,9 @@ export const RecordType = (props: RecordTypeProps) => {
                         />
                     </Box>
                     <Collapse in={expanded} timeout="auto" unmountOnExit={false}>
-                        <Box p={2} borderTop="1px solid #E0E2E9">
-                            {returnElement}
-                        </Box>
+                        {returnElement}
                     </Collapse>
-                </Box>
+                </CardContent>
             </Card>
         </Box>
     );
@@ -147,15 +143,11 @@ function updateRecordValue(recordObject: ConfigElementProps, id: string, value: 
     return recordObject;
 }
 
-function getObjectElement(configObject: ConfigElementProps, recordName: string,
-                          connectionConfigs: any): ConfigElementProps {
-    const nestedProperties: ConfigElementProps[] = getNestedElements(configObject.properties, connectionConfigs);
+function getObjectElement(configObject: ConfigElementProps, recordName: string): ConfigElementProps {
+    const nestedProperties: ConfigElementProps[] = getNestedElements(configObject.properties);
     return {
-        connectionConfig: connectionConfigs,
         description: configObject.description,
         id: configObject.id,
-        isFeaturePreview: configObject.isFeaturePreview,
-        isInsideArray: false,
         isRequired: configObject.isRequired,
         name: configObject.name,
         properties: nestedProperties,
@@ -164,20 +156,17 @@ function getObjectElement(configObject: ConfigElementProps, recordName: string,
     };
 }
 
-function getNestedElements(nestedObjects: ConfigElementProps[], connectionConfigs: any): ConfigElementProps[] {
+function getNestedElements(nestedObjects: ConfigElementProps[]): ConfigElementProps[] {
     if (nestedObjects === undefined) {
         return;
     }
 
     const properties: ConfigElementProps[] = [];
     nestedObjects.forEach((property) => {
-        const nestedProperties: ConfigElementProps[] = getNestedElements(property.properties, connectionConfigs);
+        const nestedProperties: ConfigElementProps[] = getNestedElements(property.properties);
         properties.push({
-            connectionConfig: connectionConfigs,
             description: property.description,
             id: property.id,
-            isFeaturePreview: property.isFeaturePreview,
-            isInsideArray: false,
             isRequired: property.isRequired,
             name: property.name,
             properties: nestedProperties,

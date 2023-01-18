@@ -28,7 +28,7 @@ export interface ToggleButtonInputProps {
     id: string;
     existingValue: boolean;
     isRequired: boolean;
-    setToggleButtonValue: (id: string, value: boolean, valueRef: any) => void;
+    setToggleButtonValue: (id: string, value: boolean) => void;
 }
 
 export function ToggleButtonInput(props: ToggleButtonInputProps) {
@@ -58,7 +58,7 @@ export function ToggleButtonInput(props: ToggleButtonInputProps) {
     };
 
     useEffect(() => {
-        setToggleButtonValue(id, getBooleanValue(inputValue), inputValue);
+        setToggleButtonValue(id, getBooleanValue(inputValue));
     }, [inputValue]);
 
     return (

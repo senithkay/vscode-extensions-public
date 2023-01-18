@@ -80,21 +80,3 @@ export interface ConfigSchema {
     type: string;
     properties: object;
 }
-
-/**
- * An interface representing the connection schema json object.
- */
-export interface ConnectionSchema {
-    name: string;
-    uuid: string;
-    configurationData: GlobalConfigurationData[];
-}
-
-/**
- * An interface representing the global configuration data json object.
- */
-export interface GlobalConfigurationData {
-    configKey: string;
-    valueType: string;
-    valueRef: string;
-}
