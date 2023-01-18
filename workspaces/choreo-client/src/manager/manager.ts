@@ -12,8 +12,8 @@
  */
 
 import {
-    ChoreoComponentCreationParams, ChoreoServiceComponentType, Component, ComponentAccessibility, IProjectManager,
-    Project, RepositoryDetails
+    ChoreoComponentCreationParams, ChoreoServiceComponentType, Component, IProjectManager,
+    Project, RepositoryDetails, WorkspaceConfig, WorkspaceComponentMetadata
 } from "@wso2-enterprise/choreo-core";
 import { log } from "console";
 import { randomUUID } from "crypto";
@@ -21,34 +21,6 @@ import child_process from "child_process";
 import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync, writeFileSync } from "fs";
 import path, { join } from "path";
 import { workspace } from "vscode";
-
-interface WorkspaceFileContent {
-    folders: Folder[]
-}
-
-interface Folder {
-    path: string;
-    name?: string;
-    metadata?: ComponentMetadata;
-}
-
-export interface ComponentMetadata {
-    org: {
-        id: number;
-        handle: string;
-    };
-    displayName: string;
-    displayType: ChoreoServiceComponentType;
-    description: string;
-    projectId: string;
-    accessibility: ComponentAccessibility;
-    repository: {
-        orgApp: string;
-        nameApp: string;
-        branchApp: string;
-        appSubPath: string;
-    };
-}
 
 export class ChoreoProjectManager implements IProjectManager {
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
@@ -164,9 +136,10 @@ export class ChoreoProjectManager implements IProjectManager {
                 if (err) {
                     reject(new Error("Error: Could not read workspace file."));
                 }
-                const content: WorkspaceFileContent = JSON.parse(contents);
+                const content: WorkspaceConfig = JSON.parse(contents);
                 content.folders.push({
                     path: join(join(join('repos', repositoryInfo.org), repositoryInfo.repo), repositoryInfo.subPath),
+                    name: repositoryInfo.subPath,
                     metadata: {
                         org: {
                             id: org.id,
@@ -197,10 +170,10 @@ export class ChoreoProjectManager implements IProjectManager {
         })
     }
 
-    public getComponentMetadata(workspaceFilePath: string): ComponentMetadata[] {
+    public getComponentMetadata(workspaceFilePath: string): WorkspaceComponentMetadata[] {
         const contents = readFileSync(workspaceFilePath);
-        const content: WorkspaceFileContent = JSON.parse(contents.toString());
-        const componentMetadata: ComponentMetadata[] = [];
+        const content: WorkspaceConfig = JSON.parse(contents.toString());
+        const componentMetadata: WorkspaceComponentMetadata[] = [];
         content.folders.forEach(folder => {
             if (folder.metadata !== undefined) {
                 componentMetadata.push(folder.metadata);
@@ -211,7 +184,7 @@ export class ChoreoProjectManager implements IProjectManager {
 
     public getLocalComponents(workspaceFilePath: string): Component[] {
         const contents = readFileSync(workspaceFilePath);
-        const content: WorkspaceFileContent = JSON.parse(contents.toString());
+        const content: WorkspaceConfig = JSON.parse(contents.toString());
         const components: Component[] = [];
         content.folders.forEach((folder) => {
             if (folder.metadata !== undefined) {
@@ -249,9 +222,9 @@ export class ChoreoProjectManager implements IProjectManager {
         return content.replace(preText, processedText);
     }
 
-    removeLocalComponent(workspaceFilePath: string, component: ComponentMetadata): void {
+    removeLocalComponent(workspaceFilePath: string, component: WorkspaceComponentMetadata): void {
         const contents = readFileSync(workspaceFilePath);
-        const content: WorkspaceFileContent = JSON.parse(contents.toString());
+        const content: WorkspaceConfig = JSON.parse(contents.toString());
         const index = content.folders.findIndex(folder => folder.metadata?.displayName === component.displayName);
         if (index > -1) {
             content.folders[index].metadata = undefined;

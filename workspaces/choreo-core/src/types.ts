@@ -127,6 +127,7 @@ export interface ComponentDetailed extends Component {
 export interface WorkspaceItem {
     name: string;
     path: string;
+    metadata?: WorkspaceComponentMetadata;
 }
 export interface WorkspaceConfig {
     folders: WorkspaceItem[];
@@ -137,6 +138,23 @@ export interface WorkspaceConfig {
             monoRepo?: string;
         }
     }
+}
+export interface WorkspaceComponentMetadata {
+    org: {
+        id: number;
+        handle: string;
+    };
+    displayName: string;
+    displayType: ChoreoServiceComponentType;
+    description: string;
+    projectId: string;
+    accessibility: ComponentAccessibility;
+    repository: {
+        orgApp: string;
+        nameApp: string;
+        branchApp: string;
+        appSubPath: string;
+    };
 }
 
 export enum ChoreoServiceComponentType {
