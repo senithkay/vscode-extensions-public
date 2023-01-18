@@ -153,10 +153,12 @@ export interface ChoreoComponentCreationParams {
     description: string;
     displayType: ChoreoServiceComponentType;
     accessibility: ComponentAccessibility;
-    repositoryInfo: {
-        org: string;
-        repo: string;
-        branch: string;
-        subPath: string;
-    }
+    repositoryInfo: RepositoryDetails;
+}
+
+export interface RepositoryDetails {
+    org: string;
+    repo: string;
+    branch: string;
+    subPath: string;
 }

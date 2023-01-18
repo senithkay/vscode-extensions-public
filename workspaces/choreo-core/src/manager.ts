@@ -20,13 +20,6 @@ export interface IProjectManager {
     getLocalComponents(workspaceFilePath: string): Component[];
 }
 
-export interface RepositoryDetails {
-    org: string;
-    repo: string;
-    branch: string;
-    subPath: string;
-}
-
 export interface BallerinaComponentCreationParams {
     name: string;
     version: string;
