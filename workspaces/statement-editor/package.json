@@ -114,11 +114,6 @@
         "webpack-dev-server": "^4.1.1",
         "mousetrap": "^1.6.5"
     },
-    "peerDependencies": {
-        "@material-ui/core": "^4.9.13",
-        "react": "^17.0.1",
-        "react-dom": "^17.0.1"
-    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/wso2-enterprise/ballerina-low-code-editor.git"
