@@ -18,10 +18,10 @@
  */
 import React, { ReactElement } from "react";
 
-import { Box, Card, CardContent } from "@material-ui/core";
+import { Box, Card, CardContent, Grid } from "@material-ui/core";
 
 import { FieldLabel, FieldLabelProps } from "./elements/FieldLabel";
-import { ConfigType } from "./model";
+import { ConfigType, ConnectionSchema } from "./model";
 import { useStyles } from "./style";
 import ArrayType, { ArrayTypeProps } from "./types/ArrayType";
 import EnumType, { EnumTypeProps } from "./types/EnumType";
@@ -39,10 +39,15 @@ export interface ConfigElementProps {
     label?: string;
     unionId?: string;
     value?: any;
+    valueRef?: string;
     description?: string;
     placeholder?: string;
     arrayType?: ConfigType;
+    connectionConfig?: ConnectionSchema[];
     setConfigElement?: (id: string, value: any) => void;
+    isLowCode?: boolean;
+    isFeaturePreview?: boolean;
+    isInsideArray?: boolean;
 }
 
 export const ConfigElement = (props: ConfigElementProps): ReactElement => {
@@ -66,6 +71,7 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             const arrayTypeProps: ArrayTypeProps = {
                 ...props,
                 setArrayType: props.setConfigElement,
+                value: props.value !== undefined ? props.value : "",
             };
 
             return (
@@ -114,14 +120,19 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             const simpleTypeProp: SimpleTypeProps = {
                 ...props,
                 setSimpleConfig: props.setConfigElement,
+                value: props.value !== undefined ? props.value : "",
             };
 
             returnElement.push(
                 (
-                    <div key={props.id + "ELEMENT"}>
-                        <FieldLabel {...fieldLabelProps} />
-                        <SimpleType {...simpleTypeProp} />
-                    </div>
+                    <Box display="flex" alignItems="center">
+                        <Box flex="0 0 150px">
+                            <FieldLabel {...fieldLabelProps} />
+                        </Box>
+                        <Box flexGrow={1}>
+                            <SimpleType {...simpleTypeProp} />
+                        </Box>
+                    </Box>
                 ),
             );
             break;
@@ -129,12 +140,8 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
 
     if (returnElement.length > 0) {
         return (
-            <Box className={classes.innerBoxCard} key={props.id}>
-                <Card variant="outlined">
-                    <CardContent className={classes.cardContent}>
-                        {returnElement}
-                    </CardContent>
-                </Card>
+            <Box key={props.id} mb={2}>
+                {returnElement}
             </Box>
         );
     }
