@@ -11,26 +11,24 @@
  *  associated services.
  */
 import * as assert from 'assert';
-import { suite, setup, test } from 'mocha';
+import { suite } from 'mocha';
 import * as vscode from 'vscode';
-//import { ProjectRegistry } from '../../registry/project-registry';
+import { ext } from '../../src/extensionVariables';
 
-suite('Project Registry', function () {
-    //let projectRegistry: ProjectRegistry;
+suite('Extension', () => {
+    test('Activation', async () => {
+        const extension = vscode.extensions.getExtension('wso2.choreo');
+        assert.ok(extension?.isActive, "Extension is not active");
+    }); 
+    
+    test('Context', async () => {
+        const extensionAPI = ext;
+        assert.ok(extensionAPI.context, "Extension context is not set");
+    }); 
 
-    setup(function () {
-        //projectRegistry = ProjectRegistry.getInstance();
-    });
-
-    suite('location ', function () {
-        test('set and get', function () {
-            // const location = '/my/location';
-            // projectRegistry.setProjectLocation('project-id', location);
-            // const path = projectRegistry.getProjectLocation('project-id');
-            // assert.equal(path, location);
-        });
-
-    });
-
+    test('Status', async () => {
+        const extension = vscode.extensions.getExtension('wso2.choreo');
+        const extensionAPI = extension?.exports;
+        assert.ok(extensionAPI, "Extension API is not set");
+    }); 
 });
-
