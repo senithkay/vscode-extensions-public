@@ -10,11 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-
+/* eslint-disable react-hooks/exhaustive-deps */
 import { VSCodeButton, VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { useState, useEffect } from "react";
-import { Component, Project } from "@wso2-enterprise/choreo-core";
+import { Component, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
 import { Codicon } from "../Codicon/Codicon";
@@ -71,9 +71,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const rpcInstance = ChoreoWebViewAPI.getInstance();
     // Set the starting project with the project id passed by props
     useEffect(() => {
-        rpcInstance.getAllProjects().then((fetchedProjects) => {
-            setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
-        });
+        async function fetchProjects() {
+            const org: Organization = await rpcInstance.getCurrentOrg();
+            rpcInstance.getProjectClient().getProjects({
+                orgId: org.id
+            }).then((fetchedProjects) => {
+                setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
+            });
+        }
+        fetchProjects();
     }, []);
 
     // Set the components of the project
@@ -98,10 +104,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, []);
 
     // Listen to changes in project selection
-    rpcInstance.onSelectedProjectChanged((newProjectId) => {
+    rpcInstance.onSelectedProjectChanged(async (newProjectId) => {
         setComponents(undefined);
         // setProject(undefined); will not remove project to fix the glitch
-        rpcInstance.getAllProjects().then((fetchedProjects) => {
+        const org: Organization = await rpcInstance.getCurrentOrg();
+        rpcInstance.getProjectClient().getProjects({
+            orgId: org.id
+        }).then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
         });
         rpcInstance.getComponents(newProjectId).then(setComponents);
