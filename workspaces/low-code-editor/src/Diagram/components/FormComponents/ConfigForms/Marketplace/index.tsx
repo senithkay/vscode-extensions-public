@@ -159,11 +159,15 @@ export function Marketplace(props: MarketplaceProps) {
         if (!page) {
             centralModules.current.clear();
             response.central?.forEach((module) => {
-                centralModules.current.set(module.id, module);
+                if(module.id && haveConstruct(module)){
+                    centralModules.current.set(module.id, module);
+                }
             });
         } else if (response.central?.length > 0) {
             response.central.forEach((module) => {
-                centralModules.current.set(module.id, module);
+                if(module.id && haveConstruct(module)){
+                    centralModules.current.set(module.id, module);
+                }
             });
         } else {
             isLastPage.current = true;
@@ -178,6 +182,10 @@ export function Marketplace(props: MarketplaceProps) {
                 setIsSearchResultsFetching(false);
             }
         }
+    };
+
+    const haveConstruct = (module: BallerinaConstruct): boolean => {
+        return !(module.name === "Caller");
     };
 
     const preventDiagramScrolling = (e: SyntheticEvent) => {
