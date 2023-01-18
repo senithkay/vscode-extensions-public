@@ -360,11 +360,11 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
             if (outputChanged || inputsChanged) {
                 let confirmMessage = "";
                 if (outputChanged) {
-                    confirmMessage = "Modifying the output type will result in the function body to reset. "
+                    confirmMessage = "Modifying the output type will reset the function body. "
                 } else if (inputsChanged) {
-                    confirmMessage += "Modifying the existing input types might result in any exiting mappings to become invalid. "
+                    confirmMessage += "Modifying the existing input types might make any existing mappings invalid. "
                 }
-                confirmMessage += "Are you sure that you want to proceed?";
+                confirmMessage += "Are you sure you want to proceed?";
                 editConfirmMessage.current = confirmMessage;
                 setPopoverAnchorEl(event.currentTarget);
             } else {
