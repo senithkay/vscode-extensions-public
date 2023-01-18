@@ -82,7 +82,7 @@ jobs:
       - name: Publish low code diagram
         run: |
           cd ballerina-low-code-editor
-          npm version prerelease --preid beta --no-git-tag-version --workspaces
+          npm version ${{ github.event.inputs.version }} --preid beta --no-git-tag-version --workspaces
           npm publish --tag latest --workspaces
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
