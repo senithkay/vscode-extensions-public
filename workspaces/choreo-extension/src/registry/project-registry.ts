@@ -15,7 +15,7 @@ import { Component, Organization, Project, serializeError } from "@wso2-enterpri
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync } from 'fs';
-import { ChoreoProjectManager, ComponentMetadata } from "@wso2-enterprise/choreo-client/lib/manager/manager";
+import { ChoreoProjectManager, ComponentMetadata } from "@wso2-enterprise/choreo-client/lib/manager";
 import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
 
 // Key to store the project locations in the global state

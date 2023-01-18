@@ -17,7 +17,7 @@
  *
  */
 
-import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager/manager";
+import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { BallerinaComponentCreationParams, ChoreoComponentCreationParams, Project } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { BallerinaProjectManager } from "./manager";
