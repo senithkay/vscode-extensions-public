@@ -11,14 +11,13 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project, ChoreoComponentCreationParams, Component } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component } from './types';
 
 // request types 
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
 export const GetCurrentOrgRequest: RequestType<string, Organization> = { method: 'getCurrentOrg' };
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
-export const CreateLocalComponentRequest: RequestType<ChoreoComponentCreationParams, boolean> = { method: 'createLocalComponent' };
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
 export const GetProjectLocation: RequestType<string, string | undefined> = { method: 'getProjectLocation' };
 export const OpenExternal: RequestType<string, void> = { method: 'openExternal' };
