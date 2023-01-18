@@ -1,3 +1,7 @@
+import { createTheme, ThemeProvider  } from "@material-ui/core";
+
+import theme from "../src/stories/theme.json"
+
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
   controls: {
@@ -7,3 +11,11 @@ export const parameters = {
     },
   },
 }
+
+export const decorators = [
+  (Story) => (
+    <ThemeProvider theme={createTheme(theme)} >
+      <Story />
+    </ThemeProvider>
+  )
+];
