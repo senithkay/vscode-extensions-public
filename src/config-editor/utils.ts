@@ -253,5 +253,5 @@ function getLeafConfig(object: any, configProperty: ConfigProperty) {
 }
 
 function getSimpleTypeValue(value: any, type: string) {
-    return type === Constants.FLOAT ? value : JSON.stringify(value);
+    return type === Constants.FLOAT || type === Constants.INTEGER ? value : JSON.stringify(value);
 }

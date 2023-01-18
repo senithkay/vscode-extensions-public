@@ -117,9 +117,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     };
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        if (connectionConfigs.length > 0) {
-            setAnchorEl(event.currentTarget);
-        }
+        setAnchorEl(event.currentTarget);
     };
 
     const handleClose = () => {
@@ -127,7 +125,9 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     };
 
     const handleConnectionClick = (connectionEvent: React.MouseEvent<HTMLButtonElement>) => {
-        setConnectionAnchorEl(connectionEvent.currentTarget);
+        if (connectionConfigs.length > 0) {
+            setConnectionAnchorEl(connectionEvent.currentTarget);
+        }
     };
 
     const handleConnectionClose = () => {

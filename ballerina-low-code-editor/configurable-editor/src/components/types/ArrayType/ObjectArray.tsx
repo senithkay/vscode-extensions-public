@@ -88,9 +88,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     };
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-        if (connectionConfigs.length > 0) {
-            setAnchorEl(event.currentTarget);
-        }
+        setAnchorEl(event.currentTarget);
     };
 
     const handleValueAdd = () => {
@@ -105,7 +103,9 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        setConnectionAnchorEl(connectionEvent.currentTarget);
+        if (connectionConfigs.length > 0) {
+            setConnectionAnchorEl(connectionEvent.currentTarget);
+        }
     };
 
     const handleConnectionClose = () => {
