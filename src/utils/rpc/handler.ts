@@ -374,7 +374,18 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                 });
             });
         }
-    }
+    }, {
+        methodName: 'getGraphqlModel',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.onReady().then(() => {
+                return langClient.getGraphqlModel(args[0]).then(result => {
+                    consoleLog(start, 'getGraphqlModel');
+                    return Promise.resolve(result);
+                });
+            });
+        }
+        }
     ];
 };
 
