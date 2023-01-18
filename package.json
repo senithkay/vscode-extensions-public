@@ -626,7 +626,8 @@
         "workspaces/project-design-diagrams",
         "workspaces/choreo-client",
         "workspaces/choreo-webviews",
-        "workspaces/choreo-extension"
+        "workspaces/choreo-extension",
+        "workspaces/graphql-design-diagram"
     ],
     "scripts": {
         "prebuild": "npm run init-submodules && npm i --legacy-peer-deps",
