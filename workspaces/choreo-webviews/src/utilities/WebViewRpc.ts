@@ -61,7 +61,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
     }
 
-    public async createComponent(args: ComponentWizardInput): Promise<string> {
+    public async createComponent(args: ComponentWizardInput): Promise<boolean> {
         return this._messenger.sendRequest(CreateComponentRequest, HOST_EXTENSION, args);
     }
 
