@@ -103,7 +103,9 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        setConnectionAnchorEl(connectionEvent.currentTarget);
+        if (connectionConfigs.length > 0) {
+            setConnectionAnchorEl(connectionEvent.currentTarget);
+        }
     };
 
     const handleConnectionClose = () => {
@@ -118,6 +120,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         id: props.id,
         isFeaturePreview: props.isFeaturePreview,
         isInsideArray: true,
+        isLowCode: props.isLowCode,
         isRequired: props.isRequired,
         name: props.name,
         type: props.type,
@@ -134,6 +137,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                     elementSchema,
                     props.connectionConfig,
                     props.isFeaturePreview,
+                    props.isLowCode,
                     props.id + "-" + newCounter,
                 ).properties;
             }
@@ -143,6 +147,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                     id: props.id + "-" + newCounter,
                     isFeaturePreview: props.isFeaturePreview,
                     isInsideArray: true,
+                    isLowCode: props.isLowCode,
                     isRequired: true,
                     name: "",
                     properties: configProperties,
@@ -165,6 +170,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                 elementSchema,
                 props.connectionConfig,
                 props.isFeaturePreview,
+                props.isLowCode,
                 props.id + "-" + counter,
             ).properties;
         }
@@ -172,6 +178,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
             description: props.schema[SchemaConstants.DESCRIPTION],
             id: props.id + "-" + counter,
             isFeaturePreview: props.isFeaturePreview,
+            isLowCode: props.isLowCode,
             isRequired: true,
             name: "",
             properties: propertiesValue,

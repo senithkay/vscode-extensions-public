@@ -49,6 +49,7 @@ export enum Constants {
     OBJECT = "object",
     ARRAY_TYPE = "arrayType",
     FLOAT = "float",
+    INTEGER= "integer",
 }
 
 export enum Commands {
