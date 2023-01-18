@@ -53,14 +53,6 @@ jobs:
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
-      - name: Publish low code diagram
-        run: |
-          cd ballerina-low-code-editor
-          npm version prerelease --preid beta --no-git-tag-version --workspaces
-          npm publish --tag latest --workspaces
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
-
       - name: Get version
         id: vsix
         run: |
@@ -86,7 +78,15 @@ jobs:
            uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
             --data-binary @${{ steps.vsix.outputs.vsixName }} \
             https://uploads.github.com/repos/wso2/ballerina-plugin-vscode/releases/$id/assets?name=${{ steps.vsix.outputs.vsixName }}`         
-      
+
+      - name: Publish low code diagram
+        run: |
+          cd ballerina-low-code-editor
+          npm version prerelease --preid beta --no-git-tag-version --workspaces
+          npm publish --tag latest --workspaces
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+
       - name: Commit version
         id: commit
         run: |
