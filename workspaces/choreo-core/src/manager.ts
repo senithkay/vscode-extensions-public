@@ -11,24 +11,13 @@
  *  associated services.
  */
 
-import { Project, Component, Organization, ChoreoServiceComponentType, ComponentAccessibility } from "./types";
+import { Project, Component, ChoreoComponentCreationParams } from "./types";
 
 export interface IProjectManager {
-    createComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
+    createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
     getProjectDetails(): Promise<Project>;
     getProjectRoot(): Promise<string | undefined>;
     getLocalComponents(workspaceFilePath: string): Component[];
-}
-
-export interface ChoreoComponentCreationParams {
-    org: Organization;
-    projectId: string;
-    displayType: ChoreoServiceComponentType;
-    name: string;
-    description: string;
-    accessibility: ComponentAccessibility;
-    workspaceFilePath: string;
-    repositoryInfo: RepositoryDetails;
 }
 
 export interface RepositoryDetails {

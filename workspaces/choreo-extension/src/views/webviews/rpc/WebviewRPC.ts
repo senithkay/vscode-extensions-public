@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel, window, workspace, Uri, ProgressLocation } from "vscode";
+import { commands, WebviewPanel, window, Uri, ProgressLocation } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
@@ -20,13 +20,13 @@ import {
     CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
-    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo,
     OpenArchitectureView
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
-import { ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager';
+import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';
 
 import { ext } from "../../../extensionVariables";
 import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
@@ -60,27 +60,6 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getProjects(ext.api.selectedOrg.id);
-            }
-        });
-
-        // TODO: Refactor structure
-        this._messenger.onRequest(CreateComponentRequest, async (args: ComponentWizardInput) => {
-            if (ext.api.selectedOrg) {
-                const workspaceFilePath = workspace.workspaceFile?.fsPath;
-                if (workspaceFilePath) {
-                    return this._manager.createComponent({
-                        org: ext.api.selectedOrg,
-                        projectId: args.projectId,
-                        name: args.name,
-                        displayType: args.type,
-                        description: args.description,
-                        accessibility: args.accessibility,
-                        workspaceFilePath: workspaceFilePath,
-                        repositoryInfo: args.repositoryInfo
-                    });
-                } else {
-                    throw new Error("Failed to detect the project workpsace.");
-                }
             }
         });
 
@@ -150,7 +129,6 @@ export class WebViewRpc {
             });
         });
 
-
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
         });
@@ -178,5 +156,8 @@ export class WebViewRpc {
 
         // Register RPC handlers for Choreo Github app client
         registerChoreoGithubRPCHandlers(this._messenger, githubAppClient);
+
+        // Register RPC handlers for the Choreo Project Manager
+        registerChoreoProjectManagerRPCHandlers(this._messenger, this._manager);
     }
 }

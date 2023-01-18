@@ -146,11 +146,12 @@ export enum ChoreoServiceComponentType {
     GRPC_API = 'GRPC_API',
 }
 
-export interface ComponentWizardInput {
+export interface ChoreoComponentCreationParams {
     name: string;
     projectId: string;
+    org: Organization;
     description: string;
-    type: ChoreoServiceComponentType;
+    displayType: ChoreoServiceComponentType;
     accessibility: ComponentAccessibility;
     repositoryInfo: {
         org: string;

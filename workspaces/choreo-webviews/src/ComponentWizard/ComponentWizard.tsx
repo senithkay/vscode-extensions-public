@@ -85,10 +85,11 @@ export function ComponentWizard() {
     const handleComponentCreation = async () => {
         if (canCreateComponent) {
             setProgressStatus(true);
-            await ChoreoWebViewAPI.getInstance().createComponent({
+            await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent({
                 name: name,
                 projectId: projectId,
-                type: selectedType,
+                org: await ChoreoWebViewAPI.getInstance().getCurrentOrg(),
+                displayType: selectedType,
                 accessibility: accessibility,
                 description: description ?? '',
                 repositoryInfo: {

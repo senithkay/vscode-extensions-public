@@ -17,7 +17,7 @@
  *
  */
 
-import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
+import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager/manager";
 import { BallerinaComponentCreationParams, ChoreoComponentCreationParams, Project } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { BallerinaProjectManager } from "./manager";
@@ -63,9 +63,9 @@ export class ProjectDesignRPC {
 
         this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string|boolean> => {
             if (this._projectManager instanceof ChoreoProjectManager && 'repositoryInfo' in args) {
-                return this._projectManager.createComponent(args);
+                return this._projectManager.createLocalComponent(args);
             } else if (this._projectManager instanceof BallerinaProjectManager && 'directory' in args) {
-                return this._projectManager.createComponent(args);
+                return this._projectManager.createLocalComponent(args);
             }
             window.showErrorMessage('Error while creating component.');
         });

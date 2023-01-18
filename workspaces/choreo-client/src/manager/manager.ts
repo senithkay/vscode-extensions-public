@@ -12,14 +12,15 @@
  */
 
 import {
-    ChoreoComponentCreationParams, ChoreoServiceComponentType, Component, ComponentAccessibility,
-    IProjectManager, Project, RepositoryDetails
+    ChoreoComponentCreationParams, ChoreoServiceComponentType, Component, ComponentAccessibility, IProjectManager,
+    Project, RepositoryDetails
 } from "@wso2-enterprise/choreo-core";
 import { log } from "console";
 import { randomUUID } from "crypto";
 import child_process from "child_process";
 import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync, writeFileSync } from "fs";
 import path, { join } from "path";
+import { workspace } from "vscode";
 
 interface WorkspaceFileContent {
     folders: Folder[]
@@ -50,23 +51,28 @@ export interface ComponentMetadata {
 }
 
 export class ChoreoProjectManager implements IProjectManager {
-    async createComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
-        const { displayType, org, repositoryInfo, workspaceFilePath } = args;
-        const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
-        const pkgRoot = join(join(join(projectRoot, 'repos'), repositoryInfo.org), repositoryInfo.repo);
+    async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
+        const { displayType, org, repositoryInfo } = args;
+        if (workspace.workspaceFile) {
+            const workspaceFilePath = workspace.workspaceFile.fsPath;
+            const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
+            const pkgRoot = join(join(join(projectRoot, 'repos'), repositoryInfo.org), repositoryInfo.repo);
 
-        if (!existsSync(pkgRoot)) {
-            mkdirSync(pkgRoot);
-        }
+            if (!existsSync(pkgRoot)) {
+                mkdirSync(pkgRoot);
+            }
 
-        const resp: boolean = await ChoreoProjectManager._createBallerinaPackage(repositoryInfo.subPath, pkgRoot, displayType);
-        if (resp) {
-            const pkgPath = join(pkgRoot, repositoryInfo.subPath);
-            ChoreoProjectManager._processTomlFiles(pkgPath, org.name);
-            ChoreoProjectManager._addDisplayAnnotation(pkgPath, displayType, repositoryInfo);
-            return await ChoreoProjectManager._addToWorkspace(workspaceFilePath, args);
+            const resp: boolean = await ChoreoProjectManager._createBallerinaPackage(repositoryInfo.subPath, pkgRoot, displayType);
+            if (resp) {
+                const pkgPath = join(pkgRoot, repositoryInfo.subPath);
+                ChoreoProjectManager._processTomlFiles(pkgPath, org.name);
+                ChoreoProjectManager._addDisplayAnnotation(pkgPath, displayType, repositoryInfo);
+                return await ChoreoProjectManager._addToWorkspace(workspaceFilePath, args);
+            }
+            throw new Error("Error: Could not create component.");
+        } else {
+            throw new Error("Error: Could not detect a project workspace.");
         }
-        throw new Error("Error: Could not create component.");
     }
 
     getProjectDetails(): Promise<Project> {

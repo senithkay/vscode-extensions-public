@@ -26,7 +26,7 @@ import { addToWorkspace } from "../../utils/project-utils";
 import { runCommand } from "../../testing/runner";
 
 export class BallerinaProjectManager implements IProjectManager {
-    createComponent(componentDetails: BallerinaComponentCreationParams): Promise<string> {
+    createLocalComponent(componentDetails: BallerinaComponentCreationParams): Promise<string> {
         return BallerinaProjectManager._createComponent(componentDetails);
     }
 
