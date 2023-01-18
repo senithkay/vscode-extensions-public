@@ -43,7 +43,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           always-auth: true
-          node-version: "16.x"
+          node-version: "16.13.2"
           registry-url: "https://npm.pkg.github.com"
 
       - name: Install node modules
@@ -52,13 +52,6 @@ jobs:
           npm install
         env:
           NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
-
-      - name: Publish low code diagram
-        run: |
-          cd ballerina-low-code-editor
-          # npm publish --tag latest --workspaces
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
       - name: Get version
         id: vsix
@@ -85,7 +78,15 @@ jobs:
            uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
             --data-binary @${{ steps.vsix.outputs.vsixName }} \
             https://uploads.github.com/repos/wso2/ballerina-plugin-vscode/releases/$id/assets?name=${{ steps.vsix.outputs.vsixName }}`         
-      
+
+      - name: Publish low code diagram
+        run: |
+          cd ballerina-low-code-editor
+          npm version ${{ github.event.inputs.version }} --preid beta --no-git-tag-version --workspaces
+          npm publish --tag latest --workspaces
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+
       - name: Commit version
         id: commit
         run: |
@@ -96,8 +97,8 @@ jobs:
           git checkout -b "v${{ steps.vsix.outputs.version }}"
           git remote set-url origin https://x-access-token:${{secrets.GITHUB_TOKEN}}@github.com/$GITHUB_REPOSITORY.git
           git tag v${{ steps.vsix.outputs.version }}
-          git push origin "refs/heads/v${{ steps.vsix.outputs.version }}" "refs/tags/v${{ steps.vsix.outputs.version }}"
-          pr=$(gh pr create -B main -H "v${{ steps.vsix.outputs.version }}" --title 'Merge "v${{ steps.vsix.outputs.version }}" into main' --body '$subject')
+          # git push origin "refs/heads/v${{ steps.vsix.outputs.version }}" "refs/tags/v${{ steps.vsix.outputs.version }}"
+          # pr=$(gh pr create -B main -H "v${{ steps.vsix.outputs.version }}" --title 'Merge "v${{ steps.vsix.outputs.version }}" into main' --body '$subject')
           echo "prURL=$pr" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
