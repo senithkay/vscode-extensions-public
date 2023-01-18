@@ -27,6 +27,7 @@ import { ConnectorWizard } from "./components/FormComponents/ConfigForms/Connect
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
+import { GraphqlDiagramOverlay } from "./components/GraphqlDiagramOverlay";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
@@ -88,7 +89,7 @@ export function Diagram() {
     const [isPlusWidgetActive, setIsPlusWidgetActive] = useState(false);
 
     let isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
-
+    let isGraphQLViewOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "GraphQL";
     // React.useEffect(() => {
     //     setIsErrorStateDialogOpen(diagramErrors);
     //     setIsErrorDetailsOpen(diagramErrors);
@@ -118,6 +119,9 @@ export function Diagram() {
                     && STKindChecker.isRecordTypeDesc(stNode.typeDescriptor)
                 ) {
                     formType = 'RecordEditor'
+                } else if (STKindChecker.isServiceDeclaration(stNode)) { // TODO: check for graphql
+                    formType = 'GraphQL'
+                    isGraphQLViewOpen = true;
                 }
                 handleDiagramEdit(stNode, openInDiagram, {
                     formType,
@@ -393,15 +397,20 @@ export function Diagram() {
                             }
                         }}
                     />
-                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && (
+                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && !isGraphQLViewOpen && (
                         <FormGenerator {...formConfig} />
                     )}
-                    {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
+                    {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && !isGraphQLViewOpen && (
                         <DataMapperOverlay
                             {...dataMapperArgs}
                         />
                     )}
-                    {!isFormOpen && isConnectorConfigWizardOpen && (
+                    {isGraphQLViewOpen && (
+                        <GraphqlDiagramOverlay
+                            {...dataMapperArgs}
+                        />
+                    )}
+                    {!isFormOpen && isConnectorConfigWizardOpen && !isGraphQLViewOpen && (
                         <ConnectorWizard {...connectorWizardProps} />
                     )}
                     {isDialogActive && activeDialog}
