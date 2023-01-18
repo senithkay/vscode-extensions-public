@@ -14,7 +14,7 @@ import { commands, WebviewPanel, window, Uri, ProgressLocation } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
-    GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
+    GetAllOrgsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandNotification,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     CloseWebViewNotification, serializeError,
@@ -54,12 +54,6 @@ export class WebViewRpc {
                 return orgClient.getUserInfo()
                     .then((userInfo) => userInfo.organizations)
                     .catch(serializeError);
-            }
-        });
-        // TODO: Remove this once the Choreo project client RPC handlers are registered
-        this._messenger.onRequest(GetAllProjectsRequest, async () => {
-            if (ext.api.selectedOrg) {
-                return ProjectRegistry.getInstance().getProjects(ext.api.selectedOrg.id);
             }
         });
 

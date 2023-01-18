@@ -17,7 +17,6 @@ import { Organization, ChoreoLoginStatus, Project, ChoreoComponentCreationParams
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
 export const GetCurrentOrgRequest: RequestType<string, Organization> = { method: 'getCurrentOrg' };
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
-export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
 export const CreateLocalComponentRequest: RequestType<ChoreoComponentCreationParams, boolean> = { method: 'createLocalComponent' };
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };

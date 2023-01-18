@@ -14,13 +14,13 @@ import { Messenger } from "vscode-messenger-webview";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
-    GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
+    GetAllOrgsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandNotification, GetComponents,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
     Organization, Project, CloseWebViewNotification,
-    ShowErrorMessage, Component,
-    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    ShowErrorMessage, Component, GetProjectLocation, OpenExternal,
+    OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo, OpenArchitectureView
 } from "@wso2-enterprise/choreo-core";
 
@@ -56,10 +56,6 @@ export class ChoreoWebViewAPI {
 
     public async getAllOrgs(): Promise<Organization[]> {
         return this._messenger.sendRequest(GetAllOrgsRequest, HOST_EXTENSION, '');
-    }
-
-    public async getAllProjects(): Promise<Project[]> {
-        return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
     }
 
     public async getComponents(projectId: string): Promise<Component[]> {

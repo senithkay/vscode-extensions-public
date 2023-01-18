@@ -13,7 +13,7 @@
 
 import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useEffect, useState } from "react";
-import { Project } from "@wso2-enterprise/choreo-core";
+import { Organization, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 interface SelectorProps {
@@ -26,13 +26,20 @@ export function ProjectSelector(props: SelectorProps) {
     const [projects, setProjects] = useState<Project[] | undefined>(undefined);
 
     useEffect(() => {
-        const rpcInstance = ChoreoWebViewAPI.getInstance();
-        rpcInstance.getAllProjects().then((fetchedProjects) => {
-            setProjects(fetchedProjects);
-            if (fetchedProjects.length > 0) {
-                setProject(fetchedProjects[0].id);
-            }
-        })
+        async function fetchProjects() {
+            const rpcInstance = ChoreoWebViewAPI.getInstance();
+            const currentOrg: Organization = await rpcInstance.getCurrentOrg();
+            rpcInstance.getProjectClient().getProjects({
+                orgId: currentOrg.id
+            }).then((fetchedProjects) => {
+                setProjects(fetchedProjects);
+                if (fetchedProjects.length > 0) {
+                    setProject(fetchedProjects[0].id);
+                }
+            })
+        }
+
+        fetchProjects();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
