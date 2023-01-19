@@ -66,8 +66,6 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                 const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [...filePaths]
                 });
-
-                console.log('project components', componentResponse);
                 updateProjectComponenets(componentResponse);
             } catch (err) {
                 // tslint:disable-next-line: no-console

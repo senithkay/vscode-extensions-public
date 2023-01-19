@@ -122,11 +122,8 @@ export function DiagramViewManager(props: EditorProps) {
     }, [history[history.length - 1]]);
 
     const fetchST = () => {
-        console.log('fetch st >>>');
-
         if (history.length > 0) {
             const componentDetails = history[history.length - 1];
-            console.log('update selected component >>>', componentDetails);
             const { filePath, uid } = componentDetails;
             (async () => {
                 try {
@@ -140,7 +137,6 @@ export function DiagramViewManager(props: EditorProps) {
 
                     const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
                     traversNode(visitedST, nodeFindingVisitor);
-                    console.log('>>> selected node', nodeFindingVisitor.getNode());
 
                     setFocusedST(nodeFindingVisitor.getNode());
                     setCompleteST(visitedST);
@@ -171,7 +167,6 @@ export function DiagramViewManager(props: EditorProps) {
     }, [diagramFocus])
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
-        console.log('update selected component >>>', componentDetails);
         const { filePath, position } = componentDetails;
         (async () => {
             try {
@@ -183,14 +178,11 @@ export function DiagramViewManager(props: EditorProps) {
                 const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                 const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
 
-                console.log('full st >>>', visitedST);
                 const uidGenVisitor = new UIDGenerationVisitor(position);
                 traversNode(visitedST, uidGenVisitor);
-                console.log('>>> generated uid', uidGenVisitor.getUId());
                 componentDetails.uid = uidGenVisitor.getUId();
                 const nodeFindingVisitor = new FindNodeByUidVisitor(componentDetails.uid);
                 traversNode(visitedST, nodeFindingVisitor);
-                console.log('>>> selected node', nodeFindingVisitor.getNode());
 
                 setDiagramFocuState({ filePath, uid: componentDetails.uid });
                 setFocusedST(nodeFindingVisitor.getNode());
