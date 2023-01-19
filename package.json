@@ -626,7 +626,8 @@
         "workspaces/project-design-diagrams",
         "workspaces/choreo-client",
         "workspaces/choreo-webviews",
-        "workspaces/choreo-extension"
+        "workspaces/choreo-extension",
+        "workspaces/ballerina-extension"
     ],
     "scripts": {
         "prebuild": "npm run init-submodules && npm i --legacy-peer-deps",
@@ -652,66 +653,8 @@
         "build:swagger": "npm run build --workspace=workspaces/swagger",
         "build:variableView": "npm run build --workspace=workspaces/variable-view",
         "build:lce": "npm run build --workspace=workspaces/low-code-editor",
-        "build": "npm run build --workspaces",
         "build:choreo-dep": "npm run build --workspace=workspaces/choreo-core && npm run build --workspace=workspaces/choreo-client && npm run build --workspace=workspaces/choreo-webviews",
-        "postbuild": "npm run package"
-    },
-    "dependencies": {
-        "@types/lodash": "^4.14.189",
-        "cors-anywhere": "^0.4.4",
-        "file-uri-to-path": "^2.0.0",
-        "glob": "^7.1.7",
-        "monaco-languageclient": "^0.13.0",
-        "node-schedule": "^2.0.0",
-        "portfinder": "^1.0.28",
-        "toml": "^3.0.0",
-        "vscode-debugprotocol": "^1.44.0",
-        "vscode-extension-telemetry": "^0.1.7",
-        "vscode-languageclient": "^7.0.0",
-        "vscode-languageserver-protocol": "^3.16.0",
-        "vscode-test": "^1.5.1"
-    },
-    "devDependencies": {
-        "@sentry/webpack-plugin": "^1.18.8",
-        "@types/chai": "^4.2.18",
-        "@types/mocha": "^8.2.2",
-        "@types/node": "^15.12.2",
-        "@types/tcp-port-used": "^1.0.0",
-        "@types/vscode": "^1.60.0",
-        "@types/vscode-notebook-renderer": "^1.60.0",
-        "axios": "^0.22.0",
-        "chai": "^4.3.4",
-        "copyfiles": "^2.4.1",
-        "cross-env": "^7.0.3",
-        "decache": "^4.6.0",
-        "express": "^4.17.1",
-        "glob": "^7.1.7",
-        "istanbul": "^0.4.5",
-        "js-yaml": "^4.1.0",
-        "jwt-decode": "3.1.2",
-        "keytar": "^7.7.0",
-        "kill-port-process": "2.3.0",
-        "mocha": "^9.0.0",
-        "pako": "^2.0.4",
-        "pkce-challenge": "2.2.0",
-        "remap-istanbul": "^0.13.0",
-        "rimraf": "^3.0.2",
-        "tcp-port-used": "^1.0.2",
-        "ts-loader": "^9.2.6",
-        "tslint": "^6.1.3",
-        "typescript": "^4.5.4",
-        "vsce": "^1.93.0",
-        "vscode-debugadapter-testsupport": "^1.44.0",
-        "vscode-extension-tester": "^4.2.5",
-        "webpack": "^5.66.0",
-        "webpack-cli": "^4.9.1",
-        "webpack-merge-and-include-globally": "^2.3.4",
-        "yarn": "^1.22.11"
-    },
-    "extensionPack": [
-        "be5invis.toml"
-    ],
-    "extensionDependencies": [
-        "vscode.git"
-    ]
+        "build:plugin": "npm run build --workspace=workspaces/ballerina-extension",
+        "build": "npm run build --workspaces"
+    }
 }

@@ -9,7 +9,7 @@
         "build": "webpack",
         "storybook": "start-storybook -p 6006",
         "build-storybook": "build-storybook",
-        "postbuild": "copyfiles -f build/*.js ../../resources/jslibs"
+        "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs"
     },
     "keywords": [],
     "author": "",
