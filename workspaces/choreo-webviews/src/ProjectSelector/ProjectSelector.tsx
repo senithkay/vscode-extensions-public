@@ -35,7 +35,7 @@ export function ProjectSelector(props: SelectorProps) {
             if (selectedOrg) {
                 try {
                     await rpcInstance.getProjectClient().getProjects({
-                        orgId: 1234
+                        orgId: selectedOrg.id
                     }).then((response) => {
                         if (response.length) {
                             setProjects(response);
