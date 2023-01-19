@@ -27,7 +27,7 @@ suite('Extension', () => {
         assert.ok(extensionAPI.context, "Extension context is not set");
     }); 
 
-    test('Status', async () => {
+    test('Ext API', async () => {
         const extension = vscode.extensions.getExtension('wso2.choreo');
         const extensionAPI = extension?.exports;
         assert.ok(extensionAPI, "Extension API is not set");
