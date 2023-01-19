@@ -54,17 +54,22 @@ export function EntityLinkWidget(props: WidgetProps) {
 		link.resetLinkedNodes();
 	}
 
+	const multiLinkedTarget: boolean = Object.entries(link.getTargetPort().getLinks()).length > 1;
+
 	const getCardinalityProps = (port: PortModel): SVGProps<SVGTextElement> => {
 		let position: Point = port.getPosition();
 		let props: SVGProps<SVGTextElement> = {
-			y: position.y - 5,
-			fontSize: 11
+			fontFamily: isSelected ? 'GilmerBold' : 'GilmerRegular',
+			fontSize: 11,
+			fontWeight: isSelected ? 'bold' : 'normal',
+			textAnchor: 'start',
+			y: position.y - 5
 		};
 
 		if (port.getOptions().alignment === PortModelAlignment.LEFT) {
-			return { ...props, x: position.x - 20};
+			return { ...props, x: position.x - 20 };
 		} else {
-			return { ...props, x: position.x + 12};
+			return { ...props, x: position.x + 18 };
 		}
 	}
 
@@ -77,7 +82,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 					</text>
 
 					<text {...getCardinalityProps(link.getTargetPort())}>
-						{transformCardinality(link.cardinality.associate)}
+						{isSelected || !multiLinkedTarget ? transformCardinality(link.cardinality.associate) : '...'}
 					</text>
 				</> :
 				<polygon
