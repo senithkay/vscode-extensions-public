@@ -1,0 +1,9 @@
+.diagram-container {
+    min-height: calc(100vh - 50px);
+    min-width: 100vw;
+    padding: 15px;
+}
+
+svg:not(:root) {
+    overflow: visible;
+}

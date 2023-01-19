@@ -24,7 +24,7 @@ export interface GraphqlDesignModel {
     unions: Map<string, UnionComponent>;
 }
 
-interface Service {
+export interface Service {
     serviceName: string;
     position: Position;
     resourceFunctions: ResourceFunction[];
@@ -61,7 +61,7 @@ interface LinePosition {
     offset: number;
 }
 
-interface ResourceFunction {
+export interface ResourceFunction {
     identifier: string;
     subscription: boolean;
     returns: string;
@@ -69,7 +69,7 @@ interface ResourceFunction {
     interactions: Interaction[];
 }
 
-interface RemoteFunction {
+export interface RemoteFunction {
     identifier: string;
     returns: string;
     parameters: Param[];
@@ -105,6 +105,22 @@ interface Param {
     defaultValue: string;
 }
 
-interface Interaction {
+export interface Interaction {
     componentName: string;
+}
+
+// enums
+
+export enum FunctionType {
+    QUERY = "Query",
+    MUTATION = "Mutation",
+    SUBSCRIPTION = "Subscription"
+}
+
+export enum Colors {
+    PRIMARY = '#5567D5',
+    SECONDARY = '#F0F1FB',
+    PRIMARY_SELECTED = '#ffaf4d',
+    SECONDARY_SELECTED = '#fffaf2',
+    SHADED_SELECTED = '#faead2',
 }

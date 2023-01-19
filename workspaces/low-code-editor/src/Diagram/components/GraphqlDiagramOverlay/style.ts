@@ -16,8 +16,7 @@ export const graphQLOverlayStyles = makeStyles((theme: Theme) =>
     createStyles({
         graphqlDesignViewContainer: {
             height: "100%",
-            width: "100%",
-            background: "white"
+            width: "100%"
         },
         overlay: {
             height: "100%",

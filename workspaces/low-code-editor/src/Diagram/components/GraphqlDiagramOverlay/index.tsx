@@ -56,17 +56,18 @@ export function GraphqlDiagramOverlay(props: DataMapperProps) {
                 stylePosition={"absolute"}
                 className={graphQLStyleClasses.overlay}
             >
-                <div className={graphQLStyleClasses.graphqlDesignViewContainer}/>
-                <GraphqlDesignDiagram
-                    targetPosition={targetPosition}
-                    langClientPromise={
-                        getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-                    }
-                    filePath={currentFile.path}
-                    currentFile={currentFile}
-                    ballerinaVersion={ballerinaVersion}
-                    syntaxTree={lowcodeST}
-                />
+                <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
+                    <GraphqlDesignDiagram
+                        targetPosition={targetPosition}
+                        langClientPromise={
+                            getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                        }
+                        filePath={currentFile.path}
+                        currentFile={currentFile}
+                        ballerinaVersion={ballerinaVersion}
+                        syntaxTree={lowcodeST}
+                    />
+                </div>
             </DiagramOverlay>
         </DiagramOverlayContainer>
     );

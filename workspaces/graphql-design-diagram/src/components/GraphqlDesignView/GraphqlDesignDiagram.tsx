@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 
+import styled from "@emotion/styled";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DiagramEditorLangClientInterface,
@@ -10,8 +11,10 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { GraphqlDiagramContainer } from "../GraphqlDiagramContainer/GraphqlDiagramContainer";
 import { GraphqlDesignModel } from "../resources/model";
 import { getModelForGraphqlService } from "../utils/ls-util";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export interface GraphqlDesignDiagramProps {
     targetPosition?: NodePosition;
@@ -26,11 +29,23 @@ export interface GraphqlDesignDiagramProps {
     syntaxTree?: STNode;
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        root: {
+            flexGrow: 1,
+            height: "100%",
+            overflow: "hidden"
+        }
+    }),
+);
+
 export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps){
     const {targetPosition, langClientPromise, filePath, currentFile, ballerinaVersion, syntaxTree} = props;
 
     const[designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
     const[isIncompleteModel, setModelStatus] = useState(false);
+
+    const classes = useStyles();
 
     useEffect(() => {
         (async () => {
@@ -60,6 +75,10 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps){
     return(
         // diagram header
         // diagram container
-        <div/>
+        // <div className={classes.root}>
+        <>
+            {designModel && <GraphqlDiagramContainer designModel={designModel}/>}
+        </>
+        // </div>
     );
 }
