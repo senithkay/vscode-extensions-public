@@ -18,7 +18,8 @@ import { ext } from '../../src/extensionVariables';
 suite('Extension', () => {
     test('Activation', async () => {
         const extension = vscode.extensions.getExtension('wso2.choreo');
-        assert.ok(extension?.isActive, "Extension is not active");
+        const isActive = extension?.isActive;
+        assert.ok(isActive, "Extension is not active");
     }); 
     
     test('Context', async () => {

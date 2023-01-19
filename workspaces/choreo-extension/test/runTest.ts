@@ -27,7 +27,7 @@ async function main() {
 		const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
 
 		// Download VS Code, unzip it and run the integration test
-		await runTests({ extensionDevelopmentPath, extensionTestsPath, vscodeExecutablePath });
+		await runTests({ extensionDevelopmentPath, extensionTestsPath, vscodeExecutablePath, launchArgs: ['--disable-extensions'] });
 	} catch (err) {
 		console.error('Failed to run tests');
 		process.exit(1);

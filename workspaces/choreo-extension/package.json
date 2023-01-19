@@ -21,9 +21,6 @@
     "*"
   ],
   "main": "./out/src/extension.js",
-  "extensionDependencies": [
-    "wso2.ballerina"
-  ],
   "contributes": {
     "commands": [
       {
