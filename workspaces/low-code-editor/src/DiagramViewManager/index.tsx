@@ -15,12 +15,10 @@ import { IntlProvider } from "react-intl";
 
 import { MuiThemeProvider } from "@material-ui/core";
 import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import { start } from "repl";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { Diagram } from "../Diagram";
 import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
-import { ServiceDesign } from "../Diagram/components/ServiceDesign";
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 import {
@@ -30,15 +28,20 @@ import {
 import { EditorProps } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
-import { ComponentViewInfo, generateFileLocation } from "../OverviewDiagram/util";
+import { ComponentViewInfo } from "../OverviewDiagram/util";
 
-import { DiagramFocusActionTypes, useDiagramFocus } from "./hooks/diagram-focus";
 import { useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
+import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
+import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 
+interface DiagramFocusState {
+    filePath: string;
+    uid: string;
+}
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
@@ -74,7 +77,7 @@ export function DiagramViewManager(props: EditorProps) {
     } = props;
 
     const classes = useGeneratorStyles();
-    const [diagramFocusState, diagramFocusSend] = useDiagramFocus();
+    const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [completeST, setCompleteST] = useState<STNode>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
@@ -100,24 +103,31 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (history.length > 0) {
             const {
-                filePath, position
+                filePath, uid
             } = history[history.length - 1];
-            diagramFocusSend({
-                type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
-                    filePath,
-                    position
-                }
-            })
+            // diagramFocusSend({
+            //     type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
+            //         filePath,
+            //         position
+            //     }
+            // })
+            setDiagramFocuState({
+                filePath,
+                uid
+            });
         } else {
-            diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
+            // diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
+            setDiagramFocuState(undefined);
         }
-    }, [history]);
+    }, [history[history.length - 1]]);
 
     const fetchST = () => {
-        if (diagramFocusState) {
-            const { filePath, position } = diagramFocusState;
+        console.log('fetch st >>>');
 
-
+        if (history.length > 0) {
+            const componentDetails = history[history.length - 1];
+            console.log('update selected component >>>', componentDetails);
+            const { filePath, uid } = componentDetails;
             (async () => {
                 try {
                     const langClient = await langClientPromise;
@@ -128,13 +138,11 @@ export function DiagramViewManager(props: EditorProps) {
                     const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                     const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
 
-                    const stFindingVisitor = new STFindingVisitor();
-                    stFindingVisitor.setPosition(position);
-                    traversNode(visitedST, stFindingVisitor);
+                    const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
+                    traversNode(visitedST, nodeFindingVisitor);
+                    console.log('>>> selected node', nodeFindingVisitor.getNode());
 
-                    // TODO: add performance data fetching logic here
-
-                    setFocusedST(stFindingVisitor.getSTNode());
+                    setFocusedST(nodeFindingVisitor.getNode());
                     setCompleteST(visitedST);
                     setCurrentFileContent(content);
                     setLowCodeResourcesVersion(resourceVersion);
@@ -156,11 +164,47 @@ export function DiagramViewManager(props: EditorProps) {
     }, [diagramFocusState]);
 
     useEffect(() => {
-        diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
+        // diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
+        if (diagramFocus) {
+            updateSelectedComponent({ filePath: diagramFocus.filePath, position: diagramFocus.position })
+        }
     }, [diagramFocus])
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
-        historyPush(componentDetails);
+        console.log('update selected component >>>', componentDetails);
+        const { filePath, position } = componentDetails;
+        (async () => {
+            try {
+                const langClient = await langClientPromise;
+                const generatedST = await getSyntaxTree(filePath, langClient);
+                const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
+
+                const content = await getFileContent(filePath);
+                const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
+                const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
+
+                console.log('full st >>>', visitedST);
+                const uidGenVisitor = new UIDGenerationVisitor(position);
+                traversNode(visitedST, uidGenVisitor);
+                console.log('>>> generated uid', uidGenVisitor.getUId());
+                componentDetails.uid = uidGenVisitor.getUId();
+                const nodeFindingVisitor = new FindNodeByUidVisitor(componentDetails.uid);
+                traversNode(visitedST, nodeFindingVisitor);
+                console.log('>>> selected node', nodeFindingVisitor.getNode());
+
+                setDiagramFocuState({ filePath, uid: componentDetails.uid });
+                setFocusedST(nodeFindingVisitor.getNode());
+                setCompleteST(visitedST);
+                setCurrentFileContent(content);
+                setLowCodeResourcesVersion(resourceVersion);
+                setLowCodeEnvInstance(envInstance);
+                historyPush(componentDetails);
+            } catch (err) {
+                // tslint:disable-next-line: no-console
+                console.error(err);
+            }
+        })();
+        // historyPush(componentDetails);
     }
 
     const handleNavigationBack = () => {
@@ -190,7 +234,8 @@ export function DiagramViewManager(props: EditorProps) {
                     onCancel={handleNavigationHome}
                 />
             ))
-        } else if (STKindChecker.isFunctionDefinition(focusedST) && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
+        } else if (STKindChecker.isFunctionDefinition(focusedST)
+            && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
             viewComponent.push((
                 <DataMapperOverlay
                     targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
@@ -210,7 +255,7 @@ export function DiagramViewManager(props: EditorProps) {
                 <div className={classes.lowCodeContainer}>
                     <IntlProvider locale='en' defaultLocale='en' messages={messages}>
                         <ViewManagerProvider
-                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST)}
+                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent)}
                         >
                             <NavigationBar goBack={handleNavigationBack} goHome={handleNavigationHome} history={history} />
                             <div id={'canvas-overlay'} className={"overlayContainer"} />

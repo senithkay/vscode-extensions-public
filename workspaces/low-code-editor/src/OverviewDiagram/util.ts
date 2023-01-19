@@ -11,6 +11,7 @@
  * associated services.
  */
 
+import { ComponentInfo, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_MODULE_NAME } from ".";
@@ -18,27 +19,27 @@ import { DEFAULT_MODULE_NAME } from ".";
 export interface ComponentViewInfo {
     filePath: string;
     position: NodePosition;
-    fileName?: string,
-    moduleName?: string,
-    name?: string
+    fileName?: string;
+    moduleName?: string;
+    name?: string;
+    uid?: string;
 }
 
 export interface ComponentCollection {
-    functions: ComponentViewInfo[],
-    services: ComponentViewInfo[],
-    records: ComponentViewInfo[],
-    objects: ComponentViewInfo[],
-    classes: ComponentViewInfo[],
-    types: ComponentViewInfo[],
-    constants: ComponentViewInfo[],
-    enums: ComponentViewInfo[],
-    listeners: ComponentViewInfo[],
-    moduleVariables: ComponentViewInfo[]
+    functions: ComponentViewInfo[];
+    services: ComponentViewInfo[];
+    records: ComponentViewInfo[];
+    objects: ComponentViewInfo[];
+    classes: ComponentViewInfo[];
+    types: ComponentViewInfo[];
+    constants: ComponentViewInfo[];
+    enums: ComponentViewInfo[];
+    listeners: ComponentViewInfo[];
+    moduleVariables: ComponentViewInfo[];
 }
 
 
-export function generateFileLocation(moduleName: string, folderPath: string, fileName: string) {
-    const modulePath = moduleName !== DEFAULT_MODULE_NAME ? `modules/${moduleName}` : '';
-    return `${folderPath}${modulePath}/${fileName}`
+export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, element: ComponentInfo) {
+    return `${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`
+        .replace('file://', '');
 }
-

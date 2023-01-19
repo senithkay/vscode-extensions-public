@@ -9,6 +9,7 @@ import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isU
 import { EditorProps, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
 import { DiagramFocusState } from "../hooks/diagram-focus";
+import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
 
 export function getDiagramProviderProps(
     focusedST: STNode,
@@ -21,9 +22,10 @@ export function getDiagramProviderProps(
     props: EditorProps,
     setFocusedST: React.Dispatch<React.SetStateAction<STNode>>,
     setCompleteST: React.Dispatch<React.SetStateAction<STNode>>,
+    setFileContent: (content: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+        getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
@@ -81,15 +83,20 @@ export function getDiagramProviderProps(
                     let visitedST: STNode;
                     if (parseSuccess) {
                         // undoRedo.addModification(source);
-                        // setFileContent(source);
+                        setFileContent(source);
                         props.updateFileContent(diagramFocusState?.filePath, source);
                         visitedST = await getLowcodeST(newST, diagramFocusState?.filePath, langClient, experimentalEnabled, showMessage);
-                        const stFindingVisitor = new STFindingVisitor();
-                        stFindingVisitor.setPosition(diagramFocusState?.position);
-                        traversNode(visitedST, stFindingVisitor);
+                        if (diagramFocusState) {
+                            const stFindingVisitor = new FindNodeByUidVisitor(diagramFocusState.uid);
+                            traversNode(visitedST, stFindingVisitor);
+                            setFocusedST(stFindingVisitor.getNode());
+                        }
+                        // const stFindingVisitor = new STFindingVisitor();
+                        // stFindingVisitor.setPosition(diagramFocusState?.position);
+                        // traversNode(visitedST, stFindingVisitor);
 
                         // TODO: add performance data fetching logic here
-                        setFocusedST(stFindingVisitor.getSTNode());
+                        // setFocusedST(stFindingVisitor.getSTNode());
                         setCompleteST(visitedST);
                         if (isDeleteModificationAvailable(mutations)) {
                             showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
@@ -121,6 +128,11 @@ export function getDiagramProviderProps(
                                         langClient,
                                         experimentalEnabled,
                                         showMessage);
+                                    if (diagramFocusState) {
+                                        const stFindingVisitor = new FindNodeByUidVisitor(diagramFocusState.uid);
+                                        traversNode(visitedST, stFindingVisitor);
+                                        setFocusedST(stFindingVisitor.getNode());
+                                    }
                                     setCompleteST(visitedST);
                                 }
                                 // setModulePullInProgress(false);

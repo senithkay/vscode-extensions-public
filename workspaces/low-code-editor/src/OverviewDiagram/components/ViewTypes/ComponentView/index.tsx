@@ -12,10 +12,7 @@
  */
 import React from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
-
-import { DEFAULT_MODULE_NAME } from "../../..";
-import { ComponentViewInfo, generateFileLocation } from "../../../util";
+import { ComponentViewInfo } from "../../../util";
 
 import './style.scss';
 

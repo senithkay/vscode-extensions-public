@@ -13,10 +13,9 @@
 import React from "react";
 
 import { BallerinaProjectComponents, ComponentInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_MODULE_NAME } from "../../..";
-import { ComponentCollection, ComponentViewInfo, generateFileLocation } from "../../../util";
+import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
 import { ComponentView } from "../ComponentView";
 
 import './style.scss';
@@ -62,7 +61,7 @@ export function ModuleView(props: ModuleViewProps) {
                                 });
                             }
                             (moduleMap.get(moduleName) as ModuleViewInfo).components[key].push({
-                                filePath: `${packageInfo.filePath}${module.name ? module.name : ''}/${element.filePath}`,
+                                filePath: genFilePath(packageInfo, module, element),
                                 position: {
                                     startLine: element.startLine,
                                     startColumn: element.startColumn,

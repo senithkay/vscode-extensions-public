@@ -17,7 +17,7 @@ import { BallerinaProjectComponents, ComponentInfo } from "@wso2-enterprise/ball
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DEFAULT_MODULE_NAME } from "../../..";
-import { ComponentCollection, ComponentViewInfo, generateFileLocation } from "../../../util";
+import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
 import { ComponentView } from "../ComponentView";
 
 import './style.scss';
@@ -46,11 +46,7 @@ export function FileView(props: FileViewProps) {
                 .forEach(key => {
                     if (key !== 'name') {
                         module[key].forEach((element: ComponentInfo) => {
-                            const filePath = generateFileLocation(
-                                module.name ? module.name : DEFAULT_MODULE_NAME,
-                                packageInfo.filePath,
-                                element.filePath
-                            );
+                            const filePath = genFilePath(packageInfo, module, element);
                             if (!fileMap.has(filePath)) {
                                 fileMap.set(filePath, {
                                     components: {
@@ -72,7 +68,7 @@ export function FileView(props: FileViewProps) {
                                 });
                             }
                             (fileMap.get(filePath) as FileViewInfo).components[key].push({
-                                filePath: `${packageInfo.filePath}${module.name ? module.name : ''}/${element.filePath}`,
+                                filePath,
                                 position: {
                                     startLine: element.startLine,
                                     startColumn: element.startColumn,

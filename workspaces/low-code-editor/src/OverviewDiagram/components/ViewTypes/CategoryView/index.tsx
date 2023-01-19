@@ -12,10 +12,10 @@
  */
 import React from "react";
 
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaProjectComponents, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DEFAULT_MODULE_NAME } from "../../..";
-import { ComponentCollection, ComponentViewInfo } from "../../../util";
+import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
 import { ComponentView } from "../ComponentView";
 
 import './style.scss'
@@ -48,7 +48,7 @@ export function CategoryView(props: CategoryViewProps) {
                     if (key !== 'name') {
                         module[key].forEach((element: any) => {
                             currentComponents[key].push({
-                                filePath: `${packageInfo.filePath}${module.name ? module.name : ''}/${element.filePath}`,
+                                filePath: genFilePath(packageInfo, module, element),
                                 position: {
                                     startLine: element.startLine,
                                     startColumn: element.startColumn,
@@ -77,7 +77,6 @@ export function CategoryView(props: CategoryViewProps) {
     //     </div>
     // );
 
-    console.log('category view >>>', currentComponents);
     const categories: React.ReactElement[] = [];
 
     Object.keys(currentComponents).filter(key => currentComponents[key].length).forEach(key => {
@@ -101,3 +100,4 @@ export function CategoryView(props: CategoryViewProps) {
         </>
     )
 }
+

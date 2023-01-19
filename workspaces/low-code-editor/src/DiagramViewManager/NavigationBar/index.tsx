@@ -15,7 +15,7 @@ import React from "react";
 import { ArrowLeft, Home } from "@material-ui/icons";
 
 import { DEFAULT_MODULE_NAME } from "../../OverviewDiagram";
-import { ComponentViewInfo, generateFileLocation } from "../../OverviewDiagram/util";
+import { ComponentViewInfo } from "../../OverviewDiagram/util";
 
 import './style.scss';
 
