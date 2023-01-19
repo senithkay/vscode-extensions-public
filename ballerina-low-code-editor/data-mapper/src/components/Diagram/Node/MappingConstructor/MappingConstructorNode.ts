@@ -84,10 +84,14 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
-            this.typeName = getTypeName(valueEnrichedType.type);
+            this.typeName = getTypeName(this.typeDef.typeName === PrimitiveBalType.Union ? this.typeDef : valueEnrichedType.type);
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
                 STKindChecker.isSelectClause(this.value), valueEnrichedType);
+            if(this.typeDef.typeName === PrimitiveBalType.Union){
+                // todo: check primitive and array types
+                this.rootName = valueEnrichedType?.type?.name;
+            }
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordField = valueEnrichedType;
                 if (this.recordField.childrenTypes.length) {
@@ -109,7 +113,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                             this.context.collapsedFields, parentPort.collapsed, true);
                     });
                 }
-            }
+            } 
         }
     }
 

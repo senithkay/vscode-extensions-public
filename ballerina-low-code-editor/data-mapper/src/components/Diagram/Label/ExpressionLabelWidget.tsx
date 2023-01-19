@@ -29,7 +29,7 @@ import {
     generateQueryExpression
 } from '../Link/link-utils';
 import { RecordFieldPortModel } from '../Port';
-import { getBalRecFieldName } from '../utils/dm-utils';
+import { getBalRecFieldName, getFilteredUnionOutputTypes } from '../utils/dm-utils';
 import { handleCodeActions } from "../utils/ls-utils";
 
 import { ExpressionLabelModel } from './ExpressionLabelModel';
@@ -218,6 +218,11 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
             const field = targetPort.field;
             if (field.typeName === PrimitiveBalType.Array && field?.memberType) {
                 applyQueryExpression(link, field.memberType);
+            } else if (field.typeName === PrimitiveBalType.Union){
+                const [type] = getFilteredUnionOutputTypes(field);
+                if(type.typeName === PrimitiveBalType.Array && type.memberType) {
+                    applyQueryExpression(link, type.memberType);
+                }
             }
         }
     };
