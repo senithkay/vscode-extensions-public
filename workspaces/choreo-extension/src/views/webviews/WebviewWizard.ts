@@ -54,6 +54,8 @@ export class WebviewWizard {
       "main.js"
     ]);
 
+    const codiconUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "resources", "codicons", "codicon.css"));
+
     return /*html*/ `
           <!DOCTYPE html>
           <html lang="en">
@@ -62,6 +64,7 @@ export class WebviewWizard {
               <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
               <meta name="theme-color" content="#000000">
               <title>Choreo Webview Wizard</title>
+              <link rel="stylesheet" href="${codiconUri}">
               <script src="${scriptUri}"></script>
             </head>
             <body>

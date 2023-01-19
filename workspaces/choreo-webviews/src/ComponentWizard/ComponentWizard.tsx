@@ -45,7 +45,7 @@ const RepoInfoContainer = styled.div`
 `;
 
 export function ComponentWizard() {
-    const { loginStatus, loginStatusPending, isChoreoProject, choreoProject } = useContext(ChoreoWebViewContext);
+    const { loginStatus, loginStatusPending, isChoreoProject, choreoProject, selectedOrg } = useContext(ChoreoWebViewContext);
 
     const [name, setName] = useState<string>('');
     const [inProgress, setProgressStatus] = useState<boolean>(false);
@@ -80,7 +80,7 @@ export function ComponentWizard() {
         }
     }, [isChoreoProject, choreoProject]);
 
-    const canCreateComponent = name && projectId && accessibility && selectedType && selectedBranch && folderName;
+    const canCreateComponent = name && projectId && accessibility && selectedType && selectedOrg && selectedBranch && folderName;
 
     const handleComponentCreation = async () => {
         if (canCreateComponent) {
@@ -88,7 +88,7 @@ export function ComponentWizard() {
             await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent({
                 name: name,
                 projectId: projectId,
-                org: await ChoreoWebViewAPI.getInstance().getCurrentOrg(),
+                org: selectedOrg,
                 displayType: selectedType,
                 accessibility: accessibility,
                 description: description ?? '',
@@ -175,7 +175,6 @@ export function ComponentWizard() {
                         >
                             Cancel
                         </VSCodeButton>
-                        {inProgress && <VSCodeProgressRing />}
                         <VSCodeButton
                             appearance="primary"
                             disabled={!canCreateComponent}
@@ -183,6 +182,7 @@ export function ComponentWizard() {
                         >
                             Create
                         </VSCodeButton>
+                        {inProgress && <VSCodeProgressRing />}
                     </ActionContainer>
                 </WizardContainer>
             )}

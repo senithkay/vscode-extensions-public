@@ -12,9 +12,11 @@
  */
 
 import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { useEffect, useState } from "react";
-import { Organization, Project } from "@wso2-enterprise/choreo-core";
+import { useContext, useEffect, useState } from "react";
+import { Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { ErrorBanner } from "../Commons/ErrorBanner";
 
 interface SelectorProps {
     currentProject: string | undefined;
@@ -23,20 +25,29 @@ interface SelectorProps {
 
 export function ProjectSelector(props: SelectorProps) {
     const { currentProject, setProject } = props
+    const { selectedOrg } = useContext(ChoreoWebViewContext);
+    const [errorMsg, setErrorMsg] = useState<string | undefined>(undefined);
     const [projects, setProjects] = useState<Project[] | undefined>(undefined);
 
     useEffect(() => {
         async function fetchProjects() {
             const rpcInstance = ChoreoWebViewAPI.getInstance();
-            const currentOrg: Organization = await rpcInstance.getCurrentOrg();
-            rpcInstance.getProjectClient().getProjects({
-                orgId: currentOrg.id
-            }).then((fetchedProjects) => {
-                setProjects(fetchedProjects);
-                if (fetchedProjects.length > 0) {
-                    setProject(fetchedProjects[0].id);
+            if (selectedOrg) {
+                try {
+                    await rpcInstance.getProjectClient().getProjects({
+                        orgId: 1234
+                    }).then((response) => {
+                        if (response.length) {
+                            setProjects(response);
+                            setProject(response[0].id);
+                        } else {
+                            throw new Error("Error: Could not detect projects in your organization.");
+                        }
+                    });
+                } catch (error: any) {
+                    setErrorMsg(error.message);
                 }
-            })
+            }
         }
 
         fetchProjects();
@@ -46,8 +57,9 @@ export function ProjectSelector(props: SelectorProps) {
     return (
         <>
             <label htmlFor="project-dropdown">Select Project</label>
-            {!projects && <VSCodeProgressRing />}
-            {projects && (
+            {!projects && !errorMsg && <VSCodeProgressRing />}
+            {errorMsg && <ErrorBanner errorMsg={errorMsg} />}
+            {projects && projects.length > 0 && (
                 <VSCodeDropdown id="project-dropdown" onChange={(e: any) => { setProject(e.target.value) }}>
                     {projects?.map((project: Project) => (
                         <VSCodeOption value={project.id} selected={currentProject === project.id}>{project.name}</VSCodeOption>
