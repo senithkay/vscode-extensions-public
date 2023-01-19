@@ -90,18 +90,18 @@ jobs:
       - name: Commit version
         id: commit
         run: |
-          git config --global user.name 'GithubAction'
-          git config --global user.email 'action@github.com'
+          git config --global user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
+          git config --global user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
           git add *.json
           git commit -m "Update version to v${{ steps.vsix.outputs.version }}"
           git checkout -b "v${{ steps.vsix.outputs.version }}"
           git remote set-url origin https://x-access-token:${{secrets.GITHUB_TOKEN}}@github.com/$GITHUB_REPOSITORY.git
           git tag v${{ steps.vsix.outputs.version }}
-          # git push origin "refs/heads/v${{ steps.vsix.outputs.version }}" "refs/tags/v${{ steps.vsix.outputs.version }}"
-          # pr=$(gh pr create -B main -H "v${{ steps.vsix.outputs.version }}" --title 'Merge "v${{ steps.vsix.outputs.version }}" into main' --body '$subject')
+          git push origin "refs/heads/v${{ steps.vsix.outputs.version }}" "refs/tags/v${{ steps.vsix.outputs.version }}"
+          pr=$(gh pr create -B main -H "v${{ steps.vsix.outputs.version }}" --title 'Merge "v${{ steps.vsix.outputs.version }}" into main' --body '$subject')
           echo "prURL=$pr" >> $GITHUB_OUTPUT
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
       - name: "Release Notification"
         run: |
