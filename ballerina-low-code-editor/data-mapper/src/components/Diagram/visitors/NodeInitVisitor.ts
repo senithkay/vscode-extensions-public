@@ -228,6 +228,7 @@ export class NodeInitVisitor implements Visitor {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
         const selectedSTNode = this.selection.selectedST.stNode;
         const nodePosition: NodePosition = node.position as NodePosition;
+        const isLetVarDecl = STKindChecker.isLetVarDecl(parent);
         if (STKindChecker.isSpecificField(selectedSTNode)
             && nodePosition.startLine === (selectedSTNode.valueExpr.position as NodePosition).startLine
             && nodePosition.startColumn === (selectedSTNode.valueExpr.position as NodePosition).startColumn) {
@@ -335,7 +336,7 @@ export class NodeInitVisitor implements Visitor {
                     this.inputNodes.push(moduleVarNode);
                 }
             }
-        } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY) {
+        } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY && !isLetVarDecl) {
             const queryNode = new QueryExpressionNode(this.context, node, parent);
             if (this.isWithinQuery === 0) {
                 this.intermediateNodes.push(queryNode);
@@ -343,7 +344,8 @@ export class NodeInitVisitor implements Visitor {
             this.isWithinQuery += 1;
         } else {
             if (STKindChecker.isFunctionDefinition(selectedSTNode)
-                && STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody))
+                && STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody)
+                && !isLetVarDecl)
             {
                 const queryExpr = STKindChecker.isLetExpression(selectedSTNode.functionBody.expression)
                     ? getExprBodyFromLetExpression(selectedSTNode.functionBody.expression)
