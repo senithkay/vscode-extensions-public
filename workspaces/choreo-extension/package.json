@@ -20,7 +20,7 @@
     "onView:choreo-account",
     "*"
   ],
-  "main": "./dist/extension.js",
+  "main": "./out/src/extension.js",
   "contributes": {
     "commands": [
       {
@@ -118,13 +118,13 @@
     }
   },
   "scripts": {
-    "compile": "webpack --mode production",
-    "watch": "npx webpack --watch",
-    "build": "npm run compile && npm run copy-webview-lib && npx vsce package --no-dependencies",
+    "compile": "tsc -p . --outDir out",
+    "watch": "tsc -p . -w --outDir out",
+    "build": "npm run compile && npm run copy-webview-lib && npx vsce package",
     "copy-webview-lib": "copyfiles -f -E -F ./../../node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "pretest": "npm run compile-tests && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
