@@ -35,19 +35,18 @@ import { FunctionProps } from "../index";
 import PanAndZoom from "../PanAndZoom";
 import { PerformanceBar } from "../perBar/PerformanceBar";
 
-import { FunctionHeader } from "./FunctionHeader";
-import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
+import { NavigationBarDetailContainer } from "../../../NavigationBarDetailsContainer";
 
 
 export function RegularFuncComponent(props: FunctionProps) {
     const [overlayId] = useState(`function-overlay-${uuid()}`);
     const diagramContext = useContext(Context);
-    const { isReadOnly, syntaxTree, experimentalEnabled } = diagramContext.props;
+    const { isReadOnly, syntaxTree } = diagramContext.props;
     const { diagramRedraw, diagramCleanDraw } = diagramContext.actions;
     const run = diagramContext?.api?.project?.run;
 
-    const { model, hideHeader } = props;
+    const { model } = props;
 
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
@@ -68,9 +67,6 @@ export function RegularFuncComponent(props: FunctionProps) {
         }
     }, [viewMode]);
 
-    const onExpandClick = () => {
-        setDiagramExpanded(!diagramExpanded);
-    };
 
     const toggleViewMode = () => {
         setViewMode(viewMode === ViewMode.INTERACTION ? ViewMode.STATEMENT : ViewMode.INTERACTION);
@@ -157,6 +153,7 @@ export function RegularFuncComponent(props: FunctionProps) {
         }
     }
 
+    console.log('function rendering >>>')
     return (
         <div
             ref={containerRef}
@@ -190,6 +187,9 @@ export function RegularFuncComponent(props: FunctionProps) {
                     />
                 </div>
             ))} */}
+            <NavigationBarDetailContainer forceRender={true}>
+                <span>hello</span>
+            </NavigationBarDetailContainer>
             {functionBody}
         </div>
     );

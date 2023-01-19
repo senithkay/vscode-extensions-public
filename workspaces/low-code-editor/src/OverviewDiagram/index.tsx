@@ -12,7 +12,7 @@
  */
 import React, { useEffect, useState } from "react";
 
-import { BallerinaProjectComponents, ComponentInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useDiagramContext } from "../Contexts/Diagram";
 import { WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";

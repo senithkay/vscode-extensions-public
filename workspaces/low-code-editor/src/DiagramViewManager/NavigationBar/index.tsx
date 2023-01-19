@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { ArrowLeft, Home } from "@material-ui/icons";
+import { ArrowBack, Home } from "@material-ui/icons";
 
 import { DEFAULT_MODULE_NAME } from "../../OverviewDiagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
@@ -36,7 +36,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
     const backButton = (
         <div className="btn-container" onClick={goBack}>
-            <ArrowLeft />
+            <ArrowBack />
         </div>
     );
 
@@ -71,7 +71,8 @@ export function NavigationBar(props: NavigationBarProps) {
             {currentComponent && homeButton}
             {currentComponent && backButton}
             <div className="component-details">
-                <span className="module-text">{componentDetailsText}</span>
+                {/*<span className="module-text">{componentDetailsText}</span>*/}
+                {history.length === 0 && <span className="module-text">Project Overview</span>}
             </div>
             {currentComponent && renderComponentDetails()}
         </div>
