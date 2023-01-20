@@ -48,21 +48,17 @@ jobs:
 
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         run: |
-          createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
-          -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"v${{ steps.vsix.outputs.version }}", \
-          "draft":false, "name": "Release v${{ steps.vsix.outputs.version }}", "prerelease":false}' \
-          https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases` \
-           && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
-           uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
-            --data-binary @${{ steps.vsix.outputs.vsixName }} \
-            https://uploads.github.com/repos/wso2/ballerina-plugin-vscode/releases/$id/assets?name=${{ steps.vsix.outputs.vsixName }}`         
+          updateResponse=`curl -X PATCH -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" \
+            -d '{"draft":false,"prerelease":false}' \
+            https://api.github.com/repos/wso2/ballerina-plugin-vscode/releases/v${{ steps.vsix.outputs.version }}`         
 
       - name: Publish to VSCode marketplace
-        if: ${{ github.event.inputs.vscode }}
+        if: ${{ github.event.inputs.vscode == 'true' }}
         run: vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }}
 
       - name: Publish to OpenVSX marketplace
-        if: ${{ github.event.inputs.openVSX }}
+        if: ${{ github.event.inputs.openVSX == 'true'}}
         run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }}
 
       - name: "Release Notification"
@@ -78,7 +74,7 @@ jobs:
                       {
                         "keyValue": {
                           "topLabel": "VSCode Marketplace",
-                          "content": "v${{ steps.vsix.outputs.version }}",
+                          "content": "v${{ steps.vsix.outputs.version }",
                           "iconUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/512px-Visual_Studio_Code_1.35_icon.svg.png",
                           "button": {
                             "textButton": {
@@ -93,7 +89,7 @@ jobs:
                         }
                         "keyValue": {
                           "topLabel": "OpenVSX Marketplace",
-                          "content": "v${{ steps.vsix.outputs.version }}",
+                          "content": "v${{ steps.vsix.outputs.version }",
                           "iconUrl": "https://projects.eclipse.org/sites/default/files/open-vsx-logo-withouttext.png",
                           "button": {
                             "textButton": {
