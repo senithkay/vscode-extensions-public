@@ -93,7 +93,7 @@ jobs:
                         }
                         "keyValue": {
                           "topLabel": "OpenVSX Marketplace",
-                          "content": "v${{ steps.vsix.outputs.version }",
+                          "content": "v${{ steps.vsix.outputs.version }}",
                           "iconUrl": "https://projects.eclipse.org/sites/default/files/open-vsx-logo-withouttext.png",
                           "button": {
                             "textButton": {
