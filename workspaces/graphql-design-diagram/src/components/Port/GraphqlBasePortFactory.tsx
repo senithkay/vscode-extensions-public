@@ -5,8 +5,8 @@ import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { GraphqlNodeBasePort } from "./GraphqlNodeBasePort";
 
 export class GraphqlBasePortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
-    constructor(modelType: string) {
-        super(modelType);
+    constructor() {
+        super('graphqlBasePort');
     }
 
     generateModel(event: { initialConfig: any }): GraphqlNodeBasePort {

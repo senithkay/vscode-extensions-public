@@ -31,14 +31,14 @@ export interface Service {
     remoteFunctions: RemoteFunction[];
 }
 
-interface ObjectComponent {
+export interface ObjectComponent {
     type: ObjectKind;
     isInputObject: boolean;
     position: Position;
     fields: Field[];
 }
 
-interface EnumComponent {
+export interface EnumComponent {
     name: string;
     position: Position;
     enumFields: EnumField[];
@@ -91,7 +91,7 @@ interface Field {
     parameters: Param[];
 }
 
-interface EnumField {
+export interface EnumField {
     name: string;
     description: string;
     isDeprecated: boolean;

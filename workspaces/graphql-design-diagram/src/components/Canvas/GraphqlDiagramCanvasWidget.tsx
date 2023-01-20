@@ -27,7 +27,7 @@ const dagreEngine = new DagreEngine({
 
 
 export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
-    let { model } = props;
+    const { model } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(createGraphqlDiagramEngine);
     const diagramRef = useRef<HTMLDivElement>(null);

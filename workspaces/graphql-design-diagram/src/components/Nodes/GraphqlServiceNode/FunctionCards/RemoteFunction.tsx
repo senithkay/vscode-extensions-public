@@ -45,6 +45,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
             <ResourceName>
                 {remoteFunc.identifier}
             </ResourceName>
+            {remoteFunc.returns}
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${remotePath}`)}
                 engine={engine}
