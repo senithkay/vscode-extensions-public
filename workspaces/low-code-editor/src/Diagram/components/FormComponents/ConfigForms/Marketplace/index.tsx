@@ -159,13 +159,13 @@ export function Marketplace(props: MarketplaceProps) {
         if (!page) {
             centralModules.current.clear();
             response.central?.forEach((module) => {
-                if(module.id && haveConstruct(module)){
+                if(module.id && haveConstruct(module)) {
                     centralModules.current.set(module.id, module);
                 }
             });
         } else if (response.central?.length > 0) {
             response.central.forEach((module) => {
-                if(module.id && haveConstruct(module)){
+                if(module.id && haveConstruct(module)) {
                     centralModules.current.set(module.id, module);
                 }
             });
