@@ -11,6 +11,7 @@
  *  associated services.
  */
 import * as path from 'path';
+import * as os from 'os';
 
 import { downloadAndUnzipVSCode, runTests } from '@vscode/test-electron';
 
@@ -26,8 +27,10 @@ async function main() {
 
 		const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
 
+		const home = path.join(os.homedir(), '.vscode-test');
+
 		// Download VS Code, unzip it and run the integration test
-		await runTests({ extensionDevelopmentPath, extensionTestsPath, vscodeExecutablePath, launchArgs: ['--disable-extensions'] });
+		await runTests({ extensionDevelopmentPath, extensionTestsPath, vscodeExecutablePath, launchArgs: ['--disable-extensions', '--user-data-dir', home] });
 	} catch (err) {
 		console.error('Failed to run tests');
 		process.exit(1);
