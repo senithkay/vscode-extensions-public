@@ -95,7 +95,7 @@ jobs:
                               }
                             }
                           }
-                        }
+                        },
                         "keyValue": {
                           "topLabel": "OpenVSX Marketplace",
                           "content": "v${{ steps.vsix.outputs.version }}",
