@@ -74,7 +74,7 @@ jobs:
                       {
                         "keyValue": {
                           "topLabel": "VSCode Marketplace",
-                          "content": "v${{ steps.vsix.outputs.version }",
+                          "content": "v${{ steps.vsix.outputs.version }}",
                           "iconUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/512px-Visual_Studio_Code_1.35_icon.svg.png",
                           "button": {
                             "textButton": {
@@ -89,7 +89,7 @@ jobs:
                         }
                         "keyValue": {
                           "topLabel": "OpenVSX Marketplace",
-                          "content": "v${{ steps.vsix.outputs.version }",
+                          "content": "v${{ steps.vsix.outputs.version }}",
                           "iconUrl": "https://projects.eclipse.org/sites/default/files/open-vsx-logo-withouttext.png",
                           "button": {
                             "textButton": {
