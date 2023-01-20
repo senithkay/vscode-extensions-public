@@ -126,7 +126,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "nyc --reporter=html node ./out/test/runTest.js"
   },
   "devDependencies": {
     "@types/glob": "^8.0.0",
@@ -141,6 +141,7 @@
     "eslint": "^8.26.0",
     "glob": "^8.0.3",
     "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
     "ts-loader": "^9.4.1",
     "typescript": "^4.8.4",
     "webpack": "^5.74.0",
@@ -152,13 +153,10 @@
     "@wso2-enterprise/choreo-client": "^1.0.0",
     "@wso2-enterprise/choreo-core": "^1.0.0",
     "@wso2-enterprise/choreo-vscode-webviews": "1.0.0",
-    "axios": "^1.2.0",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
     "jwt-decode": "^3.1.2",
-    "keytar": "^7.9.0",
-    "pkce-challenge": "^3.0.0",
     "simple-git": "^3.15.1",
     "vscode-messenger": "^0.4.3"
   }
