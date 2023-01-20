@@ -10,15 +10,18 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ExtensionContext, TreeItem, TreeView } from "vscode";
+import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 
-export namespace ext {
-    export let context: ExtensionContext;
-    export let isPluginStartup: boolean;
-    export let api: ChoreoExtensionApi;
+export class ExtensionVariables {
+    public context!: ExtensionContext;
+    public isPluginStartup!: boolean;
+    public api!: ChoreoExtensionApi;
+    public statusBarItem!: StatusBarItem; 
 
     // views
-    export let projectsTreeView: TreeView<TreeItem>;
-    export let accountTreeView: TreeView<TreeItem>;
+    public projectsTreeView!: TreeView<TreeItem>;
+    public accountTreeView!: TreeView<TreeItem>;
 }
+
+export const ext = new ExtensionVariables();

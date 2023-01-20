@@ -34,7 +34,6 @@ jobs:
       - name: Build plugin repo
         run: npm run build
         env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
           IS_RELEASE: ${{ inputs.isRelease }}
 
       - name: Compress build
@@ -72,8 +71,6 @@ jobs:
 
       - name: Install node modules
         run: npm install --legacy-peer-deps
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
       - name: Set up Ballerina
         run: |
@@ -135,8 +132,6 @@ jobs:
 
       - name: Install node modules
         run: npm install --legacy-peer-deps
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
 
       - name: Install Ballerina
         run: |
@@ -180,11 +175,7 @@ jobs:
           rm build.zip
 
       - name: Install node modules
-        run: |
-          cd ballerina-low-code-editor  
-          npm install
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+        run: npm i --legacy-peer-deps
 
       - name: Install Cypress Dependencies
         run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
@@ -201,36 +192,36 @@ jobs:
 
       - name: Run Integration Tests
         run: |
-          cd ballerina-low-code-editor/integration-tests  
+          cd workspaces/low-code-integration-tests  
           npm run ${{ matrix.testStage  }}
 
       - name: Publish test fail screenshots
         uses: actions/upload-artifact@v3
         with:
-          path: ballerina-low-code-editor/integration-tests/cypress/screenshots
+          path: workspaces/low-code-integration-tests/cypress/screenshots
           name: low-code-cypress-screenshots-${{ matrix.testStage  }}-${{ github.run_attempt }}
         if: failure()
       
       - name: Rename code coverage file
-        run: mv ballerina-low-code-editor/integration-tests/.nyc_output/out.json ballerina-low-code-editor/integration-tests/.nyc_output/${{ matrix.testStage  }}.json
+        run: mv workspaces/low-code-integration-tests/.nyc_output/out.json workspaces/low-code-integration-tests/.nyc_output/${{ matrix.testStage  }}.json
       
       - name: Publish partial code coverage
         uses: actions/upload-artifact@v3
         with:
-          path: ballerina-low-code-editor/integration-tests/.nyc_output/${{ matrix.testStage  }}.json
+          path: workspaces/low-code-integration-tests/.nyc_output/${{ matrix.testStage  }}.json
           name: CodeCoverages
 
       - name: Publish test videos
         uses: actions/upload-artifact@v3
         with:
-          path: ballerina-low-code-editor/integration-tests/cypress/videos
+          path: workspaces/low-code-integration-tests/cypress/videos
           name: low-code-cypress-recordings-${{ matrix.testStage  }}-${{ github.run_attempt }}
         if: failure()
     
       - name: Publish test failure console logs
         uses: actions/upload-artifact@v3
         with:
-          path: ballerina-low-code-editor/integration-tests/logs
+          path: workspaces/low-code-integration-tests/logs
           name: low-code-cypress-failure-test-logs-${{ matrix.testStage  }}-${{ github.run_attempt }}
         if: failure()
 
@@ -252,11 +243,7 @@ jobs:
           rm build.zip
 
       - name: Install node modules
-        run: |
-          cd ballerina-low-code-editor  
-          npm install
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+        run: npm i --legacy-peer-deps
 
       - name: Download partial code coverages
         uses: actions/download-artifact@v3
@@ -266,17 +253,16 @@ jobs:
 
       - name: "Publish total code coverage"
         run: |
-          cd ballerina-low-code-editor
-          npx nyc merge ../coverageData
-          mkdir integration-tests/.nyc_output
-          mv coverage.json integration-tests/.nyc_output/out.json
-          npx nyc report --reporter html --reporter cobertura -t integration-tests/.nyc_output --report-dir integration-tests/coverage
+          npx nyc merge coverageData
+          mkdir workspaces/low-code-integration-tests/.nyc_output
+          mv coverage.json workspaces/low-code-integration-tests/.nyc_output/out.json
+          npx nyc report --reporter html --reporter cobertura -t workspaces/low-code-integration-tests/.nyc_output --report-dir workspaces/low-code-integration-tests/coverage
         if: always()
 
       - run: |
           mkdir totalCoverage
           echo ${{ github.event.number }} | tee ./totalCoverage/number
-          mv ballerina-low-code-editor/integration-tests/coverage/cobertura-coverage.xml totalCoverage/lowcode-coverage.xml 
+          mv workspaces/low-code-integration-tests/coverage/cobertura-coverage.xml totalCoverage/lowcode-coverage.xml 
 
       - name: Publish code coverage
         uses: actions/upload-artifact@v3

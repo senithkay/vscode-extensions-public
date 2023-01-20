@@ -47,7 +47,7 @@ export function MenuPanel(props: drawerProps) {
         >
             <PrimaryContainer>
                 <Header>
-                    <HeaderTitle>Ballerina Project Design</HeaderTitle>
+                    <HeaderTitle>Architecture View</HeaderTitle>
 
                     <IconButton onClick={() => { updateDrawerState(false) }}>
                         <CloseIcon

@@ -13,14 +13,12 @@
 
 import { Organization, UserInfo } from "@wso2-enterprise/choreo-core";
 import axios from "axios";
-import { ITokenStorage } from "../auth";
+import { IReadOnlyTokenStorage } from "../auth";
 import { IChoreoOrgClient } from "./types";
-
-export const REST_API_BASE_URL = 'https://app.choreo.dev';
 
 export class ChoreoOrgClient implements IChoreoOrgClient {
     
-    constructor(private _tokenStore: ITokenStorage, private _baseURL: string = REST_API_BASE_URL) {  
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {  
     }
 
     private async _getClient() {

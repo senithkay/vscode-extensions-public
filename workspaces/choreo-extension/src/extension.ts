@@ -12,15 +12,18 @@
  */
 
 import * as vscode from 'vscode';
-import { ThemeIcon, window, extensions } from 'vscode';
+import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
 
 import { activateAuth } from './auth';
-import { exchangeOrgAccessTokens } from './auth/auth';
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, signIn } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { cloneAllComponentsCmd, cloneComponentCmd } from './cmds/clone';
+import { cloneProject, cloneComponentCmd } from './cmds/clone';
 import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
+import { ProjectRegistry } from './registry/project-registry';
+import { activateStatusBarItem } from './status-bar';
+import { activateURIHandlers } from './uri-handlers';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
@@ -28,10 +31,10 @@ import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 import { activateWizards } from './wizards/activate';
 
 export function activateBallerinaExtension() {
-    const ext = extensions.getExtension("wso2.ballerina");
-    if (ext && !ext.isActive) {
-        ext.activate();
-    }
+	const ext = extensions.getExtension("wso2.ballerina");
+	if (ext && !ext.isActive) {
+		ext.activate();
+	}
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -45,7 +48,45 @@ export function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = false;
 	activateBallerinaExtension();
 	activateWizards();
+	activateURIHandlers();
+	showChoreoProjectOverview();
+	activateStatusBarItem();
 	return ext.api;
+}
+
+export async function showChoreoProjectOverview() {
+	const isChoreoProject = await ext.api.isChoreoProject();
+	if (isChoreoProject) {
+		await window.withProgress({
+            title: `Opening Choreo Project Workspace.`,
+            location: ProgressLocation.Notification,
+            cancellable: true
+        }, async (_progress, cancellationToken) => {
+            let cancelled: boolean = false;
+
+            cancellationToken.onCancellationRequested(async () => {
+                cancelled = true;
+            });
+			// execute choreo project overview cmd
+			try {
+				// first sign in to Choreo
+				await signIn();
+				if (cancelled) {
+					return;
+				}
+				const project = await ext.api.getChoreoProject();
+				if (cancelled) {
+					return;
+				}
+				if (project) {
+					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
+				}
+			} catch (error: any) {
+				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
+			}
+		});
+		
+	}
 }
 
 
@@ -59,12 +100,12 @@ function createProjectTreeView() {
 	const choreoResourcesProvider = new ProjectsTreeProvider();
 
 	vscode.commands.registerCommand(refreshProjectsListCmdId, async () => {
-		choreoResourcesProvider.refresh();
+		ProjectRegistry.getInstance().sync().then(() => {
+			choreoResourcesProvider.refresh();
+		});
 	});
 
-	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneAllComponentsCmd);
-
-	vscode.commands.registerCommand(cloneComponentCmdId, cloneComponentCmd);
+	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
 
 	const treeView = window.createTreeView(choreoProjectsTreeId, {
 		treeDataProvider: choreoResourcesProvider, showCollapseAll: true
@@ -85,7 +126,11 @@ function createAccountTreeView() {
 		if (treeItem instanceof ChoreoOrgTreeItem) {
 			treeItem.iconPath = new ThemeIcon('loading~spin');
 			accountTreeProvider.refresh(treeItem);
-			await exchangeOrgAccessTokens(treeItem.org.handle);
+			try {
+				await exchangeOrgAccessTokens(treeItem.org.handle);
+			} catch (error: any) {
+				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
+			}
 			ext.api.selectedOrg = treeItem.org;
 		}
 	});

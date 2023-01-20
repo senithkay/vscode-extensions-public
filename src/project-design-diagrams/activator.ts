@@ -25,8 +25,6 @@ import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
 import { Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
-import { createTerminal } from "../project";
-import { getCurrenDirectoryPath } from "../utils/project-utils";
 import { ProjectDesignRPC } from "./utils";
 
 let context: ExtensionContext;
@@ -42,11 +40,10 @@ export interface STResponse {
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     context = <ExtensionContext>ballerinaExtInstance.context;
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand("ballerina.view.ProjectDesigns", () => {
+    const designDiagramRenderer = commands.registerCommand("ballerina.view.architectureView", () => {
         ballerinaExtInstance.onReady()
             .then(() => {
                 if (isCompatible(ballerinaExtInstance)) {
-                    createTerminal(getCurrenDirectoryPath())
                     viewProjectDesignDiagrams();
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
@@ -83,8 +80,8 @@ function setupWebviewPanel() {
         designDiagramWebview.reveal();
     } else {
         designDiagramWebview = window.createWebviewPanel(
-            "ballerinaProjectDesign",
-            "Ballerina Project Design",
+            "architectureView",
+            "Architecture View",
             { viewColumn: ViewColumn.One, preserveFocus: false },
             getCommonWebViewOptions()
         );

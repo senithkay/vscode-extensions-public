@@ -17,12 +17,10 @@
   "activationEvents": [
     "onCommand:wso2.choreo.sign.in",
     "onView:choreo-projects",
-    "onView:choreo-account"
+    "onView:choreo-account",
+    "*"
   ],
   "main": "./dist/extension.js",
-  "extensionDependencies": [
-    "wso2.ballerina"
-  ],
   "contributes": {
     "commands": [
       {
@@ -63,6 +61,11 @@
         "command": "wso2.choreo.projects.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "wso2.choreo.project.overview",
+        "title": "Project Overview",
+        "category": "Choreo"
       }
     ],
     "viewsContainers": {
@@ -110,34 +113,22 @@
         {
           "command": "wso2.choreo.org.setAsSelected",
           "when": "view == choreo-account && viewItem == choreo.org"
-        },
-        {
-          "command": "wso2.choreo.component.clone",
-          "when": "view == choreo-projects && viewItem == choreo.component"
-        },
-        {
-          "command": "wso2.choreo.project.clone",
-          "when": "view == choreo-projects && viewItem == choreo.project"
         }
       ]
     }
   },
   "scripts": {
-    "compile": "webpack",
+    "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix",
+    "compile": "webpack --mode production",
     "watch": "npx webpack --watch",
-    "build": "npm run compile && npx copy-files-from-to && npx vsce package --no-dependencies ",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "build": "npm run clean && npm run compile && npm run lint && npm run copy-webview-lib && npx vsce package --no-dependencies",
+    "copy-webview-lib": "copyfiles -f -E -F ./../../node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js ./resources/jslibs",
+    "compile-tests": "tsc -p . --outDir dist",
+    "watch-tests": "tsc -p . -w --outDir dist",
+    "pretest": "npm run clean && npm run compile-tests && npm run lint && npm run copy-webview-lib",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "nyc --reporter=html node ./dist/test/runTest.js"
   },
-  "copyFiles": [
-    {
-      "from": "../../node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js",
-      "to": "resources/jslibs/choreo-vscode-webviews.js"
-    }
-  ],
   "devDependencies": {
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
@@ -147,10 +138,13 @@
     "@typescript-eslint/parser": "^5.42.0",
     "@vscode/test-electron": "^2.2.0",
     "@vscode/vsce": "^2.16.0",
-    "copy-files-from-to": "^3.6.0",
+    "copyfiles": "^2.4.1",
+    "del-cli": "^5.0.0",
     "eslint": "^8.26.0",
     "glob": "^8.0.3",
     "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "source-map-support": "^0.5.21",
     "ts-loader": "^9.4.1",
     "typescript": "^4.8.4",
     "webpack": "^5.74.0",
@@ -162,13 +156,10 @@
     "@wso2-enterprise/choreo-client": "^1.0.0",
     "@wso2-enterprise/choreo-core": "^1.0.0",
     "@wso2-enterprise/choreo-vscode-webviews": "1.0.0",
-    "axios": "^1.2.0",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
     "jwt-decode": "^3.1.2",
-    "keytar": "^7.9.0",
-    "pkce-challenge": "^3.0.0",
     "simple-git": "^3.15.1",
     "vscode-messenger": "^0.4.3"
   }

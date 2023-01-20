@@ -50,7 +50,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
         dispose(): void {
         }
         fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
-            capabilities.experimental = capabilities.experimental || {};
+            capabilities.experimental = capabilities.experimental || { introspection: false, showTextDocument: false };
             capabilities.experimental.introspection = true;
         }
         initialize(_capabilities: ServerCapabilities, _documentSelector: DocumentSelector | undefined): void {
@@ -63,7 +63,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 
         }
         fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
-            capabilities.experimental = capabilities.experimental || {};
+            capabilities.experimental = capabilities.experimental || { introspection: false, showTextDocument: false };
             capabilities.experimental.showTextDocument = true;
         }
         initialize(_capabilities: ServerCapabilities, _documentSelector: DocumentSelector | undefined): void {

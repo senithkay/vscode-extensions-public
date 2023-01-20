@@ -17,7 +17,7 @@
  *
  */
 
-import { IProjectManager, Project } from "@wso2-enterprise/choreo-core";
+import { IProjectManager, Project, Component } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import { readFile, writeFile } from "fs";
@@ -35,7 +35,7 @@ export class BallerinaProjectManager implements IProjectManager {
         throw new Error("ballerina getProjectDetails not implemented.");
     }
 
-    async getProjectRoot(): Promise<string|undefined> {
+    async getProjectRoot(): Promise<string | undefined> {
         const workspaceFolders = workspace.workspaceFolders;
         if (workspaceFolders && workspaceFolders?.length > 0) {
             let parentCandidate = path.parse(workspaceFolders[0].uri.fsPath).dir;
@@ -104,5 +104,9 @@ export class BallerinaProjectManager implements IProjectManager {
                 return resolve(serviceId);
             });
         });
+    }
+
+    getLocalComponents(workspaceFilePath: string): Component[] {
+        return []
     }
 }

@@ -10,14 +10,15 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { serializeError } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { IChoreoProjectClient } from "../types";
 import { CreateComponentRequest, CreateProjectRequest, GetComponentsRequest, GetProjectsRequest, LinkRepoRequest } from "./types";
 
 export function registerChoreoProjectRPCHandlers(messenger: Messenger, projectClient: IChoreoProjectClient) {
-   messenger.onRequest(GetProjectsRequest, (params) => projectClient.getProjects(params));
-   messenger.onRequest(GetComponentsRequest, (params) => projectClient.getComponents(params));
-   messenger.onRequest(CreateProjectRequest, (params) => projectClient.createProject(params));
-   messenger.onRequest(CreateComponentRequest, (params) => projectClient.createComponent(params));
-   messenger.onRequest(LinkRepoRequest, (params) => projectClient.linkRepo(params));
+   messenger.onRequest(GetProjectsRequest, (params) => projectClient.getProjects(params).catch(serializeError));
+   messenger.onRequest(GetComponentsRequest, (params) => projectClient.getComponents(params).catch(serializeError));
+   messenger.onRequest(CreateProjectRequest, (params) => projectClient.createProject(params).catch(serializeError));
+   messenger.onRequest(CreateComponentRequest, (params) => projectClient.createComponent(params).catch(serializeError));
+   messenger.onRequest(LinkRepoRequest, (params) => projectClient.linkRepo(params).catch(serializeError));
 }

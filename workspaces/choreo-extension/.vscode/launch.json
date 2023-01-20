@@ -10,9 +10,9 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"env": {
-                "WEB_VIEW_DEV_MODE": "false",
-                "WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
-            },
+				"WEB_VIEW_DEV_MODE": "true",
+				"WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
+			},
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
@@ -25,7 +25,12 @@
 			"name": "Extension Tests",
 			"type": "extensionHost",
 			"request": "launch",
+			"env": {
+				"WEB_VIEW_DEV_MODE": "true",
+				"WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
+			},
 			"args": [
+				"--disable-extensions",
 				"--extensionDevelopmentPath=${workspaceFolder}",
 				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
 			],

@@ -46,17 +46,13 @@ jobs:
           registry-url: "https://npm.pkg.github.com"
 
       - name: Install node modules
-        run: |
-          cd ballerina-low-code-editor  
-          npm install
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+        run: npm i --legacy-peer-deps
 
       - name: Publish low code diagram
         run: |
-          cd ballerina-low-code-editor
           npm version ${{ github.event.inputs.version }} --preid beta --no-git-tag-version
-          npm publish --tag latest --workspaces
+          npm version ${{ github.event.inputs.version }} --preid beta --no-git-tag-version --workspaces
+          npm publish --tag latest --workspace=low-code-diagram --workspace=configurable-editor --workspace=project-design-diagrams --workspace=low-code-diagram --workspace=syntax-tree --workspace=low-code-editor-commons
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
