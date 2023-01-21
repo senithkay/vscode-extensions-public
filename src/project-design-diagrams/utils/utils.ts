@@ -61,10 +61,10 @@ function injectDeploymentMetadata(components: Map<string, ComponentModel>) {
             service.deploymentMetadata = {
                 gateways: {
                     internet: {
-                        isExposed: Math.random() < 0.5
+                        isExposed: true
                     },
                     intranet: {
-                        isExposed: Math.random() > 0.5
+                        isExposed: true
                     }
                 }
             }
