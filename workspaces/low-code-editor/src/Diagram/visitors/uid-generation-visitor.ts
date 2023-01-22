@@ -76,6 +76,7 @@ export class UIDGenerationVisitor implements Visitor {
         if (node.relativeResourcePath.length > 0) {
             id.concat(`${SUB_DELIMETER}${generateResourcePathString(node.relativeResourcePath)}`);
         }
+        this.stack.push(id);
 
         if (isPositionEqual(node.position, this.position)) {
             this.setUId();

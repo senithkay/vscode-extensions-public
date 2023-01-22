@@ -32,7 +32,7 @@ import { useStyles } from "./style";
 import "./style.scss";
 
 export interface ServiceDesignProps {
-    fnST: STNode;
+    model: STNode;
     langClientPromise: Promise<IBallerinaLangClient>;
     currentFile?: {
         content: string,
@@ -43,30 +43,28 @@ export interface ServiceDesignProps {
     handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
 }
 
-export function ServiceDesign(propsz: ServiceDesignProps) {
+export function ServiceDesign(props: ServiceDesignProps) {
 
     const {
-        fnST,
+        model,
         onClose,
         langClientPromise,
         currentFile,
         handleDiagramEdit
-    } = propsz;
+    } = props;
 
     const [isPlusClicked, setPlusClicked] = useState(false);
     const [isAllExpanded, setIsAllExpanded] = useState(false);
     const [children, setChildren] = useState<JSX.Element[]>([]);
 
-
     const classes = useStyles();
     const intl = useIntl();
 
-
-    const fnSTZ = fnST as ServiceDeclaration;
+    const serviceST = model as ServiceDeclaration;
 
     useEffect(() => {
         const cc: JSX.Element[] = [];
-        fnSTZ?.members.forEach((member) => {
+        serviceST?.members.forEach((member) => {
             const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
             cc.push(
                 <div className={'service-member'} data-start-position={startPosition} >
@@ -75,7 +73,7 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
             );
         });
         setChildren(cc);
-    }, [fnSTZ, isAllExpanded]);
+    }, [serviceST, isAllExpanded]);
 
 
 
@@ -86,19 +84,19 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
 
     const handlePlusClick = () => {
         const lastMemberPosition: NodePosition = {
-            endColumn: fnSTZ.closeBraceToken.position.endColumn,
-            endLine: fnSTZ.closeBraceToken.position.endLine,
-            startColumn: fnSTZ.closeBraceToken.position.startColumn,
-            startLine: fnSTZ.closeBraceToken.position.startLine
+            endColumn: serviceST.closeBraceToken.position.endColumn,
+            endLine: serviceST.closeBraceToken.position.endLine,
+            startColumn: serviceST.closeBraceToken.position.startColumn,
+            startLine: serviceST.closeBraceToken.position.startLine
         }
         handleDiagramEdit(undefined, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false });
     };
 
     return (
         <div className={classes.root}>
-            {fnSTZ && (
+            {serviceST && (
                 <>
-                    <ServiceHeader onClose={onClose} model={fnSTZ} />
+                    {/*<ServiceHeader onClose={onClose} model={fnSTZ} />*/}
                     <div className={classes.expandAll}>
                         <div className={classes.collapseBtn} onClick={onExpandAllClick}>
                             Collapse All

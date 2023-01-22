@@ -12,15 +12,20 @@
  */
 import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
+import { Provider as HistoryProvider } from './context/history';
 
 import { MuiThemeProvider } from "@material-ui/core";
-import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { Diagram } from "../Diagram";
 import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
+import { ServiceDesign } from "../Diagram/components/ServiceDesign";
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
+import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
+import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
 import {
     getLowcodeST,
     getSyntaxTree
@@ -35,8 +40,6 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
-import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
-import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 
 interface DiagramFocusState {
     filePath: string;
@@ -168,6 +171,7 @@ export function DiagramViewManager(props: EditorProps) {
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         const { filePath, position } = componentDetails;
+        console.log('>>> udpate selected Component', filePath, position);
         (async () => {
             try {
                 const langClient = await langClientPromise;
@@ -225,7 +229,17 @@ export function DiagramViewManager(props: EditorProps) {
                     targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
                     onCancel={handleNavigationHome}
                 />
-            ))
+            ));
+            // viewComponent.push((
+            //     <ServiceDesign
+            //         model={focusedST}
+            //         langClientPromise={langClientPromise as any}
+            //         onClose={handleNavigationBack}
+            //         handleDiagramEdit={function(model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void): void {
+            //             throw new Error("Function not implemented.");
+            //         }}
+            //     />
+            // ))
         } else if (STKindChecker.isFunctionDefinition(focusedST)
             && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
             viewComponent.push((
@@ -247,11 +261,18 @@ export function DiagramViewManager(props: EditorProps) {
                 <div className={classes.lowCodeContainer}>
                     <IntlProvider locale='en' defaultLocale='en' messages={messages}>
                         <ViewManagerProvider
-                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent)}
+                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateSelectedComponent)}
                         >
-                            <NavigationBar goBack={handleNavigationBack} goHome={handleNavigationHome} history={history} />
-                            <div id={'canvas-overlay'} className={"overlayContainer"} />
-                            {viewComponent}
+                            <HistoryProvider
+                                history={history}
+                                historyPush={historyPush}
+                                historyPop={historyPop}
+                                historyReset={historyClear}
+                            >
+                                <NavigationBar />
+                                <div id={'canvas-overlay'} className={"overlayContainer"} />
+                                {viewComponent}
+                            </HistoryProvider>
                         </ViewManagerProvider>
                     </IntlProvider>
                 </div>

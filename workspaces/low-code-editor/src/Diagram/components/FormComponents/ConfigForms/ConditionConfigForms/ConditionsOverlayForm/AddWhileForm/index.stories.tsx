@@ -18,6 +18,7 @@ import { Story } from '@storybook/react/types-6-0';
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
 
 import { AddWhileForm, WhileProps } from "./index";
+import { ComponentViewInfo } from '../../../../../../../OverviewDiagram/util';
 
 
 export default {
@@ -79,6 +80,9 @@ const api = {
     },
     project: {
         run: dummyFunction
+    },
+    navigation: {
+        updateSelectedComponent: (info: ComponentViewInfo) => {}
     }
 }
 

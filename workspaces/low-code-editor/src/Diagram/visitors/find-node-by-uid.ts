@@ -68,6 +68,8 @@ export class FindNodeByUidVisitor implements Visitor {
             id.concat(`${SUB_DELIMETER}${generateResourcePathString(node.relativeResourcePath)}`);
         }
 
+        this.stack.push(id);
+
         if (this.getCurrentUid() === this.uid) {
             this.selectedNode = node;
         }

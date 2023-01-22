@@ -13,13 +13,9 @@
 
 import { Dispatch, useEffect, useReducer } from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
-
-import { DiagramFocus } from "../../DiagramGenerator/vscode/Diagram";
-
 export interface DiagramFocusState {
     filePath: string;
-    position: NodePosition;
+    uid: string;
 }
 
 export enum DiagramFocusActionTypes {
@@ -32,7 +28,6 @@ export enum DiagramFocusActionTypes {
 type FocusAction =
     | { type: DiagramFocusActionTypes.UPDATE_STATE, payload: DiagramFocusState }
     | { type: DiagramFocusActionTypes.UPDATE_FILE_PATH, payload: string }
-    | { type: DiagramFocusActionTypes.UPDATE_POSITION, payload: NodePosition }
     | { type: DiagramFocusActionTypes.RESET_STATE };
 
 function diagramFocusReducer(state: DiagramFocusState, action: FocusAction): DiagramFocusState {
@@ -43,11 +38,6 @@ function diagramFocusReducer(state: DiagramFocusState, action: FocusAction): Dia
             return {
                 ...state,
                 filePath: action.payload
-            };
-        case DiagramFocusActionTypes.UPDATE_POSITION:
-            return {
-                ...state,
-                position: action.payload
             };
         case DiagramFocusActionTypes.RESET_STATE:
             return undefined;

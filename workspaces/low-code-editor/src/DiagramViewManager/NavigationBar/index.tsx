@@ -18,24 +18,18 @@ import { DEFAULT_MODULE_NAME } from "../../OverviewDiagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 
 import './style.scss';
+import { useHistoryContext } from "../context/history";
 
-interface NavigationBarProps {
-    history: ComponentViewInfo[];
-    goBack: () => void;
-    goHome: () => void;
-}
-
-
-export function NavigationBar(props: NavigationBarProps) {
-    const { history, goBack, goHome } = props;
+export function NavigationBar() {
+    const { history, historyPop, historyReset } = useHistoryContext();
     const homeButton = (
-        <div className="btn-container" onClick={goHome}>
+        <div className="btn-container" onClick={historyReset}>
             <Home />
         </div>
     );
 
     const backButton = (
-        <div className="btn-container" onClick={goBack}>
+        <div className="btn-container" onClick={historyPop}>
             <ArrowBack />
         </div>
     );
@@ -68,13 +62,12 @@ export function NavigationBar(props: NavigationBarProps) {
 
     return (
         <div id="nav-bar-main" className={'header-bar'}>
-            {currentComponent && homeButton}
             {currentComponent && backButton}
+            {currentComponent && homeButton}
             <div className="component-details">
                 {/*<span className="module-text">{componentDetailsText}</span>*/}
                 {history.length === 0 && <span className="module-text">Project Overview</span>}
             </div>
-            {currentComponent && renderComponentDetails()}
         </div>
     )
 }

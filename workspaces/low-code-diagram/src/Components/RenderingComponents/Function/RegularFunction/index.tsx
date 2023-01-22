@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useRef, useState } from "react";
 
+import { NavigationBarDetailContainer } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FunctionBodyBlock,
     STKindChecker,
@@ -36,7 +37,6 @@ import PanAndZoom from "../PanAndZoom";
 import { PerformanceBar } from "../perBar/PerformanceBar";
 
 import "./style.scss";
-import { NavigationBarDetailContainer } from "../../../NavigationBarDetailsContainer";
 
 
 export function RegularFuncComponent(props: FunctionProps) {
@@ -153,7 +153,6 @@ export function RegularFuncComponent(props: FunctionProps) {
         }
     }
 
-    console.log('function rendering >>>')
     return (
         <div
             ref={containerRef}
@@ -188,7 +187,8 @@ export function RegularFuncComponent(props: FunctionProps) {
                 </div>
             ))} */}
             <NavigationBarDetailContainer forceRender={true}>
-                <span>hello</span>
+                <span className="module-text">Function Design</span>
+                <span className="component-name">{model?.functionName.value}</span>
             </NavigationBarDetailContainer>
             {functionBody}
         </div>

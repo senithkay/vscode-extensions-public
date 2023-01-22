@@ -1,30 +1,31 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 Inc. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein is strictly forbidden, unless permitted by WSO2 in accordance with
- * the WSO2 Commercial License available at http://wso2.com/licenses.
- * For specific language governing the permissions and limitations under
- * this license, please see the license as well as any agreement you’ve
- * entered into with WSO2 governing the purchase of this software and any
- * associated services.
- */
+* Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+*
+* This software is the property of WSO2 Inc. and its suppliers, if any.
+* Dissemination of any information or reproduction of any material contained
+* herein is strictly forbidden, unless permitted by WSO2 in accordance with
+* the WSO2 Commercial License available at http://wso2.com/licenses.
+* For specific language governing the permissions and limitations under
+* this license, please see the license as well as any agreement you’ve
+* entered into with WSO2 governing the purchase of this software and any
+* associated services.
+*/
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-  ConfigOverlayFormStatus,
-  DiagramEditorLangClientInterface,
+    ConfigOverlayFormStatus,
+    DiagramEditorLangClientInterface,
+    NavigationBarDetailContainer,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-  FunctionDefinition,
-  ModulePart,
-  NodePosition,
-  ServiceDeclaration,
-  STKindChecker,
-  STNode,
+    FunctionDefinition,
+    ModulePart,
+    NodePosition,
+    ServiceDeclaration,
+    STKindChecker,
+    STNode,
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Contexts/Diagram";
@@ -35,79 +36,85 @@ import { ServiceDesign } from "../ServiceDesign";
 import { ServiceDesignStyles } from "./style";
 
 export interface ServiceDesignProps {
-  model?: STNode;
-  targetPosition?: NodePosition;
-  onCancel?: () => void;
+    model?: STNode;
+    targetPosition?: NodePosition;
+    onCancel?: () => void;
 }
 
 export function ServiceDesignOverlay(props: ServiceDesignProps) {
-  const { onCancel: onClose, model } = props;
+    const { onCancel: onClose, model } = props;
 
-  const serviceDesignClasses = ServiceDesignStyles();
+    const serviceDesignClasses = ServiceDesignStyles();
 
-  const {
-    props: { currentFile, stSymbolInfo, importStatements, syntaxTree: lowcodeST },
-    api: {
-      code: { modifyDiagram, updateFileContent },
-      ls: { getDiagramEditorLangClient },
-      library,
-    },
-  } = useContext(Context);
+    const {
+        props: { currentFile, stSymbolInfo, importStatements, syntaxTree: lowcodeST },
+        api: {
+            code: { modifyDiagram, updateFileContent },
+            ls: { getDiagramEditorLangClient },
+            library
+        },
+    } = useContext(Context);
 
-  const [functionST, setFunctionST] = React.useState<ServiceDeclaration>(undefined);
+    const [serviceST, setFunctionST] = React.useState<ServiceDeclaration>(undefined);
 
-  useEffect(() => {
-    if (model && STKindChecker.isServiceDeclaration(model)) {
-      setFunctionST(model);
-    }
-  }, [model]);
-
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
-
-  const handleFormEdit = (stModel: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClosex?: () => void, onSave?: () => void) => {
-    setFormConfig({
-      model: stModel,
-      configOverlayFormStatus,
-      onCancel: () => {
-        setIsFormOpen(false);
-        if (onClosex) {
-          onClose();
+    useEffect(() => {
+        if (model && STKindChecker.isServiceDeclaration(model)) {
+            setFunctionST(model);
         }
-      },
-      onSave: () => {
-        setIsFormOpen(false);
-        if (onSave) {
-          onSave();
-        }
-      },
-      targetPosition
-    });
-    setIsFormOpen(true);
-  };
+    }, [model]);
 
-  return (
-    <DiagramOverlayContainer>
-      <DiagramOverlay
-        position={{ x: 0, y: 0 }}
-        stylePosition={"absolute"}
-        className={serviceDesignClasses.overlay}
-      >
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
+
+    const handleFormEdit = (stModel: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClosex?: () => void, onSave?: () => void) => {
+        setFormConfig({
+            model: stModel,
+            configOverlayFormStatus,
+            onCancel: () => {
+                setIsFormOpen(false);
+                if (onClosex) {
+                    onClose();
+                }
+            },
+            onSave: () => {
+                setIsFormOpen(false);
+                if (onSave) {
+                    onSave();
+                }
+            },
+            targetPosition
+        });
+        setIsFormOpen(true);
+    };
+
+    // <DiagramOverlayContainer>
+    // <DiagramOverlay
+    //   position={{ x: 0, y: 0 }}
+    //   stylePosition={"absolute"}
+    //   className={serviceDesignClasses.overlay}
+    // >
+    //
+
+    return (
         <div className={serviceDesignClasses.container}>
-          <ServiceDesign
-            fnST={functionST}
-            langClientPromise={
-              getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-            }
-            currentFile={currentFile}
-            onClose={onClose}
-            handleDiagramEdit={handleFormEdit}
-          />
-          {isFormOpen && (
-            <FormGenerator {...formConfig} />
-          )}
+            <ServiceDesign
+                model={serviceST}
+                langClientPromise={
+                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                }
+                currentFile={currentFile}
+                onClose={onClose}
+                handleDiagramEdit={handleFormEdit}
+            />
+            <NavigationBarDetailContainer forceRender={true}>
+                <span className="module-text">Service Design</span>
+            </NavigationBarDetailContainer>
+            {isFormOpen && (
+                <FormGenerator {...formConfig} />
+            )}
         </div>
-      </DiagramOverlay>
-    </DiagramOverlayContainer>
-  );
+    );
+
+    // </DiagramOverlay>
+    //  </DiagramOverlayContainer>
 }

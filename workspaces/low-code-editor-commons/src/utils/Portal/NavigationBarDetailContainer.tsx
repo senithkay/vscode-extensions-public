@@ -8,13 +8,11 @@ export interface DiagramOverlayContainerProps {
 
 export function NavigationBarDetailContainer(props: DiagramOverlayContainerProps) {
     const { children, forceRender } = props;
-    console.log('navigation bar detail container >>>');
     if (!forceRender) {
         return null;
     }
 
     const overlayDiv = document.querySelector('#nav-bar-main div.component-details');
-    console.log('overlay div >>>', overlayDiv);
     if (overlayDiv) {
         return ReactDOM.createPortal(children, overlayDiv);
     } else {

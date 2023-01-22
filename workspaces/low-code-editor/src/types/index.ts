@@ -24,6 +24,7 @@ import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { Warning } from "../Diagram/utils/st-util";
+import { ComponentViewInfo } from "../OverviewDiagram/util";
 
 export interface ZoomStatus {
     scale: number,
@@ -114,9 +115,12 @@ export interface LowCodeEditorAPI {
         getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
-    },
-    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>
-    openExternalUrl?: (url: string) => Promise<boolean>
+    };
+    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
+    openExternalUrl?: (url: string) => Promise<boolean>;
+    navigation: {
+        updateSelectedComponent: (info: ComponentViewInfo) => void;
+    }
 }
 
 // FIXME Some of these props should be moved to low code state
