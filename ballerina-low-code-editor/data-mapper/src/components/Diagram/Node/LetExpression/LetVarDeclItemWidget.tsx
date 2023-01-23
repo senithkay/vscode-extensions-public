@@ -85,22 +85,22 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
         <>
             <TreeHeader>
                 <span className={classes.label}>
-                {isRecord && (
-                    <IconButton
-                        className={classes.expandIcon}
-                        onClick={handleExpand}
-                        data-testid={`${id}-expand-icon-record-source-node`}
-                    >
-                        {expanded ? <ExpandMoreIcon/> : <ChevronRightIcon/>}
-                    </IconButton>
-                )}
+                    {isRecord && (
+                        <IconButton
+                            className={classes.expandIcon}
+                            onClick={handleExpand}
+                            data-testid={`${id}-expand-icon-record-source-node`}
+                        >
+                            {expanded ? <ExpandMoreIcon/> : <ChevronRightIcon/>}
+                        </IconButton>
+                    )}
                     {label}
+                    {isQueryExpr && (
+                        <div className={classes.gotoExprIcon} onClick={onClickOnExpand}>
+                            <ExitToApp />
+                        </div>
+                    )}
                 </span>
-                {isQueryExpr && (
-                    <div onClick={onClickOnExpand}>
-                        <ExitToApp />
-                    </div>
-                )}
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} />
