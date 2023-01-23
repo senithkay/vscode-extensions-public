@@ -9,10 +9,11 @@
  * this license, please see the license as well as any agreement you’ve
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
- */
+*/
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
+import { FormControl } from '@material-ui/core';
 import { ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
@@ -47,6 +48,7 @@ export interface FormEditorProps {
     applyModifications: (modifications: STModification[]) => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     topLevelComponent?: boolean;
+    renderRecordPanel?: (closeRecordEditor: (createdRecord?: string) => void) => JSX.Element;
 }
 
 export function FormEditor(props: FormEditorProps) {
@@ -62,12 +64,16 @@ export function FormEditor(props: FormEditorProps) {
         type,
         targetPosition,
         topLevelComponent,
-        stSymbolInfo
+        stSymbolInfo,
+        renderRecordPanel
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
     const [completions, setCompletions] = useState([]);
     const [changeInProgress, setChangeInProgress] = useState<boolean>(false);
+
+    const [showRecordEditor, setShowRecordEditor] = useState(false);
+    const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
@@ -193,6 +199,22 @@ export function FormEditor(props: FormEditorProps) {
         }
     }, [initialSource]);
 
+    const handleShowRecordEditor = () => {
+        setShowRecordEditor(!showRecordEditor);
+    }
+
+    const closeRecordEditor = (createdRecord?: string) => {
+        if (createdRecord && typeof createdRecord === 'string') {
+            const newRecordType = createdRecord.split(" ");
+            if (newRecordType.length > 1) {
+                setNewlyCreatedRecord(newRecordType[1]);
+            } else {
+                setNewlyCreatedRecord(createdRecord);
+            }
+        }
+        setShowRecordEditor(false);
+    }
+
     return (
         <div>
             <FormEditorContextProvider
@@ -210,9 +232,12 @@ export function FormEditor(props: FormEditorProps) {
                 isLastMember={isLastMember}
                 applyModifications={applyModifications}
                 changeInProgress={changeInProgress}
+                showRecordEditor={showRecordEditor}
+                handleShowRecordEditor={handleShowRecordEditor}
+                newlyCreatedRecord={newlyCreatedRecord}
             >
                 {
-                    model && (
+                    !showRecordEditor && model && (
                         <FormRenderer
                             type={type}
                             model={model}
@@ -228,6 +253,13 @@ export function FormEditor(props: FormEditorProps) {
                             applyModifications={applyModifications}
                             changeInProgress={changeInProgress}
                         />
+                    )
+                }
+                {showRecordEditor &&
+                    (
+                        <FormControl>
+                            {renderRecordPanel(closeRecordEditor)}
+                        </FormControl>
                     )
                 }
             </FormEditorContextProvider>

@@ -14,7 +14,7 @@
 import React, { useEffect, useState } from "react";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
-import { FormHelperText, LinearProgress } from "@material-ui/core";
+import { Button, FormHelperText, LinearProgress } from "@material-ui/core";
 import {
     configurableTypes,
     DiagramDiagnostic,
@@ -170,6 +170,8 @@ export interface LiteExpressionEditorProps {
     },
     stModel?: STNode;
     testId?: string;
+    showRecordEditorButton?: boolean;
+    handleShowRecordEditor?: () => void;
 }
 
 export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
@@ -190,7 +192,9 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         customProps,
         stModel,
         testId,
-        externalChangedValue
+        externalChangedValue,
+        showRecordEditorButton,
+        handleShowRecordEditor
     } = props;
 
     const [expressionEditorState, setExpressionEditorState] = useState<ExpressionEditorState>({
@@ -647,7 +651,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
             {/* {invalidSourceCode ? (
                 <>
                     {!(subEditor && cursorOnEditor) && <DiagnosticView message={mainDiagnostics[0]?.message} />}
-                    <FormHelperText className={formClasses.invalidCode}>
+                    <FormHelperText className={formClasses.recordCreateinvalidCode}>
                         <FormattedMessage
                             id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage"
                             defaultMessage="Error occurred in the code-editor. Please fix it first to continue."
@@ -661,6 +665,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                 </>
             ) : null} */
             }
+            {showRecordEditorButton && <Button className={formClasses.recordCreate} onClick={handleShowRecordEditor} >Record Create</Button>}
             {expressionDiagnosticMsg && (
                 <>
                     {<DiagnosticView message={expressionDiagnosticMsg} />}

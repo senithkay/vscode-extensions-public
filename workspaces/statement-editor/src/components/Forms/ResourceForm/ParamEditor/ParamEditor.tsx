@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
@@ -22,6 +22,7 @@ import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKind
 import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
+import { FormEditorContext } from '../../../../store/form-editor-context';
 import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
 import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_HEADER_PREFIX, RESOURCE_REQUEST_TYPE } from '../ResourceParamEditor';
 
@@ -74,6 +75,9 @@ export function ParamEditor(props: ParamProps) {
     } = props;
     const classes = useStyles();
 
+    const { newlyCreatedRecord, handleShowRecordEditor } = useContext(FormEditorContext);
+
+
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
     const [originalSource] = useState<string>(model.source);
@@ -97,6 +101,13 @@ export function ParamEditor(props: ParamProps) {
         onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`, model.typeName, value);
 
     }
+
+    // When a type is created 
+    useEffect(() => {
+        if (newlyCreatedRecord) {
+            handleTypeChange(newlyCreatedRecord);
+        }
+      }, newlyCreatedRecord);
 
     const handleNameChange = (value: string) => {
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
@@ -165,6 +176,8 @@ export function ParamEditor(props: ParamProps) {
                                 onFocus={onTypeEditorFocus}
                                 disabled={false}
                                 completions={currentComponentName === ParamEditorInputTypes.TYPE && completions}
+                                showRecordEditorButton={true}
+                                handleShowRecordEditor={handleShowRecordEditor}
                             />
                         </div>
                     )}

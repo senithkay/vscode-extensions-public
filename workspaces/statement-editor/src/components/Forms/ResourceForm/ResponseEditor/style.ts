@@ -17,11 +17,17 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         paramTypeWrapper: {
             display: 'block',
-            width: "50%"
+            width: "50%",
+            padding: 10
         },
         paramDataTypeWrapper: {
-            marginTop: -7,
-            width: '40%'
+            width: '50%',
+            padding: 10
+        },
+        anonyWrapper: {
+            marginTop: -30,
+            width: '50%',
+            padding: 10
         },
         paramNameWrapper: {
             width: '50%'
@@ -118,7 +124,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             padding: 0
         },
         btnContainer: {
-            marginTop: theme.spacing(2.5),
+            padding: theme.spacing(1.5),
             display: "flex",
             justifyContent: "flex-end"
         },

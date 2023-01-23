@@ -70,7 +70,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
         editors: EditorModel[];
     };
     extraModules?: Set<string>;
-    onWizardClose: () => void;
+    onWizardClose: (typeName?: string) => void;
     onCancel: () => void;
     isHeaderHidden?: boolean;
     skipSemicolon?: boolean;

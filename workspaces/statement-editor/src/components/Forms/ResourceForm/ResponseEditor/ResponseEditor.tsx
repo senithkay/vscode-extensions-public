@@ -12,13 +12,13 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { DefaultableParam, IncludedRecordParam, ModulePart, NodePosition, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
@@ -26,6 +26,8 @@ import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
 import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_HEADER_PREFIX, RESOURCE_REQUEST_TYPE } from '../ResourceParamEditor';
 
 import { useStyles } from "./style";
+import { FormEditorContext } from '../../../../store/form-editor-context';
+import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 export interface Param {
     id: number;
@@ -40,6 +42,7 @@ export interface ResponseCode {
     source: string;
 }
 export const responseCodes: ResponseCode[] = [
+    { code: 100, source: "Default" },
     { code: 200, source: "http:Ok" },
     { code: 201, source: "http:Created" },
     { code: 404, source: "http:NotFound" },
@@ -74,10 +77,13 @@ export function ResponseEditor(props: ParamProps) {
     } = props;
     const classes = useStyles();
 
+    const { newlyCreatedRecord, handleShowRecordEditor, applyModifications, syntaxTree  } = useContext(FormEditorContext);
+
+
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
 
-    const optionsListString = optionList.map(item => `${item.code}`);
+    const optionsListString = optionList.map(item => item.code === 100 ? `${item.source}` : `${item.code}`);
 
     // record {|*http:Created; PersonAccount body;|}
     const withType = model.includes("body;") ? model.split(";")[1] : "";
@@ -90,14 +96,16 @@ export function ResponseEditor(props: ParamProps) {
     // "record {|*http:Created"
     const withTypeModelValue = withTypeModel.split("*")[1];
 
-    const defaultValue = optionList.find(item => item.source === withTypeModelValue);
+    const defaultValue = optionList.find(item => withTypeModelValue ? item.source === withTypeModelValue : item.source === model);
 
     // const [originalSource] = useState<string>(defaultValue ? `${defaultValue.code}-${defaultValue.source}` : "");
 
     const [response, setResponse] = useState<string>(defaultValue ? `${defaultValue.code}` : optionsListString[0]);
 
 
-    const [typeValue, setTypeValue] = useState<string>(withTypeValue);
+    const [typeValue, setTypeValue] = useState<string>(withTypeValue ? withTypeValue : (model.includes("http") ? "" : model));
+
+    const [anonymousValue, setAnonymousValue] = useState<string>("");
 
 
     const onTypeEditorFocus = () => {
@@ -121,6 +129,7 @@ export function ResponseEditor(props: ParamProps) {
     }
 
     const handleNameChange = (value: string) => {
+        setAnonymousValue(value);
         // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         // const type = model.typeName.source.trim();
         // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
@@ -154,22 +163,77 @@ export function ResponseEditor(props: ParamProps) {
         onCancel();
     }
 
+    function createPropertyStatement(property: string, targetPosition?: NodePosition,
+        isLastMember?: boolean): STModification {
+        const propertyStatement: STModification = {
+            startLine: targetPosition ? targetPosition.startLine : 0,
+            startColumn: isLastMember ? targetPosition.endColumn : 0,
+            endLine: targetPosition ? targetPosition.startLine : 0,
+            endColumn: isLastMember ? targetPosition.endColumn : 0,
+            type: "PROPERTY_STATEMENT",
+            config: {
+                "PROPERTY": property,
+            }
+        };
+
+        return propertyStatement;
+    }
 
     const handleOnSave = () => {
         if (typeValue) {
-            const responseCode = optionList.find(item => item.code.toString() === response);
-            const newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
-            onChange(segmentId, response, newResponse);
+            if (response === 'Default') {
+                onChange(segmentId, response, typeValue);
+            } else {
+                if (anonymousValue) {
+                    const responseCode = optionList.find(item => item.code.toString() === response);
+                    const newResponse = `type ${anonymousValue} record {|*${responseCode.source}; ${typeValue} body;|};`;
+                    const record: NodePosition = (syntaxTree as ModulePart).members[0].position;
+                    const lastMemberPosition: NodePosition = {
+                        endColumn: 0,
+                        endLine: record.startLine - 1,
+                        startColumn: 0,
+                        startLine: record.startLine - 1
+                    }
+                    applyModifications([
+                        createPropertyStatement(newResponse, lastMemberPosition, false)
+                    ]);
+                    onChange(segmentId, 'Default', anonymousValue);
+                } else {
+                    const responseCode = optionList.find(item => item.code.toString() === response);
+                    const newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
+                    onChange(segmentId, response, newResponse);
+                }
+            }
         } else {
             onChange(segmentId, response);
         }
         onCancel();
     }
 
+    // When a type is created 
+    useEffect(() => {
+        if (newlyCreatedRecord) {
+            handleTypeChange(newlyCreatedRecord);
+        }
+    }, newlyCreatedRecord);
 
     return (
         <div className={classes.paramContainer}>
             <div className={classes.paramContent}>
+
+                <div className={classes.paramDataTypeWrapper}>
+                    <FieldTitle title='Type' optional={false} />
+                    <LiteExpressionEditor
+                        testId="return-type"
+                        defaultValue={typeValue}
+                        onChange={handleTypeChange}
+                        disabled={false}
+                        completions={completions}
+                        showRecordEditorButton={true}
+                        handleShowRecordEditor={handleShowRecordEditor}
+                    />
+                </div>
+
                 <div className={classes.paramTypeWrapper}>
                     <ParamDropDown
                         dataTestId="param-type-selector"
@@ -181,19 +245,25 @@ export function ResponseEditor(props: ParamProps) {
                     />
                 </div>
 
-                <div className={classes.paramDataTypeWrapper}>
-                    <FieldTitle title='Type' optional={true} />
+
+
+
+            </div>
+
+            <div className={classes.paramContent}>
+
+                <div className={classes.anonyWrapper}>
+                    <FieldTitle title='Anonymous Record Name' optional={true} />
                     <LiteExpressionEditor
-                        testId="return-type"
-                        defaultValue={typeValue}
-                        onChange={handleTypeChange}
+                        testId="anonymous-record-name"
+                        defaultValue={anonymousValue}
+                        onChange={handleNameChange}
                         disabled={false}
                         completions={completions}
                     />
                 </div>
-
-
             </div>
+
             <div className={classes.btnContainer}>
                 <SecondaryButton
                     text="Cancel"

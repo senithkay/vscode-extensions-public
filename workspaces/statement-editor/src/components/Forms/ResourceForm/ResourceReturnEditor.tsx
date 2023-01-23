@@ -69,7 +69,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         setIsNew(false);
     };
 
-    const onParamChange = (segmentId: number, responseCode: string, withType: string) => {
+    const onParamChange = (segmentId: number, responseCode: string, withType?: string) => {
         const responseData = responseCodes.find(item => item.code.toString() === responseCode);
         const newReturn = withType ? withType : (responseData ? responseData.source : "");
         if (segmentId === -1) {

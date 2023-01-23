@@ -34,12 +34,13 @@ export interface RecordEditorProps {
     isDataMapper?: boolean;
     onCancel: (createdNewRecord?: string) => void;
     onSave: (typeDesc: string, recModel: RecordModel) => void;
+    showHeader?: boolean;
 }
 
 const undoRedoManager = new UndoRedoManager();
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { onCancel, model, targetPosition, formType, isDataMapper } = props;
+    const { onCancel, model, targetPosition, formType, isDataMapper, showHeader } = props;
 
     const overlayClasses = wizardStyles();
 
@@ -113,6 +114,7 @@ export function RecordEditor(props: RecordEditorProps) {
                     targetPosition={targetPosition}
                     isDataMapper={isDataMapper}
                     undoRedoManager={undoRedoManager}
+                    showHeader={showHeader}
                 />
             )}
         </>

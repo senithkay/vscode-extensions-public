@@ -62,6 +62,7 @@ export interface ConfigOverlayFormStatus {
     blockViewState?: any; // FIXME - For mono repo migration
     error?: any;
     isLastMember?: boolean;
+    renderRecordPanel?: (closeRecordEditor: (createdRecord?: string) => void) => JSX.Element;
 }
 
 export interface DiagramState {
