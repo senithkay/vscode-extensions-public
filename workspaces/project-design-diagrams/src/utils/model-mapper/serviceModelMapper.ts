@@ -146,7 +146,12 @@ function mapL1GWInteraction(serviceModel: ServiceNodeModel, gwType: GatewayType)
         const link: GatewayLinkModel = new GatewayLinkModel(serviceModel.level);
         const sourceGW: GatewayNodeModel = gwNodes.get(gwType);
         const sourcePort: GatewayPortModel = sourceGW.getPortFromID(`${gwType}-in`);
-        const targetPort: ServicePortModel = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
+        let targetPort;
+        if (gwType === "WEST") {
+            targetPort = serviceModel.getPortFromID(`left-gw-${serviceModel.serviceObject.serviceId}`);
+        } else {
+            targetPort = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
+        }
         l1Links.set(linkID, createLinks(sourcePort, targetPort, link));
     }
 }
@@ -156,7 +161,12 @@ function mapL2GWInteraction(serviceModel: ServiceNodeModel, gwType: GatewayType)
         const link: GatewayLinkModel = new GatewayLinkModel(serviceModel.level);
         const sourceGW: GatewayNodeModel = gwNodes.get(gwType);
         const sourcePort: GatewayPortModel = sourceGW.getPortFromID(`${gwType}-in`);
-        const targetPort: ServicePortModel = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
+        let targetPort;
+        if (gwType === "WEST") {
+            targetPort = serviceModel.getPortFromID(`left-gw-${serviceModel.serviceObject.serviceId}`);
+        } else {
+            targetPort = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
+        }
         l2Links.push(createLinks(sourcePort, targetPort, link));
     }
 }

@@ -23,6 +23,12 @@ import { debounce } from 'lodash';
 import { getOpposingPort } from "../../common/shared-link/utils";
 import { Level } from "../../../resources";
 import { GATEWAY_LINK_TYPE } from "../types";
+import {
+	getAngleFromRadians, getNorthArrowHeadPoints,
+	getNorthGWArrowHeadSlope,
+	getWestArrowHeadPoints,
+	getWestGWArrowHeadSlope
+} from "../../../utils/utils";
 
 export class GatewayLinkModel extends DefaultLinkModel {
 	diagramEngine: DiagramEngine | undefined;
@@ -137,120 +143,24 @@ export class GatewayLinkModel extends DefaultLinkModel {
 		}
 	}
 
-	getAngleFromRadians = (value: number): number => {
-		return value * 180 / Math.PI;
-	}
-
-	getRadiansFormAngle = (value: number): number => {
-		return value * Math.PI / 180;
-	}
-
 	getArrowHeadPoints = (): string => {
 		let points: string = "";
 		const widthOfTriangle = 12;
 		const targetPort: Point = this.getTargetPort().getPosition();
 		const sourcePort: Point = this.getSourcePort().getPosition();
-		const directLineSlope =  this.getAngleFromRadians(Math.atan((sourcePort.y - targetPort.y)/(sourcePort.x - targetPort.x)));
+		const directLineSlope =  getAngleFromRadians(Math.atan(
+			(sourcePort.y - targetPort.y)/(sourcePort.x - targetPort.x)));
 
-		let newSlope;
 		if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
 			points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 8},
 				${targetPort.x + 12} ${targetPort.y - 8}`;
 		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-			let baseTopX;
-			let baseTopY;
-			let baseBottomX;
-			let baseBottomY;
-			if (directLineSlope <= 0) {
-				newSlope = -directLineSlope;
-				if (newSlope < 15) {
-					newSlope = (newSlope * 0.1);
-				} else if (newSlope < 30) {
-					newSlope = (newSlope * 0.3);
-				} else if (newSlope < 45) {
-					newSlope = (newSlope * 0.5);
-				} else if (newSlope < 60) {
-					newSlope = (newSlope * 0.3);
-				} else if (newSlope < 80) {
-					newSlope = (newSlope * 0.6);
-				} else if (newSlope <= 90) {
-					newSlope = (newSlope * 0.7);
-				}
-				baseTopX = targetPort.x - (widthOfTriangle * Math.cos(this.getRadiansFormAngle(newSlope - 30)));
-				baseTopY = targetPort.y + (widthOfTriangle * Math.sin(this.getRadiansFormAngle(newSlope - 30)));
-				baseBottomX = targetPort.x - (widthOfTriangle * Math.cos(this.getRadiansFormAngle(30 + newSlope)));
-				baseBottomY = targetPort.y + (widthOfTriangle * Math.sin(this.getRadiansFormAngle(30 + newSlope)));
-			} else {
-				newSlope = directLineSlope;
-				if (newSlope < 15) {
-					newSlope = (newSlope * 0.1);
-				} else if (newSlope < 30) {
-					newSlope = (newSlope * 0.3);
-				} else if (newSlope < 45) {
-					newSlope = (newSlope * 0.5);
-				} else if (newSlope < 60) {
-					newSlope = (newSlope * 0.3);
-				} else if (newSlope < 80) {
-					newSlope = (newSlope * 0.6);
-				} else if (newSlope <= 90) {
-					newSlope = (newSlope * 0.7);
-				}
-				baseTopX = targetPort.x - (widthOfTriangle * Math.sin(this.getRadiansFormAngle( 60 - newSlope)));
-				baseTopY = targetPort.y - (widthOfTriangle * Math.cos(this.getRadiansFormAngle(60 - newSlope)));
-				baseBottomX = targetPort.x - (widthOfTriangle * Math.cos(this.getRadiansFormAngle(newSlope - 30)));
-				baseBottomY = targetPort.y - (widthOfTriangle * Math.sin(this.getRadiansFormAngle(newSlope - 30)));
-			}
-			points = `${targetPort.x} ${targetPort.y}, ${baseTopX} ${baseTopY}, ${baseBottomX} ${baseBottomY}`;
+			points = getWestArrowHeadPoints(targetPort, directLineSlope, widthOfTriangle);
 		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
 			points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 12} ${targetPort.y + 14},
 				${targetPort.x - 12} ${targetPort.y + 14}`;
 		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP) {
-			let baseTopX;
-			let baseTopY;
-			let baseBottomX;
-			let baseBottomY;
-			if (directLineSlope <= 0) {
-				newSlope = -directLineSlope;
-				if (newSlope > 0 && newSlope < 1) {
-					newSlope = (newSlope) + (newSlope * 400);
-				} else if (newSlope < 15) {
-					newSlope = (newSlope * 5);
-				} else if (newSlope < 30) {
-					newSlope = (newSlope * 2.8);
-				} else if (newSlope < 45) {
-					newSlope = (newSlope * 1.8);
-				} else if (newSlope < 60) {
-					newSlope = (newSlope * 1.4);
-				} else if (newSlope < 80) {
-					newSlope = (newSlope * 1.2);
-				}
-				baseTopX = targetPort.x + (widthOfTriangle * Math.sin(this.getRadiansFormAngle(60 - newSlope)));
-				baseTopY = targetPort.y - (widthOfTriangle * Math.cos(this.getRadiansFormAngle(60 - newSlope)));
-				baseBottomX = targetPort.x + (widthOfTriangle * Math.cos(this.getRadiansFormAngle(newSlope - 30)));
-				baseBottomY = targetPort.y - (widthOfTriangle * Math.sin(this.getRadiansFormAngle(newSlope - 30)));
-			} else {
-				newSlope = directLineSlope;
-				if (newSlope > 0 && newSlope < 1) {
-					newSlope = (newSlope) + (newSlope * 400);
-				} else if (newSlope < 15) {
-					newSlope = (newSlope * 5);
-				} else if (newSlope < 30) {
-					newSlope = (newSlope * 2.8);
-				} else if (newSlope < 45) {
-					newSlope = (newSlope * 1.8);
-				} else if (newSlope < 60) {
-					newSlope = (newSlope * 1.4);
-					console.log("4");
-				} else if (newSlope < 80) {
-					newSlope = (newSlope * 1.2);
-					console.log("5");
-				}
-				baseTopX = targetPort.x - (widthOfTriangle * Math.sin(this.getRadiansFormAngle(60 - newSlope)));
-				baseTopY = targetPort.y - (widthOfTriangle * Math.cos(this.getRadiansFormAngle(60 - newSlope)));
-				baseBottomX = targetPort.x - (widthOfTriangle * Math.cos(this.getRadiansFormAngle(newSlope - 30)));
-				baseBottomY = targetPort.y - (widthOfTriangle * Math.sin(this.getRadiansFormAngle(newSlope - 30)));
-			}
-			points = `${targetPort.x} ${targetPort.y}, ${baseTopX} ${baseTopY}, ${baseBottomX} ${baseBottomY}`;
+			points = getNorthArrowHeadPoints(targetPort, directLineSlope, widthOfTriangle);
 		}
 		return points;
 	}

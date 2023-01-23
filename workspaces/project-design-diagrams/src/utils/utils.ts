@@ -24,6 +24,7 @@ import { GatewayNodeFactory } from "../components/gateway/GatewayNode/GatewayNod
 import { GatewayPortFactory } from "../components/gateway/GatewayPort/GatewayPortFactory";
 import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeModel";
 import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLinkFactory";
+import { Point } from "@projectstorm/geometry";
 
 export const defaultZoomLevel = 100;
 
@@ -87,4 +88,96 @@ export function positionGatewayNodes(engine: DiagramEngine) {
             }
         });
     }
+}
+
+export function getWestGWArrowHeadSlope(slope: number) {
+    let newSlope = slope;
+    if (slope < 15) {
+        newSlope = (slope * 0.1);
+    } else if (slope < 30) {
+        newSlope = (slope * 0.3);
+    } else if (slope < 45) {
+        newSlope = (slope * 0.5);
+    } else if (slope < 60) {
+        newSlope = (slope * 0.3);
+    } else if (slope < 80) {
+        newSlope = (slope * 0.6);
+    } else if (slope <= 90) {
+        newSlope = (slope * 0.7);
+    }
+    return newSlope;
+}
+
+export function getAngleFromRadians (value: number): number {
+    return value * 180 / Math.PI;
+}
+
+export function getRadiansFormAngle (value: number): number {
+    return value * Math.PI / 180;
+}
+
+export function getWestArrowHeadPoints(targetPort: Point, directLineSlope: number, widthOfTriangle: number): string {
+    let baseTopX;
+    let baseTopY;
+    let baseBottomX;
+    let baseBottomY;
+    let newSlope;
+    if (directLineSlope <= 0) {
+        newSlope = getWestGWArrowHeadSlope(-directLineSlope);
+        baseTopX = targetPort.x - (widthOfTriangle * Math.cos(getRadiansFormAngle(newSlope - 30)));
+        baseTopY = targetPort.y + (widthOfTriangle * Math.sin(getRadiansFormAngle(newSlope - 30)));
+        baseBottomX = targetPort.x - (widthOfTriangle * Math
+            .cos(getRadiansFormAngle(30 + newSlope)));
+        baseBottomY = targetPort.y + (widthOfTriangle * Math
+            .sin(getRadiansFormAngle(30 + newSlope)));
+    } else {
+        newSlope = getWestGWArrowHeadSlope(directLineSlope);
+        baseTopX = targetPort.x - (widthOfTriangle * Math.sin(getRadiansFormAngle( 60 - newSlope)));
+        baseTopY = targetPort.y - (widthOfTriangle * Math.cos(getRadiansFormAngle(60 - newSlope)));
+        baseBottomX = targetPort.x - (widthOfTriangle * Math
+            .cos(getRadiansFormAngle(newSlope - 30)));
+        baseBottomY = targetPort.y - (widthOfTriangle * Math
+            .sin(getRadiansFormAngle(newSlope - 30)));
+    }
+    return `${targetPort.x} ${targetPort.y}, ${baseTopX} ${baseTopY}, ${baseBottomX} ${baseBottomY}`;
+}
+
+export function getNorthArrowHeadPoints(targetPort: Point, directLineSlope: number, widthOfTriangle: number): string {
+    let baseTopX;
+    let baseTopY;
+    let baseBottomX;
+    let baseBottomY;
+    let newSlope;
+    if (directLineSlope <= 0) {
+        newSlope = getNorthGWArrowHeadSlope(-directLineSlope);
+        baseTopX = targetPort.x + (widthOfTriangle * Math.sin(getRadiansFormAngle(60 - newSlope)));
+        baseTopY = targetPort.y - (widthOfTriangle * Math.cos(getRadiansFormAngle(60 - newSlope)));
+        baseBottomX = targetPort.x + (widthOfTriangle * Math.cos(getRadiansFormAngle(newSlope - 30)));
+        baseBottomY = targetPort.y - (widthOfTriangle * Math.sin(getRadiansFormAngle(newSlope - 30)));
+    } else {
+        newSlope = getNorthGWArrowHeadSlope(directLineSlope);
+        baseTopX = targetPort.x - (widthOfTriangle * Math.sin(getRadiansFormAngle(60 - newSlope)));
+        baseTopY = targetPort.y - (widthOfTriangle * Math.cos(getRadiansFormAngle(60 - newSlope)));
+        baseBottomX = targetPort.x - (widthOfTriangle * Math.cos(getRadiansFormAngle(newSlope - 30)));
+        baseBottomY = targetPort.y - (widthOfTriangle * Math.sin(getRadiansFormAngle(newSlope - 30)));
+    }
+    return `${targetPort.x} ${targetPort.y}, ${baseTopX} ${baseTopY}, ${baseBottomX} ${baseBottomY}`;
+}
+
+export function getNorthGWArrowHeadSlope(slope: number) {
+    let newSlope = slope;
+    if (newSlope > 0 && newSlope < 1) {
+        newSlope = (newSlope) + (newSlope * 400);
+    } else if (newSlope < 15) {
+        newSlope = (newSlope * 5);
+    } else if (newSlope < 30) {
+        newSlope = (newSlope * 2.8);
+    } else if (newSlope < 45) {
+        newSlope = (newSlope * 1.8);
+    } else if (newSlope < 60) {
+        newSlope = (newSlope * 1.4);
+    } else if (newSlope < 80) {
+        newSlope = (newSlope * 1.2);
+    }
+    return newSlope;
 }

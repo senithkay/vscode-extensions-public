@@ -39,6 +39,7 @@ export function GatewayLinkWidget(props: WidgetProps) {
                 <polygon
                     points={link.getArrowHeadPoints()}
                     fill={Colors.GATEWAY}
+                    opacity={0.5}
                 />
 
                 <path
@@ -49,6 +50,7 @@ export function GatewayLinkWidget(props: WidgetProps) {
                     pointerEvents='all'
                     stroke={Colors.GATEWAY}
                     strokeWidth={1}
+                    opacity={0.8}
                 />
             </g>
         </>
