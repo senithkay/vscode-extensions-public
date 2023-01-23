@@ -14,9 +14,6 @@ import React from "react";
 
 import { ArrowBack, Home } from "@material-ui/icons";
 
-import { DEFAULT_MODULE_NAME } from "../../OverviewDiagram";
-import { ComponentViewInfo } from "../../OverviewDiagram/util";
-
 import './style.scss';
 import { useHistoryContext } from "../context/history";
 
@@ -35,30 +32,6 @@ export function NavigationBar() {
     );
 
     const currentComponent = history.length > 0 ? history[history.length - 1] : undefined;
-
-    let componentDetailsText = 'Project Overview';
-
-    if (currentComponent) {
-        const { name, moduleName } = currentComponent;
-
-        componentDetailsText = `${moduleName === DEFAULT_MODULE_NAME ? '' : `${moduleName}/`}${name}`;
-    }
-
-    const renderComponentDetails = () => {
-        if (!currentComponent) {
-            return undefined;
-        } else {
-            const { moduleName, filePath } = currentComponent;
-
-            return (
-                <>
-                    <div className="file-path-details">
-                        file path
-                    </div>
-                </>
-            )
-        }
-    }
 
     return (
         <div id="nav-bar-main" className={'header-bar'}>
