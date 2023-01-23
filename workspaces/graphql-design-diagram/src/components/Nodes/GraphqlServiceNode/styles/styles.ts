@@ -57,7 +57,6 @@ export const ServiceHead = styled.div`
     padding-inline: 8px;
     min-width: calc(100% - 16px);
     text-align: center;
-    text-transform: capitalize;
     white-space: nowrap;
 `;
 

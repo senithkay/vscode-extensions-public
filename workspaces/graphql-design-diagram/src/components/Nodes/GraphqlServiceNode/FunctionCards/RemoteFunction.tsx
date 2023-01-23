@@ -23,8 +23,8 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { RemoteFunction } from "../../../resources/model";
+import { FieldName, FieldType } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
-import { ResourceName } from "../styles/styles";
 
 interface RemoteFunctionProps {
     engine: DiagramEngine;
@@ -42,10 +42,10 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 port={node.getPort(`left-${remotePath}`)}
                 engine={engine}
             />
-            <ResourceName>
+            <FieldName>
                 {remoteFunc.identifier}
-            </ResourceName>
-            {remoteFunc.returns}
+            </FieldName>
+            <FieldType>{remoteFunc.returns}</FieldType>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${remotePath}`)}
                 engine={engine}

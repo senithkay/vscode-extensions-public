@@ -1,4 +1,5 @@
-import * as React from "react";
+// tslint:disable: no-implicit-dependencies jsx
+import React from "react";
 
 import { css, Global } from "@emotion/react";
 import styled from "@emotion/styled";

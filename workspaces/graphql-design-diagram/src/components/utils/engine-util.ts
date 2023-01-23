@@ -3,6 +3,7 @@ import createEngine, { DiagramEngine } from "@projectstorm/react-diagrams";
 import { GraphqlServiceLinkFactory } from "../Link/GraphqlServiceLink/GraphqlServiceLinkFactory";
 import { EnumNodeFactory } from "../Nodes/EnumNode/EnumNodeFactory";
 import { GraphqlServiceNodeFactory } from "../Nodes/GraphqlServiceNode/GraphqlServiceNodeFactory";
+import { RecordNodeFactory } from "../Nodes/RecordNode/RecordNodeFactory";
 import { GraphqlBasePortFactory } from "../Port/GraphqlBasePortFactory";
 
 export function createGraphqlDiagramEngine(): DiagramEngine {
@@ -13,5 +14,6 @@ export function createGraphqlDiagramEngine(): DiagramEngine {
     diagramEngine.getNodeFactories().registerFactory(new GraphqlServiceNodeFactory());
 
     diagramEngine.getNodeFactories().registerFactory(new EnumNodeFactory());
+    diagramEngine.getNodeFactories().registerFactory(new RecordNodeFactory());
     return diagramEngine;
 }

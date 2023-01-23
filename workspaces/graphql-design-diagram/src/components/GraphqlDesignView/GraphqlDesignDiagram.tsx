@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DiagramEditorLangClientInterface,
@@ -14,7 +15,6 @@ import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { GraphqlDiagramContainer } from "../GraphqlDiagramContainer/GraphqlDiagramContainer";
 import { GraphqlDesignModel } from "../resources/model";
 import { getModelForGraphqlService } from "../utils/ls-util";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export interface GraphqlDesignDiagramProps {
     targetPosition?: NodePosition;
@@ -54,14 +54,6 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps){
     }, []);
 
     const getGraphqlDesignModel = async () => {
-        // const startLineRange : LinePosition = {
-        //     line: 3,
-        //     offset: 0,
-        // }
-        // const endLineRange : LinePosition = {
-        //     line: 10,
-        //     offset: 1,
-        // }
         const request : GraphqlDesignServiceRequest = {
             filePath: currentFile.path,
             startLine: {line: targetPosition.startLine, offset: targetPosition.startColumn},

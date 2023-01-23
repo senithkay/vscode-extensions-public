@@ -23,8 +23,8 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ResourceFunction } from "../../../resources/model";
+import { FieldName, FieldType, } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
-import { ResourceName } from '../styles/styles';
 
 interface ResourceFunctionProps {
     engine: DiagramEngine;
@@ -42,10 +42,10 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 port={node.getPort(`left-${resourcePath}`)}
                 engine={engine}
             />
-                <ResourceName>
+                <FieldName>
                     {resource.identifier}
-                </ResourceName>
-            {resource.returns}
+                </FieldName>
+                <FieldType>{resource.returns}</FieldType>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${resourcePath}`)}
                 engine={engine}

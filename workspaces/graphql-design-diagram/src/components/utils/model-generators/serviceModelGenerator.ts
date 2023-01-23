@@ -5,12 +5,13 @@ import { GraphqlServiceLinkModel } from "../../Link/GraphqlServiceLink/GraphqlSe
 import { GraphqlDesignNode } from "../../Nodes/BaseNode/GraphqlDesignNode";
 import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
 import { GraphqlServiceNodeModel } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
+import { RecordNodeModel } from "../../Nodes/RecordNode/RecordNodeModel";
 import { GraphqlNodeBasePort } from "../../Port/GraphqlNodeBasePort";
 import {
     EnumComponent,
     FunctionType,
     GraphqlDesignModel,
-    Interaction,
+    Interaction, RecordComponent,
     RemoteFunction,
     ResourceFunction,
     Service
@@ -33,7 +34,11 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel) : Diagra
         const enums : Map<string, EnumComponent> = new Map(Object.entries(graphqlModel.enums));
         enumModelMapper(enums);
     }
-    // TODO: generate nodes for records/ service-classes/ unions
+    if (graphqlModel.records){
+        const records: Map<string, RecordComponent> = new Map(Object.entries(graphqlModel.records));
+        recordModelMapper(records);
+    }
+    // TODO: generate nodes for service-classes/ unions
 
     // generated linked nodes - service/records/enums
     generateLinks(graphqlModel);
@@ -53,6 +58,13 @@ function enumModelMapper(enums: Map<string, EnumComponent>) {
     enums.forEach((enumObj, key) => {
         const enumNode = new EnumNodeModel(enumObj);
         diagramNodes.set(key, enumNode);
+    })
+}
+
+function recordModelMapper(records: Map<string, RecordComponent>) {
+    records.forEach((recordObj, key) => {
+        const recordNode = new RecordNodeModel(recordObj);
+        diagramNodes.set(key, recordNode);
     })
 }
 

@@ -2,7 +2,9 @@ import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
+
 import { EnumField } from "../../../resources/model";
+import { FieldName } from "../../../resources/styles/styles";
 import { EnumNodeModel } from "../EnumNodeModel";
 import { EnumFieldContainer } from "../styles";
 
@@ -16,7 +18,7 @@ export function EnumFieldCard(props: EnumFieldCardProps) {
 
     return(
         <EnumFieldContainer>
-            {enumField.name}
+            <FieldName>{enumField.name}</FieldName>
         </EnumFieldContainer>
     );
 }

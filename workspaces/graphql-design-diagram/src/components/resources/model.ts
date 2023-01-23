@@ -19,7 +19,8 @@
 
 export interface GraphqlDesignModel {
     graphqlService: Service;
-    object: Map<string, ObjectComponent>;
+    records: Map<string, RecordComponent>;
+    serviceClasses: Map<string, ServiceClassComponent>;
     enums: Map<string, EnumComponent>;
     unions: Map<string, UnionComponent>;
 }
@@ -27,26 +28,37 @@ export interface GraphqlDesignModel {
 export interface Service {
     serviceName: string;
     position: Position;
+    description: string;
     resourceFunctions: ResourceFunction[];
     remoteFunctions: RemoteFunction[];
 }
 
-export interface ObjectComponent {
-    type: ObjectKind;
-    isInputObject: boolean;
+export interface RecordComponent {
+    name: string;
     position: Position;
-    fields: Field[];
+    description: string;
+    recordFields: RecordField[];
+    isInputObject: boolean;
+}
+
+export interface ServiceClassComponent {
+    serviceName: string;
+    position: Position;
+    description: string;
+    functions: ServiceClassField[];
 }
 
 export interface EnumComponent {
     name: string;
     position: Position;
+    description: string;
     enumFields: EnumField[];
 }
 
 interface UnionComponent {
     name: string;
     position: Position;
+    description: string;
     possibleTypes: Interaction[];
 }
 
@@ -65,6 +77,9 @@ export interface ResourceFunction {
     identifier: string;
     subscription: boolean;
     returns: string;
+    description: string;
+    isDeprecated: boolean;
+    deprecationReason: string;
     parameters: Param[];
     interactions: Interaction[];
 }
@@ -72,24 +87,47 @@ export interface ResourceFunction {
 export interface RemoteFunction {
     identifier: string;
     returns: string;
+    description: string;
+    isDeprecated: boolean;
+    deprecationReason: string;
     parameters: Param[];
     interactions: Interaction[];
 }
 
-enum ObjectKind {
-    CLASS,
-    RECORD
-}
-
-interface Field {
+export interface RecordField {
     name: string;
     type: string;
+    defaultValue: string;
     description: string;
     isDeprecated: boolean;
     deprecationReason: string;
     interactions: Interaction[];
-    parameters: Param[];
 }
+
+export interface ServiceClassField {
+    identifier: string;
+    returnType: string;
+    description: string;
+    isDeprecated: boolean;
+    deprecationReason: string;
+    parameters: Param[];
+    interactions: Interaction[];
+}
+
+// enum ObjectKind {
+//     CLASS,
+//     RECORD
+// }
+//
+// interface Field {
+//     name: string;
+//     type: string;
+//     description: string;
+//     isDeprecated: boolean;
+//     deprecationReason: string;
+//     interactions: Interaction[];
+//     parameters: Param[];
+// }
 
 export interface EnumField {
     name: string;
