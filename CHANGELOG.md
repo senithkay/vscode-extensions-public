@@ -11,10 +11,12 @@
 - Ballerina data mapper FHIR record support [356] (https://github.com/wso2/ballerina-plugin-vscode/issues/356)
 - Data Mapper - Display mappings associated with module level variables [365] (https://github.com/wso2/ballerina-plugin-vscode/issues/365)
 - Data Mapper - Add an edit option for output type in config panel [381] (https://github.com/wso2/ballerina-plugin-vscode/issues/381)
+- Statement Editor - Add expression template for adding parenthesis for selected expressions [385] (https://github.com/wso2/ballerina-plugin-vscode/issues/385)
 
 ### Fixed
 - Data mapper - cannot map a record to a record on the low code view [339] (https://github.com/wso2/ballerina-plugin-vscode/issues/339)
 - Data Mapper - Links with transformed values from the input nodes are not displayed [369] (https://github.com/wso2/ballerina-plugin-vscode/issues/369)
+- Data Mapper - Links associated with local variables are not displayed within query expressions [391] (https://github.com/wso2/ballerina-plugin-vscode/issues/391)
 
 ## **3.3.5**
 ### Fixed

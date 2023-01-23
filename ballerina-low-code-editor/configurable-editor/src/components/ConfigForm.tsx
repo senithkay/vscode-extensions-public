@@ -96,10 +96,11 @@ export const ConfigForm = (props: ConfigFormProps) => {
         onClickDefaultButton,
         onClickPrimaryButton,
         isFeaturePreview,
+        isLowCode,
     } = props;
     // The config property object retrieved from the config schema.
     const configElements: ConfigElementProps = getConfigProperties(
-        getPackageConfig(configSchema), connectionConfig, isFeaturePreview,
+        getPackageConfig(configSchema), connectionConfig, isFeaturePreview, isLowCode,
     );
     generateDocURL(env, configSchema);
     // Set the existing config values to the config property obtained.

@@ -43,6 +43,7 @@ const SimpleType = (props: SimpleTypeProps): ReactElement => {
         description: props.description,
         id: props.id,
         isFeaturePreview: props.isFeaturePreview,
+        isLowCode: props.isLowCode,
         isRequired: props.isRequired,
         name: props.name,
         type: props.type,
