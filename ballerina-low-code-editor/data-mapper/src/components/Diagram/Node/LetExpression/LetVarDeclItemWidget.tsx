@@ -19,7 +19,7 @@ import ExitToApp from "@material-ui/icons/ExitToApp";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LetVarDecl } from "@wso2-enterprise/syntax-tree";
+import { LetVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ViewOption } from "../../../DataMapper/DataMapper";
@@ -49,6 +49,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
     const portOut = getPort(`${id}.OUT`);
     const expanded = !(portOut && portOut.collapsed);
     const isRecord = typeDesc.typeName === PrimitiveBalType.Record;
+    const isQueryExpr = STKindChecker.isQueryExpression(declaration.expression);
 
     const label = (
         <span style={{ marginRight: "auto" }}>
@@ -75,9 +76,9 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                 ...context.selection,
                 selectedST: {
                     stNode: declaration,
-                    fieldPath: "LetExpr"
+                    fieldPath: `LetExpr.${valueLabel ? valueLabel : id}`
                 }
-            })
+            });
     }
 
     return (
@@ -95,9 +96,11 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                 )}
                     {label}
                 </span>
-                <div onClick={onClickOnExpand}>
-                    <ExitToApp />
-                </div>
+                {isQueryExpr && (
+                    <div onClick={onClickOnExpand}>
+                        <ExitToApp />
+                    </div>
+                )}
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} />
