@@ -24,8 +24,8 @@ export interface FormActionButtonsProps {
     saveBtnText?: string;
     isMutationInProgress?: boolean;
     validForm?: boolean;
-    onSave?: () => void;
-    onCancel?: () => void;
+    onSave?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+    onCancel?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
     cancelBtn?: boolean;
     statementEditor?: boolean;
     toggleChecked?: boolean;
@@ -39,9 +39,9 @@ export function FormActionButtons(props: FormActionButtonsProps) {
 
     const [isClicked, setIsClicked] = React.useState<boolean>(isMutationInProgress);
 
-    const handleSave = () => {
+    const handleSave = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         if (!isClicked) {
-            onSave();
+            onSave(event);
             setIsClicked(true);
         }
     };
