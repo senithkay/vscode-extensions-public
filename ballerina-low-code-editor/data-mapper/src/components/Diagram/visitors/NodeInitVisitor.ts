@@ -176,10 +176,10 @@ export class NodeInitVisitor implements Visitor {
                     }
                 }  else if (returnType.typeName === PrimitiveBalType.Union) {
                     const acceptedTypes = getFilteredUnionOutputTypes(returnType);
-                    // If union type, remove error/nil types and proceed if only one type is remaining 
-                    if(acceptedTypes.length === 1){
+                    // If union type, remove error/nil types and proceed if only one type is remaining
+                    if (acceptedTypes.length === 1){
                         const unionReturnType = acceptedTypes[0];
-                        if(unionReturnType.typeName === PrimitiveBalType.Record){
+                        if (unionReturnType.typeName === PrimitiveBalType.Record){
                             this.outputNode = new MappingConstructorNode(
                                 this.context,
                                 exprFuncBody,
@@ -199,7 +199,7 @@ export class NodeInitVisitor implements Visitor {
                             );
                         }
                     }
-                    
+
                 } else {
                     this.outputNode = new PrimitiveTypeNode(
                         this.context,

@@ -220,7 +220,7 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
                 applyQueryExpression(link, field.memberType);
             } else if (field.typeName === PrimitiveBalType.Union){
                 const [type] = getFilteredUnionOutputTypes(field);
-                if(type.typeName === PrimitiveBalType.Array && type.memberType) {
+                if (type.typeName === PrimitiveBalType.Array && type.memberType) {
                     applyQueryExpression(link, type.memberType);
                 }
             }

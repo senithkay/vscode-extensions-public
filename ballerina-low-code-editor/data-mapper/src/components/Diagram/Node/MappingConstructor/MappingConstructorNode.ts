@@ -88,7 +88,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
                 STKindChecker.isSelectClause(this.value), valueEnrichedType);
-            if(this.typeDef.typeName === PrimitiveBalType.Union){
+            if (this.typeDef.typeName === PrimitiveBalType.Union){
                 // todo: check primitive and array types
                 this.rootName = valueEnrichedType?.type?.name;
             }
@@ -113,7 +113,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                             this.context.collapsedFields, parentPort.collapsed, true);
                     });
                 }
-            } 
+            }
         }
     }
 

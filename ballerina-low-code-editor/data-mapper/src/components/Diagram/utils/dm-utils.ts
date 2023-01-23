@@ -686,7 +686,7 @@ export function getEnrichedRecordType(type: Type,
                                       node: STNode,
                                       selectedST: STNode,
                                       parentType?: EditableRecordField,
-                                      childrenTypes?: EditableRecordField[]):EditableRecordField {
+                                      childrenTypes?: EditableRecordField[]): EditableRecordField {
 	let editableRecordField: EditableRecordField = null;
 	let fields: Type[] = null;
 	let valueNode: STNode;
@@ -797,10 +797,10 @@ export function getEnrichedRecordType(type: Type,
 	} else if (type.typeName === PrimitiveBalType.Union) {
 		const acceptedMembers = getFilteredUnionOutputTypes(type);
 
-		if(acceptedMembers.length === 1){
+		if (acceptedMembers.length === 1){
 			// Only handle union params such as Type|error or Type?
 			// Params such as Type1|Type2 will not be handled
-			editableRecordField = getEnrichedRecordType(acceptedMembers[0],node, selectedST, parentType, childrenTypes)
+			editableRecordField = getEnrichedRecordType(acceptedMembers[0], node, selectedST, parentType, childrenTypes)
 		}
 	}
 
@@ -1150,4 +1150,4 @@ function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel)
 }
 
 /** Filter out error and nill types and return only the types that can be displayed as mapping as target nodes */
-export const getFilteredUnionOutputTypes = (type: Type) => type.members?.filter(member=>member && !["error","()"].includes(member.typeName));
+export const getFilteredUnionOutputTypes = (type: Type) => type.members?.filter(member => member && !["error", "()"].includes(member.typeName));
