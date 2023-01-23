@@ -40,7 +40,8 @@ export function ResourceHeader(props: ResourceHeaderProps) {
     const { history } = useHistoryContext();
     const { api: { navigation: { updateSelectedComponent } } } = useDiagramContext();
 
-    const handleResourceHeaderClick = () => {
+    const handleResourceHeaderClick = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
         const currentElementInfo = history[history.length - 1];
         const componentViewInfo: ComponentViewInfo = {
             filePath: currentElementInfo.filePath,
