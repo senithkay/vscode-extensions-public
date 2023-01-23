@@ -70,6 +70,8 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                                             key={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
                                             id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
                                             engine={engine}
+                                            declaration={decl.declaration}
+                                            context={context}
                                             typeDesc={decl.type}
                                             getPort={(portId: string) => getPort(portId) as RecordFieldPortModel}
                                             handleCollapse={handleCollapse}

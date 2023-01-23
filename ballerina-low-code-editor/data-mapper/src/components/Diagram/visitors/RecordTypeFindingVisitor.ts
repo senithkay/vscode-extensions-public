@@ -124,17 +124,14 @@ export class RecordTypeFindingVisitor implements Visitor {
     public beginVisitLetExpression(node: LetExpression){
         node.letVarDeclarations.map((decl: STNode) => {
             if (STKindChecker.isLetVarDecl(decl)) {
-                const declPosition: NodePosition = decl.expression.position;
-                this.expressionNodeRanges.push({
-                    startLine: {
-                        line: declPosition.startLine,
-                        offset: declPosition.startColumn
-                    },
-                    endLine: {
-                        line: declPosition.endLine,
-                        offset: declPosition.endColumn
-                    }
-                });
+                if (STKindChecker.isCaptureBindingPattern(decl.typedBindingPattern.bindingPattern)) {
+                    const varNamePosition: NodePosition = decl.typedBindingPattern.bindingPattern.variableName.position;
+                    this.symbolNodesPositions.push({
+                        line: varNamePosition.startLine,
+                        offset: varNamePosition.startColumn
+                    });
+                }
+                // TODO: Add support for other binding patterns
             }
         });
     }

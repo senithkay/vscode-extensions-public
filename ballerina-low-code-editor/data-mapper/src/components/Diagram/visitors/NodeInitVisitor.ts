@@ -15,8 +15,10 @@ import {
     CaptureBindingPattern,
     ExpressionFunctionBody,
     FunctionDefinition,
+    IdentifierToken,
     JoinClause,
     LetClause,
+    LetExpression,
     LetVarDecl,
     ListConstructor,
     MappingConstructor,
@@ -65,6 +67,7 @@ export class NodeInitVisitor implements Visitor {
     private intermediateNodes: DataMapperNodeModel[] = [];
     private mapIdentifiers: STNode[] = [];
     private isWithinQuery = 0;
+    private isWithinLetExpr = 0;
 
     constructor(
         private context: DataMapperContext,
@@ -227,36 +230,43 @@ export class NodeInitVisitor implements Visitor {
     beginVisitQueryExpression?(node: QueryExpression, parent?: STNode) {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
         const selectedSTNode = this.selection.selectedST.stNode;
-        const nodePosition: NodePosition = node.position as NodePosition;
         const isLetVarDecl = STKindChecker.isLetVarDecl(parent);
-        if (STKindChecker.isSpecificField(selectedSTNode)
-            && nodePosition.startLine === (selectedSTNode.valueExpr.position as NodePosition).startLine
-            && nodePosition.startColumn === (selectedSTNode.valueExpr.position as NodePosition).startColumn) {
-            if (parent && STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
+        const isSelectedExpr = parent
+            && (STKindChecker.isSpecificField(selectedSTNode) || STKindChecker.isLetVarDecl(selectedSTNode))
+            && isPositionsEquals(parent.position, selectedSTNode.position);
+        if (isSelectedExpr) {
+            let parentIdentifier: IdentifierToken;
+            if (STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
+                parentIdentifier = parent.fieldName;
+            } else if (STKindChecker.isLetVarDecl(parent)
+                && STKindChecker.isCaptureBindingPattern(parent.typedBindingPattern.bindingPattern)) {
+                parentIdentifier = parent.typedBindingPattern.bindingPattern.variableName;
+            }
+            if (parentIdentifier) {
                 const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 80;
                 const yPosition = 50 + intermediateClausesHeight;
                 // create output node
-                const exprType = getTypeOfOutput(parent.fieldName, this.context.ballerinaVersion);
+                const exprType = getTypeOfOutput(parentIdentifier, this.context.ballerinaVersion);
 
                 if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         node.selectClause,
-                        parent.fieldName,
+                        parentIdentifier,
                         node
                     );
                 } else if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Array) {
                     this.outputNode = new ListConstructorNode(
                         this.context,
                         node.selectClause,
-                        parent.fieldName,
+                        parentIdentifier,
                         node
                     );
                 } else {
                     this.outputNode = new PrimitiveTypeNode(
                         this.context,
                         node.selectClause,
-                        parent.fieldName,
+                        parentIdentifier,
                         node
                     );
                 }
@@ -367,6 +377,7 @@ export class NodeInitVisitor implements Visitor {
             this.mapIdentifiers.push(node)
         }
         if (this.isWithinQuery === 0
+            && this.isWithinLetExpr === 0
             && node.valueExpr
             && !STKindChecker.isMappingConstructor(node.valueExpr)
             && !STKindChecker.isListConstructor(node.valueExpr)
@@ -452,6 +463,14 @@ export class NodeInitVisitor implements Visitor {
                 this.intermediateNodes.push(linkConnectorNode);
             }
         }
+    }
+
+    beginVisitLetExpression(node: LetExpression): void {
+        this.isWithinLetExpr += 1;
+    }
+
+    endVisitLetExpression(node: LetExpression): void {
+        this.isWithinLetExpr -= 1;
     }
 
     beginVisitMappingConstructor(node: MappingConstructor): void {

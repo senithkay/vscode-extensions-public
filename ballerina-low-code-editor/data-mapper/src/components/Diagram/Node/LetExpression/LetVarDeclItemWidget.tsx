@@ -15,10 +15,14 @@ import * as React from 'react';
 
 import { IconButton } from '@material-ui/core';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ExitToApp from "@material-ui/icons/ExitToApp";
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { LetVarDecl } from "@wso2-enterprise/syntax-tree";
 
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";
 import { RecordFieldTreeItemWidget } from "../commons/RecordTypeTreeWidget/RecordFieldTreeItemWidget";
@@ -30,13 +34,15 @@ export interface LetVarDeclItemProps {
     id: string; // this will be the root ID used to prepend for UUIDs of nested fields
     typeDesc: Type;
     engine: DiagramEngine;
+    declaration: LetVarDecl;
+    context: IDataMapperContext;
     getPort: (portId: string) => RecordFieldPortModel;
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
     valueLabel?: string;
 }
 
 export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
-    const { engine, typeDesc, id, getPort, handleCollapse, valueLabel } = props;
+    const { engine, typeDesc, id, declaration, context, getPort, handleCollapse, valueLabel } = props;
     const classes = useStyles();
 
     const typeName = getTypeName(typeDesc);
@@ -63,6 +69,17 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
         handleCollapse(id, !expanded);
     }
 
+    const onClickOnExpand = () => {
+        context.changeSelection(ViewOption.EXPAND,
+            {
+                ...context.selection,
+                selectedST: {
+                    stNode: declaration,
+                    fieldPath: "LetExpr"
+                }
+            })
+    }
+
     return (
         <>
             <TreeHeader>
@@ -78,6 +95,9 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                 )}
                     {label}
                 </span>
+                <div onClick={onClickOnExpand}>
+                    <ExitToApp />
+                </div>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
                         <DataMapperPortWidget engine={engine} port={portOut} />
@@ -99,8 +119,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                                     treeDepth={0}
                                 />
                             );
-                        })
-                        }
+                        })}
                     </TreeBody>
                 )
             }
