@@ -105,11 +105,11 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	// extend this class to add link init, port init logics
 
 	protected addPortsForInputRecordField(field: Type, type: "IN" | "OUT", parentId: string,
-		portPrefix?: string,
-		parent?: RecordFieldPortModel,
-		collapsedFields?: string[],
-		hidden?: boolean,
-		isOptional?: boolean): number {
+		                                     portPrefix?: string,
+		                                     parent?: RecordFieldPortModel,
+		                                     collapsedFields?: string[],
+		                                     hidden?: boolean,
+		                                     isOptional?: boolean): number {
 		const fieldName = field?.name ? getBalRecFieldName(field.name) : '';
 		const fieldFQN = parentId ? `${parentId}${fieldName && isOptional ? `?.${fieldName}` : `.${fieldName}`}` : fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
@@ -137,12 +137,12 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
-		parentId: string, elementIndex?: number,
-		portPrefix?: string,
-		parent?: RecordFieldPortModel,
-		collapsedFields?: string[],
-		hidden?: boolean,
-		isWithinSelectClause?: boolean
+		                                      parentId: string, elementIndex?: number,
+		                                      portPrefix?: string,
+		                                      parent?: RecordFieldPortModel,
+		                                      collapsedFields?: string[],
+		                                      hidden?: boolean,
+		                                      isWithinSelectClause?: boolean
 	) {
 		const fieldName = getFieldName(field);
 		if (elementIndex !== undefined) {
@@ -176,11 +176,11 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForHeaderField(field: Type, name: string,
-		type: "IN" | "OUT",
-		portPrefix: string,
-		collapsedFields?: string[],
-		isWithinSelectClause?: boolean,
-		editableRecordField?: EditableRecordField): RecordFieldPortModel {
+		                                type: "IN" | "OUT",
+		                                portPrefix: string,
+		                                collapsedFields?: string[],
+		                                isWithinSelectClause?: boolean,
+		                                editableRecordField?: EditableRecordField): RecordFieldPortModel {
 		const fieldName = getBalRecFieldName(name);
 		let portName = fieldName;
 		if (portPrefix) {
