@@ -61,8 +61,7 @@ import {
 	getFieldName,
 	getInputNodes,
 	getOptionalRecordField,
-	isComplexExpression,
-	isOptionalRecordField
+	isComplexExpression
 } from "../../utils/dm-utils";
 
 export interface DataMapperNodeModelGenerics {
@@ -119,8 +118,9 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			parent, isCollapsed, hidden);
 		this.addPort(fieldPort)
 		let numberOfFields = 1;
-		if (isOptionalRecordField(field)) {
-			getOptionalRecordField(field)?.fields.forEach((subField) => {
+		const optionalRecordField = getOptionalRecordField(field);
+		if (optionalRecordField) {
+			optionalRecordField?.fields.forEach((subField) => {
 				numberOfFields += this.addPortsForInputRecordField(subField, type, fieldFQN, portPrefix,
 					fieldPort, collapsedFields, isCollapsed ? true : hidden, true);
 			});

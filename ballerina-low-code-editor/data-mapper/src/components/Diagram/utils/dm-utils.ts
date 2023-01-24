@@ -570,8 +570,9 @@ export function getInputPortsForExpr(node: RequiredParamNode
 				const fieldName = fieldNames[i];
 				portIdBuffer += fieldName.isOptional ? `?.${fieldName.name}` : `.${fieldName.name}`;
 				let recField: Type;
-				if (isOptionalRecordField(nextTypeNode)) {
-					recField = getOptionalRecordField(nextTypeNode)?.fields.find((field: Type) => getBalRecFieldName(field.name) === fieldName.name);
+				const optionalRecordField = getOptionalRecordField(nextTypeNode);
+				if (optionalRecordField) {
+					recField = optionalRecordField?.fields.find((field: Type) => getBalRecFieldName(field.name) === fieldName.name);
 				} else if (nextTypeNode.typeName === PrimitiveBalType.Record) {
 					recField = nextTypeNode.fields.find(
 						(field: Type) => getBalRecFieldName(field.name) === fieldName.name);
@@ -1149,22 +1150,14 @@ function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel)
 		);
 }
 
-export const isOptionalRecordField = (field: Type) => {
-	if (PrimitiveBalType.Union === field.typeName) {
-		const isSimpleOptionalType = field.members?.some(member => member.typeName === '()');
-		const containedRecordType = field.members?.find(member => member.typeName === PrimitiveBalType.Record);
-		return isSimpleOptionalType && containedRecordType && containedRecordType.fields && field.members?.length === 2;
-	} else if (PrimitiveBalType.Record === field.typeName && field.optional) {
-		return true;
-	}
-	return false;
-}
-
 export const getOptionalRecordField = (field: Type): Type | undefined => {
 	if (PrimitiveBalType.Record === field.typeName && field.optional) {
 		return field;
 	} else if (PrimitiveBalType.Union === field.typeName) {
-		return field.members?.find(member => member.typeName === PrimitiveBalType.Record);
+		const isSimpleOptionalType = field.members?.some(member => member.typeName === '()');
+		if (isSimpleOptionalType && field.members?.length === 2){
+			return field.members?.find(member => member.typeName === PrimitiveBalType.Record);
+		}
 	}
 }
 

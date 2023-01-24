@@ -21,7 +21,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getOptionalRecordField, getTypeName, isOptionalRecordField } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getOptionalRecordField, getTypeName } from "../../../utils/dm-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -107,9 +107,10 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     let fields: Type[];
     let optional = false;
 
-    if (isOptionalRecordField(field)) {
+    const optionalRecordField = getOptionalRecordField(field);
+    if (optionalRecordField) {
         optional = true
-        fields = getOptionalRecordField(field).fields;
+        fields = optionalRecordField.fields;
     } else if (field.typeName === PrimitiveBalType.Record) {
         fields = field.fields;
     }
