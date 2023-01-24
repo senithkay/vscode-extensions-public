@@ -16,13 +16,15 @@ import {
     ExpressionFunctionBody,
     LetExpression,
     LetVarDecl,
+    NodePosition,
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getLetExpressions } from "../../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
+import { isGoToQueryWithinLetExprSupported } from "../../../DataMapper/utils";
 import { LET_EXPRESSION_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getTypeOfOutput } from "../../utils/dm-utils";
+import { getTypeFromStore, getTypeOfOutput } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const LET_EXPR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-let-expression";
@@ -57,6 +59,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
         }
         this.letExpr = this.value.expression;
         const letExpressions = getLetExpressions(this.letExpr);
+        const balVersion = this.context.ballerinaVersion;
 
         letExpressions.forEach(expr => {
             const letVarDecls = expr.letVarDeclarations;
@@ -66,7 +69,11 @@ export class LetExpressionNode extends DataMapperNodeModel {
 
                     if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
                         const varName = bindingPattern.variableName;
-                        const type = getTypeOfOutput(varName, this.context.ballerinaVersion);
+                        const exprPosition = decl.expression.position as NodePosition;
+
+                        const type = isGoToQueryWithinLetExprSupported(balVersion)
+                            ? getTypeOfOutput(varName, this.context.ballerinaVersion)
+                            : getTypeFromStore(exprPosition);
 
                         const parentPort = this.addPortsForHeaderField(type, varName.value, "OUT",
                             LET_EXPRESSION_SOURCE_PORT_PREFIX, this.context.collapsedFields);

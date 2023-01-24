@@ -56,6 +56,7 @@ import {
     getExprBodyFromLetExpression,
     getInputNodes,
     getModuleVariables,
+    getTypeFromStore,
     getTypeOfOutput,
     isComplexExpression
 } from "../utils/dm-utils";
@@ -246,7 +247,11 @@ export class NodeInitVisitor implements Visitor {
                 const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 80;
                 const yPosition = 50 + intermediateClausesHeight;
                 // create output node
-                const exprType = getTypeOfOutput(parentIdentifier, this.context.ballerinaVersion);
+                let exprType = getTypeOfOutput(parentIdentifier, this.context.ballerinaVersion);
+                // Fetch types from let var decl expression to ensure the backward compatibility
+                if (!exprType && STKindChecker.isLetVarDecl(parent)) {
+                    exprType = getTypeFromStore(parent.expression.position as NodePosition);
+                }
 
                 if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(

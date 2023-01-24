@@ -23,6 +23,7 @@ import { LetVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ViewOption } from "../../../DataMapper/DataMapper";
+import { isGoToQueryWithinLetExprSupported } from "../../../DataMapper/utils";
 import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";
 import { RecordFieldTreeItemWidget } from "../commons/RecordTypeTreeWidget/RecordFieldTreeItemWidget";
@@ -59,7 +60,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
             </span>
             {typeName && (
                 <span className={classes.typeLabel}>
-                    {typeName}
+                    {typeName !== `$CompilationError$` ? typeName : 'var'}
                 </span>
             )}
 
@@ -95,7 +96,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                         </IconButton>
                     )}
                     {label}
-                    {isQueryExpr && (
+                    {isQueryExpr && isGoToQueryWithinLetExprSupported(context.ballerinaVersion) && (
                         <div className={classes.gotoExprIcon} onClick={onClickOnExpand}>
                             <ExitToApp />
                         </div>

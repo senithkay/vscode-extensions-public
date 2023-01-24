@@ -132,6 +132,19 @@ export class RecordTypeFindingVisitor implements Visitor {
                     });
                 }
                 // TODO: Add support for other binding patterns
+
+                // Keeping the below to ensure the backward compatibility
+                const declPosition: NodePosition = decl.expression.position;
+                this.expressionNodeRanges.push({
+                    startLine: {
+                        line: declPosition.startLine,
+                        offset: declPosition.startColumn
+                    },
+                    endLine: {
+                        line: declPosition.endLine,
+                        offset: declPosition.endColumn
+                    }
+                });
             }
         });
     }
