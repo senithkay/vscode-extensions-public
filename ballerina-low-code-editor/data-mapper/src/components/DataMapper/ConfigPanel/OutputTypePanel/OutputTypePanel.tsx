@@ -66,7 +66,6 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
     const label = (
         <>
             <TypeName isInvalid={outputType.isUnsupported}>{outputType.isArray ? `${outputType.type}[]` : outputType.type}</TypeName>
-            <span>{" " + outputType.type}</span>
         </>
     );
 

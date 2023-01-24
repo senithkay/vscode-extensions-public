@@ -52,6 +52,7 @@ import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel"
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
     getExprBodyFromLetExpression,
+    getFilteredUnionOutputTypes,
     getInputNodes,
     getModuleVariables,
     getTypeOfOutput,
@@ -173,6 +174,32 @@ export class NodeInitVisitor implements Visitor {
                             typeDesc
                         );
                     }
+                }  else if (returnType.typeName === PrimitiveBalType.Union) {
+                    const acceptedTypes = getFilteredUnionOutputTypes(returnType);
+                    // If union type, remove error/nil types and proceed if only one type is remaining
+                    if (acceptedTypes.length === 1){
+                        const unionReturnType = acceptedTypes[0];
+                        if (unionReturnType.typeName === PrimitiveBalType.Record){
+                            this.outputNode = new MappingConstructorNode(
+                                this.context,
+                                exprFuncBody,
+                                typeDesc
+                            );
+                        } else if (unionReturnType.typeName === PrimitiveBalType.Array) {
+                            this.outputNode = new ListConstructorNode(
+                                this.context,
+                                exprFuncBody,
+                                typeDesc
+                            );
+                        } else {
+                            this.outputNode = new PrimitiveTypeNode(
+                                this.context,
+                                exprFuncBody,
+                                typeDesc,
+                            );
+                        }
+                    }
+
                 } else {
                     this.outputNode = new PrimitiveTypeNode(
                         this.context,
