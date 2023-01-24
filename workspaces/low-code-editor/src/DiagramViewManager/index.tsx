@@ -15,16 +15,13 @@ import { IntlProvider } from "react-intl";
 import { Provider as HistoryProvider } from './context/history';
 
 import { MuiThemeProvider } from "@material-ui/core";
-import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { Diagram } from "../Diagram";
 import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
-import { ServiceDesign } from "../Diagram/components/ServiceDesign";
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
-import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
 import {
     getLowcodeST,
@@ -171,7 +168,6 @@ export function DiagramViewManager(props: EditorProps) {
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         const { filePath, position } = componentDetails;
-        console.log('>>> udpate selected Component', filePath, position);
         (async () => {
             try {
                 const langClient = await langClientPromise;
@@ -200,11 +196,6 @@ export function DiagramViewManager(props: EditorProps) {
                 console.error(err);
             }
         })();
-        // historyPush(componentDetails);
-    }
-
-    const handleNavigationBack = () => {
-        historyPop();
     }
 
     const handleNavigationHome = () => {
@@ -230,16 +221,6 @@ export function DiagramViewManager(props: EditorProps) {
                     onCancel={handleNavigationHome}
                 />
             ));
-            // viewComponent.push((
-            //     <ServiceDesign
-            //         model={focusedST}
-            //         langClientPromise={langClientPromise as any}
-            //         onClose={handleNavigationBack}
-            //         handleDiagramEdit={function(model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void): void {
-            //             throw new Error("Function not implemented.");
-            //         }}
-            //     />
-            // ))
         } else if (STKindChecker.isFunctionDefinition(focusedST)
             && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
             viewComponent.push((

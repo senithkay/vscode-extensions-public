@@ -201,7 +201,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path) => {
 		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
-			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, position, path);
+			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position);
 		} else {
 			const args = [{
 				filePath: path,
@@ -214,11 +214,23 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	});
 
 	const diagramRenderDisposable = commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (...args: any[]) => {
+		let path = args.length > 0 ? args[0] : '';
+		if (args[0] instanceof Uri) {
+			path = args[0].fsPath;
+		}
+
+		let nodePosition: NodePosition;
+		if ((args[1] as NodePosition).startLine !== undefined
+			&& (args[1] as NodePosition).startColumn !== undefined
+			&& (args[1] as NodePosition).endLine !== undefined
+			&& (args[1] as NodePosition).endColumn !== undefined) {
+			nodePosition = args[1];
+		}
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(0, 0, args.length > 1 ? args[1] : '', true, args.length > 0 ? args[0] : undefined);
+				showDiagramEditor(0, 0, path, true, nodePosition);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
