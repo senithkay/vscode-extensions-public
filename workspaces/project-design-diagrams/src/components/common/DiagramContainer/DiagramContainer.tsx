@@ -84,14 +84,14 @@ export function DiagramContainer(props: DiagramContainerProps) {
                     {serviceModels &&
                         <>
                             {currentView === Views.L1_SERVICES && (
-                                <div style={{display:"flex", flexDirection:"row", marginTop:-50}}>
-                                    {/*West Gateway*/}
-                                    <GatewayContainer marginLeft={0} marginTop={400}>
-                                        <WestGatewayIcon/>
-                                    </GatewayContainer>
-                                    <Diagram display='flex'>
+                                <div style={{display:"block"}}>
+                                    <Diagram>
+                                        {/*West Gateway*/}
+                                        <GatewayContainer top={"calc(45vh + 30px)"} left={"calc(7vw - 44px)"} >
+                                            <WestGatewayIcon/>
+                                        </GatewayContainer>
                                         {/*North Gateway*/}
-                                        <GatewayContainer marginLeft={470} marginTop={50}>
+                                        <GatewayContainer top={'50px'} left={"calc(40vw + 100px)"}>
                                             <NorthGatewayIcon/>
                                         </GatewayContainer>
                                         <CanvasContainer>
@@ -106,14 +106,14 @@ export function DiagramContainer(props: DiagramContainerProps) {
                             )}
 
                             {currentView === Views.L2_SERVICES && (
-                                <div style={{display:"flex", flexDirection:"row", marginTop:-50}}>
-                                    {/*West Gateway*/}
-                                    <GatewayContainer marginLeft={0} marginTop={400}>
-                                        <WestGatewayIcon/>
-                                    </GatewayContainer>
-                                    <Diagram display='flex'>
+                                <div style={{display:"block"}}>
+                                    <Diagram>
+                                        {/*West Gateway*/}
+                                        <GatewayContainer top={'46vh'} left={"calc(7vw - 44px)"} >
+                                            <WestGatewayIcon/>
+                                        </GatewayContainer>
                                         {/*North Gateway*/}
-                                        <GatewayContainer marginLeft={470} marginTop={50}>
+                                        <GatewayContainer top={'50px'} left={'46vw'}>
                                             <NorthGatewayIcon/>
                                         </GatewayContainer>
                                         <CanvasContainer>

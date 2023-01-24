@@ -58,25 +58,23 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const diagramRef = useRef<HTMLDivElement>(null);
 
-    const onDiagramMoveStarted = () => {
+    const onDiagramMoveStarted = debounce(() => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
             if (link instanceof GatewayLinkModel) {
-                link.setLinkVisibility(false);
-                debouncedDiagramRedraw();
+                link.fireEvent({}, 'setInVisible');
             }
         });
-    };
+        positionGatewayNodes(diagramEngine);
+    }, 30);
 
-    const onDiagramMoveFinished = () => {
+    const onDiagramMoveFinished = debounce(() => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
             if (link instanceof GatewayLinkModel) {
-                if (!link.getLinkVisibility()) {
-                    link.setLinkVisibility(true);
-                    debouncedDiagramRedraw();
-                }
+                link.fireEvent({}, 'setVisible');
             }
         });
-    };
+        positionGatewayNodes(diagramEngine);
+    }, 30);
 
     useEffect(() => {
         if (currentView === Views.L1_SERVICES && editingEnabled) {
@@ -121,11 +119,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     };
 
     const redrawDiagram = () => {
-        dagreEngine.redistribute(diagramEngine.getModel());
         positionGatewayNodes(diagramEngine);
         diagramEngine.repaintCanvas();
     };
-    const debouncedDiagramRedraw = debounce(redrawDiagram, 50);
 
     const onZoom = (zoomIn: boolean) => {
         let delta: number = zoomIn ? +5 : -5;
@@ -155,7 +151,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     return (
         <>
             {diagramEngine && diagramEngine.getModel() &&
-                <Canvas ref={diagramRef} onMouseDown={onDiagramMoveStarted} onMouseMove={onDiagramMoveFinished} onMouseUp={onDiagramMoveFinished}>
+                <Canvas ref={diagramRef} onMouseDown={onDiagramMoveStarted} onMouseUp={onDiagramMoveFinished}>
                     <CanvasWidget engine={diagramEngine} className={'diagram-container'}  />
                 </Canvas>
             }

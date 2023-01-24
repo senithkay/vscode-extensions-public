@@ -68,14 +68,14 @@ export function positionGatewayNodes(engine: DiagramEngine) {
     const canvas = engine.getCanvas();
     const zoomLevel = model.getZoomLevel();
     if (canvas) {
-        const canvasTopMidX = (canvas.clientWidth * 0.02) - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 4.85);
-        const canvasTopMidY = (canvas.clientHeight * 0.25) - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 0.7);
+        const canvasTopMidX = (canvas.clientWidth * 0.09) - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 4.85);
+        const canvasTopMidY = (canvas.clientHeight * 0.235) - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 0.7);
         const canvasRightMidX = (canvas.clientWidth * 0.265) - model.getOffsetX();
         const canvasRightMidY = (canvas.clientHeight * 0.15) - model.getOffsetY();
         const canvasBottomMidX = (-(canvas.clientWidth * 0.254) - model.getOffsetX());
         const canvasBottomMidY = (canvas.clientWidth * 0.4) - model.getOffsetY();
-        const canvasLeftMidX = (canvas.clientWidth * 0.008) - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 0.78);
-        const canvasLeftMidY = (canvas.clientHeight * 0.38) - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 3);
+        const canvasLeftMidX = (canvas.clientWidth * 0.006) - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 0.78);
+        const canvasLeftMidY = (canvas.clientHeight * 0.42) - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 3);
         gatewayNodes.forEach((node) => {
             if (node.type === 'NORTH') {
                 node.setPosition(canvasTopMidX, canvasTopMidY);

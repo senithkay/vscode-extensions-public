@@ -37,7 +37,7 @@ const Container = styled.div`
     flex-direction: column;
     font-family: GilmerRegular;
     justify-content: center;
-    min-height: 100vh;
+    min-height: 85vh;
     min-width: 100vw;
 `;
 

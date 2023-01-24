@@ -33,7 +33,7 @@ import {
 export class GatewayLinkModel extends DefaultLinkModel {
 	diagramEngine: DiagramEngine | undefined;
 	readonly level: Level;
-	isLinkVisible: boolean = true;
+	linkVisibility: boolean = true;
 
 	constructor(level: Level) {
 		super({
@@ -76,12 +76,7 @@ export class GatewayLinkModel extends DefaultLinkModel {
 			lineCurve.getSourceControl().translate(...this.calculateControlOffset(this.getSourcePort()));
 			lineCurve.getTargetControl().translate(...this.calculateControlOffset(this.getTargetPort()));
 		}
-
-		if (this.isLinkVisible) {
-			return lineCurve.getSVGCurve();
-		} else {
-			return "";
-		}
+		return lineCurve.getSVGCurve();
 	}
 
 	onPositionChange = debounce(() => {
@@ -104,7 +99,7 @@ export class GatewayLinkModel extends DefaultLinkModel {
 				}
 			}
 		}
-	}, 500);
+	});
 
 	getPortPositions = () => {
 		let sourceLeft: number;
@@ -165,11 +160,11 @@ export class GatewayLinkModel extends DefaultLinkModel {
 		return points;
 	}
 
-	setLinkVisibility = (isVisible: boolean) => {
-		this.isLinkVisible = isVisible;
+	setIsLinkVisible = (isVisible: boolean) => {
+		this.linkVisibility = isVisible;
 	}
 
 	getLinkVisibility = () => {
-		return this.isLinkVisible;
+		return this.linkVisibility;
 	}
 }

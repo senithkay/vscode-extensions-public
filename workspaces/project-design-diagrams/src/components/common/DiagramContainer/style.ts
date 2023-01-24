@@ -15,11 +15,9 @@ import styled from '@emotion/styled';
 import { Colors } from "../../../resources";
 
 export const CanvasContainer = styled.div`
-  width: 1150px;
-  height: 700px;
+  height: 85vh;
+  width: 85vw;
   position: relative;
-  margin-top: -50px;
-  margin-left: -50px;
   clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%, 0 10%);
 `;
 
@@ -30,19 +28,20 @@ interface DiagramContainerStyleProps {
 export const Diagram = styled.div`
   display: ${(props: DiagramContainerStyleProps) => `${props.display}`};
   flex-direction: column;
+  padding-top: 60px;
 `;
 
 interface GatewayContainerProps {
-    marginLeft?: number;
-    marginTop?: number;
+    left?: string;
+    top?: string;
 }
 
 export const GatewayContainer = styled.div`
   width: 100px;
   height: 100px;
-  position: relative;
-  margin-left: ${(props: GatewayContainerProps) => `${props.marginLeft}px`};
-  margin-top: ${(props: GatewayContainerProps) => `${props.marginTop}px`};
+  position: absolute;
+  left: ${(props: GatewayContainerProps) => props.left};
+  top: ${(props: GatewayContainerProps) => props.top};
   z-index: 1;
   clip-path: circle(50% at 50% 50%);
 `;
