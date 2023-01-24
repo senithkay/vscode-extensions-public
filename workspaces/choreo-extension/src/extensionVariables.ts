@@ -10,13 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ExtensionContext, TreeItem, TreeView } from "vscode";
+import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 
 export namespace ext {
     export let context: ExtensionContext;
     export let isPluginStartup: boolean;
     export let api: ChoreoExtensionApi;
+    export let statusBarItem: StatusBarItem; 
 
     // views
     export let projectsTreeView: TreeView<TreeItem>;

@@ -10,10 +10,13 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Project } from "./types";
+
+import { Project, Component } from "./types";
 
 export interface IProjectManager {
     // TODO Summayya: Add remaining methods
-    createComponent(): Promise<void>;
+    createComponent(componentDetails: unknown): Promise<string>;
     getProjectDetails(): Promise<Project>;
+    getProjectRoot(): Promise<string | undefined>;
+    getLocalComponents(workspaceFilePath: string): Component[];
 }

@@ -17,12 +17,12 @@
  *
  */
 
-import React, { useContext, useEffect, useState } from 'react';
-import { DiagramContext } from '../../../../components/common';
+import React, { useEffect, useState } from 'react';
 import { TextInputWidget } from '../InputWidget/TextInput';
 import { DirectoryPicker } from './DirectoryPicker';
 import { VisibilityButton } from '../Controls/VisibilityButton';
 import { AddComponentDetails } from '../../../../resources';
+import { ProjectDesignRPC } from '../../../../utils/rpc/project-design-rpc';
 import {
     OrganizationRegex, OrganizationRules, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex
 } from '../../resources/constants';
@@ -40,14 +40,12 @@ interface AdvancedSettingsProps {
 export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
     const [visibility, changeVisibility] = useState<boolean>(false);
     const { component, updatePackage, updateOrganization, updateVersion, setDirectory, selectDirectory } = props;
-    const { getProjectRoot } = useContext(DiagramContext);
 
     useEffect(() => {
-        async function getDefaultDirectory() {
-            const projectRoot = await getProjectRoot();
-            setDirectory(projectRoot);
-        }
-        getDefaultDirectory();
+        const rpcInstance = new ProjectDesignRPC((window as any).vscode);
+        rpcInstance.getProjectRoot().then((response) => {
+            setDirectory(response);
+        });
     }, [])
 
     return (

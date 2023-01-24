@@ -17,22 +17,15 @@
  *
  */
 
-import { commands, ExtensionContext, OpenDialogOptions, ProgressLocation, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace } from "vscode";
+import { commands, ExtensionContext, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
-import { randomUUID } from "crypto";
-import { existsSync, readFile, writeFile } from "fs";
-import path, { join } from "path";
+import { existsSync } from "fs";
 import { debounce } from "lodash";
-import { IProjectManager } from "@wso2-enterprise/choreo-core"
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { AddComponentDetails, ComponentModel, Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, Service, USER_TIP } from "./resources";
-import { WebViewMethod, WebViewRPCHandler } from "../utils";
-import { createTerminal } from "../project";
-import { addToWorkspace, getCurrenDirectoryPath } from "../utils/project-utils";
-import { runCommand } from "../testing/runner";
-import { addConnector } from "./code-generator";
+import { Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
+import { ProjectDesignRPC } from "./utils";
 
 let context: ExtensionContext;
 let langClient: ExtendedLangClient;
@@ -44,21 +37,13 @@ export interface STResponse {
     source: string;
 }
 
-const directoryPickOptions: OpenDialogOptions = {
-    canSelectMany: false,
-    openLabel: 'Select',
-    canSelectFiles: false,
-    canSelectFolders: true
-};
-
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     context = <ExtensionContext>ballerinaExtInstance.context;
     langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand("ballerina.view.ProjectDesigns", () => {
+    const designDiagramRenderer = commands.registerCommand("ballerina.view.architectureView", () => {
         ballerinaExtInstance.onReady()
             .then(() => {
                 if (isCompatible(ballerinaExtInstance)) {
-                    createTerminal(getCurrenDirectoryPath())
                     viewProjectDesignDiagrams();
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
@@ -90,42 +75,13 @@ function viewProjectDesignDiagrams() {
     }
 }
 
-async function getProjectResources(): Promise<Map<string, ComponentModel>> {
-    return new Promise((resolve, reject) => {
-        let ballerinaFiles: string[] = [];
-        let workspaceFolders = workspace.workspaceFolders;
-        if (workspaceFolders !== undefined) {
-            workspaceFolders.forEach(folder => {
-                const isBalProject = existsSync(join(folder.uri.fsPath, "Ballerina.toml"));
-                if (isBalProject) {
-                    ballerinaFiles.push(join(folder.uri.fsPath, "Ballerina.toml"));
-                }
-            });
-        } else {
-            workspace.textDocuments.forEach(file => {
-                ballerinaFiles.push(file.uri.fsPath);
-            });
-        }
-
-        langClient.getPackageComponentModels({
-            documentUris: ballerinaFiles
-        }).then((response) => {
-            injectDeploymentMetadata(new Map(Object.entries(response.componentModels)));
-            resolve(response.componentModels);
-        }).catch((error) => {
-            reject(error);
-            terminateActivation(ERROR_MESSAGE);
-        });
-    });
-}
-
 function setupWebviewPanel() {
     if (designDiagramWebview) {
         designDiagramWebview.reveal();
     } else {
         designDiagramWebview = window.createWebviewPanel(
-            "ballerinaProjectDesign",
-            "Ballerina Project Design",
+            "architectureView",
+            "Architecture View",
             { viewColumn: ViewColumn.One, preserveFocus: false },
             getCommonWebViewOptions()
         );
@@ -156,78 +112,15 @@ function setupWebviewPanel() {
             }
         }, 500));
 
+        ProjectDesignRPC.create(designDiagramWebview, langClient);
+
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;
         });
-
-        const remoteMethods: WebViewMethod[] = [
-            {
-                methodName: "fetchProjectResources",
-                handler: (): Promise<Map<string, ComponentModel>> => {
-                    return getProjectResources();
-                }
-            },
-            {
-                methodName: "createService",
-                handler: async (args: any[]): Promise<string> => {
-                    return createService(args[0]);
-                }
-            },
-            {
-                methodName: "pickDirectory",
-                handler: async (): Promise<string | undefined> => {
-                    return window.showOpenDialog(directoryPickOptions).then(fileUri => {
-                        if (fileUri && fileUri[0]) {
-                            return fileUri[0].fsPath;
-                        }
-                    });
-                }
-            },
-            {
-                methodName: "getProjectRoot",
-                handler: async (): Promise<string | undefined> => {
-                    const workspaceFolders = workspace.workspaceFolders;
-                    if (workspaceFolders && workspaceFolders?.length > 0) {
-                        let parentCandidate = path.parse(workspaceFolders[0].uri.fsPath).dir;
-                        workspaceFolders.forEach((workspaceFolder) => {
-                            const relative = path.relative(parentCandidate, workspaceFolder.uri.fsPath);
-                            const isSubdir = relative && !relative.startsWith('..') && !path.isAbsolute(relative);
-                            if (!isSubdir) {
-                                const parsedPath = path.parse(workspaceFolder.uri.fsPath);
-                                if (parsedPath.dir !== parentCandidate) {
-                                    parentCandidate = path.parse(parentCandidate).dir
-                                }
-                            }
-                        });
-                        return parentCandidate;
-                    }
-                    return undefined;
-                }
-            },
-            {
-                methodName: "addConnector",
-                handler: async (args: any[]): Promise<boolean> => {
-                    const sourceService: Service = args[0];
-                    const targetService: Service = args[1];
-                    return addConnector(langClient, sourceService, targetService);;
-                }
-            },
-            {
-                methodName: "getProjectManager", 
-                handler: async (args: any[]): Promise<IProjectManager | undefined> => {
-                    // TODO Summayya
-                    // TODO: Get rid of all the above remote methods and use project manager
-                    // Return one of two implementations: one for choreo, one for Ballerina
-                    return Promise.resolve(undefined);
-                }
-            },
-        ];
-
-        WebViewRPCHandler.create(designDiagramWebview, langClient, remoteMethods);
     }
 }
 
-function terminateActivation(message: string) {
+export function terminateActivation(message: string) {
     window.showErrorMessage(message);
     if (designDiagramWebview) {
         designDiagramWebview.dispose();
@@ -244,75 +137,4 @@ function isCompatible(ballerinaExtInstance: BallerinaExtension): boolean {
     } else {
         return false;
     }
-}
-
-// For testing purposes
-function injectDeploymentMetadata(components: Map<string, ComponentModel>) {
-    components.forEach((component) => {
-        const services: Map<string, Service> = new Map(Object.entries(component.services));
-        services.forEach((service) => {
-            service.deploymentMetadata = {
-                gateways: {
-                    internet: {
-                        isExposed: Math.random() < 0.5
-                    },
-                    intranet: {
-                        isExposed: Math.random() > 0.5
-                    }
-                }
-            }
-        })
-    })
-}
-
-function createService(componentDetail: AddComponentDetails): Promise<string> {
-    return new Promise((resolve) => {
-        const { directory: parentDirPath, package: packageName, name, version, org: orgName } = componentDetail;
-        let serviceId: string = "";
-
-        window.withProgress({
-            location: ProgressLocation.Window,
-            title: "Creating service...",
-            cancellable: false
-        }, async (progress) => {
-            progress.report({ increment: 0, message: "Starting to create the service..." });
-            // Run commands spawning a child process
-            const res = await runCommand('pwd', parentDirPath, true);
-            progress.report({ increment: 10, message: `Opened the workspace folder at ${res}` });
-            // Create the package
-            await runCommand(`bal new ${packageName} -t service`, parentDirPath);
-            progress.report({ increment: 40, message: `Created the package ${packageName} in the workspace folder` });
-            const newPkgRootPath = join(join(parentDirPath, packageName), 'Ballerina.toml');
-            serviceId = `${name}-${randomUUID()}`;
-            // Change toml conf
-            readFile(newPkgRootPath, 'utf-8', function (err, contents) {
-                if (err) {
-                    progress.report({ increment: 50, message: `"Error while reading toml config " ${err}` });
-                    return;
-                }
-                let replaced = contents.replace(/org = "[a-z,A-Z,0-9,_]+"/, `org = \"${orgName}\"`);
-                replaced = replaced.replace(/version = "[0-9].[0-9].[0-9]"/, `version = "${version}"`);
-                writeFile(newPkgRootPath, replaced, 'utf-8', function (err) {
-                    progress.report({ increment: 50, message: `Configured toml file successfully` });
-                });
-            });
-            progress.report({ increment: 60, message: `Configured version ${version} in package ${packageName}` });
-            const newServicePath = join(join(parentDirPath, packageName), 'service.bal');
-            // Add Display annotation
-            readFile(newServicePath, 'utf-8', function (err, contents) {
-                if (err) {
-                    progress.report({ increment: 70, message: `"Error while reading service file " ${err}` });
-                    return;
-                }
-                const replaced = contents.replace(/service \/ on new http:Listener\(9090\) \{/, `@display {\n\tlabel: "${name}",\n\tid: "${serviceId}"\n}\nservice \/ on new http:Listener(9090) {`);
-                writeFile(newServicePath, replaced, 'utf-8', function (err) {
-                    progress.report({ increment: 80, message: `Added service annotation successfully` });
-                    return;
-                });
-            });
-            addToWorkspace(join(parentDirPath, packageName));
-            progress.report({ increment: 100, message: `Added the service to the current workspace` });
-            return resolve(serviceId);
-        });
-    });
 }

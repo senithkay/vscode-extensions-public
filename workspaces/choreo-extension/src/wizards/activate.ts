@@ -11,14 +11,51 @@
  *  associated services.
  */
 import { commands } from "vscode";
-import { createNewProjectCmdId } from "../constants";
+import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview } from "../constants";
 import { ext } from "../extensionVariables";
-import { ProjectCreationWizard } from "../views/webviews/ProjectCreationWizard";
+import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
+import { ProjectOverview } from "../views/webviews/ProjectOverview";
+import { Organization, Project } from "@wso2-enterprise/choreo-core";
+
+let projectWizard: WebviewWizard;
+let componentWizard: WebviewWizard;
 
 export function activateWizards() {
     const createProjectCmd = commands.registerCommand(createNewProjectCmdId, () => {
-        ProjectCreationWizard.render(ext.context.extensionUri);
+        if (!projectWizard || !projectWizard.getWebview()) {
+            projectWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.projectCreation);
+        }
+        projectWizard.getWebview()?.reveal();
     });
-  
-    ext.context.subscriptions.push(createProjectCmd);
-  }
+
+    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, () => {
+        if (!componentWizard || !componentWizard.getWebview()) {
+            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation);
+        }
+        componentWizard.getWebview()?.reveal();
+    });
+
+    ext.context.subscriptions.push(createProjectCmd, createComponentCmd);
+
+    // Register Project Overview Wizard
+    const projectOverview = commands.registerCommand(choreoProjectOverview, async (project: Project) => {
+        let selectedProjectId = project ? project?.id : undefined;
+        if (!selectedProjectId && await ext.api.isChoreoProject()) {
+            const choreoProject = await ext.api.getChoreoProject();
+            if (choreoProject) {
+                selectedProjectId = choreoProject.id;
+                project = choreoProject;
+            }
+        }
+        if (!selectedProjectId) {
+            return;
+        }
+        ext.api.selectedProjectId = selectedProjectId;
+        const org: Organization | undefined = ext.api.selectedOrg;
+        if (org !== undefined) {
+            ProjectOverview.render(ext.context.extensionUri, project, org);
+        }
+    });
+
+    ext.context.subscriptions.push(projectOverview);
+}

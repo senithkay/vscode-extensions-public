@@ -29,6 +29,14 @@ export const PrimaryContainer = styled.div`
     width: 370px;
 `;
 
+export const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    font-family: GilmerRegular;
+    font-size: 15px;
+    height: 100vh;
+`;
+
 export const Header = styled.div`
     align-items: center;
     align-self: stretch;
@@ -37,7 +45,6 @@ export const Header = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    height: 50px;
     padding: 12px 12px 12px 20px;
 `;
 

@@ -6,6 +6,7 @@ module.exports = {
     ignorePatterns: [
         "lib",
         ".eslintrc.js",
-        "**/*.d.ts"
+        "**/*.d.ts",
+        "babel.config.js"
     ]
 };

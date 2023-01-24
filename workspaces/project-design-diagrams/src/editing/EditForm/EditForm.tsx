@@ -29,6 +29,7 @@ import { AdvancedSettingsWidget, CreateButton, TextInputWidget } from './compone
 import { OrganizationRegex, PackageNameRegex, VersionRegex } from './resources/constants';
 import { ControlsContainer, Header, PrimaryContainer, TitleText } from './resources/styles';
 import { initBallerinaComponent, transformComponentName } from './resources/utils';
+import { ProjectDesignRPC } from '../../utils/rpc/project-design-rpc';
 
 interface EditFormProps {
     visibility: boolean;
@@ -37,8 +38,9 @@ interface EditFormProps {
 }
 
 export function EditForm(props: EditFormProps) {
+    const rpcInstance = ProjectDesignRPC.getInstance();
     const { visibility, defaultOrg, updateVisibility } = props;
-    const { createService, pickDirectory, setNewComponentID } = useContext(DiagramContext);
+    const { setNewComponentID } = useContext(DiagramContext);
 
     const [component, editComponent] = useState<AddComponentDetails>(initBallerinaComponent);
     const [generatingComponent, setGenerationStatus] = useState<boolean>(false);
@@ -51,9 +53,11 @@ export function EditForm(props: EditFormProps) {
     }, [defaultOrg])
 
     const chooseDirectory = () => {
-        pickDirectory().then((directoryPath) => {
-            setDirectory(directoryPath);
-        })
+        rpcInstance.pickDirectory().then((directoryPath) => {
+            if (directoryPath) {
+                setDirectory(directoryPath);
+            }
+        });
     };
 
     const updateName = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -78,8 +82,8 @@ export function EditForm(props: EditFormProps) {
     }
 
     const verifyInputs = (): boolean => {
-        if (component && component.name && (component.package ? PackageNameRegex.test(component.package) : validatedComponentName)
-            && (component.org ? OrganizationRegex.test(component.org) : defaultOrg) && VersionRegex.test(component.version)) {
+        if (component && component.name && (component.package ? PackageNameRegex.test(component.package) : validatedComponentName) &&
+        (component.org ? OrganizationRegex.test(component.org) : defaultOrg) && VersionRegex.test(component.version) && component.directory) {
             return true;
         }
         return false;
@@ -92,7 +96,7 @@ export function EditForm(props: EditFormProps) {
 
     const onSubmit = () => {
         setGenerationStatus(true);
-        createService({ ...component, package: component.package || validatedComponentName, org: component.org || defaultOrg })
+        rpcInstance.createComponent({ ...component, package: component.package || validatedComponentName, org: component.org || defaultOrg })
             .then((generatedNodeID) => {
                 setNewComponentID(generatedNodeID);
                 setGenerationStatus(false);

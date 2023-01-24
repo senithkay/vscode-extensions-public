@@ -18,33 +18,29 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { AddComponentDetails, Location, Service, Views } from '../../../resources';
+import { Location, Service, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
+    isChoreoProject: boolean;
     getTypeComposition: (entityID: string) => void;
     go2source: (location: Location) => void;
     currentView: Views;
-    createService: (componentDetails: AddComponentDetails) => Promise<string>;
-    pickDirectory: () => Promise<string>;
-    getProjectRoot: () => Promise<string>;
-    generateConnectors: (sourceService: Service, targetService: Service) => Promise<boolean>;
     editingEnabled: boolean;
+    setTargetService: (service: Service) => void;
 }
 
 interface IDiagramContext {
+    isChoreoProject: boolean;
     getTypeComposition: (entityID: string) => void;
     go2source: (location: Location) => void;
     currentView: Views;
-    createService: (componentDetails: AddComponentDetails) => Promise<string>;
-    pickDirectory: () => Promise<string>;
-    getProjectRoot: () => Promise<string>;
     setNewComponentID: (name: string) => void;
     newComponentID: string;
     editingEnabled: boolean;
     newLinkNodes: LinkedNodes;
     setNewLinkNodes: (nodes: LinkedNodes) => void;
-    generateConnectors: (sourceService: Service, targetService: Service) => Promise<boolean>;
+    setTargetService: (service: Service) => void;
 }
 
 interface LinkedNodes {
@@ -59,23 +55,19 @@ export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
-    const {
-        getTypeComposition, createService, currentView, pickDirectory, getProjectRoot, go2source, generateConnectors, editingEnabled, children
-    } = props;
+    const { isChoreoProject, getTypeComposition, currentView, go2source, editingEnabled, children, setTargetService } = props;
 
     const Ctx = {
+        isChoreoProject,
         getTypeComposition,
         go2source,
-        createService,
         currentView,
-        pickDirectory,
-        getProjectRoot,
         setNewComponentID,
         newComponentID,
         editingEnabled,
         newLinkNodes,
         setNewLinkNodes,
-        generateConnectors
+        setTargetService
     }
 
     return (
