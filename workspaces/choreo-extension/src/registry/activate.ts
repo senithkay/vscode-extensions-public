@@ -10,20 +10,13 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
-import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
-import { ProjectsTreeProvider } from "./views/project-tree/ProjectTreeProvider";
+import * as vscode from 'vscode';
+import { choreoProjectRegistryRefreshCmdId } from '../constants';
+import { ProjectRegistry } from './project-registry';
 
-export class ExtensionVariables {
-    public context!: ExtensionContext;
-    public isPluginStartup!: boolean;
-    public api!: ChoreoExtensionApi;
-    public statusBarItem!: StatusBarItem; 
-
-    // views
-    public projectsTreeView!: TreeView<TreeItem>;
-    public projectsTreeProvider!: ProjectsTreeProvider;
-    public accountTreeView!: TreeView<TreeItem>;
+export function activateRegistry() {
+    vscode.commands.registerCommand(choreoProjectRegistryRefreshCmdId, async () => {
+        const projectRegistry = ProjectRegistry.getInstance();
+        return projectRegistry.refreshProjects();
+    });
 }
-
-export const ext = new ExtensionVariables();

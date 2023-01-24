@@ -65,8 +65,9 @@ export function ProjectWizard() {
                     orgHandle: selectedOrg.handle
                 });
                 await webviewAPI.setProjectRepository(createdProject.id, githubRepo);
-                await webviewAPI.triggerCmd("wso2.choreo.projects.refresh");
+                await webviewAPI.triggerCmd("wso2.choreo.projects.registry.refresh");
                 await webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
+                await webviewAPI.triggerCmd("wso2.choreo.projects.tree.refresh");
                 webviewAPI.closeWebView();
             } catch (error: any) {
                 setErrorMsg(error.message + " " + error.cause);
