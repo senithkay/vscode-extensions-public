@@ -134,7 +134,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	while (parent != null && parent.parentModel) {
 		if (parent.field?.name
 			&& !(parent.field.typeName === PrimitiveBalType.Record
-				&& parent.parentModel.field.typeName === PrimitiveBalType.Array
+				&& ([PrimitiveBalType.Array, PrimitiveBalType.Union].includes(parent.parentModel.field.typeName as PrimitiveBalType))
 				&& !parent.isWithinSelectClause)
 		) {
 			parentFieldNames.push(parent.field.name);
@@ -689,9 +689,9 @@ export function getEnrichedRecordType(type: Type,
                                       node: STNode,
                                       selectedST: STNode,
                                       parentType?: EditableRecordField,
-                                      childrenTypes?: EditableRecordField[]) {
+                                      childrenTypes?: EditableRecordField[]): EditableRecordField {
 	let editableRecordField: EditableRecordField = null;
-	let fields = null;
+	let fields: Type[] = null;
 	let valueNode: STNode;
 	let nextNode: STNode;
 
@@ -796,6 +796,14 @@ export function getEnrichedRecordType(type: Type,
 				});
 				editableRecordField.elements = members;
 			}
+		}
+	} else if (type.typeName === PrimitiveBalType.Union) {
+		const acceptedMembers = getFilteredUnionOutputTypes(type);
+
+		if (acceptedMembers.length === 1){
+			// Only handle union params such as Type|error or Type?
+			// Params such as Type1|Type2 will not be handled
+			editableRecordField = getEnrichedRecordType(acceptedMembers[0], node, selectedST, parentType, childrenTypes)
 		}
 	}
 
@@ -1159,3 +1167,6 @@ export const getOptionalRecordField = (field: Type): Type | undefined => {
 		return field.members?.find(member => member.typeName === PrimitiveBalType.Record);
 	}
 }
+
+/** Filter out error and nill types and return only the types that can be displayed as mapping as target nodes */
+export const getFilteredUnionOutputTypes = (type: Type) => type.members?.filter(member => member && !["error", "()"].includes(member.typeName));
