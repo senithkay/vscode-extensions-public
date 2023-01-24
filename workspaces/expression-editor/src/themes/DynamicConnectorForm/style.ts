@@ -902,7 +902,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             recordCreate: {
                 textTransform: 'none',
                 minWidth: '32px',
-                color: theme.palette.primary.main
+                color: theme.palette.primary.main,
+                float: 'right'
             }
         }),
     { index: 1 }

@@ -16,6 +16,7 @@ import React, { useContext, useEffect, useState } from 'react';
 
 import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
+    CheckBoxGroup,
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { DefaultableParam, IncludedRecordParam, ModulePart, NodePosition, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
@@ -77,7 +78,7 @@ export function ResponseEditor(props: ParamProps) {
     } = props;
     const classes = useStyles();
 
-    const { newlyCreatedRecord, handleShowRecordEditor, applyModifications, syntaxTree  } = useContext(FormEditorContext);
+    const { newlyCreatedRecord, handleShowRecordEditor, applyModifications, syntaxTree } = useContext(FormEditorContext);
 
 
     // States related to syntax diagnostics
@@ -106,6 +107,7 @@ export function ResponseEditor(props: ParamProps) {
     const [typeValue, setTypeValue] = useState<string>(withTypeValue ? withTypeValue : (model.includes("http") ? "" : model));
 
     const [anonymousValue, setAnonymousValue] = useState<string>("");
+    const [subType, setSubType] = useState<boolean>(false);
 
 
     const onTypeEditorFocus = () => {
@@ -187,12 +189,13 @@ export function ResponseEditor(props: ParamProps) {
                 if (anonymousValue) {
                     const responseCode = optionList.find(item => item.code.toString() === response);
                     const newResponse = `type ${anonymousValue} record {|*${responseCode.source}; ${typeValue} body;|};`;
-                    const record: NodePosition = (syntaxTree as ModulePart).members[0].position;
+                    const members = (syntaxTree as ModulePart).members;
+                    const lastMember: NodePosition = members[members.length - 1].position;
                     const lastMemberPosition: NodePosition = {
                         endColumn: 0,
-                        endLine: record.startLine - 1,
+                        endLine: lastMember.endLine + 1,
                         startColumn: 0,
-                        startLine: record.startLine - 1
+                        startLine: lastMember.endLine + 1
                     }
                     applyModifications([
                         createPropertyStatement(newResponse, lastMemberPosition, false)
@@ -216,6 +219,10 @@ export function ResponseEditor(props: ParamProps) {
             handleTypeChange(newlyCreatedRecord);
         }
     }, newlyCreatedRecord);
+
+    const handleListenerDefModeChange = async (mode: string[]) => {
+        setSubType(mode.length > 0);
+    }
 
     return (
         <div className={classes.paramContainer}>
@@ -251,16 +258,27 @@ export function ResponseEditor(props: ParamProps) {
             </div>
 
             <div className={classes.paramContent}>
-
                 <div className={classes.anonyWrapper}>
-                    <FieldTitle title='Anonymous Record Name' optional={true} />
-                    <LiteExpressionEditor
-                        testId="anonymous-record-name"
-                        defaultValue={anonymousValue}
-                        onChange={handleNameChange}
-                        disabled={false}
-                        completions={completions}
+
+                    <CheckBoxGroup
+                        className={classes.subType}
+                        values={["Define Subtype"]}
+                        defaultValues={subType ? ["Define Subtype"] : []}
+                        onChange={handleListenerDefModeChange}
                     />
+
+                    {subType &&
+                        <>
+                            <FieldTitle title='Subtype Record Name' optional={true} />
+                            <LiteExpressionEditor
+                                testId="anonymous-record-name"
+                                defaultValue={anonymousValue}
+                                onChange={handleNameChange}
+                                disabled={false}
+                                completions={completions}
+                            />
+                        </>
+                    }
                 </div>
             </div>
 

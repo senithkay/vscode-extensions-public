@@ -665,7 +665,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                 </>
             ) : null} */
             }
-            {showRecordEditorButton && <Button className={formClasses.recordCreate} onClick={handleShowRecordEditor} >Record Create</Button>}
+            {showRecordEditorButton && <Button className={formClasses.recordCreate} onClick={handleShowRecordEditor} >Create Record</Button>}
             {expressionDiagnosticMsg && (
                 <>
                     {<DiagnosticView message={expressionDiagnosticMsg} />}

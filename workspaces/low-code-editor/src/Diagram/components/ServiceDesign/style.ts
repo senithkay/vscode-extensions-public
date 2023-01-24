@@ -150,6 +150,10 @@ export const useStyles = makeStyles(() =>
             textAlign: "end",
             marginTop: -35,
             cursor: "pointer"
+        },
+        editButton: {
+            paddingRight: 16,
+            cursor: "pointer"
         }
     }),
 );

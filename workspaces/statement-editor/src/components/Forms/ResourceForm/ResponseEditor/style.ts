@@ -136,6 +136,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: 6,
             textTransform: 'initial',
             marginLeft: -200
+        },
+        subType: {
+            marginBottom: -14,
+            marginTop: 10
         }
     }),
 );
