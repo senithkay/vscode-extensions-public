@@ -129,7 +129,11 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         redrawDiagram();
     };
 
-    const zoomToFit = () => { diagramEngine.zoomToFitNodes({}) }
+    const zoomToFit = () => {
+        diagramEngine.zoomToFitNodes({ maxZoom: 1 });
+        positionGatewayNodes(diagramEngine);
+        diagramEngine.repaintCanvas();
+    };
 
     const downloadDiagram = useCallback(() => {
         if (diagramRef.current === null) {
