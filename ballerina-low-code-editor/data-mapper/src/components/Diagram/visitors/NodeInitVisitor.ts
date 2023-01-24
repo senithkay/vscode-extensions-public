@@ -68,7 +68,7 @@ export class NodeInitVisitor implements Visitor {
     private intermediateNodes: DataMapperNodeModel[] = [];
     private mapIdentifiers: STNode[] = [];
     private isWithinQuery = 0;
-    private isWithinLetExpr = 0;
+    private isWithinLetVarDecl = 0;
 
     constructor(
         private context: DataMapperContext,
@@ -382,7 +382,8 @@ export class NodeInitVisitor implements Visitor {
             this.mapIdentifiers.push(node)
         }
         if (this.isWithinQuery === 0
-            && this.isWithinLetExpr === 0
+            && (this.isWithinLetVarDecl === 0
+                || (this.isWithinLetVarDecl > 0 && STKindChecker.isLetVarDecl(this.selection.selectedST.stNode)))
             && node.valueExpr
             && !STKindChecker.isMappingConstructor(node.valueExpr)
             && !STKindChecker.isListConstructor(node.valueExpr)
@@ -470,12 +471,12 @@ export class NodeInitVisitor implements Visitor {
         }
     }
 
-    beginVisitLetExpression(node: LetExpression): void {
-        this.isWithinLetExpr += 1;
+    beginVisitLetVarDecl(node: LetVarDecl): void {
+        this.isWithinLetVarDecl += 1;
     }
 
-    endVisitLetExpression(node: LetExpression): void {
-        this.isWithinLetExpr -= 1;
+    endVisitLetVarDecl(node: LetVarDecl): void {
+        this.isWithinLetVarDecl -= 1;
     }
 
     beginVisitMappingConstructor(node: MappingConstructor): void {
