@@ -29,6 +29,7 @@ import { ResourceFunction } from "../../../resources/model";
 import { FieldName, FieldType, } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { popOverStyle } from "../../../Popup/styles";
+import { QueryIcon } from "../../../resources/assets/icons/QueryIcon";
 
 interface ResourceFunctionProps {
     engine: DiagramEngine;
@@ -57,7 +58,8 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 port={node.getPort(`left-${resourcePath}`)}
                 engine={engine}
             />
-                <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave}>
+                <QueryIcon/>
+                <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{marginLeft: '7px'}}>
                     {resource.identifier}
                 </FieldName>
                 <FieldType>{resource.returns}</FieldType>

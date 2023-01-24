@@ -28,6 +28,7 @@ import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { RemoteFunction } from "../../../resources/model";
 import { FieldName, FieldType } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
+import { MutationIcon } from '../../../resources/assets/icons/MutationIcon';
 
 interface RemoteFunctionProps {
     engine: DiagramEngine;
@@ -56,7 +57,8 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 port={node.getPort(`left-${remotePath}`)}
                 engine={engine}
             />
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave}>
+            <MutationIcon/>
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{marginLeft: '7px'}}>
                 {remoteFunc.identifier}
             </FieldName>
             <FieldType>{remoteFunc.returns}</FieldType>

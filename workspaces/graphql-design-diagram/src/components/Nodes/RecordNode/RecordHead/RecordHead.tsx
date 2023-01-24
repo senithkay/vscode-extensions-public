@@ -3,6 +3,8 @@ import React, { useEffect, useRef } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
+import { RecordIcon } from "../../../resources/assets/icons/RecordIcon";
+import { HeaderName } from "../../../resources/styles/styles";
 import { RecordNodeModel } from "../RecordNodeModel";
 import { RecordHead } from "../styles";
 
@@ -26,11 +28,12 @@ export function RecordHeadWidget(props: RecordHeadProps) {
 
     return (
         <RecordHead>
+            <RecordIcon/>
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
-            {displayName}
+            <HeaderName>{displayName}</HeaderName>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}

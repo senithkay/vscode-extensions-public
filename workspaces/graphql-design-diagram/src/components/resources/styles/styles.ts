@@ -27,3 +27,7 @@ export const FieldName = styled.span`
     padding-right: 8px;
     text-align: left;
 `;
+
+export const HeaderName = styled.span`
+    margin-left: 8px;
+`;

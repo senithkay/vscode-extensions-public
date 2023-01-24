@@ -3,8 +3,10 @@ import React, { useEffect, useRef } from "react";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
+import { EnumIcon } from "../../../resources/assets/icons/EnumIcon";
+import { HeaderName } from "../../../resources/styles/styles";
 import { EnumNodeModel } from "../EnumNodeModel";
-import { EnumHead, EnumName } from "../styles";
+import { EnumHead } from "../styles";
 
 interface EnumHeadProps {
     engine: DiagramEngine;
@@ -26,13 +28,12 @@ export function EnumHeadWidget(props: EnumHeadProps) {
 
     return (
         <EnumHead>
-            {/*<GraphQLIcon />*/}
+            <EnumIcon/>
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
-            <EnumName>{displayName}</EnumName>
-
+            <HeaderName>{displayName}</HeaderName>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
