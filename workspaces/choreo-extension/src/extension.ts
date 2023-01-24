@@ -100,7 +100,7 @@ function createProjectTreeView() {
 	const choreoResourcesProvider = new ProjectsTreeProvider();
 
 	vscode.commands.registerCommand(refreshProjectsListCmdId, async () => {
-		ProjectRegistry.getInstance().sync().then(() => {
+		return ProjectRegistry.getInstance().sync().then(() => {
 			choreoResourcesProvider.refresh();
 		});
 	});
