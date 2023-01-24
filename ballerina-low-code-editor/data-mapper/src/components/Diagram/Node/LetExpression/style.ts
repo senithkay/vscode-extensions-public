@@ -49,7 +49,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 width: "300px",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
-                display: "inline-block",
+                display: "flex",
                 textOverflow: "ellipsis",
                 "&:hover": {
                     overflow: "visible"
@@ -68,6 +68,10 @@ export const useStyles = makeStyles((theme: Theme) =>
                 bottom: 0,
                 display: 'flex',
                 alignItems: 'center'
+            },
+            gotoExprIcon: {
+                color: '#8d91a3',
+                cursor: 'pointer'
             }
         }),
     { index: 1 }

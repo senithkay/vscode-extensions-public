@@ -12,8 +12,11 @@
  */
 import {
     FunctionDefinition,
+    IdentifierToken,
+    LetVarDecl,
     SpecificField,
     STKindChecker,
+    STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -33,10 +36,12 @@ export class SelectedSTFindingVisitor implements Visitor {
         this.pathSegmentIndex = 1; // Field path always starts with the record root name
     }
 
-    beginVisitSTNode(node: FunctionDefinition | SpecificField) {
+    beginVisitSTNode(node: FunctionDefinition | SpecificField | LetVarDecl) {
         const item = this.prevST[0];
+        const isItemSpecificField = item && item.stNode && STKindChecker.isSpecificField(item.stNode);
+        const isItemLetVarDecl = item && item.stNode && STKindChecker.isSpecificField(item.stNode);
 
-        if (item && item.stNode && STKindChecker.isSpecificField(item.stNode)) {
+        if (isItemSpecificField || isItemLetVarDecl) {
             const pathSegments = item.fieldPath.split('.');
             if (STKindChecker.isSpecificField(node) && node.fieldName.value === pathSegments[this.pathSegmentIndex]) {
                 this.pathSegmentIndex++;
@@ -71,22 +76,27 @@ export class SelectedSTFindingVisitor implements Visitor {
                         this.pathSegmentIndex++;
                     }
                 }
-            } else {
+            } else if (!STKindChecker.isLetVarDecl(node)) {
                 return;
             }
         }
 
-        if (item?.stNode && STKindChecker.isSpecificField(item.stNode)
-            && node && STKindChecker.isSpecificField(node)
-            && node.fieldName.value === item.stNode.fieldName?.value)
-        {
+        const itemIdentifierName = item && item.stNode && this.getIdentifier(item.stNode)?.value;
+        const nodeIdentifierName = node && this.getIdentifier(node)?.value;
+
+        if (itemIdentifierName && nodeIdentifierName && nodeIdentifierName === itemIdentifierName) {
             this.updatedPrevST = [...this.updatedPrevST, { ...this.prevST.shift(), stNode: node }];
             this.pathSegmentIndex = 1;
-            const nextItem = STKindChecker.isMappingConstructor(node.valueExpr)
+            const expr = STKindChecker.isSpecificField(node)
                 ? node.valueExpr
-                : STKindChecker.isQueryExpression(node.valueExpr)
-                    && STKindChecker.isMappingConstructor(node.valueExpr.selectClause.expression)
-                    ? node.valueExpr.selectClause.expression
+                : STKindChecker.isLetVarDecl(node)
+                    ? node.expression
+                    : undefined;
+            const nextItem = STKindChecker.isMappingConstructor(expr)
+                ? expr
+                : STKindChecker.isQueryExpression(expr)
+                && STKindChecker.isMappingConstructor(expr.selectClause.expression)
+                    ? expr.selectClause.expression
                     : undefined;
             if (nextItem && this.prevST) {
                 const nexFieldPath = this.prevST[this.prevST.length - 1]?.fieldPath;
@@ -112,6 +122,19 @@ export class SelectedSTFindingVisitor implements Visitor {
                 }
             });
         }
+    }
+
+    getIdentifier(node: STNode): IdentifierToken {
+        let identifierName: IdentifierToken;
+        if (STKindChecker.isLetVarDecl(node)) {
+            if (STKindChecker.isCaptureBindingPattern(node.typedBindingPattern.bindingPattern)) {
+                identifierName = node.typedBindingPattern.bindingPattern.variableName;
+            }
+            // TODO: Handle other binding patterns
+        } else if (STKindChecker.isSpecificField(node)) {
+            identifierName = node.fieldName as IdentifierToken;
+        }
+        return identifierName;
     }
 
     getST() {

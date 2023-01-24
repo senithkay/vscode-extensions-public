@@ -11,12 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import * as React from 'react';
+import React, { ReactNode, useMemo } from 'react';
 
 import styled from "@emotion/styled";
 import { Button, IconButton } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { CaptureBindingPattern, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import SquareEditIcon from "../../../../assets/icons/SquareEditIcon";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -40,15 +41,40 @@ export interface LetExpressionTreeWidgetProps {
 export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
     const { engine, letVarDecls, context, isWithinQuery, getPort, handleCollapse } = props;
     const classes = useStyles();
-    const hasLetDecls = letVarDecls.length > 0;
+    const selectedST = context.selection.selectedST.stNode;
 
     const onClick = () => {
         context.handleLocalVarConfigPanel(true);
     };
 
+    const letVarDeclItems: ReactNode[] = useMemo(() => {
+        return letVarDecls.map(decl => {
+            const isExprPlaceholder = decl.declaration.expression.source.trim() === "EXPRESSION";
+            const isSelfReferencedWithinQuery = isWithinQuery
+                && STKindChecker.isLetVarDecl(selectedST)
+                && (selectedST.typedBindingPattern.bindingPattern as CaptureBindingPattern)
+                    .variableName.value === decl.varName;
+            if (!isExprPlaceholder && !isSelfReferencedWithinQuery) {
+                return (
+                    <LetVarDeclItemWidget
+                        key={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
+                        id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
+                        engine={engine}
+                        declaration={decl.declaration}
+                        context={context}
+                        typeDesc={decl.type}
+                        getPort={(portId: string) => getPort(portId) as RecordFieldPortModel}
+                        handleCollapse={handleCollapse}
+                        valueLabel={decl.varName}
+                    />
+                );
+            }
+        }).filter(decl => !!decl);
+    }, [letVarDecls]);
+
     return (
         <>
-            {hasLetDecls ? (
+            {letVarDeclItems.length > 0 ? (
                 <TreeContainer>
                     <LocalVarsHeader>
                         <HeaderText>Local Variables</HeaderText>
@@ -60,26 +86,7 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                             </IconButton>
                         )}
                     </LocalVarsHeader>
-                    {letVarDecls.map(decl => {
-                        const isExprPlaceholder = decl.declaration.expression.source.trim() === "EXPRESSION";
-                        return (
-                            <>
-                                {!isExprPlaceholder && (
-                                    <>
-                                        <LetVarDeclItemWidget
-                                            key={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
-                                            id={`${LET_EXPRESSION_SOURCE_PORT_PREFIX}.${decl.varName}`}
-                                            engine={engine}
-                                            typeDesc={decl.type}
-                                            getPort={(portId: string) => getPort(portId) as RecordFieldPortModel}
-                                            handleCollapse={handleCollapse}
-                                            valueLabel={decl.varName}
-                                        />
-                                    </>
-                                )}
-                            </>
-                        );
-                    })}
+                    {letVarDeclItems}
                 </TreeContainer>
             ) : !isWithinQuery && (
                 <LocalVarAddButton>
