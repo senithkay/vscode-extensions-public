@@ -8,6 +8,7 @@ import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
 import { useDiagramStyles } from "./styles/styles";
+import { positionGatewayNodes } from "project-design-diagrams/src/utils";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -38,8 +39,16 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     useEffect(() => {
                 diagramEngine.setModel(model);
                 setDiagramModel(model);
+                autoDistribute();
 
     }, [model]);
+
+    const autoDistribute = () => {
+        setTimeout(() => {
+            dagreEngine.redistribute(diagramEngine.getModel());
+            diagramEngine.repaintCanvas();
+        }, 30);
+    };
 
 
     return(

@@ -16,15 +16,19 @@
  * under the License.
  *
  */
-
-import React from 'react';
+// tslint:disable: jsx-no-multiline-js
+import React, { useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
+import { Popover } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { ParametersPopup } from "../../../Popup/ParametersPopup";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ResourceFunction } from "../../../resources/model";
 import { FieldName, FieldType, } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
+import { popOverStyle } from "../../../Popup/styles";
 
 interface ResourceFunctionProps {
     engine: DiagramEngine;
@@ -32,9 +36,20 @@ interface ResourceFunctionProps {
     resource: ResourceFunction;
     resourcePath: string;
 }
-// TODO: add params, return
+
 export function ResourceFunctionWidget(props: ResourceFunctionProps) {
     const { engine, node, resource, resourcePath} = props;
+    const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
+
+    const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
+        setAnchorElement(event.currentTarget);
+    }
+
+    const onMouseLeave = () => {
+        setAnchorElement(null);
+    }
+
+    const classes = popOverStyle();
 
     return (
         <>
@@ -42,7 +57,7 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 port={node.getPort(`left-${resourcePath}`)}
                 engine={engine}
             />
-                <FieldName>
+                <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave}>
                     {resource.identifier}
                 </FieldName>
                 <FieldType>{resource.returns}</FieldType>
@@ -50,6 +65,30 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 port={node.getPort(`right-${resourcePath}`)}
                 engine={engine}
             />
+
+            {resource.parameters.length > 0 && (
+                <Popover
+                    id='mouse-over-popover'
+                    open={Boolean(anchorElement)}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    disableRestoreFocus={true}
+                    anchorEl={anchorElement}
+                    onClose={onMouseLeave}
+                    className={classes.popover}
+                    classes={{
+                        paper: classes.popoverContent,
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center'
+                    }}
+                >
+                    <ParametersPopup parameters={resource.parameters}/>
+                </Popover>
+            )}
         </>
     );
 }

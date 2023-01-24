@@ -136,7 +136,7 @@ export interface EnumField {
     deprecationReason: string;
 }
 
-interface Param {
+export interface Param {
     type: string;
     name: string;
     description: string;

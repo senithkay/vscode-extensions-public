@@ -16,11 +16,14 @@
  * under the License.
  *
  */
-
-import React from 'react';
+// tslint:disable: jsx-no-multiline-js
+import React, { useState } from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
+import { Popover } from "@material-ui/core";
+import { ParametersPopup } from "../../../Popup/ParametersPopup";
+import { popOverStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { RemoteFunction } from "../../../resources/model";
 import { FieldName, FieldType } from "../../../resources/styles/styles";
@@ -35,6 +38,17 @@ interface RemoteFunctionProps {
 
 export function RemoteFunctionWidget(props: RemoteFunctionProps) {
     const { engine, node, remoteFunc, remotePath } = props;
+    const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
+
+    const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
+        setAnchorElement(event.currentTarget);
+    }
+
+    const onMouseLeave = () => {
+        setAnchorElement(null);
+    }
+
+    const classes = popOverStyle();
 
     return (
         <>
@@ -42,7 +56,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 port={node.getPort(`left-${remotePath}`)}
                 engine={engine}
             />
-            <FieldName>
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave}>
                 {remoteFunc.identifier}
             </FieldName>
             <FieldType>{remoteFunc.returns}</FieldType>
@@ -50,6 +64,29 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 port={node.getPort(`right-${remotePath}`)}
                 engine={engine}
             />
+            {remoteFunc.parameters.length > 0 && (
+                <Popover
+                    id='mouse-over-popover'
+                    open={Boolean(anchorElement)}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    disableRestoreFocus={true}
+                    anchorEl={anchorElement}
+                    onClose={onMouseLeave}
+                    className={classes.popover}
+                    classes={{
+                        paper: classes.popoverContent,
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center'
+                    }}
+                >
+                    <ParametersPopup parameters={remoteFunc.parameters}/>
+                </Popover>
+            )}
         </>
     );
 }
