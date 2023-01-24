@@ -43,7 +43,7 @@ function activateExtractCommand() {
             }
             await workspace.applyEdit(edit);
 
-            if (renamePositionMap === undefined || renamePositionMap[expression.label] instanceof Position) {
+            if (!renamePositionMap || !renamePositionMap[expression.label]) {
                 return;
             }
 
