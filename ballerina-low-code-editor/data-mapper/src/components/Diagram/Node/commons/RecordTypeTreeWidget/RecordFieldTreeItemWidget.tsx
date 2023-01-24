@@ -179,7 +179,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             parentId={fieldId}
                             handleCollapse={handleCollapse}
                             treeDepth={treeDepth + 1}
-                            isOptional={optional}
+                            isOptional={isOptional || optional}
                         />
                     );
                 })

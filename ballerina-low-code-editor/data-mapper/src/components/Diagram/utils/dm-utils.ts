@@ -83,7 +83,14 @@ export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 		nextExp = (STKindChecker.isFieldAccess(nextExp.expression) || STKindChecker.isOptionalFieldAccess(nextExp.expression))
 			? nextExp.expression : undefined;
 	}
-	return fieldNames.reverse();
+	let isRestOptional = false;
+	const fieldsToReturn = fieldNames.reverse().map((item) => {
+		if (item.isOptional) {
+			isRestOptional = true;
+		}
+		return { name: item.name, isOptional: isRestOptional || item.isOptional };
+	});
+	return fieldsToReturn
 }
 
 export async function createSourceForMapping(link: DataMapperLinkModel) {

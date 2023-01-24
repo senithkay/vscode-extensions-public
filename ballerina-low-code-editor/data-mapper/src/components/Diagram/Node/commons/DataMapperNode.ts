@@ -129,7 +129,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
 					numberOfFields += this.addPortsForInputRecordField(subField, type, fieldFQN, portPrefix,
-						fieldPort, collapsedFields, isCollapsed ? true : hidden);
+						fieldPort, collapsedFields, isCollapsed ? true : hidden, isOptional);
 				});
 			}
 		}
