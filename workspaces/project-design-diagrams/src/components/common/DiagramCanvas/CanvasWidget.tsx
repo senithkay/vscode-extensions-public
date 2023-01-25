@@ -23,7 +23,7 @@ import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { Views } from '../../../resources';
+import { DagreLayout, Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from '../../../utils';
 import { Canvas } from './styles/styles';
 import './styles/styles.css';
@@ -49,7 +49,7 @@ let dagreEngine = new DagreEngine({
 });
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
-    const { model, currentView, type } = props;
+    const { model, currentView, layout, type } = props;
     const { editingEnabled, setNewLinkNodes } = useContext(DiagramContext);
 
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE ||

@@ -43,7 +43,7 @@ interface DefaultControlProps {
 }
 
 export function DefaultControls(props: DefaultControlProps) {
-    const { projectPackages, switchView, updateProjectPkgs, onRefresh } = props;
+    const { projectPackages, layout, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
     const { isChoreoProject } = useContext(DiagramContext);
 
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
@@ -107,14 +107,14 @@ export function DefaultControls(props: DefaultControlProps) {
                     startIcon={layout === DagreLayout.GRAPH ?
                         <AccountTreeIcon fontSize='medium' /> : <SchemaIcon fontSize='medium' />
                     }
-                    onClick={() => changeLayout()}
+                    onClick={changeLayout}
                 >
                     {layout === DagreLayout.GRAPH ? 'Tree' : 'Graph'} View
                 </Button>
                 <IconButton
                     className={'iconButton'}
                     size='small'
-                    onClick={() => { onRefresh() }}
+                    onClick={onRefresh}
                 >
                     <CachedIcon fontSize='small' />
                 </IconButton>

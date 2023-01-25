@@ -28,6 +28,7 @@ const PRIMARY_HOVER: string = '#2c09ed';
 interface StyleProps {
     isAnonymous: boolean;
     isSelected?: boolean;
+    isClickable?: boolean;
     shouldShade?: boolean;
 }
 
@@ -50,7 +51,7 @@ export const EntityHead = styled.div`
     border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY}`};
     display: flex;
-    font-family: ${(props: { isSelected: boolean }) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
+    font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;
     height: 32px;
     justify-content: center;

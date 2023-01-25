@@ -18,6 +18,7 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
+import { uniqueId } from 'lodash';
 import { ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels,
     ServiceTypes } from '../../resources';
 import { ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
@@ -81,13 +82,7 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
             const services: Map<string, Service> = new Map(Object.entries(projectComponents.get(packageName).services));
             services.forEach((service) => {
                 if (service.serviceId !== '') {
-                    // create the L1 service nodes
-                    const l1Node = new ServiceNodeModel(service, Level.ONE, extractGateways(service));
-                    l1Nodes.set(service.serviceId, l1Node);
-
-                    // create the L2 service nodes
-                    const l2Node = new ServiceNodeModel(service, Level.TWO, extractGateways(service));
-                    l2Nodes.set(service.serviceId, l2Node);
+                    service.serviceId = uniqueId(`${packageName}/${service.path}`);
                 }
                 // create the L1 service nodes
                 const l1Node = new ServiceNodeModel(service, Level.ONE);
@@ -198,7 +193,7 @@ function mapDependencies(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 function mapInteractions(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, functions: ResourceFunction[] | RemoteFunction[]) {
     functions.forEach((sourceFunction: ResourceFunction | RemoteFunction) => {
         sourceFunction.interactions.forEach(interaction => {
-            if (l1Nodes.has(interaction.resourceId.serviceId)) {
+            if (l1Nodes.has(interaction.resourceId.serviceId) && l2Nodes.has(interaction.resourceId.serviceId)) {
                 mapLinksByLevel(l1Source, l2Source, interaction, sourceFunction);
             } else if (interaction.connectorType) {
                 mapExtServices(l1Source, l2Source, interaction.connectorType, interaction.elementLocation, sourceFunction);
@@ -279,7 +274,7 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
     // maps L1 links to external services
     let l1Link: ServiceLinkModel = mapExtLinks(l1Source, l1ExtService, location, undefined);
     if (l1Link) {
-        l1Links.set(`${l1Source.getID()}${interaction.connectorType}`, l1Link);
+        l1Links.set(`${l1Source.getID()}${connectorType}`, l1Link);
     }
 
     // create L2 external service nodes and links
@@ -299,7 +294,7 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
     }
 }
 
-function mapExtLinks(sourceNode: ServiceNodeModel, target: ExtServiceNodeModel, location: Location, sourcePortID?: string)
+function mapExtLinks(source: ServiceNodeModel, target: ExtServiceNodeModel, location: Location, sourcePortID?: string)
     : ServiceLinkModel {
     let sourcePort: ServicePortModel;
     let targetPort: ServicePortModel = target.getPortFromID(`left-${target.getID()}`);
