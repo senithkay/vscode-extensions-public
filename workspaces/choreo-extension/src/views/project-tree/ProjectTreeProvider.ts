@@ -64,8 +64,8 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     private async loadProjects(): Promise<ChoreoProjectTreeItem[]> {
         const selectedOrg = ext.api.selectedOrg;
         if (selectedOrg) {
-            return ProjectRegistry.getInstance().getProjects(selectedOrg.id)
-                .then((projects) => {
+            return ProjectRegistry.getInstance().refreshProjects()
+                .then((projects = []) => {
                     return projects.map((proj) => new ChoreoProjectTreeItem(proj));
                 });
         } else {

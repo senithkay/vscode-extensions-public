@@ -10,9 +10,9 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import path = require("path");
+import { join } from "path";
 import { ext } from "./extensionVariables";
 
 export function getIconPath(iconName: string, type: "light"|"dark") {
-    return ext.context.asAbsolutePath(path.join('resources', 'icons', type, `${iconName}.svg`));
+    return ext.context.asAbsolutePath(join('resources', 'icons', type, `${iconName}.svg`));
 }
