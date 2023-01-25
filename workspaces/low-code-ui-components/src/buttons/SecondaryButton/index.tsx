@@ -20,7 +20,7 @@ import { useStyles } from "../style";
 
 export interface SecondaryButtonProps {
     children?: string;
-    onClick?: (param?: any) => void,
+    onClick?: (param?: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
     text?: string;
     variant?: string;
     className?: string;

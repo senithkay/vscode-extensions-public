@@ -15,12 +15,13 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { MappingConstructor, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
 import { FUNCTION_BODY_QUERY, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../../utils/constants';
+import { getExprBodyFromLetExpression } from "../../utils/dm-utils";
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
@@ -43,13 +44,16 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 		{
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
+		const mappingConstruct = STKindChecker.isLetExpression(event.model.value.expression)
+			? getExprBodyFromLetExpression(event.model.value.expression)
+			: event.model.value.expression;
 		return (
 			<EditableMappingConstructorWidget
 				engine={this.engine}
 				id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 				editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
 				typeName={event.model.typeName}
-				value={event.model.value.expression as MappingConstructor}
+				value={mappingConstruct}
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 				context={event.model.context}
 				mappings={event.model.mappings}

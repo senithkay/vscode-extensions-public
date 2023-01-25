@@ -12,6 +12,8 @@
  */
 
 export * from "./MappingConstructor";
+export * from "./ListConstructor";
+export * from "./PrimitiveType";
 export * from "./RequiredParam";
 export * from "./BinaryExpression";
 export * from "./QueryExpression";

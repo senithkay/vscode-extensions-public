@@ -34,7 +34,7 @@ import * as monaco from "monaco-editor";
 import { CompletionItemKind, Diagnostic } from "vscode-languageserver-protocol";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
-import { getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-utils";
+import { getFilteredUnionOutputTypes, getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-utils";
 import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupported } from "../utils";
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
@@ -86,7 +86,9 @@ function isSupportedType(node: STNode,
 
     const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
 
-    if (isUnionType || isMapType || isOptionalType) {
+    if ((isUnionType || isOptionalType) && kind === 'output' && getFilteredUnionOutputTypes(type)?.length === 1) {
+        return [true];
+    } else if (isUnionType || isMapType || isOptionalType) {
         return [false, TypeNature.YET_TO_SUPPORT];
     } else if (isInvalid) {
         return [false, TypeNature.INVALID];

@@ -32,10 +32,11 @@ interface DiagramCanvasProps {
     model: DiagramModel;
     currentView: Views;
     type: Views;
+    layout: DagreLayout;
 }
 
 // Note: Dagre distribution spaces correctly only if the particular diagram screen is visible
-const dagreEngine = new DagreEngine({
+let dagreEngine = new DagreEngine({
     graph: {
         rankdir: 'LR',
         ranksep: 175,
@@ -78,7 +79,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 setDiagramModel(undefined);
             }
         }
-    }, [model])
+    }, [model, layout])
 
     // Initial distribution of the nodes when the screen is on display (refer note above)
     useEffect(() => {
@@ -91,6 +92,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const autoDistribute = () => {
         setTimeout(() => {
+            if (dagreEngine.options.graph.ranker !== layout) {
+                dagreEngine.options.graph.ranker = layout;
+            }
             dagreEngine.redistribute(diagramEngine.getModel());
             positionGatewayNodes(diagramEngine);
             diagramEngine.repaintCanvas();

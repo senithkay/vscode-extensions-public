@@ -89,6 +89,13 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
                     const l2Node = new ServiceNodeModel(service, Level.TWO, extractGateways(service));
                     l2Nodes.set(service.serviceId, l2Node);
                 }
+                // create the L1 service nodes
+                const l1Node = new ServiceNodeModel(service, Level.ONE);
+                l1Nodes.set(service.serviceId, l1Node);
+
+                // create the L2 service nodes
+                const l2Node = new ServiceNodeModel(service, Level.TWO);
+                l2Nodes.set(service.serviceId, l2Node);
             });
         }
     });
@@ -272,7 +279,7 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
     // maps L1 links to external services
     let l1Link: ServiceLinkModel = mapExtLinks(l1Source, l1ExtService, location, undefined);
     if (l1Link) {
-        l1Links.set(`${l1Source.getID()}${connectorType}`, l1Link);
+        l1Links.set(`${l1Source.getID()}${interaction.connectorType}`, l1Link);
     }
 
     // create L2 external service nodes and links
@@ -298,10 +305,10 @@ function mapExtLinks(sourceNode: ServiceNodeModel, target: ExtServiceNodeModel, 
     let targetPort: ServicePortModel = target.getPortFromID(`left-${target.getID()}`);
 
     if (sourcePortID) {
-        sourcePort = sourceNode.getPortFromID(sourcePortID);
+        sourcePort = source.getPortFromID(sourcePortID);
     }
     if (!sourcePort) {
-        sourcePort = sourceNode.getPortFromID(`right-${sourceNode.serviceObject.serviceId}`);
+        sourcePort = source.getPortFromID(`right-${source.serviceObject.serviceId}`);
     }
 
     if (sourcePort && targetPort) {

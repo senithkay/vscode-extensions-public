@@ -21,7 +21,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getBalRecFieldName, getTypeName } from "../../../utils/dm-utils";
+import { getBalRecFieldName, getOptionalRecordField, getTypeName } from "../../../utils/dm-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -92,20 +92,26 @@ export interface RecordFieldTreeItemWidgetProps {
     getPort: (portId: string) => RecordFieldPortModel;
     treeDepth?: number;
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
+    isOptional?: boolean;
 
 }
 
 export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
-    const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0 } = props;
+    const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0, isOptional } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.name);
-    const fieldId = `${parentId}.${fieldName}`;
+    const fieldId = `${parentId}${isOptional ? `?.${fieldName}` : `.${fieldName}`}`;
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
     let fields: Type[];
+    let optional = false;
 
-    if (field.typeName === PrimitiveBalType.Record) {
+    const optionalRecordField = getOptionalRecordField(field);
+    if (optionalRecordField) {
+        optional = true
+        fields = optionalRecordField.fields;
+    } else if (field.typeName === PrimitiveBalType.Record) {
         fields = field.fields;
     }
 
@@ -122,6 +128,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         <span style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
                 {fieldName}
+                {field.optional && "?"}
                 {typeName && ":"}
             </span>
             {typeName && (
@@ -172,6 +179,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             parentId={fieldId}
                             handleCollapse={handleCollapse}
                             treeDepth={treeDepth + 1}
+                            isOptional={isOptional || optional}
                         />
                     );
                 })

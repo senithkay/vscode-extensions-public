@@ -36,6 +36,7 @@ const ExpandMore = ({ expand, onClick }: ExpandMoreProps) => {
             aria-expanded={expand}
             onClick={onClick}
             size={"small"}
+            data-cyid="expand-more"
         >
             <ExpandMoreIcon />
         </IconButton>
