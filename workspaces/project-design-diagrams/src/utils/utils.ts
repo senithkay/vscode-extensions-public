@@ -27,6 +27,8 @@ import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLin
 import { Point } from "@projectstorm/geometry";
 
 export const defaultZoomLevel = 100;
+export const canvasTopXOffset = 675;
+export const canvasTopYOffset = 205;
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();
@@ -68,8 +70,8 @@ export function positionGatewayNodes(engine: DiagramEngine) {
     const canvas = engine.getCanvas();
     const zoomLevel = model.getZoomLevel();
     if (canvas) {
-        const canvasTopMidX = (canvas.clientWidth * 0.09) - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 4.85);
-        const canvasTopMidY = (canvas.clientHeight * 0.235) - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 0.7);
+        const canvasTopMidX = (canvas.clientWidth * 0.5) - canvasTopXOffset - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 4.85);
+        const canvasTopMidY = canvasTopYOffset - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 0.7);
         const canvasRightMidX = (canvas.clientWidth * 0.265) - model.getOffsetX();
         const canvasRightMidY = (canvas.clientHeight * 0.15) - model.getOffsetY();
         const canvasBottomMidX = (-(canvas.clientWidth * 0.254) - model.getOffsetX());

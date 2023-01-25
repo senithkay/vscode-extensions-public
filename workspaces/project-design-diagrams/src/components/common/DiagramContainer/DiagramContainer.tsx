@@ -91,7 +91,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                             <WestGatewayIcon/>
                                         </GatewayContainer>
                                         {/*North Gateway*/}
-                                        <GatewayContainer top={'50px'} left={"calc(40vw + 100px)"}>
+                                        <GatewayContainer top={'50px'} left={"calc(55vw - 130px)"}>
                                             <NorthGatewayIcon/>
                                         </GatewayContainer>
                                         <CanvasContainer>
