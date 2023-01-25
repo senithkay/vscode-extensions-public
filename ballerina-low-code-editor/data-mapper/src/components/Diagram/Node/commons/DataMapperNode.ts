@@ -60,6 +60,7 @@ import {
 	getExprBodyFromLetExpression,
 	getFieldName,
 	getInputNodes,
+	getOptionalRecordField,
 	isComplexExpression
 } from "../../utils/dm-utils";
 
@@ -103,12 +104,13 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	// extend this class to add link init, port init logics
 
 	protected addPortsForInputRecordField(field: Type, type: "IN" | "OUT", parentId: string,
-										                             portPrefix?: string,
-										                             parent?: RecordFieldPortModel,
-										                             collapsedFields?: string[],
-										                             hidden? : boolean) : number {
+		                                     portPrefix?: string,
+		                                     parent?: RecordFieldPortModel,
+		                                     collapsedFields?: string[],
+		                                     hidden?: boolean,
+		                                     isOptional?: boolean): number {
 		const fieldName = field?.name ? getBalRecFieldName(field.name) : '';
-		const fieldFQN = parentId ? `${parentId}${fieldName && `.${fieldName}`}` : fieldName && fieldName;
+		const fieldFQN = parentId ? `${parentId}${fieldName && isOptional ? `?.${fieldName}` : `.${fieldName}`}` : fieldName && fieldName;
 		const portName = portPrefix ? `${portPrefix}.${fieldFQN}` : fieldFQN;
 		const isCollapsed = !hidden && collapsedFields && collapsedFields.includes(portName);
 		const fieldPort = new RecordFieldPortModel(
@@ -116,12 +118,18 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			parent, isCollapsed, hidden);
 		this.addPort(fieldPort)
 		let numberOfFields = 1;
-		if (field.typeName === PrimitiveBalType.Record) {
+		const optionalRecordField = getOptionalRecordField(field);
+		if (optionalRecordField) {
+			optionalRecordField?.fields.forEach((subField) => {
+				numberOfFields += this.addPortsForInputRecordField(subField, type, fieldFQN, portPrefix,
+					fieldPort, collapsedFields, isCollapsed ? true : hidden, true);
+			});
+		} else if (field.typeName === PrimitiveBalType.Record) {
 			const fields = field?.fields;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
 					numberOfFields += this.addPortsForInputRecordField(subField, type, fieldFQN, portPrefix,
-												fieldPort, collapsedFields, isCollapsed ? true : hidden);
+						fieldPort, collapsedFields, isCollapsed ? true : hidden, isOptional);
 				});
 			}
 		}
@@ -129,13 +137,13 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForOutputRecordField(field: EditableRecordField, type: "IN" | "OUT",
-											                             parentId: string, elementIndex?: number,
-											                             portPrefix?: string,
-											                             parent?: RecordFieldPortModel,
-											                             collapsedFields?: string[],
-											                             hidden?: boolean,
-											                             isWithinSelectClause?: boolean
-											) {
+		                                      parentId: string, elementIndex?: number,
+		                                      portPrefix?: string,
+		                                      parent?: RecordFieldPortModel,
+		                                      collapsedFields?: string[],
+		                                      hidden?: boolean,
+		                                      isWithinSelectClause?: boolean
+	) {
 		const fieldName = getFieldName(field);
 		if (elementIndex !== undefined) {
 			parentId = parentId ? `${parentId}.${elementIndex}` : elementIndex.toString();
@@ -153,7 +161,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
 					this.addPortsForOutputRecordField(subField, type, fieldFQN, undefined, portPrefix,
-								fieldPort, collapsedFields, isCollapsed ? true : hidden);
+						fieldPort, collapsedFields, isCollapsed ? true : hidden);
 				});
 			}
 		} else if (field.type.typeName === PrimitiveBalType.Array) {
@@ -168,11 +176,11 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	}
 
 	protected addPortsForHeaderField(field: Type, name: string,
-                                  type: "IN" | "OUT",
-                                  portPrefix: string,
-                                  collapsedFields?: string[],
-                                  isWithinSelectClause?: boolean,
-                                  editableRecordField?: EditableRecordField) : RecordFieldPortModel {
+		                                type: "IN" | "OUT",
+		                                portPrefix: string,
+		                                collapsedFields?: string[],
+		                                isWithinSelectClause?: boolean,
+		                                editableRecordField?: EditableRecordField): RecordFieldPortModel {
 		const fieldName = getBalRecFieldName(name);
 		let portName = fieldName;
 		if (portPrefix) {

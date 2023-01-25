@@ -97,8 +97,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             let paramName: string;
             if (STKindChecker.isFieldAccess(sourceFieldAccess)) {
                 const fieldNames = getFieldNames(sourceFieldAccess);
-                fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
-                paramName = fieldNames[0];
+                fieldId = fieldNames.reduce((pV, cV) => pV ? `${pV}.${cV.name}` : cV.name, "");
+                paramName = fieldNames[0].name;
             } else if (STKindChecker.isSimpleNameReference(sourceFieldAccess)) {
                 fieldId = sourceFieldAccess.name.value;
                 paramName = fieldId;

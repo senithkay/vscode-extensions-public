@@ -73,17 +73,24 @@ import { getModification } from "./modifications";
 import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
-	const fieldNames: string[] = [];
+	const fieldNames: { name: string, isOptional: boolean }[] = [];
 	let nextExp: FieldAccess | OptionalFieldAccess = expr;
 	while (nextExp && (STKindChecker.isFieldAccess(nextExp) || STKindChecker.isOptionalFieldAccess(nextExp))) {
-		fieldNames.push((nextExp.fieldName as SimpleNameReference).name.value);
+		fieldNames.push({ name: (nextExp.fieldName as SimpleNameReference).name.value, isOptional: STKindChecker.isOptionalFieldAccess(nextExp) });
 		if (STKindChecker.isSimpleNameReference(nextExp.expression)) {
-			fieldNames.push(nextExp.expression.name.value);
+			fieldNames.push({ name: nextExp.expression.name.value, isOptional: false });
 		}
-		nextExp = (STKindChecker.isFieldAccess(nextExp.expression) || STKindChecker.isFieldAccess(nextExp.expression))
+		nextExp = (STKindChecker.isFieldAccess(nextExp.expression) || STKindChecker.isOptionalFieldAccess(nextExp.expression))
 			? nextExp.expression : undefined;
 	}
-	return fieldNames.reverse();
+	let isRestOptional = false;
+	const fieldsToReturn = fieldNames.reverse().map((item) => {
+		if (item.isOptional) {
+			isRestOptional = true;
+		}
+		return { name: item.name, isOptional: isRestOptional || item.isOptional };
+	});
+	return fieldsToReturn
 }
 
 export async function createSourceForMapping(link: DataMapperLinkModel) {
@@ -566,16 +573,20 @@ export function getInputPortsForExpr(node: RequiredParamNode
 	}
 	if (typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
-			if (STKindChecker.isOptionalFieldAccess(expr)) {
-				portIdBuffer = `${portIdBuffer}?`
-			}
 			const fieldNames = getFieldNames(expr);
 			let nextTypeNode: Type = typeDesc;
 			for (let i = 1; i < fieldNames.length; i++) {
 				const fieldName = fieldNames[i];
-				portIdBuffer += `.${fieldName}`;
-				const recField = nextTypeNode.fields.find(
-					(field: Type) => getBalRecFieldName(field.name) === fieldName);
+				portIdBuffer += fieldName.isOptional ? `?.${fieldName.name}` : `.${fieldName.name}`;
+				let recField: Type;
+				const optionalRecordField = getOptionalRecordField(nextTypeNode);
+				if (optionalRecordField) {
+					recField = optionalRecordField?.fields.find((field: Type) => getBalRecFieldName(field.name) === fieldName.name);
+				} else if (nextTypeNode.typeName === PrimitiveBalType.Record) {
+					recField = nextTypeNode.fields.find(
+						(field: Type) => getBalRecFieldName(field.name) === fieldName.name);
+				}
+
 				if (recField) {
 					if (i === fieldNames.length - 1) {
 						const portId = portIdBuffer + ".OUT";
@@ -584,7 +595,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 							port = port.parentModel;
 						}
 						return port;
-					} else if (recField.typeName === PrimitiveBalType.Record) {
+					} else if ([PrimitiveBalType.Record, PrimitiveBalType.Union].includes(recField.typeName as PrimitiveBalType)) {
 						nextTypeNode = recField;
 					}
 				}
@@ -899,9 +910,6 @@ export function getTypeName(field: Type): string {
 			// If record is from an imported package
 			return `${field?.typeInfo?.moduleName}:${field.typeInfo.name}`;
 		}
-		if (field?.optional){
-			return `${field?.typeInfo?.name}?`
-		}
 
 		return field?.typeInfo?.name || 'record';
 	} else if (field.typeName === PrimitiveBalType.Array && field?.memberType) {
@@ -1149,6 +1157,17 @@ function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel)
 		&& (STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression)
 			|| STKindChecker.isMappingConstructor(targetPort.editableRecordField.value.selectClause.expression)
 		);
+}
+
+export const getOptionalRecordField = (field: Type): Type | undefined => {
+	if (PrimitiveBalType.Record === field.typeName && field.optional) {
+		return field;
+	} else if (PrimitiveBalType.Union === field.typeName) {
+		const isSimpleOptionalType = field.members?.some(member => member.typeName === '()');
+		if (isSimpleOptionalType && field.members?.length === 2){
+			return field.members?.find(member => member.typeName === PrimitiveBalType.Record);
+		}
+	}
 }
 
 /** Filter out error and nill types and return only the types that can be displayed as mapping as target nodes */
