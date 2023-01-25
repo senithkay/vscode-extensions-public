@@ -6,6 +6,7 @@ import { GraphqlDesignNode } from "../../Nodes/BaseNode/GraphqlDesignNode";
 import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
 import { GraphqlServiceNodeModel } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
 import { RecordNodeModel } from "../../Nodes/RecordNode/RecordNodeModel";
+import { ServiceClassNodeModel } from "../../Nodes/ServiceClassNode/ServiceClassNodeModel";
 import { GraphqlNodeBasePort } from "../../Port/GraphqlNodeBasePort";
 import {
     EnumComponent,
@@ -14,7 +15,7 @@ import {
     Interaction, RecordComponent,
     RemoteFunction,
     ResourceFunction,
-    Service
+    Service, ServiceClassComponent
 } from "../../resources/model";
 
 
@@ -37,6 +38,10 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel) : Diagra
     if (graphqlModel.records){
         const records: Map<string, RecordComponent> = new Map(Object.entries(graphqlModel.records));
         recordModelMapper(records);
+    }
+    if (graphqlModel.serviceClasses){
+        const serviceClasses : Map<string, ServiceClassComponent> = new Map(Object.entries(graphqlModel.serviceClasses));
+        serviceClassModelMapper(serviceClasses);
     }
     // TODO: generate nodes for service-classes/ unions
 
@@ -65,6 +70,13 @@ function recordModelMapper(records: Map<string, RecordComponent>) {
     records.forEach((recordObj, key) => {
         const recordNode = new RecordNodeModel(recordObj);
         diagramNodes.set(key, recordNode);
+    })
+}
+
+function serviceClassModelMapper(classes: Map<string, ServiceClassComponent>) {
+    classes.forEach((classObj, key) => {
+        const serviceClass = new ServiceClassNodeModel(classObj);
+        diagramNodes.set(key, serviceClass);
     })
 }
 
