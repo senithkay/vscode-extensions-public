@@ -81,7 +81,7 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
         if (shouldRender && projectComponents.has(packageName)) {
             const services: Map<string, Service> = new Map(Object.entries(projectComponents.get(packageName).services));
             services.forEach((service) => {
-                if (service.serviceId !== '') {
+                if (service.serviceId === '') {
                     service.serviceId = uniqueId(`${packageName}/${service.path}`);
                 }
                 // create the L1 service nodes
