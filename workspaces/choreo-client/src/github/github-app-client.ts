@@ -17,10 +17,14 @@ import { EventEmitter, env, Uri } from 'vscode';
 
 export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
 
+    private _status: GHAppAuthStatus = { status: 'not-authorized' };
     private _onGHAppAuthCallback = new EventEmitter<GHAppAuthStatus>();
     public readonly onGHAppAuthCallback = this._onGHAppAuthCallback.event;
 
     constructor(private _tokenStore: IReadOnlyTokenStorage, private _projectsApiUrl: string, private _appConfig: GHAppConfig) {
+        this.onGHAppAuthCallback((status) => {
+            this._status = status;
+        });
     }
     
     private async _getClient() {
@@ -34,6 +38,10 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             },
         });
         return client;
+    }
+    
+    get status(): Promise<GHAppAuthStatus> {
+        return Promise.resolve(this._status);
     }
 
     async triggerAuthFlow(): Promise<boolean> {
