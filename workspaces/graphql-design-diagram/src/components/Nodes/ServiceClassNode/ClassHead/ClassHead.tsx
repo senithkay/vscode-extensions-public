@@ -1,12 +1,24 @@
-import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
-import { GraphqlServiceNodeModel } from "../../GraphqlServiceNode/GraphqlServiceNodeModel";
+/*
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+
 import React, { useEffect, useRef } from "react";
-import { ServiceHead } from "../../GraphqlServiceNode/styles/styles";
-import { GraphQLIcon } from "../../../resources/assets/icons/GraphQL";
+
+import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
+import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIcon";
 import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
 import { ServiceClassNodeModel } from "../ServiceClassNodeModel";
-import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIcon";
 
 interface ServiceClassHeadProps {
     engine: DiagramEngine;
@@ -23,8 +35,6 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
     }, [node])
-
-
 
     return (
         <NodeHeader>

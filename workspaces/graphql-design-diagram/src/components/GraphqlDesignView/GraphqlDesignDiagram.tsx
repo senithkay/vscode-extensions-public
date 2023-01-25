@@ -1,13 +1,21 @@
-// import { LinePosition } from "@wso2-enterprise/ballerina-languageclient";
-// import { getModelForGraphqlService } from "../utils/ls-util";
+/*
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 
 import React, { useEffect, useState } from "react";
 
-import styled from "@emotion/styled";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-    DiagramEditorLangClientInterface,
     GraphqlDesignServiceRequest, GraphqlDesignServiceResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
@@ -65,12 +73,10 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps){
     }
 
     return(
-        // diagram header
-        // diagram container
-        // <div className={classes.root}>
+        // TODO: Add overlay header
         <>
             {designModel && <GraphqlDiagramContainer designModel={designModel}/>}
         </>
-        // </div>
+        // TODO: Add the error banner in-case of an incompleteModel (compilation errors will be handled at the initial level)
     );
 }

@@ -1,14 +1,25 @@
-// tslint:disable: no-implicit-dependencies jsx-no-multiline-js
+/*
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+
+// tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useRef, useState } from "react";
 
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
-import createEngine, { DagreEngine, DefaultNodeModel, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 
 import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
-import { useDiagramStyles } from "./styles/styles";
-import { positionGatewayNodes } from "project-design-diagrams/src/utils";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -26,15 +37,11 @@ const dagreEngine = new DagreEngine({
     }
 });
 
-
 export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     const { model } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(createGraphqlDiagramEngine);
-    const diagramRef = useRef<HTMLDivElement>(null);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
-
-    const styleClass = useDiagramStyles();
 
     useEffect(() => {
                 diagramEngine.setModel(model);
@@ -50,11 +57,9 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         }, 30);
     };
 
-
     return(
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-            // tslint:disable-next-line:jsx-wrap-multiline
                 <CanvasWidgetContainer>
                         <CanvasWidget engine={diagramEngine}/>
                 </CanvasWidgetContainer>
