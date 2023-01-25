@@ -27,8 +27,8 @@ import { ConnectorWizard } from "./components/FormComponents/ConfigForms/Connect
 import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
-import { ServiceDesignOverlay } from "./components/ServiceDesignOverlay";
 import { GraphqlDiagramOverlay } from "./components/GraphqlDiagramOverlay";
+import { ServiceDesignOverlay } from "./components/ServiceDesignOverlay";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";

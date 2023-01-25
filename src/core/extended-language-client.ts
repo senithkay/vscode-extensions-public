@@ -652,10 +652,6 @@ export class ExtendedLangClient extends LanguageClient {
 
     async getGraphqlModel(params: GraphqlDesignServiceRequest): Promise<GraphqlDesignServiceResponse | null> {
         return this.sendRequest<GraphqlDesignServiceResponse>(EXTENDED_APIS.GRAPHQL_DESIGN_MODEL, params);
-        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.GRAPHQL_DESIGN_MODEL);
-        // return isSupported
-        //     ? this.sendRequest<GraphqlDesignServiceResponse>(EXTENDED_APIS.GRAPHQL_DESIGN_MODEL, params)
-        //     : Promise.resolve(null);
     }
 
     async rename(params: RenameParams): Promise<WorkspaceEdit | null> {
