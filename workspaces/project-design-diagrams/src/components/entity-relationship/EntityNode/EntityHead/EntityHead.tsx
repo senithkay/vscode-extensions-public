@@ -56,7 +56,6 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     return (
         <EntityHead
             isAnonymous={node.entityObject.isAnonymous}
-            isClickable={currentView !== Views.TYPE_COMPOSITION}
             isSelected={isSelected}
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}

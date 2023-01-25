@@ -23,7 +23,7 @@ import { ServiceNodeModel } from '../ServiceNodeModel';
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
 import { ResourceFunction, RemoteFunction, Colors } from '../../../../resources';
-import { FunctionContainer } from '../styles';
+import { FunctionContainer } from '../styles/styles';
 import { NodeMenuWidget } from '../../../common';
 
 interface FunctionCardProps {
