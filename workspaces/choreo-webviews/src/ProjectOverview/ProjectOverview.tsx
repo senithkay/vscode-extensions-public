@@ -68,45 +68,44 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const projectId = props.projectId ? props.projectId : '';
     const orgName = props.orgName ? props.orgName : '';
 
-    const rpcInstance = ChoreoWebViewAPI.getInstance();
     // Set the starting project with the project id passed by props
     useEffect(() => {
-        rpcInstance.getAllProjects().then((fetchedProjects) => {
+        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
         });
-    }, []);
+    }, [projectId, orgName]);
 
     // Set the components of the project
     useEffect(() => {
-        rpcInstance.getComponents(projectId).then(setComponents);
-    }, []);
+        ChoreoWebViewAPI.getInstance().getComponents(projectId).then(setComponents);
+    }, [projectId, orgName]);
 
     useEffect(() => {
-        rpcInstance.getChoreoProject().then((p) => {
+        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
             if (p && p.id === projectId) {
                 setActive(true);
             } else {
                 setActive(false);
             }
         });
-    }, []);
+    }, [projectId, orgName]);
 
     // Get project location & repo
     useEffect(() => {
-        rpcInstance.getProjectLocation(projectId).then(setLocation);
-        rpcInstance.getProjectRepository(projectId).then(setProjectRepo);
-    }, []);
+        ChoreoWebViewAPI.getInstance().getProjectLocation(projectId).then(setLocation);
+        ChoreoWebViewAPI.getInstance().getProjectRepository(projectId).then(setProjectRepo);
+    }, [projectId, orgName]);
 
     // Listen to changes in project selection
-    rpcInstance.onSelectedProjectChanged((newProjectId) => {
+    ChoreoWebViewAPI.getInstance().onSelectedProjectChanged((newProjectId) => {
         setComponents(undefined);
         // setProject(undefined); will not remove project to fix the glitch
-        rpcInstance.getAllProjects().then((fetchedProjects) => {
+        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
         });
-        rpcInstance.getComponents(newProjectId).then(setComponents);
-        rpcInstance.getProjectLocation(newProjectId).then(setLocation);
-        rpcInstance.getChoreoProject().then((p) => {
+        ChoreoWebViewAPI.getInstance().getComponents(newProjectId).then(setComponents);
+        ChoreoWebViewAPI.getInstance().getProjectLocation(newProjectId).then(setLocation);
+        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
             if (p && p.id === newProjectId) {
                 setActive(true);
             } else {
@@ -116,23 +115,23 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     });
 
     const handleCloneProjectClick = (e: any) => {
-        rpcInstance.cloneChoreoProject(project ? project.id : '');
+        ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : '');
     };
 
     const handleOpenProjectClick = (e: any) => {
-        rpcInstance.openChoreoProject(project ? project.id : '');
+        ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
     };
 
     const handlePushToChoreoClick = (e: any) => {
         setCreatingComponents(true);
-        rpcInstance.pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
+        ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
             setCreatingComponents(false);
-            rpcInstance.getComponents(project ? project.id : '').then(setComponents);
+            ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then(setComponents);
         });
     };
 
     const handleOpenArchitectureViewClick = (e: any) => {
-        rpcInstance.openArchitectureView();
+        ChoreoWebViewAPI.getInstance().openArchitectureView();
     };
 
     return (

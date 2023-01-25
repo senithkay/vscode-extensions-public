@@ -13,21 +13,36 @@
 import * as assert from 'assert';
 import { suite, setup, test } from 'mocha';
 import * as vscode from 'vscode';
-//import { ProjectRegistry } from '../../registry/project-registry';
+
+import { mkdirSync, rmSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
+import { ProjectRegistry } from '../../registry/project-registry';
+
+function createTempDir(): string {
+    const tmpDir = tmpdir();
+    const randomName = Math.random().toString(36).substring(2, 15);
+    const tempDir = join(tmpDir, randomName);
+    mkdirSync(tempDir);
+    return tempDir;
+}
 
 suite('Project Registry', function () {
-    //let projectRegistry: ProjectRegistry;
+    let projectRegistry: ProjectRegistry;
 
     setup(function () {
-        //projectRegistry = ProjectRegistry.getInstance();
+        projectRegistry = ProjectRegistry.getInstance();
     });
 
     suite('location ', function () {
         test('set and get', function () {
-            // const location = '/my/location';
-            // projectRegistry.setProjectLocation('project-id', location);
-            // const path = projectRegistry.getProjectLocation('project-id');
-            // assert.equal(path, location);
+            // need to use existing location as the project registry will not create the location
+            // unless it is actually there 
+            const location = createTempDir();
+            projectRegistry.setProjectLocation('project-id', location);
+            const path = projectRegistry.getProjectLocation('project-id');
+            assert.equal(path, location);
+            rmSync(location, { recursive: true });
         });
 
     });
