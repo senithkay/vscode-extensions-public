@@ -19,17 +19,17 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from 'react';
 
+import { Popover } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
-import { Popover } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
+import { popOverStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
+import { QueryIcon } from "../../../resources/assets/icons/QueryIcon";
+import { SubscriptionIcon } from "../../../resources/assets/icons/SubscriptionIcon";
 import { ResourceFunction } from "../../../resources/model";
 import { FieldName, FieldType, } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
-import { popOverStyle } from "../../../Popup/styles";
-import { QueryIcon } from "../../../resources/assets/icons/QueryIcon";
 
 interface ResourceFunctionProps {
     engine: DiagramEngine;
@@ -58,7 +58,7 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 port={node.getPort(`left-${resourcePath}`)}
                 engine={engine}
             />
-                <QueryIcon/>
+            {resource.subscription ? <SubscriptionIcon/> : <QueryIcon/>}
                 <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{marginLeft: '7px'}}>
                     {resource.identifier}
                 </FieldName>
