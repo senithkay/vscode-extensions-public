@@ -11,6 +11,7 @@
  * associated services.
  */
 import React from 'react';
+
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 
 export interface HistoryProviderState {
@@ -22,13 +23,13 @@ export interface HistoryProviderState {
 
 export const Context = React.createContext<HistoryProviderState>({
     history: [],
-    historyPush: function(info: ComponentViewInfo): void {
+    historyPush(info: ComponentViewInfo): void {
         throw new Error("Function not implemented.");
     },
-    historyPop: function(): void {
+    historyPop(): void {
         throw new Error('Function not implemented.');
     },
-    historyReset: function(): void {
+    historyReset(): void {
         throw new Error('Function not implemented.');
     }
 });

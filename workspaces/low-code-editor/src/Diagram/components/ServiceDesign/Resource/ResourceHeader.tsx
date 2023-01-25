@@ -20,12 +20,12 @@ import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtio
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { useDiagramContext } from "../../../../Contexts/Diagram";
+import { useHistoryContext } from "../../../../DiagramViewManager/context/history";
+import { ComponentViewInfo } from "../../../../OverviewDiagram/util";
 import "../style.scss";
 
 import { ResourceQueryParams } from "./ResourceQueryParams";
-import { useHistoryContext } from "../../../../DiagramViewManager/context/history";
-import { ComponentViewInfo } from "../../../../OverviewDiagram/util";
-import { useDiagramContext } from "../../../../Contexts/Diagram";
 
 interface ResourceHeaderProps {
     model: ResourceAccessorDefinition;
@@ -47,8 +47,6 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             filePath: currentElementInfo.filePath,
             position: model.position
         }
-        console.log('resource accessor >>>', model);
-        console.log('>>>', componentViewInfo);
         updateSelectedComponent(componentViewInfo);
     }
 

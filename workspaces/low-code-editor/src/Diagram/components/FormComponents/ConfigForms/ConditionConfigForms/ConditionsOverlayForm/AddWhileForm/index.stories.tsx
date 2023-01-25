@@ -12,13 +12,14 @@
  */
 import React from 'react';
 
-// tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
 
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
+import { ComponentViewInfo } from '../../../../../../../OverviewDiagram/util';
 
 import { AddWhileForm, WhileProps } from "./index";
-import { ComponentViewInfo } from '../../../../../../../OverviewDiagram/util';
+
+// tslint:disable-next-line: no-submodule-imports
 
 
 export default {
@@ -82,7 +83,8 @@ const api = {
         run: dummyFunction
     },
     navigation: {
-        updateSelectedComponent: (info: ComponentViewInfo) => {}
+        // tslint:disable-next-line:no-empty
+        updateSelectedComponent: (info: ComponentViewInfo) => { }
     }
 }
 

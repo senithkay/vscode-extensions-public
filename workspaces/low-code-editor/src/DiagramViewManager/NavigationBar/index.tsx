@@ -14,8 +14,9 @@ import React from "react";
 
 import { ArrowBack, Home } from "@material-ui/icons";
 
-import './style.scss';
 import { useHistoryContext } from "../context/history";
+
+import './style.scss';
 
 export function NavigationBar() {
     const { history, historyPop, historyReset } = useHistoryContext();

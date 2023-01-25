@@ -8,9 +8,9 @@ import { STFindingVisitor } from "../../Diagram/visitors/st-finder-visitor";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
 import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isUnresolvedModulesAvailable } from "../../DiagramGenerator/generatorUtil";
 import { EditorProps, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";
+import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
 import { DiagramFocusState } from "../hooks/diagram-focus";
-import { ComponentViewInfo } from "../../OverviewDiagram/util";
 
 export function getDiagramProviderProps(
     focusedST: STNode,

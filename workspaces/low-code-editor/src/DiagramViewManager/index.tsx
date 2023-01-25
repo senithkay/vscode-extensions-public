@@ -12,7 +12,6 @@
  */
 import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
-import { Provider as HistoryProvider } from './context/history';
 
 import { MuiThemeProvider } from "@material-ui/core";
 import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
@@ -32,6 +31,7 @@ import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
 
+import { Provider as HistoryProvider } from './context/history';
 import { useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
