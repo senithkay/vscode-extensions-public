@@ -842,7 +842,7 @@ export interface IBallerinaLangClient {
 
     getBallerinaProject: (params: GetBallerinaProjectParams) => Thenable<BallerinaProject>;
 
-    getDefinitionPosition: (params: TextDocumentPositionParams) => Thenable<Location>;
+    getDefinitionPosition: (params: TextDocumentPositionParams) => Thenable<BallerinaSTModifyResponse>;
 
     getRecord: (params: BallerinaRecordRequest) => Thenable<BallerinaRecordResponse>;
 

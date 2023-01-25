@@ -45,6 +45,7 @@ import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 import { AdvancedParamEditor } from "./AdvancedParamEditor";
 import { PayloadEditor } from "./PayloadEditor";
 import { ResourceParamEditor } from "./ResourceParamEditor";
+import { ResourceReturnEditor } from './ResourceReturnEditor';
 import { useStyles } from "./styles";
 import { ResourceDiagnostics } from "./types";
 import {
@@ -227,6 +228,17 @@ export function ResourceForm(props: FunctionProps) {
         setCurrentComponentName("Return");
     }
 
+    const handleReturnEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            paramString,
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            stModel,
+            currentValue
+        );
+    };
+
     const onReturnTypeChange = (value: string) => {
         // setIsEditInProgress(true);
         handleResourceParamChange(
@@ -362,16 +374,14 @@ export function ResourceForm(props: FunctionProps) {
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <FieldTitle title='Return Type' optional={true} />
-                        <LiteExpressionEditor
-                            testId="return-type"
-                            diagnostics={(currentComponentName === "Return" && currentComponentSyntaxDiag) ||
-                                model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange}
-                            defaultValue={model?.functionSignature?.returnTypeDesc?.type?.source.trim()}
+                        <FieldTitle title='Responses' optional={true} />
+                        <ResourceReturnEditor
+                            returnSource={model.functionSignature?.returnTypeDesc?.source}
+                            syntaxDiag={currentComponentSyntaxDiag}
                             onChange={onReturnTypeChange}
-                            onFocus={onReturnFocus}
-                            disabled={currentComponentName !== "Return" && isEditInProgress}
                             completions={completions}
+                            readonly={isEditInProgress} // todo: implement the disable logic
+                            onChangeInProgress={setIsEditInProgress}
                         />
                         <div className={classes.serviceFooterWrapper}>
                             <SecondaryButton

@@ -291,6 +291,15 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             });
         }
     }, {
+        methodName: 'getDefinitionPosition',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.getDefinitionPosition(args[0]).then(result => {
+                consoleLog(start, 'getDefinitionPosition');
+                return result;
+            });
+        }
+    }, {
         methodName: 'getExecutorPositions',
         handler: (args: any[]) => {
             const start = new Date().getTime();
