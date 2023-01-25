@@ -32,6 +32,20 @@ export const HeaderName = styled.span`
     margin-left: 8px;
 `;
 
+export const NodeContainer = styled.div`
+    background-color: ${Colors.SECONDARY};
+    border: ${`1px solid ${Colors.PRIMARY}`};
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    color: ${Colors.PRIMARY};
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    min-height: 32px;
+`;
+
 export const NodeHeader = styled.div`
     align-items: center;
     border-bottom: ${`1px solid ${Colors.PRIMARY}`};

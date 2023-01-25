@@ -5,6 +5,7 @@ import { EnumNodeFactory } from "../Nodes/EnumNode/EnumNodeFactory";
 import { GraphqlServiceNodeFactory } from "../Nodes/GraphqlServiceNode/GraphqlServiceNodeFactory";
 import { RecordNodeFactory } from "../Nodes/RecordNode/RecordNodeFactory";
 import { ServiceClassNodeFactory } from "../Nodes/ServiceClassNode/ServiceClassNodeFactory";
+import { UnionNodeFactory } from "../Nodes/UnionNode/UnionNodeFactory";
 import { GraphqlBasePortFactory } from "../Port/GraphqlBasePortFactory";
 
 export function createGraphqlDiagramEngine(): DiagramEngine {
@@ -17,5 +18,6 @@ export function createGraphqlDiagramEngine(): DiagramEngine {
     diagramEngine.getNodeFactories().registerFactory(new EnumNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new RecordNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new ServiceClassNodeFactory());
+    diagramEngine.getNodeFactories().registerFactory(new UnionNodeFactory());
     return diagramEngine;
 }

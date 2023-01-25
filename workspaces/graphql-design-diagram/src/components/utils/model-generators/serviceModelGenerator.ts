@@ -7,6 +7,7 @@ import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
 import { GraphqlServiceNodeModel } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
 import { RecordNodeModel } from "../../Nodes/RecordNode/RecordNodeModel";
 import { ServiceClassNodeModel } from "../../Nodes/ServiceClassNode/ServiceClassNodeModel";
+import { UnionNodeModel } from "../../Nodes/UnionNode/UnionNodeModel";
 import { GraphqlNodeBasePort } from "../../Port/GraphqlNodeBasePort";
 import {
     EnumComponent,
@@ -15,7 +16,7 @@ import {
     Interaction, RecordComponent,
     RemoteFunction,
     ResourceFunction,
-    Service, ServiceClassComponent
+    Service, ServiceClassComponent, UnionComponent
 } from "../../resources/model";
 
 
@@ -43,9 +44,13 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel) : Diagra
         const serviceClasses : Map<string, ServiceClassComponent> = new Map(Object.entries(graphqlModel.serviceClasses));
         serviceClassModelMapper(serviceClasses);
     }
+    if (graphqlModel.unions){
+        const unions : Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
+        unionModelMapper(unions);
+    }
     // TODO: generate nodes for service-classes/ unions
 
-    // generated linked nodes - service/records/enums
+    // TODO:  generate secondary links for - service/records/enums/unions
     generateLinks(graphqlModel);
 
 
@@ -77,6 +82,13 @@ function serviceClassModelMapper(classes: Map<string, ServiceClassComponent>) {
     classes.forEach((classObj, key) => {
         const serviceClass = new ServiceClassNodeModel(classObj);
         diagramNodes.set(key, serviceClass);
+    })
+}
+
+function unionModelMapper(unions: Map<string, UnionComponent>) {
+    unions.forEach((unionObj, key) => {
+        const unionType = new UnionNodeModel(unionObj);
+        diagramNodes.set(key, unionType);
     })
 }
 
@@ -128,8 +140,6 @@ function setGraphqlServiceLinks(sourceNode: GraphqlDesignNode, targetNode: Graph
         const link : GraphqlServiceLinkModel = new GraphqlServiceLinkModel(functionType);
         return createLink(sourcePort, targetPort, link);
     }
-
-
 }
 
 function createLink(sourcePort: GraphqlNodeBasePort, targetPort: GraphqlNodeBasePort, link : GraphqlBaseLinkModel){

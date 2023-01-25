@@ -55,7 +55,7 @@ export interface EnumComponent {
     enumFields: EnumField[];
 }
 
-interface UnionComponent {
+export interface UnionComponent {
     name: string;
     position: Position;
     description: string;
