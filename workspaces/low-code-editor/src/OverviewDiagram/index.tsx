@@ -63,6 +63,11 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
             try {
                 const langClient = await getDiagramEditorLangClient();
                 const filePaths: any = projectPaths.map(path => ({ uri: path.uri.external }));
+                // const requestPromises = filePaths.map((path: any) => {
+                //     console.log('possible path >>>', path)
+                //     return langClient.getBallerinaProjectComponents({ documentIdentifiers: [path] });
+                // });
+                // Promise.all(requestPromises).then((response) => { console.log('>>> response', response) });
                 const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [...filePaths]
                 });
@@ -99,7 +104,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                 </select>
             </div >
         </div>
-    )
+    );
 
     return (
         <>

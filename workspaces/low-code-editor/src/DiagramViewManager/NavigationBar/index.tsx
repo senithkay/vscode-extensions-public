@@ -12,37 +12,52 @@
  */
 import React from "react";
 
-import { ArrowBack, Home } from "@material-ui/icons";
+import { Apps, ArrowBack, Folder, Home } from "@material-ui/icons";
 
 import { useHistoryContext } from "../context/history";
 
 import './style.scss';
 
-export function NavigationBar() {
-    const { history, historyPop, historyReset } = useHistoryContext();
-    const homeButton = (
-        <div className="btn-container" onClick={historyReset}>
-            <Home />
-        </div>
-    );
+interface NavigationBarProps {
+    moduleName: string;
+}
 
+export function NavigationBar(props: NavigationBarProps) {
+    const { moduleName } = props;
+    const { history, historyPop, historyReset } = useHistoryContext();
+    // const homeButton = (
+    //     <div className="btn-container" onClick={historyReset}>
+    //         <Home />
+    //     </div>
+    // );
+    //
     const backButton = (
         <div className="btn-container" onClick={historyPop}>
             <ArrowBack />
         </div>
     );
 
-    const currentComponent = history.length > 0 ? history[history.length - 1] : undefined;
+    const showBackButton: boolean = history.length > 0;
+    // <div className="btn-container" onClick={historyReset} >
+    //     <Apps />
+    //     <span className="icon-text">Workspace</span>
+    // </div>
 
+    const moduleNameComponent = (
+        <div className="btn-container" onClick={historyReset}>
+            <Folder style={{paddingRight: 5}} />
+            <span className="icon-text">{`${moduleName} ${history.length > 0 ? '': 'components'}`}</span>
+        </div>
+    );
     return (
         <div id="nav-bar-main" className={'header-bar'}>
-            {currentComponent && backButton}
-            {currentComponent && homeButton}
+            {showBackButton && backButton}
+            {moduleNameComponent}
             <div className="component-details">
                 {/*<span className="module-text">{componentDetailsText}</span>*/}
-                {history.length === 0 && <span className="module-text">Project Overview</span>}
             </div>
         </div>
     )
+    // {history.length === 0 && <span className="module-text">{moduleName} components</span>}
 }
 

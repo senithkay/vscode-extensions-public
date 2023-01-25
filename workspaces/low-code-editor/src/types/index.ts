@@ -120,6 +120,7 @@ export interface LowCodeEditorAPI {
     openExternalUrl?: (url: string) => Promise<boolean>;
     navigation: {
         updateSelectedComponent: (info: ComponentViewInfo) => void;
+        navigateUptoParent: (position: NodePosition) => void;
     }
 }
 

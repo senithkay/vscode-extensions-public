@@ -14,7 +14,7 @@ import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 
 import { MuiThemeProvider } from "@material-ui/core";
-import { STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";    
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { Diagram } from "../Diagram";
@@ -75,8 +75,9 @@ export function DiagramViewManager(props: EditorProps) {
         getEnv,
         getBallerinaVersion,
     } = props;
-
+    console.log('>>> project paths', projectPaths);
     const classes = useGeneratorStyles();
+    const [packageName] = useState<string>(projectPaths.length > 0 ? projectPaths[0].name : '');
     const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [completeST, setCompleteST] = useState<STNode>();
@@ -172,6 +173,7 @@ export function DiagramViewManager(props: EditorProps) {
             try {
                 const langClient = await langClientPromise;
                 const generatedST = await getSyntaxTree(filePath, langClient);
+                console.log('generated st >>>', generatedST);
                 const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
 
                 const content = await getFileContent(filePath);
@@ -235,6 +237,17 @@ export function DiagramViewManager(props: EditorProps) {
             viewComponent.push(<Diagram />);
         }
     }
+    const navigateUptoParent = (position: NodePosition) => {
+        console.log('navigate to parent', position);
+        if (!position) {
+            return;
+        }
+
+        const currentHistoryEntry: ComponentViewInfo = structuredClone(history[history.length - 1]);
+        currentHistoryEntry.uid = undefined;
+        currentHistoryEntry.position = position;
+        updateSelectedComponent(currentHistoryEntry);
+    }
 
     return (
         <div>
@@ -242,7 +255,7 @@ export function DiagramViewManager(props: EditorProps) {
                 <div className={classes.lowCodeContainer}>
                     <IntlProvider locale='en' defaultLocale='en' messages={messages}>
                         <ViewManagerProvider
-                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateSelectedComponent)}
+                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateSelectedComponent, navigateUptoParent)}
                         >
                             <HistoryProvider
                                 history={history}
@@ -250,7 +263,7 @@ export function DiagramViewManager(props: EditorProps) {
                                 historyPop={historyPop}
                                 historyReset={historyClear}
                             >
-                                <NavigationBar />
+                                <NavigationBar moduleName={packageName} />
                                 <div id={'canvas-overlay'} className={"overlayContainer"} />
                                 {viewComponent}
                             </HistoryProvider>
@@ -261,3 +274,4 @@ export function DiagramViewManager(props: EditorProps) {
         </div>
     )
 }
+

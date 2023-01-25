@@ -1,7 +1,7 @@
 import { monaco } from "react-monaco-editor";
 
 import { CommandResponse, DiagramDiagnostic, DIAGRAM_MODIFIED, FunctionDef, getImportStatements, InsertorDelete, LowcodeEvent, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
 import { STFindingVisitor } from "../../Diagram/visitors/st-finder-visitor";
@@ -24,7 +24,8 @@ export function getDiagramProviderProps(
     setFocusedST: React.Dispatch<React.SetStateAction<STNode>>,
     setCompleteST: React.Dispatch<React.SetStateAction<STNode>>,
     setFileContent: (content: string) => void,
-    updateSelectedComponent: (info: ComponentViewInfo) => void
+    updateSelectedComponent: (info: ComponentViewInfo) => void,
+    navigateUptoParent: (position: NodePosition) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
             getLibrariesData, getLibrariesList, getLibraryData } = props;
@@ -212,7 +213,8 @@ export function getDiagramProviderProps(
             runBackgroundTerminalCommand,
             openExternalUrl,
             navigation: {
-                updateSelectedComponent
+                updateSelectedComponent,
+                navigateUptoParent
             }
         },
         originalSyntaxTree: undefined,

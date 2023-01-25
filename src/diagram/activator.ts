@@ -220,7 +220,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		}
 
 		let nodePosition: NodePosition;
-		if ((args[1] as NodePosition).startLine !== undefined
+		if (args.length > 1 
+			&& (args[1] as NodePosition).startLine !== undefined
 			&& (args[1] as NodePosition).startColumn !== undefined
 			&& (args[1] as NodePosition).endLine !== undefined
 			&& (args[1] as NodePosition).endColumn !== undefined) {
