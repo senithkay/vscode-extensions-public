@@ -58,23 +58,45 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
     const diagramRef = useRef<HTMLDivElement>(null);
 
-    const onDiagramMoveStarted = debounce(() => {
+    const hideGWLinks = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
             if (link instanceof GatewayLinkModel) {
                 link.fireEvent({}, 'setInVisible');
             }
         });
         positionGatewayNodes(diagramEngine);
-    }, 30);
+    };
 
-    const onDiagramMoveFinished = debounce(() => {
+    const showGWLinks = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
             if (link instanceof GatewayLinkModel) {
                 link.fireEvent({}, 'setVisible');
             }
         });
         positionGatewayNodes(diagramEngine);
+    };
+
+    const onDiagramMoveStarted = debounce(() => {
+        hideGWLinks();
     }, 30);
+
+    const onDiagramMoveFinished = debounce(() => {
+        showGWLinks();
+    }, 30);
+
+    const onWindowDragFinished = debounce(() => {
+        showGWLinks();
+    }, 1500);
+
+    const onWindowResize = () => {
+        hideGWLinks();
+        onWindowDragFinished();
+    };
+
+    const onScroll = () => {
+        hideGWLinks();
+        onWindowDragFinished();
+    };
 
     useEffect(() => {
         if (currentView === Views.L1_SERVICES && editingEnabled) {
@@ -86,7 +108,8 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             }
             document.addEventListener('keydown', handleEscapePress);
         }
-        document.addEventListener('scroll', onDiagramMoveStarted);
+        document.addEventListener('scroll', onScroll);
+        window.addEventListener("resize", onWindowResize);
     }, []);
 
     // Reset the model and redistribute if the model changes
