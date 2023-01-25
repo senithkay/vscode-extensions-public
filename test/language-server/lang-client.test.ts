@@ -935,7 +935,7 @@ suite("Language Server Tests", function () {
 
     test("Test get connector", function (done): void {
         langClient.getConnector({
-            id: "2151",
+            name: "", package: { organization: "", name: "", version: "" } // FIXME: put real connector params instead of ID here.
         }).then(async (res) => {
             const response = res as BallerinaConnectorResponse;
             expect(response).not.contains.keys("error");

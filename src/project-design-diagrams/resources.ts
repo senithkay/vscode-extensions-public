@@ -18,14 +18,16 @@ export interface Service {
     resources: any[];
     remoteFunctions: any[];
     serviceType: string;
+    dependencies: any[];
+    deploymentMetadata: DeploymentMetadata;
     elementLocation: Location;
 }
 
 export interface Entity {
     attributes: any[];
     inclusions: string[];
-    isAnonymous: boolean;
     elementLocation: Location;
+    isAnonymous: boolean;
 }
 
 export interface BallerinaVersion {
@@ -42,6 +44,33 @@ export interface Location {
 interface LinePosition {
     line: number;
     offset: number;
+}
+
+export interface AddComponentDetails {
+    name: string;
+    version: string;
+    org: string;
+    package: string;
+    directory: string;
+}
+
+export interface DeploymentMetadata {
+    gateways: {
+        internet: {
+            isExposed: boolean;
+        },
+        intranet: {
+            isExposed: boolean;
+        }
+    }
+}
+
+export enum ServiceTypes {
+    HTTP = "http",
+    GRPC = "grpc",
+    GRAPHQL = "graphql",
+    WEBSOCKET = "websocket",
+    OTHER = "other"
 }
 
 export const ERROR_MESSAGE = "Project Design Diagrams: Failed to generate view.";

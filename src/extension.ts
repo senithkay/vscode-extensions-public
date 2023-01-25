@@ -30,7 +30,6 @@ import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
 import { activate as activatePackageOverview } from './tree-view';
 import { activate as activateTesting } from './testing/activator';
-import { activate as activateChoreoAuth } from './choreo-auth/activator';
 import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { activate as activatePerformanceForecaster } from './forecaster';
@@ -39,6 +38,7 @@ import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, log } from './utils';
+import { activateChoreoFeatures } from './choreo-features/activate';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -50,7 +50,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
         dispose(): void {
         }
         fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
-            capabilities.experimental = capabilities.experimental || {};
+            capabilities.experimental = capabilities.experimental || { introspection: false, showTextDocument: false };
             capabilities.experimental.introspection = true;
         }
         initialize(_capabilities: ServerCapabilities, _documentSelector: DocumentSelector | undefined): void {
@@ -63,7 +63,7 @@ function onBeforeInit(langClient: ExtendedLangClient) {
 
         }
         fillClientCapabilities(capabilities: ExtendedClientCapabilities): void {
-            capabilities.experimental = capabilities.experimental || {};
+            capabilities.experimental = capabilities.experimental || { introspection: false, showTextDocument: false };
             capabilities.experimental.showTextDocument = true;
         }
         initialize(_capabilities: ServerCapabilities, _documentSelector: DocumentSelector | undefined): void {
@@ -95,8 +95,6 @@ export function activate(context: ExtensionContext): Promise<any> {
         activatePerformanceForecaster(ballerinaExtInstance);
         // Enable try it views
         activateTryIt(ballerinaExtInstance);
-        // Enable the Choreo authentication
-        activateChoreoAuth(ballerinaExtInstance);
         // Enable Ballerina Telemetry listener
         activateTelemetryListener(ballerinaExtInstance);
         activateTesting(ballerinaExtInstance);
@@ -104,6 +102,8 @@ export function activate(context: ExtensionContext): Promise<any> {
         activateNotebook(ballerinaExtInstance);
         activateLibraryBrowser(ballerinaExtInstance);
         activateDesignDiagramView(ballerinaExtInstance);
+        // Enable Choreo Related Features
+        activateChoreoFeatures(ballerinaExtInstance);
 
         ballerinaExtInstance.onReady().then(() => {
             langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;

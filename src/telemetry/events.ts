@@ -81,7 +81,7 @@ export const TM_EVENT_SWAGGER_RUN = "editor-workspace-tryit-swagger";
 export const TM_EVENT_KILL_TERMINAL = "editor-terminal-kill";
 export const TM_EVENT_GIT_COMMIT = "editor-workspace-git-commit";
 export const TM_EVENT_EDIT_SOURCE = "editor-workspace-edit-source";
-export const TM_EVENT_EDIT_DIAGRAM = "editor-workspace-edit-diagram"
+export const TM_EVENT_EDIT_DIAGRAM = "editor-workspace-edit-diagram";
 export const TM_EVENT_GRAPHQL_RUN = "editor-workspace-tryit-graphql";
 
 export const TM_EVENT_LANG_CLIENT = "ballerina.langclient.event";

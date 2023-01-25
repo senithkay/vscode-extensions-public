@@ -140,12 +140,13 @@ export function runHandler(request: TestRunRequest, cancellation: CancellationTo
         run.end();
     }
 }
-/** 
+/**
  * Run terminal command.
  * @param command Command to run.
  * @param pathToRun Path to execute the command.
+ * @param returnData Indicates whether to return the stdout
  */
-export async function runCommand(command, pathToRun: string | undefined) {
+export async function runCommand(command, pathToRun: string | undefined, returnData = false) {
     return new Promise<string>(function (resolve, reject) {
         if (pathToRun == undefined) {
             return;
@@ -161,7 +162,11 @@ export async function runCommand(command, pathToRun: string | undefined) {
                 );
                 reject(err);
             } else {
-                resolve("OK");
+                if (returnData) {
+                    resolve(stdout);
+                } else {
+                    resolve("OK");
+                }
             }
         });
     });

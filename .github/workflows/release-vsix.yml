@@ -47,11 +47,7 @@ jobs:
           registry-url: "https://npm.pkg.github.com"
 
       - name: Install node modules
-        run: |
-          cd ballerina-low-code-editor  
-          npm install
-        env:
-          NPM_ACCESS_TOKEN: ${{ secrets.PUBLISH_PAT }}
+        run: npm i --legacy-peer-deps
 
       - name: Get version
         id: vsix
@@ -95,7 +91,7 @@ jobs:
           git add *.json
           git commit -m "Update version to v${{ steps.vsix.outputs.version }}"
           git checkout -b "v${{ steps.vsix.outputs.version }}"
-          git remote set-url origin https://x-access-token:${{secrets.GITHUB_TOKEN}}@github.com/$GITHUB_REPOSITORY.git
+          git remote set-url origin https://${{ secrets.BALLERINA_BOT_USERNAME }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
           git tag v${{ steps.vsix.outputs.version }}
           git push origin "refs/heads/v${{ steps.vsix.outputs.version }}" "refs/tags/v${{ steps.vsix.outputs.version }}"
           pr=$(gh pr create -B main -H "v${{ steps.vsix.outputs.version }}" --title 'Merge "v${{ steps.vsix.outputs.version }}" into main' --body '$subject')

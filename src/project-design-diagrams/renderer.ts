@@ -43,15 +43,10 @@ export function render(webView: Webview) {
                 }
             });
 
-            function fetchProjectResources() {
-                return new Promise((resolve, _reject) => {
-                    webViewRPCHandler.invokeRemoteMethod(
-                        'fetchProjectResources',
-                        [],
-                        (response) => {
-                            resolve(response);
-                        }
-                    );
+            function go2source(location) {
+                vscode.postMessage({
+                    command: 'go2source',
+                    location: location
                 })
             }
 
@@ -63,7 +58,7 @@ export function render(webView: Webview) {
             }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(fetchProjectResources, go2source, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(go2source, document.getElementById("diagram-container"));
             }
             renderDiagrams();
         }

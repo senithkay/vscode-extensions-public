@@ -31,7 +31,7 @@ import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
 import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, getMessageObject } from '../telemetry';
-import { CHOREO_API_PF, getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse, PFSession } from '../forecaster';
+import { getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { sep } from "path";
 import { CommandResponse, DiagramOptions, Member, SyntaxTree } from './model';
@@ -57,7 +57,7 @@ import {
 	LibrarySearchResponse
 } from "../library-browser/model";
 import { getSentryConfig, SentryConfig } from './sentry';
-import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-editor-distribution';
+import { BallerinaConnectorsResponse, GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-languageclient';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from '../project';
 
@@ -411,13 +411,6 @@ class DiagramPanel {
 					};
 					const status = commands.executeCommand('vscode.open', Uri.file(filePath), showOptions);
 					return !status ? false : true;
-				}
-			},
-			{
-				methodName: "getPFSession",
-				handler: async (): Promise<PFSession> => {
-					const choreoToken = ballerinaExtension.getChoreoSession().choreoAccessToken;
-					return { choreoAPI: CHOREO_API_PF, choreoToken: choreoToken, choreoCookie: "" };
 				}
 			},
 			{

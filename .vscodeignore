@@ -6,6 +6,7 @@ src/
 target/
 docs/
 extractedDistribution/
+choreo-vscode-plugin/
 resources/composer
 .gitignore
 tsconfig.json
@@ -52,7 +53,7 @@ scripts/
 resources/jslibs/index.d.ts
 resources/jslibs/themes/ballerina-default.css
 resources/jslibs/themes/ballerina-default.css.map
-web/
+workspaces/
 test-resources
 ui-test
 .azure
@@ -66,3 +67,4 @@ cypress.json
 .trivyignore
 ballerina-low-code-editor/
 **/*.deb
+*.code-workspace
