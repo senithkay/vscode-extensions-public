@@ -17,7 +17,9 @@
  *
  */
 
-import { commands, ExtensionContext, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace } from "vscode";
+import {
+    commands, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace
+} from "vscode";
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { debounce } from "lodash";
@@ -40,7 +42,7 @@ export interface STResponse {
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance = ballerinaExtInstance;
-    langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    langClient = <ExtendedLangClient>extInstance.langClient;
     const designDiagramRenderer = commands.registerCommand("ballerina.view.architectureView", () => {
         ballerinaExtInstance.onReady()
             .then(() => {
@@ -57,7 +59,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             });
     });
 
-    context.subscriptions.push(designDiagramRenderer);
+    extInstance.context.subscriptions.push(designDiagramRenderer);
 }
 
 function viewProjectDesignDiagrams() {
@@ -115,26 +117,6 @@ function setupWebviewPanel() {
 
         ProjectDesignRPC.create(designDiagramWebview, langClient);
 
-        designDiagramWebview.webview.onDidReceiveMessage((message) => {
-            switch (message.command) {
-                case "go2source": {
-                    const location: Location = message.location;
-                    if (location && existsSync(location.filePath)) {
-                        workspace.openTextDocument(location.filePath).then((sourceFile) => {
-                            window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
-                                const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
-                                const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
-                                const range: Range = new Range(startPosition, endPosition);
-                                textEditor.revealRange(range, TextEditorRevealType.InCenter);
-                                textEditor.selection = new Selection(range.start, range.start);
-                            })
-                        })
-                    }
-                    return;
-                }
-            }
-        });
-
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;
         });
@@ -167,5 +149,5 @@ function getVersion() {
     balVersion = {
         majorVersion: parseFloat(version),
         patchVersion: parseInt(version.substring(version.lastIndexOf(".") + 1))
-    }
+    };
 }
