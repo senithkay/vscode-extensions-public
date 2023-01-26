@@ -613,6 +613,7 @@
         "workspaces/statement-editor",
         "workspaces/configurable-editor",
         "workspaces/data-mapper",
+        "workspaces/graphql-design-diagram",
         "workspaces/low-code-editor",
         "workspaces/low-code-distribution",
         "workspaces/low-code-integration-tests",
@@ -626,8 +627,7 @@
         "workspaces/project-design-diagrams",
         "workspaces/choreo-client",
         "workspaces/choreo-webviews",
-        "workspaces/choreo-extension",
-        "workspaces/graphql-design-diagram"
+        "workspaces/choreo-extension"
     ],
     "scripts": {
         "prebuild": "npm run init-submodules && npm i --legacy-peer-deps",
