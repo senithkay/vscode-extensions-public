@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths-ignore:
-      - '**/README.md'
+      - '**/*.md'
 
 env:
   ballerina_version: 2201.2.3
@@ -14,6 +14,7 @@ env:
 
 jobs:
   Build:
+    if: github.event.pull_request.draft == false
     uses: ./.github/workflows/build.yml
     with:
       isRelease: false

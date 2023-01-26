@@ -42,7 +42,8 @@ export function getType(type: string): ConfigType {
  * @param name      Name of the config property object, the first one is set to 'root'.
  * @returns         A populated config `ConfigObjectProps` object.
  */
-export function getConfigProperties(configObj: object, connectionConfig: ConnectionSchema[], isFeaturePreview: boolean,
+export function getConfigProperties(configObj: object, connectionConfig: ConnectionSchema[],
+                                    isFeaturePreview: boolean, isLowCode: boolean,
                                     id: string = "1", name: string = "root", requiredItem = true): ConfigElementProps {
     const propertiesObj: object = configObj[SchemaConstants.PROPERTIES];
     const addPropertiesObj: object = configObj[SchemaConstants.ADDITIONAL_PROPERTIES];
@@ -55,6 +56,7 @@ export function getConfigProperties(configObj: object, connectionConfig: Connect
         description: propertyDesc,
         id: String(id),
         isFeaturePreview,
+        isLowCode,
         isRequired: requiredItem,
         name,
         properties: [],
@@ -83,6 +85,7 @@ export function getConfigProperties(configObj: object, connectionConfig: Connect
             description: configPropertyDesc,
             id: configProperty.id + "-" + (index + 1),
             isFeaturePreview,
+            isLowCode,
             isRequired: required,
             name: key,
             schema: configPropertyValues,
@@ -92,7 +95,7 @@ export function getConfigProperties(configObj: object, connectionConfig: Connect
         if (configPropertyType === ConfigType.OBJECT && properties !== undefined) {
             const elementName: string = configPropertyValues[SchemaConstants.NAME];
             const childProperty: ConfigElementProps = getConfigProperties(configPropertyValues, connectionConfig,
-                isFeaturePreview, id + "-" + (index + 1), key, required);
+                isFeaturePreview, isLowCode, id + "-" + (index + 1), key, required);
             childProperty.type = ConfigType.OBJECT;
             childProperty.description = configPropertyDesc;
             childProperty.schema = configPropertyValues;

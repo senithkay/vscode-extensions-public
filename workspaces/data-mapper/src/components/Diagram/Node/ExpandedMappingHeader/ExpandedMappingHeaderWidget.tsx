@@ -15,17 +15,20 @@ import React from "react";
 
 import { PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { DiagramEngine, PortWidget } from "@projectstorm/react-diagrams-core";
-import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import {
     LetVarDecl,
     NodePosition,
     STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
+import clsx from "clsx";
 
 import { ClauseAddButton } from "./ClauseAddButton";
 import { ExpandedMappingHeaderNode } from "./ExpandedMappingHeaderNode";
+import { JoinClauseItem } from "./JoinClauseItem";
 import { LetClauseItem } from "./LetClauseItem";
+import { LimitClauseItem } from "./LimitClauseItem";
+import { OrderByClauseItem } from "./OrderClauseItem";
 import { useStyles } from "./styles";
 import { WhereClauseItem } from "./WhereClauseItem";
 
@@ -41,29 +44,11 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
     const { node, engine, port } = props;
     const classes = useStyles();
 
-    const onClickEdit = (editNode: STNode) => {
-        if (STKindChecker.isWhereClause(editNode)) {
-            node.context.enableStatementEditor({
-                value: editNode.expression?.source,
-                valuePosition: editNode.expression?.position as NodePosition,
-                label: "Where clause",
-            });
-        } else if (STKindChecker.isLetClause(editNode) && editNode.letVarDeclarations[0]) {
-            node.context.enableStatementEditor({
-                value: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.source,
-                valuePosition: (editNode.letVarDeclarations[0] as LetVarDecl)?.expression?.position as NodePosition,
-                label: "Let clause",
-            });
-        } else if (STKindChecker.isFromClause(editNode)) {
-            node.context.enableStatementEditor({
-                value: editNode.expression.source,
-                valuePosition: editNode.expression.position as NodePosition,
-                label: "From clause",
-            });
-        }
+    const onClickEdit = (value: string, valuePosition: NodePosition, label: string) => {
+        node.context.enableStatementEditor({value, valuePosition, label});
     };
 
-    const deleteWhereClause = async (clauseItem: STNode) => {
+    const deleteClause = async (clauseItem: STNode) => {
         await node.context.applyModifications([{ type: "DELETE", ...clauseItem.position }]);
     };
 
@@ -74,7 +59,7 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
         <>
             <div>
                 <div className={classes.clauseItem}>
-                    <div className={classes.clauseKeyWrap}>{fromClause.fromKeyword.value}</div>
+                    <div className={clsx(classes.clauseKeyWrap, classes.fromClauseKeyWrap)}>{fromClause.fromKeyword.value}</div>
                     <div className={classes.clauseWrap}>
                         <span
                             className={classes.clauseItemKey}
@@ -83,7 +68,7 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
                         </span>
                         <span
                             className={classes.clauseExpression}
-                            onClick={() => onClickEdit(fromClause)}
+                            onClick={() => onClickEdit(fromClause.expression.source, fromClause.expression.position, "From clause")}
                         >
                             {fromClause.expression.source}
                         </span>
@@ -100,8 +85,8 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
                     intermediateClauses?.map((clauseItem, index) => {
                         const itemProps = {
                             key: index,
-                            onEditClick: () => onClickEdit(clauseItem),
-                            onDeleteClick: () => deleteWhereClause(clauseItem),
+                            onEditClick: (value: string, position: NodePosition, label: string) => onClickEdit(value, position, label),
+                            onDeleteClick: () => deleteClause(clauseItem),
                             context: node.context,
                             queryExprNode: node.queryExpr,
                             itemIndex: index,
@@ -110,6 +95,12 @@ export function ExpandedMappingHeaderWidget(props: ExpandedMappingHeaderWidgetPr
                             return <WhereClauseItem {...itemProps} intermediateNode={clauseItem} />;
                         } else if (STKindChecker.isLetClause(clauseItem)) {
                             return <LetClauseItem {...itemProps} intermediateNode={clauseItem} />;
+                        } else if (STKindChecker.isLimitClause(clauseItem)) {
+                            return <LimitClauseItem {...itemProps} intermediateNode={clauseItem} />;
+                        } else if (STKindChecker.isOrderByClause(clauseItem)) {
+                            return <OrderByClauseItem {...itemProps} intermediateNode={clauseItem} />;
+                        } else if (STKindChecker.isJoinClause(clauseItem)) {
+                            return <JoinClauseItem {...itemProps} intermediateNode={clauseItem} />;
                         }
                     })}
 

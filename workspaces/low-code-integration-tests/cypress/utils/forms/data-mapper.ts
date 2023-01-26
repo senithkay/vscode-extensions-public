@@ -95,6 +95,10 @@ export class DataMapper {
         this.getForm().contains("Save").should('not.be.disabled').click({force: true});
     }
 
+    static confirmSaveConfig = () => {
+        cy.contains("Continue").click({force: true});
+    }
+
     static openConfigureMenu = () => cy.contains("Configure").click()
 
     static getSourceNode = (name: string) => cy.get(`[data-testid="${name}-node"]`)
@@ -243,12 +247,16 @@ export class DataMapper {
         cy.contains(option).click();
     }
 
-    static clickWhereExpression = (index: number) => {
-        cy.get(`[data-testid='where-clause-expression-${index}']`).click();
+    static clickIntermediateExpression = (index: number) => {
+        cy.get(`[data-testid='intermediate-clause-expression-${index}']`).click();
     }
 
-    static clickLetExpression = (index: number) => {
-        cy.get(`[data-testid='let-clause-expression-${index}']`).click();
+    static clickJoinOnExpression = (index: number) => {
+        cy.get(`[data-testid='join-clause-on-expression-${index}']`).click();
+    }
+
+    static clickJoinEqualsExpression = (index: number) => {
+        cy.get(`[data-testid='join-clause-equals-on-expression-${index}']`).click();
     }
 
     static updateLetVariableName = (index: number, newName: string) => {

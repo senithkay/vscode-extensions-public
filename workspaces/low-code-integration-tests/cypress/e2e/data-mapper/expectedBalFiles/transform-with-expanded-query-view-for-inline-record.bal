@@ -14,10 +14,6 @@ type SecondInput record {
     string st1;
 };
 
-type UpdatedInput record {
-    string st1;
-};
-
 type Output record {
     string st1;
     decimal d1?;
@@ -29,25 +25,27 @@ type Output record {
     string[] stArr;
 };
 
-type UpdatedOutput record {
-    string st1;
-};
+type User record {|
+    readonly string id;
+    string name;
+|};
+
+User[] users = [{id: "1234", name: "Keith"}];
 
 type InnerOutput record {
     string st1;
     int i1;
 };
 
-function unsupportedTransform(Input[]|error? input) returns Output? => {};
-
-function incompleteTransform() => {};
-
 function transform(Input input, SecondInput secondInput) returns Output => {
     Items: from var ItemsItem in input.Items
         where true
         let var updatedName = "strValue"
+        limit 10
+        order by ItemsItem.Id ascending
+        join var variable in users on ItemsItem.Id equals variable.id
         select {
-            Id: ItemsItem.Id + updatedName,
+            Id: ItemsItem.Id + updatedName + variable.id,
             Confirmed:
         }
 };
