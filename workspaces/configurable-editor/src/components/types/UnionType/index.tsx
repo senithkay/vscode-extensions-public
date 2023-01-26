@@ -67,13 +67,14 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
         let configProperties: ConfigElementProps[];
         if (configProperty) {
             configProperties = getConfigProperties(property, props.connectionConfig,
-                                                   props.isFeaturePreview, props.id).properties;
+                                                   props.isFeaturePreview, props.isLowCode, props.id).properties;
         }
         const configElementProps: ConfigElementProps = {
             connectionConfig: props.connectionConfig,
             description: element.description,
             id: element.id,
             isFeaturePreview: element.isFeaturePreview,
+            isLowCode: element.isLowCode,
             isRequired: element.isRequired,
             name: element.name,
             properties: configProperties,

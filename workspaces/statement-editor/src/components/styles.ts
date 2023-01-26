@@ -1039,21 +1039,6 @@ export const useStatementEditorStyles = makeStyles(() =>
             justifyContent: 'flex-end',
             width: '10%'
         },
-        inlineDocumentation: {
-            borderWidth: '2px',
-            backgroundColor: 'white',
-            marginTop: '15px'
-        },
-        inlineDocList: {
-            "& .MuiListItem-root": {
-                padding: '0px'
-            },
-            "& .MuiListItemText-root": {
-                paddingLeft: '12.5px',
-                paddingRight: '12.5px'
-            },
-            ...removePadding
-        },
         help: {
             paddingRight: '24px',
             display: "flex"

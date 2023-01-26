@@ -132,7 +132,8 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickOnExpand = () => {
-        const isExprBodyQuery = STKindChecker.isExpressionFunctionBody(node.parentNode);
+        const isExprBodyQuery = STKindChecker.isExpressionFunctionBody(node.parentNode)
+            || STKindChecker.isLetExpression(node.parentNode);
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,

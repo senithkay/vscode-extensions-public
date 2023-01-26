@@ -58,7 +58,6 @@ export const ArrayTypes: Story = (args) => (
                 primaryButtonText={"Run"}
                 onClickDefaultButton={onClickDefaultButton}
                 onClickPrimaryButton={args.onClickPrimaryButton}
-                isLowCode={false}
             />
         </ConfigEditor>
     </Box>

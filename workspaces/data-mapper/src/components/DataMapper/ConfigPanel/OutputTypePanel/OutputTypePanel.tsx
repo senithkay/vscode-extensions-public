@@ -15,7 +15,9 @@
 import React from "react";
 
 import styled from "@emotion/styled";
+import { Box } from "@material-ui/core";
 import DeleteOutLineIcon from "@material-ui/icons/DeleteOutline";
+import EditIcon from "@material-ui/icons/Edit";
 import { ButtonWithIcon, WarningBanner } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import { Title } from "../DataMapperConfigPanel";
@@ -61,32 +63,56 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
         />
     );
 
+    const label = (
+        <>
+            <TypeName isInvalid={outputType.isUnsupported}>{outputType.isArray ? `${outputType.type}[]` : outputType.type}</TypeName>
+        </>
+    );
+
     return (
         <OutputTypeConfigPanel data-testid='dm-output'>
             <Title>Output Type</Title>
-            {!outputType.type ? (
+            {(!outputType.type || showOutputType) ? (
                 <>
-                    {showOutputType && (
+                    {showOutputType ? (
                         <InputParamEditor
-                            onCancel={handleHideOutputType}
-                            onUpdate={(_, param) => handleOutputTypeChange(param.type, param.isArray)}
-                            loadingCompletions={fetchingCompletions}
-                            completions={completions}
+                            param={{ ...outputType, name: "" }}
                             hideName={true}
+                            onUpdate={(_, param) => {
+                                handleOutputTypeChange(param.type, param.isArray);
+                                handleHideOutputType();
+                            }}
+                            onCancel={handleHideOutputType}
+                            completions={completions}
+                            loadingCompletions={fetchingCompletions}
                             isArraySupported={isArraySupported}
                         />
-                    )}
-                    <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
+                    ) :
+                        <RecordButtonGroup openRecordEditor={handleShowRecordEditor} showTypeList={handleShowOutputType} />
+                    }
+
                 </>
             ) : (
                 <>
                     <OutputTypeContainer isInvalid={outputType.isUnsupported}>
-                        <TypeName>{outputType?.isArray ? `${outputType.type}[]` : outputType.type}</TypeName>
-                        <DeleteButton
-                            onClick={handleOutputDeleteClick}
-                            icon={<DeleteOutLineIcon fontSize="small" />}
-                            dataTestId="data-mapper-config-delete-output"
-                        />
+                        <ClickToEditContainer isInvalid={outputType.isUnsupported} onClick={!outputType.isUnsupported && handleShowOutputType}>
+                            {label}
+                        </ClickToEditContainer>
+                        {/* <TypeName>{outputType?.isArray ? `${outputType.type}[]` : outputType.type}</TypeName> */}
+                        <Box component="span" display="flex">
+                            {!outputType.isUnsupported && (
+                                <EditButton
+                                    onClick={handleShowOutputType}
+                                    icon={<EditIcon fontSize="small" />}
+                                    dataTestId={`data-mapper-config-edit-output`}
+                                />
+                            )}
+                            <DeleteButton
+                                onClick={handleOutputDeleteClick}
+                                icon={<DeleteOutLineIcon fontSize="small" />}
+                                dataTestId="data-mapper-config-delete-output"
+                            />
+                        </Box>
                     </OutputTypeContainer>
                     {outputType.type && outputType.isUnsupported && typeUnsupportedBanner}
                 </>
@@ -94,6 +120,11 @@ export function OutputTypePanel(props: OutputConfigWidgetProps) {
         </OutputTypeConfigPanel>
     );
 }
+
+const ClickToEditContainer = styled.div(({ isInvalid }: { isInvalid?: boolean }) => ({
+    cursor: isInvalid ? 'auto' : 'pointer',
+    width: '100%'
+}));
 
 const OutputTypeContainer = styled.div(({ isInvalid }: { isInvalid?: boolean }) => ({
     background: "white",
@@ -123,6 +154,13 @@ const DeleteButton = styled(ButtonWithIcon)`
     color: #fe523c;
 `;
 
-const TypeName = styled.span`
-    font-weight: 500;
+const TypeName = styled.span(({ isInvalid }: { isInvalid?: boolean }) => ({
+    fontWeight: 500,
+    color: `${isInvalid ? '#fe523c' : 'inherit'}`,
+}));
+
+const EditButton = styled(ButtonWithIcon)`
+    padding: 0;
+    margin-right: 5px;
+    color: #36B475;
 `;

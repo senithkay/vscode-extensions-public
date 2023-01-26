@@ -23,7 +23,7 @@ import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { Views } from '../../../resources';
+import { DagreLayout, Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from '../../../utils';
 import { Canvas } from './styles/styles';
 import './styles/styles.css';
@@ -32,10 +32,11 @@ interface DiagramCanvasProps {
     model: DiagramModel;
     currentView: Views;
     type: Views;
+    layout: DagreLayout;
 }
 
 // Note: Dagre distribution spaces correctly only if the particular diagram screen is visible
-const dagreEngine = new DagreEngine({
+let dagreEngine = new DagreEngine({
     graph: {
         rankdir: 'LR',
         ranksep: 175,
@@ -48,7 +49,7 @@ const dagreEngine = new DagreEngine({
 });
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
-    const { model, currentView, type } = props;
+    const { model, currentView, layout, type } = props;
     const { editingEnabled, setNewLinkNodes } = useContext(DiagramContext);
 
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE ||
@@ -78,7 +79,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 setDiagramModel(undefined);
             }
         }
-    }, [model])
+    }, [model, layout])
 
     // Initial distribution of the nodes when the screen is on display (refer note above)
     useEffect(() => {
@@ -91,6 +92,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const autoDistribute = () => {
         setTimeout(() => {
+            if (dagreEngine.options.graph.ranker !== layout) {
+                dagreEngine.options.graph.ranker = layout;
+            }
             dagreEngine.redistribute(diagramEngine.getModel());
             positionGatewayNodes(diagramEngine);
             diagramEngine.repaintCanvas();
