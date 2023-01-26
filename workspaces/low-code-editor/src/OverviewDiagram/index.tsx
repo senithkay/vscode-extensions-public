@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2023, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
@@ -20,6 +20,9 @@ import { WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import * as Views from './components/ViewTypes';
 import './style.scss';
 import { ComponentViewInfo } from "./util";
+import { Popover } from "@material-ui/core";
+import { FilterList } from "@material-ui/icons";
+import { Filter as FilterComponent } from './components/Filter'
 
 export const DEFAULT_MODULE_NAME = 'default';
 
@@ -36,11 +39,18 @@ export interface OverviewDiagramProps {
     notifyComponentSelection: (info: ComponentViewInfo) => void;
 }
 
+
+
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
     const { projectPaths, notifyComponentSelection, lastUpdatedAt } = props;
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
     const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
+    const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
+    const [filterMap, setFilterMap] = useState({});
+    const ref = useRef();
+    const isProjectWorkspace: boolean = projectPaths.length > 0;
+    console.log('project paths >>>', projectPaths);
 
     const handleViewModeChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
         switch (evt.target.value) {
@@ -59,10 +69,21 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
     }
 
     useEffect(() => {
+        projectPaths.forEach(path => {
+            if (!filterMap[path.name]) {
+                filterMap[path.name] = true;
+            }
+        })
+        setFilterMap(filterMap);
+    }, [projectPaths]);
+
+    useEffect(() => {
         (async () => {
             try {
                 const langClient = await getDiagramEditorLangClient();
-                const filePaths: any = projectPaths.map(path => ({ uri: path.uri.external }));
+                const filePaths: any = projectPaths
+                    .filter(path => filterMap[path.name])
+                    .map(path => ({ uri: path.uri.external }));
                 // const requestPromises = filePaths.map((path: any) => {
                 //     console.log('possible path >>>', path)
                 //     return langClient.getBallerinaProjectComponents({ documentIdentifiers: [path] });
@@ -71,13 +92,14 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                 const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [...filePaths]
                 });
+                console.log('>>> component response', componentResponse);
                 updateProjectComponenets(componentResponse);
             } catch (err) {
                 // tslint:disable-next-line: no-console
                 console.error(err);
             }
         })();
-    }, [lastUpdatedAt]);
+    }, [lastUpdatedAt, filterMap]);
 
     const renderView = () => {
         const CurrentView = Views[viewMode];
@@ -92,9 +114,54 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
         )
     }
 
+    const handleFilterClick = () => {
+        setIsFilterOpen(true);
+    }
+
+    const handleFilterClose = () => {
+        setIsFilterOpen(false);
+    }
+
+    const handleMapChange = (obj: any) => {
+        console.log('handleMapChange', obj);
+        setFilterMap(obj);
+    }
 
     const viewSelector = (
         <div className="overview-action-bar">
+            <div
+                style={{
+                    display: 'flex',
+                    paddingLeft: 15
+                }}
+                ref={ref}
+                onClick={handleFilterClick}
+            >
+                <span className="label">Filter</span>
+                <div>
+                    <FilterList />
+                    <Popover
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        title={'Filter'}
+                        open={isFilterOpen}
+                        anchorEl={ref ? ref.current : undefined}
+                        onClose={handleFilterClose}
+                    >
+                        <FilterComponent
+                            filterMap={filterMap}
+                            updateFilterMap={handleMapChange}
+                            handleFilterClose={handleFilterClose}
+                        />
+                    </Popover>
+                </div>
+            </div>
             <div>
                 <span className="label">Group By</span>
                 <select onChange={handleViewModeChange} value={viewMode}>
@@ -105,6 +172,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
             </div >
         </div>
     );
+
 
     return (
         <>

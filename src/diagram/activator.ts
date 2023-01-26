@@ -111,7 +111,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	// 		isDiagram: true,
 	// 	};
 	// }
-
+	
 	diagramElement = {
 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
 		startLine,

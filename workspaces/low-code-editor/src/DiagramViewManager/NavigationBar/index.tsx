@@ -59,6 +59,11 @@ export function NavigationBar(props: NavigationBarProps) {
         <div id="nav-bar-main" className={'header-bar'}>
             {showBackButton && backButton}
             {workspaceNameComponent}
+            <div>/</div>
+            <div className="btn-container" onClick={historyReset}>
+                <Folder style={{ paddingRight: 5 }} />
+                <span className="icon-text">{`${projectName}`}</span>
+            </div>
             <div className="component-details">
                 {/*<span className="module-text">{componentDetailsText}</span>*/}
             </div>
