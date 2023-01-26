@@ -23,6 +23,7 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { getExprBodyFromLetExpression } from "../../../utils/dm-utils";
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
@@ -106,9 +107,12 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
 
+	const body = field?.value && STKindChecker.isLetExpression(field.value)
+		? getExprBodyFromLetExpression(field.value)
+		: field.value;
 	const hasValue = field && field?.elements && field.elements.length > 0;
-	const isBodyListConstructor = field?.value && STKindChecker.isListConstructor(field.value);
-	const isBodyQueryExpression = field?.value && STKindChecker.isQueryExpression(field.value);
+	const isBodyListConstructor = body && STKindChecker.isListConstructor(body);
+	const isBodyQueryExpression = body && STKindChecker.isQueryExpression(body);
 	const hasSyntaxDiagnostics = field?.value && field.value.syntaxDiagnostics.length > 0;
 
 	const portIn = getPort(`${id}.IN`);

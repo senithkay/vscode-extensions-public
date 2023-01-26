@@ -63,39 +63,42 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
         return addPosition;
     };
 
-    const onClickAddLetClause = async () => {
+    const insertStatement = async (statement: string) => {
         handleClose();
         setLoading(true);
         try {
             const addPosition = getAddFieldPosition();
-            const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses);
             await context.applyModifications([
                 {
                     type: "INSERT",
-                    config: { STATEMENT: ` let var ${variableName} = EXPRESSION` },
+                    config: { STATEMENT: statement },
                     ...addPosition,
                 },
             ]);
         } finally {
             setLoading(false);
         }
+    }
+
+    const onClickAddLetClause = async () => {
+        const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses);
+        await insertStatement(` let var ${variableName} = EXPRESSION`)
     };
 
-    const onClickAddWhereClause = async () => {
-        handleClose();
-        setLoading(true);
-        try {
-            const addPosition = getAddFieldPosition();
-            await context.applyModifications([
-                {
-                    type: "INSERT",
-                    config: { STATEMENT: ` where EXPRESSION` },
-                    ...addPosition,
-                },
-            ]);
-        } finally {
-            setLoading(false);
-        }
+    const onClickAddWhereClause = async () => insertStatement(` where EXPRESSION`);
+
+    const onClickAddLimitClause = async () => insertStatement(` limit EXPRESSION`);
+
+    const onClickAddOrderByClause = async () => insertStatement(` order by EXPRESSION ascending`);
+
+    const onClickAddJoinClause = async () => {
+        const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses);
+        await insertStatement(` join var ${variableName} in EXPRESSION on EXPRESSION equals EXPRESSION`)
+    };
+
+    const onClickAddOuterJoinClause = async () => {
+        const variableName = genLetClauseVariableName(queryExprNode.queryPipeline.intermediateClauses);
+        await insertStatement(` outer join var ${variableName} in EXPRESSION on EXPRESSION equals EXPRESSION`)
     };
 
     return (
@@ -119,8 +122,13 @@ export function ClauseAddButton(props: ExpandedMappingHeaderWidgetProps) {
                 transformOrigin={{ vertical: "top", horizontal: "left" }}
                 className={classes.addMenu}
             >
-                <MenuItem onClick={onClickAddWhereClause}>Add Where Clause</MenuItem>
-                <MenuItem onClick={onClickAddLetClause}>Add Let Clause</MenuItem>
+                <MenuItem onClick={onClickAddWhereClause}>Add where clause</MenuItem>
+                <MenuItem onClick={onClickAddLetClause}>Add let clause</MenuItem>
+                <MenuItem onClick={onClickAddLimitClause}>Add limit clause</MenuItem>
+                <MenuItem onClick={onClickAddOrderByClause}>Add order by clause</MenuItem>
+                <MenuItem onClick={onClickAddJoinClause}>Add join clause</MenuItem>
+                <MenuItem onClick={onClickAddOuterJoinClause}>Add outer join clause</MenuItem>
+
             </Menu>
         </>
     );

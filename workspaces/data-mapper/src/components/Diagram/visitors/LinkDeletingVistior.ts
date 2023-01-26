@@ -22,6 +22,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { isPositionsEquals } from "../../../utils/st-utils";
+import { getExprBodyFromLetExpression } from "../utils/dm-utils";
 
 export class LinkDeletingVisitor implements Visitor {
     /** NodePosition of the specific field or mapping construct that needs to be removed */
@@ -38,7 +39,9 @@ export class LinkDeletingVisitor implements Visitor {
      */
     constructor(fieldPosition: NodePosition, rootMapConstruct: STNode) {
         this.fieldPosition = fieldPosition;
-        this.rootMapConstruct = rootMapConstruct;
+        this.rootMapConstruct = STKindChecker.isLetExpression(rootMapConstruct)
+            ? getExprBodyFromLetExpression(rootMapConstruct)
+            : rootMapConstruct;
         this.deletePosition = null;
     }
 

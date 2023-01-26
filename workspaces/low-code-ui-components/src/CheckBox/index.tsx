@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-wrap-multiline jsx-no-multiline-js
-import React from "react";
+import React, { ReactNode } from "react";
 
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControl from "@material-ui/core/FormControl";
@@ -35,11 +35,12 @@ interface CheckBoxGroupProps {
     disabled?: boolean;
     withMargins?: boolean;
     testId?: string;
+    checkBoxLabel?: ReactNode;
 }
 
 export function CheckBoxGroup(props: CheckBoxGroupProps) {
     const { values, className, onChange, label, defaultValues, checkOptional, withMargins = true, disabled,
-            testId } = props;
+            testId, checkBoxLabel } = props;
     const formClasses = useFormStyles();
     const dropDownClasses = useTextInputStyles();
     const [selected, setSelected] = React.useState(defaultValues);
@@ -102,7 +103,7 @@ export function CheckBoxGroup(props: CheckBoxGroupProps) {
                                     disabled={disabled}
                                 />
                             }
-                            label={val}
+                            label={checkBoxLabel || val}
                         />
                     ))}
                 </FormGroup>

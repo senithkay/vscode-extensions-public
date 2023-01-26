@@ -36,9 +36,14 @@ import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
 import { FromClauseNode } from './Node/FromClause';
+import { JoinClauseNode } from './Node/JoinClause';
 import { LetClauseNode } from './Node/LetClause';
+import { LetExpressionNode } from "./Node/LetExpression";
 import { LinkConnectorNode } from './Node/LinkConnector';
+import { ListConstructorNode } from './Node/ListConstructor';
 import { MappingConstructorNode } from './Node/MappingConstructor';
+import { ModuleVariableNode } from "./Node/ModuleVariable";
+import { PrimitiveTypeNode } from './Node/PrimitiveType';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import { RequiredParamNode } from './Node/RequiredParam';
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
@@ -181,7 +186,10 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			let numberOfRequiredParamNodes = 0;
 			let additionalSpace = 0;
 			nodes.forEach((node) => {
-				if (node instanceof MappingConstructorNode){
+				if (node instanceof MappingConstructorNode
+					|| node instanceof ListConstructorNode
+					|| node instanceof PrimitiveTypeNode)
+				{
 					if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
 						node.setPosition(OFFSETS.TARGET_NODE.X, 0);
 					} else {
@@ -192,10 +200,19 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
 					node.updatePosition();
 				}
-				if (node instanceof RequiredParamNode || node instanceof LetClauseNode) {
+				if (node instanceof RequiredParamNode
+					|| node instanceof LetClauseNode
+					|| node instanceof JoinClauseNode
+					|| node instanceof LetExpressionNode
+					|| node instanceof ModuleVariableNode)
+				{
 					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1));
-					requiredParamFields = requiredParamFields + node.numberOfFields;
+					const isLetExprNode = node instanceof LetExpressionNode;
+					const hasLetVarDecls = isLetExprNode && !!node.letVarDecls.length;
+					requiredParamFields = requiredParamFields
+						+ (isLetExprNode && !hasLetVarDecls ? 0 : node.numberOfFields);
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
+					additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
 				}
 				if (node instanceof FromClauseNode) {
 					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1) + node.initialYPosition);
