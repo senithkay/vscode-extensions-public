@@ -78,6 +78,7 @@ export class InitVisitor implements Visitor {
     public beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const viewState = new FunctionViewState();
         node.viewState = viewState;
+
         if (viewState.initPlus) {
             viewState.initPlus = undefined;
         }

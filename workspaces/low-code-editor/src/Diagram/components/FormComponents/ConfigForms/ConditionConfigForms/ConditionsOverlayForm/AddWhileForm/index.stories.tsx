@@ -14,12 +14,13 @@ import React from 'react';
 
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
 import { ComponentViewInfo } from '../../../../../../../OverviewDiagram/util';
 
 import { AddWhileForm, WhileProps } from "./index";
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
+
 
 export default {
     title: 'Low Code Editor/Testing/Diagram/Statements/While',

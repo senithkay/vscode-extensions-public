@@ -32,7 +32,7 @@ export function render(
 function renderDiagram(
     filePath: Uri, startLine: number, startColumn: number, experimental: boolean,
     openInDiagram: NodePosition, webView: Webview, diagramFocus?: DiagramFocus): string {
-
+    console.log('workspace name', workspace.name);
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
     `;
@@ -251,7 +251,8 @@ function renderDiagram(
                 experimentalEnabled,
                 openInDiagram,
                 projectPaths,
-                diagramFocus
+                diagramFocus,
+                workspaceName
             }) {
                 try {
                     const options = {
@@ -283,7 +284,8 @@ function renderDiagram(
                             getEnv,                           
                             experimentalEnabled,
                             openInDiagram,
-                            diagramFocus
+                            diagramFocus,
+                            workspaceName
                         }
                     };
 
@@ -376,7 +378,8 @@ function renderDiagram(
                     diagramFocus: args[0].filePath && args[0].openInDiagram ? {
                         filePath: args[0].filePath,
                         position: args[0].openInDiagram
-                    }: undefined
+                    }: undefined,
+                    workspaceName: ${JSON.stringify(workspace.workspaceFolders)}
                 });
                 return Promise.resolve({});
             });
@@ -399,7 +402,8 @@ function renderDiagram(
                             position: ${JSON.stringify(openInDiagram)}
                         }`
                         : `undefined`
-                } 
+                },
+                workspaceName: ${JSON.stringify(workspace.name)}
             });
 
             window.addEventListener('focus', event => {

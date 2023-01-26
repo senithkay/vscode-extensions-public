@@ -118,7 +118,8 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 		startColumn,
 		isDiagram: true,
 		diagramFocus: filePath && filePath.length !== 0 && openInDiagram ?
-			{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined
+			{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined,
+		workspaceName: workspace.name
 	};
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
@@ -207,7 +208,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				filePath: path,
 				startLine: 0,
 				startColumn: 0,
-				openInDiagram: position
+				openInDiagram: position,
 			}];
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 		}

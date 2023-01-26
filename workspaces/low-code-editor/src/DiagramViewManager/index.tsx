@@ -14,7 +14,7 @@ import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 
 import { MuiThemeProvider } from "@material-ui/core";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";    
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { Diagram } from "../Diagram";
@@ -64,7 +64,7 @@ export function DiagramViewManager(props: EditorProps) {
     //  - Handle switching between views based on type of the syntax tree fetched(datamapper, graphql, service designer)
     //  - Handle switching to code from standalone code segment
     //  - Implement top bar to handle navigation
-
+    console.log('viewManager >>>', props);
     const {
         lastUpdatedAt,
         langClientPromise,
@@ -74,10 +74,9 @@ export function DiagramViewManager(props: EditorProps) {
         getFileContent,
         getEnv,
         getBallerinaVersion,
+        workspaceName
     } = props;
-    console.log('>>> project paths', projectPaths);
     const classes = useGeneratorStyles();
-    const [packageName] = useState<string>(projectPaths.length > 0 ? projectPaths[0].name : '');
     const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [completeST, setCompleteST] = useState<STNode>();
@@ -173,7 +172,6 @@ export function DiagramViewManager(props: EditorProps) {
             try {
                 const langClient = await langClientPromise;
                 const generatedST = await getSyntaxTree(filePath, langClient);
-                console.log('generated st >>>', generatedST);
                 const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
 
                 const content = await getFileContent(filePath);
@@ -238,7 +236,6 @@ export function DiagramViewManager(props: EditorProps) {
         }
     }
     const navigateUptoParent = (position: NodePosition) => {
-        console.log('navigate to parent', position);
         if (!position) {
             return;
         }
@@ -263,7 +260,10 @@ export function DiagramViewManager(props: EditorProps) {
                                 historyPop={historyPop}
                                 historyReset={historyClear}
                             >
-                                <NavigationBar moduleName={packageName} />
+                                <NavigationBar 
+                                    projectName={workspaceName} 
+                                    isWorkspace={projectPaths.length > 1}
+                                />
                                 <div id={'canvas-overlay'} className={"overlayContainer"} />
                                 {viewComponent}
                             </HistoryProvider>

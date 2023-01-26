@@ -19,11 +19,12 @@ import { useHistoryContext } from "../context/history";
 import './style.scss';
 
 interface NavigationBarProps {
-    moduleName: string;
+    projectName: string;
+    isWorkspace: boolean;
 }
 
 export function NavigationBar(props: NavigationBarProps) {
-    const { moduleName } = props;
+    const { projectName, isWorkspace } = props;
     const { history, historyPop, historyReset } = useHistoryContext();
     // const homeButton = (
     //     <div className="btn-container" onClick={historyReset}>
@@ -38,21 +39,26 @@ export function NavigationBar(props: NavigationBarProps) {
     );
 
     const showBackButton: boolean = history.length > 0;
-    // <div className="btn-container" onClick={historyReset} >
-    //     <Apps />
-    //     <span className="icon-text">Workspace</span>
-    // </div>
-
-    const moduleNameComponent = (
-        <div className="btn-container" onClick={historyReset}>
-            <Folder style={{paddingRight: 5}} />
-            <span className="icon-text">{`${moduleName} ${history.length > 0 ? '': 'components'}`}</span>
+    const workspaceNameComponent = (
+        <div className="btn-container" onClick={historyReset} >
+            {isWorkspace ? <Apps /> : <Folder />}
+            <span className="icon-text">{`${projectName}${history.length > 0 ? '' : ' components'}`}</span>
         </div>
-    );
+    )
+
+    // const moduleNameComponent = (
+    //     <div className="btn-container" onClick={historyReset}>
+    //         <Folder style={{ paddingRight: 5 }} />
+    //         <span className="icon-text">{`${projectName}`}</span>
+    //     </div>
+    // );
+
+    // {moduleNameComponent}
+
     return (
         <div id="nav-bar-main" className={'header-bar'}>
             {showBackButton && backButton}
-            {moduleNameComponent}
+            {workspaceNameComponent}
             <div className="component-details">
                 {/*<span className="module-text">{componentDetailsText}</span>*/}
             </div>

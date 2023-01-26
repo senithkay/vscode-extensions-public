@@ -78,7 +78,8 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     openExternalUrl: () => Promise.resolve(undefined),
     projectPaths: undefined,
     openInDiagram: undefined,
-    diagramFocus: undefined
+    diagramFocus: undefined,
+    workspaceName: ''
   }
 }
 

@@ -33,6 +33,7 @@ export interface EditorState {
     experimentalEnabled?: boolean;
     openInDiagram: NodePosition;
     diagramFocus: DiagramFocus;
+    workspaceName: string;
 }
 
 export interface PFSession {

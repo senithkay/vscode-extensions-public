@@ -36,6 +36,7 @@ export interface DiagramOptions {
     isDiagram: boolean;
     fileUri?: Uri;
     diagramFocus?: DiagramFocus;
+    workspaceName?: string;
 }
 
 export interface SyntaxTree {
