@@ -17,12 +17,12 @@
  *
  */
 
-import { workspace } from "vscode";
+import { window, workspace } from "vscode";
 import { existsSync } from "fs";
 import { join } from "path";
 import { ExtendedLangClient } from "src/core";
 import { terminateActivation } from "../activator";
-import { ComponentModel, ERROR_MESSAGE, Service } from "../resources";
+import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, Service } from "../resources";
 
 export function getProjectResources(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
     return new Promise((resolve, reject) => {
@@ -44,7 +44,14 @@ export function getProjectResources(langClient: ExtendedLangClient): Promise<Map
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
         }).then((response) => {
-            injectDeploymentMetadata(new Map(Object.entries(response.componentModels)));
+            const packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
+            for (let [_key, packageModel] of packageModels) {
+                if (packageModel.hasCompilationErrors) {
+                    window.showInformationMessage(DIAGNOSTICS_WARNING);
+                    break;
+                }
+            }
+            injectDeploymentMetadata(packageModels);
             resolve(response.componentModels);
         }).catch((error) => {
             reject(error);

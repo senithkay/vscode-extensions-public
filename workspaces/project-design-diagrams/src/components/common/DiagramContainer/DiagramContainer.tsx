@@ -21,7 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
-import { ComponentModel, ServiceModels, Views } from '../../../resources';
+import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
 import { CanvasContainer, Diagram, GatewayContainer } from "./style";
 import { WestGatewayIcon } from "./WestGatewayIcon";
@@ -29,13 +29,14 @@ import { NorthGatewayIcon } from "./NorthGatewayIcon";
 
 interface DiagramContainerProps {
     currentView: Views;
+    layout: DagreLayout;
     workspacePackages: Map<string, boolean>;
     workspaceComponents: Map<string, ComponentModel>;
     typeCompositionModel: DiagramModel;
 }
 
 export function DiagramContainer(props: DiagramContainerProps) {
-    const { currentView, typeCompositionModel, workspaceComponents, workspacePackages } = props;
+    const { currentView, layout, typeCompositionModel, workspaceComponents, workspacePackages } = props;
 
     const [serviceModels, setServiceModels] = useState<ServiceModels>(undefined);
     const [typeModel, setTypeModel] = useState<DiagramModel>(undefined);
@@ -97,8 +98,8 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                         <CanvasContainer>
                                             <DiagramCanvasWidget
                                                 type={Views.L1_SERVICES}
-                                                currentView={currentView}
                                                 model={serviceModels.levelOne}
+                                                {...{currentView, layout}}
                                             />
                                         </CanvasContainer>
                                     </Diagram>
@@ -119,8 +120,8 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                         <CanvasContainer>
                                             <DiagramCanvasWidget
                                                 type={Views.L2_SERVICES}
-                                                currentView={currentView}
                                                 model={serviceModels.levelTwo}
+                                                {...{currentView, layout}}
                                             />
                                         </CanvasContainer>
                                     </Diagram>
@@ -132,8 +133,8 @@ export function DiagramContainer(props: DiagramContainerProps) {
                         <div style={{ display: currentView === Views.TYPE ? 'block' : 'none' }}>
                             <DiagramCanvasWidget
                                 type={Views.TYPE}
-                                currentView={currentView}
                                 model={typeModel}
+                                {...{currentView, layout}}
                             />
                         </div>
                     }
@@ -141,8 +142,8 @@ export function DiagramContainer(props: DiagramContainerProps) {
                         <div style={{ display: currentView === Views.TYPE_COMPOSITION ? 'block' : 'none' }}>
                             <DiagramCanvasWidget
                                 type={Views.TYPE_COMPOSITION}
-                                currentView={currentView}
                                 model={typeCompositionModel}
+                                {...{currentView, layout}}
                             />
                         </div>
                     }

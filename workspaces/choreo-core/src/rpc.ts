@@ -31,13 +31,14 @@ export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoPr
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
+export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
+
 
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };
 export const SelectedOrgChangedNotification: NotificationType<Organization> = { method: 'selectedOrgChanged' };
 export const SelectedProjectChangedNotification: NotificationType<string> = { method: 'selectedProjectChanged' };
-export const ExecuteCommandNotification: NotificationType<string[]> = { method: 'executeCommand' };
 export const CloseWebViewNotification: NotificationType<void> = { method: 'close' };
 export const ShowErrorMessage: NotificationType<string> = { method: 'showErrorMessage' };
 

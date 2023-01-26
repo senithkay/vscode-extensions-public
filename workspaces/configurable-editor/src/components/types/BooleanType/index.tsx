@@ -65,7 +65,9 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
     const classes = useStyles();
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
+        if (connectionConfigs.length > 0) {
+            setAnchorEl(event.currentTarget);
+        }
     };
     const handleClose = () => {
         setAnchorEl(null);

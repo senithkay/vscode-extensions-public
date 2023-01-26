@@ -38,7 +38,8 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
-    const displayName: string = node.serviceObject.annotation.label ? node.serviceObject.annotation.label : node.serviceObject.path ?
+    const displayName: string = node.serviceObject.annotation && node.serviceObject.annotation.label ?
+        node.serviceObject.annotation.label : node.serviceObject.path ?
         node.serviceObject.path : node.serviceObject.serviceId;
 
     useEffect(() => {
