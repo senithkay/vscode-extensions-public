@@ -44,6 +44,8 @@ import {
     GetSyntaxTreeParams,
     GetSyntaxTreeResponse,
     GoToSourceParams,
+    GraphqlDesignServiceRequest,
+    GraphqlDesignServiceResponse,
     IBallerinaLangClient,
     JsonToRecordRequest,
     JsonToRecordResponse,
@@ -307,5 +309,8 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
         return this._clientConnection.sendRequest("ballerinaPackage/components", params);
+    }
+    public getGraphqlModel(params: GraphqlDesignServiceRequest): Thenable<GraphqlDesignServiceResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.GRAPHQL_DESIGN_MODEL, params);
     }
 }

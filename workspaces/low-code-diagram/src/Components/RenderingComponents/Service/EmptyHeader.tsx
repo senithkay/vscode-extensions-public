@@ -36,6 +36,7 @@ export function EmptyHeader(props: EmptyHeaderProps) {
     const deleteComponent = diagramContext?.api?.edit?.deleteComponent;
     const gotoSource = diagramContext?.api?.code?.gotoSource;
     const renderDialogBox = diagramContext?.api?.edit?.renderDialogBox;
+    const renderEditForm = diagramContext?.api?.edit?.renderEditForm;
 
     let serviceType = "";
     if (STKindChecker.isServiceDeclaration(model) && model.expressions?.length > 0) {
@@ -61,7 +62,11 @@ export function EmptyHeader(props: EmptyHeaderProps) {
     };
 
     const handleEditBtnClick = () => {
-        renderDialogBox("Unsupported", handleEditBtnConfirm);
+        // renderDialogBox("Unsupported", handleEditBtnConfirm);
+        renderEditForm(model, model.position, {
+                formType: 'GraphQL', isLoading: false
+            }
+        )
     };
 
     const handleEditBtnConfirm = () => {

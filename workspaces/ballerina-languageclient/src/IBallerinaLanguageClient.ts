@@ -50,7 +50,8 @@ export enum EXTENDED_APIS {
     SYMBOL_DOC = 'ballerinaSymbol/getSymbol',
     SYMBOL_GET_TYPE_FROM_EXPRESSION = 'ballerinaSymbol/getTypeFromExpression',
     SYMBOL_GET_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
-    SYMBOL_GET_TYPES_FROM_FN_DEFINITION = 'ballerinaSymbol/getTypesFromFnDefinition'
+    SYMBOL_GET_TYPES_FROM_FN_DEFINITION = 'ballerinaSymbol/getTypesFromFnDefinition',
+    GRAPHQL_DESIGN_MODEL = 'graphqlDesignService/getGraphqlModel',
 }
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -806,6 +807,17 @@ export interface TypesFromFnDefinitionRequest {
     returnTypeDescPosition: LinePosition;
 }
 
+export interface GraphqlDesignServiceRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+export interface GraphqlDesignServiceResponse {
+    graphqlDesignModel: any;
+    isIncompleteModel: boolean;
+    errorMsg: string;
+}
+
 export interface ResolvedTypeForSymbol {
     type: FormField;
     requestedPosition: LinePosition;
@@ -900,6 +912,8 @@ export interface IBallerinaLangClient {
     convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
 
     rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
+
+    getGraphqlModel: (params: GraphqlDesignServiceRequest) => Thenable<GraphqlDesignServiceResponse>;
     // close: () => void;
 
     getBallerinaProjectComponents: (
