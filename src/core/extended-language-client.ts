@@ -89,6 +89,7 @@ enum EXTENDED_APIS {
     SYMBOL_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
     SYMBOL_TYPES_FROM_FN_SIGNATURE = 'ballerinaSymbol/getTypesFromFnDefinition',
     COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
+    GRAPHQL_DESIGN_MODEL = 'graphqlDesignService/getGraphqlModel',
     DOCUMENT_ST_FUNCTION = 'ballerinaDocument/syntaxTreeByName',
     DEFINITION_POSITION = 'ballerinaDocument/syntaxTreeNodeByPosition'
 }
@@ -104,7 +105,8 @@ enum EXTENDED_APIS_ORG {
     PERF_ANALYZER = 'performanceAnalyzer',
     PARTIAL_PARSER = 'partialParser',
     BALLERINA_TO_OPENAPI = 'openAPILSExtension',
-    NOTEBOOK_SUPPORT = "balShell"
+    NOTEBOOK_SUPPORT = "balShell",
+    GRAPHQL_DESIGN = "graphqlDesignService"
 }
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -282,6 +284,17 @@ export interface GetPackageComponentModelsResponse {
 export interface ComponentModelDiagnostics {
     message: string;
     severity?: DIAGNOSTIC_SEVERITY;
+}
+
+export interface GraphqlDesignServiceRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+export interface GraphqlDesignServiceResponse {
+    graphqlDesignModel: any;
+    isIncompleteModel: boolean;
+    errorMsg: string;
 }
 
 export interface BallerinaServiceListRequest {
@@ -637,6 +650,10 @@ export class ExtendedLangClient extends LanguageClient {
             : Promise.resolve(null);
     }
 
+    async getGraphqlModel(params: GraphqlDesignServiceRequest): Promise<GraphqlDesignServiceResponse | null> {
+        return this.sendRequest<GraphqlDesignServiceResponse>(EXTENDED_APIS.GRAPHQL_DESIGN_MODEL, params);
+    }
+
     async rename(params: RenameParams): Promise<WorkspaceEdit | null> {
         return this.sendRequest("textDocument/rename", params);
     }
@@ -841,6 +858,7 @@ export class ExtendedLangClient extends LanguageClient {
                 { name: EXTENDED_APIS_ORG.PERF_ANALYZER, getResourcesWithEndpoints: true },
                 { name: EXTENDED_APIS_ORG.PARTIAL_PARSER, getSTForSingleStatement: true, getSTForExpression: true, getSTForResource: true },
                 { name: EXTENDED_APIS_ORG.BALLERINA_TO_OPENAPI, generateOpenAPI: true },
+                { name: EXTENDED_APIS_ORG.GRAPHQL_DESIGN, getGraphqlModel: true },
                 {
                     name: EXTENDED_APIS_ORG.NOTEBOOK_SUPPORT, getResult: true, getShellFileSource: true,
                     getVariableValues: true, deleteDeclarations: true, restartNotebook: true

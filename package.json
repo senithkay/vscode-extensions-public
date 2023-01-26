@@ -613,6 +613,7 @@
         "workspaces/statement-editor",
         "workspaces/configurable-editor",
         "workspaces/data-mapper",
+        "workspaces/graphql-design-diagram",
         "workspaces/low-code-editor",
         "workspaces/low-code-distribution",
         "workspaces/low-code-integration-tests",

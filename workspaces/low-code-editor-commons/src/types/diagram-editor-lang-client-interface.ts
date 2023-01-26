@@ -92,6 +92,17 @@ interface Position {
     character: number;
 }
 
+export interface GraphqlDesignServiceRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+export interface GraphqlDesignServiceResponse {
+    graphqlDesignModel: any;
+    isIncompleteModel: boolean;
+    errorMsg: string;
+}
+
 export interface PerformanceAnalyzerResponse {
     resourcePos: Range;
     endpoints: any;
@@ -163,4 +174,7 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     codeAction: (
         params: CodeActionParams
     ) => Thenable<CodeAction[]> ;
+    getGraphqlModel: (
+        params: GraphqlDesignServiceRequest
+    ) => Thenable<GraphqlDesignServiceResponse>;
 }
