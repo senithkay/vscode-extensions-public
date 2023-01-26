@@ -35,7 +35,7 @@ export function RecordHeadWidget(props: RecordHeadProps) {
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-    }, [node])
+    }, [node]);
 
     return (
         <RecordHead>
@@ -54,5 +54,5 @@ export function RecordHeadWidget(props: RecordHeadProps) {
                 engine={engine}
             />
         </RecordHead>
-    )
+    );
 }

@@ -30,7 +30,7 @@ export class UnionNodeFactory extends AbstractReactFactory<UnionNodeModel, Diagr
     }
 
     generateReactWidget(event: GenerateReactWidgetProps): JSX.Element {
-        return <UnionNodeWidget engine={this.engine} node={event.model} />;
+        return <UnionNodeWidget engine={this.engine} node={event.model}/>;
     }
 
     generateModel(event: { initialConfig: any }) {

@@ -45,52 +45,52 @@ export function ServiceField(props: ServiceFieldProps) {
 
     const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorElement(event.currentTarget);
-    }
+    };
 
     const onMouseLeave = () => {
         setAnchorElement(null);
-    }
+    };
 
     const classes = popOverStyle();
 
-    return(
+    return (
         <NodeFieldContainer>
-                <GraphqlBasePortWidget
-                    port={node.getPort(`left-${path}`)}
-                    engine={engine}
-                />
-                <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{marginLeft: '7px'}}>
-                    {functionElement.identifier}
-                </FieldName>
-                <FieldType>{functionElement.returnType}</FieldType>
-                <GraphqlBasePortWidget
-                    port={node.getPort(`right-${path}`)}
-                    engine={engine}
-                />
+            <GraphqlBasePortWidget
+                port={node.getPort(`left-${path}`)}
+                engine={engine}
+            />
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
+                {functionElement.identifier}
+            </FieldName>
+            <FieldType>{functionElement.returnType}</FieldType>
+            <GraphqlBasePortWidget
+                port={node.getPort(`right-${path}`)}
+                engine={engine}
+            />
 
-                {functionElement.parameters?.length > 0 && (
-                    <Popover
-                        id='mouse-over-popover'
-                        open={Boolean(anchorElement)}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                        }}
-                        disableRestoreFocus={true}
-                        anchorEl={anchorElement}
-                        onClose={onMouseLeave}
-                        className={classes.popover}
-                        classes={{
-                            paper: classes.popoverContent,
-                        }}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'center'
-                        }}
-                    >
-                        <ParametersPopup parameters={functionElement.parameters}/>
-                    </Popover>
-                )}
+            {functionElement.parameters?.length > 0 && (
+                <Popover
+                    id="mouse-over-popover"
+                    open={Boolean(anchorElement)}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'right',
+                    }}
+                    disableRestoreFocus={true}
+                    anchorEl={anchorElement}
+                    onClose={onMouseLeave}
+                    className={classes.popover}
+                    classes={{
+                        paper: classes.popoverContent,
+                    }}
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center'
+                    }}
+                >
+                    <ParametersPopup parameters={functionElement.parameters}/>
+                </Popover>
+            )}
         </NodeFieldContainer>
     );
 }

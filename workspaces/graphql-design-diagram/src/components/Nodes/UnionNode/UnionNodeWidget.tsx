@@ -30,12 +30,12 @@ interface UnionNodeWidgetProps {
 export function UnionNodeWidget(props: UnionNodeWidgetProps) {
     const { node, engine } = props;
 
-    return(
+    return (
         <NodeContainer>
             <UnionNodeHeadWidget node={node} engine={engine}/>
             {node.unionObject.possibleTypes.map((field, index) => {
-                return(
-                    <UnionField  key={index} node={node} engine={engine} unionField={field}/>
+                return (
+                    <UnionField key={index} node={node} engine={engine} unionField={field}/>
                 );
             })}
         </NodeContainer>

@@ -39,12 +39,12 @@ export function FunctionCard(props: FunctionCardProps) {
     useEffect(() => {
         functionPorts.current.push(node.getPortFromID(`left-${path}`));
         functionPorts.current.push(node.getPortFromID(`right-${path}`));
-    }, [functionElement])
+    }, [functionElement]);
 
 
     return (
         <FunctionContainer>
-            { isResourceFunction ? (
+            {isResourceFunction ? (
                     <ResourceFunctionWidget
                         engine={engine}
                         node={node}
@@ -52,7 +52,7 @@ export function FunctionCard(props: FunctionCardProps) {
                         resourcePath={path}
                     />
                 )
-                 : (
+                : (
                     <RemoteFunctionWidget
                         engine={engine}
                         node={node}
@@ -62,5 +62,5 @@ export function FunctionCard(props: FunctionCardProps) {
                 )
             }
         </FunctionContainer>
-    )
+    );
 }

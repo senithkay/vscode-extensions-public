@@ -29,7 +29,7 @@ interface ServiceNodeWidgetProps {
 export function GraphqlServiceNodeWidget(props: ServiceNodeWidgetProps) {
     const { node, engine } = props;
 
-    return(
+    return (
         <ServiceNode>
             <ServiceHeadWidget
                 engine={engine}
@@ -45,7 +45,7 @@ export function GraphqlServiceNodeWidget(props: ServiceNodeWidgetProps) {
                             functionElement={resource}
                             isResourceFunction={true}
                         />
-                    )
+                    );
                 })
             }
             {
@@ -58,7 +58,7 @@ export function GraphqlServiceNodeWidget(props: ServiceNodeWidgetProps) {
                             functionElement={remoteFunc}
                             isResourceFunction={false}
                         />
-                    )
+                    );
                 })
             }
         </ServiceNode>

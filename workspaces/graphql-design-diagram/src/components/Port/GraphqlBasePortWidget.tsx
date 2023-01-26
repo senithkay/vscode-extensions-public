@@ -39,5 +39,5 @@ export function GraphqlBasePortWidget(props: CustomPortProps) {
             port={port}
             style={portStyles}
         />
-    )
+    );
 }

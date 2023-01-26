@@ -34,6 +34,6 @@ export class ServiceClassNodeModel extends GraphqlDesignNode {
         this.classObject.functions?.forEach(classFunction => {
             this.addPort(new GraphqlNodeBasePort(classFunction.identifier, PortModelAlignment.LEFT));
             this.addPort(new GraphqlNodeBasePort(classFunction.identifier, PortModelAlignment.RIGHT));
-        })
+        });
     }
 }

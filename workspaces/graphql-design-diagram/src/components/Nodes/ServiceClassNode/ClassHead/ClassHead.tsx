@@ -34,7 +34,7 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-    }, [node])
+    }, [node]);
 
     return (
         <NodeHeader>
@@ -54,5 +54,5 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
                 engine={engine}
             />
         </NodeHeader>
-    )
+    );
 }

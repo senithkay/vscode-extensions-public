@@ -30,11 +30,11 @@ interface ServiceClassNodeWidgetProps {
 export function ServiceClassNodeWidget(props: ServiceClassNodeWidgetProps) {
     const { node, engine } = props;
 
-    return(
+    return (
         <ServiceNode>
             <ServiceClassHeadWidget node={node} engine={engine}/>
             {node.classObject.functions?.map((classFunction, index) => {
-                return(
+                return (
                     <ServiceField key={index} node={node} engine={engine} functionElement={classFunction}/>
                 );
             })}

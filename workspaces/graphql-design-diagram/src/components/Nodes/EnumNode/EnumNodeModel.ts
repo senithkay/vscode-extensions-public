@@ -18,8 +18,9 @@ import { EnumComponent } from "../../resources/model";
 import { GraphqlDesignNode } from "../BaseNode/GraphqlDesignNode";
 
 export const ENUM_NODE = "enumNode";
+
 export class EnumNodeModel extends GraphqlDesignNode {
-    readonly enumObject : EnumComponent;
+    readonly enumObject: EnumComponent;
 
     constructor(enumObject: EnumComponent) {
         super(ENUM_NODE, enumObject.name);

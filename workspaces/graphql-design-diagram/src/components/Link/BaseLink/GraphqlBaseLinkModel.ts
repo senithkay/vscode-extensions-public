@@ -31,22 +31,22 @@ export class GraphqlBaseLinkModel extends DefaultLinkModel {
         this.diagramEngine = diagramEngine;
         this.getSourcePort().registerListener({
             positionChanged: () => this.onPositionChange()
-        })
+        });
 
         this.getTargetPort().registerListener({
             positionChanged: () => this.onPositionChange()
-        })
-    }
+        });
+    };
 
     selectLinkedNodes = () => {
         this.getSourcePort().getNode().fireEvent({ entity: this }, 'SELECT');
         this.getTargetPort().getNode().fireEvent({ entity: this }, 'SELECT');
-    }
+    };
 
     resetLinkedNodes = () => {
-        this.getSourcePort().getNode().fireEvent({}, 'UNSELECT')
-        this.getTargetPort().getNode().fireEvent({}, 'UNSELECT')
-    }
+        this.getSourcePort().getNode().fireEvent({}, 'UNSELECT');
+        this.getTargetPort().getNode().fireEvent({}, 'UNSELECT');
+    };
 
     getCurvePath = (): string => {
         const lineCurve = new BezierCurve();
@@ -84,7 +84,7 @@ export class GraphqlBaseLinkModel extends DefaultLinkModel {
         }
 
         return lineCurve.getSVGCurve();
-    }
+    };
 
     onPositionChange = debounce(() => {
         if (this.getSourcePort() && this.getTargetPort()) {
@@ -131,7 +131,7 @@ export class GraphqlBaseLinkModel extends DefaultLinkModel {
         }
 
         return { sourceLeft, sourceRight, targetLeft, targetRight };
-    }
+    };
 
     checkPorts = (source: PortModelAlignment, target: PortModelAlignment) => {
         if (!this.getSourcePort().getID().startsWith(source)) {
@@ -143,7 +143,7 @@ export class GraphqlBaseLinkModel extends DefaultLinkModel {
             this.setTargetPort(this.getTargetPort().getNode().getPortFromID(getOpposingPort(this.getTargetPort().getID(), target)));
             this.diagramEngine.repaintCanvas();
         }
-    }
+    };
 
     getArrowHeadPoints = (): string => {
         let points: string;
@@ -160,5 +160,5 @@ export class GraphqlBaseLinkModel extends DefaultLinkModel {
 				${targetPort.x - 12} ${targetPort.y + 14}`;
         }
         return points;
-    }
+    };
 }

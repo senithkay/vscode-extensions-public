@@ -42,7 +42,7 @@ export function GraphqlServiceLinkWidget(props: WidgetProps) {
         link.registerListener({
             'SELECT': selectPath,
             'UNSELECT': unselectPath
-        })
+        });
 
         if (link.getTargetPort().getNode().getType() === GRAPHQL_SERVICE_NODE) {
             setCallingFunction(findCallingFunction(link.getTargetPort()));
@@ -54,28 +54,27 @@ export function GraphqlServiceLinkWidget(props: WidgetProps) {
             setAnchorElement(event.currentTarget);
         }
         selectPath();
-    }
+    };
 
     const onMouseLeave = () => {
         if (callingFunction) {
             setAnchorElement(null);
         }
         unselectPath();
-    }
+    };
 
     const selectPath = () => {
         link.selectLinkedNodes();
         setIsSelected(true);
-    }
+    };
 
     const unselectPath = () => {
         link.resetLinkedNodes();
         setIsSelected(false);
-    }
+    };
 
 
-
-    return(
+    return (
         <g>
             <polygon
                 points={link.getArrowHeadPoints()}
@@ -86,8 +85,8 @@ export function GraphqlServiceLinkWidget(props: WidgetProps) {
                 id={link.getID()}
                 cursor={'pointer'}
                 d={link.getCurvePath()}
-                fill='none'
-                pointerEvents='all'
+                fill="none"
+                pointerEvents="all"
                 onMouseLeave={onMouseLeave}
                 onMouseMove={e => callingFunction ? setPosition({ x: e.pageX, y: e.pageY }) : {}}
                 onMouseOver={onMouseOver}

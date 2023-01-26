@@ -1,7 +1,10 @@
 {
-    "extends": "./tsconfig.json",
-    "include": ["src/**/*", "src/**/*.json"],
-    "compilerOptions": {
-      "composite": true,
-    },
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*",
+    "src/**/*.json"
+  ],
+  "compilerOptions": {
+    "composite": true
+  }
 }

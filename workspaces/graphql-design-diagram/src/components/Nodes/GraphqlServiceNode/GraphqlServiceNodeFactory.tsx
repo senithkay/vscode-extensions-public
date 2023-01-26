@@ -30,7 +30,7 @@ export class GraphqlServiceNodeFactory extends AbstractReactFactory<GraphqlServi
     }
 
     generateReactWidget(event: GenerateReactWidgetProps): JSX.Element {
-        return <GraphqlServiceNodeWidget engine={this.engine} node={event.model} />;
+        return <GraphqlServiceNodeWidget engine={this.engine} node={event.model}/>;
     }
 
     generateModel(event: { initialConfig: any }) {

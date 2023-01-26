@@ -38,13 +38,13 @@ export function UnionField(props: UnionFieldProps) {
         functionPorts.current.push(node.getPortFromID(`right-${field}`));
     }, [unionField]);
 
-    return(
+    return (
         <NodeFieldContainer>
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${field}`)}
                 engine={engine}
             />
-            <FieldName style={{marginLeft: '7px'}}>
+            <FieldName style={{ marginLeft: '7px' }}>
                 {field}
             </FieldName>
             <GraphqlBasePortWidget

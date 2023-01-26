@@ -25,10 +25,11 @@ interface EnumFieldCardProps {
     node: EnumNodeModel;
     enumField: EnumField;
 }
+
 export function EnumFieldCard(props: EnumFieldCardProps) {
     const { engine, node, enumField } = props;
 
-    return(
+    return (
         <EnumFieldContainer>
             <FieldName>{enumField.name}</FieldName>
         </EnumFieldContainer>

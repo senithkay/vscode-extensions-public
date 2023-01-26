@@ -57,9 +57,9 @@ export interface UnionComponent {
 }
 
 interface Position {
-     filePath: string;
-     startLine: LinePosition;
-     endLine: LinePosition;
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
 }
 
 interface LinePosition {

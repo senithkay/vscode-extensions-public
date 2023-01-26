@@ -29,11 +29,11 @@ interface RecordNodeWidgetProps {
 export function RecordNodeWidget(props: RecordNodeWidgetProps) {
     const { node, engine } = props;
 
-    return(
+    return (
         <RecordNode>
             <RecordHeadWidget engine={engine} node={node}/>
             {node.recordObject.recordFields.map((field, index) => {
-                return(
+                return (
                     <RecordFieldWidget
                         key={index}
                         node={node}

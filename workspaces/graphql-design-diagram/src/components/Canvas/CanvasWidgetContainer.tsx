@@ -26,6 +26,7 @@ export const Container = styled.div`
   background-repeat: repeat;
   display: ${props => (props.hidden ? 'none' : 'flex')};
   font-family: 'GilmerRegular';
+
   > * {
     height: 100%;
     min-height: 100%;
@@ -34,19 +35,19 @@ export const Container = styled.div`
 `;
 
 export const Expand = css`
-	html,
-	body,
-	#root {
-		height: 100%;
-	}
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
 `;
 
 export class CanvasWidgetContainer extends React.Component {
     render() {
         return (
             <>
-                <Global styles={Expand} />
-                <Container className='dotted-background'>
+                <Global styles={Expand}/>
+                <Container className="dotted-background">
                     {this.props.children}
                 </Container>
             </>

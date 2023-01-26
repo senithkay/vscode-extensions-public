@@ -28,6 +28,6 @@ export class GraphqlServiceLinkFactory extends DefaultLinkFactory {
     }
 
     generateReactWidget(event: { model: GraphqlServiceLinkModel }): JSX.Element {
-        return <GraphqlServiceLinkWidget link={event.model} engine={this.engine} />;
+        return <GraphqlServiceLinkWidget link={event.model} engine={this.engine}/>;
     }
 }

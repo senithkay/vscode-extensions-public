@@ -38,27 +38,27 @@ let diagramNodes: Map<string, GraphqlDesignNode>;
 // all links in the diagram
 let nodeLinks: GraphqlBaseLinkModel[];
 
-export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel) : DiagramModel {
+export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel): DiagramModel {
     diagramNodes = new Map<string, GraphqlDesignNode>();
     nodeLinks = [];
 
     // generate the graphql service node
     graphqlServiceModelMapper(graphqlModel.graphqlService);
     // generate nodes for enums
-    if (graphqlModel.enums){
-        const enums : Map<string, EnumComponent> = new Map(Object.entries(graphqlModel.enums));
+    if (graphqlModel.enums) {
+        const enums: Map<string, EnumComponent> = new Map(Object.entries(graphqlModel.enums));
         enumModelMapper(enums);
     }
-    if (graphqlModel.records){
+    if (graphqlModel.records) {
         const records: Map<string, RecordComponent> = new Map(Object.entries(graphqlModel.records));
         recordModelMapper(records);
     }
-    if (graphqlModel.serviceClasses){
-        const serviceClasses : Map<string, ServiceClassComponent> = new Map(Object.entries(graphqlModel.serviceClasses));
+    if (graphqlModel.serviceClasses) {
+        const serviceClasses: Map<string, ServiceClassComponent> = new Map(Object.entries(graphqlModel.serviceClasses));
         serviceClassModelMapper(serviceClasses);
     }
-    if (graphqlModel.unions){
-        const unions : Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
+    if (graphqlModel.unions) {
+        const unions: Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
         unionModelMapper(unions);
     }
     // TODO: generate nodes for service-classes/ unions
@@ -73,39 +73,39 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel) : Diagra
 }
 
 function graphqlServiceModelMapper(service: Service) {
-        const serviceNode: GraphqlServiceNodeModel = new GraphqlServiceNodeModel(service);
-        diagramNodes.set(service.serviceName, serviceNode);
+    const serviceNode: GraphqlServiceNodeModel = new GraphqlServiceNodeModel(service);
+    diagramNodes.set(service.serviceName, serviceNode);
 }
 
 function enumModelMapper(enums: Map<string, EnumComponent>) {
     enums.forEach((enumObj, key) => {
         const enumNode = new EnumNodeModel(enumObj);
         diagramNodes.set(key, enumNode);
-    })
+    });
 }
 
 function recordModelMapper(records: Map<string, RecordComponent>) {
     records.forEach((recordObj, key) => {
         const recordNode = new RecordNodeModel(recordObj);
         diagramNodes.set(key, recordNode);
-    })
+    });
 }
 
 function serviceClassModelMapper(classes: Map<string, ServiceClassComponent>) {
     classes.forEach((classObj, key) => {
         const serviceClass = new ServiceClassNodeModel(classObj);
         diagramNodes.set(key, serviceClass);
-    })
+    });
 }
 
 function unionModelMapper(unions: Map<string, UnionComponent>) {
     unions.forEach((unionObj, key) => {
         const unionType = new UnionNodeModel(unionObj);
         diagramNodes.set(key, unionType);
-    })
+    });
 }
 
-function generateLinks(graphqlModel: GraphqlDesignModel){
+function generateLinks(graphqlModel: GraphqlDesignModel) {
     // create links for graphqlService
     generateLinksForGraphqlService(graphqlModel.graphqlService);
 
@@ -115,32 +115,32 @@ function generateLinks(graphqlModel: GraphqlDesignModel){
 
 function generateLinksForGraphqlService(service: Service) {
     const sourceNode: GraphqlDesignNode = diagramNodes.get(service.serviceName);
-    if (service.resourceFunctions){
+    if (service.resourceFunctions) {
         service.resourceFunctions.forEach(resource => {
             mapFunctionInteraction(sourceNode, resource, FunctionType.QUERY);
-        })
+        });
     }
-    if (service.remoteFunctions){
+    if (service.remoteFunctions) {
         service.remoteFunctions.forEach(remote => {
             mapFunctionInteraction(sourceNode, remote, FunctionType.MUTATION);
-        })
+        });
     }
 }
 
-function mapFunctionInteraction(sourceNode: GraphqlDesignNode, func : ResourceFunction | RemoteFunction, functionType: FunctionType) {
+function mapFunctionInteraction(sourceNode: GraphqlDesignNode, func: ResourceFunction | RemoteFunction, functionType: FunctionType) {
     func.interactions.forEach(interaction => {
         if (diagramNodes.has(interaction.componentName)) {
             const targetNode: GraphqlDesignNode = diagramNodes.get(interaction.componentName);
-            if (targetNode){
-                const link : GraphqlBaseLinkModel = setGraphqlServiceLinks(sourceNode, targetNode, func, functionType, interaction);
+            if (targetNode) {
+                const link: GraphqlBaseLinkModel = setGraphqlServiceLinks(sourceNode, targetNode, func, functionType, interaction);
                 nodeLinks.push(link);
             }
         }
-    })
+    });
 }
 
 function setGraphqlServiceLinks(sourceNode: GraphqlDesignNode, targetNode: GraphqlDesignNode,
-                                func: ResourceFunction | RemoteFunction, functionType: FunctionType, interaction?: Interaction){
+                                func: ResourceFunction | RemoteFunction, functionType: FunctionType, interaction?: Interaction) {
     let sourcePort: GraphqlNodeBasePort;
     let targetPort: GraphqlNodeBasePort;
 
@@ -148,14 +148,14 @@ function setGraphqlServiceLinks(sourceNode: GraphqlDesignNode, targetNode: Graph
     const sourcePortID = func.identifier;
 
     sourcePort = sourceNode.getPortFromID(`right-${sourcePortID}`);
-    targetPort =  targetNode.getPortFromID(`left-${compName}`);
+    targetPort = targetNode.getPortFromID(`left-${compName}`);
     if (sourcePort && targetPort) {
-        const link : GraphqlServiceLinkModel = new GraphqlServiceLinkModel(functionType);
+        const link: GraphqlServiceLinkModel = new GraphqlServiceLinkModel(functionType);
         return createLink(sourcePort, targetPort, link);
     }
 }
 
-function createLink(sourcePort: GraphqlNodeBasePort, targetPort: GraphqlNodeBasePort, link : GraphqlBaseLinkModel){
+function createLink(sourcePort: GraphqlNodeBasePort, targetPort: GraphqlNodeBasePort, link: GraphqlBaseLinkModel) {
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);

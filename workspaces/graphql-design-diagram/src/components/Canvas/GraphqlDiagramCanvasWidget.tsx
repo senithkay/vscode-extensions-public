@@ -44,9 +44,9 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
 
     useEffect(() => {
-                diagramEngine.setModel(model);
-                setDiagramModel(model);
-                autoDistribute();
+        diagramEngine.setModel(model);
+        setDiagramModel(model);
+        autoDistribute();
 
     }, [model]);
 
@@ -57,12 +57,12 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         }, 30);
     };
 
-    return(
+    return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-                <CanvasWidgetContainer>
-                        <CanvasWidget engine={diagramEngine}/>
-                </CanvasWidgetContainer>
+            <CanvasWidgetContainer>
+                <CanvasWidget engine={diagramEngine}/>
+            </CanvasWidgetContainer>
             }
         </>
     );

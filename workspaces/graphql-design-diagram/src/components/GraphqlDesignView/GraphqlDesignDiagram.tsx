@@ -47,32 +47,32 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps){
-    const {targetPosition, langClientPromise, filePath, currentFile, ballerinaVersion, syntaxTree} = props;
+export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
+    const { targetPosition, langClientPromise, filePath, currentFile, ballerinaVersion, syntaxTree } = props;
 
-    const[designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
-    const[isIncompleteModel, setModelStatus] = useState(false);
+    const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
+    const [isIncompleteModel, setModelStatus] = useState(false);
 
     const classes = useStyles();
 
     useEffect(() => {
         (async () => {
-            await getGraphqlDesignModel()
+            await getGraphqlDesignModel();
         })();
     }, []);
 
     const getGraphqlDesignModel = async () => {
-        const request : GraphqlDesignServiceRequest = {
+        const request: GraphqlDesignServiceRequest = {
             filePath: currentFile.path,
-            startLine: {line: targetPosition.startLine, offset: targetPosition.startColumn},
-            endLine: {line: targetPosition.endLine, offset: targetPosition.endColumn}
-        }
+            startLine: { line: targetPosition.startLine, offset: targetPosition.startColumn },
+            endLine: { line: targetPosition.endLine, offset: targetPosition.endColumn }
+        };
         const graphqlModel: GraphqlDesignServiceResponse = await getModelForGraphqlService(request, langClientPromise);
         setDesignModel(graphqlModel.graphqlDesignModel);
         setModelStatus(graphqlModel.isIncompleteModel);
-    }
+    };
 
-    return(
+    return (
         // TODO: Add overlay header
         <>
             {designModel && <GraphqlDiagramContainer designModel={designModel}/>}

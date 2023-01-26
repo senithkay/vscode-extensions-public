@@ -20,7 +20,7 @@ import { GraphqlDesignNode } from "../BaseNode/GraphqlDesignNode";
 export const UNION_NODE = "unionNode";
 
 export class UnionNodeModel extends GraphqlDesignNode {
-    readonly unionObject : UnionComponent;
+    readonly unionObject: UnionComponent;
 
     constructor(unionObject: UnionComponent) {
         super(UNION_NODE, unionObject.name);
@@ -33,6 +33,6 @@ export class UnionNodeModel extends GraphqlDesignNode {
         this.unionObject.possibleTypes?.forEach(possibleType => {
             this.addPort(new GraphqlNodeBasePort(possibleType.componentName, PortModelAlignment.LEFT));
             this.addPort(new GraphqlNodeBasePort(possibleType.componentName, PortModelAlignment.RIGHT));
-        })
+        });
     }
 }

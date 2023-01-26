@@ -30,7 +30,7 @@ export class RecordNodeFactory extends AbstractReactFactory<RecordNodeModel, Dia
     }
 
     generateReactWidget(event: GenerateReactWidgetProps): JSX.Element {
-        return <RecordNodeWidget engine={this.engine} node={event.model} />;
+        return <RecordNodeWidget engine={this.engine} node={event.model}/>;
     }
 
     generateModel(event: { initialConfig: any }) {

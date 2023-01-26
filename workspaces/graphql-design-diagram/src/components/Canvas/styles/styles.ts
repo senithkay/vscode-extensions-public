@@ -18,6 +18,7 @@ export const Canvas = styled.div`
   position: relative;
   cursor: move;
   overflow: hidden;
+
   & > svg {
     overflow: visible;
   }

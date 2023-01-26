@@ -38,11 +38,11 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
 
     const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorElement(event.currentTarget);
-    }
+    };
 
     const onMouseLeave = () => {
         setAnchorElement(null);
-    }
+    };
 
     const classes = popOverStyle();
 
@@ -53,7 +53,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 engine={engine}
             />
             <MutationIcon/>
-            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{marginLeft: '7px'}}>
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
                 {remoteFunc.identifier}
             </FieldName>
             <FieldType>{remoteFunc.returns}</FieldType>
@@ -63,7 +63,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
             />
             {remoteFunc.parameters?.length > 0 && (
                 <Popover
-                    id='mouse-over-popover'
+                    id="mouse-over-popover"
                     open={Boolean(anchorElement)}
                     anchorOrigin={{
                         vertical: 'bottom',

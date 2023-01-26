@@ -22,6 +22,7 @@ import { graphqlModelGenerator } from "../utils/model-generators/serviceModelGen
 interface GraphqlDiagramContainerProps {
     designModel: GraphqlDesignModel;
 }
+
 export function GraphqlDiagramContainer(props: GraphqlDiagramContainerProps) {
     const { designModel } = props;
     const [graphqlServiceModel, setGraphqlServiceModel] = useState<DiagramModel>(undefined);
@@ -30,9 +31,9 @@ export function GraphqlDiagramContainer(props: GraphqlDiagramContainerProps) {
         setGraphqlServiceModel(graphqlModelGenerator(designModel));
     }, [designModel]);
 
-    return(
+    return (
         <>
-            {graphqlServiceModel &&  <GraphqlDiagramCanvasWidget model={graphqlServiceModel}/>}
+            {graphqlServiceModel && <GraphqlDiagramCanvasWidget model={graphqlServiceModel}/>}
         </>
     );
 }

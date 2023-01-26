@@ -35,7 +35,7 @@ export function EnumHeadWidget(props: EnumHeadProps) {
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-    }, [node])
+    }, [node]);
 
 
     return (
@@ -55,5 +55,5 @@ export function EnumHeadWidget(props: EnumHeadProps) {
                 engine={engine}
             />
         </EnumHead>
-    )
+    );
 }

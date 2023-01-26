@@ -34,16 +34,16 @@ interface ResourceFunctionProps {
 }
 
 export function ResourceFunctionWidget(props: ResourceFunctionProps) {
-    const { engine, node, resource, resourcePath} = props;
+    const { engine, node, resource, resourcePath } = props;
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
 
     const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorElement(event.currentTarget);
-    }
+    };
 
     const onMouseLeave = () => {
         setAnchorElement(null);
-    }
+    };
 
     const classes = popOverStyle();
 
@@ -54,10 +54,10 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 engine={engine}
             />
             {resource.subscription ? <SubscriptionIcon/> : <QueryIcon/>}
-                <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{marginLeft: '7px'}}>
-                    {resource.identifier}
-                </FieldName>
-                <FieldType>{resource.returns}</FieldType>
+            <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
+                {resource.identifier}
+            </FieldName>
+            <FieldType>{resource.returns}</FieldType>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${resourcePath}`)}
                 engine={engine}
@@ -65,7 +65,7 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
 
             {resource.parameters?.length > 0 && (
                 <Popover
-                    id='mouse-over-popover'
+                    id="mouse-over-popover"
                     open={Boolean(anchorElement)}
                     anchorOrigin={{
                         vertical: 'bottom',

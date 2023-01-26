@@ -30,7 +30,7 @@ export class EnumNodeFactory extends AbstractReactFactory<EnumNodeModel, Diagram
     }
 
     generateReactWidget(event: GenerateReactWidgetProps): JSX.Element {
-        return <EnumNodeWidget engine={this.engine} node={event.model} />;
+        return <EnumNodeWidget engine={this.engine} node={event.model}/>;
     }
 
     generateModel(event: { initialConfig: any }) {

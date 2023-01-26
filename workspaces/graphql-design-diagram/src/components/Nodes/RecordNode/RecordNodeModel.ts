@@ -33,6 +33,6 @@ export class RecordNodeModel extends GraphqlDesignNode {
         this.recordObject.recordFields.forEach(field => {
             this.addPort(new GraphqlNodeBasePort(field.name, PortModelAlignment.LEFT));
             this.addPort(new GraphqlNodeBasePort(field.name, PortModelAlignment.RIGHT));
-        })
+        });
     }
 }

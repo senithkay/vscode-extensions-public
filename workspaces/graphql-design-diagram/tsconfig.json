@@ -27,7 +27,7 @@
         "noUnusedParameters": false,
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,
-        "esModuleInterop": true,
+        "esModuleInterop": true
     },
     "include": [
         "src",

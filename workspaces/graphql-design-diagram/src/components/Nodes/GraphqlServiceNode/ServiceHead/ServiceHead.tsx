@@ -13,7 +13,7 @@
 
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-no-lambda
-import React, {  useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 
@@ -37,12 +37,12 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-    }, [node])
+    }, [node]);
 
 
     return (
         <ServiceHead>
-            <GraphQLIcon />
+            <GraphQLIcon/>
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
@@ -58,5 +58,5 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 engine={engine}
             />
         </ServiceHead>
-    )
+    );
 }

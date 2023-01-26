@@ -21,18 +21,19 @@ import { Container } from "./styles";
 interface ParametersPopupProps {
     parameters: Param[];
 }
-export function ParametersPopup(props: ParametersPopupProps){
+
+export function ParametersPopup(props: ParametersPopupProps) {
     const { parameters } = props;
-    return(
+    return (
         <Container>
             <div>
-            <p>Parameters</p>
-                <ul style={{display: 'block', paddingInlineStart: '10px'}}>
+                <p>Parameters</p>
+                <ul style={{ display: 'block', paddingInlineStart: '10px' }}>
                     {/* tslint:disable-next-line:jsx-no-multiline-js */}
                     {parameters.map((param, index) => {
-                        return(
+                        return (
                             <li key={index}>
-                                <div style={{display: 'flex'}}>
+                                <div style={{ display: 'flex' }}>
                                     <FieldName>{param.name}</FieldName>
                                     <FieldType>{param.type}</FieldType>
                                 </div>

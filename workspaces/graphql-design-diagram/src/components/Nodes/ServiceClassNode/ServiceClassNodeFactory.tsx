@@ -30,7 +30,7 @@ export class ServiceClassNodeFactory extends AbstractReactFactory<ServiceClassNo
     }
 
     generateReactWidget(event: GenerateReactWidgetProps): JSX.Element {
-        return <ServiceClassNodeWidget engine={this.engine} node={event.model} />;
+        return <ServiceClassNodeWidget engine={this.engine} node={event.model}/>;
     }
 
     generateModel(event: { initialConfig: any }) {
