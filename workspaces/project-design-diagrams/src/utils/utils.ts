@@ -17,14 +17,26 @@
  *
  */
 
-import createEngine, { DiagramEngine } from '@projectstorm/react-diagrams';
+import createEngine, {DiagramEngine, LinkModel, NodeModel} from '@projectstorm/react-diagrams';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
-import { ExtServiceNodeFactory, ServiceLinkFactory, ServiceNodeFactory, ServicePortFactory } from '../components/service-interaction';
+import {
+    ExtServiceNodeFactory,
+    ServiceLinkFactory,
+    ServiceLinkModel,
+    ServiceNodeFactory,
+    ServiceNodeModel,
+    ServicePortFactory,
+    ServicePortModel
+} from '../components/service-interaction';
 import { GatewayNodeFactory } from "../components/gateway/GatewayNode/GatewayNodeFactory";
 import { GatewayPortFactory } from "../components/gateway/GatewayPort/GatewayPortFactory";
 import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeModel";
 import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLinkFactory";
 import { Point } from "@projectstorm/geometry";
+import { GatewayType } from "../components/gateway/types";
+import { Service } from "../resources";
+import { GatewayPortModel } from "../components/gateway/GatewayPort/GatewayPortModel";
+import { GatewayLinkModel } from "../components/gateway/GatewayLink/GatewayLinkModel";
 
 export const defaultZoomLevel = 100;
 export const canvasTopXOffset = 675;
@@ -90,6 +102,81 @@ export function positionGatewayNodes(engine: DiagramEngine) {
             }
         });
     }
+}
+
+export function extractGateways(service: Service): GatewayType[] {
+    let gatewayTypes: GatewayType[] = [];
+    if (service?.deploymentMetadata?.gateways?.internet?.isExposed) {
+        // Internet type to North
+        gatewayTypes.push("NORTH");
+    }
+    if (service?.deploymentMetadata?.gateways?.intranet?.isExposed) {
+        // Intranet type to West
+        gatewayTypes.push("WEST");
+    }
+    return gatewayTypes;
+}
+
+export function createGWLinks(sourcePort: ServicePortModel, targetPort: ServicePortModel | GatewayPortModel,
+                              link: ServiceLinkModel | GatewayLinkModel): ServiceLinkModel | GatewayLinkModel {
+    link.setSourcePort(sourcePort);
+    link.setTargetPort(targetPort);
+    sourcePort.addLink(link);
+    return link;
+}
+
+export function addGWNodes(engine: DiagramEngine) {
+    const nodes = engine.getModel().getNodes();
+    let isNorthExists: boolean = false;
+    let isWestExists: boolean = false;
+    // Avoid adding redundant GWs
+    nodes.forEach(nodes => {
+        if (nodes.getID() === 'NORTH') {
+            isNorthExists = true;
+        } else if (nodes.getID() === 'WEST') {
+            isWestExists = true;
+        }
+    });
+    if (!isNorthExists) {
+        engine.getModel().addNode(new GatewayNodeModel('NORTH', 'Internet'));
+    }
+    if (!isWestExists) {
+        engine.getModel().addNode(new GatewayNodeModel('WEST', 'Intranet'));
+    }
+}
+
+function addGWLinks(engine: DiagramEngine) {
+    const nodes = engine.getModel().getNodes();
+    const links = engine.getModel().getLinks();
+    nodes.forEach(node => {
+        if (node instanceof ServiceNodeModel) {
+            node.getTargetGateways().forEach((gwType: GatewayType) => {
+                mapGWInteraction(gwType, node, nodes, links, engine);
+            });
+        }
+    });
+}
+
+function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeModel, nodes: NodeModel[],
+                          links: LinkModel[], engine: DiagramEngine) {
+    nodes.forEach(sourceGW => {
+        if ((sourceGW instanceof GatewayNodeModel) && (sourceGW.getID() === sourceGWType)) {
+            const link: GatewayLinkModel = new GatewayLinkModel(targetNode.level);
+            const sourcePort: GatewayPortModel = sourceGW.getPortFromID(`${sourceGWType}-in`);
+            let targetPort;
+            if (sourceGWType === "WEST") {
+                targetPort = targetNode.getPortFromID(`left-gw-${targetNode.serviceObject.serviceId}`);
+            } else {
+                targetPort = targetNode.getPortFromID(`top-${targetNode.serviceObject.serviceId}`);
+            }
+            engine.getModel().addLink(createGWLinks(sourcePort, targetPort, link));
+        }
+    });
+}
+
+export function getGWNodesModel(engine: DiagramEngine) {
+    addGWNodes(engine);
+    addGWLinks(engine);
 }
 
 export function getWestGWArrowHeadSlope(slope: number) {

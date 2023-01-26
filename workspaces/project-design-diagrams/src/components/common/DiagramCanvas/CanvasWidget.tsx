@@ -29,6 +29,7 @@ import { Canvas } from './styles/styles';
 import './styles/styles.css';
 import debounce from "lodash.debounce";
 import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
+import { getGWNodesModel } from "../../../utils/utils";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -136,6 +137,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
+            getGWNodesModel(diagramEngine);
             positionGatewayNodes(diagramEngine);
             diagramEngine.repaintCanvas();
         }, 30);

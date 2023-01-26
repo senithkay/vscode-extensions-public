@@ -21,22 +21,16 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import { ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels,
     ServiceTypes } from '../../resources';
 import { ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
-import { GatewayNodeModel } from "../../components/gateway/GatewayNode/GatewayNodeModel";
-import { GatewayType } from "../../components/gateway/types";
-import { GatewayPortModel } from "../../components/gateway/GatewayPort/GatewayPortModel";
-import { GatewayLinkModel } from "../../components/gateway/GatewayLink/GatewayLinkModel";
+import { extractGateways } from "../utils";
 
-let gwNodes: Map<string, GatewayNodeModel>;
 let l1Nodes: Map<string, ServiceNodeModel>;
 let l2Nodes: Map<string, ServiceNodeModel>;
 let l1ExtNodes: Map<string, ExtServiceNodeModel>;
 let l2ExtNodes: Map<string, ExtServiceNodeModel>;
-let l1Links: Map<string, ServiceLinkModel | GatewayLinkModel>;
-let l2Links: (ServiceLinkModel | GatewayLinkModel)[];
+let l1Links: Map<string, ServiceLinkModel>;
+let l2Links: ServiceLinkModel[];
 
 export function serviceModeller(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>): ServiceModels {
-    // convert gateway to nodes
-    gwNodes = new Map<string, GatewayNodeModel>();
 
     // convert services to nodes
     l1Nodes = new Map<string, ServiceNodeModel>();
@@ -46,18 +40,18 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     // convert interactions to links and detect external services
     l1ExtNodes = new Map<string, ExtServiceNodeModel>();
     l2ExtNodes = new Map<string, ExtServiceNodeModel>();
-    l1Links = new Map<string, ServiceLinkModel | GatewayLinkModel>();
+    l1Links = new Map<string, ServiceLinkModel>();
     l2Links = []
     generateLinks(projectComponents, projectPackages);
 
     // setup L1 model
     let l1Model = new DiagramModel();
-    l1Model.addAll(...Array.from(gwNodes.values()), ...Array.from(l1Nodes.values()),
+    l1Model.addAll(...Array.from(l1Nodes.values()),
         ...Array.from(l1ExtNodes.values()), ...Array.from(l1Links.values()));
 
     // set L2 model
     let l2Model = new DiagramModel();
-    l2Model.addAll(...Array.from(gwNodes.values()), ...Array.from(l2Nodes.values()),
+    l2Model.addAll(...Array.from(l2Nodes.values()),
         ...Array.from(l2ExtNodes.values()), ...l2Links);
 
     return {
@@ -66,16 +60,7 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     };
 }
 
-function addGWNodes() {
-    // Add gateway nodes
-    const northGW = new GatewayNodeModel('NORTH', 'Internet');
-    const westGW = new GatewayNodeModel('WEST', 'Intranet');
-    gwNodes.set('NORTH', northGW);
-    gwNodes.set('WEST', westGW);
-}
-
 function generateNodes(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>) {
-    addGWNodes();
     projectPackages.forEach((shouldRender, packageName) => {
         if (shouldRender && projectComponents.has(packageName)) {
             const services: Map<string, Service> = new Map(Object.entries(projectComponents.get(packageName).services));
@@ -94,19 +79,6 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
     });
 }
 
-function extractGateways(service: Service): GatewayType[] {
-    let gatewayTypes: GatewayType[] = [];
-    if (service?.deploymentMetadata?.gateways?.internet?.isExposed) {
-        // Internet type to North
-        gatewayTypes.push("NORTH");
-    }
-    if (service?.deploymentMetadata?.gateways?.intranet?.isExposed) {
-        // Intranet type to West
-        gatewayTypes.push("WEST");;
-    }
-    return gatewayTypes;
-}
-
 function generateLinks(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>) {
     projectPackages.forEach((shouldRender, packageName) => {
         if (shouldRender && projectComponents.has(packageName)) {
@@ -115,9 +87,6 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
             services.forEach((service) => {
                 let l1SourceNode: ServiceNodeModel = l1Nodes.get(service.serviceId);
                 let l2SourceNode: ServiceNodeModel = l2Nodes.get(service.serviceId);
-
-                mapGWInteractions(l1SourceNode, l2SourceNode);
-
                 if (l1SourceNode && l2SourceNode) {
                     mapInteractions(l1SourceNode, l2SourceNode, service.resources);
                     mapInteractions(l1SourceNode, l2SourceNode, service.remoteFunctions);
@@ -129,46 +98,6 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
             });
         }
     });
-}
-
-function mapGWInteractions(l1SourceNode: ServiceNodeModel, l2SourceNode: ServiceNodeModel) {
-    l1SourceNode.getTargetGateways().forEach((gwType: GatewayType) => {
-        mapL1GWInteraction(l1SourceNode, gwType);
-    });
-    l2SourceNode.getTargetGateways().forEach((gwType: GatewayType) => {
-        mapL2GWInteraction(l2SourceNode, gwType);
-    });
-}
-
-function mapL1GWInteraction(serviceModel: ServiceNodeModel, gwType: GatewayType) {
-    const linkID: string = `${serviceModel.getID()}-${gwType}-in`;
-    if ((serviceModel?.targetGateways.length > 0) && !l1Links.has(linkID)) {
-        const link: GatewayLinkModel = new GatewayLinkModel(serviceModel.level);
-        const sourceGW: GatewayNodeModel = gwNodes.get(gwType);
-        const sourcePort: GatewayPortModel = sourceGW.getPortFromID(`${gwType}-in`);
-        let targetPort;
-        if (gwType === "WEST") {
-            targetPort = serviceModel.getPortFromID(`left-gw-${serviceModel.serviceObject.serviceId}`);
-        } else {
-            targetPort = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
-        }
-        l1Links.set(linkID, createLinks(sourcePort, targetPort, link));
-    }
-}
-
-function mapL2GWInteraction(serviceModel: ServiceNodeModel, gwType: GatewayType) {
-    if ((serviceModel?.targetGateways.length > 0)) {
-        const link: GatewayLinkModel = new GatewayLinkModel(serviceModel.level);
-        const sourceGW: GatewayNodeModel = gwNodes.get(gwType);
-        const sourcePort: GatewayPortModel = sourceGW.getPortFromID(`${gwType}-in`);
-        let targetPort;
-        if (gwType === "WEST") {
-            targetPort = serviceModel.getPortFromID(`left-gw-${serviceModel.serviceObject.serviceId}`);
-        } else {
-            targetPort = serviceModel.getPortFromID(`top-${serviceModel.serviceObject.serviceId}`);
-        }
-        l2Links.push(createLinks(sourcePort, targetPort, link));
-    }
 }
 
 function mapDependencies(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, dependencies: Dependency[]) {
@@ -234,8 +163,15 @@ function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
     }
 }
 
+export function createLinks(sourcePort: ServicePortModel, targetPort: ServicePortModel, link: ServiceLinkModel): ServiceLinkModel {
+    link.setSourcePort(sourcePort);
+    link.setTargetPort(targetPort);
+    sourcePort.addLink(link);
+    return link;
+}
+
 function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel, location: Location, interaction?: Interaction,
-    sourceFunction?: RemoteFunction | ResourceFunction): ServiceLinkModel | GatewayLinkModel {
+    sourceFunction?: RemoteFunction | ResourceFunction): ServiceLinkModel {
     let sourcePort: ServicePortModel = undefined;
     let targetPort: ServicePortModel = undefined;
 
@@ -302,8 +238,8 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
     }
 }
 
-function mapExtLinks(sourceNode: ServiceNodeModel, target: ExtServiceNodeModel, location: Location, sourcePortID?: string)
-    : ServiceLinkModel | GatewayLinkModel {
+function mapExtLinks(sourceNode: ServiceNodeModel, target: ExtServiceNodeModel, location: Location,
+                     sourcePortID?: string): ServiceLinkModel {
     let sourcePort: ServicePortModel;
     let targetPort: ServicePortModel = target.getPortFromID(`left-${target.getID()}`);
 
@@ -318,13 +254,6 @@ function mapExtLinks(sourceNode: ServiceNodeModel, target: ExtServiceNodeModel, 
         let link: ServiceLinkModel = new ServiceLinkModel(sourcePortID ? Level.TWO : Level.ONE, location);
         return createLinks(sourcePort, targetPort, link);
     }
-}
-
-function createLinks(sourcePort: ServicePortModel, targetPort: ServicePortModel | GatewayPortModel, link: ServiceLinkModel | GatewayLinkModel): ServiceLinkModel | GatewayLinkModel {
-    link.setSourcePort(sourcePort);
-    link.setTargetPort(targetPort);
-    sourcePort.addLink(link);
-    return link;
 }
 
 function isResource(functionObject: ResourceFunction | RemoteFunction): functionObject is ResourceFunction {
