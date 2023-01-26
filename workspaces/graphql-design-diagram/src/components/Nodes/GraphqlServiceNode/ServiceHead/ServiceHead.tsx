@@ -32,7 +32,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const { engine, node } = props;
     const headPorts = useRef<PortModel[]>([]);
 
-    const displayName: string = node.serviceObject.serviceName;
+    const displayName: string = node.serviceObject.serviceName ? node.serviceObject.serviceName : "/root";
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));

@@ -63,7 +63,7 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 engine={engine}
             />
 
-            {resource.parameters.length > 0 && (
+            {resource.parameters?.length > 0 && (
                 <Popover
                     id='mouse-over-popover'
                     open={Boolean(anchorElement)}

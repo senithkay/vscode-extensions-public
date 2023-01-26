@@ -68,7 +68,7 @@ export function ServiceField(props: ServiceFieldProps) {
                     engine={engine}
                 />
 
-                {functionElement.parameters.length > 0 && (
+                {functionElement.parameters?.length > 0 && (
                     <Popover
                         id='mouse-over-popover'
                         open={Boolean(anchorElement)}

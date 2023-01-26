@@ -36,7 +36,7 @@ export function GraphqlServiceNodeWidget(props: ServiceNodeWidgetProps) {
                 node={node}
             />
             {
-                node.serviceObject.resourceFunctions.map((resource, index) => {
+                node.serviceObject.resourceFunctions?.map((resource, index) => {
                     return (
                         <FunctionCard
                             key={index}
@@ -49,7 +49,7 @@ export function GraphqlServiceNodeWidget(props: ServiceNodeWidgetProps) {
                 })
             }
             {
-                node.serviceObject.remoteFunctions && node.serviceObject.remoteFunctions.map((remoteFunc, index) => {
+                node.serviceObject.remoteFunctions?.map((remoteFunc, index) => {
                     return (
                         <FunctionCard
                             key={index}

@@ -61,7 +61,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 port={node.getPort(`right-${remotePath}`)}
                 engine={engine}
             />
-            {remoteFunc.parameters.length > 0 && (
+            {remoteFunc.parameters?.length > 0 && (
                 <Popover
                     id='mouse-over-popover'
                     open={Boolean(anchorElement)}
