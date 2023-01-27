@@ -154,7 +154,7 @@ function getComposerCSSFiles(disableComDebug: boolean, devHost: string, webView:
 }
 
 function getComposerJSFiles(componentName: string, disableComDebug: boolean, devHost: string, webView: Webview): string[] {
-    const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs') + '/' + componentName + '.js';
+    const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs') + sep + componentName + '.js'; 
     return [
         (devMode && !disableComDebug) ? join(devHost, componentName + '.js')
             : webView.asWebviewUri(Uri.file(filePath)).toString(),
