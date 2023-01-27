@@ -21,6 +21,7 @@ import {
     NodePosition,
     ResourceAccessorDefinition,
     ServiceDeclaration,
+    STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
@@ -92,11 +93,34 @@ export function ServiceDesign(props: ServiceDesignProps) {
         handleDiagramEdit(undefined, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false });
     };
 
+
+    let servicePath = "";
+    let listeningOnText = "";
+    if (serviceST) {
+        serviceST.absoluteResourcePath?.forEach(item => {
+            servicePath += item.value;
+        });
+
+        if (serviceST.expressions.length > 0 && STKindChecker.isExplicitNewExpression(serviceST.expressions[0])) {
+            if (STKindChecker.isQualifiedNameReference(serviceST.expressions[0].typeDescriptor)) {
+                // serviceType = serviceST.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
+                listeningOnText = serviceST.expressions[0].source;
+            }
+        }
+    }
+
+
     return (
         <div className={classes.root}>
             {serviceST && (
                 <>
                     {/*<ServiceHeader onClose={onClose} model={fnSTZ} />*/}
+                    <div className={classes.serviceTitle}>
+                        <span className={classes.servicePath}>Service {servicePath}</span>
+                        <span className={classes.listenerText}>
+                            {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
+                        </span>
+                    </div>
                     <div className={classes.expandAll}>
                         <div className={classes.collapseBtn} onClick={onExpandAllClick}>
                             Collapse All

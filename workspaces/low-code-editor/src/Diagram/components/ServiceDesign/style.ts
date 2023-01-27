@@ -154,6 +154,17 @@ export const useStyles = makeStyles(() =>
         editButton: {
             paddingRight: 16,
             cursor: "pointer"
+        },
+        serviceTitle: {
+            padding: 15,
+        },
+        servicePath: {
+            fontSize: 20,
+            fontWeight: 400
+        },
+        listenerText: {
+            fontSize: 15,
+            fontWeight: 200
         }
     }),
 );
