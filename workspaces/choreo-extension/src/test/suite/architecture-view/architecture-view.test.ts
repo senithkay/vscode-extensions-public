@@ -1,0 +1,70 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * 
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
+ */
+
+import sinon = require("sinon");
+import assert = require("assert");
+import { commands, Uri, extensions } from "vscode";
+import { suite, suiteSetup } from "mocha";
+import { join } from "path";
+import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
+import { showChoreoProjectOverview } from "../../../extension";
+import { ext } from "../../../extensionVariables";
+import { MockAuthClient, MockKeyChainTokenStorage, MockOrgClient, MockProjectClient } from "../mocked-resources/mocked-clients";
+
+export const TEST_PROJECT_NAME: string = 'FooProject2';
+const OPEN_FOLDER_CMD: string = 'vscode.openFolder';
+
+suite('Architecture View', () => {
+    suiteSetup('Setup project workspace', async () => {
+        const authClient = new MockAuthClient();
+        sinon.stub(ChoreoAuthClient.prototype, 'exchangeApimToken').callsFake(async (params) => await authClient.exchangeApimToken(params[0], params[1]));
+        sinon.stub(ChoreoAuthClient.prototype, 'exchangeVSCodeToken').callsFake(async (params) => await authClient.exchangeVSCodeToken(params[0]));
+
+        const tokenStorage = new MockKeyChainTokenStorage();
+        sinon.stub(KeyChainTokenStorage.prototype, 'getToken').resolves(await tokenStorage.getToken("choreo.token"));
+
+        const orgClient = new MockOrgClient();
+        sinon.stub(ChoreoOrgClient.prototype, 'getUserInfo').resolves(await orgClient.getUserInfo());
+
+        const projectClient = new MockProjectClient();
+        sinon.stub(ChoreoProjectClient.prototype, 'getProjects').callsFake(async (params) => await projectClient.getProjects(params));
+
+        const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
+        const uri = Uri.file(join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
+        await commands.executeCommand(OPEN_FOLDER_CMD, uri);
+    });
+
+    test('Check isChoreoProject', async () => {
+        assert.ok(await ext.api.isChoreoProject(), 'Did not detect workspace as a Choreo project.');
+    });
+
+    test('Generate Project Overview', async () => {
+        await showChoreoProjectOverview().then(() => {
+            Promise.resolve();
+        });
+    });
+
+    test('Generate Architecture View', async (done) => {
+        const ext = extensions.getExtension('wso2.ballerina');
+        if (!ext) {
+            assert.fail('Did not detect the Ballerina extension.');
+        } else {
+            if (ext && !ext.isActive) {
+                await ext.activate();
+            }
+            await commands.executeCommand('ballerina.view.architectureView').then(() => {
+                Promise.resolve();
+            });
+        }
+    }).timeout(8000);
+}).timeout(10000);
