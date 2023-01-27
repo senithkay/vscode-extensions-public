@@ -3,47 +3,47 @@
 
 ## **3.3.7**
 ### Fixed
-- Lowcode diagram does not load in codespaces [401] (https://github.com/wso2/ballerina-plugin-vscode/issues/401)
+- Lowcode diagram does not load in codespaces [401](https://github.com/wso2/ballerina-plugin-vscode/issues/401)
 
 ## **3.3.6**
 ### Added
-- Data Mapper - Add support for inputs, output types other than records [221] (https://github.com/wso2/ballerina-plugin-vscode/issues/221)
+- Data Mapper - Add support for inputs, output types other than records [221](https://github.com/wso2/ballerina-plugin-vscode/issues/221)
 
 ### Improved
-- Add support for intermediate query clauses at function level [347] (https://github.com/wso2/ballerina-plugin-vscode/issues/347)
-- Add support for let expressions in Data Mapper [349] (https://github.com/wso2/ballerina-plugin-vscode/issues/349)
-- Ballerina data mapper FHIR record support [356] (https://github.com/wso2/ballerina-plugin-vscode/issues/356)
-- Data Mapper - Display mappings associated with module level variables [365] (https://github.com/wso2/ballerina-plugin-vscode/issues/365)
-- Data Mapper - Add an edit option for output type in config panel [381] (https://github.com/wso2/ballerina-plugin-vscode/issues/381)
-- Statement Editor - Add expression template for adding parenthesis for selected expressions [385] (https://github.com/wso2/ballerina-plugin-vscode/issues/385)
+- Add support for intermediate query clauses at function level [347](https://github.com/wso2/ballerina-plugin-vscode/issues/347)
+- Add support for let expressions in Data Mapper [349](https://github.com/wso2/ballerina-plugin-vscode/issues/349)
+- Ballerina data mapper FHIR record support [356](https://github.com/wso2/ballerina-plugin-vscode/issues/356)
+- Data Mapper - Display mappings associated with module level variables [365](https://github.com/wso2/ballerina-plugin-vscode/issues/365)
+- Data Mapper - Add an edit option for output type in config panel [381](https://github.com/wso2/ballerina-plugin-vscode/issues/381)
+- Statement Editor - Add expression template for adding parenthesis for selected expressions [385](https://github.com/wso2/ballerina-plugin-vscode/issues/385)
 
 ### Fixed
-- Data mapper - cannot map a record to a record on the low code view [339] (https://github.com/wso2/ballerina-plugin-vscode/issues/339)
-- Data Mapper - Links with transformed values from the input nodes are not displayed [369] (https://github.com/wso2/ballerina-plugin-vscode/issues/369)
-- Data Mapper - Links associated with local variables are not displayed within query expressions [391] (https://github.com/wso2/ballerina-plugin-vscode/issues/391)
+- Data mapper - cannot map a record to a record on the low code view [339](https://github.com/wso2/ballerina-plugin-vscode/issues/339)
+- Data Mapper - Links with transformed values from the input nodes are not displayed [369](https://github.com/wso2/ballerina-plugin-vscode/issues/369)
+- Data Mapper - Links associated with local variables are not displayed within query expressions [391](https://github.com/wso2/ballerina-plugin-vscode/issues/391)
 
 ## **3.3.5**
 ### Fixed
-- Broken links in readme [335] (https://github.com/wso2/ballerina-plugin-vscode/issues/335)
+- Broken links in readme [335](https://github.com/wso2/ballerina-plugin-vscode/issues/335)
 
 ## **3.3.4**
 ### Improved
-- Data Mapper - Display banner if DM function contains unsupported input/output types [217] (https://github.com/wso2/ballerina-plugin-vscode/issues/217)
-- Data Mapper - Improve the transformer name suggestion by providing an non-existing name  [218] (https://github.com/wso2/ballerina-plugin-vscode/issues/218)
-- Data Mapper - Add support to have types from imported packages as inputs and output [219] (https://github.com/wso2/ballerina-plugin-vscode/issues/219)
-- Data Mapper - Add support for mapping with query expressions for primitive type arrays [232] (https://github.com/wso2/ballerina-plugin-vscode/issues/232)
-- Data Mapper - Automatically show the data mapper config panel if the input or output types are not supported [244] (https://github.com/wso2/ballerina-plugin-vscode/issues/244)
+- Data Mapper - Display banner if DM function contains unsupported input/output types [217](https://github.com/wso2/ballerina-plugin-vscode/issues/217)
+- Data Mapper - Improve the transformer name suggestion by providing an non-existing name  [218](https://github.com/wso2/ballerina-plugin-vscode/issues/218)
+- Data Mapper - Add support to have types from imported packages as inputs and output [219](https://github.com/wso2/ballerina-plugin-vscode/issues/219)
+- Data Mapper - Add support for mapping with query expressions for primitive type arrays [232](https://github.com/wso2/ballerina-plugin-vscode/issues/232)
+- Data Mapper - Automatically show the data mapper config panel if the input or output types are not supported [244](https://github.com/wso2/ballerina-plugin-vscode/issues/244)
 
 ### Fixed
-- Data Mapper - Failed to create mapping for a port that is already mapped with multiple ports [230] (https://github.com/wso2/ballerina-plugin-vscode/issues/230)
-- Data Mapper - output type name is misaligned when the output node is collapsed [235] (https://github.com/wso2/ballerina-plugin-vscode/issues/235)
-- Data Mapper - incorrect source is generated when map root of the input record within query expression [237] (https://github.com/wso2/ballerina-plugin-vscode/issues/237)
-- Data Mapper - UI shows a valid transform function as invalid [239] (https://github.com/wso2/ballerina-plugin-vscode/issues/239)
-- Data Mapper - Links are not getting rendered for multi input mappings contains root level references [240] (https://github.com/wso2/ballerina-plugin-vscode/issues/240)
-- Data Mapper - Generates invalid source when there is an invalid expression body [242] (https://github.com/wso2/ballerina-plugin-vscode/issues/242)
-- Oops embarassing error when trying to edit a ModuleVarDecl without initialization [285] (https://github.com/wso2/ballerina-plugin-vscode/issues/285)
-- Data Mapper - Output type disappears when creating data mapping function [293] (https://github.com/wso2/ballerina-plugin-vscode/issues/293)
-- Data Mapper - Data Mapper puts auto-gen input param name as Type Name [329] (https://github.com/wso2/ballerina-plugin-vscode/issues/329)
+- Data Mapper - Failed to create mapping for a port that is already mapped with multiple ports [230](https://github.com/wso2/ballerina-plugin-vscode/issues/230)
+- Data Mapper - output type name is misaligned when the output node is collapsed [235](https://github.com/wso2/ballerina-plugin-vscode/issues/235)
+- Data Mapper - incorrect source is generated when map root of the input record within query expression [237](https://github.com/wso2/ballerina-plugin-vscode/issues/237)
+- Data Mapper - UI shows a valid transform function as invalid [239](https://github.com/wso2/ballerina-plugin-vscode/issues/239)
+- Data Mapper - Links are not getting rendered for multi input mappings contains root level references [240](https://github.com/wso2/ballerina-plugin-vscode/issues/240)
+- Data Mapper - Generates invalid source when there is an invalid expression body [242](https://github.com/wso2/ballerina-plugin-vscode/issues/242)
+- Oops embarassing error when trying to edit a ModuleVarDecl without initialization [285](https://github.com/wso2/ballerina-plugin-vscode/issues/285)
+- Data Mapper - Output type disappears when creating data mapping function [293](https://github.com/wso2/ballerina-plugin-vscode/issues/293)
+- Data Mapper - Data Mapper puts auto-gen input param name as Type Name [329](https://github.com/wso2/ballerina-plugin-vscode/issues/329)
 
 ## **3.3.3**
 ### Fixed
