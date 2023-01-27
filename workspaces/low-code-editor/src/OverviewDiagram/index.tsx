@@ -12,17 +12,17 @@
  */
 import React, { useEffect, useRef, useState } from "react";
 
+import { Popover } from "@material-ui/core";
+import { FilterList } from "@material-ui/icons";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useDiagramContext } from "../Contexts/Diagram";
 import { WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 
+import { Filter as FilterComponent } from './components/Filter'
 import * as Views from './components/ViewTypes';
 import './style.scss';
 import { ComponentViewInfo } from "./util";
-import { Popover } from "@material-ui/core";
-import { FilterList } from "@material-ui/icons";
-import { Filter as FilterComponent } from './components/Filter'
 
 export const DEFAULT_MODULE_NAME = 'default';
 
@@ -50,7 +50,6 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
     const [filterMap, setFilterMap] = useState({});
     const ref = useRef();
     const isProjectWorkspace: boolean = projectPaths.length > 0;
-    console.log('project paths >>>', projectPaths);
 
     const handleViewModeChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
         switch (evt.target.value) {
@@ -85,14 +84,12 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                     .filter(path => filterMap[path.name])
                     .map(path => ({ uri: path.uri.external }));
                 // const requestPromises = filePaths.map((path: any) => {
-                //     console.log('possible path >>>', path)
                 //     return langClient.getBallerinaProjectComponents({ documentIdentifiers: [path] });
                 // });
                 // Promise.all(requestPromises).then((response) => { console.log('>>> response', response) });
                 const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [...filePaths]
                 });
-                console.log('>>> component response', componentResponse);
                 updateProjectComponenets(componentResponse);
             } catch (err) {
                 // tslint:disable-next-line: no-console
@@ -123,17 +120,13 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
     }
 
     const handleMapChange = (obj: any) => {
-        console.log('handleMapChange', obj);
         setFilterMap(obj);
     }
 
     const viewSelector = (
         <div className="overview-action-bar">
             <div
-                style={{
-                    display: 'flex',
-                    paddingLeft: 15
-                }}
+                style={{ display: 'flex', paddingLeft: 15 }}
                 ref={ref}
                 onClick={handleFilterClick}
             >
@@ -141,14 +134,8 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                 <div>
                     <FilterList />
                     <Popover
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'left',
-                        }}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left',
-                        }}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
+                        transformOrigin={{ vertical: 'top', horizontal: 'left', }}
                         title={'Filter'}
                         open={isFilterOpen}
                         anchorEl={ref ? ref.current : undefined}

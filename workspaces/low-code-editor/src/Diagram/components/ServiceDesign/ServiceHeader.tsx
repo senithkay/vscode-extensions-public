@@ -15,11 +15,12 @@ import React, { useContext } from "react";
 
 import CloseIcon from '@material-ui/icons/Close';
 import HomeIcon from '@material-ui/icons/Home';
+import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { useStyles } from "./style";
-import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../Contexts/Diagram";
+
+import { useStyles } from "./style";
 
 export interface ServiceHeaderProps {
     model: ServiceDeclaration;

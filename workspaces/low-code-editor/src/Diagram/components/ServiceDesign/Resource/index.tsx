@@ -25,10 +25,10 @@ import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { Context } from "../../../../Contexts/Diagram";
 import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
+import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
 
 import { ResourceHeader } from "./ResourceHeader";
-import { RecordEditor } from "../../FormComponents/ConfigForms";
 
 export interface ResourceBodyProps {
     model: ResourceAccessorDefinition;
@@ -71,7 +71,7 @@ export function ResourceBody(props: ResourceBodyProps) {
             startColumn: model.position.startColumn,
             startLine: model.position.startLine - 1
         }
-        handleDiagramEdit(model, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false, renderRecordPanel: renderRecordPanel });
+        handleDiagramEdit(model, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false, renderRecordPanel });
     }
 
     const handleDeleteBtnClick = (e?: React.MouseEvent) => {
@@ -171,16 +171,17 @@ export function ResourceBody(props: ResourceBodyProps) {
             startLine: record.startLine - 1
         }
         return (
-          <RecordEditor
-            formType={""}
-            targetPosition={lastMemberPosition}
-            name={"record"}
-            onCancel={closeRecordEditor}
-            onSave={() => {}}
-            isTypeDefinition={true}
-            isDataMapper={true}
-            showHeader={true}
-          />
+            <RecordEditor
+                formType={""}
+                targetPosition={lastMemberPosition}
+                name={"record"}
+                onCancel={closeRecordEditor}
+                // tslint:disable-next-line: no-empty
+                onSave={() => { }}
+                isTypeDefinition={true}
+                isDataMapper={true}
+                showHeader={true}
+            />
         );
     };
 

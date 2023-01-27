@@ -102,7 +102,7 @@ export function ParamEditor(props: ParamProps) {
 
     }
 
-    // When a type is created 
+    // When a type is created
     useEffect(() => {
         if (newlyCreatedRecord) {
             handleTypeChange(newlyCreatedRecord);

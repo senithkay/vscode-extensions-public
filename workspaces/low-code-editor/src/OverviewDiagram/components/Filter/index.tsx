@@ -11,8 +11,9 @@
  * associated services.
  */
 
-import { Checkbox, ClickAwayListener, FormControlLabel } from "@material-ui/core";
 import React, { useEffect } from "react";
+
+import { Checkbox, ClickAwayListener, FormControlLabel } from "@material-ui/core";
 
 interface FilterProps {
     filterMap: any;
@@ -22,21 +23,17 @@ interface FilterProps {
 
 export function Filter(props: FilterProps) {
     const { filterMap, updateFilterMap, handleFilterClose } = props;
-    console.log('filterMap >>>', filterMap);
     const selectors: React.ReactElement[] = [];
 
     Object.keys(filterMap).forEach(key => {
         const handleOnToggle = (evt: any) => {
             evt.stopPropagation();
             filterMap[key] = !filterMap[key];
-            console.log(filterMap);
             updateFilterMap({ ...filterMap });
         }
         selectors.push(
             <FormControlLabel
-                control={
-                    <Checkbox checked={filterMap[key]} onChange={handleOnToggle} />
-                }
+                control={<Checkbox checked={filterMap[key]} onChange={handleOnToggle} />}
                 label={key}
             />
         );

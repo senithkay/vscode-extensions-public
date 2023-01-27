@@ -15,6 +15,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 
 import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
+import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
     ParamDropDown, PrimaryButton, SecondaryButton
@@ -23,12 +24,11 @@ import { DefaultableParam, IncludedRecordParam, ModulePart, NodePosition, Requir
 import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
+import { FormEditorContext } from '../../../../store/form-editor-context';
 import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
 import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_HEADER_PREFIX, RESOURCE_REQUEST_TYPE } from '../ResourceParamEditor';
 
 import { useStyles } from "./style";
-import { FormEditorContext } from '../../../../store/form-editor-context';
-import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 export interface Param {
     id: number;
@@ -166,7 +166,7 @@ export function ResponseEditor(props: ParamProps) {
     }
 
     function createPropertyStatement(property: string, targetPosition?: NodePosition,
-        isLastMember?: boolean): STModification {
+                                     isLastMember?: boolean): STModification {
         const propertyStatement: STModification = {
             startLine: targetPosition ? targetPosition.startLine : 0,
             startColumn: isLastMember ? targetPosition.endColumn : 0,
@@ -213,7 +213,7 @@ export function ResponseEditor(props: ParamProps) {
         onCancel();
     }
 
-    // When a type is created 
+    // When a type is created
     useEffect(() => {
         if (newlyCreatedRecord) {
             handleTypeChange(newlyCreatedRecord);
@@ -223,6 +223,19 @@ export function ResponseEditor(props: ParamProps) {
     const handleListenerDefModeChange = async (mode: string[]) => {
         setSubType(mode.length > 0);
     }
+
+    const subTypeEditor = (
+        <>
+            <FieldTitle title='Subtype Record Name' optional={true} />
+            <LiteExpressionEditor
+                testId="anonymous-record-name"
+                defaultValue={anonymousValue}
+                onChange={handleNameChange}
+                disabled={false}
+                completions={completions}
+            />
+        </>
+    )
 
     return (
         <div className={classes.paramContainer}>
@@ -267,18 +280,7 @@ export function ResponseEditor(props: ParamProps) {
                         onChange={handleListenerDefModeChange}
                     />
 
-                    {subType &&
-                        <>
-                            <FieldTitle title='Subtype Record Name' optional={true} />
-                            <LiteExpressionEditor
-                                testId="anonymous-record-name"
-                                defaultValue={anonymousValue}
-                                onChange={handleNameChange}
-                                disabled={false}
-                                completions={completions}
-                            />
-                        </>
-                    }
+                    {subType && subTypeEditor}
                 </div>
             </div>
 

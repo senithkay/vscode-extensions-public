@@ -64,7 +64,6 @@ export function DiagramViewManager(props: EditorProps) {
     //  - Handle switching between views based on type of the syntax tree fetched(datamapper, graphql, service designer)
     //  - Handle switching to code from standalone code segment
     //  - Implement top bar to handle navigation
-    console.log('viewManager >>>', props);
     const {
         lastUpdatedAt,
         langClientPromise,
@@ -260,8 +259,8 @@ export function DiagramViewManager(props: EditorProps) {
                                 historyPop={historyPop}
                                 historyReset={historyClear}
                             >
-                                <NavigationBar 
-                                    projectName={workspaceName} 
+                                <NavigationBar
+                                    projectName={workspaceName}
                                     isWorkspace={projectPaths.length > 1}
                                 />
                                 <div id={'canvas-overlay'} className={"overlayContainer"} />
