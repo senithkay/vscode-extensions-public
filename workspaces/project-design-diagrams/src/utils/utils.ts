@@ -179,6 +179,14 @@ export function getGWNodesModel(engine: DiagramEngine) {
     addGWLinks(engine);
 }
 
+export function removeGWLinks(engine: DiagramEngine) {
+    engine.getModel().getLinks().forEach(link => {
+        if (link instanceof GatewayLinkModel) {
+            engine.getModel().removeLink(link);
+        }
+    });
+}
+
 export function getWestGWArrowHeadSlope(slope: number) {
     let newSlope = slope;
     if (slope < 15) {

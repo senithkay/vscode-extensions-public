@@ -22,6 +22,7 @@ import { uniqueId } from 'lodash';
 import { ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels,
     ServiceTypes } from '../../resources';
 import { ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
+import { extractGateways } from "../utils";
 
 let l1Nodes: Map<string, ServiceNodeModel>;
 let l2Nodes: Map<string, ServiceNodeModel>;
@@ -68,11 +69,11 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
                     service.serviceId = uniqueId(`${packageName}/${service.path}`);
                 }
                 // create the L1 service nodes
-                const l1Node = new ServiceNodeModel(service, Level.ONE);
+                const l1Node = new ServiceNodeModel(service, Level.ONE, extractGateways(service));
                 l1Nodes.set(service.serviceId, l1Node);
 
                 // create the L2 service nodes
-                const l2Node = new ServiceNodeModel(service, Level.TWO);
+                const l2Node = new ServiceNodeModel(service, Level.TWO, extractGateways(service));
                 l2Nodes.set(service.serviceId, l2Node);
             });
         }

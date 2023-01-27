@@ -19,7 +19,7 @@
 
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { CanvasWidget } from '@projectstorm/react-canvas-core';
+import { CanvasWidget} from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
@@ -29,7 +29,7 @@ import { Canvas } from './styles/styles';
 import './styles/styles.css';
 import debounce from "lodash.debounce";
 import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
-import { getGWNodesModel } from "../../../utils/utils";
+import { getGWNodesModel, removeGWLinks } from "../../../utils/utils";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -140,9 +140,16 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             if (dagreEngine.options.graph.ranker !== layout) {
                 dagreEngine.options.graph.ranker = layout;
             }
+            if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES) {
+                // Removing GW links on refresh
+                removeGWLinks(diagramEngine);
+            }
             dagreEngine.redistribute(diagramEngine.getModel());
-            getGWNodesModel(diagramEngine);
-            positionGatewayNodes(diagramEngine);
+            if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES) {
+                // Adding GW links and nodes after dagre distribution
+                getGWNodesModel(diagramEngine);
+                positionGatewayNodes(diagramEngine);
+            }
             diagramEngine.repaintCanvas();
         }, 30);
     };
