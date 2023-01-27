@@ -22,6 +22,7 @@ import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
 
 export const RESOURCES_CDN = `https://choreo-shared-codeserver-cdne.azureedge.net/ballerina-low-code-resources@${process.env.BALLERINA_LOW_CODE_RESOURCES_VERSION}`;
+const devMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
 function getWebViewResourceRoot(): string {
     return join((ballerinaExtInstance.context as ExtensionContext).extensionPath,
@@ -147,7 +148,7 @@ function getComposerURI(webView: Webview): string {
 function getComposerCSSFiles(disableComDebug: boolean, devHost: string, webView: Webview): string[] {
     const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs', 'themes', 'ballerina-default.min.css');
     return [
-        (process.env.COMPOSER_DEBUG === "true" && !disableComDebug) ? join(devHost, 'themes', 'ballerina-default.min.css')
+        (devMode && !disableComDebug) ? join(devHost, 'themes', 'ballerina-default.min.css')
             : webView.asWebviewUri(Uri.file(filePath)).toString()
     ];
 }
@@ -155,9 +156,9 @@ function getComposerCSSFiles(disableComDebug: boolean, devHost: string, webView:
 function getComposerJSFiles(componentName: string, disableComDebug: boolean, devHost: string, webView: Webview): string[] {
     const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs') + '/' + componentName + '.js';
     return [
-        (process.env.COMPOSER_DEBUG === "true" && !disableComDebug) ? join(devHost, componentName + '.js')
+        (devMode && !disableComDebug) ? join(devHost, componentName + '.js')
             : webView.asWebviewUri(Uri.file(filePath)).toString(),
-        process.env.COMPOSER_DEBUG === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
+        devMode ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
 
