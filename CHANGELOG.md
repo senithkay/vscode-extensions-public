@@ -1,6 +1,10 @@
 # Change Log
 ##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
 
+## **3.3.7**
+### Fixed
+- Lowcode diagram does not load in codespaces [401] (https://github.com/wso2/ballerina-plugin-vscode/issues/401)
+
 ## **3.3.6**
 ### Added
 - Data Mapper - Add support for inputs, output types other than records [221] (https://github.com/wso2/ballerina-plugin-vscode/issues/221)
