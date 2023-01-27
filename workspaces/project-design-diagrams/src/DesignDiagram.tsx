@@ -38,7 +38,7 @@ const Container = styled.div`
     font-family: GilmerRegular;
     justify-content: center;
     min-height: 85vh;
-    min-width: 100vw;
+    min-width: 97vw;
 `;
 
 interface DiagramProps {
