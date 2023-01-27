@@ -29,7 +29,7 @@ export const HeaderContainer = styled.div`
     justify-content: space-between;
     min-width: 700px;
     padding-inline: 20px;
-    width: 100vw;
+    width: 95vw;
 `;
 
 export const DiagramTitle = styled.div`

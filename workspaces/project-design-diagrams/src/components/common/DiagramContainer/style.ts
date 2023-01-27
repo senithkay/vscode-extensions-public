@@ -16,9 +16,12 @@ import { Colors } from "../../../resources";
 
 export const CanvasContainer = styled.div`
   height: 85vh;
-  width: 85vw;
+  width: 90vw;
   position: relative;
-  clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%, 0 10%);
+  border-radius: 40px;
+  border: 2px solid #757575;
+  overflow: hidden;
+  background: blue;
 `;
 
 interface DiagramContainerStyleProps {
@@ -29,11 +32,13 @@ export const Diagram = styled.div`
   display: ${(props: DiagramContainerStyleProps) => `${props.display}`};
   flex-direction: column;
   padding-top: 60px;
+  padding-left: 20px;
 `;
 
 interface GatewayContainerProps {
     left?: string;
     top?: string;
+    rotate?: string;
 }
 
 export const GatewayContainer = styled.div`
@@ -42,6 +47,7 @@ export const GatewayContainer = styled.div`
   position: absolute;
   left: ${(props: GatewayContainerProps) => props.left};
   top: ${(props: GatewayContainerProps) => props.top};
+  transform: ${(props: GatewayContainerProps) => props.rotate ? `rotate(${props.rotate})` : 'rotate(0deg)'};
   z-index: 1;
   clip-path: circle(50% at 50% 50%);
 `;

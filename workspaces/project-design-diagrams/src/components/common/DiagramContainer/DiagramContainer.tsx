@@ -24,8 +24,7 @@ import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
 import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
 import { CanvasContainer, Diagram, GatewayContainer } from "./style";
-import { WestGatewayIcon } from "./WestGatewayIcon";
-import { NorthGatewayIcon } from "./NorthGatewayIcon";
+import { GatewayIcon } from "./GatewayIcon";
 
 interface DiagramContainerProps {
     currentView: Views;
@@ -88,12 +87,12 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                 <div style={{display:"block"}}>
                                     <Diagram>
                                         {/*West Gateway*/}
-                                        <GatewayContainer top={"calc(45vh + 30px)"} left={"calc(7vw - 44px)"} >
-                                            <WestGatewayIcon/>
+                                        <GatewayContainer top={"calc(45vh + 45px)"} left={"calc(4vw - 50px)"} >
+                                            <GatewayIcon/>
                                         </GatewayContainer>
                                         {/*North Gateway*/}
-                                        <GatewayContainer top={'50px'} left={"calc(55vw - 130px)"}>
-                                            <NorthGatewayIcon/>
+                                        <GatewayContainer top={'50px'} left={"calc(55vw - 130px)"} rotate={"90deg"}>
+                                            <GatewayIcon/>
                                         </GatewayContainer>
                                         <CanvasContainer>
                                             <DiagramCanvasWidget
@@ -111,11 +110,11 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                     <Diagram>
                                         {/*West Gateway*/}
                                         <GatewayContainer top={'46vh'} left={"calc(7vw - 44px)"} >
-                                            <WestGatewayIcon/>
+                                            <GatewayIcon/>
                                         </GatewayContainer>
                                         {/*North Gateway*/}
-                                        <GatewayContainer top={'50px'} left={'46vw'}>
-                                            <NorthGatewayIcon/>
+                                        <GatewayContainer top={'50px'} left={'46vw'} rotate={"90deg"}>
+                                            <GatewayIcon/>
                                         </GatewayContainer>
                                         <CanvasContainer>
                                             <DiagramCanvasWidget
