@@ -18,6 +18,8 @@
  */
 
 .diagram-container {
+    background-image: url('../../../../resources/assets/PatternBg.svg');
+    background-repeat: repeat;
     min-height: calc(100vh - 50px);
     min-width: 100vw;
     padding: 15px;
