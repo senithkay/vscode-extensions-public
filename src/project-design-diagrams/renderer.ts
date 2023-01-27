@@ -53,6 +53,7 @@ export function render(webView: Webview) {
             function renderDiagrams() {
                 designDiagram.renderDesignDiagrams(go2source, document.getElementById("diagram-container"));
             }
+
             renderDiagrams();
         }
     `;

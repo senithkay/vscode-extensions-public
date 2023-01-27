@@ -47,6 +47,7 @@ export class LetClauseNodeFactory extends AbstractReactFactory<LetClauseNode, Di
                     getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
                     handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
                     valueLabel={event.model.sourceBindingPattern.variableName.value}
+                    nodeHeaderSuffix='Let'
                 />
             );
         }
@@ -58,6 +59,7 @@ export class LetClauseNodeFactory extends AbstractReactFactory<LetClauseNode, Di
                 typeDesc={event.model.typeDef}
                 getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
                 valueLabel={event.model.sourceBindingPattern.variableName.value}
+                nodeHeaderSuffix='Let'
             />
         )
     }

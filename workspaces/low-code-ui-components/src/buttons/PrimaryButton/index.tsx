@@ -21,7 +21,7 @@ import { useStyles } from "../style";
 
 export interface PrimaryButtonProps {
     children?: string;
-    onClick?: () => void,
+    onClick?: (event?: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
     text?: string;
     variant?: string;
     className?: string;

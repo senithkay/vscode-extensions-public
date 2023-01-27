@@ -21,6 +21,7 @@ export interface GHAppConfig {
 }
 
 export interface IChoreoGithubAppClient {
+    status: Promise<GHAppAuthStatus>;
     triggerAuthFlow(): Promise<boolean>;
     obatainAccessToken(authCode: string): Promise<void>;
     triggerInstallFlow(): Promise<boolean>;

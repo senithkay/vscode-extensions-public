@@ -337,12 +337,12 @@ function generateConnectorClientInit(connector: BallerinaConnectorInfo): string 
     }
 
     const initFunction = connector.functions?.find((func) => func.name === "init");
-    if (!initFunction?.returnType) {
-        return "";
-    }
-
+    let returnType;
+    
     const defaultParameters = getDefaultParams(initFunction.parameters);
-    const returnType = getFormFieldReturnType(initFunction.returnType);
+    if (initFunction.returnType) {
+        returnType = getFormFieldReturnType(initFunction.returnType);
+    }
 
     return `self.${clientName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
 }
@@ -367,12 +367,13 @@ function genClientName(source: string, connector: Connector) {
 
     let index = 0;
     let varName = moduleName + "Ep";
-    while (source.indexOf(varName) > 0) {
+    let tempName = varName;
+    while (source.indexOf(tempName) > 0) {
         index++;
-        varName = varName + index;
+        tempName = varName + index;
     }
 
-    return varName;
+    return tempName;
 }
 
 function transformLabel(label: string): string {

@@ -13,7 +13,23 @@
 import * as assert from 'assert';
 import { suite } from 'mocha';
 import * as vscode from 'vscode';
+import { ext } from '../../extensionVariables';
 
-suite('Extension Test Suite', () => {
+suite('Extension', () => {
+    test('Activation', async () => {
+        const extension = vscode.extensions.getExtension('wso2.choreo');
+        const isActive = extension?.isActive;
+        assert.ok(isActive, "Extension is not active");
+    }); 
+    
+    test('Context', async () => {
+        const extensionAPI = ext;
+        assert.ok(extensionAPI.context, "Extension context is not set");
+    }); 
 
+    test('Ext API', async () => {
+        const extension = vscode.extensions.getExtension('wso2.choreo');
+        const extensionAPI = extension?.exports;
+        assert.ok(extensionAPI, "Extension API is not set");
+    }); 
 });

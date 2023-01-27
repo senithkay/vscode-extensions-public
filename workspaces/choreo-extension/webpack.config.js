@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 //@ts-check
 
 'use strict';
 
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -10,13 +12,14 @@ const path = require('path');
 /** @type WebpackConfig */
 const extensionConfig = {
   target: 'node',
-	mode: 'none',
+  mode: 'development',
 
   entry: './src/extension.ts',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'extension.js',
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'commonjs2',
+    devtoolModuleFilenameTemplate: '../[resource-path]'
   },
   externals: {
     keytar: "commonjs keytar",
@@ -42,5 +45,21 @@ const extensionConfig = {
   infrastructureLogging: {
     level: "log",
   },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          // https://github.com/webpack-contrib/terser-webpack-plugin/
+
+          // Don't mangle class names.  Otherwise parseError() will not recognize user cancelled errors (because their constructor name
+          // will match the mangled name, not UserCancelledError).  Also makes debugging easier in minified code.
+          keep_classnames: true,
+
+          // Don't mangle function names. https://github.com/microsoft/vscode-azurestorage/issues/525
+          keep_fnames: true,
+        }
+      })
+    ]
+  },
 };
-module.exports = [ extensionConfig ];
+module.exports = [extensionConfig];
