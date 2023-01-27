@@ -17,9 +17,9 @@ import { commands, Uri, extensions } from "vscode";
 import { suite, suiteSetup } from "mocha";
 import { join } from "path";
 import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
-import { showChoreoProjectOverview } from "../../../extension";
-import { ext } from "../../../extensionVariables";
 import { MockAuthClient, MockKeyChainTokenStorage, MockOrgClient, MockProjectClient } from "../mocked-resources/mocked-clients";
+import { ext } from "../../../extensionVariables";
+import { showChoreoProjectOverview } from "../../../extension";
 
 export const TEST_PROJECT_NAME: string = 'FooProject2';
 const OPEN_FOLDER_CMD: string = 'vscode.openFolder';
@@ -66,5 +66,5 @@ suite('Architecture View', () => {
                 Promise.resolve();
             });
         }
-    }).timeout(8000);
+    }).timeout(7500);
 }).timeout(10000);

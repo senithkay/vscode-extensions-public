@@ -11,16 +11,31 @@
  *  associated services.
  */
 
-import assert = require('assert');
+import assert = require("assert");
 import { describe, it } from "mocha";
-import { VSBrowser } from 'vscode-extension-tester';
+import { join } from "path";
+import { EditorView, VSBrowser, Workbench } from 'vscode-extension-tester';
+import { ARCHITECTURE_VIEW_COMMAND, ARCHITECTURE_WEBVIEW_TITLE, TEST_DATA_ROOT, wait } from "./resources";
+
+const TEST_PROJECT_NAME = "FooProject2";
+const WORKSPACE_FILE_PATH = join(TEST_PROJECT_NAME, `${TEST_PROJECT_NAME}.code-workspace`);
 
 describe("Sample UI test", () => {
     before(async () => {
         await VSBrowser.instance.waitForWorkbench();
     });
 
-    it('Simple Test', async () => {
-        assert.strictEqual(90,90);
+    it("Generate Architecture View", async () => {
+        const workbench = new Workbench();
+        VSBrowser.instance.openResources(join(TEST_DATA_ROOT, WORKSPACE_FILE_PATH));
+        await wait(2500);
+
+        const editor = new EditorView();
+        await editor.closeAllEditors();
+
+        await workbench.executeCommand(ARCHITECTURE_VIEW_COMMAND);
+        await wait(2500);
+        const viewTiles = await editor.getOpenEditorTitles();
+        assert.ok(viewTiles.includes(ARCHITECTURE_WEBVIEW_TITLE));
     });
 });
