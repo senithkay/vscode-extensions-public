@@ -63,6 +63,7 @@ import {
     getTypeOfOutput,
     isComplexExpression
 } from "../utils/dm-utils";
+
 import { QueryParentFindingVisitor } from "./QueryParentFindingVisitor"
 
 export class NodeInitVisitor implements Visitor {
@@ -98,9 +99,13 @@ export class NodeInitVisitor implements Visitor {
             if (returnType) {
 
                 let bodyExpr: STNode = exprFuncBody.expression;
-                if (STKindChecker.isLetExpression(exprFuncBody.expression)){
-                    bodyExpr = getExprBodyFromLetExpression(exprFuncBody.expression)
-                } else if ((STKindChecker.isIndexedExpression(exprFuncBody.expression) && STKindChecker.isBracedExpression(exprFuncBody.expression.containerExpression) && STKindChecker.isQueryExpression(exprFuncBody.expression.containerExpression.expression))){
+                if (STKindChecker.isLetExpression(exprFuncBody.expression)) {
+                    bodyExpr = getExprBodyFromLetExpression(exprFuncBody.expression);
+                } else if (
+                    STKindChecker.isIndexedExpression(exprFuncBody.expression) &&
+                    STKindChecker.isBracedExpression(exprFuncBody.expression.containerExpression) &&
+                    STKindChecker.isQueryExpression(exprFuncBody.expression.containerExpression.expression)
+                ) {
                     bodyExpr = exprFuncBody.expression.containerExpression.expression;
                 }
 
@@ -339,7 +344,6 @@ export class NodeInitVisitor implements Visitor {
                         exprType = constructTypeFromSTNode(node);
                     }
                 }
-
                 if (exprType.typeName === PrimitiveBalType.Array && exprType?.memberType?.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
@@ -372,7 +376,7 @@ export class NodeInitVisitor implements Visitor {
                         node
                     );
 
-                    if(isComplexExpression(node.selectClause.expression)){
+                    if (isComplexExpression(node.selectClause.expression)){
                         const inputNodes = getInputNodes(node.selectClause);
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
