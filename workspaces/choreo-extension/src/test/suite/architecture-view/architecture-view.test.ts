@@ -38,6 +38,7 @@ suite('Architecture View', () => {
 
         const projectClient = new MockProjectClient();
         sinon.stub(ChoreoProjectClient.prototype, 'getProjects').callsFake(async (params) => await projectClient.getProjects(params));
+        sinon.stub(ChoreoProjectClient.prototype, 'getComponents').callsFake(async (params) => await projectClient.getComponents(params));
 
         const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
         const uri = Uri.file(join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
@@ -54,7 +55,7 @@ suite('Architecture View', () => {
         });
     });
 
-    test('Generate Architecture View', async (done) => {
+    test('Generate Architecture View', async () => {
         const ext = extensions.getExtension('wso2.ballerina');
         if (!ext) {
             assert.fail('Did not detect the Ballerina extension.');

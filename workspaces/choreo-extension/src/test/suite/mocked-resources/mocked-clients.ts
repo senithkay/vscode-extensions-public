@@ -19,7 +19,7 @@ import {
 } from "@wso2-enterprise/choreo-client";
 import { Component, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
 import { ProjectRegistry } from "../../../registry/project-registry";
-import { FOO_OWNER_ORGS, FOO_OWNER_PROJECTS, FOO_PROJECT_2, FOO_USER, TOKEN_EXPIRATION_TIME } from "./mocked-data";
+import { ALL_COMPONENTS, FOO_OWNER_ORGS, FOO_OWNER_PROJECTS, FOO_PROJECT_2, FOO_USER, TOKEN_EXPIRATION_TIME } from "./mocked-data";
 import { TEST_PROJECT_NAME } from "../architecture-view/architecture-view.test";
 
 export class MockAuthClient implements IAuthClient {
@@ -98,8 +98,10 @@ export class MockProjectClient implements IChoreoProjectClient {
         const userProjects: Project[] = FOO_OWNER_PROJECTS;
         return userProjects.filter(project => project.orgId === params.orgId.toString());
     }
-    getComponents(params: GetComponentsParams): Promise<Component[]> {
-        throw new Error("Method not implemented.");
+    async getComponents(params: GetComponentsParams): Promise<Component[]> {
+        const allComponents: Component[] = ALL_COMPONENTS;
+        return allComponents.filter(component =>
+            component.projectId === params.projId && component.orgHandler === params.orgHandle);
     }
     createProject(params: CreateProjectParams): Promise<Project> {
         throw new Error("Method not implemented.");

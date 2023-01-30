@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Organization, Owner, Project, UserInfo } from "@wso2-enterprise/choreo-core";
+import { Component, Organization, Owner, Project, UserInfo } from "@wso2-enterprise/choreo-core";
 
 export const FOO_OWNER: Owner = {
     id: "12400",
@@ -76,6 +76,34 @@ export const BAR_PROJECT_1: Project = {
     region: "US",
     version: "1.0.0"
 };
+
+export const FOO_P1_COMPONENT: Component = {
+    projectId: "0123abb2-7978-1e4d-9a09-d10e3d090d2",
+    id: "01670346-7978-1de9-9ca0-d12762490d2",
+    description: "Simple HTTP Service",
+    name: "HelloWorld",
+    handler: "helloWorld",
+    displayName: "Hello World",
+    displayType: "restAPI",
+    version: "1.0.0",
+    orgHandler: "fooOrg",
+    apiVersions: []
+};
+
+export const BAR_P1_COMPONENT: Component = {
+    projectId: "01b312b2-7978-1e4d-9a09-d6a4d2e090d",
+    id: "01b312b2-7978-1de9-9a09-d12762490d2",
+    description: "Simple HTTP Service",
+    name: "HelloWorld",
+    handler: "helloWorld",
+    displayName: "Hello World",
+    displayType: "restAPI",
+    version: "1.0.0",
+    orgHandler: "barOrg",
+    apiVersions: []
+};
+
+export const ALL_COMPONENTS: Component[] = [FOO_P1_COMPONENT, BAR_P1_COMPONENT];
 
 export const FOO_OWNER_PROJECTS: Project[] = [FOO_PROJECT_1, FOO_PROJECT_2, BAR_PROJECT_1];
 
