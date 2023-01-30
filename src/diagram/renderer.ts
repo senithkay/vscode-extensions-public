@@ -379,7 +379,7 @@ function renderDiagram(
                         filePath: args[0].filePath,
                         position: args[0].openInDiagram
                     }: undefined,
-                    workspaceName: ${JSON.stringify(workspace.workspaceFolders)}
+                    workspaceName: ${JSON.stringify(workspace.name)}
                 });
                 return Promise.resolve({});
             });
