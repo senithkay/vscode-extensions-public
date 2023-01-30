@@ -30,15 +30,17 @@ import {
     EXPANDED_QUERY_SOURCE_PORT_PREFIX,
     LET_EXPRESSION_SOURCE_PORT_PREFIX,
     LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
-    OFFSETS
+    OFFSETS,
+    PRIMITIVE_TYPE_TARGET_PORT_PREFIX
 } from "../../utils/constants";
-import { getExprBodyFromLetExpression, getFieldNames, getTypeFromStore } from "../../utils/dm-utils";
+import { getDefaultValue, getExprBodyFromLetExpression, getFieldNames, getTypeFromStore } from "../../utils/dm-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
 import { LetExpressionNode } from "../LetExpression";
 import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
+import { PrimitiveTypeNode } from "../PrimitiveType";
 import { RequiredParamNode } from "../RequiredParam";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
@@ -161,7 +163,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
                             && port.portType === 'IN'
                         ) {
-                            this.targetPort = port;
+                            this.targetPort = port;//
                         }
                     });
                 }
@@ -178,6 +180,28 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             && STKindChecker.isLetExpression(port.editableRecordField.value)
                             && isPositionsEquals(getExprBodyFromLetExpression(port.editableRecordField.value).position, exprPosition)
                             && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                }
+            });
+        } else if (STKindChecker.isBracedExpression(this.parentNode)) {
+            // To draw link between query node and output node
+            // when having indexed query expressions at function body level
+            this.getModel().getNodes().forEach((node) => {
+                if (node instanceof PrimitiveTypeNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof RecordFieldPortModel
+                            && port?.editableRecordField && port.editableRecordField?.value
+                            && STKindChecker.isQueryExpression(port.editableRecordField.value)
+                            && STKindChecker.isBracedExpression(this.parentNode)
+                            && STKindChecker.isQueryExpression(this.parentNode.expression)
+                            && isPositionsEquals(port.editableRecordField.value.position, this.parentNode.expression.position)
+                            && port.portName === `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.typeDef.name ? `${node.typeDef.typeName}.${node.typeDef.name}`: node.typeName}`
                             && port.portType === 'IN'
                         ) {
                             this.targetPort = port;
@@ -271,8 +295,8 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public deleteLink(): void {
         let modifications: STModification[];
         const dmNode = this.getModel().getNodes().find(node =>
-            node instanceof MappingConstructorNode || node instanceof ListConstructorNode
-        ) as MappingConstructorNode | ListConstructorNode;
+            node instanceof MappingConstructorNode || node instanceof ListConstructorNode || node instanceof PrimitiveTypeNode
+        ) as MappingConstructorNode | ListConstructorNode | PrimitiveTypeNode;
         if (dmNode) {
             if (STKindChecker.isSpecificField(this.parentNode)) {
                 const rootConstruct = dmNode.value.expression;
@@ -284,15 +308,13 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     ...nodePositionsToDelete
                 }];
             } else {
-                if (dmNode instanceof ListConstructorNode) {
-                    modifications = [{
-                        type: "INSERT",
-                        config: {
-                            "STATEMENT": '[]'
-                        },
-                        ...this.value.position
-                    }];
-                }
+                modifications = [{
+                    type: "INSERT",
+                    config: {
+                        "STATEMENT": getDefaultValue(dmNode.typeDef)
+                    },
+                    ...this.value.position
+                }];
             }
         }
 
