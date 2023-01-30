@@ -1,0 +1,83 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+import React, { useEffect, useState } from "react";
+
+import { DiagramEngine } from "@projectstorm/react-diagrams";
+
+import { Colors } from "../../resources/model";
+
+import { DefaultLinkModel } from "./DefaultLinkModel";
+
+
+interface WidgetProps {
+    engine: DiagramEngine,
+    link: DefaultLinkModel
+}
+
+export function DefaultLinkWidget(props: WidgetProps) {
+    const { link, engine } = props;
+
+    const [isSelected, setIsSelected] = useState<boolean>(false);
+
+    useEffect(() => {
+        link.initLinks(engine);
+
+        link.registerListener({
+            'SELECT': selectPath,
+            'UNSELECT': unselectPath
+        });
+
+    }, [link]);
+
+    const onMouseOver = (event: React.MouseEvent<SVGPathElement | HTMLDivElement>) => {
+        selectPath();
+    };
+
+    const onMouseLeave = () => {
+        unselectPath();
+    };
+
+    const selectPath = () => {
+        link.selectLinkedNodes();
+        setIsSelected(true);
+    };
+
+    const unselectPath = () => {
+        link.resetLinkedNodes();
+        setIsSelected(false);
+    };
+
+
+    return (
+        <g>
+            <polygon
+                points={link.getArrowHeadPoints()}
+                fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+            />
+
+            <path
+                id={link.getID()}
+                cursor={'pointer'}
+                d={link.getCurvePath()}
+                fill="none"
+                pointerEvents="all"
+                onMouseLeave={onMouseLeave}
+                onMouseOver={onMouseOver}
+                stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+                strokeWidth={1}
+            />
+        </g>
+    );
+}
