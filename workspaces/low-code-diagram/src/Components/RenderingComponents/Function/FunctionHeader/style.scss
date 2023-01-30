@@ -1,0 +1,24 @@
+.header-container {
+    position: absolute;
+    z-index: 1;
+
+    .title-container {
+        font-size: 20px;
+    }
+
+    .argument-container {
+        display: flex;
+        flex-direction: row;
+
+        .argument-item {
+            display: flex;
+            padding: 5px;
+            margin-right: 5px;
+
+            .type-name {
+                margin-right: 5px;
+            }
+        }
+    }
+}
+
