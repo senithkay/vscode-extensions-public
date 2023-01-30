@@ -21,19 +21,3 @@ export function NavigationBarDetailContainer(props: DiagramOverlayContainerProps
 
 }
 
-// export const NavigationBarDetailsContainer: React.FC<DiagramOverlayContainerProps> = (props) => {
-//     const { forceRender, children } = props;
-//
-//     if (!forceRender) {
-//         return null;
-//     }
-//
-//     const containerDiv = document.querySelector('#nav-bar-main div.component-details');
-//     console.log('containerdiv >>>', containerDiv);
-//     if (containerDiv) {
-//         return ReactDOM.createPortal(children, containerDiv);
-//     } else {
-//         return null;
-//     }
-// }
-

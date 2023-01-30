@@ -4,7 +4,6 @@ import { CommandResponse, DiagramDiagnostic, DIAGRAM_MODIFIED, FunctionDef, getI
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
-import { STFindingVisitor } from "../../Diagram/visitors/st-finder-visitor";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
 import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isUnresolvedModulesAvailable } from "../../DiagramGenerator/generatorUtil";
 import { EditorProps, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";

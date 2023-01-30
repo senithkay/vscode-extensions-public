@@ -22,11 +22,11 @@ interface NavigationBarProps {
     projectName: string;
     isWorkspace: boolean;
     folderName?: string;
-    onFolderClick?: (folderName: string) => void;
+    onFolderClick?: () => void;
 }
 
 export function NavigationBar(props: NavigationBarProps) {
-    const { projectName, folderName, isWorkspace } = props;
+    const { projectName, folderName, isWorkspace, onFolderClick } = props;
     const { history, historyPop, historyReset } = useHistoryContext();
     // const homeButton = (
     //     <div className="btn-container" onClick={historyReset}>
@@ -51,7 +51,7 @@ export function NavigationBar(props: NavigationBarProps) {
     const folderComponent = (
         <>
             <div>/</div>
-            <div className="btn-container" onClick={historyReset}>
+            <div className="btn-container" onClick={onFolderClick}>
                 <Folder style={{ paddingRight: 5 }} />
                 <span className="icon-text">{`${folderName}`}</span>
             </div>

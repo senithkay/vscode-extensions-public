@@ -86,6 +86,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
     const [folderName, setFolderName] = useState<string>();
+    const [filterMap, setFilterMap] = useState({});
 
     React.useEffect(() => {
         (async () => {
@@ -112,25 +113,34 @@ export function DiagramViewManager(props: EditorProps) {
             //     }
             // })
             let folderName;
-            
+
             projectPaths.forEach(project => {
                 if (projectPaths.length > 1 && filePath.includes(project.uri.fsPath)) {
                     folderName = project.name;
                 }
             })
-            
+
             setFolderName(folderName);
             setDiagramFocuState({
                 filePath,
                 uid
             });
-            
+
         } else {
             // diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
             setDiagramFocuState(undefined);
             setFolderName(undefined);
         }
     }, [history[history.length - 1]]);
+
+    useEffect(() => {
+        projectPaths.forEach(path => {
+            if (!filterMap[path.name]) {
+                filterMap[path.name] = true;
+            }
+        })
+        setFilterMap(filterMap);
+    }, [projectPaths]);
 
     const fetchST = () => {
         if (history.length > 0) {
@@ -221,6 +231,8 @@ export function DiagramViewManager(props: EditorProps) {
                 lastUpdatedAt={lastUpdatedAt}
                 projectPaths={projectPaths}
                 notifyComponentSelection={updateSelectedComponent}
+                filterMap={filterMap}
+                updateFilterMap={setFilterMap}
             />
         ));
     } else if (!!diagramFocusState && !!focusedST) {
@@ -257,6 +269,19 @@ export function DiagramViewManager(props: EditorProps) {
         updateSelectedComponent(currentHistoryEntry);
     }
 
+    const handleFolderClick = () => {
+        Object.keys(filterMap).forEach((key) => {
+            if (key !== folderName) {
+                filterMap[key] = false;
+            } else {
+                filterMap[key] = true;
+            }
+        })
+
+        setFilterMap(filterMap);
+        historyClear();
+    }
+
     return (
         <div>
             <MuiThemeProvider theme={theme}>
@@ -275,6 +300,7 @@ export function DiagramViewManager(props: EditorProps) {
                                     projectName={workspaceName}
                                     folderName={folderName}
                                     isWorkspace={projectPaths.length > 1}
+                                    onFolderClick={handleFolderClick}
                                 />
                                 <div id={'canvas-overlay'} className={"overlayContainer"} />
                                 {viewComponent}

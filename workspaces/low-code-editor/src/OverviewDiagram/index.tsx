@@ -37,17 +37,19 @@ export interface OverviewDiagramProps {
     lastUpdatedAt: string;
     projectPaths: WorkspaceFolder[]
     notifyComponentSelection: (info: ComponentViewInfo) => void;
+    filterMap: any;
+    updateFilterMap: (obj: any) => void;
 }
 
 
 
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
-    const { projectPaths, notifyComponentSelection, lastUpdatedAt } = props;
+    const { projectPaths, notifyComponentSelection, lastUpdatedAt, filterMap, updateFilterMap } = props;
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
     const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
     const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
-    const [filterMap, setFilterMap] = useState({});
+    // const [filterMap, setFilterMap] = useState({});
     const ref = useRef();
     const isProjectWorkspace: boolean = projectPaths.length > 0;
 
@@ -68,25 +70,12 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
     }
 
     useEffect(() => {
-        projectPaths.forEach(path => {
-            if (!filterMap[path.name]) {
-                filterMap[path.name] = true;
-            }
-        })
-        setFilterMap(filterMap);
-    }, [projectPaths]);
-
-    useEffect(() => {
         (async () => {
             try {
                 const langClient = await getDiagramEditorLangClient();
                 const filePaths: any = projectPaths
                     .filter(path => filterMap[path.name])
                     .map(path => ({ uri: path.uri.external }));
-                // const requestPromises = filePaths.map((path: any) => {
-                //     return langClient.getBallerinaProjectComponents({ documentIdentifiers: [path] });
-                // });
-                // Promise.all(requestPromises).then((response) => { console.log('>>> response', response) });
                 const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [...filePaths]
                 });
@@ -120,7 +109,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
     }
 
     const handleMapChange = (obj: any) => {
-        setFilterMap(obj);
+        updateFilterMap(obj);
     }
 
     const viewSelector = (
@@ -132,7 +121,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
             >
                 <span className="label">Filter</span>
                 <div>
-                    <FilterList />
+                    {isProjectWorkspace && <FilterList />}
                     <Popover
                         anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
                         transformOrigin={{ vertical: 'top', horizontal: 'left', }}
