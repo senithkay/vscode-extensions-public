@@ -52,9 +52,15 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
         fieldId = `${parentId}.${typeName}`;
     }
     const portIn = getPort(`${fieldId}.IN`);
-    const body = field?.value && STKindChecker.isLetExpression(field.value)
-        ? getExprBodyFromLetExpression(field.value)
-        : field.value;
+    let body: STNode;
+    
+    if (field?.value && STKindChecker.isLetExpression(field.value)) {
+        body = getExprBodyFromLetExpression(field.value)
+    } else if (field?.value && STKindChecker.isQueryExpression(field.value)) {
+        body = field.value.selectClause.expression;
+    } else {
+        body = field.value;
+    }
     const value = body && body.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);
