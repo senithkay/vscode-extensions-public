@@ -50,7 +50,8 @@ export function Diagram() {
             },
             insights: {
                 onEvent
-            }
+            },
+            navigation
         },
         props: {
             syntaxTree,
@@ -343,7 +344,8 @@ export function Diagram() {
                             },
                             insights: {
                                 onEvent
-                            }
+                            },
+                            navigation
                         }}
                     />
                     {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && !isServiceDesignOpen && !isGraphQLViewOpen && (

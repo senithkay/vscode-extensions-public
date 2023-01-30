@@ -56,6 +56,33 @@ import { haveBlockStatement, isEndpointNode, isSTActionInvocation } from "./util
 
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 
+function getParentNamePlaceholder(parent: STNode): string | undefined {
+    if (STKindChecker.isServiceDeclaration(parent)) {
+        let servicePath = "";
+        let listeningOnText = "";
+
+        if (STKindChecker.isExplicitNewExpression(parent.expressions[0])) {
+            if (STKindChecker.isQualifiedNameReference(parent.expressions[0].typeDescriptor)) {
+                // serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
+                listeningOnText = parent.expressions[0].source;
+            }
+            // } else if (STKindChecker.isSimpleNameReference(model.expressions[0]) && stSymbolInfo) {
+            //     const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(
+            //         model.expressions[0].name.value
+            //     ) as ListenerDeclaration;
+            //     if (listenerNode && STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
+            //         serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
+            //         listeningOnText = model.expressions[0].source;
+            //     }
+        }
+        parent.absoluteResourcePath.forEach(item => {
+            servicePath += item.value;
+        });
+        return `service ${servicePath}${listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}`;
+    }
+    return;
+}
+
 export class InitVisitor implements Visitor {
     private allEndpoints: Map<string, Endpoint> = new Map();
     private parentConnectors: Map<string, Endpoint>;
@@ -77,11 +104,20 @@ export class InitVisitor implements Visitor {
 
     public beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const viewState = new FunctionViewState();
-        node.viewState = viewState;
+        if (node.viewState && (node.viewState as FunctionViewState).parentNamePlaceHolder) {
+            viewState.parentPosition = (node.viewState as FunctionViewState).parentPosition;
+            viewState.parentNamePlaceHolder = (node.viewState as FunctionViewState).parentNamePlaceHolder;
+        }
+
+        if (parent) {
+            viewState.parentNamePlaceHolder = getParentNamePlaceholder(parent);
+            viewState.parentPosition = parent.position;
+        }
 
         if (viewState.initPlus) {
             viewState.initPlus = undefined;
         }
+        node.viewState = viewState;
         this.allEndpoints = new Map<string, Endpoint>();
     }
 
@@ -136,6 +172,17 @@ export class InitVisitor implements Visitor {
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode) {
         const viewState = new FunctionViewState();
+
+        if (node.viewState && (node.viewState as FunctionViewState).parentNamePlaceHolder) {
+            viewState.parentPosition = (node.viewState as FunctionViewState).parentPosition;
+            viewState.parentNamePlaceHolder = (node.viewState as FunctionViewState).parentNamePlaceHolder;
+        }
+
+        if (parent) {
+            viewState.parentNamePlaceHolder = getParentNamePlaceholder(parent);
+            viewState.parentPosition = parent.position;
+        }
+
         node.viewState = viewState;
         this.allEndpoints = new Map<string, Endpoint>();
     }

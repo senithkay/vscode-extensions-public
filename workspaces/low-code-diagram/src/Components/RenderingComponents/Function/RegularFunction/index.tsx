@@ -44,6 +44,8 @@ export function RegularFuncComponent(props: FunctionProps) {
     const diagramContext = useContext(Context);
     const { isReadOnly, syntaxTree } = diagramContext.props;
     const { diagramRedraw, diagramCleanDraw } = diagramContext.actions;
+    const { navigation: { navigateUptoParent } } = diagramContext.api;
+
     const run = diagramContext?.api?.project?.run;
 
     const { model } = props;
@@ -153,6 +155,24 @@ export function RegularFuncComponent(props: FunctionProps) {
         }
     }
 
+    const headerComponent: React.ReactElement[] = [];
+
+    if (viewState.parentNamePlaceHolder) {
+        headerComponent.push(
+            <div>/</div>
+        );
+        const handleParentNavigation = () => {
+            navigateUptoParent(viewState.parentPosition);
+        }
+        headerComponent.push(
+            <div className="btn-container" onClick={handleParentNavigation}>
+                <span className="module-text">{viewState.parentNamePlaceHolder}</span>
+            </div>
+        )
+        // <span className="component-name">{model?.functionName.value}</span>
+    }
+
+
     return (
         <div
             ref={containerRef}
@@ -187,8 +207,7 @@ export function RegularFuncComponent(props: FunctionProps) {
                 </div>
             ))} */}
             <NavigationBarDetailContainer forceRender={true}>
-                <span className="module-text">Function Design</span>
-                <span className="component-name">{model?.functionName.value}</span>
+                {headerComponent}
             </NavigationBarDetailContainer>
             {functionBody}
         </div>

@@ -14,8 +14,6 @@
 import { ComponentInfo, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { DEFAULT_MODULE_NAME } from ".";
-
 export interface ComponentViewInfo {
     filePath: string;
     position: NodePosition;

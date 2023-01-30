@@ -130,6 +130,7 @@ export interface LowCodeEditorProperties {
     userInfo?: UserState;
     currentFile: CurrentFile;
     syntaxTree: STNode;
+    fullST: STNode;
     originalSyntaxTree: ModulePart;
     stSymbolInfo: STSymbolInfo;
     connectors?: BallerinaConnectorInfo[];

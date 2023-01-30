@@ -85,7 +85,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [balVersion, setBalVersion] = React.useState("");
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
-
+    const [folderName, setFolderName] = useState<string>();
 
     React.useEffect(() => {
         (async () => {
@@ -111,13 +111,24 @@ export function DiagramViewManager(props: EditorProps) {
             //         position
             //     }
             // })
+            let folderName;
+            
+            projectPaths.forEach(project => {
+                if (projectPaths.length > 1 && filePath.includes(project.uri.fsPath)) {
+                    folderName = project.name;
+                }
+            })
+            
+            setFolderName(folderName);
             setDiagramFocuState({
                 filePath,
                 uid
             });
+            
         } else {
             // diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
             setDiagramFocuState(undefined);
+            setFolderName(undefined);
         }
     }, [history[history.length - 1]]);
 
@@ -262,6 +273,7 @@ export function DiagramViewManager(props: EditorProps) {
                             >
                                 <NavigationBar
                                     projectName={workspaceName}
+                                    folderName={folderName}
                                     isWorkspace={projectPaths.length > 1}
                                 />
                                 <div id={'canvas-overlay'} className={"overlayContainer"} />

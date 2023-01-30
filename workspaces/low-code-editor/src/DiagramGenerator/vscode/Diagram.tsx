@@ -13,6 +13,7 @@ import './style.scss';
 export interface WorkspaceFolder {
     readonly uri: {
         external: string
+        fsPath: string
     };
     readonly name: string;
     readonly index: number;

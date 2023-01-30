@@ -103,6 +103,8 @@ export const mockedEditorProps = {
     // @ts-ignore
     syntaxTree: undefined,
     // @ts-ignore
+    fullST: undefined,
+    // @ts-ignore
     originalSyntaxTree: undefined,
     // @ts-ignore
     stSymbolInfo: undefined,

@@ -48,6 +48,7 @@ export function getDiagramProviderProps(
     const openExternalUrl: (url: string) => Promise<boolean> = props.openExternalUrl;
     return {
         syntaxTree: focusedST,
+        fullST: completeST,
         environment: lowCodeEnvInstance,
         stSymbolInfo: getSymbolInfo(),
         currentFile: {

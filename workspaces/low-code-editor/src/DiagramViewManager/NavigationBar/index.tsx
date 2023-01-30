@@ -21,10 +21,12 @@ import './style.scss';
 interface NavigationBarProps {
     projectName: string;
     isWorkspace: boolean;
+    folderName?: string;
+    onFolderClick?: (folderName: string) => void;
 }
 
 export function NavigationBar(props: NavigationBarProps) {
-    const { projectName, isWorkspace } = props;
+    const { projectName, folderName, isWorkspace } = props;
     const { history, historyPop, historyReset } = useHistoryContext();
     // const homeButton = (
     //     <div className="btn-container" onClick={historyReset}>
@@ -44,6 +46,16 @@ export function NavigationBar(props: NavigationBarProps) {
             {isWorkspace ? <Apps /> : <Folder />}
             <span className="icon-text">{`${projectName}${history.length > 0 ? '' : ' components'}`}</span>
         </div>
+    );
+
+    const folderComponent = (
+        <>
+            <div>/</div>
+            <div className="btn-container" onClick={historyReset}>
+                <Folder style={{ paddingRight: 5 }} />
+                <span className="icon-text">{`${folderName}`}</span>
+            </div>
+        </>
     )
 
     // const moduleNameComponent = (
@@ -59,11 +71,7 @@ export function NavigationBar(props: NavigationBarProps) {
         <div id="nav-bar-main" className={'header-bar'}>
             {showBackButton && backButton}
             {workspaceNameComponent}
-            <div>/</div>
-            <div className="btn-container" onClick={historyReset}>
-                <Folder style={{ paddingRight: 5 }} />
-                <span className="icon-text">{`${projectName}`}</span>
-            </div>
+            {folderName && folderName.length > 0 && folderComponent}
             <div className="component-details">
                 {/*<span className="module-text">{componentDetailsText}</span>*/}
             </div>
