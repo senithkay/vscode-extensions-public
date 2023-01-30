@@ -14,6 +14,7 @@
 import { DiagramModel } from "@projectstorm/react-diagrams";
 
 import { GraphqlBaseLinkModel } from "../../Link/BaseLink/GraphqlBaseLinkModel";
+import { DefaultLinkModel } from "../../Link/DefaultLink/DefaultLinkModel";
 import { GraphqlServiceLinkModel } from "../../Link/GraphqlServiceLink/GraphqlServiceLinkModel";
 import { GraphqlDesignNode } from "../../Nodes/BaseNode/GraphqlDesignNode";
 import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
@@ -26,10 +27,13 @@ import {
     EnumComponent,
     FunctionType,
     GraphqlDesignModel,
-    Interaction, RecordComponent,
+    Interaction,
+    RecordComponent,
     RemoteFunction,
     ResourceFunction,
-    Service, ServiceClassComponent, UnionComponent
+    Service,
+    ServiceClassComponent,
+    UnionComponent
 } from "../../resources/model";
 
 
@@ -63,7 +67,7 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel): Diagram
     }
     // TODO: generate nodes for service-classes/ unions
 
-    // TODO:  generate secondary links for - service/records/enums/unions
+    // TODO:  generate secondary links for - service/records/enums
     generateLinks(graphqlModel);
 
 
@@ -109,6 +113,11 @@ function generateLinks(graphqlModel: GraphqlDesignModel) {
     // create links for graphqlService
     generateLinksForGraphqlService(graphqlModel.graphqlService);
 
+    if (graphqlModel.unions){
+        const unions: Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
+        generateLinksForUnions(unions);
+    }
+
     // TODO: create links for records, service-class
 
 }
@@ -124,6 +133,31 @@ function generateLinksForGraphqlService(service: Service) {
         service.remoteFunctions.forEach(remote => {
             mapFunctionInteraction(sourceNode, remote, FunctionType.MUTATION);
         });
+    }
+}
+
+function generateLinksForUnions(unions: Map<string, UnionComponent>) {
+    unions.forEach(union => {
+        union.possibleTypes.forEach(interaction => {
+            if (diagramNodes.has(interaction.componentName)) {
+                const targetNode: GraphqlDesignNode = diagramNodes.get(interaction.componentName);
+                if (targetNode) {
+                    const sourceNode: GraphqlDesignNode = diagramNodes.get(union.name);
+                    const link: GraphqlBaseLinkModel = setUnionLinks(sourceNode, targetNode, interaction);
+                    nodeLinks.push(link);
+                }
+            }
+        })
+    })
+}
+
+function setUnionLinks(sourceNode: GraphqlDesignNode, targetNode: GraphqlDesignNode, interaction: Interaction){
+    const unionComponent = interaction.componentName;
+    const sourcePort = sourceNode.getPortFromID(`right-${unionComponent}`);
+    const targetPort = targetNode.getPortFromID(`left-${unionComponent}`);
+    if (sourcePort && targetPort) {
+        const link: DefaultLinkModel = new DefaultLinkModel();
+        return createLink(sourcePort, targetPort, link);
     }
 }
 
