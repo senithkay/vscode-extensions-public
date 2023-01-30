@@ -53,7 +53,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     }
     const portIn = getPort(`${fieldId}.IN`);
     let body: STNode;
-    
+
     if (field?.value && STKindChecker.isLetExpression(field.value)) {
         body = getExprBodyFromLetExpression(field.value)
     } else if (field?.value && STKindChecker.isQueryExpression(field.value)) {

@@ -163,7 +163,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
                             && port.portType === 'IN'
                         ) {
-                            this.targetPort = port;//
+                            this.targetPort = port;
                         }
                     });
                 }
@@ -201,7 +201,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                             && STKindChecker.isBracedExpression(this.parentNode)
                             && STKindChecker.isQueryExpression(this.parentNode.expression)
                             && isPositionsEquals(port.editableRecordField.value.position, this.parentNode.expression.position)
-                            && port.portName === `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.typeDef.name ? `${node.typeDef.typeName}.${node.typeDef.name}`: node.typeName}`
+                            && port.portName === `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.typeDef.name ? `${node.typeDef.typeName}.${node.typeDef.name}` : node.typeName}`
                             && port.portType === 'IN'
                         ) {
                             this.targetPort = port;

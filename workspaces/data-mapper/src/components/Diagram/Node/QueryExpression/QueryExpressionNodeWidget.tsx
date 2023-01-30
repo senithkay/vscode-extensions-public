@@ -26,11 +26,11 @@ import clsx from 'clsx';
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
 import { FUNCTION_BODY_QUERY } from "../../utils/constants";
+import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
 
 import {
     QueryExpressionNode,
 } from './QueryExpressionNode';
-import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
 
 export const tooltipBaseStyles = {
     tooltip: {
