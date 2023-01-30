@@ -14,7 +14,7 @@
     "build:webpack": "node --max-old-space-size=4096 ../node_modules/webpack/bin/webpack.js --config webpack.config.js --mode=production"
   },
   "dependencies": {
-    "@wso2-enterprise/ballerina-low-code-editor": "^1.0.0"
+    "@wso2-enterprise/ballerina-low-code-editor": "file:../low-code-editor"
   },
   "devDependencies": {
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
