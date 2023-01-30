@@ -16,12 +16,10 @@ import { Colors } from "../../../resources";
 
 export const CanvasContainer = styled.div`
   height: 85vh;
-  width: 90vw;
   position: relative;
   border-radius: 40px;
   border: 2px solid #757575;
   overflow: hidden;
-  background: blue;
 `;
 
 interface DiagramContainerStyleProps {
@@ -31,8 +29,8 @@ interface DiagramContainerStyleProps {
 export const Diagram = styled.div`
   display: ${(props: DiagramContainerStyleProps) => `${props.display}`};
   flex-direction: column;
-  padding-top: 60px;
-  padding-left: 20px;
+  padding-top: 40px;
+  padding-left: 40px;
 `;
 
 interface GatewayContainerProps {
@@ -42,8 +40,8 @@ interface GatewayContainerProps {
 }
 
 export const GatewayContainer = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   position: absolute;
   left: ${(props: GatewayContainerProps) => props.left};
   top: ${(props: GatewayContainerProps) => props.top};

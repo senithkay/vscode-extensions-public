@@ -39,8 +39,10 @@ import { GatewayPortModel } from "../components/gateway/GatewayPort/GatewayPortM
 import { GatewayLinkModel } from "../components/gateway/GatewayLink/GatewayLinkModel";
 
 export const defaultZoomLevel = 100;
-export const canvasTopXOffset = 625;
-export const canvasTopYOffset = 205;
+export const diagramTopXOffset = 630;
+export const diagramTopYOffset = 200;
+export const diagramLeftXOffset = 20;
+export const diagramLeftYOffset = 20;
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();
@@ -82,14 +84,14 @@ export function positionGatewayNodes(engine: DiagramEngine) {
     const canvas = engine.getCanvas();
     const zoomLevel = model.getZoomLevel();
     if (canvas) {
-        const canvasTopMidX = (canvas.clientWidth * 0.5) - canvasTopXOffset - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 4.85);
-        const canvasTopMidY = canvasTopYOffset - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 0.7);
+        const canvasTopMidX = (canvas.clientWidth * 0.5) - diagramTopXOffset - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 4.85);
+        const canvasTopMidY = diagramTopYOffset - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 0.7);
         const canvasRightMidX = (canvas.clientWidth * 0.265) - model.getOffsetX();
         const canvasRightMidY = (canvas.clientHeight * 0.15) - model.getOffsetY();
         const canvasBottomMidX = (-(canvas.clientWidth * 0.254) - model.getOffsetX());
         const canvasBottomMidY = (canvas.clientWidth * 0.4) - model.getOffsetY();
-        const canvasLeftMidX = (canvas.clientWidth * 0.006) - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 0.78);
-        const canvasLeftMidY = (canvas.clientHeight * 0.42) - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 3);
+        const canvasLeftMidX = (canvas.clientWidth * 0.006) - diagramLeftXOffset - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 0.78);
+        const canvasLeftMidY = (canvas.clientHeight * 0.42) + diagramLeftYOffset  - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 3);
         gatewayNodes.forEach((node) => {
             if (node.type === 'NORTH') {
                 node.setPosition(canvasTopMidX, canvasTopMidY);

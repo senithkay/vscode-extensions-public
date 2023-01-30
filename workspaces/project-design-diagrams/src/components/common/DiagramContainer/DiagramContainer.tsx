@@ -84,47 +84,44 @@ export function DiagramContainer(props: DiagramContainerProps) {
                     {serviceModels &&
                         <>
                             {currentView === Views.L1_SERVICES && (
-                                <div style={{display:"block"}}>
-                                    <Diagram>
-                                        {/*West Gateway*/}
-                                        <GatewayContainer top={"calc(45vh + 45px)"} left={"calc(4vw - 50px)"} >
-                                            <GatewayIcon/>
-                                        </GatewayContainer>
-                                        {/*North Gateway*/}
-                                        <GatewayContainer top={'50px'} left={"calc(55vw - 130px)"} rotate={"90deg"}>
-                                            <GatewayIcon/>
-                                        </GatewayContainer>
-                                        <CanvasContainer>
-                                            <DiagramCanvasWidget
-                                                type={Views.L1_SERVICES}
-                                                model={serviceModels.levelOne}
-                                                {...{currentView, layout}}
-                                            />
-                                        </CanvasContainer>
-                                    </Diagram>
-                                </div>
+                                <Diagram>
+                                    {/*West Gateway*/}
+                                    <GatewayContainer top={"calc(45vh + 60px)"} left={"calc(4vw - 35px)"}>
+                                        <GatewayIcon/>
+                                    </GatewayContainer>
+                                    {/*North Gateway*/}
+                                    <GatewayContainer top={'calc(8vh - 5px)'} left={"calc(55vw - 115px)"} rotate={"90deg"}>
+                                        <GatewayIcon/>
+                                    </GatewayContainer>
+                                    <CanvasContainer>
+                                        <DiagramCanvasWidget
+                                            type={Views.L1_SERVICES}
+                                            model={serviceModels.levelOne}
+                                            {...{currentView, layout}}
+                                        />
+                                    </CanvasContainer>
+                                </Diagram>
+
                             )}
 
                             {currentView === Views.L2_SERVICES && (
-                                <div style={{display:"block"}}>
-                                    <Diagram>
-                                        {/*West Gateway*/}
-                                        <GatewayContainer top={'46vh'} left={"calc(7vw - 44px)"} >
-                                            <GatewayIcon/>
-                                        </GatewayContainer>
-                                        {/*North Gateway*/}
-                                        <GatewayContainer top={'50px'} left={'46vw'} rotate={"90deg"}>
-                                            <GatewayIcon/>
-                                        </GatewayContainer>
-                                        <CanvasContainer>
-                                            <DiagramCanvasWidget
-                                                type={Views.L2_SERVICES}
-                                                model={serviceModels.levelTwo}
-                                                {...{currentView, layout}}
-                                            />
-                                        </CanvasContainer>
-                                    </Diagram>
-                                </div>
+                                <Diagram>
+                                    {/*West Gateway*/}
+                                    <GatewayContainer top={"calc(45vh + 45px)"} left={"calc(4vw - 35px)"}>
+                                        <GatewayIcon/>
+                                    </GatewayContainer>
+                                    {/*North Gateway*/}
+                                    <GatewayContainer top={'calc(8vh - 5px)'} left={"calc(55vw - 130px)"} rotate={"90deg"}>
+                                        <GatewayIcon/>
+                                    </GatewayContainer>
+                                    <CanvasContainer>
+                                        <DiagramCanvasWidget
+                                            type={Views.L2_SERVICES}
+                                            model={serviceModels.levelTwo}
+                                            {...{currentView, layout}}
+                                        />
+                                    </CanvasContainer>
+                                </Diagram>
                             )}
                         </>
                     }
