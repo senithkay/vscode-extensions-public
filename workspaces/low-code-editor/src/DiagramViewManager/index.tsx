@@ -75,6 +75,7 @@ export function DiagramViewManager(props: EditorProps) {
         getBallerinaVersion,
         workspaceName
     } = props;
+    console.log('project paths', projectPaths);
     const classes = useGeneratorStyles();
     const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
     const [focusedST, setFocusedST] = useState<STNode>();

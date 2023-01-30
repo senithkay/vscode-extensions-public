@@ -15,7 +15,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 export const ServiceDesignStyles = makeStyles((theme: Theme) =>
     createStyles({
         container: {
-            height: "calc(100vh - 66px)",
+            height: "calc(100vh - 70px)",
             width: "100%",
             background: "white"
         },

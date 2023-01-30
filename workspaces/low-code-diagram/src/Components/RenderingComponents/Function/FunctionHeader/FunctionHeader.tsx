@@ -14,8 +14,10 @@
 import React from "react";
 
 import {
+    RequiredParam,
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
+import classNames from "classnames";
 
 import { useFunctionContext } from "../../../../Context/Function";
 
@@ -36,7 +38,6 @@ export function FunctionHeader() {
 
         functionNode.functionSignature.parameters
             .forEach(param => {
-                console.log('param >>>', param);
                 if (STKindChecker.isRequiredParam(param)
                     || STKindChecker.isDefaultableParam(param)
                     || STKindChecker.isRestParam(param)) {
@@ -51,6 +52,52 @@ export function FunctionHeader() {
             });
     } else if (STKindChecker.isResourceAccessorDefinition(functionNode)) {
         // TODO: handle resource function
+        titleComponents.push(
+            <span className={classNames("resource-badge", functionNode.functionName.value)}>
+                {functionNode.functionName.value.toUpperCase()}
+            </span>
+        )
+
+        functionNode.relativeResourcePath.forEach(node => {
+            if (STKindChecker.isIdentifierToken(node) || STKindChecker.isSlashToken(node)) {
+                titleComponents.push(
+                    node.value
+                );
+            } else if (STKindChecker.isResourcePathSegmentParam(node) || STKindChecker.isResourcePathRestParam(node)) {
+                titleComponents.push(
+                    <>
+                        [<span className={'type-descriptor'}>
+                            {`${(node as any).typeDescriptor?.name?.value} `}
+                        </span>
+                        {STKindChecker.isResourcePathRestParam(node) ? '...' : ''}{(node as any).paramName?.value}]
+                    </>
+                );
+            }
+        });
+
+        const queryParamComponents: React.ReactElement[] = functionNode.functionSignature.parameters
+            .filter((param) => !STKindChecker.isCommaToken(param))
+            .filter(
+                (param) =>
+                    STKindChecker.isRequiredParam(param) &&
+                    (STKindChecker.isStringTypeDesc(param.typeName) ||
+                        STKindChecker.isIntTypeDesc(param.typeName) ||
+                        STKindChecker.isBooleanTypeDesc(param.typeName) ||
+                        STKindChecker.isFloatTypeDesc(param.typeName) ||
+                        STKindChecker.isDecimalTypeDesc(param.typeName))
+            )
+            .map((param: RequiredParam, i) => (
+                <span key={i}>
+                    {i !== 0 ? "&" : ""}
+                    {param.paramName.value}
+                    <sub className={'type-descriptor'}>{(param.typeName as any)?.name?.value}</sub>
+                </span>
+            ));
+
+        if (queryParamComponents.length > 0) {
+            titleComponents.push(<span>?</span>);
+            titleComponents.push(...queryParamComponents);
+        }
     }
 
     return (
