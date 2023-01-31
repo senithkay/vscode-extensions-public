@@ -187,7 +187,6 @@ export function DiagramViewManager(props: EditorProps) {
     }, [diagramFocus])
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
-        console.log('component details >>>', componentDetails)
         const { filePath, position } = componentDetails;
         (async () => {
             try {
