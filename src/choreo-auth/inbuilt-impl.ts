@@ -42,7 +42,6 @@ const SessionExpired = "The session has expired, please login again!";
 export async function initiateInbuiltAuth(extension: BallerinaExtension) {
     const callbackUri = await getAuthURL();
     vscode.env.openExternal(callbackUri);
-    vscode.commands.executeCommand("vscode.open", callbackUri);
 }
 
 export class OAuthTokenHandler {
