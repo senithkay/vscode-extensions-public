@@ -23,6 +23,8 @@ import { HeaderName } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { ServiceHead } from '../styles/styles';
 
+import { ServiceHeaderMenu } from "./ServiceHeaderMenu";
+
 interface ServiceHeadProps {
     engine: DiagramEngine;
     node: GraphqlServiceNodeModel;
@@ -48,7 +50,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 engine={engine}
             />
             <HeaderName>{displayName}</HeaderName>
-
+            <ServiceHeaderMenu location={node.serviceObject.position}/>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
