@@ -50,8 +50,20 @@ export function render(webView: Webview) {
                 })
             }
 
+            function openDesignDiagram(position, filePath) {
+                vscode.postMessage({
+                    command: 'openDesignDiagram',
+                    position: position,
+                    filePath: filePath
+                });
+            }
+
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(go2source, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(
+                    go2source, 
+                    openDesignDiagram,
+                    document.getElementById("diagram-container")
+                );
             }
 
             renderDiagrams();

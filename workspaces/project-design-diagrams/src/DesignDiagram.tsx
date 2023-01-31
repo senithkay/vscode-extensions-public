@@ -29,6 +29,7 @@ import { ProjectDesignRPC } from './utils/rpc/project-design-rpc';
 import { ControlsLayer, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 const Container = styled.div`
     align-items: center;
@@ -44,11 +45,12 @@ const Container = styled.div`
 interface DiagramProps {
     editingEnabled?: boolean;
     go2source: (location: Location) => void;
+    goToDesignDiagram: (position: NodePosition, filePath: string) => void;
 }
 
 export function DesignDiagram(props: DiagramProps) {
     const rpcInstance = ProjectDesignRPC.getInstance();
-    const { go2source, editingEnabled = true } = props;
+    const { go2source, editingEnabled = true, goToDesignDiagram } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.GRAPH);
@@ -110,7 +112,8 @@ export function DesignDiagram(props: DiagramProps) {
         go2source,
         editingEnabled,
         setTargetService,
-        isChoreoProject
+        isChoreoProject,
+        goToDesignDiagram
     }
 
     return (

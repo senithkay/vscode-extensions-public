@@ -19,7 +19,7 @@
 
 import React from 'react';
 import { Location, Service } from '../../../resources';
-import { AddConnectorWidget, Go2SourceWidget, LinkingWidget } from './components';
+import { AddConnectorWidget, Go2SourceWidget, GoToDesign, LinkingWidget } from './components';
 
 interface MenuProps {
     location: Location,
@@ -39,6 +39,7 @@ export function NodeMenuPanel(props: MenuProps) {
                     <AddConnectorWidget service={service} />
                 </>
             }
+            {service && <GoToDesign service={service} />}
         </>
     );
 }
