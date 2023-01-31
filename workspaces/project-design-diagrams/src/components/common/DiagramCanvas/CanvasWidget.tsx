@@ -19,7 +19,7 @@
 
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { CanvasWidget} from '@projectstorm/react-canvas-core';
+import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
@@ -111,7 +111,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             document.addEventListener('keydown', handleEscapePress);
         }
         document.addEventListener('scroll', onScroll);
-        window.addEventListener("resize", onWindowResize);
+        if (currentView === Views.CELL_VIEW) {
+            window.addEventListener("resize", onWindowResize);
+        }
     }, []);
 
     // Reset the model and redistribute if the model changes
@@ -145,7 +147,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 removeGWLinks(diagramEngine);
             }
             dagreEngine.redistribute(diagramEngine.getModel());
-            if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES) {
+            if (currentView === Views.CELL_VIEW) {
                 // Adding GW links and nodes after dagre distribution
                 getGWNodesModel(diagramEngine);
                 positionGatewayNodes(diagramEngine);
@@ -155,7 +157,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     };
 
     const redrawDiagram = () => {
-        positionGatewayNodes(diagramEngine);
+        if (currentView === Views.CELL_VIEW) {
+            positionGatewayNodes(diagramEngine);
+        }
         diagramEngine.repaintCanvas();
     };
 
@@ -167,7 +171,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
-        positionGatewayNodes(diagramEngine);
+        if (currentView === Views.CELL_VIEW) {
+            positionGatewayNodes(diagramEngine);
+        }
         diagramEngine.repaintCanvas();
     };
 
@@ -191,7 +197,11 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     return (
         <>
             {diagramEngine && diagramEngine.getModel() &&
-                <Canvas ref={diagramRef} onMouseDown={onDiagramMoveStarted} onMouseUp={onDiagramMoveFinished}>
+                <Canvas
+                    ref={diagramRef}
+                    onMouseDown={currentView === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
+                    onMouseUp={currentView === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
+                >
                     <CanvasWidget engine={diagramEngine} className={'diagram-container'}  />
                 </Canvas>
             }

@@ -19,7 +19,7 @@
 
 .diagram-container {
     min-height: calc(100vh - 50px);
-    min-width: 100vw;
+    min-width: 100%;
     padding: 15px;
 }
 

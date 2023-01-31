@@ -30,6 +30,10 @@ import { ControlsLayer, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 
+interface ContainerStyleProps {
+    backgroundColor?: string;
+}
+
 const Container = styled.div`
     align-items: center;
     position: relative;
@@ -38,8 +42,8 @@ const Container = styled.div`
     font-family: GilmerRegular;
     justify-content: center;
     min-height: 100vh;
-    min-width: 100vw;
-    background: #e4e4e4;
+    min-width: 100%;
+    background: ${(props: ContainerStyleProps) => `${props.backgroundColor}`};
 `;
 
 interface DiagramProps {
@@ -61,6 +65,10 @@ export function DesignDiagram(props: DiagramProps) {
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
+
+    const diagramPadding = currentView === Views.CELL_VIEW ? 5 : 0;
+    const diagramWidth = '100%';
+    const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
 
     useEffect(() => {
         rpcInstance.isChoreoProject().then((response) => {
@@ -116,13 +124,13 @@ export function DesignDiagram(props: DiagramProps) {
 
     return (
         <DesignDiagramContext {...ctx}>
-            <Container>
+            <Container backgroundColor={diagramBGColor}>
                 {showEditForm &&
                     <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
                 {editingEnabled && projectComponents && projectComponents.size < 1 ?
                     <PromptScreen onComponentAdd={onComponentAddClick} /> :
                     projectComponents ?
-                        <>
+                        <div style={{paddingRight: diagramPadding, width: diagramWidth}}>
                             {currentView === Views.L1_SERVICES && editingEnabled &&
                                 <ControlsLayer onComponentAddClick={onComponentAddClick} />
                             }
@@ -145,7 +153,7 @@ export function DesignDiagram(props: DiagramProps) {
                                 workspaceComponents={projectComponents}
                                 typeCompositionModel={typeCompositionModel.current}
                             />
-                        </> :
+                        </div> :
                         <CircularProgress sx={{ color: Colors.PRIMARY }} />
                 }
             </Container>

@@ -23,7 +23,7 @@ import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
 import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
-import { CanvasContainer, Diagram, GatewayContainer } from "./style";
+import { CellContainer, CellDiagram, GatewayContainer } from "./style";
 import { GatewayIcon } from "./GatewayIcon";
 
 interface DiagramContainerProps {
@@ -39,6 +39,12 @@ export function DiagramContainer(props: DiagramContainerProps) {
 
     const [serviceModels, setServiceModels] = useState<ServiceModels>(undefined);
     const [typeModel, setTypeModel] = useState<DiagramModel>(undefined);
+
+    const gWOffset = 25;
+    const westGWLeft = '0';
+    const westGWTop = `calc(50% - ${gWOffset}px)`;
+    const northGWLeft = `calc(50% - ${gWOffset}px)`;
+    const northGWTop = '0';
 
     useEffect(() => {
         if (currentView === Views.TYPE) {
@@ -67,8 +73,8 @@ export function DiagramContainer(props: DiagramContainerProps) {
     const hasModelLoaded = (): boolean => {
         switch (currentView) {
             case Views.L1_SERVICES:
-                return serviceModels !== undefined;
             case Views.L2_SERVICES:
+            case Views.CELL_VIEW:
                 return serviceModels !== undefined;
             case Views.TYPE:
                 return typeModel !== undefined;
@@ -78,55 +84,49 @@ export function DiagramContainer(props: DiagramContainerProps) {
     }
 
     return (
-        <div>
+        <div style={{display: "flex", alignSelf: "flex-start", height: "93vh"}}>
             {hasModelLoaded() ?
                 <>
                     {serviceModels &&
                         <>
                             {currentView === Views.L1_SERVICES && (
-                                <Diagram>
-                                    {/*West Gateway*/}
-                                    <GatewayContainer top={"calc(45vh + 60px)"} left={"calc(4vw - 35px)"}>
-                                        <GatewayIcon/>
-                                    </GatewayContainer>
-                                    {/*North Gateway*/}
-                                    <GatewayContainer top={'calc(8vh - 5px)'} left={"calc(55vw - 115px)"} rotate={"90deg"}>
-                                        <GatewayIcon/>
-                                    </GatewayContainer>
-                                    <CanvasContainer>
-                                        <DiagramCanvasWidget
-                                            type={Views.L1_SERVICES}
-                                            model={serviceModels.levelOne}
-                                            {...{currentView, layout}}
-                                        />
-                                    </CanvasContainer>
-                                </Diagram>
-
+                                <DiagramCanvasWidget
+                                    type={Views.L1_SERVICES}
+                                    model={serviceModels.levelOne}
+                                    {...{currentView, layout}}
+                                />
                             )}
 
                             {currentView === Views.L2_SERVICES && (
-                                <Diagram>
-                                    {/*West Gateway*/}
-                                    <GatewayContainer top={"calc(45vh + 45px)"} left={"calc(4vw - 35px)"}>
-                                        <GatewayIcon/>
-                                    </GatewayContainer>
-                                    {/*North Gateway*/}
-                                    <GatewayContainer top={'calc(8vh - 5px)'} left={"calc(55vw - 130px)"} rotate={"90deg"}>
-                                        <GatewayIcon/>
-                                    </GatewayContainer>
-                                    <CanvasContainer>
-                                        <DiagramCanvasWidget
-                                            type={Views.L2_SERVICES}
-                                            model={serviceModels.levelTwo}
-                                            {...{currentView, layout}}
-                                        />
-                                    </CanvasContainer>
-                                </Diagram>
+                                <DiagramCanvasWidget
+                                    type={Views.L2_SERVICES}
+                                    model={serviceModels.levelTwo}
+                                    {...{currentView, layout}}
+                                />
                             )}
                         </>
                     }
+                    {currentView === Views.CELL_VIEW && (
+                        <CellDiagram>
+                            {/*West Gateway*/}
+                            <GatewayContainer top={westGWTop} left={westGWLeft}>
+                                <GatewayIcon/>
+                            </GatewayContainer>
+                            {/*North Gateway*/}
+                            <GatewayContainer top={northGWTop} left={northGWLeft} rotate={"90deg"}>
+                                <GatewayIcon/>
+                            </GatewayContainer>
+                            <CellContainer>
+                                <DiagramCanvasWidget
+                                    type={Views.CELL_VIEW}
+                                    model={serviceModels.levelOne}
+                                    {...{currentView, layout}}
+                                />
+                            </CellContainer>
+                        </CellDiagram>
+                    )}
                     {typeModel &&
-                        <div style={{ display: currentView === Views.TYPE ? 'block' : 'none' }}>
+                        <div style={{ display: currentView === Views.TYPE ? 'block' : 'none', width: currentView === Views.TYPE ? '100%' : '0' }}>
                             <DiagramCanvasWidget
                                 type={Views.TYPE}
                                 model={typeModel}
@@ -135,7 +135,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
                         </div>
                     }
                     {typeCompositionModel &&
-                        <div style={{ display: currentView === Views.TYPE_COMPOSITION ? 'block' : 'none' }}>
+                        <div style={{ display: currentView === Views.TYPE_COMPOSITION ? 'block' : 'none', width: currentView === Views.TYPE_COMPOSITION ? '100%' : '0' }}>
                             <DiagramCanvasWidget
                                 type={Views.TYPE_COMPOSITION}
                                 model={typeCompositionModel}

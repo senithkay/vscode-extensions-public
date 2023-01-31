@@ -34,8 +34,8 @@ export const Header = styled.div`
     flex-direction: row;
     justify-content: space-between;
     height: 60px;
-    min-width: 312px;
-    padding: 12px 20px 12px 24px;
+    min-width: 200px;
+    padding: 12px 5px 12px 10px;
 `;
 
 export const HeaderTitle = styled.span`
