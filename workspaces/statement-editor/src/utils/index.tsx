@@ -887,7 +887,8 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
     const params = paramRegex.exec(suggestionValue);
     let exprWithArgs = suggestionValue;
     if (params) {
-        let paramList = params[1].split(',');
+        const seperatorRegex = /([^,\(\)]+(\(.*?\))*)+/gm;
+        let paramList = params[1].match(seperatorRegex);
         paramList = paramList.map((param: string) => {
             if (param) {
                 let paramName = param.trim().split(' ').pop();
