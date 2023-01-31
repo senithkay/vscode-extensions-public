@@ -33,7 +33,7 @@ export interface DataMapperProps {
     targetPosition?: NodePosition;
     ballerinaVersion?: string;
     onCancel?: () => void;
-    configOverlayFormStatus: ConfigOverlayFormStatus;
+    configOverlayFormStatus?: ConfigOverlayFormStatus;
 }
 
 export function GraphqlDiagramOverlay(props: DataMapperProps) {
@@ -48,27 +48,26 @@ export function GraphqlDiagramOverlay(props: DataMapperProps) {
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
-
+    // <DiagramOverlayContainer>
+    //     <DiagramOverlay
+    //         position={{ x: 0, y: 0 }}
+    //         stylePosition={"absolute"}
+    //         className={graphQLStyleClasses.overlay}
+    //     >
     return (
-        <DiagramOverlayContainer>
-            <DiagramOverlay
-                position={{ x: 0, y: 0 }}
-                stylePosition={"absolute"}
-                className={graphQLStyleClasses.overlay}
-            >
-                <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
-                    <GraphqlDesignDiagram
-                        targetPosition={targetPosition}
-                        langClientPromise={
-                            getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-                        }
-                        filePath={currentFile.path}
-                        currentFile={currentFile}
-                        ballerinaVersion={ballerinaVersion}
-                        syntaxTree={lowcodeST}
-                    />
-                </div>
-            </DiagramOverlay>
-        </DiagramOverlayContainer>
+        <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
+            <GraphqlDesignDiagram
+                targetPosition={targetPosition}
+                langClientPromise={
+                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                }
+                filePath={currentFile.path}
+                currentFile={currentFile}
+                ballerinaVersion={ballerinaVersion}
+                syntaxTree={lowcodeST}
+            />
+        </div>
     );
+    // </DiagramOverlay>
+    // </DiagramOverlayContainer>
 }

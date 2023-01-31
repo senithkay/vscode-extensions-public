@@ -37,6 +37,7 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
+import { GraphqlDiagramOverlay } from "../Diagram/components/GraphqlDiagramOverlay";
 
 interface DiagramFocusState {
     filePath: string;
@@ -151,7 +152,6 @@ export function DiagramViewManager(props: EditorProps) {
                     const langClient = await langClientPromise;
                     const generatedST = await getSyntaxTree(filePath, langClient);
                     const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
-
                     const content = await getFileContent(filePath);
                     const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                     const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
@@ -237,13 +237,30 @@ export function DiagramViewManager(props: EditorProps) {
         ));
     } else if (!!diagramFocusState && !!focusedST) {
         if (STKindChecker.isServiceDeclaration(focusedST)) {
-            viewComponent.push((
-                <ServiceDesignOverlay
-                    model={focusedST}
-                    targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                    onCancel={handleNavigationHome}
-                />
-            ));
+            if (focusedST.expressions.length > 0) {
+                const listenerExpression = focusedST.expressions[0];
+                const typeData = listenerExpression.typeData;
+                const typeSymbol = typeData?.typeSymbol;
+                const signature = typeSymbol?.signature;
+                if (signature && signature.includes('http')) {
+                    viewComponent.push((
+                        <ServiceDesignOverlay
+                            model={focusedST}
+                            targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                            onCancel={handleNavigationHome}
+                        />
+                    ));
+                } else if (signature && signature.includes('graphql')) {
+                    viewComponent.push(
+                        <GraphqlDiagramOverlay
+                            model={focusedST}
+                            targetPosition={focusedST.position}
+                            ballerinaVersion={balVersion}
+                            onCancel={handleNavigationHome}
+                        />
+                    );
+                }
+            }
         } else if (STKindChecker.isFunctionDefinition(focusedST)
             && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
             viewComponent.push((
