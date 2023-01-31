@@ -52,8 +52,8 @@ describe("Sample UI test", () => {
         diagramWebview = new WebView();
         await diagramWebview.switchToFrame();
 
-        // Assert the presence of the diagram container
-        const diagramContainer = await diagramWebview.findWebElement(By.id("diagram-container"));
+        // Assert the presence of the webview container
+        const diagramContainer = await diagramWebview.findWebElement(By.id("webview-container"));
         expect(diagramContainer).is.not.undefined;
 
         // Assert the presence of the no-components prompt screen
@@ -68,6 +68,7 @@ describe("Sample UI test", () => {
         const addComponentBtn = await diagramWebview.findWebElement(By.id("add-component-btn"));
         expect(addComponentBtn).is.not.undefined;
 
+        // Click to add component. Should open up Choreo webview since it is a Choreo project
         await addComponentBtn.click();
         await wait(5000);
         await diagramWebview.switchBack();
