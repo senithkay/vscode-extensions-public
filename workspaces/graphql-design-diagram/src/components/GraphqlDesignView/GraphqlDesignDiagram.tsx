@@ -50,7 +50,12 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
-    const { targetPosition, langClientPromise, filePath, currentFile, ballerinaVersion, syntaxTree, functionPanel } = props;
+    const {
+        targetPosition,
+        langClientPromise,
+        currentFile,
+        functionPanel
+    } = props;
 
     const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
     const [isIncompleteModel, setModelStatus] = useState(false);
