@@ -18,7 +18,7 @@
     "onCommand:wso2.choreo.sign.in",
     "onView:choreo-projects",
     "onView:choreo-account",
-    "*"
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -46,6 +46,16 @@
         "title": "Clone to new Workspace"
       },
       {
+        "command": "wso2.choreo.projects.registry.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "wso2.choreo.projects.tree.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "wso2.choreo.project.create",
         "title": "Create New Project",
         "category": "Choreo",
@@ -56,11 +66,6 @@
         "title": "Create New Component",
         "category": "Choreo",
         "icon": "$(add)"
-      },
-      {
-        "command": "wso2.choreo.projects.refresh",
-        "title": "Refresh",
-        "icon": "$(refresh)"
       },
       {
         "command": "wso2.choreo.project.overview",
@@ -104,7 +109,7 @@
           "group": "navigation"
         },
         {
-          "command": "wso2.choreo.projects.refresh",
+          "command": "wso2.choreo.projects.tree.refresh",
           "when": "view == choreo-projects",
           "group": "navigation"
         }
@@ -118,7 +123,7 @@
     }
   },
   "scripts": {
-    "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix",
+    "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
     "compile": "webpack --mode production",
     "watch": "npx webpack --watch",
     "build": "npm run clean && npm run compile && npm run lint && npm run copy-webview-lib && npx vsce package --no-dependencies",
@@ -129,9 +134,11 @@
     "ui-test": "npm run compile-tests && npx extest run-tests 'dist/ui-test/*.test.js' --mocha_config src/ui-test/.mocharc.js -o src/ui-test/settings.json",
     "pretest": "npm run clean && npm run compile-tests && npm run lint && npm run copy-webview-lib",
     "lint": "eslint src --ext ts",
-    "test": "nyc --reporter=html node ./dist/test/runTest.js"
+    "test-nyc-cli": "nyc --reporter=html node ./dist/test/runTest.js",
+    "test": "node ./dist/test/runTest.js && nyc report && nyc report --reporter=html"
   },
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "16.x",

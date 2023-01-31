@@ -31,6 +31,7 @@ export class StatementEditorViewState {
     public exprNotDeletable: boolean = false;
     public templateExprDeletable: boolean = false;
     public isWithinBlockStatement: boolean = false;
+    public isWithinWhereClause: boolean = false;
     public modelType: ModelType = ModelType.EXPRESSION;
     public diagnosticsInRange?: Diagnostic[] = [];
     public diagnosticsInPosition?: Diagnostic[] = [];

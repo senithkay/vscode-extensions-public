@@ -125,7 +125,9 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        setConnectionAnchorEl(connectionEvent.currentTarget);
+        if (connectionConfigs.length > 0) {
+            setConnectionAnchorEl(connectionEvent.currentTarget);
+        }
     };
 
     const handleConnectionClose = () => {

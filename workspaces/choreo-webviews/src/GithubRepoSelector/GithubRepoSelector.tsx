@@ -107,6 +107,9 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         ghClient.onGHAppAuthCallback((status) => {
             setGHStatus(status);
         });
+        ghClient.status.then((status) => {
+            setGHStatus(status);
+        });
     }, []);
 
     useEffect(() => {

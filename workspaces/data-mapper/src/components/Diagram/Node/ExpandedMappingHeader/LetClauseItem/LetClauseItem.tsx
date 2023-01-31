@@ -28,11 +28,12 @@ import {
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { getRenameEdits } from "../../../utils/ls-utils";
 import { ClauseAddButton } from "../ClauseAddButton";
+import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
 
 export function LetClauseItem(props: {
     intermediateNode: LetClause;
-    onEditClick: () => void;
+    onEditClick: (value: string, position: NodePosition, label: string) => void;
     onDeleteClick: () => Promise<void>;
     context: IDataMapperContext;
     queryExprNode: QueryExpression;
@@ -135,15 +136,23 @@ export function LetClauseItem(props: {
                         )}
                     </span>
                     <span>{letVarDeclaration.equalsToken.value}</span>
-                    <span className={classes.clauseExpression} onClick={onEditClick} data-testid={`let-clause-expression-${itemIndex}`}>
-                        {letVarDeclaration.expression.source}
-                    </span>
+                    <ClickableExpression
+                        node={letVarDeclaration.expression}
+                        onEditClick={() =>
+                            onEditClick(
+                                letVarDeclaration?.expression?.source,
+                                letVarDeclaration?.expression?.position,
+                                "Let clause"
+                            )
+                        }
+                        index={itemIndex}
+                    />
                 </div>
 
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`let-clause-delete-${itemIndex}`}/>
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`let-clause-delete-${itemIndex}`} />
                 )}
             </div>
 

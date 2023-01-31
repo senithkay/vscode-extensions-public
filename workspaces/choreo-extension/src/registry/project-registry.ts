@@ -52,7 +52,7 @@ export class ProjectRegistry {
         throw new Error(`Method not implemented`);
     }
 
-    async sync(): Promise<void> {
+    async clean(): Promise<void> {
         return new Promise((resolve) => {
             this._dataProjects = new Map<number, Project[]>([]);
             this._dataComponents = new Map<string, Component[]>([]);
@@ -60,9 +60,28 @@ export class ProjectRegistry {
         });
     }
 
+    // Adding a refersh method to refresh the data.
+    // Currently refresh is handled by clearing the registry
+    // and firing refresh on tree view.
+    // But tree view refresh API does not support async.
+    // Hence there's no way to know when the refresh is completed.
+    // We cannot remove tree view refresh either because if we depend
+    // on the registry to refresh the tree view, we will end up in a
+    // situation where the tree view is stuck until the registry refresh
+    // is completed without showing any loader animation.
+    // We will use this refresh method from every other places and keep
+    // the tree view refresh as it is just to be used for the tree view.
+    async refreshProjects(): Promise<Project[] | undefined> {
+        await this.clean();
+        const selectedOrg = ext.api.selectedOrg;
+        if (selectedOrg) {
+            return this.getProjects(selectedOrg.id);
+        }
+    }
+
     async getProject(projectId: string, orgId: number): Promise<Project | undefined> {
-        return this.getProjects(orgId).then((projects: Project[]) => {
-            return projects.find((project) => { return project.id === projectId; });
+        return this.getProjects(orgId).then(async (projects: Project[]) => {
+            return projects.find((project: Project) => project.id === projectId);
         });
     }
 

@@ -12,6 +12,7 @@
  */
 import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
+import { ProjectsTreeProvider } from "./views/project-tree/ProjectTreeProvider";
 
 export class ExtensionVariables {
     public context!: ExtensionContext;
@@ -21,6 +22,7 @@ export class ExtensionVariables {
 
     // views
     public projectsTreeView!: TreeView<TreeItem>;
+    public projectsTreeProvider!: ProjectsTreeProvider;
     public accountTreeView!: TreeView<TreeItem>;
 }
 

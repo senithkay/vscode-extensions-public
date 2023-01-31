@@ -28,7 +28,6 @@ import { ConfigSchema, ConnectionSchema } from "./components/model";
 export { ConfigForm, ConfigElementProps, ConfigSchema };
 
 export function renderConfigEditor(
-    connectionConfigData: ConnectionSchema[],
     data: ConfigSchema,
     existingConfigs: object,
     defaultButtonText: string,
@@ -36,6 +35,7 @@ export function renderConfigEditor(
     onClickDefaultButton: () => void,
     onClickPrimaryButton: (configProperties: ConfigElementProps) => void,
     isLowCode: boolean,
+    connectionConfigData: ConnectionSchema[],
     isFeaturePreview: boolean,
 ) {
     ReactDOM.render(
