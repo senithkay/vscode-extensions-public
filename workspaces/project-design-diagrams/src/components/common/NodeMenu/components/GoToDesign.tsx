@@ -19,7 +19,7 @@
 
 import React, { useState } from 'react';
 import Tooltip from '@mui/material/Tooltip';
-import AddLinkIcon from '@mui/icons-material/AddLink';
+import EditIcon from '@mui/icons-material/Edit';
 import { Service } from '../../../../resources';
 import { useDiagramContext } from '../../DiagramContext/DiagramContext';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
@@ -48,7 +48,7 @@ export function GoToDesign(props: { service: Service }) {
             arrow
             placement='right'
         >
-            <AddLinkIcon
+            <EditIcon
                 onClick={handleIconClick}
                 onMouseOver={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
