@@ -127,7 +127,7 @@ export function getLibraryWebViewContent(options: WebViewOptions, webView: Webvi
                 </style>
             </head>
             
-            <body class="${bodyCss}" style="background: #fff;">
+            <body class="${bodyCss}" style="background: #fff; padding: 0px;">
                 ${body}
                 <script>
                     ${scripts}
