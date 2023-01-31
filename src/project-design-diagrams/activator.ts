@@ -108,7 +108,6 @@ function setupWebviewPanel() {
                     return;
                 }
                 case "openDesignDiagram": {
-                    console.log('>>> open design diagram', message);
                     commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, message.position, message.filePath);
                     return;
                 }
