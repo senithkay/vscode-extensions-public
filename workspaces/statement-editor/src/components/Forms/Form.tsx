@@ -11,6 +11,7 @@
  * associated services.
  */
 import { FunctionForm } from "./FunctionForm/FunctionForm";
+import { GraphqlResourceForm } from "./GraphqlResourceForm/GraphqlResourceForm";
 import { ListenerForm } from "./ListenerForm/ListenerForm";
 import { ResourceForm } from "./ResourceForm/ResourceForm";
 import { ServiceConfigForm } from "./ServiceForm/SeviceForm";
@@ -20,3 +21,4 @@ export { ServiceConfigForm as Service };
 export { ListenerForm as Listener };
 export { FunctionForm as Main };
 export { ResourceForm as Resource };
+export { GraphqlResourceForm as GraphqlResource };

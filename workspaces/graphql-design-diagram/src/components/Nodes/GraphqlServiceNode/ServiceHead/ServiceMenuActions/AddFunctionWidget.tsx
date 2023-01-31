@@ -18,7 +18,7 @@ interface AddFunctionWidgetProps {
 
 export function AddFunctionWidget(props: AddFunctionWidgetProps) {
     const { position, functionType } = props;
-    // const {functionPanel } = useContext(DiagramContext)
+    const {functionPanel } = useContext(DiagramContext)
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -31,7 +31,7 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
                 endColumn: position.endLine.offset
             }
             // TODO: enable form rendering functionality
-            // functionPanel(nodePosition, "ResourceForm");
+            functionPanel(nodePosition, "ResourceForm");
         }
     };
 
