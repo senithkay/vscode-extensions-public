@@ -13,7 +13,6 @@ module.exports = {
   resolve: {
     mainFields: ['browser', 'main', 'module'],
     extensions: [".mjs", ".js", ".json", ".ts", ".tsx",],
-    preferRelative: false,
   },
   module: {
     rules: [
@@ -24,11 +23,8 @@ module.exports = {
       {
         test: /\.m?js$/,
         type: "javascript/auto",
-      },
-      {
-        test: /\.m?js/,
         resolve: {
-          fullySpecified: false,
+          fullySpecified: false
         },
       },
       {

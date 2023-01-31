@@ -126,11 +126,11 @@
     "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
     "compile": "webpack --mode production",
     "watch": "npx webpack --watch",
-    "build": "npm run clean && npm run compile && npm run lint && npm run copy-webview-lib && npx vsce package --no-dependencies",
+    "build": "npm run compile && npm run copy-webview-lib && npx vsce package --no-dependencies ",
     "copy-webview-lib": "copyfiles -f -E -F ./../../node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js ./resources/jslibs",
-    "compile-tests": "tsc -p . --outDir dist",
-    "watch-tests": "tsc -p . -w --outDir dist",
-    "pretest": "npm run clean && npm run compile-tests && npm run lint && npm run copy-webview-lib",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test-nyc-cli": "nyc --reporter=html node ./dist/test/runTest.js",
     "test": "node ./dist/test/runTest.js && nyc report && nyc report --reporter=html"
@@ -141,8 +141,8 @@
     "@types/mocha": "^10.0.0",
     "@types/node": "16.x",
     "@types/vscode": "^1.73.0",
-    "@typescript-eslint/eslint-plugin": "^5.42.0",
-    "@typescript-eslint/parser": "^5.42.0",
+    "@typescript-eslint/eslint-plugin": "~5.48.2",
+    "@typescript-eslint/parser": "~5.48.2",
     "@vscode/test-electron": "^2.2.0",
     "@vscode/vsce": "^2.16.0",
     "copyfiles": "^2.4.1",
@@ -165,9 +165,11 @@
     "@wso2-enterprise/choreo-vscode-webviews": "1.0.0",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.6.0",
-    "graphql-request": "^5.0.0",
+    "graphql-request": "~5.1.0",
     "jwt-decode": "^3.1.2",
     "simple-git": "^3.15.1",
-    "vscode-messenger": "^0.4.3"
+    "vscode-messenger": "^0.4.3",
+    "lodash": "^4.17.11",
+    "@types/lodash": "^4.14.189"
   }
 }

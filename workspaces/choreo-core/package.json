@@ -11,7 +11,10 @@
   },
   "author": "WSO2",
   "devDependencies": {
-    "typescript": "^4.9.4"
+    "typescript": "~4.9.4",
+    "@typescript-eslint/eslint-plugin": "~5.48.2",
+    "eslint": "~8.32.0",
+    "@typescript-eslint/parser": "~5.48.2"
   },
   "dependencies": {
     "vscode-messenger-common": "^0.4.3"

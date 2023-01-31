@@ -12,7 +12,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 /** @type WebpackConfig */
 const extensionConfig = {
   target: 'node',
-  mode: 'development',
+  mode: 'none',
 
   entry: './src/extension.ts',
   output: {
@@ -38,7 +38,14 @@ const extensionConfig = {
             loader: 'ts-loader'
           }
         ]
-      }
+      },
+      {
+        test: /\.m?js$/,
+        type: "javascript/auto",
+        resolve: {
+          fullySpecified: false
+        },
+      },
     ]
   },
   devtool: 'source-map',

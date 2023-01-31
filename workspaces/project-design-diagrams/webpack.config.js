@@ -32,11 +32,12 @@ module.exports = {
       },
       {
         test: /\.(woff|woff2|ttf|eot|svg)$/,
-        type: 'asset/inline'
+        use: [{
+          loader: 'file-loader',
+        }]
       }
     ],
   },
-  ignoreWarnings: [/Failed to parse source map/],
   devServer: {
       allowedHosts: 'all',
       port: 9000,

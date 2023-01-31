@@ -37,8 +37,5 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "src", "components", "index.html"),
     }),
-    new MiniCssExtractPlugin({
-      filename: "./src/yourfile.css",
-    }),
   ],
 };

@@ -11,7 +11,7 @@ const ROOT_DIR = path.resolve(__dirname, "..", "..");
 
 const LOW_CODE_DIR = path.join(BASE_DIR, 'low-code-editor');
 const DATA_MAPPER_DIR = path.join(BASE_DIR, 'data-mapper');
-const MONACO_DIR = path.join(ROOT_DIR, 'node_modules', 'monaco-editor');
+const MONACO_DIR = path.join(ROOT_DIR, 'common', 'temp', 'node_modules', 'monaco-editor');
 
 
 // Add any new modules, for which coverage reports are needed, here.
