@@ -88,7 +88,7 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     const bodyArgs: any[] = [];
 
-    model.functionSignature.parameters.forEach((param, i) => {
+    model.functionSignature?.parameters?.forEach((param, i) => {
         // value = record {|*http:Ok; Foo body;|}
         if (STKindChecker.isRequiredParam(param) && param.source.includes("Payload")) {
             if (param.typeData?.typeSymbol?.name) {
@@ -115,7 +115,7 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     const paramArgs: any[] = [];
 
-    model.functionSignature.parameters.forEach((param, i) => {
+    model.functionSignature?.parameters?.forEach((param, i) => {
         if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
             paramArgs.push(
                 <tr key={i} className={classes.signature}>
@@ -145,9 +145,8 @@ export function ResourceBody(props: ResourceBodyProps) {
     const records = RecordsFinderVisitor.getRecords();
 
     function getReturnTypesArray() {
-
-        const returnTypes = model.functionSignature.returnTypeDesc.type.source.split(/\|(?![^\{]*[\}])/gm);
-        return returnTypes;
+        const returnTypes = model.functionSignature?.returnTypeDesc?.type?.source.split(/\|(?![^\{]*[\}])/gm);
+        return returnTypes || [];
     }
 
     const getRecord = async (
