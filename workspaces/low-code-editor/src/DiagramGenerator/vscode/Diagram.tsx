@@ -3,20 +3,38 @@ import * as React from "react";
 import { ANALYZE_TYPE, CommandResponse, DiagramEditorLangClientInterface, GetSyntaxTreeResponse, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramGenerator } from "..";
+import { LowCodeDiagramGenerator, OverviewDiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
 import { PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from "../performanceUtil";
 
 import './style.scss';
 
+// TODO: check if there is a way to take this from the vscode dependency
+export interface WorkspaceFolder {
+    readonly uri: {
+        external: string
+        fsPath: string
+    };
+    readonly name: string;
+    readonly index: number;
+}
+
+export interface DiagramFocus {
+    filePath: string;
+    position: NodePosition;
+}
+
 export interface EditorState {
     filePath: string;
+    projectPaths: WorkspaceFolder[],
     langClientPromise: Promise<DiagramEditorLangClientInterface>;
-    startColumn: number;
-    startLine: number;
+    startColumn: number; // TODO: remove
+    startLine: number; // TODO: remove
     lastUpdatedAt: string;
-    openInDiagram?: NodePosition;
     experimentalEnabled?: boolean;
+    openInDiagram: NodePosition;
+    diagramFocus: DiagramFocus;
+    workspaceName: string;
 }
 
 export interface PFSession {
@@ -30,6 +48,7 @@ export interface EditorAPI {
     updateFileContent: (filePath: string, content: string, skipForceSave?: boolean) => Promise<boolean>;
     gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
     showPerformanceGraph: () => Promise<boolean>;
+    // TODO: move to a seperate interface
     getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>;
     showMessage: () => Promise<boolean>;
     resolveMissingDependency: (filePath: string, fileContent: string) => Promise<GetSyntaxTreeResponse>;
@@ -54,6 +73,14 @@ export enum PALETTE_COMMANDS {
 
 export type EditorProps = EditorState & EditorAPI;
 
+export const WorkspaceOverview: React.FC<EditorProps> = (props: EditorProps) => {
+    return (
+        <OverviewDiagramGenerator
+            {...props}
+        />
+    )
+}
+
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, showPerformanceGraph, getPerfDataFromChoreo,
@@ -69,7 +96,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
     return (
         <div className="lowcode-main-wrapper">
             <DiagramGenErrorBoundary lastUpdatedAt={restProps.lastUpdatedAt}>
-                <DiagramGenerator
+                <LowCodeDiagramGenerator
                     {...state}
                     getFileContent={getFileContent}
                     updateFileContent={updateFileContent}

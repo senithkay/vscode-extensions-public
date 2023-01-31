@@ -30,7 +30,7 @@ import {
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, getMessageObject } from '../telemetry';
+import { CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM } from '../telemetry';
 import { getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { sep } from "path";
@@ -63,7 +63,7 @@ import { PALETTE_COMMANDS } from '../project';
 
 export let hasDiagram: boolean = false;
 
-const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
+// const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
 let langClient: ExtendedLangClient;
 let diagramElement: DiagramOptions | undefined = undefined;
@@ -74,39 +74,53 @@ let experimentalEnabled: boolean;
 let openNodeInDiagram: NodePosition;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
-	isCommand: boolean = false, openInDiagram?): Promise<void> {
+	isCommand: boolean = false, openInDiagram?: NodePosition): Promise<void> {
 
-	openNodeInDiagram = openInDiagram;
+	if (openInDiagram) {
+		openNodeInDiagram = openInDiagram;
+	}
+
 	const editor = window.activeTextEditor;
-	if (isCommand) {
-		if (!editor || !editor.document.fileName.endsWith('.bal')) {
-			const message = 'Current file is not a ballerina file.';
-			sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
-			window.showErrorMessage(message);
-			return;
-		}
-	}
+	// if (isCommand) {
+	// 	if (!editor || !editor.document.fileName.endsWith('.bal')) {
+	// 		const message = 'Current file is not a ballerina file.';
+	// 		sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
+	// 		window.showErrorMessage(message);
+	// 		return;
+	// 	}
+	// }
 
-	if (isCommand) {
-		if (!editor) {
-			window.showErrorMessage(NO_DIAGRAM_VIEWS);
-			return;
-		}
+	// if (isCommand) {
+	// 	if (!editor) {
+	// 		window.showErrorMessage(NO_DIAGRAM_VIEWS);
+	// 		return;
+	// 	}
 
-		diagramElement = {
-			fileUri: editor!.document.uri,
-			startLine: editor!.selection.active.line,
-			startColumn: editor!.selection.active.character,
-			isDiagram: true
-		};
-	} else {
-		diagramElement = {
-			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
-			startLine,
-			startColumn,
-			isDiagram: true
-		};
-	}
+	// 	diagramElement = {
+	// 		fileUri: editor!.document.uri,
+	// 		startLine: editor!.selection.active.line,
+	// 		startColumn: editor!.selection.active.character,
+	// 		isDiagram: true,
+
+	// 	};
+	// } else {
+	// 	diagramElement = {
+	// 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
+	// 		startLine,
+	// 		startColumn,
+	// 		isDiagram: true,
+	// 	};
+	// }
+	
+	diagramElement = {
+		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
+		startLine,
+		startColumn,
+		isDiagram: true,
+		diagramFocus: filePath && filePath.length !== 0 && openInDiagram ?
+			{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined,
+		workspaceName: workspace.name
+	};
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 
@@ -188,30 +202,45 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path) => {
 		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
-			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, position);
+			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position);
 		} else {
 			const args = [{
 				filePath: path,
 				startLine: 0,
 				startColumn: 0,
-				openInDiagram: position
+				openInDiagram: position,
 			}];
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 		}
 	});
 
 	const diagramRenderDisposable = commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (...args: any[]) => {
+		let path = args.length > 0 ? args[0] : '';
+		if (args[0] instanceof Uri) {
+			path = args[0].fsPath;
+		}
+
+		let nodePosition: NodePosition;
+		if (args.length > 1 
+			&& (args[1] as NodePosition).startLine !== undefined
+			&& (args[1] as NodePosition).startColumn !== undefined
+			&& (args[1] as NodePosition).endLine !== undefined
+			&& (args[1] as NodePosition).endColumn !== undefined) {
+			nodePosition = args[1];
+		}
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : {});
+				showDiagramEditor(0, 0, path, true, nodePosition);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
 				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
 			});
 	});
+
+
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
 	experimentalEnabled = ballerinaExtension.enabledExperimentalFeatures();
@@ -559,8 +588,15 @@ class DiagramPanel {
 		if (diagramElement && diagramElement.isDiagram) {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
-				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram, this.webviewPanel.webview);
+				this.webviewPanel.webview.html = render(
+					diagramElement!.fileUri!,
+					diagramElement!.startLine!,
+					diagramElement!.startColumn!,
+					experimentalEnabled,
+					openNodeInDiagram,
+					this.webviewPanel.webview,
+					diagramElement!.diagramFocus
+				);
 			} else {
 				callUpdateDiagramMethod();
 			}

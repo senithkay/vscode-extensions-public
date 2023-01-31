@@ -1,0 +1,98 @@
+.header-container {
+    position: absolute;
+    z-index: 1;
+
+    .title-container {
+        font-size: 20px;
+        font-weight: 500;
+
+        .resource-badge {
+            min-width: 67px;
+            height: 32px;
+            margin: 8px 0 8px 8px;
+            border-radius: 4px;
+            align-content: center;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            font-weight: 300;
+            padding: 2px 5px 5px 5px;
+            color: #fff;
+            font-size: 16px;
+
+            &.get {
+                background-color: #1a98fc;
+            }
+
+            &.post {
+                background-color: #3fc47d;
+            }
+
+            &.put {
+                background-color: #ff9d52;
+            }
+
+            &.delete {
+                background-color: #f5242e;
+            }
+
+            &.patch {
+                background-color: #5567d5;
+            }
+
+            &.default {
+                background-color: #8d91a3;
+            }
+        }
+
+        span {
+            padding-bottom: 2px;
+            
+            sub {
+                vertical-align: bottom;
+            }
+        }
+
+        .signature-param {
+            margin-right: 24px;
+        }
+
+        .type-descriptor {
+            color: #5567d5;
+            font-style: italic;
+            margin-right: 5px;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .signature-param {
+            margin-right: 24px;
+        }
+    }
+
+    .argument-container {
+        display: flex;
+        flex-direction: row;
+
+        .argument-item {
+            display: flex;
+            margin-right: 5px;
+            border-radius: 10px;
+            border: 1px solid red;
+
+            .type-name {
+                // margin-right: 5px;
+                padding: 5px;
+                background: aquamarine;
+                border-top-left-radius: 10px;
+                border-bottom-left-radius: 10px;
+            }
+
+            .argument-name {
+                padding: 5px;
+            }
+        }
+    }
+}
+

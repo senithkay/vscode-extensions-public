@@ -34,7 +34,7 @@ export interface GraphqlDesignOverlayProps {
     targetPosition?: NodePosition;
     ballerinaVersion?: string;
     onCancel?: () => void;
-    configOverlayFormStatus: ConfigOverlayFormStatus;
+    configOverlayFormStatus?: ConfigOverlayFormStatus;
 }
 
 export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
@@ -72,29 +72,29 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     }
 
     return (
-        <DiagramOverlayContainer>
-            <DiagramOverlay
-                position={{ x: 0, y: 0 }}
-                stylePosition={"absolute"}
-                className={graphQLStyleClasses.overlay}
-            >
-                <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
-                    <GraphqlDesignDiagram
-                        targetPosition={targetPosition}
-                        langClientPromise={
-                            getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-                        }
-                        filePath={currentFile.path}
-                        currentFile={currentFile}
-                        ballerinaVersion={ballerinaVersion}
-                        syntaxTree={lowcodeST}
-                        functionPanel={renderFunctionForm}
-                    />
-                    {enableFunctionForm &&
-                    <FormGenerator {...formConfig}/>
-                    }
-                </div>
-            </DiagramOverlay>
-        </DiagramOverlayContainer>
+        // <DiagramOverlayContainer>
+        //     <DiagramOverlay
+        //         position={{ x: 0, y: 0 }}
+        //         stylePosition={"absolute"}
+        //         className={graphQLStyleClasses.overlay}
+        //     >
+        <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
+            <GraphqlDesignDiagram
+                targetPosition={targetPosition}
+                langClientPromise={
+                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                }
+                filePath={currentFile.path}
+                currentFile={currentFile}
+                ballerinaVersion={ballerinaVersion}
+                syntaxTree={lowcodeST}
+                functionPanel={renderFunctionForm}
+            />
+            {enableFunctionForm &&
+            <FormGenerator {...formConfig}/>
+            }
+        </div>
+        // </DiagramOverlay>
+        // </DiagramOverlayContainer>
     );
 }

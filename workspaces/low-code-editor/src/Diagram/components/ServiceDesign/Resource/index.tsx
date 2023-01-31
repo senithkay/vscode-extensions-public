@@ -16,15 +16,16 @@ import { useIntl } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { Divider } from "@material-ui/core";
-import { BallerinaSTModifyResponse, ConfigOverlayFormStatus, DiagramEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaSTModifyResponse, ConfigOverlayFormStatus, DiagramEditorLangClientInterface, LabelEditIcon, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConfigPanelSection, Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, NodePosition, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 import { Context } from "../../../../Contexts/Diagram";
 import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
+import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
 
 import { ResourceHeader } from "./ResourceHeader";
@@ -37,20 +38,26 @@ export interface ResourceBodyProps {
 
 export function ResourceBody(props: ResourceBodyProps) {
     const { model, handleDiagramEdit, isExpandedAll } = props;
-    const classes = useStyles();
-    const intl = useIntl();
+    const {
+        props: { currentFile, syntaxTree },
+        api: {
+            code: { modifyDiagram },
+            ls: { getDiagramEditorLangClient },
+        },
+    } = useContext(Context);
 
+    const classes = useStyles();
     const [isExpanded, setIsExpanded] = useState(false);
     const [schema, setSchema] = useState({});
-    const [recordSelected, setRecordSelected] = useState<TypeDefinition>(undefined);
 
 
-    const onCancelEdit = () => {
-        setRecordSelected(undefined);
-    }
     useEffect(() => {
         setIsExpanded(isExpandedAll)
     }, [isExpandedAll]);
+
+    useEffect(() => {
+        setSchema({})
+    }, [model]);
 
     const handleIsExpand = () => {
         setIsExpanded(!isExpanded)
@@ -64,7 +71,7 @@ export function ResourceBody(props: ResourceBodyProps) {
             startColumn: model.position.startColumn,
             startLine: model.position.startLine - 1
         }
-        handleDiagramEdit(model, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false });
+        handleDiagramEdit(model, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false, renderRecordPanel });
     }
 
     const handleDeleteBtnClick = (e?: React.MouseEvent) => {
@@ -77,25 +84,31 @@ export function ResourceBody(props: ResourceBodyProps) {
         modifyDiagram(modifications);
     }
 
-    const {
-        props: { currentFile, stSymbolInfo, importStatements, syntaxTree: lowcodeST },
-        api: {
-            code: { modifyDiagram, updateFileContent },
-            ls: { getDiagramEditorLangClient, getExpressionEditorLangClient },
-            library,
-        },
-    } = useContext(Context);
 
 
     const bodyArgs: any[] = [];
 
     model.functionSignature.parameters.forEach((param, i) => {
+        // value = record {|*http:Ok; Foo body;|}
         if (STKindChecker.isRequiredParam(param) && param.source.includes("Payload")) {
-            bodyArgs.push(
-                <div key={i} className={classes.signature}>
-                    {param.source}
-                </div>
-            )
+            if (param.typeData?.typeSymbol?.name) {
+                bodyArgs.push(
+                    <tr key={i} className={classes.signature}>
+                        <td>
+                            <div>
+                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
+                                {schema[i] && <pre className={classes.schema}>{schema[i]}  <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                            </div>
+                        </td>
+                    </tr>
+                )
+            } else {
+                bodyArgs.push(
+                    <div key={i} className={classes.signature}>
+                        {param.source}
+                    </div>
+                )
+            }
         }
     });
 
@@ -105,9 +118,11 @@ export function ResourceBody(props: ResourceBodyProps) {
     model.functionSignature.parameters.forEach((param, i) => {
         if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
             paramArgs.push(
-                <div key={i} className={classes.signature}>
-                    {param.source}
-                </div>
+                <tr key={i} className={classes.signature}>
+                    <td>
+                        {param.source}
+                    </td>
+                </tr>
             )
         }
     });
@@ -147,7 +162,28 @@ export function ResourceBody(props: ResourceBodyProps) {
         return langClient.getDefinitionPosition(request);
     };
 
-
+    const renderRecordPanel = (closeRecordEditor: (createdRecord?: string) => void) => {
+        const record: NodePosition = (syntaxTree as ModulePart).members[0].position;
+        const lastMemberPosition: NodePosition = {
+            endColumn: 0,
+            endLine: record.startLine - 1,
+            startColumn: 0,
+            startLine: record.startLine - 1
+        }
+        return (
+            <RecordEditor
+                formType={""}
+                targetPosition={lastMemberPosition}
+                name={"record"}
+                onCancel={closeRecordEditor}
+                // tslint:disable-next-line: no-empty
+                onSave={() => { }}
+                isTypeDefinition={true}
+                isDataMapper={true}
+                showHeader={true}
+            />
+        );
+    };
 
     getReturnTypesArray().forEach((value, i) => {
         let code = "500";
@@ -172,7 +208,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                         {des}
                         <div>
                             Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, i)}>{recordName}</span>
-                            {schema[i] && <pre className={classes.schema}>{schema[i]}</pre>}
+                            {schema[i] && <pre className={classes.schema}>{schema[i]} <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
                         </div>
                     </td>
                 </tr>
@@ -199,27 +235,50 @@ export function ResourceBody(props: ResourceBodyProps) {
         if (recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
             setSchema({ ...schema, [key]: [ST.source] })
-            // setRecordSelected(ST);
-            // handleDiagramEdit(ST, ST.position, { formType: "RecordEditor", isLoading: false });
+        }
+    }
+
+    const openRecordEditor = async (record: any) => {
+
+        const langClient = await getDiagramEditorLangClient();
+        const recordInfo = await getRecord(record, langClient);
+
+        if (recordInfo.parseSuccess) {
+            const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
+            handleDiagramEdit(ST, ST.position, { formType: "RecordEditor", isLoading: false });
         }
     }
 
     const args = (
         <>
             <ConfigPanelSection title={"Parameters"}>
-                {paramArgs}
+                <table className={classes.responseTable}>
+                    <thead>
+                        <td>Description</td>
+                    </thead>
+                    <tbody>
+                        {paramArgs}
+                    </tbody>
+                </table>
             </ConfigPanelSection>
-            <Divider className="resource-divider" />
+            {/* <Divider className="resource-divider" /> */}
         </>
     );
 
     const bodyAr = (
         <>
             <ConfigPanelSection title={"Body"}>
-                {bodyArgs}
+                <table className={classes.responseTable}>
+                    <thead>
+                        <td>Description</td>
+                    </thead>
+                    <tbody>
+                        {bodyArgs}
+                    </tbody>
+                </table>
             </ConfigPanelSection>
 
-            <Divider className="resource-divider" />
+            {/* <Divider className="resource-divider" /> */}
         </>
     )
     const body = (

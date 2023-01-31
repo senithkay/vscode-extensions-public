@@ -95,7 +95,7 @@ export const StatementEditorContext = React.createContext({
     syntaxTree: null,
     stSymbolInfo: null,
     importStatements: [],
-    onWizardClose: () => undefined,
+    onWizardClose: (typeName?: string) => undefined,
     onCancel: () => undefined,
     experimentalEnabled: false,
     isExpressionMode: false,

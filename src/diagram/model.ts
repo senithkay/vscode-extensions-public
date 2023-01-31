@@ -18,12 +18,25 @@
  */
 
 import { Uri } from 'vscode';
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
+export enum ViewMode {
+    LOW_CODE,
+    OVERVIEW
+}
+
+export interface DiagramFocus {
+    fileUri: string;
+    position: NodePosition;
+}
 
 export interface DiagramOptions {
     startLine?: number;
     startColumn?: number;
     isDiagram: boolean;
     fileUri?: Uri;
+    diagramFocus?: DiagramFocus;
+    workspaceName?: string;
 }
 
 export interface SyntaxTree {

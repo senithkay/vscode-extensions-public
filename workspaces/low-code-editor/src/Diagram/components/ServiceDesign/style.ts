@@ -140,12 +140,31 @@ export const useStyles = makeStyles(() =>
         },
         schema: {
             background: "#f3efef",
-            width: "fit-content",
             padding: 16,
         },
         schemaButton: {
             cursor: "pointer",
             fontWeight: 900
+        },
+        recordEdit: {
+            textAlign: "end",
+            marginTop: -35,
+            cursor: "pointer"
+        },
+        editButton: {
+            paddingRight: 16,
+            cursor: "pointer"
+        },
+        serviceTitle: {
+            padding: 15,
+        },
+        servicePath: {
+            fontSize: 20,
+            fontWeight: 400
+        },
+        listenerText: {
+            fontSize: 15,
+            fontWeight: 200
         }
     }),
 );

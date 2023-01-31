@@ -20,7 +20,7 @@ const background = require('../resources/assets/PatternBg.svg') as string;
 
 export const Container = styled.div`
   // should take up full height minus the height of the header
-  height: calc(100% - 50px);
+  height: calc(100vh - 70px);
   // background: #E6E8F0;
   background-image: url('${background}');
   background-repeat: repeat;

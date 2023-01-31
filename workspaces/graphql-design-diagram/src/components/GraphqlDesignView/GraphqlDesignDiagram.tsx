@@ -82,7 +82,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         // TODO: Add overlay header
         <>
             <GraphqlDiagramContext {...ctxt}>
-                {designModel && <GraphqlDiagramContainer designModel={designModel}/>}
+                {designModel && <GraphqlDiagramContainer designModel={designModel} />}
             </GraphqlDiagramContext>
         </>
         // TODO: Add the error banner in-case of an incompleteModel (compilation errors will be handled at the initial level)

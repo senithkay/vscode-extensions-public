@@ -11,16 +11,17 @@
  * associated services.
 */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useMemo, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
-import { ConfigOverlayFormStatus, getSource, TopLevelPlusIcon, updateResourceSignature } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ComponentExpandButton, LinePrimaryButton, PrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ComponentExpandButton, LinePrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     NodePosition,
     ResourceAccessorDefinition,
     ServiceDeclaration,
+    STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
@@ -32,7 +33,7 @@ import { useStyles } from "./style";
 import "./style.scss";
 
 export interface ServiceDesignProps {
-    fnST: STNode;
+    model: STNode;
     langClientPromise: Promise<IBallerinaLangClient>;
     currentFile?: {
         content: string,
@@ -43,30 +44,28 @@ export interface ServiceDesignProps {
     handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
 }
 
-export function ServiceDesign(propsz: ServiceDesignProps) {
+export function ServiceDesign(props: ServiceDesignProps) {
 
     const {
-        fnST,
+        model,
         onClose,
         langClientPromise,
         currentFile,
         handleDiagramEdit
-    } = propsz;
+    } = props;
 
     const [isPlusClicked, setPlusClicked] = useState(false);
     const [isAllExpanded, setIsAllExpanded] = useState(false);
     const [children, setChildren] = useState<JSX.Element[]>([]);
 
-
     const classes = useStyles();
     const intl = useIntl();
 
-
-    const fnSTZ = fnST as ServiceDeclaration;
+    const serviceST = model as ServiceDeclaration;
 
     useEffect(() => {
         const cc: JSX.Element[] = [];
-        fnSTZ?.members.forEach((member) => {
+        serviceST?.members.forEach((member) => {
             const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
             cc.push(
                 <div className={'service-member'} data-start-position={startPosition} >
@@ -75,7 +74,7 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
             );
         });
         setChildren(cc);
-    }, [fnSTZ, isAllExpanded]);
+    }, [serviceST, isAllExpanded]);
 
 
 
@@ -86,19 +85,42 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
 
     const handlePlusClick = () => {
         const lastMemberPosition: NodePosition = {
-            endColumn: fnSTZ.closeBraceToken.position.endColumn,
-            endLine: fnSTZ.closeBraceToken.position.endLine,
-            startColumn: fnSTZ.closeBraceToken.position.startColumn,
-            startLine: fnSTZ.closeBraceToken.position.startLine
+            endColumn: serviceST.closeBraceToken.position.endColumn,
+            endLine: serviceST.closeBraceToken.position.endLine,
+            startColumn: serviceST.closeBraceToken.position.startColumn,
+            startLine: serviceST.closeBraceToken.position.startLine
         }
         handleDiagramEdit(undefined, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false });
     };
 
+
+    let servicePath = "";
+    let listeningOnText = "";
+    if (serviceST) {
+        serviceST.absoluteResourcePath?.forEach(item => {
+            servicePath += item.value;
+        });
+
+        if (serviceST.expressions.length > 0 && STKindChecker.isExplicitNewExpression(serviceST.expressions[0])) {
+            if (STKindChecker.isQualifiedNameReference(serviceST.expressions[0].typeDescriptor)) {
+                // serviceType = serviceST.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
+                listeningOnText = serviceST.expressions[0].source;
+            }
+        }
+    }
+
+
     return (
         <div className={classes.root}>
-            {fnSTZ && (
+            {serviceST && (
                 <>
-                    <ServiceHeader onClose={onClose} model={fnSTZ} />
+                    {/*<ServiceHeader onClose={onClose} model={fnSTZ} />*/}
+                    <div className={classes.serviceTitle}>
+                        <span className={classes.servicePath}>Service {servicePath}</span>
+                        <span className={classes.listenerText}>
+                            {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
+                        </span>
+                    </div>
                     <div className={classes.expandAll}>
                         <div className={classes.collapseBtn} onClick={onExpandAllClick}>
                             Collapse All

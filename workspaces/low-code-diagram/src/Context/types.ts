@@ -55,6 +55,17 @@ export interface LowCodeDiagramActions {
     editorComponentStart: (payload: STNode) => void;
 }
 
+
+// TODO: move this to commons module
+export interface ComponentViewInfo {
+    filePath: string;
+    position: NodePosition;
+    fileName?: string;
+    moduleName?: string;
+    name?: string;
+    uid?: string;
+}
+
 export interface LowCodeDiagramAPI {
     edit?: {
         deleteComponent?: (model: STNode, onDelete?: () => void) => void;
@@ -106,6 +117,10 @@ export interface LowCodeDiagramAPI {
 
     insights?: {
         onEvent?: (event: LowcodeEvent) => void;
+    },
+    navigation: {
+        updateSelectedComponent: (info: ComponentViewInfo) => void;
+        navigateUptoParent: (position: NodePosition) => void;
     }
 }
 

@@ -198,7 +198,8 @@
         background-image: url('../assets/PatternBg.svg');
         background-repeat: repeat;
         overflow: hidden;
-        height: 100%;
+        // height: 100%;
+        height: calc(100vh - 44px);
     }
 }
 

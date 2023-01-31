@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { Uri } from 'monaco-editor';
 
-import { DiagramGenerator, DiagramGeneratorProps } from '../DiagramGenerator';
+import { DiagramGeneratorProps, LowCodeDiagramGenerator } from '../DiagramGenerator';
 
 import { CodeEditor } from './CodeEditor/CodeEditor';
 
@@ -59,7 +59,7 @@ export function DiagramGeneratorWrapper(props: DiagramGeneratorProps) {
         :
         // tslint:disable-next-line: jsx-wrap-multiline
         <>
-            <DiagramGenerator {...newProps} />
+            <LowCodeDiagramGenerator {...newProps} />
             <hr/>
             <CodeEditor
                 content={fileContent}

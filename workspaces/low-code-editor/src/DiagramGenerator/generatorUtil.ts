@@ -44,8 +44,6 @@ export async function getLowcodeST(payload: any, filePath: string, langClient: D
                                    showMessage?: (arg: string, messageType: MESSAGE_TYPE, ignorable: boolean,
                                                   filePath?: string, fileContent?: string, bypassChecks?: boolean) => void) {
 
-    const modulePart: ModulePart = payload;
-    const members: STNode[] = modulePart?.members || [];
     const st = sizingAndPositioningST(payload, experimentalEnabled, showMessage);
     cleanLocalSymbols();
     cleanModuleLevelSymbols();
@@ -77,9 +75,9 @@ export function getDefaultSelectedPosition(modulePart: ModulePart): SelectedPosi
         return getFnStartPosition(functions[0]);
     } else if (modulePart.members && modulePart.members.length > 0) { // select first member in module part
         const { startColumn, startLine } = modulePart.members[0]?.position;
-        return { startColumn, startLine }
+        return { startColumn, startLine };
     } else {
-        return { startColumn: 0, startLine: 0 }
+        return { startColumn: 0, startLine: 0 };
     }
 }
 

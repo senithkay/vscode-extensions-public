@@ -53,7 +53,7 @@ export interface LowCodeEditorProps {
         type: string;
         model?: STNode;
     };
-    onWizardClose: () => void;
+    onWizardClose: (typeName?: string) => void;
     onCancel: () => void;
     syntaxTree: STNode;
     stSymbolInfo: STSymbolInfo;

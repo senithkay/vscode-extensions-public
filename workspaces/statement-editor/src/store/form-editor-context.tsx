@@ -43,7 +43,10 @@ export const FormEditorContext = React.createContext({
                diagnosticOffSet?: NodePosition) => undefined,
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => undefined,
-    changeInProgress: false
+    changeInProgress: false,
+    showRecordEditor: false,
+    handleShowRecordEditor: () => undefined,
+    newlyCreatedRecord: undefined
 });
 
 export interface FormEditorProps {
@@ -68,6 +71,9 @@ export interface FormEditorProps {
     };
     applyModifications: (modifications: STModification[]) => void;
     changeInProgress: boolean;
+    showRecordEditor?: boolean;
+    handleShowRecordEditor?: () => void;
+    newlyCreatedRecord?: string;
 }
 
 export const FormEditorContextProvider = (props: FormEditorProps) => {
@@ -86,7 +92,10 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
         onSave,
         onChange,
         getLangClient,
-        changeInProgress
+        changeInProgress,
+        showRecordEditor,
+        handleShowRecordEditor,
+        newlyCreatedRecord
     } = props;
 
     return (
@@ -105,7 +114,10 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
                 onSave,
                 onChange,
                 getLangClient,
-                changeInProgress
+                changeInProgress,
+                showRecordEditor,
+                handleShowRecordEditor,
+                newlyCreatedRecord
             }}
         >
             {children}

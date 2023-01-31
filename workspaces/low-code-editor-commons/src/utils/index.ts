@@ -5,3 +5,5 @@ export * from "./Diagram/identifier-util";
 export * from "./Diagram/form-component-utils";
 export * from "./Portal/index";
 export * from "./Diagram/keyboard-navigation-manager";
+export * from "./Portal/NavigationBarDetailContainer";
+

@@ -15,7 +15,9 @@ import React from "react";
 
 import CloseIcon from '@material-ui/icons/Close';
 import HomeIcon from '@material-ui/icons/Home';
-import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+
 
 import { useStyles } from "./style";
 
@@ -34,7 +36,6 @@ export function ServiceHeader(props: ServiceHeaderProps) {
     model.absoluteResourcePath.forEach(item => {
         servicePath += item.value;
     });
-
 
 
     let listeningOnText = "";
@@ -72,6 +73,16 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                     {listeningOnText.length > 0 ? `listening on ${listeningOnText}` : ""}
                 </div>
             </div>
+            <div
+                // onClick={handleEditBtnClick}
+                className={classes.editButton}
+                id="edit-button"
+            >
+                <div>
+                    <LabelEditIcon />
+                </div>
+            </div>
+
             <div className={classes.closeButton} onClick={onClose} >
                 <CloseIcon />
             </div>
