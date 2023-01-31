@@ -42,7 +42,7 @@ const Container = styled.div`
     font-family: GilmerRegular;
     justify-content: center;
     min-height: 100vh;
-    min-width: 100%;
+    min-width: 100vw;
     background: ${(props: ContainerStyleProps) => `${props.backgroundColor}`};
 `;
 
@@ -67,7 +67,7 @@ export function DesignDiagram(props: DiagramProps) {
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     const diagramPadding = currentView === Views.CELL_VIEW ? 5 : 0;
-    const diagramWidth = '100%';
+    const diagramWidth = '100vw';
     const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
 
     useEffect(() => {
@@ -130,7 +130,7 @@ export function DesignDiagram(props: DiagramProps) {
                 {editingEnabled && projectComponents && projectComponents.size < 1 ?
                     <PromptScreen onComponentAdd={onComponentAddClick} /> :
                     projectComponents ?
-                        <div style={{paddingRight: diagramPadding, width: diagramWidth}}>
+                        <>
                             {currentView === Views.L1_SERVICES && editingEnabled &&
                                 <ControlsLayer onComponentAddClick={onComponentAddClick} />
                             }
@@ -153,7 +153,7 @@ export function DesignDiagram(props: DiagramProps) {
                                 workspaceComponents={projectComponents}
                                 typeCompositionModel={typeCompositionModel.current}
                             />
-                        </div> :
+                        </> :
                         <CircularProgress sx={{ color: Colors.PRIMARY }} />
                 }
             </Container>

@@ -39,10 +39,10 @@ import { GatewayPortModel } from "../components/gateway/GatewayPort/GatewayPortM
 import { GatewayLinkModel } from "../components/gateway/GatewayLink/GatewayLinkModel";
 
 export const defaultZoomLevel = 100;
-export const diagramTopXOffset = 550;
+export const diagramTopXOffset = 585;
 export const diagramTopYOffset = 200;
 export const diagramLeftXOffset = 20;
-export const diagramLeftYOffset = 20;
+export const diagramLeftYOffset = 25;
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();

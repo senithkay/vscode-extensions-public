@@ -35,7 +35,7 @@ export const Header = styled.div`
     justify-content: space-between;
     height: 60px;
     min-width: 200px;
-    padding: 12px 5px 12px 10px;
+    padding: 12px 5px 12px 15px;
 `;
 
 export const HeaderTitle = styled.span`

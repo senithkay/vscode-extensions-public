@@ -41,7 +41,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
     const [typeModel, setTypeModel] = useState<DiagramModel>(undefined);
 
     const gWOffset = 25;
-    const westGWLeft = '0';
+    const westGWLeft = '-40px';
     const westGWTop = `calc(50% - ${gWOffset}px)`;
     const northGWLeft = `calc(50% - ${gWOffset}px)`;
     const northGWTop = '0';
@@ -84,7 +84,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
     }
 
     return (
-        <div style={{display: "flex", alignSelf: "flex-start", height: "93vh"}}>
+        <>
             {hasModelLoaded() ?
                 <>
                     {serviceModels &&
@@ -146,6 +146,6 @@ export function DiagramContainer(props: DiagramContainerProps) {
                 </> :
                 <CircularProgress />
             }
-        </div>
+        </>
     );
 }

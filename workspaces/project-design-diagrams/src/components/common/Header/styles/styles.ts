@@ -29,7 +29,6 @@ export const HeaderContainer = styled.div`
     height: 50px;
     justify-content: space-between;
     min-width: 700px;
-    padding-inline: 20px;
     width: calc(100vw - 40px);
 `;
 

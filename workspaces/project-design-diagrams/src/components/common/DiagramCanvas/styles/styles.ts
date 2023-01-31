@@ -22,7 +22,6 @@ import styled from '@emotion/styled';
 const background = require('../../../../resources/assets/PatternBg.svg') as string;
 
 export const Canvas = styled.div`
-    width: 100%;
     background-image: url('${background}');
 	background-repeat: repeat;
     overflow: hidden;
