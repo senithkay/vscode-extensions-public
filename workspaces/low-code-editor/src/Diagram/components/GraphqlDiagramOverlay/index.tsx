@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,25 +10,26 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useState } from "react";
 
 import { GraphqlDesignDiagram } from "@wso2-enterprise/ballerina-graphql-design-diagram";
-import { IBallerinaLangClient, LinePosition } from "@wso2-enterprise/ballerina-languageclient";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     ConfigOverlayFormStatus,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    NodePosition,
+    NodePosition, STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../Contexts/Diagram";
-import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
+import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
 
 import { graphQLOverlayStyles } from "./style";
 
-export interface DataMapperProps {
+export interface GraphqlDesignOverlayProps {
     model?: STNode;
     targetPosition?: NodePosition;
     ballerinaVersion?: string;
@@ -36,24 +37,41 @@ export interface DataMapperProps {
     configOverlayFormStatus?: ConfigOverlayFormStatus;
 }
 
-export function GraphqlDiagramOverlay(props: DataMapperProps) {
+export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     const { targetPosition, ballerinaVersion, onCancel: onClose, model } = props;
 
     const graphQLStyleClasses = graphQLOverlayStyles();
 
     const {
-        props: { currentFile, stSymbolInfo, importStatements, syntaxTree: lowcodeST },
+        props: { currentFile, syntaxTree: lowcodeST },
         api: {
-            code: { modifyDiagram, updateFileContent },
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
-    // <DiagramOverlayContainer>
-    //     <DiagramOverlay
-    //         position={{ x: 0, y: 0 }}
-    //         stylePosition={"absolute"}
-    //         className={graphQLStyleClasses.overlay}
-    //     >
+
+    const [enableFunctionForm, setEnableFunctionForm] = useState(false);
+    const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
+
+    const renderFunctionForm = (position: NodePosition, functionType: string) => {
+        if (STKindChecker.isServiceDeclaration(model)) {
+            const lastMemberPosition: NodePosition = {
+                endColumn: model.closeBraceToken.position.endColumn,
+                endLine: model.closeBraceToken.position.endLine,
+                startColumn: model.closeBraceToken.position.startColumn,
+                startLine: model.closeBraceToken.position.startLine
+            };
+            setFormConfig({
+                configOverlayFormStatus: { formType: "GraphqlConfigForm", isLoading: false },
+                targetPosition: lastMemberPosition,
+                onCancel: () => {
+                    setEnableFunctionForm(false);
+                },
+
+            });
+            setEnableFunctionForm(true);
+        }
+    };
+
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
             <GraphqlDesignDiagram
@@ -65,9 +83,11 @@ export function GraphqlDiagramOverlay(props: DataMapperProps) {
                 currentFile={currentFile}
                 ballerinaVersion={ballerinaVersion}
                 syntaxTree={lowcodeST}
+                functionPanel={renderFunctionForm}
             />
+            {enableFunctionForm &&
+            <FormGenerator {...formConfig}/>
+            }
         </div>
     );
-    // </DiagramOverlay>
-    // </DiagramOverlayContainer>
 }

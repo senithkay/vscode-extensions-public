@@ -180,7 +180,7 @@ export function FormEditor(props: FormEditorProps) {
                     )
                     const source = getInitialSource(type, position).trim();
                     const partialST = await getPartialSTForModuleMembers({ codeSnippet: source },
-                        getLangClient, type === "Resource"
+                        getLangClient, (type === "Resource" || type === "GraphqlResource")
                     );
                     let moduleList;
                     if (!currentFile?.content?.includes("ballerina/http") && (type === "Service" ||
