@@ -33,7 +33,7 @@ export function FunctionHeader() {
     if (STKindChecker.isFunctionDefinition(functionNode)) {
         // TODO: handle general funciton
         titleComponents.push(
-            <span>{functionNode.functionName.value}</span>
+            <span>{`Function Design - ${functionNode.functionName.value}`}</span>
         );
 
         functionNode.functionSignature.parameters
