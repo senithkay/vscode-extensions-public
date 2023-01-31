@@ -49,6 +49,7 @@ export function EntityWidget(props: EntityWidgetProps) {
 
     return (
         <EntityNode
+            isAnonymous={node.entityObject.isAnonymous}
             isSelected={node.isNodeSelected(selectedLink, node.getID())}
             shouldShade={currentView === Views.TYPE_COMPOSITION ? (node.isRootEntity ? false : true) : false}
         >
