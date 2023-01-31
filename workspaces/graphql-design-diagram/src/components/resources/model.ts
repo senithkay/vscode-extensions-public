@@ -56,7 +56,7 @@ export interface UnionComponent {
     possibleTypes: Interaction[];
 }
 
-interface Position {
+export interface Position {
     filePath: string;
     startLine: LinePosition;
     endLine: LinePosition;

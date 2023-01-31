@@ -20,6 +20,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { GraphqlDiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlDiagramContainer } from "../GraphqlDiagramContainer/GraphqlDiagramContainer";
 import { GraphqlDesignModel } from "../resources/model";
 import { getModelForGraphqlService } from "../utils/ls-util";
@@ -35,6 +36,7 @@ export interface GraphqlDesignDiagramProps {
     };
     ballerinaVersion?: string;
     syntaxTree?: STNode;
+    functionPanel?: (position: NodePosition, functionType: string) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -48,7 +50,12 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
-    const { targetPosition, langClientPromise, filePath, currentFile, ballerinaVersion, syntaxTree } = props;
+    const {
+        targetPosition,
+        langClientPromise,
+        currentFile,
+        functionPanel
+    } = props;
 
     const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
     const [isIncompleteModel, setModelStatus] = useState(false);
@@ -72,10 +79,16 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         setModelStatus(graphqlModel.isIncompleteModel);
     };
 
+    const ctxt = {
+        functionPanel
+    };
+
     return (
         // TODO: Add overlay header
         <>
-            {designModel && <GraphqlDiagramContainer designModel={designModel} />}
+            <GraphqlDiagramContext {...ctxt}>
+                {designModel && <GraphqlDiagramContainer designModel={designModel} />}
+            </GraphqlDiagramContext>
         </>
         // TODO: Add the error banner in-case of an incompleteModel (compilation errors will be handled at the initial level)
     );
