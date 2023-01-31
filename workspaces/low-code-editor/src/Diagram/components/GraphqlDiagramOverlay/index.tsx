@@ -64,7 +64,10 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
             setFormConfig({
                 // model,
                 configOverlayFormStatus: { formType: "GraphqlConfigForm", isLoading: false },
-                targetPosition: lastMemberPosition
+                targetPosition: lastMemberPosition,
+                onCancel: () => {
+                    setEnableFunctionForm(false);
+                },
 
             });
             setEnableFunctionForm(true);
