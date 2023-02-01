@@ -32,21 +32,20 @@ interface ResourceFunctionProps {
 }
 
 export function ResourceFunctionWidget(props: ResourceFunctionProps) {
-    const { engine, node, resource, resourcePath} = props;
-
+    const { engine, node, resource, resourcePath } = props;
+    console.log('>>> resource', props);
     return (
         <>
             <ServicePortWidget
                 port={node.getPort(`left-${resourcePath}`)}
                 engine={engine}
             />
-                <ResourceAction color={ActionColors.get(resource.resourceId.action)}>
-                    {resource.resourceId.action}
-                </ResourceAction>
-
-                <ResourceName>
-                    {resource.resourceId.path}
-                </ResourceName>
+            <ResourceAction color={ActionColors.get(resource.resourceId.action)}>
+                {resource.resourceId.action}
+            </ResourceAction>
+            <ResourceName>
+                {resource.resourceId.path}
+            </ResourceName>
             <ServicePortWidget
                 port={node.getPort(`right-${resourcePath}`)}
                 engine={engine}

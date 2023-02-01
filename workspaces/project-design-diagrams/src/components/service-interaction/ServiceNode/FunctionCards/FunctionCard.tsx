@@ -75,6 +75,7 @@ export function FunctionCard(props: FunctionCardProps) {
                 <NodeMenuWidget
                     background={Colors.SECONDARY}
                     location={functionElement.elementLocation}
+                    resourceFunction={functionElement}
                 />
             }
         </FunctionContainer>

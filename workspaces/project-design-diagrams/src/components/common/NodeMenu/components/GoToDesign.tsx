@@ -20,25 +20,25 @@
 import React, { useState } from 'react';
 import Tooltip from '@mui/material/Tooltip';
 import EditIcon from '@mui/icons-material/Edit';
-import { Service } from '../../../../resources';
+import { RemoteFunction, ResourceFunction, Service } from '../../../../resources';
 import { useDiagramContext } from '../../DiagramContext/DiagramContext';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
-export function GoToDesign(props: { service: Service }) {
-    const { service } = props;
+export function GoToDesign(props: { element: Service | ResourceFunction | RemoteFunction }) {
+    const { element } = props;
     const { goToDesignDiagram } = useDiagramContext();
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const handleIconClick = () => {
-        console.log('>>> service', service);
+        console.log('>>> service', element);
         // commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM);
         const position: NodePosition = {
-            startLine: service.elementLocation.startPosition.line,
-            startColumn: service.elementLocation.startPosition.offset,
-            endLine: service.elementLocation.endPosition.line,
-            endColumn: service.elementLocation.endPosition.offset,
+            startLine: element.elementLocation.startPosition.line,
+            startColumn: element.elementLocation.startPosition.offset,
+            endLine: element.elementLocation.endPosition.line,
+            endColumn: element.elementLocation.endPosition.offset,
         }
-        goToDesignDiagram(position, service.elementLocation.filePath);
+        goToDesignDiagram(position, element.elementLocation.filePath);
     }
 
     return (
