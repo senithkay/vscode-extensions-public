@@ -59,7 +59,7 @@ Ballerina allows you to visualize a program written in Ballerina as a graphical 
 - Project Design view
 - Data Mapper
 
-### Ballerina Notebook
+### Ballerina Notebooks
 
 Ballerina notebooks can be created in VS Code using the `.balnotebook` extension for the filename. Markdown and Ballerina code snippets are supported by Ballerina notebook cells.
 
