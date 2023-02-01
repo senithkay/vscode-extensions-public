@@ -34,7 +34,7 @@ Follow the steps below to get the Ballerina VS Code extension up and running.
 
 ## Functionalities
 
-The main funtionalities of the extension are listed below.
+The main functionalities of the extension are listed below.
 
 ### Edit Ballerina code
 
