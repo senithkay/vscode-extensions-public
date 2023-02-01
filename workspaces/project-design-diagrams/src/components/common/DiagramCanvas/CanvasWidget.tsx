@@ -29,7 +29,7 @@ import { Canvas } from './styles/styles';
 import './styles/styles.css';
 import debounce from "lodash.debounce";
 import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
-import { getGWNodesModel, removeGWLinks } from "../../../utils/utils";
+import { addGWNodesModel, removeGWLinks } from "../../../utils/utils";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -135,6 +135,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             setDiagramModel(model);
             autoDistribute();
         }
+        if (diagramEngine.getModel()) {
+            removeGWLinks(diagramEngine);
+        }
     }, [currentView]);
 
     const autoDistribute = () => {
@@ -150,7 +153,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             dagreEngine.redistribute(diagramEngine.getModel());
             if (currentView === Views.CELL_VIEW) {
                 // Adding GW links and nodes after dagre distribution
-                getGWNodesModel(diagramEngine);
+                addGWNodesModel(diagramEngine);
                 positionGatewayNodes(diagramEngine);
             }
             diagramEngine.repaintCanvas();

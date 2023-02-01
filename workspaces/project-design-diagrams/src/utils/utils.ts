@@ -176,7 +176,7 @@ function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeMode
     });
 }
 
-export function getGWNodesModel(engine: DiagramEngine) {
+export function addGWNodesModel(engine: DiagramEngine) {
     addGWNodes(engine);
     addGWLinks(engine);
 }

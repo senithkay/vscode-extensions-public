@@ -89,20 +89,40 @@ export function DiagramContainer(props: DiagramContainerProps) {
                 <>
                     {serviceModels &&
                         <>
-                            {currentView === Views.L1_SERVICES && (
+                            <div style={{ display: currentView === Views.L1_SERVICES ? 'block' : 'none' }}>
                                 <DiagramCanvasWidget
                                     type={Views.L1_SERVICES}
                                     model={serviceModels.levelOne}
                                     {...{currentView, layout}}
                                 />
-                            )}
+                            </div>
 
-                            {currentView === Views.L2_SERVICES && (
+                            <div style={{ display: currentView === Views.L2_SERVICES ? 'block' : 'none' }}>
                                 <DiagramCanvasWidget
                                     type={Views.L2_SERVICES}
                                     model={serviceModels.levelTwo}
                                     {...{currentView, layout}}
                                 />
+                            </div>
+
+                            { currentView === Views.CELL_VIEW && (
+                                <CellDiagram>
+                                    {/*West Gateway*/}
+                                    <GatewayContainer top={westGWTop} left={westGWLeft}>
+                                        <GatewayIcon/>
+                                    </GatewayContainer>
+                                    {/*North Gateway*/}
+                                    <GatewayContainer top={northGWTop} left={northGWLeft} rotate={"90deg"}>
+                                        <GatewayIcon/>
+                                    </GatewayContainer>
+                                    <CellContainer>
+                                        <DiagramCanvasWidget
+                                            type={Views.CELL_VIEW}
+                                            model={serviceModels.levelOne}
+                                            {...{currentView, layout}}
+                                        />
+                                    </CellContainer>
+                                </CellDiagram>
                             )}
                         </>
                     }
