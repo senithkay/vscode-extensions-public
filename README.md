@@ -83,7 +83,7 @@ You can also enable [debug logs](https://wso2.com/ballerina/vscode/docs/debug-th
 
 ## Documentation
 
-The [Ballerina VS Code Extension Documentation](https://wso2.com/ballerina/vscode/docs/) describe the functionalities of this extension in detail.
+The [Ballerina VS Code Extension Documentation](https://wso2.com/ballerina/vscode/docs/) describes the functionalities of this extension in detail.
 
 ## Ask for Help
 
