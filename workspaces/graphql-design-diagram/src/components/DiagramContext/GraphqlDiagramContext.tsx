@@ -19,20 +19,24 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 interface GraphqlDiagramContextProps {
     children?: React.ReactNode,
     functionPanel?: (position: NodePosition, functionType: string) => void;
+    servicePanel?: () => void;
 }
 
 export const DiagramContext = createContext({
-        functionPanel: (position: NodePosition, functionType: string) => {}
+        functionPanel: (position: NodePosition, functionType: string) => {},
+        servicePanel: () => {}
     }
 );
 
 export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
-    const { children, functionPanel } = props;
+
+    const { children, functionPanel, servicePanel } = props;
 
     return (
         <DiagramContext.Provider
             value={{
-                functionPanel
+                functionPanel,
+                servicePanel
             }}
         >
             {children}

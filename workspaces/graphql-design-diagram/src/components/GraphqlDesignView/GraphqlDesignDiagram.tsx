@@ -37,6 +37,7 @@ export interface GraphqlDesignDiagramProps {
     ballerinaVersion?: string;
     syntaxTree?: STNode;
     functionPanel?: (position: NodePosition, functionType: string) => void;
+    servicePanel?: () => void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,7 +55,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         targetPosition,
         langClientPromise,
         currentFile,
-        functionPanel
+        functionPanel,
+        servicePanel
     } = props;
 
     const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
@@ -80,7 +82,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     };
 
     const ctxt = {
-        functionPanel
+        functionPanel,
+        servicePanel
     };
 
     return (
