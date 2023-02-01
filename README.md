@@ -1,6 +1,7 @@
 # The Ballerina Extension for Visual Studio Code
 
 The Visual Studio Code Ballerina extension provides a set of rich language features along with an enhanced user experience. 
+
 It offers easy development, execution, debugging, and testing for the Ballerina programming language. 
 The Ballerina language possesses a bidirectional mapping between its syntaxes and the visual representation. 
 You can visualize the graphical representation of your Ballerina source further via the extension.
@@ -8,46 +9,29 @@ You can visualize the graphical representation of your Ballerina source further 
 ---
 ## Quick Start
 
-### Setting up the Prerequisites
-
-Before getting started, make sure you have installed the [Visual Studio Code editor](https://code.visualstudio.com/download) with version >= 1.67.0.
-
-### Installing the Ballerina Extension
-
-Follow the steps below to install the Ballerina extension.
-
-1. Download and install [Ballerina](https://ballerina.io/learn/install-ballerina/set-up-ballerina/).
-2. Install the Ballerina VS Code Extension. 
-
-  >**Tip:** Alternatively, click `Ctrl + P` or (`Cmd + P` in macOS) to launch the VS Code **Quick Open** screen, and enter `ext install WSO2.ballerina` to install the Ballerina VS Code Extension.
-
-3. Open a Ballerina `.bal` file or a project directory to activate the extension.
-
-	>**Info:** When the extension is activated, you can see the `Ballerina SDK: <version>` in the status bar at the bottom left corner.
-
-	<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/show-version-on-vscode.png?raw=true" width="70%" />
-
-### Running Your First Ballerina Program
-
-Follow the steps below to create a sample Ballerina program in VS Code.
+Follow the steps below to get the Ballerina VS Code extension up and running.
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/running-your-program.gif?raw=true" width="100%" />
 
-1. Click **View** in the menu bar of the editor, and click **Command Palette**.
+>**Info:** Before getting started, download and install the [Visual Studio Code editor ](https://code.visualstudio.com/download) version >= 1.67 and [Ballerina](https://ballerina.io/learn/installing-ballerina/setting-up-ballerina/).
+
+1. Click `Ctrl + P` or (`Cmd + P` in macOS) to launch the VS Code **Quick Open** screen, and enter `ext install WSO2.ballerina` to install the Ballerina VS Code Extension.
+
+2. Click **View** in the menu bar of the editor, and click **Command Palette**.
 
   >**Tip:** You can use the shortcut methods `⌘ + ↑ + P` on Mac and `Ctrl + Shift + P` on Windows and Linux.
 
-2. In the search bar, type `Show Examples`, and click **Ballerina: Show Examples**.
+3. In the search bar, type `Show Examples`, and click **Ballerina: Show Examples**.
 
-3. Select the **Hello World Main** example.
+4. Select the **Hello World Main** example.
 
-4. Click on the **Run** code lens on the editor. 
+5. Click on the **Run** code lens on the editor. 
 
     You just ran your first Ballerina program with a few clicks.
 
     >**Tip:** If you wish to debug further, you can either use the **Debug** code lens or see debugging guidelines below.
 
-5. Click the **Show Diagram** button on the editor’s title bar to view the graphical representation of the program.
+6. Click the **Show Diagram** button on the editor’s title bar to view the graphical representation of the program.
 
 ---
 ## Functionalities
@@ -114,7 +98,7 @@ Below are some of the key debugging features provided by the Ballerina language 
 - Local and Global Variable View
 - Expression Evaluation
 
-For detailed documentation on initializing debug sessions, and using the debugging features and advanced configuration options, see [Ballerina Debugging](https://ballerina.io/learn/debug-ballerina-programs/).
+For detailed documentation on initializing debug sessions, and using the debugging features and advanced configuration options, see [Ballerina Debugging](https://ballerina.io/learn/visual-studio-code-extension/debugging/).
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/start-quick-main-debug-session.gif?raw=true" width="100%" />
 
@@ -216,7 +200,7 @@ Run and debug code lenses are shown for the entry points of the Ballerina projec
 - **Test**: It runs all the tests in your Ballerina project using the `bal test` CLI command.
 - **Build Documentation**: It is a quick guide to generate documentation for your Ballerina project. Once executed, the documentation is generated using the `bal doc` CLI command. The generated documentation can be found inside the `apidocs` directory in the `target` project.
 - **Show Diagram**: It is a palette reference to access the **Diagrams**. On execution, the diagram editor of the first diagram component listed under the **Diagrams** view is rendered.
-- **Add Module**: It adds a [Ballerina module](https://ballerina.io/learn/organize-ballerina-code/#non-default-modules) for the given module name using the `bal add` CLI command.  
+- **Add Module**: It adds a [Ballerina module](https://ballerina.io/learn/organizing-ballerina-code/modules/) for the given module name using the `bal add` CLI command.  
 - **Create 'Cloud.toml'**: It generates a `Cloud.toml` file for your Ballerina project according to the default [cloud specifications](https://github.com/ballerina-platform/ballerina-spec/blob/master/c2c/code-to-cloud-spec.md).
 - **Paste JSON as Record**: This command converts a JSON string (that is copied to the clipboard) to a Ballerina record(s) and pastes it in your code.
 
@@ -278,28 +262,23 @@ It is required to enable notebook debug mode to debug the notebook.
 
 ---
 ## Configurations
-- **Code Lens - All: Enabled**: It enables all code lens features and is enabled by default.
-- **Debug Log**: It enables printing debug messages onto the Ballerina output channel and is disabled by default. These debug logs mainly include additional logs added for troubleshooting the extension.
-- **Ballerina: Trace Log**: It enables printing trace messages onto the Ballerina output channel and is disabled by default. These trace logs mainly include the details of the requests sent from the extension to the Ballerina Language Server.
-- **Enable File Watcher**: It enables watching file change events of the Ballerina project and is enabled by default.
-- **Ballerina: Enable Performance Forecast**: It enables providing estimates on the performance of the services.
-- **Ballerina: Enable Semantic Highlighting**: Semantic highlighting is enabled by default in the plugin. You have an option to disable this and rely on syntax highlighting.
-- **Enable Telemetry**: It enables the Ballerina [telemetry](https://code.visualstudio.com/docs/getstarted/telemetry) service and is enabled by default. 
-- **Ballerina: Low Code Mode**: This sets the low code as the default view of the plugin. Source code is the default view in a fresh installation.
-- **Home** - It specifies the Ballerina home directory path and is only applicable if the **Plugin - Dev: Mod** is enabled.
-- **Ballerina: Plugin Dev Mode**: It enables the plugin development mode and is disabled by default. If it is disabled, the extension picks up the Ballerina runtime installed in the environment. Also, if it is enabled, the extension picks up the Ballerina runtime defined in the **Home** configuration above.
-- **Enable Language Server Debug**: It enables the Language Server debug mode and is disabled by default. It is only applicable if the **Plugin Dev Mode** is enabled.
-- **Enable Configurable Editor**: It enables the configurable editor in code view when the run button flow is executed. By default, this is enabled only in the low code view.
-- **Enable Notebook Debug**: It enables the notebook debug mode which provides a button in the dropdown near cell execution button, and is disabled by default.
+
+For configurations of the extension, see [Configure the extension](https://wso2.com/ballerina/vscode/docs/configure-the-extension/).
 
 ---
 ## Troubleshooting
 
 For troubleshooting, see the Ballerina output. To view the Ballerina output tab, click **View**, click **Output,** and select **Ballerina** from the output list. It provides additional information if the plugin fails to detect a Ballerina distribution.  
 
-You can also enable debug logs from the Ballerina extension settings to view any issues arising from the extension features.
+You can also enable [debug logs](https://wso2.com/ballerina/vscode/docs/debug-the-code/#configuration-attributes) from the Ballerina extension settings to view any issues arising from the extension features.
 
 ---
+
+## Documentation
+
+The documentation has sections that describe the features of this extension (including e.g. keyboard shortcuts).
+---
+
 ## Ask for Help
 
 Create [Github issues](https://github.com/wso2/ballerina-plugin-vscode/issues) to reach out to us.
