@@ -127,7 +127,7 @@
     "compile": "webpack --mode production",
     "watch": "npx webpack --watch",
     "build": "npm run compile && npm run copy-webview-lib && npx vsce package --no-dependencies ",
-    "copy-webview-lib": "copyfiles -f -E -F ./../../node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js ./resources/jslibs",
+    "copy-webview-lib": "copyfiles -f -E -F ../choreo-webviews/build/static/js/main.js ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
