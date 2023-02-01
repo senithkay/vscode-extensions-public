@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-import vscode from "vscode";
+import vscode, { Uri } from "vscode";
 import axios from "axios";
 import { BallerinaExtension } from "../core";
 import { deleteChoreoKeytarSession, getChoreoKeytarSession, setChoreoKeytarSession } from "./auth-session";
@@ -40,10 +40,8 @@ const AnonUserError = "Error while creating an anonymous user!";
 const SessionExpired = "The session has expired, please login again!";
 
 export async function initiateInbuiltAuth(extension: BallerinaExtension) {
-    const callbackUri = await vscode.env.asExternalUri(
-        vscode.Uri.parse(getAuthURL())
-    );
-    vscode.commands.executeCommand("vscode.open", callbackUri);
+    const callbackUri = await getAuthURL();
+    vscode.env.openExternal(callbackUri);
 }
 
 export class OAuthTokenHandler {
@@ -280,9 +278,21 @@ export class OAuthTokenHandler {
     }
 }
 
-function getAuthURL(): string {
-    return `${choreoAuthConfig.getLoginUrl()}?response_mode=query&prompt=login&response_type=code`
+
+
+async function getAuthURL(): Promise<Uri> {
+    const callbackUri = await vscode.env.asExternalUri(
+        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.ballerina/choreo-signin`)
+    );
+    const state = {
+        origin: "vscode.ballerina.ext",
+        callbackUri: callbackUri.toString()
+    };
+    const stateBase64 = Buffer.from(JSON.stringify(state), 'binary').toString('base64');
+
+    const authURL =  `${choreoAuthConfig.getLoginUrl()}?response_mode=query&prompt=login&response_type=code`
         + `&code_challenge_method=S256&code_challenge=${challenge.code_challenge}`
         + `&fidp=${choreoAuthConfig.getFidp()}&redirect_uri=${choreoAuthConfig.getRedirectUri()}&`
-        + `client_id=${choreoAuthConfig.getClientId()}&scope=${choreoAuthConfig.getScope()}`;
+        + `client_id=${choreoAuthConfig.getClientId()}&scope=${choreoAuthConfig.getScope()}&state=${stateBase64}`;
+    return vscode.Uri.parse(authURL);
 }
