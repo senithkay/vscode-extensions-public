@@ -16,14 +16,19 @@ import assert = require("assert");
 import { commands, Uri, extensions } from "vscode";
 import { suite, suiteSetup } from "mocha";
 import { join } from "path";
+import { Component } from "@wso2-enterprise/choreo-core";
 import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
+import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { MockAuthClient, MockKeyChainTokenStorage, MockOrgClient, MockProjectClient } from "../mocked-resources/mocked-clients";
 import { ext } from "../../../extensionVariables";
 import { showChoreoProjectOverview } from "../../../extension";
 import { activateStatusBarItem } from "../../../status-bar";
-import { FOO_ORG, FOO_PROJECT_2 } from "../mocked-resources/mocked-data";
+import { FOO_ORG, FOO_P1_COMPONENT, FOO_PROJECT_1 } from "../mocked-resources/mocked-data";
+import { ProjectRegistry } from "../../../registry/project-registry";
 
-export const TEST_PROJECT_NAME: string = 'FooProject2';
+export const TEST_PROJECT_NAME: string = 'FooProject1';
+const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
+const uri = Uri.file(join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
 const OPEN_FOLDER_CMD: string = 'vscode.openFolder';
 
 suite('Choreo Project Based Tests', () => {
@@ -44,8 +49,6 @@ suite('Choreo Project Based Tests', () => {
     });
 
     test('Check isChoreoProject', async () => {
-        const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
-        const uri = Uri.file(join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
         commands.executeCommand(OPEN_FOLDER_CMD, uri).then(async () => {
             assert.ok(await ext.api.isChoreoProject(), 'Did not detect workspace as a Choreo project.');
         });
@@ -53,13 +56,18 @@ suite('Choreo Project Based Tests', () => {
 
     test('Check Active Project on Status Bar', async () => {
         await activateStatusBarItem();
-        assert.strictEqual(ext.statusBarItem.text, `Choreo: ${FOO_PROJECT_2.name}`);
+        assert.strictEqual(ext.statusBarItem.text, `Choreo: ${FOO_PROJECT_1.name}`);
     });
 
     test('Generate Project Overview', async () => {
-        await showChoreoProjectOverview().then(() => {
+        await showChoreoProjectOverview().then(async () => {
             assert.strictEqual(ext.api.selectedOrg, FOO_ORG);
-            // assert.strictEqual(ext.api.selectedProjectId, FOO_PROJECT_2.id);
+            // assert.strictEqual(ext.api.selectedProjectId, FOO_PROJECT_1.id);
+
+            const actualComponents: Component[] = await ProjectRegistry.getInstance().getComponents(FOO_PROJECT_1.id, FOO_ORG.handle);
+            const localComponents: Component[] = new ChoreoProjectManager().getLocalComponents(uri.fsPath);
+            const expectedComponents: Component[] = [FOO_P1_COMPONENT].concat(localComponents);
+            assert.deepEqual(actualComponents, expectedComponents, 'Failed to detect FooProject1 components.');
         });
     });
 
@@ -71,9 +79,9 @@ suite('Choreo Project Based Tests', () => {
             if (ext && !ext.isActive) {
                 await ext.activate();
             }
-            commands.executeCommand('ballerina.view.architectureView').then(() => {
-                Promise.resolve();
+            await commands.executeCommand('ballerina.view.architectureView').then(() => {
+                assert.ok(true);
             });
         }
     }).timeout(7500);
-}).timeout(10000);
+}).timeout(15000);

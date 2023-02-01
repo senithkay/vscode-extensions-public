@@ -100,8 +100,9 @@ export class MockProjectClient implements IChoreoProjectClient {
     }
     async getComponents(params: GetComponentsParams): Promise<Component[]> {
         const allComponents: Component[] = ALL_COMPONENTS;
-        return allComponents.filter(component =>
+        const projectComponents: Component[] = allComponents.filter(component =>
             component.projectId === params.projId && component.orgHandler === params.orgHandle);
+        return projectComponents;
     }
     createProject(params: CreateProjectParams): Promise<Project> {
         throw new Error("Method not implemented.");
