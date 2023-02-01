@@ -110,8 +110,8 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             }
             document.addEventListener('keydown', handleEscapePress);
         }
-        document.addEventListener('scroll', onScroll);
         if (currentView === Views.CELL_VIEW) {
+            document.addEventListener('scroll', onScroll);
             window.addEventListener("resize", onWindowResize);
         }
     }, []);
@@ -142,7 +142,8 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             if (dagreEngine.options.graph.ranker !== layout) {
                 dagreEngine.options.graph.ranker = layout;
             }
-            if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES) {
+            if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES
+                || currentView === Views.CELL_VIEW) {
                 // Removing GW links on refresh
                 removeGWLinks(diagramEngine);
             }

@@ -33,7 +33,7 @@ export const CellDiagram = styled.div`
   flex-direction: column;
   padding-top: 40px;
   padding-bottom: 20px;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 50px);
 `;
 
 interface GatewayContainerProps {

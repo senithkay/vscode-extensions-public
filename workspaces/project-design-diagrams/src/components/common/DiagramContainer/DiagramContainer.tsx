@@ -126,7 +126,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
                         </CellDiagram>
                     )}
                     {typeModel &&
-                        <div style={{ display: currentView === Views.TYPE ? 'block' : 'none', width: currentView === Views.TYPE ? '100%' : '0' }}>
+                        <div style={{ display: currentView === Views.TYPE ? 'block' : 'none' }}>
                             <DiagramCanvasWidget
                                 type={Views.TYPE}
                                 model={typeModel}
@@ -135,7 +135,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
                         </div>
                     }
                     {typeCompositionModel &&
-                        <div style={{ display: currentView === Views.TYPE_COMPOSITION ? 'block' : 'none', width: currentView === Views.TYPE_COMPOSITION ? '100%' : '0' }}>
+                        <div style={{ display: currentView === Views.TYPE_COMPOSITION ? 'block' : 'none' }}>
                             <DiagramCanvasWidget
                                 type={Views.TYPE_COMPOSITION}
                                 model={typeCompositionModel}

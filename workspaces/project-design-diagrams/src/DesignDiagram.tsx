@@ -66,8 +66,6 @@ export function DesignDiagram(props: DiagramProps) {
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
-    const diagramPadding = currentView === Views.CELL_VIEW ? 5 : 0;
-    const diagramWidth = '100vw';
     const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
 
     useEffect(() => {
