@@ -15,12 +15,10 @@
 import React, { useContext, useState } from "react";
 
 import { IconButton, Tooltip } from "@material-ui/core";
+import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
-import { MutationIcon } from "../../../../resources/assets/icons/MutationIcon";
-import { QueryIcon } from "../../../../resources/assets/icons/QueryIcon";
-import { SubscriptionIcon } from "../../../../resources/assets/icons/SubscriptionIcon";
 import { FunctionType, Position } from "../../../../resources/model";
 
 interface AddFunctionWidgetProps {
@@ -59,11 +57,11 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
 
     const popupIcon = () => {
         if (functionType === FunctionType.QUERY) {
-            return <QueryIcon/>;
+            return <GraphqlQueryIcon/>;
         } else if (functionType === FunctionType.MUTATION) {
-            return <MutationIcon/>;
+            return <GraphqlMutationIcon/>;
         } else {
-            return <SubscriptionIcon/>;
+            return <GraphqlSubscriptionIcon/>;
         }
     };
 
@@ -73,6 +71,7 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
             <>
                 <Tooltip
                     open={isHovered}
+                    onClose={() => setIsHovered(false)}
                     title={popupTitle()}
                     arrow={true}
                     placement="right"

@@ -90,3 +90,6 @@ export { default as ShowMenuIcon } from './ShowMenuIcon';
 export { default as FileUploadIcon } from './FileUploadIcon';
 export { default as UndoIcon } from './UndoIcon';
 export { DesignViewIcon } from './DesignViewIcon';
+export { GraphqlQueryIcon } from "./GraphqlQueryIcon";
+export { GraphqlMutationIcon } from "./GraphqlMutationIcon";
+export { GraphqlSubscriptionIcon } from "./GraphqlSubscriptionIcon";
