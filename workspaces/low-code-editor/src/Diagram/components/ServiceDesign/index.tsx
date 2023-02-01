@@ -48,30 +48,31 @@ export function ServiceDesign(props: ServiceDesignProps) {
 
     const {
         model,
-        onClose,
-        langClientPromise,
-        currentFile,
         handleDiagramEdit
     } = props;
 
-    const [isPlusClicked, setPlusClicked] = useState(false);
     const [isAllExpanded, setIsAllExpanded] = useState(false);
     const [children, setChildren] = useState<JSX.Element[]>([]);
 
     const classes = useStyles();
-    const intl = useIntl();
 
     const serviceST = model as ServiceDeclaration;
 
     useEffect(() => {
         const cc: JSX.Element[] = [];
         serviceST?.members.forEach((member) => {
-            const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
-            cc.push(
-                <div className={'service-member'} data-start-position={startPosition} >
-                    <ResourceBody handleDiagramEdit={handleDiagramEdit} model={member as ResourceAccessorDefinition} isExpandedAll={isAllExpanded} />
-                </div>
-            );
+            if (STKindChecker.isResourceAccessorDefinition(member)) {
+                const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
+                cc.push(
+                    <div className={'service-member'} data-start-position={startPosition} >
+                        <ResourceBody
+                            handleDiagramEdit={handleDiagramEdit}
+                            model={member as ResourceAccessorDefinition}
+                            isExpandedAll={isAllExpanded}
+                        />
+                    </div>
+                );
+            }
         });
         setChildren(cc);
     }, [serviceST, isAllExpanded]);

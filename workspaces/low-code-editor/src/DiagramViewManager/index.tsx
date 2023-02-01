@@ -19,6 +19,7 @@ import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterpri
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { Diagram } from "../Diagram";
 import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
+import { GraphqlDiagramOverlay } from "../Diagram/components/GraphqlDiagramOverlay";
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
@@ -37,7 +38,6 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
-import { GraphqlDiagramOverlay } from "../Diagram/components/GraphqlDiagramOverlay";
 
 interface DiagramFocusState {
     filePath: string;
@@ -76,7 +76,6 @@ export function DiagramViewManager(props: EditorProps) {
         getBallerinaVersion,
         workspaceName
     } = props;
-    console.log('project paths', projectPaths);
     const classes = useGeneratorStyles();
     const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
     const [focusedST, setFocusedST] = useState<STNode>();
@@ -113,15 +112,15 @@ export function DiagramViewManager(props: EditorProps) {
             //         position
             //     }
             // })
-            let folderName;
+            let dirName;
 
             projectPaths.forEach(project => {
                 if (projectPaths.length > 1 && filePath.includes(project.uri.fsPath)) {
-                    folderName = project.name;
+                    dirName = project.name;
                 }
             })
 
-            setFolderName(folderName);
+            setFolderName(dirName);
             setDiagramFocuState({
                 filePath,
                 uid
@@ -288,11 +287,7 @@ export function DiagramViewManager(props: EditorProps) {
 
     const handleFolderClick = () => {
         Object.keys(filterMap).forEach((key) => {
-            if (key !== folderName) {
-                filterMap[key] = false;
-            } else {
-                filterMap[key] = true;
-            }
+            filterMap[key] = key === folderName;
         })
 
         setFilterMap(filterMap);

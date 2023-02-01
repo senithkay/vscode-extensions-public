@@ -71,10 +71,10 @@ export class UIDGenerationVisitor implements Visitor {
     }
 
     beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
-        const id: string = `${ELEMENT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${node.functionName.value}`;
+        let id: string = `${ELEMENT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${node.functionName.value}`;
 
         if (node.relativeResourcePath.length > 0) {
-            id.concat(`${SUB_DELIMETER}${generateResourcePathString(node.relativeResourcePath)}`);
+            id = (`${id}${SUB_DELIMETER}${generateResourcePathString(node.relativeResourcePath)}`);
         }
         this.stack.push(id);
 

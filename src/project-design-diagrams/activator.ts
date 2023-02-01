@@ -28,6 +28,7 @@ import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
 import { Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion } from "./resources";
 import { ProjectDesignRPC } from "./utils";
+import { PALETTE_COMMANDS } from "../project";
 
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
@@ -104,6 +105,10 @@ function setupWebviewPanel() {
                             })
                         })
                     }
+                    return;
+                }
+                case "openDesignDiagram": {
+                    commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, message.position, message.filePath);
                     return;
                 }
             }

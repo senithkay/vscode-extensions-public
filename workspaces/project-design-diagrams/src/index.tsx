@@ -16,18 +16,22 @@
  * under the License.
  *
  */
-
 import React from 'react';
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { render } from 'react-dom';
 import { DesignDiagram } from './DesignDiagram';
 import { Location } from './resources';
 
 export function renderDesignDiagrams(
     go2Source: (location: Location) => void,
+    goToDesignDiagram: (position: NodePosition, filePath: string) => void,
     target: HTMLElement) {
 
     render(
-        <DesignDiagram go2source={go2Source} />,
+        <DesignDiagram
+            go2source={go2Source}
+            goToDesignDiagram={goToDesignDiagram}
+        />,
         target
     );
 }

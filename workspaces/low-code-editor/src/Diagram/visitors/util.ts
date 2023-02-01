@@ -20,13 +20,9 @@ export function isPositionEqual(position1: NodePosition, position2: NodePosition
         position1.endColumn === position2.endColumn
 }
 export function generateResourcePathString(resourcePathSegments: (DotToken | IdentifierToken | ResourcePathRestParam | ResourcePathSegmentParam | SlashToken)[]): string {
-    const path: string = '';
+    let path: string = '';
     resourcePathSegments.forEach(pathSegment => {
-        if (pathSegment.value) {
-            path.concat(pathSegment.value)
-        } else {
-            path.concat(pathSegment.source);
-        }
-    })
+        path = `${path}${pathSegment.value ? pathSegment.value : pathSegment.source}`;
+    });
     return path;
 }
