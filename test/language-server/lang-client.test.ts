@@ -937,9 +937,7 @@ suite("Language Server Tests", function () {
         langClient.getConnector({
             name: "Client",
             moduleName: "googleapis.sheets",
-            orgName: "ballerinax",
-            packageName: "googleapis.sheets",
-            version: "3.1.0"
+            package: { organization: "ballerinax", name: "googleapis.sheets", version: "3.1.0" },
         }).then(async (res) => {
             const response = res as BallerinaConnectorResponse;
             expect(response).not.contains.keys("error");
