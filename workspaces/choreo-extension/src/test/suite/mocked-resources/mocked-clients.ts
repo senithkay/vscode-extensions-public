@@ -19,8 +19,8 @@ import {
 } from "@wso2-enterprise/choreo-client";
 import { Component, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
 import { ProjectRegistry } from "../../../registry/project-registry";
-import { ALL_COMPONENTS, FOO_OWNER_ORGS, FOO_OWNER_PROJECTS, FOO_PROJECT_2, FOO_USER, TOKEN_EXPIRATION_TIME } from "./mocked-data";
-import { TEST_PROJECT_NAME } from "../architecture-view/architecture-view.test";
+import { ALL_COMPONENTS, FOO_OWNER_ORGS, FOO_OWNER_PROJECTS, FOO_PROJECT_1, FOO_PROJECT_2, FOO_USER, TOKEN_EXPIRATION_TIME } from "./mocked-data";
+import { TEST_PROJECT_NAME } from "../project-based-tests/choreo-project.test";
 
 export class MockAuthClient implements IAuthClient {
     async exchangeAuthCode(_authCode: string): Promise<AccessToken> {
@@ -116,5 +116,6 @@ export class MockProjectClient implements IChoreoProjectClient {
 
 function setProjectLocation() {
     const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
-    ProjectRegistry.getInstance().setProjectLocation(FOO_PROJECT_2.id, join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
+    ProjectRegistry.getInstance().setProjectLocation(TEST_PROJECT_NAME === 'FooProject2' ? FOO_PROJECT_2.id : FOO_PROJECT_1.id,
+        join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
 }

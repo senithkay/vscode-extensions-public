@@ -20,11 +20,13 @@ import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, KeyChainTokenSt
 import { MockAuthClient, MockKeyChainTokenStorage, MockOrgClient, MockProjectClient } from "../mocked-resources/mocked-clients";
 import { ext } from "../../../extensionVariables";
 import { showChoreoProjectOverview } from "../../../extension";
+import { activateStatusBarItem } from "../../../status-bar";
+import { FOO_ORG, FOO_PROJECT_2 } from "../mocked-resources/mocked-data";
 
 export const TEST_PROJECT_NAME: string = 'FooProject2';
 const OPEN_FOLDER_CMD: string = 'vscode.openFolder';
 
-suite('Architecture View', () => {
+suite('Choreo Project Based Tests', () => {
     suiteSetup('Setup project workspace', async () => {
         const authClient = new MockAuthClient();
         sinon.stub(ChoreoAuthClient.prototype, 'exchangeApimToken').callsFake(async (params) => await authClient.exchangeApimToken(params[0], params[1]));
@@ -39,19 +41,25 @@ suite('Architecture View', () => {
         const projectClient = new MockProjectClient();
         sinon.stub(ChoreoProjectClient.prototype, 'getProjects').callsFake(async (params) => await projectClient.getProjects(params));
         sinon.stub(ChoreoProjectClient.prototype, 'getComponents').callsFake(async (params) => await projectClient.getComponents(params));
-
-        const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
-        const uri = Uri.file(join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
-        await commands.executeCommand(OPEN_FOLDER_CMD, uri);
     });
 
     test('Check isChoreoProject', async () => {
-        assert.ok(await ext.api.isChoreoProject(), 'Did not detect workspace as a Choreo project.');
+        const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
+        const uri = Uri.file(join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
+        commands.executeCommand(OPEN_FOLDER_CMD, uri).then(async () => {
+            assert.ok(await ext.api.isChoreoProject(), 'Did not detect workspace as a Choreo project.');
+        });
+    });
+
+    test('Check Active Project on Status Bar', async () => {
+        await activateStatusBarItem();
+        assert.strictEqual(ext.statusBarItem.text, `Choreo: ${FOO_PROJECT_2.name}`);
     });
 
     test('Generate Project Overview', async () => {
         await showChoreoProjectOverview().then(() => {
-            Promise.resolve();
+            assert.strictEqual(ext.api.selectedOrg, FOO_ORG);
+            // assert.strictEqual(ext.api.selectedProjectId, FOO_PROJECT_2.id);
         });
     });
 
@@ -63,7 +71,7 @@ suite('Architecture View', () => {
             if (ext && !ext.isActive) {
                 await ext.activate();
             }
-            await commands.executeCommand('ballerina.view.architectureView').then(() => {
+            commands.executeCommand('ballerina.view.architectureView').then(() => {
                 Promise.resolve();
             });
         }

@@ -1,0 +1,30 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * 
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
+ */
+
+import assert = require("assert");
+import { commands, Uri } from "vscode";
+import { suite } from "mocha";
+import { join } from "path";
+import { ext } from "../../../extensionVariables";
+
+const TEST_PROJECT_DIRECTORY: string = 'SimpleProject';
+const OPEN_FOLDER_CMD: string = 'vscode.openFolder';
+
+suite('Non-Choreo Project Test', () => {
+    test('Check isChoreoProject', async () => {
+        const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_DIRECTORY);
+        commands.executeCommand(OPEN_FOLDER_CMD, Uri.file(projectRoot)).then(async () => {
+            assert.strictEqual(await ext.api.isChoreoProject(), false, 'Incorrectly detected workspace as a Choreo project.');
+        });
+    });
+});
