@@ -126,25 +126,6 @@ export function DiagramContainer(props: DiagramContainerProps) {
                             )}
                         </>
                     }
-                    {currentView === Views.CELL_VIEW && (
-                        <CellDiagram>
-                            {/*West Gateway*/}
-                            <GatewayContainer top={westGWTop} left={westGWLeft}>
-                                <GatewayIcon/>
-                            </GatewayContainer>
-                            {/*North Gateway*/}
-                            <GatewayContainer top={northGWTop} left={northGWLeft} rotate={"90deg"}>
-                                <GatewayIcon/>
-                            </GatewayContainer>
-                            <CellContainer>
-                                <DiagramCanvasWidget
-                                    type={Views.CELL_VIEW}
-                                    model={serviceModels.levelOne}
-                                    {...{currentView, layout}}
-                                />
-                            </CellContainer>
-                        </CellDiagram>
-                    )}
                     {typeModel &&
                         <div style={{ display: currentView === Views.TYPE ? 'block' : 'none' }}>
                             <DiagramCanvasWidget

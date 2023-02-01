@@ -34,9 +34,10 @@ import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeM
 import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLinkFactory";
 import { Point } from "@projectstorm/geometry";
 import { GatewayType } from "../components/gateway/types";
-import { Service } from "../resources";
+import {Service, Views} from "../resources";
 import { GatewayPortModel } from "../components/gateway/GatewayPort/GatewayPortModel";
 import { GatewayLinkModel } from "../components/gateway/GatewayLink/GatewayLinkModel";
+import { DagreEngine } from "@projectstorm/react-diagrams";
 
 export const defaultZoomLevel = 100;
 export const diagramTopXOffset = 585;
@@ -82,16 +83,16 @@ export function positionGatewayNodes(engine: DiagramEngine) {
     const gatewayNodes: GatewayNodeModel[] = <GatewayNodeModel[]>
         (model?.getNodes()?.filter((node) => node instanceof GatewayNodeModel));
     const canvas = engine.getCanvas();
-    const zoomLevel = model.getZoomLevel();
+    const zoomDiff = model.getZoomLevel() - defaultZoomLevel;
     if (canvas) {
-        const canvasTopMidX = (canvas.clientWidth * 0.5) - diagramTopXOffset - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 4.85);
-        const canvasTopMidY = diagramTopYOffset - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 0.7);
+        const canvasTopMidX = (canvas.clientWidth * 0.5) - diagramTopXOffset - model.getOffsetX() - (zoomDiff * 4.85);
+        const canvasTopMidY = diagramTopYOffset - model.getOffsetY() - (zoomDiff * 0.7);
         const canvasRightMidX = (canvas.clientWidth * 0.265) - model.getOffsetX();
         const canvasRightMidY = (canvas.clientHeight * 0.15) - model.getOffsetY();
         const canvasBottomMidX = (-(canvas.clientWidth * 0.254) - model.getOffsetX());
         const canvasBottomMidY = (canvas.clientWidth * 0.4) - model.getOffsetY();
-        const canvasLeftMidX = (canvas.clientWidth * 0.006) - diagramLeftXOffset - model.getOffsetX() - ((zoomLevel - defaultZoomLevel) * 0.78);
-        const canvasLeftMidY = (canvas.clientHeight * 0.42) + diagramLeftYOffset  - model.getOffsetY() - ((zoomLevel - defaultZoomLevel) * 3);
+        const canvasLeftMidX = (canvas.clientWidth * 0.006) - diagramLeftXOffset - model.getOffsetX() - (zoomDiff * 0.78);
+        const canvasLeftMidY = (canvas.clientHeight * 0.42) + diagramLeftYOffset  - model.getOffsetY() - (zoomDiff * 3);
         gatewayNodes.forEach((node) => {
             if (node.type === 'NORTH') {
                 node.setPosition(canvasTopMidX, canvasTopMidY);
@@ -174,6 +175,16 @@ function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeMode
             engine.getModel().addLink(createGWLinks(sourcePort, targetPort, link));
         }
     });
+}
+
+export function setCellViewMargins(dagreEngine: DagreEngine) {
+    dagreEngine.options.graph.marginx = 120;
+    dagreEngine.options.graph.marginy = 300;
+}
+
+export function resetCellViewMargins(dagreEngine: DagreEngine) {
+    dagreEngine.options.graph.marginx = 40;
+    dagreEngine.options.graph.marginy = 40;
 }
 
 export function addGWNodesModel(engine: DiagramEngine) {

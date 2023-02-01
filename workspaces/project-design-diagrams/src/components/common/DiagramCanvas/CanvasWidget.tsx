@@ -29,7 +29,7 @@ import { Canvas } from './styles/styles';
 import './styles/styles.css';
 import debounce from "lodash.debounce";
 import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
-import { addGWNodesModel, removeGWLinks } from "../../../utils/utils";
+import { addGWNodesModel, removeGWLinks, resetCellViewMargins, setCellViewMargins } from "../../../utils/utils";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -137,6 +137,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         }
         if (diagramEngine.getModel()) {
             removeGWLinks(diagramEngine);
+            resetCellViewMargins(dagreEngine);
         }
     }, [currentView]);
 
@@ -144,6 +145,11 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         setTimeout(() => {
             if (dagreEngine.options.graph.ranker !== layout) {
                 dagreEngine.options.graph.ranker = layout;
+            }
+            if (currentView === Views.CELL_VIEW || currentView === Views.L1_SERVICES ) {
+                setCellViewMargins(dagreEngine);
+            } else {
+                resetCellViewMargins(dagreEngine);
             }
             if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES
                 || currentView === Views.CELL_VIEW) {
