@@ -24,7 +24,7 @@ Follow the steps below to get the Ballerina VS Code extension up and running.
 
 4. Select the **Hello World Main** example.
 
-5. Click on the **Run** code lens on the editor. 
+5. Click on the **Run** CodeLens on the editor. 
 
     You just ran your first Ballerina program with a few clicks.
 
