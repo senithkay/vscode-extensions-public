@@ -18,9 +18,10 @@ import { join } from "path";
 import { ext } from "../../../extensionVariables";
 
 suite('Non-Choreo Project Test', () => {
-    test('Check isChoreoProject', async () => {
+    test('Check isChoreoProject', () => {
         const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', 'SimpleProject');
-        await commands.executeCommand('vscode.openFolder',  Uri.file(join(projectRoot, 'SimpleProject.code-workspace')));
-        assert.strictEqual(await ext.api.isChoreoProject(), false, 'Incorrectly detected workspace as a Choreo project.');
+        commands.executeCommand('vscode.openFolder',  Uri.file(join(projectRoot, 'SimpleProject.code-workspace'))).then(async () => {
+            assert.strictEqual(await ext.api.isChoreoProject(), false, 'Incorrectly detected workspace as a Choreo project.');
+        });
     });
 });
