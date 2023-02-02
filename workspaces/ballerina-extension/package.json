@@ -603,8 +603,6 @@
     },
     "main": "./dist/extension",
     "scripts": {
-        "prebuild": "npm run init-submodules",
-        "init-submodules": "git submodule update --init --recursive && git submodule foreach git pull origin master",
         "vscode:prepublish": "webpack --mode production",
         "compile": "webpack --mode none",
         "watch": "webpack --mode none --watch",
@@ -632,7 +630,15 @@
         "vscode-extension-telemetry": "^0.1.7",
         "vscode-languageclient": "^7.0.0",
         "vscode-languageserver-protocol": "^3.16.0",
-        "vscode-test": "^1.5.1"
+        "@vscode/test-electron": "^2.2.0",
+        "vscode-test": "^1.5.1",
+        "@wso2-enterprise/ballerina-languageclient": "^1.0.0",
+        "@wso2-enterprise/ballerina-low-code-editor": "^1.0.0",
+        "@wso2-enterprise/ballerina-low-code-edtior-commons": "^1.0.0",
+        "@wso2-enterprise/choreo-client": "^1.0.0",
+        "@wso2-enterprise/choreo-core": "^1.0.0",
+        "@wso2-enterprise/syntax-tree": "^1.0.0",
+        "vscode-messenger": "^0.4.4"
     },
     "devDependencies": {
         "@sentry/webpack-plugin": "^1.18.8",

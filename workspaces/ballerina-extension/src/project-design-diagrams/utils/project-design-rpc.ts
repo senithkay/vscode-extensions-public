@@ -26,7 +26,7 @@ import { AddComponentDetails, ComponentModel, Service } from "../resources";
 import { ExtendedLangClient } from "src/core";
 import { addConnector, linkServices, pullConnector } from "./code-generator";
 import { getProjectResources } from "./utils";
-import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "workspaces/low-code-editor-commons/lib";
+import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getChoreoExtAPI, IChoreoExtensionAPI } from "../../choreo-features/activate";
 
 const directoryPickOptions: OpenDialogOptions = {
