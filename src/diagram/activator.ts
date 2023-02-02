@@ -122,7 +122,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 		workspaceName: workspace.name
 	};
 
-	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
+	DiagramPanel.create(ViewColumn.One);
 
 	// Reset cached connector list
 	langClient.getConnectors({ query: "", limit: 18 }, true).then((response) => {
