@@ -32,7 +32,7 @@ const uri = Uri.file(join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
 const OPEN_FOLDER_CMD: string = 'vscode.openFolder';
 
 suite('Choreo Project Based Tests', () => {
-    suiteSetup('Setup project workspace', async () => {
+    suiteSetup('Setup mocked environment', async () => {
         const authClient = new MockAuthClient();
         sinon.stub(ChoreoAuthClient.prototype, 'exchangeApimToken').callsFake(async (params) => await authClient.exchangeApimToken(params[0], params[1]));
         sinon.stub(ChoreoAuthClient.prototype, 'exchangeVSCodeToken').callsFake(async (params) => await authClient.exchangeVSCodeToken(params[0]));
