@@ -35,7 +35,7 @@ export function ServiceSubheader(props: ServiceSubheaderProps) {
     return (
         <>
             <Button
-                // onClick={() => servicePanel()}
+                onClick={() => servicePanel()}
                 onMouseOver={() => setTooltipStatus(false)}
                 color="primary"
                 data-testid="add-operation"

@@ -77,13 +77,21 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
 
     const renderServicePanel = () => {
         if (STKindChecker.isServiceDeclaration(model)) {
+            setFormConfig({
+                model,
+                configOverlayFormStatus: { formType: "ServiceDeclaration", isLoading: false },
+                targetPosition: model.position,
+                onCancel: () => {
+                    setServicePanel(false);
+                },
+
+            });
             setServicePanel(true);
         }
     }
 
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
-            {!enableServicePanel &&
             <GraphqlDesignDiagram
                 model={model}
                 targetPosition={targetPosition}
@@ -97,12 +105,11 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 functionPanel={renderFunctionForm}
                 servicePanel={renderServicePanel}
             />
-            }
             {enableFunctionForm &&
             <FormGenerator {...formConfig}/>
             }
-            {enableServicePanel && STKindChecker.isServiceDeclaration(model) &&
-            <GraphqlServicePanel model={model} functionPanel={renderFunctionForm}/> }
+            {enableServicePanel &&
+            <FormGenerator {...formConfig}/>}
         </div>
     );
 }
