@@ -98,9 +98,6 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
                 onClose={onClose}
                 handleDiagramEdit={handleFormEdit}
             />
-            <NavigationBarDetailContainer forceRender={true}>
-                <span className="module-text">Service Design</span>
-            </NavigationBarDetailContainer>
             {isFormOpen && (
                 <FormGenerator {...formConfig} />
             )}
