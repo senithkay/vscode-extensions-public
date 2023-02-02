@@ -18,17 +18,18 @@
  */
 
 import React from 'react';
-import { Location, Service } from '../../../resources';
+import { Location, RemoteFunction, ResourceFunction, Service } from '../../../resources';
 import { AddConnectorWidget, Go2SourceWidget, GoToDesign, LinkingWidget } from './components';
 
 interface MenuProps {
     location: Location,
     linkingEnabled: boolean,
     service?: Service;
+    resource?: ResourceFunction | RemoteFunction; // TODO: figure out a way to merge service and resource
 }
 
 export function NodeMenuPanel(props: MenuProps) {
-    const { location, linkingEnabled, service } = props;
+    const { location, linkingEnabled, service, resource } = props;
 
     return (
         <>
@@ -39,7 +40,8 @@ export function NodeMenuPanel(props: MenuProps) {
                     <AddConnectorWidget service={service} />
                 </>
             }
-            {service && <GoToDesign service={service} />}
+            {service && <GoToDesign element={service} />}
+            {resource && <GoToDesign element={resource} />}
         </>
     );
 }

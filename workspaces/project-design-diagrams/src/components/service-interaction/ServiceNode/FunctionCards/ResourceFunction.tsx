@@ -21,7 +21,7 @@ import React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
-import { ResourceFunction } from '../../../../resources';
+import { GraphQLQueryIcon, GraphQLSubscriptionIcon, GRAPHQL_SUBSCRIBE_ACTION, ResourceFunction, ServiceTypes } from '../../../../resources';
 import { ActionColors, ResourceAction, ResourceName } from '../styles/styles';
 
 interface ResourceFunctionProps {
@@ -32,21 +32,24 @@ interface ResourceFunctionProps {
 }
 
 export function ResourceFunctionWidget(props: ResourceFunctionProps) {
-    const { engine, node, resource, resourcePath} = props;
-
+    const { engine, node, resource, resourcePath } = props;
     return (
         <>
             <ServicePortWidget
                 port={node.getPort(`left-${resourcePath}`)}
                 engine={engine}
             />
+            {node.serviceType === ServiceTypes.GRAPHQL ?
+                resource.resourceId.action === GRAPHQL_SUBSCRIBE_ACTION ?
+                    <GraphQLSubscriptionIcon /> :
+                    <GraphQLQueryIcon /> :
                 <ResourceAction color={ActionColors.get(resource.resourceId.action)}>
                     {resource.resourceId.action}
                 </ResourceAction>
-
-                <ResourceName>
-                    {resource.resourceId.path}
-                </ResourceName>
+            }
+            <ResourceName>
+                {resource.resourceId.path}
+            </ResourceName>
             <ServicePortWidget
                 port={node.getPort(`right-${resourcePath}`)}
                 engine={engine}

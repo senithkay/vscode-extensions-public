@@ -157,6 +157,17 @@ export const useStyles = makeStyles(() =>
         },
         serviceTitle: {
             padding: 15,
+            display: "flex"
+        },
+        serviceConfigure: {
+            display: "flex",
+            marginLeft: 5,
+            justifyContent: "center",
+            alignItems: "center",
+            "& :hover": {
+                background: "#e5e6ea",
+                cursor: "pointer"
+            }
         },
         servicePath: {
             fontSize: 20,

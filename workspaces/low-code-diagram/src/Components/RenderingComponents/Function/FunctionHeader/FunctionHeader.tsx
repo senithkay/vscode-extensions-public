@@ -13,12 +13,14 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
+import { SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     RequiredParam,
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { useDiagramContext } from "../../../../Context/diagram";
 import { useFunctionContext } from "../../../../Context/Function";
 
 import "./style.scss";
@@ -26,14 +28,27 @@ import "./style.scss";
 
 export function FunctionHeader() {
     const { functionNode } = useFunctionContext();
+    const diagramContext = useDiagramContext();
+    const diagramApi = diagramContext?.api;
+    const editApi = diagramApi?.edit;
+    const renderEditForm = editApi?.renderEditForm;
 
     const titleComponents: React.ReactElement[] = [];
     const argumentComponents: React.ReactElement[] = [];
 
+    const handleConfigFormClick = () => {
+        renderEditForm(functionNode, functionNode.position, { formType: functionNode.kind, isLoading: false });
+    }
+
     if (STKindChecker.isFunctionDefinition(functionNode)) {
         // TODO: handle general funciton
         titleComponents.push(
-            <span>{`Function Design - ${functionNode.functionName.value}`}</span>
+            <>
+                <div>{`Function Design - ${functionNode.functionName.value}`}</div>
+                <div className="config-form-icon">
+                    <SettingsIcon onClick={handleConfigFormClick} />
+                </div>
+            </>
         );
 
         functionNode.functionSignature.parameters

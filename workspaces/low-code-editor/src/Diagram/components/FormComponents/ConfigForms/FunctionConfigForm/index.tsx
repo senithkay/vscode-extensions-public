@@ -48,7 +48,7 @@ interface FunctionConfigFormProps {
 export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const MAIN_TEXT: string = "Main";
     const formClasses = useFormStyles();
-    const { targetPosition, model, onSave, onCancel,   configOverlayFormStatus, isLastMember } = props;
+    const { targetPosition, model, onSave, onCancel, configOverlayFormStatus, isLastMember } = props;
     const isMainFunction: boolean = (configOverlayFormStatus.formName && configOverlayFormStatus.formName === MAIN_TEXT) || (model && model.functionName.value === MAIN_TEXT.toLowerCase());
     const [functionName, setFunctionName] = useState(isMainFunction ? MAIN_TEXT.toLowerCase() : "");
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
@@ -153,8 +153,8 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
 
     useEffect(() => {
         // Getting all function names for function name validation
-        existingFunctionNames.current = (syntaxTree as any).members
-            .filter((member: any) => STKindChecker.isFunctionDefinition(member))
+        existingFunctionNames.current = (syntaxTree as any)
+            .members?.filter((member: any) => STKindChecker.isFunctionDefinition(member))
             .map((member: any) => member.functionName.value);
 
         if (model && STKindChecker.isFunctionDefinition(model)) {
