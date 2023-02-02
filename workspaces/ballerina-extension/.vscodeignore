@@ -68,3 +68,4 @@ cypress.json
 ballerina-low-code-editor/
 **/*.deb
 *.code-workspace
+.rush/
