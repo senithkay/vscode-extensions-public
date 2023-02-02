@@ -11,45 +11,39 @@
  * associated services.
  */
 
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline no-implicit-dependencies no-submodule-imports
-import React, { useContext, useState } from "react";
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
+import React, { useState } from "react";
 
-import Button from "@material-ui/core/Button";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 
-import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
-import { FunctionType, Position } from "../../../../resources/model";
+import { FunctionType, Position } from "../../../resources/model";
 
-import { AddFunctionWidget } from "./AddFunctionWidget";
+import { DeleteFunctionWidget } from "./MenuActionComponents/DeleteFunction";
+import { DesignFunctionWidget } from "./MenuActionComponents/DesignFunction";
+import { EditFunctionWidget } from "./MenuActionComponents/EditFunction";
 
-interface ServiceSubheaderProps {
+interface FunctionMenuWidgetProps {
     location: Position;
 }
 
-export function ServiceSubheader(props: ServiceSubheaderProps) {
+export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
     const { location } = props;
-    const { servicePanel } = useContext(DiagramContext);
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
     return (
         <>
-            <Button
-                // onClick={() => servicePanel()}
-                onMouseOver={() => setTooltipStatus(false)}
-                color="primary"
-                data-testid="add-operation"
-                style={{ textTransform: 'none', padding: '0px', justifyContent: "flex-start" }}
-            >
-                Edit Service
-            </Button>
+            {location &&
             <Tooltip
                 open={showTooltip}
+                onClose={() => setTooltipStatus(false)}
                 title={
                     <>
-                        <AddFunctionWidget position={location} functionType={FunctionType.QUERY}/>
-                        <AddFunctionWidget position={location} functionType={FunctionType.MUTATION}/>
-                        <AddFunctionWidget position={location} functionType={FunctionType.SUBSCRIPTION}/>
+                        {/*TODO update the correct function type*/}
+                        <DesignFunctionWidget position={location} functionType={FunctionType.QUERY}/>
+                        <EditFunctionWidget position={location} functionType={FunctionType.QUERY}/>
+                        <DeleteFunctionWidget position={location} functionType={FunctionType.QUERY}/>
                     </>
                 }
                 PopperProps={{
@@ -57,10 +51,10 @@ export function ServiceSubheader(props: ServiceSubheaderProps) {
                         {
                             name: 'offset',
                             options: {
-                                offset: [0, 0],
+                                offset: [0, -10],
                             },
                         },
-                    ]
+                    ],
                 }}
                 componentsProps={{
                     tooltip: {
@@ -73,23 +67,27 @@ export function ServiceSubheader(props: ServiceSubheaderProps) {
                     },
                     arrow: {
                         sx: {
-                            color: '#efeeee',
-                            marginLeft: '5px'
+                            color: '#efeeee'
                         }
                     }
                 }}
                 arrow={true}
                 placement="right"
             >
-                <Button
-                    onMouseOver={() => setTooltipStatus(true)}
-                    color="primary"
-                    data-testid="add-operation"
-                    style={{ textTransform: 'none', padding: '0px', justifyContent: "flex-start" }}
-                >
-                    Add Operation
-                </Button>
+                <MoreVertIcon
+                    cursor="pointer"
+                    onClick={() => setTooltipStatus(true)}
+                    sx={{
+                        // backgroundColor: `${Colors.SECONDARY}`,
+                        // borderRadius: '30%',
+                        fontSize: '18px',
+                        margin: '0px',
+                        position: 'absolute',
+                        right: 0.5
+                    }}
+                />
             </Tooltip>
+            }
         </>
     );
 }
