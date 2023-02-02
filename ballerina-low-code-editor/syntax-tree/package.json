@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/syntax-tree",
-  "version": "3.3.8-beta.0",
+  "version": "3.3.8",
   "description": "syntax-tree",
   "files": [
     "lib"
