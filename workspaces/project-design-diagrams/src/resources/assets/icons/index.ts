@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,24 +17,11 @@
  *
  */
 
-export { Colors, DagreLayout, GRAPHQL_SUBSCRIBE_ACTION, Level, ServiceTypes, Views } from './model';
-
-export type {
-    AddComponentDetails,
-    Attribute,
-    Cardinality,
-    ComponentModel,
-    ConnectorProps,
-    Dependency,
-    Entity,
-    Interaction,
-    Location,
-    RemoteFunction,
-    ResourceFunction,
-    ResourceId,
-    Parameter,
-    Service,
-    ServiceModels
-} from './model';
-
-export * from './assets/icons';
+export { EndpointIcon } from './EndpointIcon';
+export { GraphQLIcon } from './GraphQL';
+export { GraphQLMutationIcon } from './GraphQLMutation';
+export { GraphQLQueryIcon } from './GraphQLQuery';
+export { GraphQLSubscriptionIcon } from './GraphQLSubscription';
+export { GrpcIcon } from './GrpcIcon';
+export { HttpServiceIcon } from './HttpIcon';
+export { ShortGrpcIcon } from './ShortGrpcIcon';

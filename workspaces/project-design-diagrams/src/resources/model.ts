@@ -196,3 +196,5 @@ export enum Colors {
     SHADED_SELECTED = '#faead2',
     GATEWAY = '#d8dada'
 }
+
+export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';

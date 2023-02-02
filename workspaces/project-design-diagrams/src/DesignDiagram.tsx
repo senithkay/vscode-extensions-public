@@ -117,7 +117,8 @@ export function DesignDiagram(props: DiagramProps) {
         go2source,
         editingEnabled,
         setTargetService,
-        isChoreoProject
+        isChoreoProject,
+        refreshDiagram: refreshDiagramResources
     }
 
     return (
