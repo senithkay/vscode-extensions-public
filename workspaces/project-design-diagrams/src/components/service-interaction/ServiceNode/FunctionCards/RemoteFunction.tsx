@@ -19,9 +19,10 @@
 
 import React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { RemoteFunction } from '../../../../resources';
+import { GraphQLMutationIcon, RemoteFunction, ServiceTypes } from '../../../../resources';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
+import { RemoteName } from '../styles/styles';
 
 interface RemoteFunctionProps {
     engine: DiagramEngine;
@@ -38,7 +39,10 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 port={node.getPort(`left-${remoteFunc.name}`)}
                 engine={engine}
             />
-                {remoteFunc.name}
+                {node.serviceType === ServiceTypes.GRAPHQL && <GraphQLMutationIcon />}
+                <RemoteName spaceOut={node.serviceType === ServiceTypes.GRAPHQL}>
+                    {remoteFunc.name}
+                </RemoteName>
             <ServicePortWidget
                 port={node.getPort(`right-${remoteFunc.name}`)}
                 engine={engine}
