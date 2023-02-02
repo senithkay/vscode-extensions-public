@@ -33,7 +33,6 @@ interface ResourceFunctionProps {
 
 export function ResourceFunctionWidget(props: ResourceFunctionProps) {
     const { engine, node, resource, resourcePath } = props;
-    console.log('>>> resource', props);
     return (
         <>
             <ServicePortWidget

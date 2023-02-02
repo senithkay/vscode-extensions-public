@@ -16,12 +16,9 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     ConfigOverlayFormStatus,
-    DiagramEditorLangClientInterface,
     NavigationBarDetailContainer,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    FunctionDefinition,
-    ModulePart,
     NodePosition,
     ServiceDeclaration,
     STKindChecker,
@@ -30,7 +27,6 @@ import {
 
 import { Context } from "../../../Contexts/Diagram";
 import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
-import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 import { ServiceDesign } from "../ServiceDesign";
 
 import { ServiceDesignStyles } from "./style";
@@ -47,11 +43,9 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
     const serviceDesignClasses = ServiceDesignStyles();
 
     const {
-        props: { currentFile, stSymbolInfo, importStatements, syntaxTree: lowcodeST },
+        props: { currentFile },
         api: {
-            code: { modifyDiagram, updateFileContent },
             ls: { getDiagramEditorLangClient },
-            library
         },
     } = useContext(Context);
 
@@ -66,7 +60,13 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
 
-    const handleFormEdit = (stModel: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClosex?: () => void, onSave?: () => void) => {
+    const handleFormEdit = (
+        stModel: STNode,
+        targetPosition: NodePosition,
+        configOverlayFormStatus: ConfigOverlayFormStatus,
+        onClosex?: () => void,
+        onSave?: () => void
+    ) => {
         setFormConfig({
             model: stModel,
             configOverlayFormStatus,
@@ -87,14 +87,6 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
         setIsFormOpen(true);
     };
 
-    // <DiagramOverlayContainer>
-    // <DiagramOverlay
-    //   position={{ x: 0, y: 0 }}
-    //   stylePosition={"absolute"}
-    //   className={serviceDesignClasses.overlay}
-    // >
-    //
-
     return (
         <div className={serviceDesignClasses.container}>
             <ServiceDesign
@@ -114,7 +106,4 @@ export function ServiceDesignOverlay(props: ServiceDesignProps) {
             )}
         </div>
     );
-
-    // </DiagramOverlay>
-    //  </DiagramOverlayContainer>
 }

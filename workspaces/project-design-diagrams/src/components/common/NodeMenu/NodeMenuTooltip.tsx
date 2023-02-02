@@ -33,7 +33,6 @@ interface NodeMenuProps {
 
 export function NodeMenuWidget(props: NodeMenuProps) {
     const { linkingEnabled, location, service, resourceFunction, background } = props;
-    console.log('service >>>', service);
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
     return (

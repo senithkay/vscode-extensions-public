@@ -183,7 +183,7 @@ export function DiagramViewManager(props: EditorProps) {
         // diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
         if (diagramFocus) {
             updateSelectedComponent({ filePath: diagramFocus.filePath, position: diagramFocus.position })
-        }
+       }
     }, [diagramFocus])
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {

@@ -29,6 +29,7 @@ export interface LowCodeDiagramContext {
 
 export interface LowCodeDiagramProperties {
     syntaxTree: STNode;
+    fullST?: STNode; // TODO: make this required once the tests are fixed
     isReadOnly: boolean;
     error?: Error;
     selectedPosition?: SelectedPosition;

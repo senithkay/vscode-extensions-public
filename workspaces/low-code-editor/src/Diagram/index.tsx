@@ -55,6 +55,7 @@ export function Diagram() {
         },
         props: {
             syntaxTree,
+            fullST,
             isLoadingAST,
             isReadOnly,
             stSymbolInfo,
@@ -313,6 +314,7 @@ export function Diagram() {
                 <div className={classes.DesignContainer}>
                     <LowCodeDiagram
                         syntaxTree={syntaxTree}
+                        fullST={fullST}
                         isReadOnly={isReadOnly}
                         selectedPosition={selectedPosition}
                         zoomStatus={zoomStatus}

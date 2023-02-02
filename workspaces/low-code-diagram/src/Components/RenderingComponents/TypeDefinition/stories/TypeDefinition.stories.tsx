@@ -36,6 +36,7 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
 
     const providerProps: LowCodeDiagramProps = {
         syntaxTree: st,
+        fullST: st,
         isReadOnly: true,
         selectedPosition: {
             startColumn: 0,

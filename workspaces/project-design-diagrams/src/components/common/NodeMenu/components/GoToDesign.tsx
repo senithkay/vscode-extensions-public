@@ -30,7 +30,6 @@ export function GoToDesign(props: { element: Service | ResourceFunction | Remote
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const handleIconClick = () => {
-        console.log('>>> service', element);
         // commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM);
         const position: NodePosition = {
             startLine: element.elementLocation.startPosition.line,

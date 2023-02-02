@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
-import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ComponentExpandButton, LinePrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     NodePosition,
@@ -26,6 +26,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { AddIcon } from "../../../assets/icons";
+import { useDiagramContext } from "../../../Contexts/Diagram";
 
 import { ResourceBody } from "./Resource";
 import { ServiceHeader } from "./ServiceHeader";
@@ -110,6 +111,9 @@ export function ServiceDesign(props: ServiceDesignProps) {
         }
     }
 
+    const handleServiceConfigureFormClick = () => {
+        handleDiagramEdit(model, model?.position, { formType: "ServiceDeclaration", isLoading: false });
+    }
 
     return (
         <div className={classes.root}>
@@ -117,14 +121,19 @@ export function ServiceDesign(props: ServiceDesignProps) {
                 <>
                     {/*<ServiceHeader onClose={onClose} model={fnSTZ} />*/}
                     <div className={classes.serviceTitle}>
-                        <span className={classes.servicePath}>Service {servicePath}</span>
-                        <span className={classes.listenerText}>
-                            {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
-                        </span>
+                        <div>
+                            <span className={classes.servicePath}>Service {servicePath}</span>
+                            <span className={classes.listenerText}>
+                                {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
+                            </span>
+                        </div>
+                        <div className={classes.serviceConfigure} >
+                            <SettingsIcon onClick={handleServiceConfigureFormClick}/>
+                        </div>
                     </div>
                     <div className={classes.expandAll}>
                         <div className={classes.collapseBtn} onClick={onExpandAllClick}>
-                            Collapse All
+                            {isAllExpanded ? 'Collapse All' : 'Expand All'}
                             <ComponentExpandButton
                                 isExpanded={isAllExpanded}
                                 onClick={onExpandAllClick}
