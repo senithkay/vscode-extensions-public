@@ -10,7 +10,7 @@
   "typings": "build/esm/index",
   "scripts": {
     "prebuild": "npm run lint",
-    "build": "npm run build:webpack && tsc --pretty && npm run copy:assets",
+    "build": "npm run build:webpack && tsc --pretty && npm run copy:assets && npm run postbuild",
     "build:tsc": "tsc --pretty && npm run copy:assets",
     "build:webpack": "webpack --config webpack.config.js --mode=production",
     "copy:assets": "copyfiles -u 1 src/**/*.scss src/**/*.svg src/**/*.css src/**/*.png src/**/*.txt src/**/*.json build/esm",
@@ -26,7 +26,7 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "test": "react-scripts test --watchAll=false",
-    "postbuild": "copyfiles -f build/umd/ConfigEditor.js ../../resources/jslibs"
+    "postbuild": "copyfiles -f build/umd/ConfigEditor.js ../ballerina-extension/resources/jslibs"
   },
   "dependencies": {
     "@material-ui/core": "^4.12.3",

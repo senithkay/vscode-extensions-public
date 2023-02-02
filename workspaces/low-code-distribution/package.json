@@ -9,7 +9,7 @@
   "types": "build/index.d.ts",
   "typings": "build/index",
   "scripts": {
-    "build": "npm run build:webpack",
+    "build": "npm run build:webpack && npm run postbuild",
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "build:webpack": "node --max-old-space-size=4096 ./node_modules/webpack/bin/webpack.js --config webpack.config.js --mode=production",
     "postbuild": "copyfiles -f build/BLCEditor.js ../ballerina-extension/resources/jslibs"
