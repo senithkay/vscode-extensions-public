@@ -15,55 +15,24 @@
 import React, { useContext, useState } from "react";
 
 import { IconButton, Tooltip } from "@material-ui/core";
-import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+    LabelEditIcon
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../../../../resources/model";
 
-interface AddFunctionWidgetProps {
+interface EditFunctionWidgetProps {
     position: Position;
     functionType: FunctionType;
 }
 
-export function AddFunctionWidget(props: AddFunctionWidgetProps) {
+export function EditFunctionWidget(props: EditFunctionWidgetProps) {
     const { position, functionType } = props;
     const { functionPanel, model } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
-    const openFunctionPanel = () => {
-        if (STKindChecker.isServiceDeclaration(model)) {
-            const lastMemberPosition: NodePosition = {
-                endColumn: model.closeBraceToken.position.endColumn,
-                endLine: model.closeBraceToken.position.endLine,
-                startColumn: model.closeBraceToken.position.startColumn,
-                startLine: model.closeBraceToken.position.startLine
-            };
-            // TODO: enable form rendering functionality
-            functionPanel(lastMemberPosition, "ResourceForm");
-        }
-    };
-
-    const popupTitle = () => {
-        if (functionType === FunctionType.QUERY) {
-            return "Add Query";
-        } else if (functionType === FunctionType.MUTATION) {
-            return "Add Mutation";
-        } else {
-            return "Add Subscription";
-        }
-    };
-
-    const popupIcon = () => {
-        if (functionType === FunctionType.QUERY) {
-            return <GraphqlQueryIcon/>;
-        } else if (functionType === FunctionType.MUTATION) {
-            return <GraphqlMutationIcon/>;
-        } else {
-            return <GraphqlSubscriptionIcon/>;
-        }
-    };
 
     return (
         <>
@@ -72,12 +41,12 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
                 <Tooltip
                     open={isHovered}
                     onClose={() => setIsHovered(false)}
-                    title={popupTitle()}
+                    title={"Edit Operation"}
                     arrow={true}
                     placement="right"
                 >
                     <IconButton
-                        onClick={() => openFunctionPanel()}
+                        // onClick={() => openFunctionPanel()}
                         onMouseOver={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         style={{
@@ -89,7 +58,7 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
                             padding: '2px'
                         }}
                     >
-                        {popupIcon()}
+                        <LabelEditIcon/>
                     </IconButton>
                 </Tooltip>
             </>

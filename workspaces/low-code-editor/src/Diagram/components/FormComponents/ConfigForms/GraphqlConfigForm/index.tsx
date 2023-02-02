@@ -17,7 +17,7 @@ import React, { useContext } from "react";
 import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import {
-    NodePosition, ServiceDeclaration
+    NodePosition, STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
@@ -25,7 +25,7 @@ import { DiagramOverlayPosition } from "../../../Portals/Overlay";
 
 interface GraphqlConfigFormProps {
     position: DiagramOverlayPosition;
-    model?: ServiceDeclaration,
+    model?: STNode,
     targetPosition?: NodePosition,
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     onCancel: () => void;

@@ -11,34 +11,45 @@
  * associated services.
  */
 
-// tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useState } from "react";
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline no-implicit-dependencies no-submodule-imports
+import React, { useContext, useState } from "react";
 
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Button from "@material-ui/core/Button";
 import Tooltip from "@mui/material/Tooltip";
 
-import { Colors, Position } from "../../../resources/model";
+import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
+import { FunctionType, Position } from "../../../../resources/model";
 
-import { ServiceSubheader } from "./ServiceMenuActions/ServiceSubheader";
+import { AddFunctionWidget } from "./AddFunctionWidget";
 
-interface ServiceHeaderMenuProps {
+interface ServiceSubheaderProps {
     location: Position;
 }
 
-export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
+export function ServiceSubheader(props: ServiceSubheaderProps) {
     const { location } = props;
+    const { servicePanel } = useContext(DiagramContext);
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
     return (
         <>
-            {location &&
+            <Button
+                onClick={() => servicePanel()}
+                onMouseOver={() => setTooltipStatus(false)}
+                color="primary"
+                data-testid="add-operation"
+                style={{ textTransform: 'none', padding: '0px', justifyContent: "flex-start" }}
+            >
+                Edit Service
+            </Button>
             <Tooltip
                 open={showTooltip}
-                onClose={() => setTooltipStatus(false)}
                 title={
                     <>
-                        <ServiceSubheader location={location}/>
+                        <AddFunctionWidget position={location} functionType={FunctionType.QUERY}/>
+                        <AddFunctionWidget position={location} functionType={FunctionType.MUTATION}/>
+                        <AddFunctionWidget position={location} functionType={FunctionType.SUBSCRIPTION}/>
                     </>
                 }
                 PopperProps={{
@@ -46,10 +57,10 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                         {
                             name: 'offset',
                             options: {
-                                offset: [0, -10],
+                                offset: [0, 0],
                             },
                         },
-                    ],
+                    ]
                 }}
                 componentsProps={{
                     tooltip: {
@@ -62,27 +73,23 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                     },
                     arrow: {
                         sx: {
-                            color: '#efeeee'
+                            color: '#efeeee',
+                            marginLeft: '5px'
                         }
                     }
                 }}
                 arrow={true}
                 placement="right"
             >
-                <MoreVertIcon
-                    cursor="pointer"
-                    onClick={() => setTooltipStatus(true)}
-                    sx={{
-                        backgroundColor: `${Colors.SECONDARY}`,
-                        borderRadius: '30%',
-                        fontSize: '18px',
-                        margin: '0px',
-                        position: 'absolute',
-                        right: 2.5
-                    }}
-                />
+                <Button
+                    onMouseOver={() => setTooltipStatus(true)}
+                    color="primary"
+                    data-testid="add-operation"
+                    style={{ textTransform: 'none', padding: '0px', justifyContent: "flex-start" }}
+                >
+                    Add Operation
+                </Button>
             </Tooltip>
-            }
         </>
     );
 }

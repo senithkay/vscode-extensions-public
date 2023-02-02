@@ -16,11 +16,11 @@ import React, { useState } from 'react';
 
 import { Popover } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { GraphqlMutationIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
 import { popOverStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
-import { MutationIcon } from '../../../resources/assets/icons/MutationIcon';
 import { RemoteFunction } from "../../../resources/model";
 import { FieldName, FieldType } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
@@ -52,7 +52,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 port={node.getPort(`left-${remotePath}`)}
                 engine={engine}
             />
-            <MutationIcon/>
+            <GraphqlMutationIcon/>
             <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
                 {remoteFunc.identifier}
             </FieldName>

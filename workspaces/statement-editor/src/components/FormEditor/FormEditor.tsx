@@ -157,7 +157,7 @@ export function FormEditor(props: FormEditorProps) {
                 if (topLevelComponent) {
                     const partialST = await getPartialSTForModuleMembers(
                         { codeSnippet: initialSource.trim() }, getLangClient,
-                        type === "Resource"
+                        (type === "Resource" || type === "GraphqlResource")
                     );
                     const updatedContent = getUpdatedSource(initialSource.trim(), currentFile.content,
                         initialModel.position, undefined, true);

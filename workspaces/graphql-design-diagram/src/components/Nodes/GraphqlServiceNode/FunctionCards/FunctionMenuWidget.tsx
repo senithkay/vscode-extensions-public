@@ -17,15 +17,17 @@ import React, { useState } from "react";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 
-import { Colors, Position } from "../../../resources/model";
+import { FunctionType, Position } from "../../../resources/model";
 
-import { ServiceSubheader } from "./ServiceMenuActions/ServiceSubheader";
+import { DeleteFunctionWidget } from "./MenuActionComponents/DeleteFunction";
+import { DesignFunctionWidget } from "./MenuActionComponents/DesignFunction";
+import { EditFunctionWidget } from "./MenuActionComponents/EditFunction";
 
-interface ServiceHeaderMenuProps {
+interface FunctionMenuWidgetProps {
     location: Position;
 }
 
-export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
+export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
     const { location } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
@@ -38,7 +40,10 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <>
-                        <ServiceSubheader location={location}/>
+                        {/*TODO update the correct function type*/}
+                        <DesignFunctionWidget position={location} functionType={FunctionType.QUERY}/>
+                        <EditFunctionWidget position={location} functionType={FunctionType.QUERY}/>
+                        <DeleteFunctionWidget position={location} functionType={FunctionType.QUERY}/>
                     </>
                 }
                 PopperProps={{
@@ -73,12 +78,12 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                     cursor="pointer"
                     onClick={() => setTooltipStatus(true)}
                     sx={{
-                        backgroundColor: `${Colors.SECONDARY}`,
-                        borderRadius: '30%',
+                        // backgroundColor: `${Colors.SECONDARY}`,
+                        // borderRadius: '30%',
                         fontSize: '18px',
                         margin: '0px',
                         position: 'absolute',
-                        right: 2.5
+                        right: 0.5
                     }}
                 />
             </Tooltip>

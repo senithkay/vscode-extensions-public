@@ -26,6 +26,7 @@ import { GraphqlDesignModel } from "../resources/model";
 import { getModelForGraphqlService } from "../utils/ls-util";
 
 export interface GraphqlDesignDiagramProps {
+    model?: STNode;
     targetPosition?: NodePosition;
     langClientPromise: Promise<IBallerinaLangClient>;
     filePath: string;
@@ -36,7 +37,8 @@ export interface GraphqlDesignDiagramProps {
     };
     ballerinaVersion?: string;
     syntaxTree?: STNode;
-    functionPanel?: (position: NodePosition, functionType: string) => void;
+    functionPanel?: (position: NodePosition, functionType: string, model?: STNode) => void;
+    servicePanel?: () => void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -51,10 +53,12 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     const {
+        model,
         targetPosition,
         langClientPromise,
         currentFile,
-        functionPanel
+        functionPanel,
+        servicePanel
     } = props;
 
     const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
@@ -80,7 +84,9 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     };
 
     const ctxt = {
-        functionPanel
+        model,
+        functionPanel,
+        servicePanel
     };
 
     return (
