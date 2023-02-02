@@ -17,14 +17,10 @@ import { suite } from "mocha";
 import { join } from "path";
 import { ext } from "../../../extensionVariables";
 
-const TEST_PROJECT_DIRECTORY: string = 'SimpleProject';
-const OPEN_FOLDER_CMD: string = 'vscode.openFolder';
-
 suite('Non-Choreo Project Test', () => {
     test('Check isChoreoProject', async () => {
-        const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_DIRECTORY);
-        commands.executeCommand(OPEN_FOLDER_CMD, Uri.file(projectRoot)).then(async () => {
-            assert.strictEqual(await ext.api.isChoreoProject(), false, 'Incorrectly detected workspace as a Choreo project.');
-        });
+        const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', 'SimpleProject');
+        await commands.executeCommand('vscode.openFolder',  Uri.file(join(projectRoot, 'SimpleProject.code-workspace')));
+        assert.strictEqual(await ext.api.isChoreoProject(), false, 'Incorrectly detected workspace as a Choreo project.');
     });
 });

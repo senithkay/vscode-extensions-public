@@ -107,4 +107,4 @@ export const ALL_COMPONENTS: Component[] = [FOO_P1_COMPONENT, BAR_P1_COMPONENT];
 
 export const FOO_OWNER_PROJECTS: Project[] = [FOO_PROJECT_1, FOO_PROJECT_2, BAR_PROJECT_1];
 
-export const TOKEN_EXPIRATION_TIME: number = 3600;
+export const TOKEN_EXPIRATION_TIME: number = 10000;

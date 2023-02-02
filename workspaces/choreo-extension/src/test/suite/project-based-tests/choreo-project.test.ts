@@ -14,7 +14,7 @@
 import sinon = require("sinon");
 import assert = require("assert");
 import { commands, Uri, extensions } from "vscode";
-import { suite, suiteSetup } from "mocha";
+import { suite, suiteSetup, suiteTeardown } from "mocha";
 import { join } from "path";
 import { Component } from "@wso2-enterprise/choreo-core";
 import { ChoreoAuthClient, ChoreoOrgClient, ChoreoProjectClient, KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
@@ -28,48 +28,54 @@ import { ProjectRegistry } from "../../../registry/project-registry";
 
 export const TEST_PROJECT_NAME: string = 'FooProject1';
 const projectRoot = join(__dirname, '..', '..', '..', '..', 'src', 'test', 'data', TEST_PROJECT_NAME);
-const uri = Uri.file(join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
-const OPEN_FOLDER_CMD: string = 'vscode.openFolder';
+const workspaceFileURI = Uri.file(join(projectRoot, `${TEST_PROJECT_NAME}.code-workspace`));
+
+async function wait(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 suite('Choreo Project Based Tests', () => {
+    let apimTokenStub: sinon.SinonStub, vscodeTokenStub: sinon.SinonStub, keyChainGetTokenStub: sinon.SinonStub,
+    getUserInfoStub: sinon.SinonStub, getProjectsStub: sinon.SinonStub, getComponentsStub: sinon.SinonStub;
+
     suiteSetup('Setup mocked environment', async () => {
         const authClient = new MockAuthClient();
-        sinon.stub(ChoreoAuthClient.prototype, 'exchangeApimToken').callsFake(async (params) => await authClient.exchangeApimToken(params[0], params[1]));
-        sinon.stub(ChoreoAuthClient.prototype, 'exchangeVSCodeToken').callsFake(async (params) => await authClient.exchangeVSCodeToken(params[0]));
+        apimTokenStub = sinon.stub(ChoreoAuthClient.prototype, 'exchangeApimToken').callsFake(async (params) => await authClient.exchangeApimToken(params[0], params[1]));
+        vscodeTokenStub = sinon.stub(ChoreoAuthClient.prototype, 'exchangeVSCodeToken').callsFake(async (params) => await authClient.exchangeVSCodeToken(params[0]));
 
         const tokenStorage = new MockKeyChainTokenStorage();
-        sinon.stub(KeyChainTokenStorage.prototype, 'getToken').resolves(await tokenStorage.getToken("choreo.token"));
+        keyChainGetTokenStub = sinon.stub(KeyChainTokenStorage.prototype, 'getToken').resolves(await tokenStorage.getToken("choreo.token"));
 
         const orgClient = new MockOrgClient();
-        sinon.stub(ChoreoOrgClient.prototype, 'getUserInfo').resolves(await orgClient.getUserInfo());
+        getUserInfoStub = sinon.stub(ChoreoOrgClient.prototype, 'getUserInfo').resolves(await orgClient.getUserInfo());
 
         const projectClient = new MockProjectClient();
-        sinon.stub(ChoreoProjectClient.prototype, 'getProjects').callsFake(async (params) => await projectClient.getProjects(params));
-        sinon.stub(ChoreoProjectClient.prototype, 'getComponents').callsFake(async (params) => await projectClient.getComponents(params));
+        getProjectsStub = sinon.stub(ChoreoProjectClient.prototype, 'getProjects').callsFake(async (params) => await projectClient.getProjects(params));
+        getComponentsStub = sinon.stub(ChoreoProjectClient.prototype, 'getComponents').callsFake(async (params) => await projectClient.getComponents(params));
     });
 
     test('Check isChoreoProject', async () => {
-        commands.executeCommand(OPEN_FOLDER_CMD, uri).then(async () => {
-            assert.ok(await ext.api.isChoreoProject(), 'Did not detect workspace as a Choreo project.');
-        });
+        await commands.executeCommand('vscode.openFolder', workspaceFileURI);
+        assert.strictEqual(await ext.api.isChoreoProject(), true, 'Did not detect workspace as a Choreo project.');
     });
 
     test('Check Active Project on Status Bar', async () => {
         await activateStatusBarItem();
+        sinon.assert.called(getProjectsStub);
         assert.strictEqual(ext.statusBarItem.text, `Choreo: ${FOO_PROJECT_1.name}`);
     });
 
     test('Generate Project Overview', async () => {
-        await showChoreoProjectOverview().then(async () => {
-            assert.strictEqual(ext.api.selectedOrg, FOO_ORG);
-            // assert.strictEqual(ext.api.selectedProjectId, FOO_PROJECT_1.id);
+        await showChoreoProjectOverview();
+        const actualComponents: Component[] = await ProjectRegistry.getInstance().getComponents(FOO_PROJECT_1.id, FOO_ORG.handle);
+        const localComponents: Component[] = new ChoreoProjectManager().getLocalComponents(workspaceFileURI.fsPath);
+        const expectedComponents: Component[] = [FOO_P1_COMPONENT].concat(localComponents);
+        assert.deepStrictEqual(actualComponents, expectedComponents, 'Failed to detect FooProject1 components.');
+        assert.strictEqual(ext.api.selectedOrg, FOO_ORG, 'Failed to detect correct organization.');
 
-            const actualComponents: Component[] = await ProjectRegistry.getInstance().getComponents(FOO_PROJECT_1.id, FOO_ORG.handle);
-            const localComponents: Component[] = new ChoreoProjectManager().getLocalComponents(uri.fsPath);
-            const expectedComponents: Component[] = [FOO_P1_COMPONENT].concat(localComponents);
-            assert.deepEqual(actualComponents, expectedComponents, 'Failed to detect FooProject1 components.');
-        });
-    });
+        sinon.assert.called(getUserInfoStub);
+        sinon.assert.called(getComponentsStub);
+    }).timeout(4000);
 
     test('Generate Architecture View', async () => {
         const ext = extensions.getExtension('wso2.ballerina');
@@ -79,9 +85,18 @@ suite('Choreo Project Based Tests', () => {
             if (ext && !ext.isActive) {
                 await ext.activate();
             }
-            await commands.executeCommand('ballerina.view.architectureView').then(() => {
-                assert.ok(true);
-            });
+            await commands.executeCommand('ballerina.view.architectureView');
+            await wait(3000);
+            assert.ok(true);
         }
     }).timeout(7500);
-}).timeout(15000);
+
+    suiteTeardown(() => {
+        apimTokenStub.restore();
+        vscodeTokenStub.restore();
+        keyChainGetTokenStub.restore();
+        getUserInfoStub.restore();
+        getProjectsStub.restore();
+        getComponentsStub.restore();
+    });
+});
