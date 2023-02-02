@@ -202,8 +202,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path) => {
 		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
+			console.log('test1 >>>');
 			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position);
 		} else {
+			console.log('test2 >>>');
 			const args = [{
 				filePath: path,
 				startLine: 0,
@@ -211,6 +213,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				openInDiagram: position,
 			}];
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position);
 		}
 	});
 

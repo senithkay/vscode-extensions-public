@@ -39,18 +39,17 @@ export function ResourceFunctionWidget(props: ResourceFunctionProps) {
                 port={node.getPort(`left-${resourcePath}`)}
                 engine={engine}
             />
-                {node.serviceType === ServiceTypes.GRAPHQL ?
-                    resource.resourceId.action === GRAPHQL_SUBSCRIBE_ACTION ?
-                        <GraphQLSubscriptionIcon /> :
-                        <GraphQLQueryIcon /> :
-                    <ResourceAction color={ActionColors.get(resource.resourceId.action)}>
-                        {resource.resourceId.action}
-                    </ResourceAction>
-                }
-
-                <ResourceName>
-                    {resource.resourceId.path}
-                </ResourceName>
+            {node.serviceType === ServiceTypes.GRAPHQL ?
+                resource.resourceId.action === GRAPHQL_SUBSCRIBE_ACTION ?
+                    <GraphQLSubscriptionIcon /> :
+                    <GraphQLQueryIcon /> :
+                <ResourceAction color={ActionColors.get(resource.resourceId.action)}>
+                    {resource.resourceId.action}
+                </ResourceAction>
+            }
+            <ResourceName>
+                {resource.resourceId.path}
+            </ResourceName>
             <ServicePortWidget
                 port={node.getPort(`right-${resourcePath}`)}
                 engine={engine}
