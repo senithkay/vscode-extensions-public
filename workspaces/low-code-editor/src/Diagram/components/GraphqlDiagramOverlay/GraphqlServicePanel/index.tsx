@@ -14,7 +14,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
 
-import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useStyles } from "../../ServiceDesign/style";
 
@@ -22,10 +22,11 @@ import { GraphqlOperation } from "./GraphqlOperation";
 
 interface GraphqlServicePanelProps {
     model: ServiceDeclaration;
+    functionPanel?: (position: NodePosition, functionType: string, model?: STNode) => void;
 }
 
 export function GraphqlServicePanel(props: GraphqlServicePanelProps) {
-    const { model } = props;
+    const { model, functionPanel } = props;
 
     const classes = useStyles();
 
@@ -53,7 +54,7 @@ export function GraphqlServicePanel(props: GraphqlServicePanelProps) {
                 <div className={'service-member'} data-start-position={startPosition}>
                     {(STKindChecker.isResourceAccessorDefinition(member) ||
                         (STKindChecker.isObjectMethodDefinition(member) && member.functionName?.value !== "init")) &&
-                    <GraphqlOperation model={member}/>
+                    <GraphqlOperation model={member} functionPanel={functionPanel}/>
                     }
                 </div>
             );

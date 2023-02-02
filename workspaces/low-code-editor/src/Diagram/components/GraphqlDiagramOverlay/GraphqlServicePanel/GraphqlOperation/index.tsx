@@ -14,7 +14,7 @@
 import React, { useContext, useState } from "react";
 
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { Context } from "../../../../../Contexts/Diagram";
@@ -24,10 +24,11 @@ import { OperationHeader } from "./OperationHeader";
 
 interface GraphqlOperationProps {
     model: ResourceAccessorDefinition | ObjectMethodDefinition;
+    functionPanel?: (position: NodePosition, functionType: string, model?: STNode) => void;
 }
 
 export function GraphqlOperation(props: GraphqlOperationProps) {
-    const { model } = props;
+    const { model, functionPanel } = props;
 
     const {
         api: {
@@ -45,10 +46,11 @@ export function GraphqlOperation(props: GraphqlOperationProps) {
         e.stopPropagation();
         const lastMemberPosition: NodePosition = {
             endColumn: model.position.endColumn,
-            endLine: model.position.endLine - 1,
+            endLine: model.position.endLine,
             startColumn: model.position.startColumn,
-            startLine: model.position.startLine - 1
+            startLine: model.position.startLine
         };
+        functionPanel(lastMemberPosition, "ResourceForm", model);
         // handleDiagramEdit(model, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false, renderRecordPanel });
     };
 

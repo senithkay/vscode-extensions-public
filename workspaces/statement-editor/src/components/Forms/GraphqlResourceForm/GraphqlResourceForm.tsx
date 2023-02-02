@@ -68,7 +68,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     // States related to component model
     const [resourcePath, setResourcePath] = useState<string>(model ? getResourcePath(model?.relativeResourcePath).trim() : "");
-    const [returnType, setReturnType] = useState<string>("");
+    const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
     const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
 

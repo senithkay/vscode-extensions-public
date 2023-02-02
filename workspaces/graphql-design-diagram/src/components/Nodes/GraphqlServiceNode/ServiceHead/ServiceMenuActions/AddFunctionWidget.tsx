@@ -16,7 +16,7 @@ import React, { useContext, useState } from "react";
 
 import { IconButton, Tooltip } from "@material-ui/core";
 import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../../../../resources/model";
@@ -28,20 +28,20 @@ interface AddFunctionWidgetProps {
 
 export function AddFunctionWidget(props: AddFunctionWidgetProps) {
     const { position, functionType } = props;
-    const { functionPanel } = useContext(DiagramContext);
+    const { functionPanel, model } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const openFunctionPanel = () => {
-        if (position) {
-            const nodePosition: NodePosition = {
-                startLine: position.startLine.line,
-                startColumn: position.startLine.offset,
-                endLine: position.endLine.line,
-                endColumn: position.endLine.offset
+        if (STKindChecker.isServiceDeclaration(model)) {
+            const lastMemberPosition: NodePosition = {
+                endColumn: model.closeBraceToken.position.endColumn,
+                endLine: model.closeBraceToken.position.endLine,
+                startColumn: model.closeBraceToken.position.startColumn,
+                startLine: model.closeBraceToken.position.startLine
             };
             // TODO: enable form rendering functionality
-            functionPanel(nodePosition, "ResourceForm");
+            functionPanel(lastMemberPosition, "ResourceForm");
         }
     };
 

@@ -54,7 +54,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     const [enableServicePanel, setServicePanel] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
 
-    const renderFunctionForm = (position: NodePosition, functionType: string) => {
+    const renderFunctionForm = (position: NodePosition, functionType: string, functionModel?: STNode) => {
         if (STKindChecker.isServiceDeclaration(model)) {
             const lastMemberPosition: NodePosition = {
                 endColumn: model.closeBraceToken.position.endColumn,
@@ -63,8 +63,9 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 startLine: model.closeBraceToken.position.startLine
             };
             setFormConfig({
+                model: functionModel,
                 configOverlayFormStatus: { formType: "GraphqlConfigForm", isLoading: false },
-                targetPosition: lastMemberPosition,
+                targetPosition: position,
                 onCancel: () => {
                     setEnableFunctionForm(false);
                 },
@@ -84,6 +85,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
             {!enableServicePanel &&
             <GraphqlDesignDiagram
+                model={model}
                 targetPosition={targetPosition}
                 langClientPromise={
                     getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
@@ -100,7 +102,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
             <FormGenerator {...formConfig}/>
             }
             {enableServicePanel && STKindChecker.isServiceDeclaration(model) &&
-            <GraphqlServicePanel model={model}/> }
+            <GraphqlServicePanel model={model} functionPanel={renderFunctionForm}/> }
         </div>
     );
 }

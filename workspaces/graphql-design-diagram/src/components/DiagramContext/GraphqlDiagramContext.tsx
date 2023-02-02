@@ -14,29 +14,32 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React, { createContext } from "react";
 
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 interface GraphqlDiagramContextProps {
     children?: React.ReactNode,
-    functionPanel?: (position: NodePosition, functionType: string) => void;
+    functionPanel?: (position: NodePosition, functionType: string, model?: STNode) => void;
     servicePanel?: () => void;
+    model?: STNode;
 }
 
 export const DiagramContext = createContext({
-        functionPanel: (position: NodePosition, functionType: string) => {},
-        servicePanel: () => {}
+        functionPanel: (position: NodePosition, functionType: string, model?: STNode) => {},
+        servicePanel: () => {},
+        model: undefined
     }
 );
 
 export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
 
-    const { children, functionPanel, servicePanel } = props;
+    const { children, functionPanel, servicePanel, model } = props;
 
     return (
         <DiagramContext.Provider
             value={{
                 functionPanel,
-                servicePanel
+                servicePanel,
+                model
             }}
         >
             {children}
