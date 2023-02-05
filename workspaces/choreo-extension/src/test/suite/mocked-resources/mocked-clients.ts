@@ -24,42 +24,30 @@ import { TEST_PROJECT_NAME } from "../project-based-tests/choreo-project.test";
 
 export class MockAuthClient implements IAuthClient {
     async exchangeAuthCode(_authCode: string): Promise<AccessToken> {
-        return {
-            accessToken: randomUUID(),
-            loginTime: new Date().toISOString(),
-            refreshToken: randomUUID(),
-            expirationTime: TOKEN_EXPIRATION_TIME
-        };
+        return this.generateMockToken();
     }
     async exchangeApimToken(_choreoAccessToken: string, _orgHandle: string): Promise<AccessToken> {
-        return {
-            accessToken: randomUUID(),
-            loginTime: new Date().toISOString(),
-            refreshToken: randomUUID(),
-            expirationTime: TOKEN_EXPIRATION_TIME
-        };
+        return this.generateMockToken();
     }
     async exchangeVSCodeToken(_apiAccessToken: string): Promise<AccessToken> {
-        return {
-            accessToken: randomUUID(),
-            loginTime: new Date().toISOString(),
-            refreshToken: randomUUID(),
-            expirationTime: TOKEN_EXPIRATION_TIME
-        };
+        return this.generateMockToken();
     }
     async exchangeRefreshToken(_refreshToken: string): Promise<AccessToken> {
-        return {
-            accessToken: randomUUID(),
-            loginTime: new Date().toISOString(),
-            refreshToken: randomUUID(),
-            expirationTime: TOKEN_EXPIRATION_TIME
-        };
+        return this.generateMockToken();
     }
 
     getAuthURL(): string {
         throw new Error("Method getAuthURl not implemented.");
     }
 
+    private generateMockToken(): AccessToken {
+        return {
+            accessToken: randomUUID(),
+            loginTime: new Date().toISOString(),
+            refreshToken: randomUUID(),
+            expirationTime: TOKEN_EXPIRATION_TIME
+        };
+    }
 }
 
 export class MockKeyChainTokenStorage implements ITokenStorage {
