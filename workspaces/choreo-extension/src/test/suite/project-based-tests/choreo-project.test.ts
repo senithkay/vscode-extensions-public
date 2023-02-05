@@ -34,24 +34,30 @@ async function wait(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-suite('Choreo Project Based Tests', () => {
+suite('Choreo Project Tests', () => {
     let apimTokenStub: sinon.SinonStub, vscodeTokenStub: sinon.SinonStub, keyChainGetTokenStub: sinon.SinonStub,
-    getUserInfoStub: sinon.SinonStub, getProjectsStub: sinon.SinonStub, getComponentsStub: sinon.SinonStub;
+        getUserInfoStub: sinon.SinonStub, getProjectsStub: sinon.SinonStub, getComponentsStub: sinon.SinonStub;
 
-    suiteSetup('Setup mocked environment', async () => {
-        const authClient = new MockAuthClient();
-        apimTokenStub = sinon.stub(ChoreoAuthClient.prototype, 'exchangeApimToken').callsFake(async (params) => await authClient.exchangeApimToken(params[0], params[1]));
-        vscodeTokenStub = sinon.stub(ChoreoAuthClient.prototype, 'exchangeVSCodeToken').callsFake(async (params) => await authClient.exchangeVSCodeToken(params[0]));
+    suiteSetup('Set up mocked environment', async () => {
+        const mockAuthClient = new MockAuthClient();
+        apimTokenStub = sinon.stub(ChoreoAuthClient.prototype, 'exchangeApimToken').callsFake(async (params) =>
+            await mockAuthClient.exchangeApimToken(params[0], params[1]));
+        vscodeTokenStub = sinon.stub(ChoreoAuthClient.prototype, 'exchangeVSCodeToken').callsFake(async (params) =>
+            await mockAuthClient.exchangeVSCodeToken(params[0]));
 
-        const tokenStorage = new MockKeyChainTokenStorage();
-        keyChainGetTokenStub = sinon.stub(KeyChainTokenStorage.prototype, 'getToken').resolves(await tokenStorage.getToken("choreo.token"));
+        const mockTokenStore = new MockKeyChainTokenStorage();
+        keyChainGetTokenStub = sinon.stub(KeyChainTokenStorage.prototype, 'getToken').callsFake(async (params) =>
+            await mockTokenStore.getToken(params));
 
-        const orgClient = new MockOrgClient();
-        getUserInfoStub = sinon.stub(ChoreoOrgClient.prototype, 'getUserInfo').resolves(await orgClient.getUserInfo());
+        const mockOrgClient = new MockOrgClient();
+        getUserInfoStub = sinon.stub(ChoreoOrgClient.prototype, 'getUserInfo').callsFake(async () =>
+            await mockOrgClient.getUserInfo());
 
-        const projectClient = new MockProjectClient();
-        getProjectsStub = sinon.stub(ChoreoProjectClient.prototype, 'getProjects').callsFake(async (params) => await projectClient.getProjects(params));
-        getComponentsStub = sinon.stub(ChoreoProjectClient.prototype, 'getComponents').callsFake(async (params) => await projectClient.getComponents(params));
+        const mockProjectClient = new MockProjectClient();
+        getProjectsStub = sinon.stub(ChoreoProjectClient.prototype, 'getProjects').callsFake(async (params) =>
+            await mockProjectClient.getProjects(params));
+        getComponentsStub = sinon.stub(ChoreoProjectClient.prototype, 'getComponents').callsFake(async (params) =>
+            await mockProjectClient.getComponents(params));
     });
 
     test('Check isChoreoProject', async () => {
@@ -73,9 +79,12 @@ suite('Choreo Project Based Tests', () => {
         assert.deepStrictEqual(actualComponents, expectedComponents, 'Failed to detect FooProject1 components.');
         assert.strictEqual(ext.api.selectedOrg, FOO_ORG, 'Failed to detect correct organization.');
 
+        await wait(1000);
+        sinon.assert.called(apimTokenStub);
+        sinon.assert.called(vscodeTokenStub);
         sinon.assert.called(getUserInfoStub);
         sinon.assert.called(getComponentsStub);
-    }).timeout(4000);
+    }).timeout(5000);
 
     test('Generate Architecture View', async () => {
         const ext = extensions.getExtension('wso2.ballerina');

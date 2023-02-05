@@ -130,7 +130,7 @@
     "copy-webview-lib": "copyfiles -f -E -F ./../../node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir dist",
     "watch-tests": "tsc -p . -w --outDir dist",
-    "ui-test-setup": "npx extest get-vscode -c 1.74.0 && npx extest get-chromedriver && npx extest install-vsix -f $(ls *.vsix) && npx extest install-vsix -f $(ls ../../*.vsix)",
+    "ui-test-setup": "npx extest get-vscode -c 1.75.0 && npx extest get-chromedriver && npx extest install-vsix -f $(ls *.vsix) && npx extest install-vsix -f $(ls ../../*.vsix)",
     "ui-test": "npm run compile-tests && npx extest run-tests 'dist/ui-test/*.test.js' --mocha_config src/ui-test/.mocharc.js -o src/ui-test/settings.json",
     "pretest": "npm run clean && npm run compile-tests && npm run lint && npm run copy-webview-lib",
     "lint": "eslint src --ext ts",
