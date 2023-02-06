@@ -4,6 +4,8 @@ The Visual Studio Code Ballerina extension provides a set of rich language featu
 
 It offers easy development, execution, debugging, and testing for the [Ballerina programming language](https://ballerina.io/). The Ballerina language possesses a bidirectional mapping between its syntaxes and the visual representation. You can visualize the graphical representation of your Ballerina source further via the extension.
 
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/find-all-references.gif?raw=true" width="100%" />
+
 ## Quick start
 
 Follow the steps below to get the Ballerina VS Code extension up and running.
@@ -11,11 +13,11 @@ Follow the steps below to get the Ballerina VS Code extension up and running.
 1. [Install the extension](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
 2. [Run a program](https://wso2.com/ballerina/vscode/docs/get-started/run-a-program/).
 
-## Functionalities
+## Features
 
 The main functionalities of the extension are listed below.
 
-### Edit the code
+### Code editing
 
 Use the features below to edit Ballerina code via the code editor.
 
@@ -33,7 +35,7 @@ Ballerina allows you to visualize a program written in Ballerina as a graphical 
 - [Project Design view](https://wso2.com/ballerina/vscode/docs/visual-programming/project-design-view/)
 - [Data Mapper](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/)
 
-### Debug the code
+### Debugging
 
 Use the features below to debug your Ballerina programs on the VS Code editor.
 
