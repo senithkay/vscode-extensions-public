@@ -23,6 +23,7 @@ export interface ComponentModel {
     packageId: PackageID;
     services: Map<string, Service>;
     entities: Map<string, Entity>;
+    hasCompilationErrors: boolean;
 }
 
 interface PackageID {
@@ -94,6 +95,7 @@ export interface Entity {
     attributes: Attribute[];
     inclusions: string[];
     elementLocation: Location;
+    isAnonymous: boolean;
 }
 
 export interface Attribute {
@@ -170,9 +172,15 @@ export enum Level {
     TWO = 2
 }
 
+export enum DagreLayout {
+    TREE = 'tight-tree',
+    GRAPH = 'longest-path'
+}
+
 export enum ServiceTypes {
     HTTP = "HTTP",
     GRPC = "GRPC",
+    WEBSOCKET = "Websocket",
     GRAPHQL = "GraphQL",
     OTHER = "other"
 }
@@ -185,3 +193,5 @@ export enum Colors {
     SHADED_SELECTED = '#faead2',
     GATEWAY = '#3db377'
 }
+
+export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';

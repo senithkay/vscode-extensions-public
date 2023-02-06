@@ -18,7 +18,7 @@ import { ext } from "./extensionVariables";
 export function activateURIHandlers() {
     window.registerUriHandler({
         handleUri(uri: Uri): ProviderResult<void> {
-            if (uri.path === '/choreo-signin') {
+            if (uri.path === '/signin') {
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get('code');
                 if (authCode) {
@@ -32,15 +32,7 @@ export function activateURIHandlers() {
                 const installationId = urlParams.get('installationId');
                 if (authCode) {
                     githubAppClient.obatainAccessToken(authCode)
-                        .then(() => {
-                            githubAppClient.fireGHAppAuthCallback({
-                                status: 'authorized',
-                                authCode
-                            });
-                        }).catch((err) => {
-                            githubAppClient.fireGHAppAuthCallback({
-                                status: 'error'
-                            });
+                        .catch((err) => {
                             window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
                         });
                 } else if (installationId) {

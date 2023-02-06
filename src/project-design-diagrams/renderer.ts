@@ -22,7 +22,7 @@ import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } f
 
 export function render(webView: Webview) {
     const body = `
-        <div class = "container" id = "diagram-container" />
+        <div class = "container" id = "webview-container" />
     `;
     const bodyCss = ``;
     const styles = `
@@ -51,8 +51,9 @@ export function render(webView: Webview) {
             }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(go2source, document.getElementById("diagram-container"));
+                designDiagram.renderDesignDiagrams(go2source, document.getElementById("webview-container"));
             }
+
             renderDiagrams();
         }
     `;

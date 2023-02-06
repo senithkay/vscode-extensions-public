@@ -25,7 +25,8 @@
     "deploy": "npm publish",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "test": "react-scripts test --watchAll=false"
+    "test": "react-scripts test --watchAll=false",
+    "postbuild": "copyfiles -f build/umd/ConfigEditor.js ../../resources/jslibs"
   },
   "dependencies": {
     "@material-ui/core": "^4.12.3",

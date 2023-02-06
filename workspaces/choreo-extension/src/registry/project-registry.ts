@@ -11,12 +11,18 @@
  *  associated services.
  */
 
-import { Component, Project, serializeError } from "@wso2-enterprise/choreo-core";
+import { Component, Organization, Project, serializeError } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
+import { ext } from "../extensionVariables";
+import { existsSync } from 'fs';
+import { ChoreoProjectManager, ComponentMetadata } from "@wso2-enterprise/choreo-client/lib/manager";
+import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
+
+// Key to store the project locations in the global state
+const PROJECT_LOCATIONS = "project-locations";
+const PROJECT_REPOSITORIES = "project-repositories";
 
 export class ProjectRegistry {
-
-
     static _registry: ProjectRegistry | undefined;
     private _dataProjects: Map<number, Project[]> = new Map<number, Project[]>([]);
     private _dataComponents: Map<string, Component[]> = new Map<string, Component[]>([]);
@@ -46,17 +52,36 @@ export class ProjectRegistry {
         throw new Error(`Method not implemented`);
     }
 
-    async sync(): Promise<undefined> {
+    async clean(): Promise<void> {
         return new Promise((resolve) => {
             this._dataProjects = new Map<number, Project[]>([]);
             this._dataComponents = new Map<string, Component[]>([]);
-            resolve(undefined);
+            resolve();
         });
     }
 
-    async getProject(projectId: string, orgId: number) {
-        this.getProjects(orgId).then((projects: Project[]) => {
-            return projects.find((project) => { project.id === projectId; });
+    // Adding a refersh method to refresh the data.
+    // Currently refresh is handled by clearing the registry
+    // and firing refresh on tree view.
+    // But tree view refresh API does not support async.
+    // Hence there's no way to know when the refresh is completed.
+    // We cannot remove tree view refresh either because if we depend
+    // on the registry to refresh the tree view, we will end up in a
+    // situation where the tree view is stuck until the registry refresh
+    // is completed without showing any loader animation.
+    // We will use this refresh method from every other places and keep
+    // the tree view refresh as it is just to be used for the tree view.
+    async refreshProjects(): Promise<Project[] | undefined> {
+        await this.clean();
+        const selectedOrg = ext.api.selectedOrg;
+        if (selectedOrg) {
+            return this.getProjects(selectedOrg.id);
+        }
+    }
+
+    async getProject(projectId: string, orgId: number): Promise<Project | undefined> {
+        return this.getProjects(orgId).then(async (projects: Project[]) => {
+            return projects.find((project: Project) => project.id === projectId);
         });
     }
 
@@ -83,21 +108,109 @@ export class ProjectRegistry {
             return projectClient.getComponents({ projId: projectId, orgHandle: orgHandle })
                 .then((components) => {
                     this._dataComponents.set(projectId, components);
-                    return components;
+                    return this._addLocalComponents(projectId, components);
                 }).catch((e) => {
                     serializeError(e);
-                    return [];
+                    return this._addLocalComponents(projectId, []);
                 });
         } else {
             return new Promise((resolve) => {
                 const components: Component[] | undefined = this._dataComponents.get(projectId);
-                resolve(components ? components : []);
+                resolve(this._addLocalComponents(projectId, components ? components : []));
             });
         }
     }
 
-    setProjectLocation(projectId: string, dirpath: string) {
-        throw new Error(`Method not implemented`);
+    setProjectLocation(projectId: string, location: string) {
+        // Project locations are stored in global state
+        let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);
+        // If the locations are not set before create the location map
+        if (projectLocations === undefined) {
+            projectLocations = {};
+        }
+        projectLocations[projectId] = location;
+        ext.context.globalState.update(PROJECT_LOCATIONS, projectLocations);
     }
 
+    getProjectLocation(projectId: string): string | undefined {
+        let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);
+        const filePath: string | undefined = (projectLocations) ? projectLocations[projectId] : undefined;
+        // TODO: check if the location exists 
+        if (filePath !== undefined) {
+            if (existsSync(filePath)) {
+                return filePath;
+            } else {
+                this._removeLocation(projectId);
+            }
+        }
+        // If not, remove the location from the state
+        return undefined;
+    }
+
+    setProjectRepository(projectId: string, repository: string) {
+        let projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
+        if (projectRepositories === undefined) {
+            projectRepositories = {};
+        }
+        projectRepositories[projectId] = repository;
+        ext.context.globalState.update(PROJECT_REPOSITORIES, projectRepositories);
+    }
+
+    getProjectRepository(projectId: string): string | undefined {
+        const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
+        return projectRepositories ? projectRepositories[projectId] : undefined;
+    }
+
+    pushLocalComponentsToChoreo(projectId: string, org: Organization): Promise<void> {
+        return new Promise(async (resolve) => {
+            const projectLocation: string | undefined = this.getProjectLocation(projectId);
+            if (projectLocation !== undefined) {
+                // Get local components
+                const choreoPM = new ChoreoProjectManager();
+                const localComponentMeta: ComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
+                await localComponentMeta.forEach(async componentMetadata => {
+                    const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+                    const componentRequest: CreateComponentParams = {
+                        name: componentMetadata.displayName,
+                        displayName: componentMetadata.displayName,
+                        displayType: componentMetadata.displayType,
+                        description: componentMetadata.description,
+                        orgId: componentMetadata.org.id,
+                        orgHandle: componentMetadata.org.handle,
+                        projectId: projectId,
+                        accessibility: componentMetadata.accessibility,
+                        srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+                        repositorySubPath: appSubPath,
+                        repositoryType: "UserManagedNonEmpty",
+                        repositoryBranch: branchApp
+                    };
+                    await projectClient.createComponent(componentRequest).then((component) => {
+                        choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+                    });
+                });
+                // Delete the components so they resolve from choreo
+                this._dataComponents.delete(projectId);
+            }
+            resolve();
+        });
+    }
+
+    private _removeLocation(projectId: string) {
+        let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);
+        // If the locations are not set before create the location map
+        if (projectLocations === undefined) {
+            projectLocations = {};
+        }
+        delete projectLocations[projectId];
+        ext.context.globalState.update(PROJECT_LOCATIONS, projectLocations);
+    }
+
+    private _addLocalComponents(projectId: string, components: Component[]): Component[] {
+        const projectLocation: string | undefined = this.getProjectLocation(projectId);
+        if (projectLocation !== undefined) {
+            const localcomponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
+            components = components.concat(localcomponents);
+        }
+        return components;
+    }
 }

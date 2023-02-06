@@ -21,18 +21,21 @@ export interface GHAppConfig {
 }
 
 export interface IChoreoGithubAppClient {
+    status: Promise<GHAppAuthStatus>;
     triggerAuthFlow(): Promise<boolean>;
     obatainAccessToken(authCode: string): Promise<void>;
     triggerInstallFlow(): Promise<boolean>;
     getAuthorizedRepositories(): Promise<GithubOrgnization[]>;
+    getRepoBranches(orgName: string, repoName: string): Promise<string[]>;
     onGHAppAuthCallback: Event<GHAppAuthStatus>;
     fireGHAppAuthCallback(status: GHAppAuthStatus): void;
 }
 
 export type GHAppAuthStatus = {
-    status: 'authorized' | 'installed' | 'error';
+    status: 'auth-inprogress' | 'install-inprogress' | 'authorized' | 'installed' | 'not-authorized' | 'error';
     authCode?: string;
     installationId?: string;
+    error?: string;
 };
 
 export interface GithubRepository {
@@ -40,6 +43,6 @@ export interface GithubRepository {
 }
 
 export interface GithubOrgnization {
-    name: string;
+    orgName: string;
     repositories: GithubRepository[];
 }

@@ -10,13 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeLink, VSCodeDropdown, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { OrgSelector } from "../OrgSelector/OrgSelector";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -34,7 +35,7 @@ const ActionContainer = styled.div`
 
 const ErrorMessageContainer = styled.div`
     color: var(--vscode-errorForeground);
-`
+`;
 
 export function ProjectWizard() {
 
@@ -44,14 +45,8 @@ export function ProjectWizard() {
     const [projectDescription, setProjectDescription] = useState("");
     const [creationInProgress, setCreationInProgress] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
-    const [initMonoRepo, setInitMonoRepo] = useState(false);
-
-    useEffect(() => {
-        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
-        ghClient.onGHAppAuthCallback((status) => {
-            console.log("GH App Auth Callback: " + status);
-        });
-    },[]);
+    const [initMonoRepo, setInitMonoRepo] = useState(true);
+    const [githubRepo, setGithubRepo] = useState("");
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
@@ -59,7 +54,8 @@ export function ProjectWizard() {
 
     const handleCreateProject = async () => {
         setCreationInProgress(true);
-        const projectClient = ChoreoWebViewAPI.getInstance().getProjectClient();
+        const webviewAPI = ChoreoWebViewAPI.getInstance();
+        const projectClient = webviewAPI.getProjectClient();
         if (selectedOrg) {
             try {
                 const createdProject = await projectClient.createProject({
@@ -68,9 +64,10 @@ export function ProjectWizard() {
                     orgId: selectedOrg.id,
                     orgHandle: selectedOrg.handle
                 });
-                const webviewAPI = ChoreoWebViewAPI.getInstance();
-                webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
-                webviewAPI.triggerCmd("wso2.choreo.projects.refresh");
+                await webviewAPI.setProjectRepository(createdProject.id, githubRepo);
+                await webviewAPI.triggerCmd("wso2.choreo.projects.registry.refresh");
+                await webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
+                await webviewAPI.triggerCmd("wso2.choreo.projects.tree.refresh");
                 webviewAPI.closeWebView();
             } catch (error: any) {
                 setErrorMsg(error.message + " " + error.cause);
@@ -78,6 +75,16 @@ export function ProjectWizard() {
         }
         setCreationInProgress(false);
     };
+
+    const handleRepoSelect = (org?: string, repo?: string) => { 
+        if (org && repo) {
+            setGithubRepo(`${org}/${repo}`);
+        } else {
+            setGithubRepo("");
+        }
+    };
+
+    const isValid: boolean = projectName.length > 0;
 
     return (
         <>
@@ -88,6 +95,8 @@ export function ProjectWizard() {
                     <OrgSelector />
                     <VSCodeTextField
                         autofocus
+                        validate={projectName.length > 0}
+                        validationMessage="Project name is required"
                         placeholder="Name"
                         onInput={(e: any) => setProjectName(e.target.value)}
                         value={projectName}
@@ -107,22 +116,20 @@ export function ProjectWizard() {
                     >
                         Initialize a mono repo
                     </VSCodeCheckbox>
-                    {initMonoRepo &&
-                        <>
-                            <VSCodeLink
-                               onClick={() => { ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow(); }}
-                            >
-                                Authorize with Github
-                            </VSCodeLink>
-                            <VSCodeDropdown>Select Repository</VSCodeDropdown>
-                        </>
-                    }
+                    {initMonoRepo && <GithubRepoSelector onRepoSelect={handleRepoSelect} />}
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
                         <ErrorMessageContainer>
                             {error.message + error.cause}
                         </ErrorMessageContainer>
                     )}
+                    <VSCodeTextField
+                        autofocus
+                        readOnly={true}
+                        value={githubRepo}
+                    >
+                        Selected Repository
+                    </VSCodeTextField>
                     <ActionContainer>
 
                         <VSCodeButton
@@ -131,14 +138,14 @@ export function ProjectWizard() {
                         >
                                 Cancel
                         </VSCodeButton>
-                        {creationInProgress && <VSCodeProgressRing />}
                         <VSCodeButton
                             appearance="primary"
                             onClick={handleCreateProject}
-                            disabled={creationInProgress}
+                            disabled={creationInProgress || !isValid}
                         >
                                 Create
                         </VSCodeButton>
+                        {creationInProgress && <VSCodeProgressRing />}
                     </ActionContainer>
                 </WizardContainer>
             )}

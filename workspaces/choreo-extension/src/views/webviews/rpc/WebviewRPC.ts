@@ -10,27 +10,34 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel } from "vscode";
+import { commands, WebviewPanel, window, workspace, Uri, ProgressLocation } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
-    GetLoginStatusRequest, ExecuteCommandNotification,
+    GetLoginStatusRequest, ExecuteCommandRequest,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-     CloseWebViewNotification, serializeError,
+    CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
-    Project, GetComponents
+    Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
+    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    PushLocalComponentsToChoreo,
+    OpenArchitectureView
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
+import { ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager';
 
 import { ext } from "../../../extensionVariables";
 import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
+import * as vscode from 'vscode';
+import { cloneProject } from "../../../cmds/clone";
 
 export class WebViewRpc {
 
     private _messenger = new Messenger();
+    private _manager = new ChoreoProjectManager();
 
     constructor(view: WebviewPanel) {
         this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
@@ -56,11 +63,92 @@ export class WebViewRpc {
             }
         });
 
+        // TODO: Refactor structure
+        this._messenger.onRequest(CreateComponentRequest, async (args: ComponentWizardInput) => {
+            if (ext.api.selectedOrg) {
+                const workspaceFilePath = workspace.workspaceFile?.fsPath;
+                if (workspaceFilePath) {
+                    return this._manager.createComponent({
+                        org: ext.api.selectedOrg,
+                        projectId: args.projectId,
+                        name: args.name,
+                        displayType: args.type,
+                        accessibility: args.accessibility,
+                        workspaceFilePath: workspaceFilePath,
+                        repositoryInfo: args.repositoryInfo
+                    });
+                } else {
+                    throw new Error("Failed to detect the project workpsace.");
+                }
+            }
+        });
+
         this._messenger.onRequest(GetComponents, async (projectId: string) => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle);
             }
         });
+
+        this._messenger.onRequest(GetProjectLocation, async (projectId: string) => {
+            return ProjectRegistry.getInstance().getProjectLocation(projectId);
+        });
+
+        this._messenger.onRequest(OpenExternal, (url: string) => {
+            vscode.env.openExternal(vscode.Uri.parse(url));
+        });
+
+        this._messenger.onRequest(OpenChoreoProject, async (projectId: string) => {
+            const workspaceFilePath = ProjectRegistry.getInstance().getProjectLocation(projectId);
+            if (workspaceFilePath !== undefined) {
+                await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
+                await commands.executeCommand("workbench.explorer.fileView.focus");
+            }
+        });
+
+        this._messenger.onRequest(CloneChoreoProject, (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                ProjectRegistry.getInstance().getProject(projectId, ext.api.selectedOrg?.id)
+                    .then((project: Project | undefined) => {
+                        if (project) {
+                            cloneProject(project);
+                        }
+                    });
+            }
+        });
+
+        this._messenger.onRequest(setProjectRepository, async (params) => {
+            ProjectRegistry.getInstance().setProjectRepository(params.projId, params.repo);
+        });
+
+        this._messenger.onRequest(getProjectRepository, (projectId: string) => {
+            return ProjectRegistry.getInstance().getProjectRepository(projectId);
+        });
+
+        this._messenger.onRequest(isChoreoProject, () => {
+            return ext.api.isChoreoProject();
+        });
+
+        this._messenger.onRequest(getChoreoProject, () => {
+            return ext.api.getChoreoProject();
+        });
+
+        this._messenger.onRequest(OpenArchitectureView, () => {
+            commands.executeCommand("ballerina.view.architectureView");
+        });
+
+        this._messenger.onRequest(PushLocalComponentsToChoreo, async (projectId: string): Promise<void> => {
+            return window.withProgress({
+                title: `Pushing local components to Choreo.`,
+                location: ProgressLocation.Notification,
+                cancellable: true
+            }, async (_progress, cancellationToken) => {
+                // TODO Make the cancellation token work
+                if (ext.api.selectedOrg) {
+                    await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
+                }
+            });
+        });
+
 
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
@@ -71,11 +159,15 @@ export class WebViewRpc {
         ext.api.onChoreoProjectChanged((projectId) => {
             this._messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, projectId);
         });
-        this._messenger.onNotification(ExecuteCommandNotification, (args: string[]) => {
+        this._messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
             if (args.length >= 1) {
                 const cmdArgs = args.length > 1 ? args.slice(1) : [];
-                commands.executeCommand(args[0], ...cmdArgs);
+                const result = await commands.executeCommand(args[0], ...cmdArgs);
+                return result;
             }
+        });
+        this._messenger.onNotification(ShowErrorMessage, (error: string) => {
+            window.showErrorMessage(error);
         });
         this._messenger.onNotification(CloseWebViewNotification, () => {
             view.dispose();

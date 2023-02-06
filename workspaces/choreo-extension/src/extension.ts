@@ -12,16 +12,17 @@
  */
 
 import * as vscode from 'vscode';
-import { ThemeIcon, window, extensions } from 'vscode';
+import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
 
 import { activateAuth } from './auth';
-import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens } from './auth/auth';
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, signIn } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { cloneAllComponentsCmd, cloneComponentCmd } from './cmds/clone';
-import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
+import { cloneProject } from './cmds/clone';
+import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, refreshProjectsTreeViewCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
-import { ProjectRegistry } from './registry/project-registry';
+import { activateRegistry } from './registry/activate';
+import { activateStatusBarItem } from './status-bar';
 import { activateURIHandlers } from './uri-handlers';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
@@ -48,7 +49,45 @@ export function activate(context: vscode.ExtensionContext) {
 	activateBallerinaExtension();
 	activateWizards();
 	activateURIHandlers();
+	showChoreoProjectOverview();
+	activateStatusBarItem();
+	activateRegistry();
 	return ext.api;
+}
+
+export async function showChoreoProjectOverview() {
+	const isChoreoProject = await ext.api.isChoreoProject();
+	if (isChoreoProject) {
+		await window.withProgress({
+            title: `Opening Choreo Project Workspace.`,
+            location: ProgressLocation.Notification,
+            cancellable: true
+        }, async (_progress, cancellationToken) => {
+            let cancelled: boolean = false;
+
+            cancellationToken.onCancellationRequested(async () => {
+                cancelled = true;
+            });
+			// execute choreo project overview cmd
+			try {
+				// first sign in to Choreo
+				await signIn();
+				if (cancelled) {
+					return;
+				}
+				const project = await ext.api.getChoreoProject();
+				if (cancelled) {
+					return;
+				}
+				if (project) {
+					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
+				}
+			} catch (error: any) {
+				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
+			}
+		});
+		
+	}
 }
 
 
@@ -60,16 +99,13 @@ export function getGitExtensionAPI() {
 
 function createProjectTreeView() {
 	const choreoResourcesProvider = new ProjectsTreeProvider();
+	ext.projectsTreeProvider = choreoResourcesProvider;
 
-	vscode.commands.registerCommand(refreshProjectsListCmdId, async () => {
-		ProjectRegistry.getInstance().sync().then(() => {
-			choreoResourcesProvider.refresh();
-		});
+	vscode.commands.registerCommand(refreshProjectsTreeViewCmdId, () => {
+		choreoResourcesProvider.refresh();
 	});
 
-	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneAllComponentsCmd);
-
-	vscode.commands.registerCommand(cloneComponentCmdId, cloneComponentCmd);
+	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
 
 	const treeView = window.createTreeView(choreoProjectsTreeId, {
 		treeDataProvider: choreoResourcesProvider, showCollapseAll: true

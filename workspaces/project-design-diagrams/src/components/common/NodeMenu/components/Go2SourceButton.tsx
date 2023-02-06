@@ -18,6 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
+import Tooltip from '@mui/material/Tooltip';
 import CodeIcon from '@mui/icons-material/Code';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { Location } from '../../../../resources';
@@ -29,18 +30,25 @@ export function Go2SourceWidget(props: { location: Location }) {
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     return (
-        <CodeIcon
-            onClick={() => go2source(location)}
-            onMouseOver={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            style={{
-                backgroundColor: isHovered ? '#49ad63' : '',
-                borderRadius: '50%',
-                color: isHovered ? 'whitesmoke' : '#49ad63',
-                cursor: 'pointer',
-                fontSize: '22px',
-                padding: '2px'
-            }}
-        />
+        <Tooltip
+            open={isHovered}
+            title={'Go to source'}
+            arrow
+            placement='right'
+        >
+            <CodeIcon
+                onClick={() => go2source(location)}
+                onMouseOver={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                style={{
+                    backgroundColor: isHovered ? '#49ad63' : '',
+                    borderRadius: '50%',
+                    color: isHovered ? 'whitesmoke' : '#49ad63',
+                    cursor: 'pointer',
+                    fontSize: '22px',
+                    padding: '2px'
+                }}
+            />
+        </Tooltip>
     );
 }

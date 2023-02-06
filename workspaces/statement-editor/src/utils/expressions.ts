@@ -685,7 +685,7 @@ export const typeDesc : ExpressionGroup = {
     relatedModelType: ModelType.TYPE_DESCRIPTOR
 }
 
-const operatorSymbols : ExpressionGroup = {
+export const operatorSymbols : ExpressionGroup = {
     name: "Operators",
     expressions: [
         {
@@ -811,5 +811,6 @@ export const expressions: ExpressionGroup[] = [
     queryIntermediateClauses,
     remoteMethodCall,
     orderKey,
-    orderDirectionKeywords
+    orderDirectionKeywords,
+    parenthesis
 ];

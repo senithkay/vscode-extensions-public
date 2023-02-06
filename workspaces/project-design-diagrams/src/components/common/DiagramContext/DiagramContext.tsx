@@ -22,13 +22,17 @@ import { Location, Service, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
+    isChoreoProject: boolean;
     getTypeComposition: (entityID: string) => void;
     go2source: (location: Location) => void;
     currentView: Views;
     editingEnabled: boolean;
+    setTargetService: (service: Service) => void;
+    refreshDiagram: () => void;
 }
 
 interface IDiagramContext {
+    isChoreoProject: boolean;
     getTypeComposition: (entityID: string) => void;
     go2source: (location: Location) => void;
     currentView: Views;
@@ -37,6 +41,8 @@ interface IDiagramContext {
     editingEnabled: boolean;
     newLinkNodes: LinkedNodes;
     setNewLinkNodes: (nodes: LinkedNodes) => void;
+    setTargetService: (service: Service) => void;
+    refreshDiagram: () => void;
 }
 
 interface LinkedNodes {
@@ -51,9 +57,10 @@ export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
-    const { getTypeComposition, currentView, go2source, editingEnabled, children } = props;
+    const { isChoreoProject, getTypeComposition, currentView, go2source, editingEnabled, children, setTargetService, refreshDiagram } = props;
 
     const Ctx = {
+        isChoreoProject,
         getTypeComposition,
         go2source,
         currentView,
@@ -61,7 +68,9 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         newComponentID,
         editingEnabled,
         newLinkNodes,
-        setNewLinkNodes
+        setNewLinkNodes,
+        setTargetService,
+        refreshDiagram
     }
 
     return (

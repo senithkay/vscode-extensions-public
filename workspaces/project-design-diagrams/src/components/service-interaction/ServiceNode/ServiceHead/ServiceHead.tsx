@@ -38,7 +38,8 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
-    const displayName: string = node.serviceObject.annotation.label ? node.serviceObject.annotation.label : node.serviceObject.path ?
+    const displayName: string = node.serviceObject.annotation && node.serviceObject.annotation.label ?
+        node.serviceObject.annotation.label : node.serviceObject.path ?
         node.serviceObject.path : node.serviceObject.serviceId;
 
     useEffect(() => {
@@ -75,7 +76,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     <NodeMenuWidget
                         background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
                         location={node.serviceObject.elementLocation}
-                        linkingEnabled={editingEnabled && currentView === Views.L1_SERVICES && node.serviceType === ServiceTypes.HTTP}
+                        linkingEnabled={editingEnabled && currentView === Views.L1_SERVICES}
                         service={node.serviceObject}
                     />
                 }

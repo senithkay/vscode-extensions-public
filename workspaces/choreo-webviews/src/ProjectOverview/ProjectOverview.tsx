@@ -11,13 +11,13 @@
  *  associated services.
  */
 
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext, useState, useEffect } from "react";
-import { SignIn } from "../SignIn/SignIn";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useState, useEffect } from "react";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ComponentList } from "./ComponentList";
+import { Codicon } from "../Codicon/Codicon";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -31,69 +31,181 @@ const ActionContainer = styled.div`
     gap: 10px;
 `;
 
+const LinkButton = styled.div`
+    padding-top  : 5px;
+`;
+
+const ActiveLabel = styled.div`
+    font-size  : 12px;
+    display  : inline-block;
+`;
+
+const InlineIcon = styled.span`
+    vertical-align: sub;
+    padding-left: 5px;
+`;
+
 export interface ProjectOverviewProps {
     projectId?: string;
+    orgName?: string;
 }
+
+
+function hasLocal(components: Component[]) {
+    return components.some((component) => {
+        return component.local;
+    });
+}
+
 
 export function ProjectOverview(props: ProjectOverviewProps) {
     const [project, setProject] = useState<Project | undefined>(undefined);
     const [components, setComponents] = useState<Component[] | undefined>(undefined);
+    const [location, setLocation] = useState<string | undefined>(undefined);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
+    const [isActive, setActive] = useState<boolean>(false);
+    const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
     const projectId = props.projectId ? props.projectId : '';
+    const orgName = props.orgName ? props.orgName : '';
 
-    const rpcInstance = ChoreoWebViewAPI.getInstance();
     // Set the starting project with the project id passed by props
     useEffect(() => {
-        rpcInstance.getAllProjects().then((fetchedProjects) => {
+        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
         });
-    }, []);
+    }, [projectId, orgName]);
 
     // Set the components of the project
     useEffect(() => {
-        rpcInstance.getComponents(projectId).then((components: Component[]) => {
-            setComponents(components);
+        ChoreoWebViewAPI.getInstance().getComponents(projectId).then(setComponents);
+    }, [projectId, orgName]);
+
+    useEffect(() => {
+        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
+            if (p && p.id === projectId) {
+                setActive(true);
+            } else {
+                setActive(false);
+            }
         });
-    }, []);
+    }, [projectId, orgName]);
+
+    // Get project location & repo
+    useEffect(() => {
+        ChoreoWebViewAPI.getInstance().getProjectLocation(projectId).then(setLocation);
+        ChoreoWebViewAPI.getInstance().getProjectRepository(projectId).then(setProjectRepo);
+    }, [projectId, orgName]);
 
     // Listen to changes in project selection
-    rpcInstance.onSelectedProjectChanged((newProjectId) => {
+    ChoreoWebViewAPI.getInstance().onSelectedProjectChanged((newProjectId) => {
         setComponents(undefined);
         // setProject(undefined); will not remove project to fix the glitch
-        rpcInstance.getAllProjects().then((fetchedProjects) => {
+        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
-        })
-        rpcInstance.getComponents(newProjectId).then((components: Component[]) => {
-            setComponents(components);
+        });
+        ChoreoWebViewAPI.getInstance().getComponents(newProjectId).then(setComponents);
+        ChoreoWebViewAPI.getInstance().getProjectLocation(newProjectId).then(setLocation);
+        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
+            if (p && p.id === newProjectId) {
+                setActive(true);
+            } else {
+                setActive(false);
+            }
         });
     });
+
+    const handleCloneProjectClick = (e: any) => {
+        ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : '');
+    };
+
+    const handleOpenProjectClick = (e: any) => {
+        ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
+    };
+
+    const handlePushToChoreoClick = (e: any) => {
+        setCreatingComponents(true);
+        ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
+            setCreatingComponents(false);
+            ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then(setComponents);
+        });
+    };
+
+    const handleOpenArchitectureViewClick = (e: any) => {
+        ChoreoWebViewAPI.getInstance().openArchitectureView();
+    };
 
     return (
         <>
             <WizardContainer>
-                <h1>{project?.name}&nbsp;</h1>
-                <p>Unable to find a local copy of the project. You can clone the project to your local machine and edit.</p>
-                <ActionContainer>
-                    <VSCodeButton appearance="secondary">Open Local Copy</VSCodeButton>
-                    <VSCodeButton appearance="secondary">Open in Choreo Console</VSCodeButton>
-                    <VSCodeButton appearance="primary">Clone Project</VSCodeButton>
-                </ActionContainer>
+                <h1>{project?.name}&nbsp;{isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}</h1>
+                {location === undefined &&
+                    <>
+                        <p><InlineIcon><Codicon name="info" /></InlineIcon> To open the project clone in to your local machine</p>
+                        <ActionContainer>
+                            <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
+                            <LinkButton>
+                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
+                                    Open in Choreo Console
+                                </VSCodeLink>
+                            </LinkButton>
+                        </ActionContainer>
+                    </>
+                }
+                {location !== undefined && !isActive &&
+                    <>
+                        <p><InlineIcon><Codicon name="info" /></InlineIcon> Found a local copy of the project at `{location}`. </p>
+                        <ActionContainer>
+                            <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
+                            <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
+                            <LinkButton>
+                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
+                                    Open in Choreo Console
+                                </VSCodeLink>
+                            </LinkButton>
+                        </ActionContainer>
+                    </>
+                }
+                {isActive &&
+                    <>
+                        <p><InlineIcon><Codicon name="info" /></InlineIcon> Open the architecture view to add components. </p>
+                        <ActionContainer>
+                            <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
+                            <VSCodeButton appearance="primary" onClick={handleOpenArchitectureViewClick}>Architecture View</VSCodeButton>
+                            <LinkButton>
+                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
+                                    Open in Choreo Console
+                                </VSCodeLink>
+                            </LinkButton>
+                        </ActionContainer>
+                    </>
+                }
+
+
                 <h2>Components</h2>
-                {(components !== undefined) ?
-                    <VSCodeDataGrid aria-label="Components">
-                        <VSCodeDataGridRow rowType="header">
-                            <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>
-                            <VSCodeDataGridCell cellType={"columnheader"} gridColumn="2">Version</VSCodeDataGridCell>
-                        </VSCodeDataGridRow>
-                        {
-                            components.map((component) => {
-                                return <VSCodeDataGridRow>
-                                    <VSCodeDataGridCell gridColumn="1">{component.name}</VSCodeDataGridCell>
-                                    <VSCodeDataGridCell gridColumn="2">{component.version}</VSCodeDataGridCell>
-                                </VSCodeDataGridRow>
-                            })
-                        }
-                    </VSCodeDataGrid>
-                    : <p>Loading...</p>}
+                <ComponentList components={components} />
+                {components !== undefined && hasLocal(components) &&
+                    <>
+                        <p>
+                            <InlineIcon><Codicon name="lightbulb" /></InlineIcon>
+                            Some components are not created in Choreo. Please commit your changes to github repo and click `Push to Choreo`
+                        </p>
+                        <ActionContainer>
+                            {creatingComponents && <VSCodeProgressRing />}
+                            <VSCodeButton
+                                appearance="secondary"
+                                disabled={creatingComponents}
+                                onClick={handlePushToChoreoClick}>
+                                <Codicon name="cloud-upload" />&nbsp;
+                                Push to Choreo
+                            </VSCodeButton>
+                        </ActionContainer>
+                    </>
+                }
             </WizardContainer>
         </>
     );

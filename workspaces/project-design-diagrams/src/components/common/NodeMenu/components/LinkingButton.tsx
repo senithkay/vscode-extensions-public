@@ -18,6 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
+import Tooltip from '@mui/material/Tooltip';
 import TurnRightIcon from '@mui/icons-material/TurnRight';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { Service } from '../../../../resources';
@@ -29,18 +30,25 @@ export function LinkingWidget(props: { service: Service }) {
     const { setNewLinkNodes } = useContext(DiagramContext);
 
     return (
-        <TurnRightIcon
-            onClick={() => { setNewLinkNodes({ source: service, target: undefined }) }}
-            onMouseOver={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            style={{
-                backgroundColor: isHovered ? 'orange' : '',
-                borderRadius: '50%',
-                color: isHovered ? 'whitesmoke' : 'orange',
-                cursor: 'pointer',
-                fontSize: '22px',
-                padding: '2px'
-            }}
-        />
+        <Tooltip
+            open={isHovered}
+            title={'Link Internally'}
+            arrow
+            placement='right'
+        >
+            <TurnRightIcon
+                onClick={() => { setNewLinkNodes({ source: service, target: undefined }) }}
+                onMouseOver={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                style={{
+                    backgroundColor: isHovered ? 'orange' : '',
+                    borderRadius: '50%',
+                    color: isHovered ? 'whitesmoke' : 'orange',
+                    cursor: 'pointer',
+                    fontSize: '22px',
+                    padding: '2px'
+                }}
+            />
+        </Tooltip>
     );
 }

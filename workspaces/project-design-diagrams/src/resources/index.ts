@@ -17,7 +17,7 @@
  *
  */
 
-export { Colors, Level, ServiceTypes, Views } from './model';
+export { Colors, DagreLayout, GRAPHQL_SUBSCRIBE_ACTION, Level, ServiceTypes, Views } from './model';
 
 export type {
     AddComponentDetails,
@@ -37,8 +37,4 @@ export type {
     ServiceModels
 } from './model';
 
-export { EndpointIcon } from './assets/icons/EndpointIcon';
-export { HttpServiceIcon } from './assets/icons/HttpIcon';
-export { GrpcIcon } from './assets/icons/GrpcIcon';
-export { ShortGrpcIcon } from './assets/icons/ShortGrpcIcon';
-export { GraphQLIcon } from './assets/icons/GraphQL';
+export * from './assets/icons';

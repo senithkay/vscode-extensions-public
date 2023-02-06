@@ -44,6 +44,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		setNewLinkNodes
 	} = useContext(DiagramContext);
 	const [selectedLinks, setSelectedLinks] = useState<ServiceLinkModel[]>([]);
+	const { refreshDiagram } = useContext(DiagramContext)
 	const isNewNode = useRef<boolean>(newComponentID === node.getID());
 
 	useEffect(() => {
@@ -77,13 +78,14 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		if (currentView === Views.L1_SERVICES &&
 			newLinkNodes.source &&
 			newLinkNodes.source.serviceId !== node.getID() &&
-			node.serviceType === ServiceTypes.HTTP	
+			node.serviceType !== ServiceTypes.OTHER
 		) {
 			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
 
 			const rpcInstance = ProjectDesignRPC.getInstance();
 			await rpcInstance.addLink(newLinkNodes.source, node.serviceObject);
 			setNewLinkNodes({ source: undefined, target: undefined });
+			refreshDiagram();
 		}
 	}
 

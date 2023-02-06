@@ -15,12 +15,18 @@ import { IReadOnlyTokenStorage } from "../auth";
 import { GHAppAuthStatus, GHAppConfig, GithubOrgnization, IChoreoGithubAppClient } from "./types";
 import { EventEmitter, env, Uri } from 'vscode';
 
+const extensionId = 'wso2.choreo';
+
 export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
 
+    private _status: GHAppAuthStatus = { status: 'not-authorized' };
     private _onGHAppAuthCallback = new EventEmitter<GHAppAuthStatus>();
     public readonly onGHAppAuthCallback = this._onGHAppAuthCallback.event;
 
     constructor(private _tokenStore: IReadOnlyTokenStorage, private _projectsApiUrl: string, private _appConfig: GHAppConfig) {
+        this.onGHAppAuthCallback((status) => {
+            this._status = status;
+        });
     }
     
     private async _getClient() {
@@ -35,13 +41,36 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         });
         return client;
     }
+    
+    get status(): Promise<GHAppAuthStatus> {
+        return Promise.resolve(this._status);
+    }
+
+    private async _getAuthState(): Promise<string> {
+        const callbackUri = await env.asExternalUri(
+            Uri.parse(`${env.uriScheme}://${extensionId}/ghapp`)
+        );    
+        const state = {
+            origin: "vscode.choreo.ext",
+            callbackUri: callbackUri.toString()
+        };
+        return Buffer.from(JSON.stringify(state), 'binary').toString('base64');
+    }
 
     async triggerAuthFlow(): Promise<boolean> {
-        const { authUrl, clientId, redirectUrl }  = this._appConfig;
-        const callbackUri = await env.asExternalUri(
-            Uri.parse(`${authUrl}?redirect_uri=${redirectUrl}&client_id=${clientId}&state=VSCODE_CHOREO_GH_APP_AUTH`)
-        );
-        return env.openExternal(callbackUri);
+        this._onGHAppAuthCallback.fire({ status: 'auth-inprogress'});
+        const { authUrl, clientId, redirectUrl } = this._appConfig;
+        const state = await this._getAuthState()
+        const ghURL = Uri.parse(`${authUrl}?redirect_uri=${redirectUrl}&client_id=${clientId}&state=${state}`);
+        return env.openExternal(ghURL);
+    }
+
+    async triggerInstallFlow(): Promise<boolean> {
+        this._onGHAppAuthCallback.fire({ status: 'install-inprogress'});
+        const { installUrl }  = this._appConfig;
+        const state = await this._getAuthState()
+        const ghURL = Uri.parse(`${installUrl}?state=${state}`);
+        return env.openExternal(ghURL);
     }
 
     async obatainAccessToken(authCode: string): Promise<void> {
@@ -57,17 +86,19 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             const client = await this._getClient();
             const data = await client.request(mutation);
             if(!data.obtainUserToken?.success) {
+                this._onGHAppAuthCallback.fire({ status: 'error', error: data.obtainUserToken?.message});
                 throw new Error(data.obtainUserToken?.message);
+            } else {
+                this._onGHAppAuthCallback.fire({ status: 'authorized'});
             }
-        } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            this._onGHAppAuthCallback.fire({ status: 'error', error: error?.message});
             throw new Error("Error while obtaining access token. " , { cause: error });
         }
         
     }
 
-    async triggerInstallFlow(): Promise<boolean> {
-        throw new Error("Method not implemented.");
-    }
 
     async getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
         const query = gql`
@@ -85,7 +116,27 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
             const data = await client.request(query);
             return data.userRepos;
         } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            this._onGHAppAuthCallback.fire({ status: 'error', error: (error as any).message});
             throw new Error("Error while fetching authorized repositories. " , { cause: error });
+        }
+    }
+
+    async getRepoBranches(orgName: string, repoName: string): Promise<string[]> {
+        const query = gql`
+            query {
+                repoBranchList(repositoryOrganization: "${orgName}", repositoryName: "${repoName}") {
+                    name
+                }
+            }
+        `;
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.repoBranchList.map((branch: { name: string }) => branch.name);
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            throw new Error("Error while fetching branches for repository. " , { cause: error });
         }
     }
     

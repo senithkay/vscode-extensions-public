@@ -20,16 +20,25 @@
 import styled from '@emotion/styled';
 import { Colors } from '../../../resources';
 
+const ANON_RECORD_PRIMARY: string = '#0d6fbf';
+const ANON_RECORD_SECONDARY: string = '#e8f5ff';
+const ANON_RECORD_HOVER: string = '#0289e3';
+const PRIMARY_HOVER: string = '#2c09ed';
+
 interface StyleProps {
-    isSelected: boolean;
+    isAnonymous: boolean;
+    isSelected?: boolean;
+    isClickable?: boolean;
     shouldShade?: boolean;
 }
 
 export const EntityNode = styled.div`
-    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
-    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
+    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
+        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
+    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
+        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY}`};
     border-radius: 2px !important;
-    color: ${Colors.PRIMARY};
+    color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY};
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -39,9 +48,10 @@ export const EntityNode = styled.div`
 
 export const EntityHead = styled.div`
     align-items: center;
-    border-bottom: ${(props: { isSelected: boolean }) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
+    border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
+        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY}`};
     display: flex;
-    font-family: ${(props: { isSelected: boolean }) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
+    font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;
     height: 32px;
     justify-content: center;
@@ -53,9 +63,9 @@ export const EntityHead = styled.div`
 
 export const EntityName = styled.span`
     &:hover {
-        color: ${(props: { isClickable: boolean }) => props.isClickable ? `#2c09ed` : ``};
-        cursor: ${(props: { isClickable: boolean }) => props.isClickable ? `grabbing` : ``};
-        text-decoration: ${(props: { isClickable: boolean }) => props.isClickable ? `underline` : ``};
+        color: ${(props: StyleProps) => props.isClickable ? (props.isAnonymous ? ANON_RECORD_HOVER : PRIMARY_HOVER) : ``};
+        cursor: ${(props: StyleProps) => props.isClickable ? `grabbing` : ``};
+        text-decoration: ${(props: StyleProps) => props.isClickable ? `underline` : ``};
     }
 `;
 
@@ -87,7 +97,8 @@ export const AttributeName = styled.span`
 `;
 
 export const AttributeType = styled.span`
-    background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SHADED_SELECTED : Colors.SECONDARY};
+    background-color: ${(props: StyleProps) => props.isSelected ? Colors.SHADED_SELECTED :
+        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
     border-radius: 3px;
     color: #000000;
     font-family: GilmerRegular;
@@ -97,6 +108,7 @@ export const AttributeType = styled.span`
     min-width: 60px;
     padding-inline: 6px;
     text-align: center;
+    white-space: nowrap;
 `;
 
 export const InclusionPortsContainer = styled.div`

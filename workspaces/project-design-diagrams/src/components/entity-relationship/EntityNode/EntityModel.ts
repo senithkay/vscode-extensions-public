@@ -17,7 +17,7 @@
  *
  */
 
- import { PortModelAlignment } from '@projectstorm/react-diagrams';
+import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
 import { EntityPortModel } from '../EntityPort/EntityPortModel';
 import { Entity } from '../../../resources';

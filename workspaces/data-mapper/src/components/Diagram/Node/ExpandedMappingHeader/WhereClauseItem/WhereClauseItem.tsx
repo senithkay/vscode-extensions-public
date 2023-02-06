@@ -15,15 +15,17 @@ import React, { useState } from "react";
 
 import { CircularProgress } from "@material-ui/core";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
-import { QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, QueryExpression, WhereClause } from "@wso2-enterprise/syntax-tree";
+import clsx from "clsx";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { ClauseAddButton } from "../ClauseAddButton";
+import { ClickableExpression } from "../Common";
 import { useStyles } from "../styles";
 
 export function WhereClauseItem(props: {
     intermediateNode: WhereClause;
-    onEditClick: () => void;
+    onEditClick: (value: string, position: NodePosition, label: string) => void;
     onDeleteClick: () => Promise<void>;
     context: IDataMapperContext;
     queryExprNode: QueryExpression;
@@ -49,15 +51,23 @@ export function WhereClauseItem(props: {
                 <div className={classes.clauseKeyWrap}>{intermediateNode.whereKeyword.value}</div>
 
                 <div className={classes.clauseWrap}>
-                    <span className={classes.clauseExpression} onClick={onEditClick} data-testid={`where-clause-expression-${itemIndex}`}>
-                        {intermediateNode.expression.source}
-                    </span>
+                    <ClickableExpression
+                        node={intermediateNode.expression}
+                        onEditClick={() =>
+                            onEditClick(
+                                intermediateNode.expression?.source,
+                                intermediateNode.expression?.position,
+                                "Where clause"
+                            )
+                        }
+                        index={itemIndex}
+                    />
                 </div>
 
                 {isLoading ? (
                     <CircularProgress size={18} />
                 ) : (
-                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`where-clause-delete-${itemIndex}`}/>
+                    <DeleteOutline className={classes.deleteIcon} onClick={onDelete} data-testid={`where-clause-delete-${itemIndex}`} />
                 )}
             </div>
 

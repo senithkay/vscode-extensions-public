@@ -17,6 +17,7 @@ import App from "./App";
 export interface ChoreoWebViewsProps {
   type: "ProjectOverview" | "ComponentCreateForm" | "ProjectCreateForm";
   projectId?: string;
+  orgName?: string;
 }
 
 (window as any).renderChoreoWebViews = (props: ChoreoWebViewsProps) => {
