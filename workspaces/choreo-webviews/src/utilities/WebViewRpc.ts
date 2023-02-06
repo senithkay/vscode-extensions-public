@@ -14,7 +14,7 @@ import { Messenger } from "vscode-messenger-webview";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
-    GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
+    GetAllOrgsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandRequest, GetComponents,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,

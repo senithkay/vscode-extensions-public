@@ -82,10 +82,10 @@ export function ComponentWizard() {
 
     const canCreateComponent = name && projectId && accessibility && selectedType && selectedOrg && selectedBranch && folderName;
 
-    const handleComponentCreation = async () => {
+    const handleComponentCreation = () => {
         if (canCreateComponent) {
             setProgressStatus(true);
-            await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent({
+            ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent({
                 name: name,
                 projectId: projectId,
                 org: selectedOrg,

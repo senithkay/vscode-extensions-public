@@ -13,9 +13,8 @@
 
 import { VSCodeButton, VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useState, useEffect, useContext } from "react";
-import { Component, Project } from "@wso2-enterprise/choreo-core";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { useState, useEffect } from "react";
+import { Component, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
 import { Codicon } from "../Codicon/Codicon";
@@ -67,31 +66,29 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
     const [isActive, setActive] = useState<boolean>(false);
     const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
-    const { selectedOrg } = useContext(ChoreoWebViewContext);
     const projectId = props.projectId ? props.projectId : '';
     const orgName = props.orgName ? props.orgName : '';
 
     // Set the starting project with the project id passed by props
     useEffect(() => {
         async function fetchProjects() {
-            if (selectedOrg) {
-                try {
-                    ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
-                        orgId: selectedOrg.id
-                    }).then((fetchedProjects) => {
-                        if (fetchProjects.length) {
-                            setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
-                        } else {
-                            throw new Error("Error: Could not detect projects in your organization.");
-                        }
-                    });
-                } catch (error: any) {
-                    console.log(error.message);
-                }
+            try {
+                const org: Organization = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
+                ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
+                    orgId: org.id
+                }).then((fetchedProjects) => {
+                    if (fetchProjects.length) {
+                        setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
+                    } else {
+                        throw new Error("Error: Could not detect projects in your organization.");
+                    }
+                });
+            } catch (error: any) {
+                console.log(error.message);
             }
         }
         fetchProjects();
-    }, [projectId, orgName, selectedOrg]);
+    }, [projectId, orgName]);
 
     // Set the components of the project
     useEffect(() => {
@@ -118,22 +115,21 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     ChoreoWebViewAPI.getInstance().onSelectedProjectChanged(async (newProjectId) => {
         setComponents(undefined);
         // setProject(undefined); will not remove project to fix the glitch
-        if (selectedOrg) {
-            ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
-                orgId: selectedOrg.id
-            }).then((fetchedProjects) => {
-                setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
-            });
-            ChoreoWebViewAPI.getInstance().getComponents(newProjectId).then(setComponents);
-            ChoreoWebViewAPI.getInstance().getProjectLocation(newProjectId).then(setLocation);
-            ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
-                if (p && p.id === newProjectId) {
-                    setActive(true);
-                } else {
-                    setActive(false);
-                }
-            });
-        }
+        const org: Organization = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
+        ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
+            orgId: org.id
+        }).then((fetchedProjects) => {
+            setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
+        });
+        ChoreoWebViewAPI.getInstance().getComponents(newProjectId).then(setComponents);
+        ChoreoWebViewAPI.getInstance().getProjectLocation(newProjectId).then(setLocation);
+        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
+            if (p && p.id === newProjectId) {
+                setActive(true);
+            } else {
+                setActive(false);
+            }
+        });
     });
 
     const handleCloneProjectClick = (e: any) => {
