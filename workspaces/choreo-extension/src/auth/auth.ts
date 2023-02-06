@@ -52,9 +52,10 @@ export const githubAppClient = new ChoreoGithubAppClient(readonlyTokenStore, cho
 
 export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
-        vscode.Uri.parse(authClient.getAuthURL())
+        vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.choreo/signin`)
     );
-    return vscode.env.openExternal(callbackUri);
+    const oauthURL = authClient.getAuthURL(callbackUri);
+    return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
 }
 
 export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {

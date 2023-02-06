@@ -12,6 +12,7 @@
  */
 import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
+import { Uri } from 'vscode';
 import { getHttpClient } from '../http-client';
 import { AccessToken, AuthClientConfig, IAuthClient } from './types';
 
@@ -131,11 +132,17 @@ export class ChoreoAuthClient implements IAuthClient {
         }
     }
 
-    getAuthURL(): string {
+    getAuthURL(callbackUri: Uri): string {
+        const state = {
+            origin: "vscode.choreo.ext",
+            callbackUri: callbackUri.toString()
+        };
+        const stateBase64 = Buffer.from(JSON.stringify(state), 'binary').toString('base64');
+
         return `${this._config.loginUrl}?response_mode=query&prompt=login&response_type=code`
             + `&code_challenge_method=S256&code_challenge=${this._challenge.code_challenge}`
             + `&fidp=${this._fidp}&redirect_uri=${this._config.redirectUrl}&`
-            + `client_id=${this._config.clientId}&scope=${scope}&state=VSCODE_CHOREO_AUTH`;
+            + `client_id=${this._config.clientId}&scope=${scope}&state=${stateBase64}`;
     }
     
 }
