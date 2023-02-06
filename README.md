@@ -8,7 +8,7 @@ It offers easy development, execution, debugging, and testing for the [Ballerina
 
 Follow the steps below to get the Ballerina VS Code extension up and running.
 
-1. [Install the extenstion](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
+1. [Install the extension](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
 2. [Run a program](https://wso2.com/ballerina/vscode/docs/get-started/run-a-program/).
 
 ## Functionalities
