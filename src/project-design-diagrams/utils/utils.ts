@@ -63,22 +63,3 @@ export function getProjectResources(langClient: ExtendedLangClient): Promise<Map
         });
     });
 }
-
-// For testing purposes
-function injectDeploymentMetadata(components: Map<string, ComponentModel>) {
-    components.forEach((component) => {
-        const services: Map<string, Service> = new Map(Object.entries(component.services));
-        services.forEach((service) => {
-            service.deploymentMetadata = {
-                gateways: {
-                    internet: {
-                        isExposed: true
-                    },
-                    intranet: {
-                        isExposed: true
-                    }
-                }
-            }
-        })
-    })
-}
