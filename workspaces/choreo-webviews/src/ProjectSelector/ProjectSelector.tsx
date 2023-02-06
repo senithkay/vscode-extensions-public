@@ -24,17 +24,16 @@ interface SelectorProps {
 }
 
 export function ProjectSelector(props: SelectorProps) {
-    const { currentProject, setProject } = props
+    const { currentProject, setProject } = props;
     const { selectedOrg } = useContext(ChoreoWebViewContext);
     const [errorMsg, setErrorMsg] = useState<string | undefined>(undefined);
     const [projects, setProjects] = useState<Project[] | undefined>(undefined);
 
     useEffect(() => {
         async function fetchProjects() {
-            const rpcInstance = ChoreoWebViewAPI.getInstance();
             if (selectedOrg) {
                 try {
-                    await rpcInstance.getProjectClient().getProjects({
+                    ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
                         orgId: selectedOrg.id
                     }).then((response) => {
                         if (response.length) {
@@ -52,7 +51,7 @@ export function ProjectSelector(props: SelectorProps) {
 
         fetchProjects();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [selectedOrg]);
 
     return (
         <>

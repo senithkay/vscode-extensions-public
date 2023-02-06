@@ -14,8 +14,8 @@ import { commands, WebviewPanel, window, Uri, ProgressLocation } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
-    GetAllOrgsRequest, GetCurrentOrgRequest,
-    GetLoginStatusRequest, ExecuteCommandNotification,
+    GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
+    GetLoginStatusRequest, ExecuteCommandRequest,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
@@ -132,10 +132,11 @@ export class WebViewRpc {
         ext.api.onChoreoProjectChanged((projectId) => {
             this._messenger.sendNotification(SelectedProjectChangedNotification, BROADCAST, projectId);
         });
-        this._messenger.onNotification(ExecuteCommandNotification, (args: string[]) => {
+        this._messenger.onRequest(ExecuteCommandRequest, async (args: string[]) => {
             if (args.length >= 1) {
                 const cmdArgs = args.length > 1 ? args.slice(1) : [];
-                commands.executeCommand(args[0], ...cmdArgs);
+                const result = await commands.executeCommand(args[0], ...cmdArgs);
+                return result;
             }
         });
         this._messenger.onNotification(ShowErrorMessage, (error: string) => {

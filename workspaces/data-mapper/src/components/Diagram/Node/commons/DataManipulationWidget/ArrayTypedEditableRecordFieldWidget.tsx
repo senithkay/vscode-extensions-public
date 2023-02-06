@@ -34,6 +34,7 @@ import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
     getDefaultValue,
+    getExprBodyFromLetExpression,
     getFieldName,
     getLinebreak,
     getTypeName,
@@ -67,11 +68,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         getPort,
         engine,
         parentMappingConstruct,
-        context, fieldIndex,
+        context,
+        fieldIndex,
         treeDepth = 0,
         deleteField,
         isReturnTypeDesc
     } = props;
+    const { stSymbolInfo, applyModifications, handleCollapse } = context;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
@@ -81,10 +84,12 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         ? `${parentId}.${fieldIndex}${fieldName ? `.${fieldName}` : ''}`
         : `${parentId}${fieldName ? `.${fieldName}` : ''}`;
     const portIn = getPort(`${fieldId}.IN`);
-    const valExpr = field.hasValue()
-        && (STKindChecker.isSpecificField(field.value) ? field.value.valueExpr : field.value);
+    const body = field.hasValue() && STKindChecker.isLetExpression(field.value)
+        ? getExprBodyFromLetExpression(field.value)
+        : field.value;
+    const valExpr = body && STKindChecker.isSpecificField(body) ? body.valueExpr : body;
     const hasValue = valExpr && !!valExpr.source;
-    const isValQueryExpr = STKindChecker.isQueryExpression(valExpr);
+    const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);
     const typeName = getTypeName(field.type);
     const elements = field.elements;
 
@@ -214,13 +219,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     );
 
     const handleExpand = () => {
-        context.handleCollapse(fieldId, !expanded);
+        handleCollapse(fieldId, !expanded);
     };
 
     const handleArrayInitialization = async () => {
         setLoading(true);
         try {
-            await createSourceForUserInput(field, parentMappingConstruct, '[]', context.applyModifications);
+            await createSourceForUserInput(field, parentMappingConstruct, '[]', applyModifications);
         } finally {
             setLoading(false);
         }
@@ -254,7 +259,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 startLine: targetPosition.endLine,
                 startColumn: targetPosition.endColumn
             })];
-            await context.applyModifications(modification);
+            await applyModifications(modification);
         } finally {
             setIsAddingElement(false);
         }

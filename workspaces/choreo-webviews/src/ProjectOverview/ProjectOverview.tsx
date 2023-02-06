@@ -10,11 +10,12 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-/* eslint-disable react-hooks/exhaustive-deps */
+
 import { VSCodeButton, VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useState, useEffect } from "react";
-import { Component, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { useState, useEffect, useContext } from "react";
+import { Component, Project } from "@wso2-enterprise/choreo-core";
+import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
 import { Codicon } from "../Codicon/Codicon";
@@ -66,83 +67,93 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
     const [isActive, setActive] = useState<boolean>(false);
     const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
+    const { selectedOrg } = useContext(ChoreoWebViewContext);
     const projectId = props.projectId ? props.projectId : '';
     const orgName = props.orgName ? props.orgName : '';
 
-    const rpcInstance = ChoreoWebViewAPI.getInstance();
     // Set the starting project with the project id passed by props
     useEffect(() => {
         async function fetchProjects() {
-            const org: Organization = await rpcInstance.getCurrentOrg();
-            rpcInstance.getProjectClient().getProjects({
-                orgId: org.id
-            }).then((fetchedProjects) => {
-                setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
-            });
+            if (selectedOrg) {
+                try {
+                    ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
+                        orgId: selectedOrg.id
+                    }).then((fetchedProjects) => {
+                        if (fetchProjects.length) {
+                            setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
+                        } else {
+                            throw new Error("Error: Could not detect projects in your organization.");
+                        }
+                    });
+                } catch (error: any) {
+                    console.log(error.message);
+                }
+            }
         }
         fetchProjects();
-    }, []);
+    }, [projectId, orgName, selectedOrg]);
 
     // Set the components of the project
     useEffect(() => {
-        rpcInstance.getComponents(projectId).then(setComponents);
-    }, []);
+        ChoreoWebViewAPI.getInstance().getComponents(projectId).then(setComponents);
+    }, [projectId, orgName]);
 
     useEffect(() => {
-        rpcInstance.getChoreoProject().then((p) => {
+        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
             if (p && p.id === projectId) {
                 setActive(true);
             } else {
                 setActive(false);
             }
         });
-    }, []);
+    }, [projectId, orgName]);
 
     // Get project location & repo
     useEffect(() => {
-        rpcInstance.getProjectLocation(projectId).then(setLocation);
-        rpcInstance.getProjectRepository(projectId).then(setProjectRepo);
-    }, []);
+        ChoreoWebViewAPI.getInstance().getProjectLocation(projectId).then(setLocation);
+        ChoreoWebViewAPI.getInstance().getProjectRepository(projectId).then(setProjectRepo);
+    }, [projectId, orgName]);
 
     // Listen to changes in project selection
-    rpcInstance.onSelectedProjectChanged(async (newProjectId) => {
+    ChoreoWebViewAPI.getInstance().onSelectedProjectChanged(async (newProjectId) => {
         setComponents(undefined);
         // setProject(undefined); will not remove project to fix the glitch
-        const org: Organization = await rpcInstance.getCurrentOrg();
-        rpcInstance.getProjectClient().getProjects({
-            orgId: org.id
-        }).then((fetchedProjects) => {
-            setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
-        });
-        rpcInstance.getComponents(newProjectId).then(setComponents);
-        rpcInstance.getProjectLocation(newProjectId).then(setLocation);
-        rpcInstance.getChoreoProject().then((p) => {
-            if (p && p.id === newProjectId) {
-                setActive(true);
-            } else {
-                setActive(false);
-            }
-        });
+        if (selectedOrg) {
+            ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
+                orgId: selectedOrg.id
+            }).then((fetchedProjects) => {
+                setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
+            });
+            ChoreoWebViewAPI.getInstance().getComponents(newProjectId).then(setComponents);
+            ChoreoWebViewAPI.getInstance().getProjectLocation(newProjectId).then(setLocation);
+            ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
+                if (p && p.id === newProjectId) {
+                    setActive(true);
+                } else {
+                    setActive(false);
+                }
+            });
+        }
     });
 
     const handleCloneProjectClick = (e: any) => {
-        rpcInstance.cloneChoreoProject(project ? project.id : '');
+        ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : '');
     };
 
     const handleOpenProjectClick = (e: any) => {
-        rpcInstance.openChoreoProject(project ? project.id : '');
+        ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
     };
 
     const handlePushToChoreoClick = (e: any) => {
         setCreatingComponents(true);
-        rpcInstance.pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
+        ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
             setCreatingComponents(false);
-            rpcInstance.getComponents(project ? project.id : '').then(setComponents);
+            ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then(setComponents);
         });
     };
 
     const handleOpenArchitectureViewClick = (e: any) => {
-        rpcInstance.openArchitectureView();
+        ChoreoWebViewAPI.getInstance().openArchitectureView();
     };
 
     return (

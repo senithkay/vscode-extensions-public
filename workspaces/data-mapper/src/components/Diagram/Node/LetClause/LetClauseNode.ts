@@ -62,7 +62,7 @@ export class LetClauseNode extends DataMapperNodeModel {
                          this.context.collapsedFields, parentPort.collapsed);
                 });
             } else {
-                this.numberOfFields += this.addPortsForInputRecordField(this.typeDef, "OUT", this.sourceBindingPattern.variableName.value,
+                this.addPortsForInputRecordField(this.typeDef, "OUT", this.sourceBindingPattern.variableName.value,
                         EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
                          this.context.collapsedFields, parentPort.collapsed);
             }

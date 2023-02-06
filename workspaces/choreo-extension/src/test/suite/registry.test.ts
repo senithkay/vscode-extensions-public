@@ -13,12 +13,11 @@
 import * as assert from 'assert';
 import { suite, setup, test } from 'mocha';
 import * as vscode from 'vscode';
-import { ext } from '../../src/extensionVariables';
-import { ProjectRegistry } from '../../src/registry/project-registry';
 
 import { mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { ProjectRegistry } from '../../registry/project-registry';
 
 function createTempDir(): string {
     const tmpDir = tmpdir();

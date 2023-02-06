@@ -10,11 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { ExpressionRange, IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
 	addToTargetPosition,
     CompletionParams,
-    PublishDiagnosticsParams
+    PublishDiagnosticsParams,
+    ResolvedTypeForExpression
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Uri }  from "monaco-editor"
@@ -205,4 +206,19 @@ export async function getRecordCompletions(
     );
 
     return allCompletions;
+}
+
+export async function getTypesForExpressions(fileURI: string,
+                                             langClientPromise: Promise<IBallerinaLangClient>,
+                                             expressionNodesRanges: ExpressionRange[])
+        : Promise<ResolvedTypeForExpression[]> {
+    const langClient = await langClientPromise;
+    const typesFromExpression = await langClient.getTypeFromExpression({
+        documentIdentifier: {
+            uri: Uri.file(fileURI).toString()
+        },
+        expressionRanges: expressionNodesRanges
+    });
+
+    return typesFromExpression.types;
 }

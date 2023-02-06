@@ -13,7 +13,7 @@
 import * as assert from 'assert';
 import { suite } from 'mocha';
 import * as vscode from 'vscode';
-import { ext } from '../../src/extensionVariables';
+import { ext } from '../../extensionVariables';
 
 suite('Extension', () => {
     test('Activation', async () => {

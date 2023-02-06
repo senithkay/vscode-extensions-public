@@ -14,8 +14,8 @@ import { Messenger } from "vscode-messenger-webview";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
-    GetAllOrgsRequest, GetCurrentOrgRequest,
-    GetLoginStatusRequest, ExecuteCommandNotification, GetComponents,
+    GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
+    GetLoginStatusRequest, ExecuteCommandRequest, GetComponents,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
     Organization, Project, CloseWebViewNotification,
@@ -115,7 +115,7 @@ export class ChoreoWebViewAPI {
     }
 
     public triggerCmd(cmdId: string, ...args: any) {
-        this._messenger.sendNotification(ExecuteCommandNotification, HOST_EXTENSION, [cmdId, ...args]);
+        return this._messenger.sendRequest(ExecuteCommandRequest, HOST_EXTENSION, [cmdId, ...args]);
     }
 
     public getProjectClient(): IChoreoProjectClient {

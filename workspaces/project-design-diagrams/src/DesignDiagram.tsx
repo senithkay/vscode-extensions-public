@@ -23,7 +23,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
-import { Colors, ComponentModel, Location, Service, Views } from './resources';
+import { Colors, ComponentModel, DagreLayout, Location, Service, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { ProjectDesignRPC } from './utils/rpc/project-design-rpc';
 import { ControlsLayer, EditForm } from './editing';
@@ -51,6 +51,7 @@ export function DesignDiagram(props: DiagramProps) {
     const { go2source, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
+    const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.GRAPH);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
@@ -67,6 +68,10 @@ export function DesignDiagram(props: DiagramProps) {
 
         refreshDiagramResources();
     }, [props])
+
+    const changeDiagramLayout = () => {
+        switchLayout(layout === DagreLayout.GRAPH ? DagreLayout.TREE : DagreLayout.GRAPH);
+    }
 
     const getTypeComposition = (typeID: string) => {
         previousScreen.current = currentView;
@@ -105,7 +110,8 @@ export function DesignDiagram(props: DiagramProps) {
         go2source,
         editingEnabled,
         setTargetService,
-        isChoreoProject
+        isChoreoProject,
+        refreshDiagram: refreshDiagramResources
     }
 
     return (
@@ -125,6 +131,8 @@ export function DesignDiagram(props: DiagramProps) {
                             <DiagramHeader
                                 currentView={currentView}
                                 prevView={previousScreen.current}
+                                layout={layout}
+                                changeLayout={changeDiagramLayout}
                                 projectPackages={projectPkgs}
                                 switchView={setCurrentView}
                                 updateProjectPkgs={setProjectPkgs}
@@ -132,6 +140,7 @@ export function DesignDiagram(props: DiagramProps) {
                             />
                             <DiagramContainer
                                 currentView={currentView}
+                                layout={layout}
                                 workspacePackages={projectPkgs}
                                 workspaceComponents={projectComponents}
                                 typeCompositionModel={typeCompositionModel.current}

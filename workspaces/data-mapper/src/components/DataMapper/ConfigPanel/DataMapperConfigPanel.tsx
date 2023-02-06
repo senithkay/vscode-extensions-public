@@ -11,9 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { FocusEvent, useContext, useEffect, useMemo, useState } from "react";
+import React, { FocusEvent, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import styled from "@emotion/styled";
+import { Box, Popover, Typography } from "@material-ui/core";
 import Divider from "@material-ui/core/Divider/Divider";
 import FormControl from "@material-ui/core/FormControl/FormControl";
 import {
@@ -25,6 +26,8 @@ import {
     FormActionButtons,
     FormHeaderSection,
     Panel,
+    PrimaryButton,
+    SecondaryButton,
     useStyles as useFormStyles
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
@@ -109,6 +112,10 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     const [newRecords, setNewRecords] = useState<string[]>([]);
     const [initiated, setInitiated] = useState(false);
     const [isValidationInProgress, setValidationInProgress] = useState(false);
+    const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
+    const editConfirmMessage = useRef<string>();
+    const editConfirmPopoverOpen = Boolean(popoverAnchorEl);
+    const id = editConfirmPopoverOpen ? 'edit-confirm-popover' : undefined;
 
     const isValidConfig = useMemo(() => {
         const hasInvalidInputs = inputParams.some(input => input.isUnsupported);
@@ -151,10 +158,10 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
 
     useEffect(() => {
         void (async () => {
-            if (initiated){
+            if (initiated) {
                 setFetchingCompletions(true);
                 const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise,
-                                            importStatements, fnST?.position as NodePosition || targetPosition , path);
+                    importStatements, fnST?.position as NodePosition || targetPosition, path);
                 setRecordCompletions(allCompletions);
                 setFetchingCompletions(false);
             }
@@ -162,6 +169,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     }, [content, initiated]);
 
     const onSaveForm = () => {
+        handleClosePopover();
         const parametersStr = inputParams
             .map((item) => `${item.type}${item.isArray ? '[]' : ''} ${item.name}`)
             .join(",");
@@ -170,6 +178,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
 
         const modifications: STModification[] = [];
         if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
+            // check previous output signature and decide whether or not to reset the signature
             modifications.push(
                 updateFunctionSignature(fnName, parametersStr, returnTypeStr, {
                     ...fnST?.functionSignature?.position as NodePosition,
@@ -177,16 +186,24 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                 })
             );
 
-            const functionExpression = (fnST.functionBody as ExpressionFunctionBody)?.expression;
-            if (functionExpression && STKindChecker.isNilLiteral(functionExpression)) {
-                // if function returns (), replace it with {}
+            let functionExpression: STNode = (fnST.functionBody as ExpressionFunctionBody)?.expression;
+            if (functionExpression && STKindChecker.isLetExpression(functionExpression)) {
+                functionExpression = functionExpression.expression
+            }
+            if (
+                functionExpression &&
+                (STKindChecker.isNilLiteral(functionExpression) ||
+                    outputType.type !== output?.type ||
+                    outputType?.isArray !== output?.isArray)
+            ) {
+                // if function returns () or if output type has changed
+                // reset function body with {} or []
                 modifications.push({
                     type: "INSERT",
-                    config: { "STATEMENT": outputType.isArray ? '[]' : '{}' },
-                    ...functionExpression.position
-                })
+                    config: { STATEMENT: outputType.isArray ? "[]" : "{}" },
+                    ...functionExpression.position,
+                });
             }
-
         } else {
             modifications.push(
                 createFunctionSignature(
@@ -219,11 +236,6 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         }
     }, [fnST]);
 
-    useEffect(() => {
-        if (outputType.type) {
-            setShowOutputType(true);
-        }
-    }, [outputType]);
 
     useEffect(() => {
         void (async () => {
@@ -280,7 +292,6 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     // For Output Value
     const handleShowRecordEditor = () => {
         enableAddNewRecord();
-        handleShowOutputType();
         setNewRecordBy("output");
     };
 
@@ -326,7 +337,43 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         setDmFuncDiagnostic("");
     };
 
-    const isArraySupported = useMemo(() => isArraysSupported(ballerinaVersion), [ballerinaVersion])
+    const isArraySupported = useMemo(() => isArraysSupported(ballerinaVersion), [ballerinaVersion]);
+
+    const handleClosePopover = () => {
+        setPopoverAnchorEl(null);
+    };
+
+    const onSaveInit = (event: React.MouseEvent<HTMLElement>) => {
+        // only show confirm popover if something has changed and if its the edit flow
+        if (fnST && STKindChecker.isFunctionDefinition(fnST)) {
+            const outputChanged =
+                outputType.type !== output?.type ||
+                outputType?.isArray !== output?.isArray;
+            const inputsChanged = !inputs?.every((item) =>
+                inputParams?.some(
+                    (newInput) =>
+                        newInput.isArray === item.isArray &&
+                        newInput.name === item.name &&
+                        newInput.type === item.type
+                )
+            );
+            if (outputChanged || inputsChanged) {
+                let confirmMessage = "";
+                if (outputChanged) {
+                    confirmMessage = "Modifying the output type will reset the function body. "
+                } else if (inputsChanged) {
+                    confirmMessage += "Modifying the existing input types might make any existing mappings invalid. "
+                }
+                confirmMessage += "Are you sure you want to proceed?";
+                editConfirmMessage.current = confirmMessage;
+                setPopoverAnchorEl(event.currentTarget);
+            } else {
+                onSaveForm();
+            }
+        } else {
+            onSaveForm();
+        }
+    };
 
     return (
         <Panel onClose={onClose}>
@@ -384,9 +431,25 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
                             saveBtnText="Save"
                             cancelBtnText="Cancel"
                             validForm={isValidConfig}
-                            onSave={onSaveForm}
+                            onSave={onSaveInit}
                             onCancel={onClose}
                         />
+                        <Popover
+                            id={id}
+                            open={editConfirmPopoverOpen}
+                            anchorEl={popoverAnchorEl}
+                            onClose={handleClosePopover}
+                            anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
+                            transformOrigin={{ vertical: 'center', horizontal: 'center' }}
+                        >
+                            <Box p={2} width={400}>
+                                <Typography>{editConfirmMessage.current}</Typography>
+                                <Box mt={2} display='flex' justifyContent='flex-end'>
+                                    <SecondaryButton text="Cancel" onClick={handleClosePopover} />
+                                    <PrimaryButton text="Continue" onClick={onSaveForm} />
+                                </Box>
+                            </Box>
+                        </Popover>
                     </>
                 )}
             </FormControl>

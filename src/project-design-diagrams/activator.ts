@@ -17,19 +17,22 @@
  *
  */
 
-import { commands, ExtensionContext, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace } from "vscode";
+import {
+    commands, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace
+} from "vscode";
 import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { debounce } from "lodash";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions } from "../utils/webview-utils";
 import { render } from "./renderer";
-import { Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP } from "./resources";
+import { Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion } from "./resources";
 import { ProjectDesignRPC } from "./utils";
 
-let context: ExtensionContext;
+let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
 let designDiagramWebview: WebviewPanel | undefined;
+let balVersion: BallerinaVersion;
 
 export interface STResponse {
     syntaxTree: any;
@@ -38,12 +41,12 @@ export interface STResponse {
 }
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
-    context = <ExtensionContext>ballerinaExtInstance.context;
-    langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+    extInstance = ballerinaExtInstance;
+    langClient = <ExtendedLangClient>extInstance.langClient;
     const designDiagramRenderer = commands.registerCommand("ballerina.view.architectureView", () => {
         ballerinaExtInstance.onReady()
             .then(() => {
-                if (isCompatible(ballerinaExtInstance)) {
+                if (isCompatible(2201.2, 2)) {
                     viewProjectDesignDiagrams();
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
@@ -56,7 +59,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
             });
     });
 
-    context.subscriptions.push(designDiagramRenderer);
+    extInstance.context.subscriptions.push(designDiagramRenderer);
 }
 
 function viewProjectDesignDiagrams() {
@@ -106,11 +109,14 @@ function setupWebviewPanel() {
             }
         });
 
-        workspace.onDidChangeTextDocument(debounce(() => {
+        const refreshDiagram = debounce(() => {
             if (designDiagramWebview) {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
             }
-        }, 500));
+        }, 500);
+
+        workspace.onDidChangeTextDocument(refreshDiagram);
+        workspace.onDidChangeWorkspaceFolders(refreshDiagram);
 
         ProjectDesignRPC.create(designDiagramWebview, langClient);
 
@@ -127,14 +133,24 @@ export function terminateActivation(message: string) {
     }
 }
 
-function isCompatible(ballerinaExtInstance: BallerinaExtension): boolean {
-    const balVersion: string = ballerinaExtInstance.ballerinaVersion;
-    const majorVersion: decimal = parseFloat(balVersion);
-    const patchVersion: number = parseInt(balVersion.substring(balVersion.lastIndexOf(".") + 1));
+function isCompatible(majorVersion: decimal, patchVersion: number): boolean {
+    if (!balVersion) {
+        getVersion();
+    }
 
-    if (majorVersion > 2201.2 || (majorVersion === 2201.2 && patchVersion >= 2)) {
+    if (balVersion.majorVersion > majorVersion ||
+        (balVersion.majorVersion === majorVersion && balVersion.patchVersion >= patchVersion)) {
         return true;
     } else {
         return false;
     }
+}
+
+function getVersion() {
+    const version: string = extInstance.ballerinaVersion;
+
+    balVersion = {
+        majorVersion: parseFloat(version),
+        patchVersion: parseInt(version.substring(version.lastIndexOf(".") + 1))
+    };
 }
