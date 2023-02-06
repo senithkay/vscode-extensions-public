@@ -48,7 +48,7 @@ Use the features below to debug your Ballerina programs on the VS Code editor.
 
 For configurations of the extension, see [Configure the extension](https://wso2.com/ballerina/vscode/docs/configure-the-extension/).
 
-## Troubleshooting
+## Troubleshoot
 
 For troubleshooting, see the Ballerina output. To view the Ballerina output tab, click **View**, click **Output,** and select **Ballerina** from the output list. It provides additional information if the plugin fails to detect a Ballerina distribution.  
 
