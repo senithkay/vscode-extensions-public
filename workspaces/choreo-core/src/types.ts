@@ -159,3 +159,59 @@ export interface ComponentWizardInput {
         subPath: string;
     }
 }
+
+export interface Location {
+    filePath: string;
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
+export interface DeploymentMetadata {
+    gateways: {
+        internet: {
+            isExposed: boolean;
+        },
+        intranet: {
+            isExposed: boolean;
+        }
+    };
+}
+
+export interface Service {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    annotation: any;
+    path: string;
+    serviceId: string;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    resources: any[];
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    remoteFunctions: any[];
+    serviceType: string;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    dependencies: any[];
+    deploymentMetadata: DeploymentMetadata;
+    elementLocation: Location;
+}
+
+interface LinePosition {
+    line: number;
+    offset: number;
+}
+export interface Entity {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    attributes: any[];
+    inclusions: string[];
+    elementLocation: Location;
+    isAnonymous: boolean;
+}
+
+export interface ComponentModel {
+    packageId: {
+        name: string,
+        org: string,
+        version: string
+    };
+    services: Map<string, Service>;
+    entities: Map<string, Entity>;
+    hasCompilationErrors: boolean;
+}
