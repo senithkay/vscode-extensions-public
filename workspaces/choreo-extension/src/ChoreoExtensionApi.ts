@@ -105,14 +105,14 @@ export class ChoreoExtensionApi {
         return false;
     }
 
-    public async getChoreoProject(): Promise<Project|undefined> {
+    public async getChoreoProject(): Promise<Project | undefined> {
         const workspaceFile = workspace.workspaceFile;
         if (workspaceFile) {
             const workspaceFilePath = workspaceFile.fsPath;
             const workspaceFileContent = readFileSync(workspaceFilePath, 'utf8');
             const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
             const projectID = workspaceConfig.metadata?.choreo?.projectID,
-                  orgId = workspaceConfig.metadata?.choreo?.orgId;
+                orgId = workspaceConfig.metadata?.choreo?.orgId;
             if (projectID && orgId) {
                 return ProjectRegistry.getInstance().getProject(projectID, orgId);
             }
@@ -123,4 +123,7 @@ export class ChoreoExtensionApi {
         return Promise.resolve(undefined);
     }
 
+    public async getPerformanceForecastData(data: any): Promise<JSON> {
+        return ProjectRegistry.getInstance().getPerformanceForecast(data);
+    }
 }

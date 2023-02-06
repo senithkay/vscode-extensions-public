@@ -121,6 +121,16 @@ export class ProjectRegistry {
         }
     }
 
+    async getPerformanceForecast(data: any): Promise<JSON> {
+        return projectClient.getPerformanceForecastData(data)
+            .then((result: any) => {
+                return result;
+            }).catch((e: any) => {
+                serializeError(e);
+                return false;
+            });
+    }
+
     setProjectLocation(projectId: string, location: string) {
         // Project locations are stored in global state
         let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);

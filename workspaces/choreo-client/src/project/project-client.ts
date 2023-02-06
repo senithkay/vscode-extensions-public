@@ -16,6 +16,11 @@ import { CreateComponentParams, CreateProjectParams, GetComponentsParams, GetPro
 import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './project-queries';
 import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
+import { URL } from "url";
+
+const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
+    `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/4.0` :
+    "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
@@ -82,6 +87,63 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         } catch (error) {
             throw new Error("Error while creating component.", { cause: error });
         }
+    }
+
+    async getPerformanceForecastData(data: any): Promise<JSON> {
+        const choreoToken = await this._tokenStore.getToken("choreo.apim.token");
+        return new Promise((resolve, reject) => {
+            const url = new URL(CHOREO_API_PF);
+
+            const options = {
+                hostname: url.hostname,
+                path: url.pathname,
+                port: 443,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': data.length,
+                    'Authorization': `Bearer ${choreoToken}`
+                }
+            };
+
+            console.log(`Calling perf API - ${url.toString()} - ${new Date()}`);
+            const req = https.request(options, res => {
+                var str = '';
+                res.on('data', function (chunk) {
+                    str += chunk;
+                });
+
+                res.on('end', function () {
+                    if (res.statusCode != 200) {
+                        console.log(`Perf Error - ${res.statusCode} Status code. Retry counted. ${new Date()}`);
+                        console.log(str);
+                        reject();
+                    }
+
+                    try {
+                        const res = JSON.parse(str);
+                        console.log(`Perf Data received ${new Date()}`);
+                        console.log(str);
+
+                        return resolve(res);
+                    } catch (e: any) {
+                        console.log(`Perf Error - Response json parsing failed. Retry counted. ${new Date()}`);
+                        console.log(str);
+                        console.log(e.toString());
+                        reject();
+                    }
+                });
+            });
+
+            req.on('error', error => {
+                console.log(`Perf Error - Connection Error. Retry counted. ${new Date()}`);
+                console.log(error);
+                reject();
+            });
+
+            req.write(data);
+            req.end();
+        });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
