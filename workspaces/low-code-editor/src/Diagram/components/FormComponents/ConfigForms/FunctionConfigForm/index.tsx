@@ -159,7 +159,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
 
         if (model && STKindChecker.isFunctionDefinition(model)) {
             // Populating field values if trying to edit
-            existingFunctionNames.current = existingFunctionNames.current.filter(
+            existingFunctionNames.current = existingFunctionNames?.current?.filter(
                 (name) => name !== model.functionName.value
             );
             setFunctionName(model.functionName.value);
