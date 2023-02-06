@@ -194,7 +194,7 @@ export enum Colors {
     PRIMARY_SELECTED = '#ffaf4d',
     SECONDARY_SELECTED = '#fffaf2',
     SHADED_SELECTED = '#faead2',
-    GATEWAY = '#d8dada'
+    GATEWAY = '#c9c9c9'
 }
 
 export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';
