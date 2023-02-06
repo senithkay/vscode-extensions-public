@@ -231,8 +231,11 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	if (targetMappingConstruct) {
 		const fieldsAvailable = !!targetMappingConstruct.fields.length;
 		if (fieldsAvailable) {
-			targetPosition = mappingConstruct.fields[mappingConstruct.fields.length - 1].position as NodePosition;
-			source = `,${getLinebreak()}${source}`;
+			const lastField = mappingConstruct.fields[mappingConstruct.fields.length - 1];
+			targetPosition = lastField.position as NodePosition;
+			source = STKindChecker.isSpecificField(lastField) && isEmptyValue(lastField.position)
+				? source
+				: `,${getLinebreak()}${source}`;
 		} else {
 			targetPosition = mappingConstruct.openBrace.position as NodePosition;
 			source = `${getLinebreak()}${source}`
