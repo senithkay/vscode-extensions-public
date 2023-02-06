@@ -44,6 +44,16 @@ Use the features below to debug your Ballerina programs on the VS Code editor.
 - [Set up debugging configurations](https://wso2.com/ballerina/vscode/docs/debug-the-code/#set-up-debugging-configurations)
 - [Use the debugging features](https://wso2.com/ballerina/vscode/docs/debug-the-code/#use-the-debugging-features)
 
+### Notebooks
+
+Use the features below to work with Ballerina notebooks via the VS Code extension.
+
+- [Create a notebook](https://wso2.com/ballerina/vscode/docs/notebooks/#create-a-notebook)
+- [Execute the code](https://wso2.com/ballerina/vscode/docs/notebooks/#execute-the-code)
+- [Edit the code](https://wso2.com/ballerina/vscode/docs/notebooks/#edit-the-code)
+- [View variables](https://wso2.com/ballerina/vscode/docs/notebooks/#view-variables)
+- [Debug notebooks](https://wso2.com/ballerina/vscode/docs/notebooks/#debug-notebooks)
+
 ## Configure the extension
 
 For configurations of the extension, see [Configure the extension](https://wso2.com/ballerina/vscode/docs/configure-the-extension/).
