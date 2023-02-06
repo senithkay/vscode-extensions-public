@@ -14,7 +14,7 @@
 import { VSCodeButton, VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { useState, useEffect } from "react";
-import { Component, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
 import { Codicon } from "../Codicon/Codicon";
@@ -71,23 +71,9 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     // Set the starting project with the project id passed by props
     useEffect(() => {
-        async function fetchProjects() {
-            try {
-                const org: Organization = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
-                ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
-                    orgId: org.id
-                }).then((fetchedProjects: Project[]) => {
-                    if (fetchedProjects.length) {
-                        setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
-                    } else {
-                        throw new Error("Error: Could not detect projects in your organization.");
-                    }
-                });
-            } catch (error: any) {
-                console.log(error.message);
-            }
-        }
-        fetchProjects();
+        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
+            setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
+        });
     }, [projectId, orgName]);
 
     // Set the components of the project
@@ -112,13 +98,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, [projectId, orgName]);
 
     // Listen to changes in project selection
-    ChoreoWebViewAPI.getInstance().onSelectedProjectChanged(async (newProjectId) => {
+    ChoreoWebViewAPI.getInstance().onSelectedProjectChanged((newProjectId) => {
         setComponents(undefined);
         // setProject(undefined); will not remove project to fix the glitch
-        const org: Organization = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
-        ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
-            orgId: org.id
-        }).then((fetchedProjects) => {
+        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
         });
         ChoreoWebViewAPI.getInstance().getComponents(newProjectId).then(setComponents);

@@ -13,7 +13,7 @@
 
 import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useEffect, useState } from "react";
-import { Organization, Project } from "@wso2-enterprise/choreo-core";
+import { Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ErrorBanner } from "../Commons/ErrorBanner";
 
@@ -28,26 +28,19 @@ export function ProjectSelector(props: SelectorProps) {
     const [projects, setProjects] = useState<Project[] | undefined>(undefined);
 
     useEffect(() => {
-        async function fetchProjects() {
-            try {
-                const org: Organization = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
-                ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
-                    orgId: org.id
-                }).then((fetchedProjects: Project[]) => {
-                    if (fetchedProjects.length) {
-                        setProjects(fetchedProjects);
-                        setProject(fetchedProjects[0].id);
-                    } else {
-                        throw new Error("Error: Could not detect projects in your organization.");
-                    }
-                });
-            } catch (error: any) {
-                setErrorMsg(error.message);
-            }
+        try {
+            ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
+                if (fetchedProjects.length > 0) {
+                    setProjects(fetchedProjects);
+                    setProject(fetchedProjects[0].id);
+                } else {
+                    throw new Error("Error: Could not detect projects in your organization.");
+                }
+            })
+        } catch (error: any) {
+            setErrorMsg(error.message);
         }
-
-        fetchProjects();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

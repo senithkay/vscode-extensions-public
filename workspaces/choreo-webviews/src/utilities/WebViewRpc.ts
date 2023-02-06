@@ -14,7 +14,7 @@ import { Messenger } from "vscode-messenger-webview";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
-    GetAllOrgsRequest, GetCurrentOrgRequest,
+    GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandRequest, GetComponents,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
@@ -56,6 +56,10 @@ export class ChoreoWebViewAPI {
 
     public async getAllOrgs(): Promise<Organization[]> {
         return this._messenger.sendRequest(GetAllOrgsRequest, HOST_EXTENSION, '');
+    }
+
+    public async getAllProjects(): Promise<Project[]> {
+        return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
     }
 
     public async getComponents(projectId: string): Promise<Component[]> {
