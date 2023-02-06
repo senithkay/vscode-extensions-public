@@ -26,6 +26,7 @@ export interface IChoreoExtensionAPI {
     waitForLogin(): Promise<boolean>;
     getChoreoProject(): Promise<Project|undefined>;
     isChoreoProject(): Promise<boolean>;
+    getPerformanceForecastData(data: any): Promise<JSON>;
 }
 
 export async function getChoreoExtAPI(): Promise<IChoreoExtensionAPI | undefined> {
