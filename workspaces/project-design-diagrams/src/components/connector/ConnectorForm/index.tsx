@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Colors, Service } from "../../../resources";
 import { Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import PullingModuleLoader from "./PullingModuleLoader";
@@ -33,6 +33,7 @@ import {
 } from "./styles";
 import { ProjectDesignRPC } from "../../../utils/rpc/project-design-rpc";
 import { CircularProgress } from "@mui/material";
+import { DiagramContext } from "../../common";
 
 interface ConnectorFormProps {
     connector: Connector;
@@ -46,6 +47,8 @@ function ConnectorForm(props: ConnectorFormProps) {
     const [pulling, setPulling] = useState(true);
     const [error, setError] = useState<string>();
     const [showLoader, setShowLoader] = useState(false);
+
+    const { refreshDiagram } = useContext(DiagramContext);
 
     const rpcInstance = ProjectDesignRPC.getInstance();
     const moduleName = (connector.displayAnnotation?.label || `${connector.package?.name} / ${connector.name}`).replace(/["']/g, "");
@@ -72,6 +75,7 @@ function ConnectorForm(props: ConnectorFormProps) {
                 if (!res) {
                     setError("Something went wrong adding the connector. Please try again.");
                 }
+                refreshDiagram();
             })
             .finally(() => {
                 setShowLoader(false);

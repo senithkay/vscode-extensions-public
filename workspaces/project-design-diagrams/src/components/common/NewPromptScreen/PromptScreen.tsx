@@ -45,7 +45,7 @@ const NO_COMPONENTS_MSG = 'No components were detected in the project workspace.
 
 export function PromptScreen(props: { onComponentAdd: () => void }) {
     return (
-        <Container>
+        <Container id={"no-components-prompt-screen"}>
             <MessageBox>{NO_COMPONENTS_MSG}</MessageBox>
             <ControlsLayer
                 onComponentAddClick={props.onComponentAdd}
