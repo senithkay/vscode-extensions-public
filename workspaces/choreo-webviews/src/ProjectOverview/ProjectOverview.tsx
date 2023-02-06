@@ -38,8 +38,11 @@ const ActionContainer = styled.div`
     gap: 10px;
 `;
 
-const LinkButton = styled.div`
-    padding-top  : 5px;
+const ComponentsHeader = styled.div`
+    display  : flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
 `;
 
 const ActiveLabel = styled.div`
@@ -167,7 +170,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>Add Component</VSCodeButton>
                         </ActionContainer>
                     </>
                 }
@@ -178,7 +180,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>Add Component</VSCodeButton>
                         </ActionContainer>
                     </>
                 }
@@ -189,13 +190,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="primary" onClick={handleOpenArchitectureViewClick}>Architecture View</VSCodeButton>
-                            <VSCodeButton appearance="secondary" onClick={handleCreateComponentClick}>Add Component</VSCodeButton>
                         </ActionContainer>
                     </>
                 }
 
 
-                <h2>Components</h2>
+                <ComponentsHeader>
+                    <h2>Components</h2>
+                    <VSCodeButton appearance="icon" onClick={handleCreateComponentClick} title="Add Component"><Codicon name="plus" /></VSCodeButton>
+                </ComponentsHeader>
                 <ComponentList components={components} />
                 {components !== undefined && hasLocal(components) &&
                     <>
