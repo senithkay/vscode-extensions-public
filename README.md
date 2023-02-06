@@ -2,76 +2,49 @@
 
 The Visual Studio Code Ballerina extension provides a set of rich language features along with an enhanced user experience. 
 
-It offers easy development, execution, debugging, and testing for the Ballerina programming language. 
-The Ballerina language possesses a bidirectional mapping between its syntaxes and the visual representation. 
-You can visualize the graphical representation of your Ballerina source further via the extension.
+It offers easy development, execution, debugging, and testing for the [Ballerina programming language](https://ballerina.io/). The Ballerina language possesses a bidirectional mapping between its syntaxes and the visual representation. You can visualize the graphical representation of your Ballerina source further via the extension.
 
-## Quick Start
+## Quick start
 
 Follow the steps below to get the Ballerina VS Code extension up and running.
 
-<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/running-your-program.gif?raw=true" width="100%" />
-
->**Info:** Before getting started, download and install the [Visual Studio Code editor ](https://code.visualstudio.com/download) version >= 1.67 and [Ballerina](https://ballerina.io/learn/installing-ballerina/setting-up-ballerina/).
-
-1. Click `Ctrl + P` or (`Cmd + P` in macOS) to launch the VS Code **Quick Open** screen, and enter `ext install WSO2.ballerina` to install the Ballerina VS Code Extension.
-
-2. Click **View** in the menu bar of the editor, and click **Command Palette**.
-
-  >**Tip:** You can use the shortcut methods `⌘ + ↑ + P` on Mac and `Ctrl + Shift + P` on Windows and Linux.
-
-3. In the search bar, type `Show Examples`, and click **Ballerina: Show Examples**.
-
-4. Select the **Hello World Main** example.
-
-5. Click on the **Run** CodeLens on the editor. 
-
-    You just ran your first Ballerina program with a few clicks.
-
-    >**Tip:** If you wish to debug further, you can either use the **Debug** code lens or see debugging guidelines below.
-
-6. Click the **Show Diagram** button on the editor’s title bar to view the graphical representation of the program.
+1. [Install the extenstion](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
+2. [Run a program](https://wso2.com/ballerina/vscode/docs/get-started/run-a-program/).
 
 ## Functionalities
 
 The main functionalities of the extension are listed below.
 
-### Edit Ballerina code
+### Edit the code
 
-You can use the features below to edit Ballerina code via the source code view.
+Use the features below to edit Ballerina code via the code editor.
 
-- IntelliSense
-- Code formatting
-- Diagnostics
-- Debugging
-- Code navigation
-- Code actions
-- CodeLens
-- Commands
+- [IntelliSense](https://wso2.com/ballerina/vscode/docs/edit-the-code/intellisense/)
+- [Code navigation](https://wso2.com/ballerina/vscode/docs/edit-the-code/code-navigation/)
+- [Code actions](https://wso2.com/ballerina/vscode/docs/edit-the-code/code-actions/)
+- [Diagnostics](https://wso2.com/ballerina/vscode/docs/edit-the-code/diagnostics/)
+- [Commands](https://wso2.com/ballerina/vscode/docs/edit-the-code/commands/)
 
 ### Visual programming
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/low-code-view.gif?raw=true" width="100%" />
 
-Ballerina allows you to visualize a program written in Ballerina as a graphical representation via the features below. This displays the logic and network interaction of a function or a service resource, making it easy to understand the source. 
+Ballerina allows you to visualize a program written in Ballerina as a graphical representation via the features below. This displays the logic and network interaction of a function or a service resource making it easy to understand the source. 
 
-- Sequence Diagram view
-- Project Design view
-- Data Mapper
+- [Sequence Diagram view](https://wso2.com/ballerina/vscode/docs/visual-programming/sequence-diagram-view/)
+- [Project Design view](https://wso2.com/ballerina/vscode/docs/visual-programming/project-design-view/)
+- [Data Mapper](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/)
 
-### Ballerina Notebooks
+### Debug the code
 
-Ballerina notebooks can be created in VS Code using the `.balnotebook` extension for the filename. Markdown and Ballerina code snippets are supported by Ballerina notebook cells.
+Use the features below to debug your Ballerina programs on the VS Code editor.
 
->**Info:** Make sure your VS Code version is `1.67.0` or higher when using Ballerina notebook.
+- [Debug using CodeLens](https://wso2.com/ballerina/vscode/docs/debug-the-code/#debug-using-codelens)
+- [Debug using configurations](https://wso2.com/ballerina/vscode/docs/debug-the-code/#debug-using-configurations)
+- [Set up debugging configurations](https://wso2.com/ballerina/vscode/docs/debug-the-code/#set-up-debugging-configurations)
+- [Use the debugging features](https://wso2.com/ballerina/vscode/docs/debug-the-code/#use-the-debugging-features)
 
-- Code execution
-- IntelliSense
-- Code Completion
-- Variable view
-- Debugging
-
-## Configurations
+## Configure the extension
 
 For configurations of the extension, see [Configure the extension](https://wso2.com/ballerina/vscode/docs/configure-the-extension/).
 
@@ -79,13 +52,13 @@ For configurations of the extension, see [Configure the extension](https://wso2.
 
 For troubleshooting, see the Ballerina output. To view the Ballerina output tab, click **View**, click **Output,** and select **Ballerina** from the output list. It provides additional information if the plugin fails to detect a Ballerina distribution.  
 
-You can also enable [debug logs](https://wso2.com/ballerina/vscode/docs/debug-the-code/#configuration-attributes) from the Ballerina extension settings to view any issues arising from the extension features.
+You can also enable [debug logs](https://wso2.com/ballerina/vscode/docs/configure-the-extension/#advanced-configurations) from the Ballerina extension settings to view any issues arising from the extension features.
 
 ## Documentation
 
 The [Ballerina VS Code Extension Documentation](https://wso2.com/ballerina/vscode/docs/) describes the functionalities of this extension in detail.
 
-## Ask for Help
+## Ask for help
 
 Create [Github issues](https://github.com/wso2/ballerina-plugin-vscode/issues) to reach out to us.
 
