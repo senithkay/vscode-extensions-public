@@ -23,7 +23,7 @@ import { Colors, Level } from '../../../../resources';
 interface StyleProps {
     isNew?: boolean;
     level?: Level;
-    isResource?: boolean;
+    alignStart?: boolean;
     isSelected?: boolean;
     awaitLinking?: boolean;
 }
@@ -76,7 +76,7 @@ export const FunctionContainer = styled.div`
     font-family: GilmerRegular;
     font-size: 12px;
     height: 30px;
-    justify-content: ${(props: StyleProps) => props.isResource ? 'flex-start' : 'center'};
+    justify-content: ${(props: StyleProps) => props.alignStart ? 'flex-start' : 'center'};
     line-height: 16px;
     min-width: calc(100% - 16px);
     padding: 8px 8px 8px 8px;
@@ -88,7 +88,6 @@ export const ResourceAction = styled.div`
     border-radius: 5px;
     height: 22px;
     line-height: 22px;
-    margin-right: 8px;
     width: 50px;
 `;
 
@@ -97,8 +96,13 @@ export const ResourceName = styled.div`
     flex: 1;
     height: 30px;
     line-height: 30px;
+    margin-left: 8px;
     text-align: left;
     white-space: nowrap;
+`;
+
+export const RemoteName = styled.span`
+    margin-left: ${(props: { spaceOut: boolean }) => props.spaceOut ? '8px' : '0px'};
 `;
 
 export const ActionColors = new Map<string, string>([

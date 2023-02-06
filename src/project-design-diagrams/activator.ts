@@ -109,11 +109,14 @@ function setupWebviewPanel() {
             }
         });
 
-        workspace.onDidChangeTextDocument(debounce(() => {
+        const refreshDiagram = debounce(() => {
             if (designDiagramWebview) {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
             }
-        }, 500));
+        }, 500);
+
+        workspace.onDidChangeTextDocument(refreshDiagram);
+        workspace.onDidChangeWorkspaceFolders(refreshDiagram);
 
         ProjectDesignRPC.create(designDiagramWebview, langClient);
 

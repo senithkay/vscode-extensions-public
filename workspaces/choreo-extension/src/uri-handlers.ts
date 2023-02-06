@@ -18,7 +18,7 @@ import { ext } from "./extensionVariables";
 export function activateURIHandlers() {
     window.registerUriHandler({
         handleUri(uri: Uri): ProviderResult<void> {
-            if (uri.path === '/choreo-signin') {
+            if (uri.path === '/signin') {
                 const urlParams = new URLSearchParams(uri.query);
                 const authCode = urlParams.get('code');
                 if (authCode) {
