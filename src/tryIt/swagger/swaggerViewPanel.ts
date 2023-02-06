@@ -82,31 +82,33 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
 
         const extApi = await getChoreoExtAPI();
         if (extApi) {
-            for (let index = 0; index < specs.length; index++) {
-                const spec = specs[index];
-                const data = { "openapiSpec": spec.spec };
-                const cacheKey = JSON.stringify(data);
+            if (!await extApi.waitForLogin()) {
+                const action = 'Sign in to Choreo';
+                window.showInformationMessage("Please sign in to Choreo to use AI generated sample data.",
+                    action).then((selection) => {
+                        if (action === selection) {
+                            commands.executeCommand('choreo-account.focus');
+                        }
+                    });
+            } else {
+                for (let index = 0; index < specs.length; index++) {
+                    const spec = specs[index];
+                    const data = { "openapiSpec": spec.spec };
+                    const cacheKey = JSON.stringify(data);
 
-                if (cachedResponses.has(cacheKey)) {
-                    spec.spec = cachedResponses.get(cacheKey);
-                    continue;
-                }
-
-                const testData = await extApi.getSwaggerExamples(data) as any;
-                if (!testData) {
-                    continue;
-                }
-                cachedResponses.set(cacheKey, testData.openapiSpec);
-                spec.spec = testData.openapiSpec;
-            }
-        } else {
-            const action = 'Sign in to Choreo';
-            window.showInformationMessage("Please sign in to Choreo to use AI generated sample data.",
-                action).then((selection) => {
-                    if (action === selection) {
-                        commands.executeCommand('choreo-account.focus');
+                    if (cachedResponses.has(cacheKey)) {
+                        spec.spec = cachedResponses.get(cacheKey);
+                        continue;
                     }
-                });
+
+                    const testData = await extApi.getSwaggerExamples(data) as any;
+                    if (!testData) {
+                        continue;
+                    }
+                    cachedResponses.set(cacheKey, testData.openapiSpec);
+                    spec.spec = testData.openapiSpec;
+                }
+            }
         }
 
         const html = render({ specs, file, serviceName, proxy }, swaggerViewPanel.webview);
