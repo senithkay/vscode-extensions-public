@@ -197,7 +197,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
                 <ComponentsHeader>
                     <h2>Components</h2>
-                    <VSCodeButton appearance="icon" onClick={handleCreateComponentClick} title="Add Component"><Codicon name="plus" /></VSCodeButton>
+                    <VSCodeButton appearance="icon" onClick={handleCreateComponentClick} disabled={!isActive} title="Add Component"><Codicon name="plus" /></VSCodeButton>
                 </ComponentsHeader>
                 <ComponentList components={components} />
                 {components !== undefined && hasLocal(components) &&
