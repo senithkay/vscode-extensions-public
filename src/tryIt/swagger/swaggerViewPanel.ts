@@ -26,7 +26,8 @@ import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../../
 import { getPortPromise } from "portfinder";
 import { loader } from "./loader";
 import { getChoreoExtAPI } from '../../choreo-features/activate';
-import { KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
+
+const cachedResponses = new Map<any, JSON>();
 
 let swaggerViewPanel: WebviewPanel | undefined;
 let cors_proxy = require('cors-anywhere');
@@ -84,11 +85,18 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
             for (let index = 0; index < specs.length; index++) {
                 const spec = specs[index];
                 const data = { "openapiSpec": spec.spec };
+                const cacheKey = JSON.stringify(data);
+
+                if (cachedResponses.has(cacheKey)) {
+                    spec.spec = cachedResponses.get(cacheKey);
+                    continue;
+                }
 
                 const testData = await extApi.getSwaggerExamples(data) as any;
                 if (!testData) {
                     continue;
                 }
+                cachedResponses.set(cacheKey, testData.openapiSpec);
                 spec.spec = testData.openapiSpec;
             }
         } else {
