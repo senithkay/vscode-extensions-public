@@ -81,7 +81,7 @@ export function AddReturnForm(props: ReturnFormProps) {
          Services and Class as functions are wrapped inside them. So you need to
          again do a iteration to find the function level.
         */
-        st?.members.forEach((def: FunctionDefinition) => {
+        st?.members?.forEach((def: FunctionDefinition) => {
             if (def.position?.startLine < formArgs?.targetPosition.startLine
                 && formArgs?.targetPosition.startLine <= def.position?.endLine
                 && (STKindChecker.isFunctionDefinition(def) || STKindChecker.isResourceAccessorDefinition(def))) {
