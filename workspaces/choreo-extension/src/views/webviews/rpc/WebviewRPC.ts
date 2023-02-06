@@ -14,7 +14,7 @@ import { commands, WebviewPanel, window, Uri, ProgressLocation } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
-    GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
+    GetAllOrgsRequest, GetCurrentOrgRequest,
     GetLoginStatusRequest, ExecuteCommandRequest,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     CloseWebViewNotification, serializeError,
