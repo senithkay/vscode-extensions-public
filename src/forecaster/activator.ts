@@ -34,7 +34,6 @@ import { getChoreoExtAPI } from "../choreo-features/activate";
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
 
 const maxRetries = 5;
-const https = require('https');
 
 let langClient: ExtendedLangClient;
 let extension: BallerinaExtension;
@@ -312,8 +311,10 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
                     console.log(`Perf Error ${new Date()}`);
                     checkErrors(res);
                     return reject();
+                } else {
+                    cachedResponses.set(data, res);
+                    return resolve(res)
                 }
-                cachedResponses.set(data, res);
             } else {
                 showChoreoSigninMessage(extension);
                 return reject();
