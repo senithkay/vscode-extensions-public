@@ -1,4 +1,4 @@
-# The Ballerina Extension for Visual Studio Code
+# The Ballerina extension for Visual Studio Code
 
 The Visual Studio Code Ballerina extension provides a set of rich language features along with an enhanced user experience. 
 
