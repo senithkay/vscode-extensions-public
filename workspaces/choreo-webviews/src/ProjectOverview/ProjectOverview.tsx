@@ -148,6 +148,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().openExternal(consoleLink);
     };
 
+    const handleCreateComponentClick = (e: any) => {
+        ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.component.create');
+    };
+
     return (
         <>
             <WizardContainer>
@@ -163,6 +167,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Add Component</VSCodeButton>
                         </ActionContainer>
                     </>
                 }
@@ -173,6 +178,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>Add Component</VSCodeButton>
                         </ActionContainer>
                     </>
                 }
@@ -183,6 +189,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="primary" onClick={handleOpenArchitectureViewClick}>Architecture View</VSCodeButton>
+                            <VSCodeButton appearance="secondary" onClick={handleCreateComponentClick}>Add Component</VSCodeButton>
                         </ActionContainer>
                     </>
                 }
