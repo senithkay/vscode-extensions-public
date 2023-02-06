@@ -306,14 +306,20 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
 
         getChoreoExtAPI().then(async (extApi) => {
             if (extApi) {
-                const res = await extApi.getPerformanceForecastData(data) as any;
-                if (res.message) {
-                    console.log(`Perf Error ${new Date()}`);
-                    checkErrors(res);
+                try {
+                    const res = await extApi.getPerformanceForecastData(data) as any;
+                    if (!res) {
+                        return reject();
+                    }
+                    if (res.message) {
+                        checkErrors(res);
+                        return reject();
+                    } else {
+                        cachedResponses.set(data, res);
+                        return resolve(res)
+                    }
+                } catch {
                     return reject();
-                } else {
-                    cachedResponses.set(data, res);
-                    return resolve(res)
                 }
             } else {
                 showChoreoSigninMessage(extension);
