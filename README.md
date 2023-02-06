@@ -19,7 +19,7 @@ The main functionalities of the extension are listed below.
 
 ### Code editing
 
-Use the following features of this extension to edit Ballerina code via the code editor.
+Use the following features of this extension to edit Ballerina code via the VS Code extension.
 
 - [IntelliSense](https://wso2.com/ballerina/vscode/docs/edit-the-code/intellisense/)
 - [Code navigation](https://wso2.com/ballerina/vscode/docs/edit-the-code/code-navigation/)
@@ -35,9 +35,9 @@ The VS Code extension allows you to visualize a program written in Ballerina as 
 - [Project Design view](https://wso2.com/ballerina/vscode/docs/visual-programming/project-design-view/)
 - [Data Mapper](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/)
 
-### Debugging
+### Debugging capabilities
 
-Use the features below to debug your Ballerina programs on the VS Code editor.
+Use the following features to debug your Ballerina programs via the VS Code extension.
 
 - [Debug using CodeLens](https://wso2.com/ballerina/vscode/docs/debug-the-code/#debug-using-codelens)
 - [Debug using configurations](https://wso2.com/ballerina/vscode/docs/debug-the-code/#debug-using-configurations)
@@ -46,7 +46,7 @@ Use the features below to debug your Ballerina programs on the VS Code editor.
 
 ### Notebooks
 
-Use the features below to work with Ballerina notebooks via the VS Code extension.
+Use the following features to work with Ballerina notebooks via the VS Code extension.
 
 - [Create a notebook](https://wso2.com/ballerina/vscode/docs/notebooks/#create-a-notebook)
 - [Execute the code](https://wso2.com/ballerina/vscode/docs/notebooks/#execute-the-code)
@@ -56,7 +56,7 @@ Use the features below to work with Ballerina notebooks via the VS Code extensio
 
 ## Configure the extension
 
-For configurations of the extension, see [Configure the extension](https://wso2.com/ballerina/vscode/docs/configure-the-extension/).
+You can configure the Ballerina VS Code extension to get a custom user experience. For more details, see [Configure the extension](https://wso2.com/ballerina/vscode/docs/configure-the-extension/).
 
 ## Troubleshoot
 
