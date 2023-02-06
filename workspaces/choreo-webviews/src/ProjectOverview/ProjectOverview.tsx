@@ -76,8 +76,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 const org: Organization = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
                 ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
                     orgId: org.id
-                }).then((fetchedProjects) => {
-                    if (fetchProjects.length) {
+                }).then((fetchedProjects: Project[]) => {
+                    if (fetchedProjects.length) {
                         setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
                     } else {
                         throw new Error("Error: Could not detect projects in your organization.");

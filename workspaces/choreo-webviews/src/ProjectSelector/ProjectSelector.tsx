@@ -33,10 +33,10 @@ export function ProjectSelector(props: SelectorProps) {
                 const org: Organization = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
                 ChoreoWebViewAPI.getInstance().getProjectClient().getProjects({
                     orgId: org.id
-                }).then((response) => {
-                    if (response.length) {
-                        setProjects(response);
-                        setProject(response[0].id);
+                }).then((fetchedProjects: Project[]) => {
+                    if (fetchedProjects.length) {
+                        setProjects(fetchedProjects);
+                        setProject(fetchedProjects[0].id);
                     } else {
                         throw new Error("Error: Could not detect projects in your organization.");
                     }
