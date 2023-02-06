@@ -276,10 +276,10 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 	let targetMappingConstructor: STNode = mappingConstruct;
 	const parentFields: string[] = [];
 	let nextField = field;
+	const fieldName = getFieldName(nextField);
 	const modifications: STModification[] = [];
 
 	while (nextField && nextField.parentType) {
-		const fieldName = nextField.type.name;
 		if (fieldName && !(nextField.hasValue() && STKindChecker.isMappingConstructor(nextField.value))) {
 			parentFields.push(getBalRecFieldName(fieldName));
 		}
@@ -323,7 +323,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	if (!source) {
 		const specificField = STKindChecker.isMappingConstructor(targetMappingConstructor)
-			&& getSpecificField(targetMappingConstructor, field.type.name);
+			&& getSpecificField(targetMappingConstructor, fieldName);
 		if (specificField && !specificField.valueExpr.source) {
 			return createValueExprSource(field.type.name, newValue, parentFields, 1,
 				specificField.colon.position as NodePosition, applyModifications);
