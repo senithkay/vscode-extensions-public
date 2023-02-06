@@ -29,7 +29,7 @@ Use the features below to edit Ballerina code via the code editor.
 
 ### Visual programming
 
-Ballerina allows you to visualize a program written in Ballerina as a graphical representation via the features below. This displays the logic and network interaction of a function or a service resource making it easy to understand the source. 
+The VS Code extension allows you to visualize a program written in Ballerina as a graphical representation of the code. This graphical view displays the logic and network interaction of a function or a service resource, which makes it easy to understand the source. 
 
 - [Sequence Diagram view](https://wso2.com/ballerina/vscode/docs/visual-programming/sequence-diagram-view/)
 - [Project Design view](https://wso2.com/ballerina/vscode/docs/visual-programming/project-design-view/)
