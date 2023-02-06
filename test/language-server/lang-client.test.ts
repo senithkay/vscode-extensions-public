@@ -935,7 +935,9 @@ suite("Language Server Tests", function () {
 
     test("Test get connector", function (done): void {
         langClient.getConnector({
-            name: "", package: { organization: "", name: "", version: "" } // FIXME: put real connector params instead of ID here.
+            name: "Client",
+            moduleName: "googleapis.sheets",
+            package: { organization: "ballerinax", name: "googleapis.sheets", version: "3.1.0" },
         }).then(async (res) => {
             const response = res as BallerinaConnectorResponse;
             expect(response).not.contains.keys("error");
