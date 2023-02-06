@@ -28,10 +28,6 @@ import { loader } from "./loader";
 import { getChoreoExtAPI } from '../../choreo-features/activate';
 import { KeyChainTokenStorage } from "@wso2-enterprise/choreo-client";
 
-export const CHOREO_API_TEST_DATA_GEN = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
-    `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/ai-test-assistant/1.0.0/generate-data` :
-    "https://apis.choreo.dev/ai-test-assistant/1.0.0/generate-data";
-
 let swaggerViewPanel: WebviewPanel | undefined;
 let cors_proxy = require('cors-anywhere');
 
@@ -83,42 +79,26 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
             swaggerViewPanel.webview.html = loaderHtml;
         }
 
-        const choreoExt = await getChoreoExtAPI();
-        if (choreoExt) {
-            const tokenStorage = new KeyChainTokenStorage();
-            const choreoTokenInfo = await tokenStorage.getToken("choreo.vscode.token");
+        const extApi = await getChoreoExtAPI();
+        if (extApi) {
+            for (let index = 0; index < specs.length; index++) {
+                const spec = specs[index];
+                const data = { "openapiSpec": spec.spec };
 
-            if (choreoTokenInfo?.accessToken) {
-                for (let index = 0; index < specs.length; index++) {
-                    const spec = specs[index];
-                    const data = { "openapiSpec": spec.spec };
-                    const request = {
-                        url: CHOREO_API_TEST_DATA_GEN,
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${choreoTokenInfo.accessToken}`
-                        },
-                        body: data
-                    }
-                    let testData = await swaggerServer.sendRequest(request, false);
-                    if (!testData) {
-                        continue;
-                    }
-                    if ((testData as any).status != 200) {
-                        continue;
-                    }
-                    spec.spec = JSON.parse((testData as any).body).openapiSpec;
+                const testData = await extApi.getSwaggerExamples(data) as any;
+                if (!testData) {
+                    continue;
                 }
-            } else {
-                const action = 'Sign in to Choreo';
-                window.showInformationMessage("Please sign in to Choreo to use AI generated sample data.",
-                    action).then((selection) => {
-                        if (action === selection) {
-                            commands.executeCommand('choreo-account.focus');
-                        }
-                    });
+                spec.spec = testData.openapiSpec;
             }
+        } else {
+            const action = 'Sign in to Choreo';
+            window.showInformationMessage("Please sign in to Choreo to use AI generated sample data.",
+                action).then((selection) => {
+                    if (action === selection) {
+                        commands.executeCommand('choreo-account.focus');
+                    }
+                });
         }
 
         const html = render({ specs, file, serviceName, proxy }, swaggerViewPanel.webview);
