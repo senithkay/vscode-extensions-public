@@ -33,8 +33,6 @@ Ballerina allows you to visualize a program written in Ballerina as a graphical 
 - [Project Design view](https://wso2.com/ballerina/vscode/docs/visual-programming/project-design-view/)
 - [Data Mapper](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/)
 
-<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/low-code-view.gif?raw=true" width="100%" />
-
 ### Debug the code
 
 Use the features below to debug your Ballerina programs on the VS Code editor.
