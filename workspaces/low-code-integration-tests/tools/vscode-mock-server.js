@@ -8,7 +8,7 @@ const { getAllResources, getLibrariesList, getLibraryData } = require('../../bal
 const app = express()
 const port = 3000
 
-app.use(express.static(path.join(__dirname, "..", "..", "distribution", "build-app")));
+app.use(express.static(path.join(__dirname, "..", "..", "low-code-distribution", "build-app")));
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
