@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --progress --mode=development",
-     "build": "webpack && npm run postbuild",
+     "build": "webpack && pnpm run postbuild",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs"
@@ -50,7 +50,7 @@
     "@types/react": "^17.0.26",
     "@types/react-dom": "^17.0.9",
     "@types/react-lottie": "^1.2.5",
-    "@wso2-enterprise/ballerina-low-code-edtior-commons": "^1.0.0",
+    "@wso2-enterprise/ballerina-low-code-edtior-commons": "workspace:*",
     "ts-loader": "^8.4.0",
     "babel-loader": "^8.2.5",
     "copyfiles": "^2.4.1",

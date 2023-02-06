@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --open",
-     "build": "webpack && npm run postbuild",
+     "build": "webpack && pnpm run postbuild",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs"
