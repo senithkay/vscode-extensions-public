@@ -31,7 +31,7 @@ export class ChoreoProjectManager implements IProjectManager {
             const pkgRoot = join(join(join(projectRoot, 'repos'), repositoryInfo.org), repositoryInfo.repo);
 
             if (!existsSync(pkgRoot)) {
-                mkdirSync(pkgRoot);
+                mkdirSync(pkgRoot, { recursive: true });
             }
 
             const resp: boolean = await ChoreoProjectManager._createBallerinaPackage(repositoryInfo.subPath, pkgRoot, displayType);
