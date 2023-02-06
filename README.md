@@ -19,7 +19,7 @@ The main functionalities of the extension are listed below.
 
 ### Code editing
 
-Use the features below to edit Ballerina code via the code editor.
+Use the following features of this extension to edit Ballerina code via the code editor.
 
 - [IntelliSense](https://wso2.com/ballerina/vscode/docs/edit-the-code/intellisense/)
 - [Code navigation](https://wso2.com/ballerina/vscode/docs/edit-the-code/code-navigation/)
