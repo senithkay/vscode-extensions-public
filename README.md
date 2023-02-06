@@ -70,7 +70,7 @@ The [Ballerina VS Code Extension Documentation](https://wso2.com/ballerina/vscod
 
 ## Ask for help
 
-Create [Github issues](https://github.com/wso2/ballerina-plugin-vscode/issues) to reach out to us.
+Create [GitHub issues](https://github.com/wso2/ballerina-plugin-vscode/issues) to reach out to us.
 
 ## License
 
