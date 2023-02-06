@@ -17,6 +17,7 @@ import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './projec
 import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { URL } from "url";
+import https = require('https');
 
 const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
     `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/4.0` :
@@ -90,7 +91,10 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async getPerformanceForecastData(data: any): Promise<JSON> {
-        const choreoToken = await this._tokenStore.getToken("choreo.apim.token");
+        const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
+        if (!choreoToken) {
+            throw new Error('User is not logged in');
+        }
         return new Promise((resolve, reject) => {
             const url = new URL(CHOREO_API_PF);
 
@@ -102,14 +106,14 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                 headers: {
                     'Content-Type': 'application/json',
                     'Content-Length': data.length,
-                    'Authorization': `Bearer ${choreoToken}`
+                    'Authorization': `Bearer ${choreoToken.accessToken}`
                 }
             };
 
             console.log(`Calling perf API - ${url.toString()} - ${new Date()}`);
-            const req = https.request(options, res => {
-                var str = '';
-                res.on('data', function (chunk) {
+            const req = https.request(options, (res: any) => {
+                let str = '';
+                res.on('data', function (chunk: string) {
                     str += chunk;
                 });
 
@@ -135,7 +139,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                 });
             });
 
-            req.on('error', error => {
+            req.on('error', (error: any) => {
                 console.log(`Perf Error - Connection Error. Retry counted. ${new Date()}`);
                 console.log(error);
                 reject();
