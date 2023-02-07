@@ -37,10 +37,11 @@ import { cloneProject } from "../../../cmds/clone";
 export class WebViewRpc {
 
     private _messenger = new Messenger();
+    private _panel: WebviewPanel | undefined;
     private _manager = new ChoreoProjectManager();
 
     constructor(view: WebviewPanel) {
-        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
+        this.registerPanel(view);
 
         this._messenger.onRequest(GetLoginStatusRequest, () => {
             return ext.api.status;
@@ -178,5 +179,18 @@ export class WebViewRpc {
 
         // Register RPC handlers for Choreo Github app client
         registerChoreoGithubRPCHandlers(this._messenger, githubAppClient);
+    }
+
+    public get panel(): WebviewPanel | undefined {
+        return this._panel;
+    }
+
+    public registerPanel(view: WebviewPanel) {
+        if (!this._panel) {
+            this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
+            this._panel = view;
+        } else {
+            throw new Error("Panel already registered");
+        }
     }
 }

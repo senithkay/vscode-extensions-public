@@ -11,9 +11,9 @@
  *  associated services.
  */
 
-import { VSCodeButton, VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
@@ -125,35 +125,35 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
     });
 
-    const handleCloneProjectClick = (e: any) => {
+    const handleCloneProjectClick = useCallback((e: any) => {
         ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : '');
-    };
+    }, [project]);
 
-    const handleOpenProjectClick = (e: any) => {
+    const handleOpenProjectClick = useCallback((e: any) => {
         ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
-    };
+    }, [project]);
 
-    const handlePushToChoreoClick = (e: any) => {
+    const handlePushToChoreoClick = useCallback((e: any) => {
         setCreatingComponents(true);
         ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
             setCreatingComponents(false);
             ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then(setComponents);
         });
-    };
+    }, [project]);
 
-    const handleOpenArchitectureViewClick = (e: any) => {
+    const handleOpenArchitectureViewClick = useCallback( (e: any) => {
         ChoreoWebViewAPI.getInstance().openArchitectureView();
-    };
+    }, []);
 
     const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
 
-    const onOpenConsoleClick = (e: any) => {
+    const onOpenConsoleClick = useCallback((e: any) => {
         ChoreoWebViewAPI.getInstance().openExternal(consoleLink);
-    };
+    }, [consoleLink]);
 
-    const handleCreateComponentClick = (e: any) => {
+    const handleCreateComponentClick = useCallback((e: any) => {
         ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.component.create');
-    };
+    }, []);
 
     return (
         <>
