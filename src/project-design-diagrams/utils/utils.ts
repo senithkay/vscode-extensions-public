@@ -53,8 +53,7 @@ export function getProjectResources(langClient: ExtendedLangClient): Promise<Map
                 }
             }
             getChoreoExtAPI().then(async(resp) => {
-                const enrichedModel = await resp.enrichChoreoMetadata(packageModels);
-                packageModels = enrichedModel;
+                packageModels = await resp.enrichChoreoMetadata(packageModels);
                 resolve(response.componentModels);
             });
         }).catch((error) => {
