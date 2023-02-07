@@ -52,6 +52,7 @@ export function ControlsLayer(props: ControlsProps) {
     return (
         <Container letFloat={float}>
             <Fab
+                id={"add-component-btn"}
                 aria-label='add'
                 variant='extended'
                 size='small'
