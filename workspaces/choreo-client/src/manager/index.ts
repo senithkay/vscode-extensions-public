@@ -10,20 +10,5 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-
-import { Project, Component, ChoreoComponentCreationParams } from "./types";
-
-export interface IProjectManager {
-    createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
-    getProjectDetails(): Promise<Project>;
-    getProjectRoot(): Promise<string | undefined>;
-    getLocalComponents(workspaceFilePath: string): Component[];
-}
-
-export interface BallerinaComponentCreationParams {
-    name: string;
-    version: string;
-    org: string;
-    package: string;
-    directory: string;
-}
+export * from "./rpc";
+export * from "./manager";

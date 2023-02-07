@@ -127,6 +127,7 @@ export interface ComponentDetailed extends Component {
 export interface WorkspaceItem {
     name: string;
     path: string;
+    metadata?: WorkspaceComponentMetadata;
 }
 export interface WorkspaceConfig {
     folders: WorkspaceItem[];
@@ -138,6 +139,23 @@ export interface WorkspaceConfig {
         }
     }
 }
+export interface WorkspaceComponentMetadata {
+    org: {
+        id: number;
+        handle: string;
+    };
+    displayName: string;
+    displayType: ChoreoServiceComponentType;
+    description: string;
+    projectId: string;
+    accessibility: ComponentAccessibility;
+    repository: {
+        orgApp: string;
+        nameApp: string;
+        branchApp: string;
+        appSubPath: string;
+    };
+}
 
 export enum ChoreoServiceComponentType {
     REST_API = 'REST_API',
@@ -146,18 +164,21 @@ export enum ChoreoServiceComponentType {
     GRPC_API = 'GRPC_API',
 }
 
-export interface ComponentWizardInput {
+export interface ChoreoComponentCreationParams {
     name: string;
     projectId: string;
+    org: Organization;
     description: string;
-    type: ChoreoServiceComponentType;
+    displayType: ChoreoServiceComponentType;
     accessibility: ComponentAccessibility;
-    repositoryInfo: {
-        org: string;
-        repo: string;
-        branch: string;
-        subPath: string;
-    }
+    repositoryInfo: RepositoryDetails;
+}
+
+export interface RepositoryDetails {
+    org: string;
+    repo: string;
+    branch: string;
+    subPath: string;
 }
 
 export interface Location {

@@ -10,20 +10,9 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { ChoreoComponentCreationParams, Project } from "@wso2-enterprise/choreo-core";
+import { RequestType } from "vscode-messenger-common";
 
-import { Project, Component, ChoreoComponentCreationParams } from "./types";
-
-export interface IProjectManager {
-    createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
-    getProjectDetails(): Promise<Project>;
-    getProjectRoot(): Promise<string | undefined>;
-    getLocalComponents(workspaceFilePath: string): Component[];
-}
-
-export interface BallerinaComponentCreationParams {
-    name: string;
-    version: string;
-    org: string;
-    package: string;
-    directory: string;
-}
+export const CreateLocalComponentRequest: RequestType<ChoreoComponentCreationParams, boolean> = { method: 'manager/createLocalComponent' };
+export const GetProjectRoot: RequestType<string, string | undefined> = { method: 'manager/getProjectRoot' };
+export const GetProjectDetails: RequestType<string, Project> = { method: 'manager/getProjectDetails' };
