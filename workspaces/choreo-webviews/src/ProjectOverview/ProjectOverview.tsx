@@ -25,14 +25,24 @@ const WizardContainer = styled.div`
     flex-direction: column;
 `;
 
+const HeaderContainer = styled.div`
+    display  : flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+`;
+
 const ActionContainer = styled.div`
     display  : flex;
     flex-direction: row;
     gap: 10px;
 `;
 
-const LinkButton = styled.div`
-    padding-top  : 5px;
+const ComponentsHeader = styled.div`
+    display  : flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
 `;
 
 const ActiveLabel = styled.div`
@@ -135,10 +145,24 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().openArchitectureView();
     };
 
+    const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
+
+    const onOpenConsoleClick = (e: any) => {
+        ChoreoWebViewAPI.getInstance().openExternal(consoleLink);
+    };
+
+    const handleCreateComponentClick = (e: any) => {
+        ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.component.create');
+    };
+
     return (
         <>
             <WizardContainer>
-                <h1>{project?.name}&nbsp;{isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}</h1>
+                <HeaderContainer>
+                    <h1>{project?.name}</h1>
+                    <VSCodeButton appearance="icon" title={"Open in Choreo Console"} onClick={onOpenConsoleClick}><Codicon name="link" /></VSCodeButton>
+                    {isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}
+                </HeaderContainer>
                 {location === undefined &&
                     <>
                         <p><InlineIcon><Codicon name="info" /></InlineIcon> To open the project clone in to your local machine</p>
@@ -146,11 +170,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
-                            <LinkButton>
-                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
-                                    Open in Choreo Console
-                                </VSCodeLink>
-                            </LinkButton>
                         </ActionContainer>
                     </>
                 }
@@ -161,11 +180,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
-                            <LinkButton>
-                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
-                                    Open in Choreo Console
-                                </VSCodeLink>
-                            </LinkButton>
                         </ActionContainer>
                     </>
                 }
@@ -176,17 +190,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="primary" onClick={handleOpenArchitectureViewClick}>Architecture View</VSCodeButton>
-                            <LinkButton>
-                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
-                                    Open in Choreo Console
-                                </VSCodeLink>
-                            </LinkButton>
                         </ActionContainer>
                     </>
                 }
 
 
-                <h2>Components</h2>
+                <ComponentsHeader>
+                    <h2>Components</h2>
+                    <VSCodeButton appearance="icon" onClick={handleCreateComponentClick} disabled={!isActive} title="Add Component"><Codicon name="plus" /></VSCodeButton>
+                </ComponentsHeader>
                 <ComponentList components={components} />
                 {components !== undefined && hasLocal(components) &&
                     <>
