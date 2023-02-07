@@ -56,9 +56,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
 
     useEffect(() => {
         if (currentView !== Views.TYPE_COMPOSITION && (serviceModels || typeModel)) {
-            if (currentView === Views.CELL_VIEW) {
-                setServiceModels(serviceModeller(workspaceComponents, workspacePackages));
-            } else if (currentView === Views.TYPE && !typeModel) {
+            if (currentView === Views.TYPE && !typeModel) {
                 setTypeModel(entityModeller(workspaceComponents, workspacePackages));
             } else if (currentView !== Views.TYPE && !serviceModels) {
                 setServiceModels(serviceModeller(workspaceComponents, workspacePackages));

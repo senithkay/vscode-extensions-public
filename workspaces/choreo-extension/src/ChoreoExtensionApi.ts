@@ -138,10 +138,10 @@ export class ChoreoExtensionApi {
         if (this._selectedProjectId && this._selectedOrg?.id && this._selectedOrg) {
             const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(this._selectedProjectId);
             // Remove workspace file from path
-            const currentProjectLocation = workspaceFileLocation?.replace(/([\w-]+\.)+[\w-]+$/g, "");
+            const currentProjectLocation = workspaceFileLocation?.slice(0, workspaceFileLocation.lastIndexOf(path.sep));
             const repository = ProjectRegistry.getInstance().getProjectRepository(this._selectedProjectId);
-            if (repository) {
-                const currentRepoLocation = path.join(`${currentProjectLocation}repos`, repository);
+            if (repository && currentProjectLocation) {
+                const currentRepoLocation = path.join(currentProjectLocation, "repos", repository);
                 const projectComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
                     (this._selectedOrg as Organization).handle);
                 if (currentProjectLocation) {

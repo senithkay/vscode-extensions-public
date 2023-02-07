@@ -17,7 +17,7 @@ import * as path from "path";
 export function enrichDeploymentData(services: Map<string, Service>, apiVersions: ApiVersion[],
                                      accessibility: string, currentRepoLocation: string, componentName: string) {
     const choreoPath = path.join(currentRepoLocation, componentName);
-    services.forEach((service) => {
+    for (const service of services.values()) {
         // Checks whether both Choreo and local paths are same
         if (service.elementLocation.filePath.includes(choreoPath)) {
             let isInternetExposed = false;
@@ -49,6 +49,7 @@ export function enrichDeploymentData(services: Map<string, Service>, apiVersions
                     }
                 }
             };
+            break;
         }
-    });
+    }
 }
