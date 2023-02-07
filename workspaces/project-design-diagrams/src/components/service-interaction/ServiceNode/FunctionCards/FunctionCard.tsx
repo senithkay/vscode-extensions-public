@@ -22,7 +22,7 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
-import { ResourceFunction, RemoteFunction, Colors } from '../../../../resources';
+import { ResourceFunction, RemoteFunction, Colors, ServiceTypes } from '../../../../resources';
 import { FunctionContainer } from '../styles/styles';
 import { NodeMenuWidget } from '../../../common';
 
@@ -53,7 +53,7 @@ export function FunctionCard(props: FunctionCardProps) {
 
     return (
         <FunctionContainer
-            isResource={isResource(functionElement)}
+            alignStart={isResource(functionElement) || node.serviceType === ServiceTypes.GRAPHQL}
             isSelected={isHovered || isSelected}
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}
