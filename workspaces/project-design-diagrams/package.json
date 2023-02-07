@@ -35,7 +35,14 @@
     "@material-ui/lab": "^4.0.0-alpha.52",
     "@types/vscode-webview": "^1.57.0",
     "vscode-messenger-common": "^0.4.3",
-    "vscode-messenger-webview": "^0.4.3"
+    "vscode-messenger-webview": "^0.4.3",
+    "@types/node": "~18.11.19",
+    "@projectstorm/react-canvas-core": "^6.7.4",
+    "@types/lodash": "^4.14.189",
+    "@projectstorm/react-diagrams-core": "^6.7.4",
+    "@projectstorm/geometry": "^6.7.4",
+    "lodash.debounce": "^4.0.8",
+    "file-loader": "^5.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",

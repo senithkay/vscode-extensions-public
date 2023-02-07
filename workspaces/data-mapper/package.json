@@ -65,7 +65,11 @@
         "uuid": "^8.3.0",
         "vscode-languageserver-protocol": "^3.16.0",
         "zustand": "^4.0.0-rc.1",
-        "@wso2-enterprise/ballerina-statement-editor": "~1.1.10"
+        "@wso2-enterprise/ballerina-statement-editor": "workspace:*",
+        "glob": "^7.2.0",
+        "@material-ui/styles": "~4.11.5",
+        "@types/lodash": "^4.14.189",
+        "lodash": "^4.17.11"
     },
     "devDependencies": {
         "@babel/core": "^7.15.0",

@@ -6,13 +6,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { argv } = require('process');
 
 const BASE_DIR = path.resolve(__dirname, "..");
-const ROOT_DIR = path.resolve(__dirname, "..", "..");
-
 
 const LOW_CODE_DIR = path.join(BASE_DIR, 'low-code-editor');
 const DATA_MAPPER_DIR = path.join(BASE_DIR, 'data-mapper');
-const MONACO_DIR = path.join(ROOT_DIR, 'common', 'temp', 'node_modules', 'monaco-editor');
-
 
 // Add any new modules, for which coverage reports are needed, here.
 const LOW_CODE_MODULES = [
@@ -98,17 +94,10 @@ function getConfig(mode, entrypointName, entrypointPath, outputPath, disableChun
                 },
                 {
                     test: /\.css$/,
-                    include: LOW_CODE_DIR,
-                    use: ['style-loader', 'css-loader'],
-                },
-                {
-                    test: /\.css$/,
-                    include: [MONACO_DIR, DATA_MAPPER_DIR],
                     use: ['style-loader', 'css-loader'],
                 },
                 {
                     test: /\.(woff|woff2|ttf|otf|eot)$/,
-                    include: [LOW_CODE_DIR, MONACO_DIR, DATA_MAPPER_DIR],
                     type: 'asset/inline'
                 },
                 {

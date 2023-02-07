@@ -603,17 +603,19 @@
     },
     "main": "./dist/extension",
     "scripts": {
+        "prebuild": "pnpm i",
         "init-submodules": "git submodule update --init --recursive && git submodule foreach git pull origin master",
-        "build:bbe": "pnpm run build --workspace=workspaces/bbe",
-        "build:graphql": "pnpm run build --workspace=workspaces/graphql",
-        "build:notebook": "pnpm run build --workspace=workspaces/notebook-renderer",
-        "build:perf": "pnpm run build --workspace=workspaces/perf-forecast",
-        "build:designDiagram": "pnpm run build --workspace=workspaces/project-design-diagrams",
-        "build:swagger": "pnpm run build --workspace=workspaces/swagger",
-        "build:variableView": "pnpm run build --workspace=workspaces/variable-view",
-        "build:lce": "pnpm run build --workspace=workspaces/low-code-editor",
-        "build:choreo-dep": "pnpm run build --workspace=workspaces/choreo-core && pnpm run build --workspace=workspaces/choreo-client && pnpm run build --workspace=workspaces/choreo-webviews",
-        "build:plugin": "pnpm run build --workspace=workspaces/ballerina-extension",
-        "build": "pnpm run build --workspaces"
+        "build:bbe": "pnpm run build --filter=workspaces/bbe",
+        "build:graphql": "pnpm run build --filter=workspaces/graphql",
+        "build:notebook": "pnpm run build --filter=workspaces/notebook-renderer",
+        "build:perf": "pnpm run build --filter=workspaces/perf-forecast",
+        "build:designDiagram": "pnpm run build --filter=workspaces/project-design-diagrams",
+        "build:swagger": "pnpm run build --filter=workspaces/swagger",
+        "build:variableView": "pnpm run build --filter=workspaces/variable-view",
+        "build:lce": "pnpm run build --filter=workspaces/low-code-editor",
+        "build:choreo-dep": "pnpm run build --filter=workspaces/choreo-core && pnpm run build --filter=workspaces/choreo-client && pnpm run build --filter=workspaces/choreo-webviews",
+        "build:configEditor": "pnpm --filter=@wso2-enterprise/ballerina-configurable-editor run build",
+        "build:plugin": "pnpm run build --filter=workspaces/ballerina-extension",
+        "build": "pnpm run -r build"
     }
 }

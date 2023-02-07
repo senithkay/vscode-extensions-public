@@ -8,7 +8,6 @@
     "start-ws-lang-server": "command/index.js"
   },
   "scripts": {
-    "prebuild": "pnpm run clean && pnpm run lint",
     "clean": "rimraf lib && rimraf coverage && rimraf build",
     "build": "tsc --pretty",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
@@ -22,8 +21,8 @@
     "lib/**/*"
   ],
   "devDependencies": {
-    "@types/jest": "^27.0.2",
-    "@types/node": "^16.11.1",
+    "@types/jest": "^29.2.5",
+    "@types/node": "~18.11.19",
     "@types/ws": "^8.2.1",
     "cors": "^2.8.5",
     "express": "^4.17.2",

@@ -127,7 +127,7 @@
     "compile": "webpack --mode production",
     "watch": "npx webpack --watch",
     "build": "pnpm run clean && pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && npx vsce package --no-dependencies",
-    "copy-webview-lib": "copyfiles -f -E -F ./../../node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js ./resources/jslibs",
+    "copy-webview-lib": "copyfiles -f -E -F ./node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir dist",
     "watch-tests": "tsc -p . -w --outDir dist",
     "ui-test-setup": "npx extest get-vscode -c 1.75.0 && npx extest get-chromedriver && npx extest install-vsix -f $(ls *.vsix) && npx extest install-vsix -f $(ls ../../*.vsix)",
@@ -141,7 +141,7 @@
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
-    "@types/node": "16.x",
+    "@types/node": "~18.11.19",
     "@types/sinon": "^10.0.0",
     "@types/vscode": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "~5.48.2",
@@ -151,7 +151,7 @@
     "copyfiles": "^2.4.1",
     "del-cli": "^5.0.0",
     "eslint": "^8.26.0",
-    "glob": "^8.0.3",
+    "glob": "^7.2.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "sinon": "^15.0.1",
@@ -167,7 +167,7 @@
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@wso2-enterprise/choreo-client": "workspace:*",
     "@wso2-enterprise/choreo-core": "workspace:*",
-    "@wso2-enterprise/choreo-vscode-webviews": "1.0.0",
+    "@wso2-enterprise/choreo-vscode-webviews": "workspace:*",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.6.0",
     "graphql-request": "~5.1.0",
@@ -175,6 +175,9 @@
     "simple-git": "^3.15.1",
     "vscode-messenger": "^0.4.3",
     "lodash": "^4.17.11",
-    "@types/lodash": "^4.14.189"
+    "@types/lodash": "^4.14.189",
+    "vscode-messenger-common": "^0.4.3",
+    "chai": "^4.3.4",
+    "@types/chai": "^4.2.18"
   }
 }
