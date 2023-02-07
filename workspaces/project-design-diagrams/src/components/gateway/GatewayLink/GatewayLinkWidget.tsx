@@ -37,12 +37,9 @@ export function GatewayLinkWidget(props: WidgetProps) {
 
     useEffect(() => {
         link.registerListener({
-            'setVisible': (event: any) => {
-                setIsVisible(true);
-            },
-            'setInVisible': (event: any) => {
-                setIsVisible(false);
-            },
+            'updateVisibility': (evt: any) => {
+                setIsVisible(!evt.hide);
+            }
         });
     }, [link]);
 

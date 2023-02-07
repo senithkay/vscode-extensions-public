@@ -62,7 +62,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const hideGWLinks = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
             if (link instanceof GatewayLinkModel) {
-                link.fireEvent({}, 'setInVisible');
+                link.fireEvent({ hide: true }, 'updateVisibility');
             }
         });
         positionGatewayNodes(diagramEngine);
@@ -71,7 +71,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const showGWLinks = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
             if (link instanceof GatewayLinkModel) {
-                link.fireEvent({}, 'setVisible');
+                link.fireEvent({ hide: false }, 'updateVisibility');
             }
         });
         positionGatewayNodes(diagramEngine);

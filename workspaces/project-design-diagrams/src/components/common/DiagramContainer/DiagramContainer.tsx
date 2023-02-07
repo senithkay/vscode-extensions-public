@@ -23,8 +23,8 @@ import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
 import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
-import { CellContainer, CellDiagram, GatewayContainer } from "./style";
-import { GatewayIcon } from "./GatewayIcon";
+import { CellContainer, CellDiagram } from "./style";
+import { Gateways } from "../../gateway/Gateways/Gateways";
 
 interface DiagramContainerProps {
     currentView: Views;
@@ -39,12 +39,6 @@ export function DiagramContainer(props: DiagramContainerProps) {
 
     const [serviceModels, setServiceModels] = useState<ServiceModels>(undefined);
     const [typeModel, setTypeModel] = useState<DiagramModel>(undefined);
-
-    const gWOffset = 25;
-    const westGWLeft = '-40px';
-    const westGWTop = `calc(50% - ${gWOffset}px)`;
-    const northGWLeft = `calc(50% - ${gWOffset}px)`;
-    const northGWTop = '0';
 
     useEffect(() => {
         if (currentView === Views.TYPE) {
@@ -109,14 +103,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
 
                             { currentView === Views.CELL_VIEW && (
                                 <CellDiagram>
-                                    {/*West Gateway*/}
-                                    <GatewayContainer top={westGWTop} left={westGWLeft}>
-                                        <GatewayIcon/>
-                                    </GatewayContainer>
-                                    {/*North Gateway*/}
-                                    <GatewayContainer top={northGWTop} left={northGWLeft} rotate={"90deg"}>
-                                        <GatewayIcon/>
-                                    </GatewayContainer>
+                                    <Gateways/>
                                     <CellContainer>
                                         <DiagramCanvasWidget
                                             type={Views.CELL_VIEW}

@@ -24,6 +24,7 @@ import { ExtendedLangClient } from "src/core";
 import { terminateActivation } from "../activator";
 import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, Service } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
+import _ from "lodash";
 
 export function getProjectResources(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
     return new Promise((resolve, reject) => {
@@ -45,7 +46,8 @@ export function getProjectResources(langClient: ExtendedLangClient): Promise<Map
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
         }).then((response) => {
-            let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
+            const clonedComponentModels = _.cloneDeep(response.componentModels);
+            let packageModels: Map<string, ComponentModel> = new Map(Object.entries(clonedComponentModels));
             for (let [_key, packageModel] of packageModels) {
                 if (packageModel.hasCompilationErrors) {
                     window.showInformationMessage(DIAGNOSTICS_WARNING);
@@ -54,7 +56,7 @@ export function getProjectResources(langClient: ExtendedLangClient): Promise<Map
             }
             getChoreoExtAPI().then(async(resp) => {
                 packageModels = await resp.enrichChoreoMetadata(packageModels);
-                resolve(response.componentModels);
+                resolve(clonedComponentModels);
             });
         }).catch((error) => {
             reject(error);
