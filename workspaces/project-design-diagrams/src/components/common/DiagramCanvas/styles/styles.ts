@@ -24,11 +24,10 @@ const background = require('../../../../resources/assets/PatternBg.svg') as stri
 export const Canvas = styled.div`
     background-image: url('${background}');
 	background-repeat: repeat;
-    overflow: hidden;
 `;
 
 export const ControlPanel = styled.div`
-    bottom: 65px;
+    bottom: 15px;
     display: flex;
     flex-direction: column;
     height: 150px;

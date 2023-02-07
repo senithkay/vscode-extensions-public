@@ -17,7 +17,7 @@
  *
  */
 
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
@@ -58,7 +58,6 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE ||
         type === Views.TYPE_COMPOSITION ? createEntitiesEngine : createServicesEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
-    const diagramRef = useRef<HTMLDivElement>(null);
 
     const hideGWLinks = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
@@ -188,11 +187,12 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     };
 
     const downloadDiagram = useCallback(() => {
-        if (diagramRef.current === null) {
+        const canvas: HTMLDivElement = diagramEngine.getCanvas();
+        if (!canvas) {
             return;
         }
 
-        toJpeg(diagramRef.current, { cacheBust: true, quality: 0.95 })
+        toJpeg(canvas, { cacheBust: true, quality: 0.95, width: canvas.scrollWidth, height: canvas.scrollHeight })
             .then((dataUrl) => {
                 const link = document.createElement('a');
                 link.download = 'project-diagram.jpeg';
@@ -202,13 +202,12 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             .catch((err) => {
                 console.log(err);
             });
-    }, [diagramRef.current]);
+    }, [diagramEngine.getCanvas()]);
 
     return (
         <>
             {diagramEngine && diagramEngine.getModel() &&
                 <Canvas
-                    ref={diagramRef}
                     onMouseDown={currentView === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
                     onMouseUp={currentView === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
                 >
