@@ -92,7 +92,7 @@ export function ComponentWizard() {
         if (isChoreoProject && choreoProject && projectId) {
             ChoreoWebViewAPI.getInstance().getComponents(projectId).then((components: Component[]) => {
                 if (components.length) {
-                    setComponentNames(components.map(component => component.displayName));
+                    setComponentNames(components.map(component => component.displayName.toLowerCase()));
                 }
             });
         }
@@ -101,7 +101,7 @@ export function ComponentWizard() {
     const setComponentName = (name: string) => {
         setName(name);
 
-        if (componentNames.includes(name)) {
+        if (componentNames.includes(name.toLowerCase())) {
             setIsDuplicateName(true);
         } else if (isDuplicateName) {
             setIsDuplicateName(false);

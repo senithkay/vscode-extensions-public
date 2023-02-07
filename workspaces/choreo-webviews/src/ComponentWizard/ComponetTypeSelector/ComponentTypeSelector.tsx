@@ -10,8 +10,22 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { css, cx } from "@emotion/css";
+import styled from "@emotion/styled";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+`;
+
+const typeBtn = css`
+    min-width: 100px;
+    padding: 10px 0px;
+`;
 
 interface SelectorProps {
     selectedType: ChoreoServiceComponentType;
@@ -23,13 +37,37 @@ export function ComponentTypeSelector(props: SelectorProps) {
 
     return (
         <>
-            <label htmlFor="type-dropdown">Select Service Type</label>
-            <VSCodeDropdown id="type-dropdown" onChange={(e: any) => onChange(e.target.value)}>
-                <VSCodeOption value={ChoreoServiceComponentType.REST_API} selected={selectedType === ChoreoServiceComponentType.REST_API}>REST API</VSCodeOption>
-                <VSCodeOption value={ChoreoServiceComponentType.GQL_API} selected={selectedType === ChoreoServiceComponentType.GQL_API}>GraphQL API</VSCodeOption>
-                <VSCodeOption value={ChoreoServiceComponentType.WEBSOCKET_API} selected={selectedType === ChoreoServiceComponentType.WEBSOCKET_API}>WebSocket API</VSCodeOption>
-                <VSCodeOption value={ChoreoServiceComponentType.GRPC_API} selected={selectedType === ChoreoServiceComponentType.GRPC_API}>GRPC API</VSCodeOption>
-            </VSCodeDropdown>
+            <label htmlFor="type-selector">Select Service Type</label>
+            <Container>
+                <VSCodeButton
+                    appearance={selectedType === ChoreoServiceComponentType.REST_API ? "primary" : "secondary"}
+                    onClick={() => {onChange(ChoreoServiceComponentType.REST_API)}}
+                    className={cx(typeBtn)}
+                >
+                    REST
+                </VSCodeButton>
+                <VSCodeButton
+                    appearance={selectedType === ChoreoServiceComponentType.GQL_API ? "primary" : "secondary"}
+                    onClick={() => {onChange(ChoreoServiceComponentType.GQL_API)}}
+                    className={cx(typeBtn)}
+                >
+                    GraphQL
+                </VSCodeButton>
+                <VSCodeButton
+                    appearance={selectedType === ChoreoServiceComponentType.GRPC_API ? "primary" : "secondary"}
+                    onClick={() => {onChange(ChoreoServiceComponentType.GRPC_API)}}
+                    className={cx(typeBtn)}
+                >
+                    GRPC
+                </VSCodeButton>
+                <VSCodeButton
+                    appearance={selectedType === ChoreoServiceComponentType.WEBSOCKET_API ? "primary" : "secondary"}
+                    onClick={() => {onChange(ChoreoServiceComponentType.WEBSOCKET_API)}}
+                    className={cx(typeBtn)}
+                >
+                    WebSocket
+                </VSCodeButton>
+            </Container>
         </>
     );
 }
