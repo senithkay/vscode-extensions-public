@@ -475,7 +475,7 @@
       "projectFolder": "workspaces/notebook-renderer"
     },
     {
-      "packageName": "swagger-view",
+      "packageName": "perf",
       "projectFolder": "workspaces/perf-forecast"
     },
     {
