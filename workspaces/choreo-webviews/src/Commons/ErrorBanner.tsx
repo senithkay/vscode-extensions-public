@@ -11,19 +11,30 @@
  *  associated services.
  */
 
-import { Project, Component, ChoreoComponentCreationParams } from "./types";
+import { css, cx } from "@emotion/css";
+import styled from "@emotion/styled";
 
-export interface IProjectManager {
-    createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
-    getProjectDetails(): Promise<Project>;
-    getProjectRoot(): Promise<string | undefined>;
-    getLocalComponents(workspaceFilePath: string): Component[];
-}
+const Container = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    background-color: var(--vscode-toolbar-activeBackground);
+    padding: 6px;
+`;
 
-export interface BallerinaComponentCreationParams {
-    name: string;
-    version: string;
-    org: string;
-    package: string;
-    directory: string;
+const codiconStyles = css`
+    color: var(--vscode-errorForeground);
+    margin-right: 6px;
+    vertical-align: middle;
+`;
+
+export function ErrorBanner(props: { errorMsg: string }) {
+    const { errorMsg } = props;
+
+    return (
+        <Container>
+            <i className={`codicon codicon-warning ${cx(codiconStyles)}`} />
+            {errorMsg}
+        </Container>
+    );
 }
