@@ -13,15 +13,17 @@
 
 import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing, VSCodeLink, VSCodePanelView, VSCodePanels } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
+import { css, cx } from "@emotion/css";
 import { useContext, useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ProjectSelector } from "../ProjectSelector/ProjectSelector";
 import { ComponentTypeSelector } from "./ComponetTypeSelector/ComponentTypeSelector";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { ChoreoServiceComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoServiceComponentType, Component, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { GithubRepoBranchSelector } from "../GithubRepoBranchSelector/GithubRepoBranchSelector";
+import { ErrorBanner } from "../Commons/ErrorBanner";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -44,16 +46,22 @@ const RepoInfoContainer = styled.div`
     gap: 20px;
 `;
 
+const ErrorIcon = css`
+    color: var(--vscode-errorForeground);
+`;
+
 export function ComponentWizard() {
     const { loginStatus, loginStatusPending, isChoreoProject, choreoProject, selectedOrg } = useContext(ChoreoWebViewContext);
 
     const [name, setName] = useState<string>('');
+    const [isDuplicateName, setIsDuplicateName] = useState<boolean>(false);
     const [inProgress, setProgressStatus] = useState<boolean>(false);
     const [projectId, setProjectId] = useState<string | undefined>(choreoProject?.id);
     const [description, setDescription] = useState<string | undefined>('');
     const [accessibility, setAccessibility] = useState<ComponentAccessibility>('external');
     const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
     const [repository, setRepository] = useState<string>('');
+    const [componentNames, setComponentNames] = useState<string[]>([]);
     const [showRepoSelector, setShowRepoSelector] = useState<boolean>(false);
     const [selectedBranch, setSelectedBranch] = useState<string>('');
     const [folderName, setFolderName] = useState<string>(name);
@@ -80,7 +88,27 @@ export function ComponentWizard() {
         }
     }, [isChoreoProject, choreoProject]);
 
-    const canCreateComponent = name && projectId && accessibility && selectedType && selectedOrg && selectedBranch && folderName;
+    useEffect(() => {
+        if (isChoreoProject && choreoProject && projectId) {
+            ChoreoWebViewAPI.getInstance().getComponents(projectId).then((components: Component[]) => {
+                if (components.length) {
+                    setComponentNames(components.map(component => component.displayName));
+                }
+            });
+        }
+    }, [choreoProject, isChoreoProject, projectId]);
+
+    const setComponentName = (name: string) => {
+        setName(name);
+
+        if (componentNames.includes(name)) {
+            setIsDuplicateName(true);
+        } else if (isDuplicateName) {
+            setIsDuplicateName(false);
+        }
+    }
+
+    const canCreateComponent = name && !isDuplicateName && projectId && accessibility && selectedType && selectedOrg && selectedBranch && folderName;
 
     const handleComponentCreation = () => {
         if (canCreateComponent) {
@@ -129,11 +157,14 @@ export function ComponentWizard() {
                     <VSCodeTextField
                         autofocus
                         placeholder="Name"
-                        onInput={(e: any) => setName(e.target.value)}
+                        onInput={(e: any) => setComponentName(e.target.value)}
                         value={name}
                     >
                         Component Name
+                        {isDuplicateName && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                     </VSCodeTextField>
+                    {isDuplicateName && <ErrorBanner errorMsg={`Component ${name} already exists.`} />}
+
                     <VSCodeTextArea
                         autofocus
                         placeholder="Description"
@@ -158,7 +189,7 @@ export function ComponentWizard() {
                                 {showRepoSelector && <GithubRepoSelector onRepoSelect={handleRepoSelection} />}
                                 <GithubRepoBranchSelector repository={repository} onBranchSelected={setSelectedBranch} />
                                 <VSCodeTextField
-                                    placeholder="subfolder"
+                                    placeholder="Sub folder"
                                     onInput={(e: any) => setFolderName(e.target.value)}
                                     value={folderName}
                                 >
