@@ -25,7 +25,6 @@ import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { DagreLayout, Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from '../../../utils';
-import { Canvas } from './styles/styles';
 import './styles/styles.css';
 import debounce from "lodash.debounce";
 import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
@@ -207,12 +206,12 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     return (
         <>
             {diagramEngine && diagramEngine.getModel() &&
-                <Canvas
+                <div
                     onMouseDown={currentView === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
                     onMouseUp={currentView === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
                 >
                     <CanvasWidget engine={diagramEngine} className={'diagram-container'}  />
-                </Canvas>
+                </div>
             }
 
             <DiagramControls
