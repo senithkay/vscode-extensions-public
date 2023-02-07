@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -17,6 +17,7 @@ import { ExplicitAnonymousFunctionExpression, STKindChecker } from "@wso2-enterp
 
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
+import { ExpressionArrayComponent } from "../../ExpressionArray";
 
 interface ExplicitAnonymousFunctionExpressionProps {
     model: ExplicitAnonymousFunctionExpression;
@@ -29,10 +30,17 @@ export function ExplicitAnonymousFunctionExprComponent(props: ExplicitAnonymousF
         <>
             <TokenComponent model={model.functionKeyword} className="keyword" />
             <ExpressionComponent model={model.functionSignature} />
-            {STKindChecker.isExpressionFunctionBody(model.functionBody) && (
+            {model?.functionBody && STKindChecker.isExpressionFunctionBody(model.functionBody) && (
                 <>
                     <TokenComponent model={model.functionBody.rightDoubleArrow} className={"operator"} />
                     <ExpressionComponent model={model.functionBody.expression} />
+                </>
+            )}
+            {model?.functionBody && STKindChecker.isFunctionBodyBlock(model.functionBody) && (
+                <>
+                    <TokenComponent model={model.functionBody.openBraceToken} className={"operator"} />
+                    <ExpressionArrayComponent expressions={model?.functionBody.statements} />
+                    <TokenComponent model={model.functionBody.closeBraceToken} className={"operator"} />
                 </>
             )}
         </>
