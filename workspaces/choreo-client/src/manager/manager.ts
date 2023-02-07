@@ -58,7 +58,7 @@ export class ChoreoProjectManager implements IProjectManager {
     private static _createBallerinaPackage(pkgName: string, pkgRoot: string, componentType: ChoreoServiceComponentType)
         : Promise<boolean> {
         const cmd =
-            `bal new ${pkgName} -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(componentType)}:1.1.0`;
+            `bal new "${pkgName}" -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(componentType)}:1.1.0`;
         return new Promise(function (resolve, reject) {
             child_process.exec(`${cmd}`, { cwd: pkgRoot }, async (err) => {
                 if (err) {
