@@ -30,7 +30,7 @@ import {
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM } from '../telemetry';
+import { CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, getMessageObject } from '../telemetry';
 import { getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { sep } from "path";
@@ -81,43 +81,43 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	}
 
 	const editor = window.activeTextEditor;
-	// if (isCommand) {
-	// 	if (!editor || !editor.document.fileName.endsWith('.bal')) {
-	// 		const message = 'Current file is not a ballerina file.';
-	// 		sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
-	// 		window.showErrorMessage(message);
-	// 		return;
-	// 	}
-	// }
+	if (isCommand) {
+		if (!editor || !editor.document.fileName.endsWith('.bal')) {
+			const message = 'Current file is not a ballerina file.';
+			sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
+			window.showErrorMessage(message);
+			return;
+		}
+	}
 
-	// if (isCommand) {
-	// 	if (!editor) {
-	// 		window.showErrorMessage(NO_DIAGRAM_VIEWS);
-	// 		return;
-	// 	}
+	if (isCommand) {
+		if (!editor) {
+			window.showErrorMessage(CMP_DIAGRAM_VIEW);
+			return;
+		}
 
-	// 	diagramElement = {
-	// 		fileUri: editor!.document.uri,
-	// 		startLine: editor!.selection.active.line,
-	// 		startColumn: editor!.selection.active.character,
-	// 		isDiagram: true,
+		diagramElement = {
+			fileUri: editor!.document.uri,
+			startLine: editor!.selection.active.line,
+			startColumn: editor!.selection.active.character,
+			isDiagram: true,
 
-	// 	};
-	// } else {
-	// 	diagramElement = {
-	// 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
-	// 		startLine,
-	// 		startColumn,
-	// 		isDiagram: true,
-	// 	};
-	// }
-	
+		};
+	} else {
+		diagramElement = {
+			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
+			startLine,
+			startColumn,
+			isDiagram: true,
+		};
+	}
+
 	diagramElement = {
 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
 		startLine,
 		startColumn,
 		isDiagram: true,
-		diagramFocus: filePath && filePath.length !== 0 && openInDiagram ?
+		diagramFocus: filePath && filePath.length !== 0 ?
 			{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined,
 		workspaceName: workspace.name
 	};
@@ -224,7 +224,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		}
 
 		let nodePosition: NodePosition;
-		if (args.length > 1 
+		if (args.length > 1
 			&& (args[1] as NodePosition).startLine !== undefined
 			&& (args[1] as NodePosition).startColumn !== undefined
 			&& (args[1] as NodePosition).endLine !== undefined
