@@ -121,15 +121,19 @@ export function CodeActionButton(props: CodeActionButtonProps) {
             } else if (targetedEditPosition.startLine >= editorActivePosition.startLine
                 && targetedEditPosition.endLine <= editorActivePosition.endLine) {
                 // The text edit applies for the editorActiveExpression
+                const isSingleLinedExpr = editorActivePosition.startLine === editorActivePosition.endLine;
                 const newTextLines = textEdit.newText.split('\n');
                 const noOfNewTextLines = newTextLines.length - 1;
-                editorActivePosition.endLine = editorActivePosition.startLine + noOfNewTextLines;
+                editorActivePosition.endLine = editorActivePosition.endLine + noOfNewTextLines;
+
                 if (isPositionsEquals(targetedEditPosition, editorActivePosition)) {
                     // The entire editorActiveExpression is replaced by the text edit
-                    editorActivePosition.endColumn = noOfNewTextLines > 0
-                        ? newTextLines[newTextLines.length - 1].length
-                        : editorActivePosition.startColumn + textEdit.newText.length;
-                } else if (targetedEditPosition.startColumn === editorActivePosition.startColumn) {
+                    editorActivePosition.endColumn = isSingleLinedExpr
+                        ? noOfNewTextLines > 0
+                            ? newTextLines[newTextLines.length - 1].length
+                            : editorActivePosition.startColumn + textEdit.newText.length
+                        : newTextLines[newTextLines.length - 1].length;
+                } else if (targetedEditPosition.startColumn === editorActivePosition.startColumn && isSingleLinedExpr) {
                     // The text edit appends as a prefix
                     editorActivePosition.endColumn = noOfNewTextLines > 0
                         ? newTextLines[newTextLines.length - 1].length + editorActiveStatement.length
@@ -139,11 +143,11 @@ export function CodeActionButton(props: CodeActionButtonProps) {
                     editorActivePosition.endColumn = noOfNewTextLines > 0
                         ? newTextLines[newTextLines.length - 1].length
                         : editorActivePosition.endColumn + textEdit.newText.length;
-                } else {
+                } else if (isSingleLinedExpr || (!isSingleLinedExpr && targetedEditPosition.startLine === editorActivePosition.endLine)) {
                     // The text edit placed within editorActiveExpression
-                    const charsBeforeTextEdit = targetedEditPosition.startColumn - editorActivePosition.startColumn
+                    const charsAfterTextEdit = editorActivePosition.endColumn - targetedEditPosition.startColumn
                     editorActivePosition.endColumn = noOfNewTextLines > 0
-                        ? newTextLines[newTextLines.length - 1].length + editorActiveStatement.length - charsBeforeTextEdit
+                        ? newTextLines[newTextLines.length - 1].length + charsAfterTextEdit
                         : editorActivePosition.endColumn + textEdit.newText.length;
                 }
             }
