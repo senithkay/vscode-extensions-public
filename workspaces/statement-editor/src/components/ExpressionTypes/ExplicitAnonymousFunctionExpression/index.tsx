@@ -16,8 +16,8 @@ import React from "react";
 import { ExplicitAnonymousFunctionExpression, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { ExpressionComponent } from "../../Expression";
-import { TokenComponent } from "../../Token";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
+import { TokenComponent } from "../../Token";
 
 interface ExplicitAnonymousFunctionExpressionProps {
     model: ExplicitAnonymousFunctionExpression;
