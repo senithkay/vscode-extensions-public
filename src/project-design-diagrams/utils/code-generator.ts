@@ -138,17 +138,11 @@ export async function addConnector(langClient: ExtendedLangClient, connector: Co
     const initMember = getInitFunction(serviceDecl);
     if (initMember) {
         const updatedSTRes = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken,
-            generateConnectorClientDecl(connectorInfo), imports);
+            generateConnectorClientDecl(connectorInfo));
         let updatedST = updatedSTRes as STResponse;
-        if (updatedST?.parseSuccess) {
+        if (updatedST?.parseSuccess && updatedST.syntaxTree.members) {
             await updateSourceFile(langClient, filePath, updatedST.source);
-            const newLines = imports.size || 0;
-            const serviceDecl = updatedST.syntaxTree.members.find(
-                (member) =>
-                    member.kind === "ServiceDeclaration" &&
-                    targetService.elementLocation.startPosition.line + newLines === member.position.startLine &&
-                    targetService.elementLocation.startPosition.offset === member.position.startColumn
-            );
+            const serviceDecl = getServiceDeclaration(updatedST.syntaxTree.members, targetService, false);
 
             const updatedInitMember = getInitFunction(serviceDecl);
             if (updatedInitMember) {
@@ -240,7 +234,7 @@ async function updateSyntaxTree(
                 endColumn: 0,
                 type: "INSERT",
                 config: {
-                    STATEMENT: `import ${stmt};`,
+                    STATEMENT: `import ${stmt};\n`,
                 },
                 isImport: true,
             });

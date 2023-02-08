@@ -141,14 +141,6 @@ export interface ServiceModels {
     levelTwo: DiagramModel;
 }
 
-export interface AddComponentDetails {
-    name: string;
-    version: string;
-    org: string;
-    package: string;
-    directory: string;
-}
-
 export interface Location {
     filePath: string;
     startPosition: LinePosition;
@@ -193,3 +185,5 @@ export enum Colors {
     SHADED_SELECTED = '#faead2',
     GATEWAY = '#3db377'
 }
+
+export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';

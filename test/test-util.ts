@@ -35,11 +35,11 @@ function findBallerinaDistribution() {
         return directories[0];
     }
     if (directories.length > 1) {
-        directories.forEach(directory => {
-            if (directory.startsWith('ballerina')) {
-                return directory;
+        for (const index in directories) {
+            if (directories[index].startsWith('ballerina')) {
+                return directories[index];
             }
-        });
+        }
     }
     throw new Error("Unable to find ballerina distribution in test resources.");
 }

@@ -42,8 +42,8 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
                 if (element instanceof ChoreoProjectTreeItem && project && project.id === element.project.id) {
                     element.description = element.description + " (opened)";
                 }
-                resolve(element);
             }
+            resolve(element);
         });
     }
 
