@@ -18,9 +18,9 @@
  */
 
 import React from 'react';
-import { DefaultLinkFactory } from '@projectstorm/react-diagrams';
 import { GatewayLinkWidget } from './GatewayLinkWidget';
 import { GATEWAY_LINK_TYPE } from "../types";
+import { DefaultLinkFactory } from "@projectstorm/react-diagrams-defaults";
 import { GatewayLinkModel } from "./GatewayLinkModel";
 
 export class GatewayLinkFactory extends DefaultLinkFactory {

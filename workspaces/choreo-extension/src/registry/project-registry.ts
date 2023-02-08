@@ -169,7 +169,7 @@ export class ProjectRegistry {
                 // Get local components
                 const choreoPM = new ChoreoProjectManager();
                 const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
-                await localComponentMeta.forEach(async componentMetadata => {
+                await Promise.all(localComponentMeta.map(async componentMetadata => {
                     const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
                     const componentRequest: CreateComponentParams = {
                         name: componentMetadata.displayName,
@@ -188,7 +188,7 @@ export class ProjectRegistry {
                     await projectClient.createComponent(componentRequest).then((component) => {
                         choreoPM.removeLocalComponent(projectLocation, componentMetadata);
                     });
-                });
+                }));
                 // Delete the components so they resolve from choreo
                 this._dataComponents.delete(projectId);
             }
