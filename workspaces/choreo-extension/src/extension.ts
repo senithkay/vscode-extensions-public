@@ -30,6 +30,8 @@ import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 
 import { activateWizards } from './wizards/activate';
 
+import { getLogger, initLogger } from "./logger/logger";
+
 export function activateBallerinaExtension() {
 	const ext = extensions.getExtension("wso2.ballerina");
 	if (ext && !ext.isActive) {
@@ -37,7 +39,9 @@ export function activateBallerinaExtension() {
 	}
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+	await initLogger(context);
+  	getLogger().debug("Activating Choreo Extension");
 	ext.isPluginStartup = true;
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
@@ -52,6 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
 	showChoreoProjectOverview();
 	activateStatusBarItem();
 	activateRegistry();
+	getLogger().debug("Choreo Extension activated");
 	return ext.api;
 }
 
