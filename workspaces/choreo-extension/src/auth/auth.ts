@@ -31,7 +31,7 @@ export const tokenStore = new KeyChainTokenStorage();
 
 export const readonlyTokenStore: IReadOnlyTokenStorage = {
     getToken: async (key: ChoreoTokenType) => {
-        getLogger().debug("Getting token from keychain: ", key);
+        getLogger().debug("Getting token from keychain: " + key);
         return await getChoreoToken(key);
     }
 };
@@ -57,7 +57,7 @@ export async function initiateInbuiltAuth() {
         vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.choreo/signin`)
     );
     const oauthURL = authClient.getAuthURL(callbackUri);
-    getLogger().debug("OAuth URL: ", oauthURL);
+    getLogger().debug("OAuth URL: " + oauthURL);
     return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
 }
 
@@ -180,7 +180,7 @@ export async function signIn() {
 }
 
 export async function exchangeOrgAccessTokens(orgHandle: string) {
-    getLogger().debug("Exchanging apim token for the org.", orgHandle);
+    getLogger().debug("Exchanging apim token for the org " + orgHandle);
     const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken) {
         await exchangeApimToken(choreoTokenInfo?.accessToken, orgHandle);

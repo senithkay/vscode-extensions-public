@@ -17,6 +17,7 @@ import { IProjectManager, Organization, Project, ChoreoLoginStatus, WorkspaceCon
 import { exchangeAuthToken } from "./auth/auth";
 import { readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
+import { getLogger } from './logger/logger';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -70,6 +71,7 @@ export class ChoreoExtensionApi {
     }
 
     public async signIn(authCode: string): Promise<void> {
+        getLogger().debug("Signin triggered from ChoreoExtensionApi");
         return exchangeAuthToken(authCode);
     }
 
