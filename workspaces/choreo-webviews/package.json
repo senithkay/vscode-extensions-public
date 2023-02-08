@@ -9,6 +9,7 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@emotion/css": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@vscode/webview-ui-toolkit": "^1.0.0",
     "@wso2-enterprise/choreo-client": "^1.0.0",

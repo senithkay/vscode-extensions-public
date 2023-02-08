@@ -23,6 +23,8 @@ import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
 import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
+import { CellContainer, CellDiagram } from "./style";
+import { Gateways } from "../../gateway/Gateways/Gateways";
 
 interface DiagramContainerProps {
     currentView: Views;
@@ -65,8 +67,8 @@ export function DiagramContainer(props: DiagramContainerProps) {
     const hasModelLoaded = (): boolean => {
         switch (currentView) {
             case Views.L1_SERVICES:
-                return serviceModels !== undefined;
             case Views.L2_SERVICES:
+            case Views.CELL_VIEW:
                 return serviceModels !== undefined;
             case Views.TYPE:
                 return typeModel !== undefined;
@@ -76,7 +78,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
     }
 
     return (
-        <div>
+        <>
             {hasModelLoaded() ?
                 <>
                     {serviceModels &&
@@ -96,6 +98,19 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                     {...{currentView, layout}}
                                 />
                             </div>
+
+                            { currentView === Views.CELL_VIEW && (
+                                <CellDiagram>
+                                    <Gateways/>
+                                    <CellContainer>
+                                        <DiagramCanvasWidget
+                                            type={Views.CELL_VIEW}
+                                            model={serviceModels.levelOne}
+                                            {...{currentView, layout}}
+                                        />
+                                    </CellContainer>
+                                </CellDiagram>
+                            )}
                         </>
                     }
                     {typeModel &&
@@ -119,6 +134,6 @@ export function DiagramContainer(props: DiagramContainerProps) {
                 </> :
                 <CircularProgress />
             }
-        </div>
+        </>
     );
 }
