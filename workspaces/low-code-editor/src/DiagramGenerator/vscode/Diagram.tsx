@@ -21,7 +21,7 @@ export interface WorkspaceFolder {
 
 export interface DiagramFocus {
     filePath: string;
-    position: NodePosition;
+    position?: NodePosition;
 }
 
 export interface EditorState {
