@@ -1154,7 +1154,15 @@ export function getContentFromSource(source: string, position: NodePosition) {
     let sliceContent = "";
     if (splitSource?.length) {
         for (let line = position.startLine; line <= (position.endLine || position.startLine); line++) {
-            sliceContent += splitSource[line];
+            if (line === position.startLine) {
+                sliceContent = line === position.endLine
+                    ? splitSource[line].slice(position.startColumn, position.endColumn)
+                    : splitSource[line].slice(position.startColumn);
+            } else if (line === position.endLine) {
+                sliceContent = sliceContent + splitSource[line].slice(0, position.endColumn || position.startColumn);
+            } else {
+                sliceContent = " ".repeat(position.startColumn) + splitSource[line];
+            }
         }
     }
     return sliceContent;

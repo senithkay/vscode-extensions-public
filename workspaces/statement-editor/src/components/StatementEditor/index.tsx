@@ -359,7 +359,10 @@ export function StatementEditor(props: StatementEditorProps) {
         const newTargetPosition = getStatementPosition(updatedSource, updatedStatement, targetPosition);
         setDraftSource(updatedSource);
         setDraftPosition(newTargetPosition);
-        const partialST = await getPartialSTForStatement({ codeSnippet: updatedStatement }, getLangClient);
+        const partialST = isModuleMember(model)
+            ? await getPartialSTForModuleMembers({ codeSnippet: updatedStatement }, getLangClient)
+            : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: updatedStatement }, getLangClient)
+                : await getPartialSTForStatement({ codeSnippet: updatedStatement }, getLangClient));
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             const diagnostics = await handleDiagnostics(partialST.source);
