@@ -43,7 +43,7 @@ export const DiagramTitle = styled.div`
 export const TypeContainer = styled.div`
     display: flex;
     flex-direction: column;
-    min-width: 312px;
+    min-width: 200px;
     padding: 12px 20px 12px 24px;
 `;
 
