@@ -12,13 +12,13 @@
  */
 import React from "react";
 
+import { FormControl, InputLabel, Select } from "@material-ui/core";
 import { Apps, ArrowBack, Folder, Home } from "@material-ui/icons";
 
 import { useHistoryContext } from "../context/history";
 
-import './style.scss';
-import { FormControl, InputLabel, Select } from "@material-ui/core";
 import useStyles from './style';
+import './style.scss';
 
 interface NavigationBarProps {
     projectName: string;
@@ -36,14 +36,10 @@ export function NavigationBar(props: NavigationBarProps) {
             <FormControl variant="outlined" className={classes.selectorComponent} >
                 <InputLabel htmlFor="outlined-age-native-simple">Project</InputLabel>
                 <Select
-                    native
+                    native={true}
                     value={'10'}
-                    onChange={() => { }}
                     label="Project"
-                    inputProps={{
-                        name: 'age',
-                        id: 'outlined-age-native-simple',
-                    }}
+                    inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
                 >
                     <option aria-label="None" value="" />
                     <option value={10}>Ten</option>
@@ -58,14 +54,10 @@ export function NavigationBar(props: NavigationBarProps) {
             <FormControl variant="outlined" className={classes.selectorComponent} >
                 <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
                 <Select
-                    native
+                    native={true}
                     value={'10'}
-                    onChange={() => { }}
                     label="File"
-                    inputProps={{
-                        name: 'age',
-                        id: 'outlined-age-native-simple',
-                    }}
+                    inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
                 >
                     <option aria-label="None" value="" />
                     <option value={10}>Ten</option>
@@ -82,7 +74,7 @@ export function NavigationBar(props: NavigationBarProps) {
             {renderProjectSelectorComponent()}
             <div className={classes.componentSeperator} >/</div>
             {renderFileSelector()}
-            <div className="component-details"></div>
+            <div className="component-details"/>
         </div>
     );
 }
