@@ -17,7 +17,7 @@
  *
  */
 
-import { AddComponentDetails } from '../../../resources';
+import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { PackageNameAntiRegex } from './constants';
 
 export function transformComponentName(componentName: string): string {
@@ -27,9 +27,8 @@ export function transformComponentName(componentName: string): string {
         composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
 }
 
-export function initBallerinaComponent(): AddComponentDetails {
+export function initBallerinaComponent(): BallerinaComponentCreationParams {
     return {
-
         name: '',
         directory: '',
         package: '',

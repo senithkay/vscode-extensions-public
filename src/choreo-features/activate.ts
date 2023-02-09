@@ -20,6 +20,7 @@ import { BallerinaExtension } from "src/core";
 import { URLSearchParams } from "url";
 import { window, Uri, ProviderResult, extensions } from "vscode";
 import { Project } from "@wso2-enterprise/choreo-core";
+import { ComponentModel } from "../project-design-diagrams/resources";
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -27,6 +28,7 @@ export interface IChoreoExtensionAPI {
     getChoreoProject(): Promise<Project|undefined>;
     isChoreoProject(): Promise<boolean>;
     getPerformanceForecastData(data: any): Promise<JSON>;
+    enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined>;
 }
 
 export async function getChoreoExtAPI(): Promise<IChoreoExtensionAPI | undefined> {

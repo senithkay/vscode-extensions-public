@@ -18,15 +18,16 @@
  */
 
 import React from 'react';
+import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import { Colors } from '../../../../resources';
 import { InputComponent, Required } from '../../resources/styles';
-import { AddComponentDetails, Colors } from '../../../../resources';
 import { DefaultTextProps, TextFieldStyles } from '../../resources/constants';
 
 interface DirectoryPickerProps {
-    component: AddComponentDetails,
+    component: BallerinaComponentCreationParams,
     selectDirectory: () => void;
 }
 

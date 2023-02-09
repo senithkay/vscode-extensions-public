@@ -19,13 +19,6 @@
 
 import styled from '@emotion/styled';
 
-const background = require('../../../../resources/assets/PatternBg.svg') as string;
-
-export const Canvas = styled.div`
-    background-image: url('${background}');
-	background-repeat: repeat;
-`;
-
 export const ControlPanel = styled.div`
     bottom: 15px;
     display: flex;
