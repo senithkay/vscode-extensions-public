@@ -19,9 +19,12 @@
 
 import { commands, Uri, TextDocument, workspace, Position } from "vscode";
 
+const ACTION_RENAME_COMMAND = "ballerina.action.rename";
+const ACTION_POSITIONAL_RENAME_COMMAND = "ballerina.action.positional.rename";
+
 function activateRenameCommand() {
-    // register ballerina rename command
-    commands.registerCommand("ballerina.action.rename", async (url:string, pos:number) => {
+    // Register ballerina rename command that use text position to rename
+    commands.registerCommand(ACTION_RENAME_COMMAND, async (url:string, pos:number) => {
         try {
             const uri: Uri = Uri.parse(url);
             const document: TextDocument = await workspace.openTextDocument(uri);
@@ -39,7 +42,8 @@ function activateRenameCommand() {
         }
     });
 
-    commands.registerCommand("ballerina.action.positional.rename", async (url:string, renamePosition:Position) => {
+    // Register ballerina rename command that use line/character based position to rename
+    commands.registerCommand(ACTION_POSITIONAL_RENAME_COMMAND, async (url:string, renamePosition:Position) => {
         try {
             const uri: Uri = Uri.parse(url);
             const document: TextDocument = await workspace.openTextDocument(uri);
