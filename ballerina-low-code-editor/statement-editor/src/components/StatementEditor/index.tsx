@@ -38,6 +38,7 @@ import {
     getNextNode, getParentFunctionModel,
     getPreviousNode,
     getSelectedModelPosition,
+    getStatementIndex,
     getStatementPosition,
     getStatementPositionNew,
     getUpdatedSource, isBindingPattern, isDocumentationSupportedModel,
@@ -286,8 +287,9 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const updateDraftFileContent = async (statement: string, fileContent: string) => {
         const updatedContent = getUpdatedSource(statement, fileContent, targetPosition, moduleList, skipStatementSemicolon);
+        const stmtIndex = getStatementIndex(fileContent, statement, targetPosition);
         const newTargetPosition = isExpressionMode
-            ? getStatementPositionNew(updatedContent, statement)
+            ? getStatementPositionNew(updatedContent, statement, stmtIndex)
             : getStatementPosition(updatedContent, statement, targetPosition);
 
         await updateFileContent(updatedContent, true);
@@ -359,9 +361,8 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const updateStatementModel = async (updatedStatement: string, updatedSource: string, position: NodePosition) => {
         await updateFileContent(updatedSource, true);
-        const newTargetPosition = getStatementPosition(updatedSource, updatedStatement, targetPosition);
         setDraftSource(updatedSource);
-        setDraftPosition(newTargetPosition);
+        setDraftPosition(position);
         const partialST = isModuleMember(model)
             ? await getPartialSTForModuleMembers({ codeSnippet: updatedStatement }, getLangClient)
             : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: updatedStatement }, getLangClient)

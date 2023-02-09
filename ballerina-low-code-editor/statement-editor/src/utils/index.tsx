@@ -1196,30 +1196,39 @@ export function getStatementLine(source: string, statement: string): number {
     return stmtNewFirstLine;
 }
 
-export function getStatementPositionNew(source: string, statement: string): NodePosition {
-    const sourceLines = source.split('\n');
+export function getStatementPositionNew(updatedContent: string, statement: string, stmtIndex: number): NodePosition {
+    const sourceLines = updatedContent.split('\n');
     const statementLines = statement.split('\n');
-    let stmtIndex = 0;
+    let lineIndex = 0;
+    let noOfMatches = -1;
     let position: NodePosition = {
         startLine: undefined, startColumn: undefined, endLine: undefined, endColumn: undefined
     };
     sourceLines.forEach((sourceLine, index) => {
         if (position.startLine === undefined || position.endLine === undefined) {
-            if (sourceLine.includes(statementLines[stmtIndex])) {
-                if (stmtIndex === 0) {
-                    position.startLine = index;
-                    position.startColumn = sourceLine.indexOf(statementLines[stmtIndex]);
-                    if (statementLines.length === 1) {
-                        position.endLine = position.startLine;
-                        position.endColumn = position.startColumn + statementLines[stmtIndex].length;
+            let matched = sourceLine.includes(statementLines[lineIndex]);
+            if (!matched && sourceLine.includes(statementLines[0])) {
+                lineIndex = 0;
+                position = {
+                    startLine: undefined, startColumn: undefined, endLine: undefined, endColumn: undefined
+                };
+                matched = true;
+            }
+            if (matched) {
+                if (lineIndex === 0) {
+                    noOfMatches++;
+                    if (noOfMatches === stmtIndex) {
+                        position.startLine = index;
+                        position.startColumn = sourceLine.indexOf(statementLines[lineIndex]);
                     }
-                } else if (stmtIndex === statementLines.length - 1) {
-                    position.endLine = index;
-                    position.endColumn = sourceLine.indexOf(statementLines[stmtIndex]) + statementLines[stmtIndex].length;
                 }
-                stmtIndex++;
+                if (lineIndex === statementLines.length - 1 && noOfMatches === stmtIndex) {
+                    position.endLine = index;
+                    position.endColumn = sourceLine.indexOf(statementLines[lineIndex]) + statementLines[lineIndex].length;
+                }
+                lineIndex++;
             } else {
-                stmtIndex = 0;
+                lineIndex = 0;
                 position = {
                     startLine: undefined, startColumn: undefined, endLine: undefined, endColumn: undefined
                 };
@@ -1232,4 +1241,16 @@ export function getStatementPositionNew(source: string, statement: string): Node
 export function filterCodeActions(codeActions: CodeAction[]): CodeAction[] {
     const filteredCodeActions = codeActions?.filter((action) => action.kind === "quickfix");
     return filteredCodeActions || codeActions;
+}
+
+export function getStatementIndex(source: string, statement: string, stmtPosition: NodePosition) {
+    const sourceLines = source.split('\n');
+    const stmtFirstLine = statement.split('\n')[0];
+    let statementIndex = -1;
+    sourceLines.forEach((line: string, index: number) => {
+        if (line.includes(stmtFirstLine) && index <= stmtPosition.startLine) {
+            statementIndex++;
+        }
+    });
+    return statementIndex;
 }
