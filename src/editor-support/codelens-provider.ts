@@ -119,12 +119,12 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         }
 
         await langClient.onReady().then(async () => {
-            const activeEditor = this.activeTextEditorUri ? this.activeTextEditorUri
+            const activeEditorUri = this.activeTextEditorUri ? this.activeTextEditorUri
                 : window.activeTextEditor!.document.uri;
-            const filePath = activeEditor.toString();
+            const fileUri = activeEditorUri.toString();
             await langClient!.getExecutorPositions({
                 documentIdentifier: {
-                    uri: filePath
+                    uri: fileUri
                 }
             }).then(executorsResponse => {
                 const response = executorsResponse as ExecutorPositionsResponse;
@@ -143,7 +143,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                 title: "Try it",
                                 tooltip: "Try running this service",
                                 command: PALETTE_COMMANDS.TRY_IT,
-                                arguments: [activeEditor.fsPath, position.name, range]
+                                arguments: [fileUri, position.name, range]
                             };
                             codeLenses.push(codeLens);
                         }
@@ -156,7 +156,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             // Open in diagram code lenses
             await langClient!.getSyntaxTree({
                 documentIdentifier: {
-                    uri: filePath
+                    uri: fileUri
                 }
             }).then(syntaxTreeResponse => {
                 const response = syntaxTreeResponse as GetSyntaxTreeResponse;
@@ -173,7 +173,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                     title: "Design",
                                     tooltip: "Open this code block in data mapping view",
                                     command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                    arguments: [member.position, activeEditor.fsPath]
+                                    arguments: [member.position, activeEditorUri.fsPath]
                                 };
                                 codeLenses.push(codeLens);
                             }
