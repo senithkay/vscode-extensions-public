@@ -28,7 +28,6 @@ import {
 
 import {
     CompletionResponse,
-    getDiagnosticMessage,
     getFilteredDiagnostics,
     getSelectedDiagnostics,
     LinePosition,
@@ -1200,41 +1199,34 @@ export function getStatementLine(source: string, statement: string): number {
 export function getStatementPositionNew(source: string, statement: string): NodePosition {
     const sourceLines = source.split('\n');
     const statementLines = statement.split('\n');
-
     let stmtIndex = 0;
-    let startLine: number;
-    let endLine: number;
-    let startColumn: number;
-    let endColumn: number;
+    let position: NodePosition = {
+        startLine: undefined, startColumn: undefined, endLine: undefined, endColumn: undefined
+    };
     sourceLines.forEach((sourceLine, index) => {
-        if (startLine === undefined || endLine === undefined) {
+        if (position.startLine === undefined || position.endLine === undefined) {
             if (sourceLine.includes(statementLines[stmtIndex])) {
                 if (stmtIndex === 0) {
-                    startLine = index;
-                    startColumn = sourceLine.indexOf(statementLines[stmtIndex]);
+                    position.startLine = index;
+                    position.startColumn = sourceLine.indexOf(statementLines[stmtIndex]);
                     if (statementLines.length === 1) {
-                        endLine = startLine;
-                        endColumn = startColumn + statementLines[stmtIndex].length;
+                        position.endLine = position.startLine;
+                        position.endColumn = position.startColumn + statementLines[stmtIndex].length;
                     }
                 } else if (stmtIndex === statementLines.length - 1) {
-                    endLine = index;
-                    endColumn = sourceLine.indexOf(statementLines[stmtIndex]) + statementLines[stmtIndex].length;
+                    position.endLine = index;
+                    position.endColumn = sourceLine.indexOf(statementLines[stmtIndex]) + statementLines[stmtIndex].length;
                 }
                 stmtIndex++;
             } else {
                 stmtIndex = 0;
-                startLine = undefined;
-                endLine = undefined;
+                position = {
+                    startLine: undefined, startColumn: undefined, endLine: undefined, endColumn: undefined
+                };
             }
         }
     });
-
-    return {
-        startLine,
-        startColumn,
-        endLine,
-        endColumn
-    };
+    return position;
 }
 
 export function filterCodeActions(codeActions: CodeAction[]): CodeAction[] {
