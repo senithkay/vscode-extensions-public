@@ -1212,6 +1212,10 @@ export function getStatementPositionNew(source: string, statement: string): Node
                 if (stmtIndex === 0) {
                     startLine = index;
                     startColumn = sourceLine.indexOf(statementLines[stmtIndex]);
+                    if (statementLines.length === 1) {
+                        endLine = startLine;
+                        endColumn = startColumn + statementLines[stmtIndex].length;
+                    }
                 } else if (stmtIndex === statementLines.length - 1) {
                     endLine = index;
                     endColumn = sourceLine.indexOf(statementLines[stmtIndex]) + statementLines[stmtIndex].length;
