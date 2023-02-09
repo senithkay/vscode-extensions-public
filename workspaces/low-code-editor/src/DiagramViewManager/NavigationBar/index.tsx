@@ -17,6 +17,8 @@ import { Apps, ArrowBack, Folder, Home } from "@material-ui/icons";
 import { useHistoryContext } from "../context/history";
 
 import './style.scss';
+import { FormControl, InputLabel, Select } from "@material-ui/core";
+import useStyles from './style';
 
 interface NavigationBarProps {
     projectName: string;
@@ -27,56 +29,61 @@ interface NavigationBarProps {
 
 export function NavigationBar(props: NavigationBarProps) {
     const { projectName, folderName, isWorkspace, onFolderClick } = props;
-    const { history, historyPop, historyReset } = useHistoryContext();
-    // const homeButton = (
-    //     <div className="btn-container" onClick={historyReset}>
-    //         <Home />
-    //     </div>
-    // );
-    //
-    const backButton = (
-        <div className="btn-container" onClick={historyPop}>
-            <ArrowBack />
-        </div>
-    );
+    const classes = useStyles();
 
-    const showBackButton: boolean = history.length > 0;
-    const workspaceNameComponent = (
-        <div className="btn-container" onClick={historyReset} >
-            {isWorkspace ? <Apps /> : <Folder />}
-            <span className="icon-text">{`${projectName}${history.length > 0 ? '' : ' components'}`}</span>
-        </div>
-    );
+    const renderProjectSelectorComponent = () => {
+        return (
+            <FormControl variant="outlined" className={classes.selectorComponent} >
+                <InputLabel htmlFor="outlined-age-native-simple">Project</InputLabel>
+                <Select
+                    native
+                    value={'10'}
+                    onChange={() => { }}
+                    label="Project"
+                    inputProps={{
+                        name: 'age',
+                        id: 'outlined-age-native-simple',
+                    }}
+                >
+                    <option aria-label="None" value="" />
+                    <option value={10}>Ten</option>
+                    <option value={20}>Twenty</option>
+                    <option value={30}>Thirty</option>
+                </Select>
+            </FormControl>
+        )
+    }
+    const renderFileSelector = () => {
+        return (
+            <FormControl variant="outlined" className={classes.selectorComponent} >
+                <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
+                <Select
+                    native
+                    value={'10'}
+                    onChange={() => { }}
+                    label="File"
+                    inputProps={{
+                        name: 'age',
+                        id: 'outlined-age-native-simple',
+                    }}
+                >
+                    <option aria-label="None" value="" />
+                    <option value={10}>Ten</option>
+                    <option value={20}>Twenty</option>
+                    <option value={30}>Thirty</option>
+                </Select>
+            </FormControl>
+        )
+    }
 
-    const folderComponent = (
-        <>
-            <div>/</div>
-            <div className="btn-container" onClick={onFolderClick}>
-                <Folder style={{ paddingRight: 5 }} />
-                <span className="icon-text">{`${folderName}`}</span>
-            </div>
-        </>
-    )
-
-    // const moduleNameComponent = (
-    //     <div className="btn-container" onClick={historyReset}>
-    //         <Folder style={{ paddingRight: 5 }} />
-    //         <span className="icon-text">{`${projectName}`}</span>
-    //     </div>
-    // );
-
-    // {moduleNameComponent}
-
+    // {renderWorkspaceNameComponent(isWorkspace)}
     return (
-        <div id="nav-bar-main" className={'header-bar'}>
-            {showBackButton && backButton}
-            {workspaceNameComponent}
-            {folderName && folderName.length > 0 && folderComponent}
-            <div className="component-details">
-                {/*<span className="module-text">{componentDetailsText}</span>*/}
-            </div>
+        <div id="nav-var-main" className="header-bar">
+            {renderProjectSelectorComponent()}
+            <div className={classes.componentSeperator} >/</div>
+            {renderFileSelector()}
+            <div className="component-details"></div>
         </div>
-    )
-    // {history.length === 0 && <span className="module-text">{moduleName} components</span>}
+    );
 }
 

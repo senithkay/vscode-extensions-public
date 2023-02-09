@@ -32,7 +32,6 @@ enum ViewMode {
     TYPE = 'Type'
 }
 
-
 export interface OverviewDiagramProps {
     lastUpdatedAt: string;
     projectPaths: WorkspaceFolder[]
@@ -40,8 +39,6 @@ export interface OverviewDiagramProps {
     filterMap: any;
     updateFilterMap: (obj: any) => void;
 }
-
-
 
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
@@ -100,59 +97,57 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
         )
     }
 
-    const handleFilterClick = () => {
-        setIsFilterOpen(true);
-    }
+    // const handleFilterClick = () => {
+    //     setIsFilterOpen(true);
+    // }
+    //
+    // const handleFilterClose = () => {
+    //     setIsFilterOpen(false);
+    // }
+    //
+    // const handleMapChange = (obj: any) => {
+    //     updateFilterMap(obj);
+    // }
 
-    const handleFilterClose = () => {
-        setIsFilterOpen(false);
-    }
-
-    const handleMapChange = (obj: any) => {
-        updateFilterMap(obj);
-    }
-
-    const viewSelector = (
-        <div className="overview-action-bar">
-            <div
-                style={{ display: 'flex', paddingLeft: 15 }}
-                ref={ref}
-                onClick={handleFilterClick}
-            >
-                <span className="label">Filter</span>
-                <div>
-                    {isProjectWorkspace && <FilterList />}
-                    <Popover
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'left', }}
-                        title={'Filter'}
-                        open={isFilterOpen}
-                        anchorEl={ref ? ref.current : undefined}
-                        onClose={handleFilterClose}
-                    >
-                        <FilterComponent
-                            filterMap={filterMap}
-                            updateFilterMap={handleMapChange}
-                            handleFilterClose={handleFilterClose}
-                        />
-                    </Popover>
-                </div>
-            </div>
-            <div>
-                <span className="label">Group By</span>
-                <select onChange={handleViewModeChange} value={viewMode}>
-                    <option value={ViewMode.MODULE}>{ViewMode.MODULE}</option>
-                    <option value={ViewMode.FILE}>{ViewMode.FILE}</option>
-                    <option value={ViewMode.TYPE}>{ViewMode.TYPE}</option>
-                </select>
-            </div >
-        </div>
-    );
-
+    // const viewSelector = (
+    //     <div className="overview-action-bar">
+    //         <div
+    //             style={{ display: 'flex', paddingLeft: 15 }}
+    //             ref={ref}
+    //             onClick={handleFilterClick}
+    //         >
+    //             <span className="label">Filter</span>
+    //             <div>
+    //                 {isProjectWorkspace && <FilterList />}
+    //                 <Popover
+    //                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
+    //                     transformOrigin={{ vertical: 'top', horizontal: 'left', }}
+    //                     title={'Filter'}
+    //                     open={isFilterOpen}
+    //                     anchorEl={ref ? ref.current : undefined}
+    //                     onClose={handleFilterClose}
+    //                 >
+    //                     <FilterComponent
+    //                         filterMap={filterMap}
+    //                         updateFilterMap={handleMapChange}
+    //                         handleFilterClose={handleFilterClose}
+    //                     />
+    //                 </Popover>
+    //             </div>
+    //         </div>
+    //         <div>
+    //             <span className="label">Group By</span>
+    //             <select onChange={handleViewModeChange} value={viewMode}>
+    //                 <option value={ViewMode.MODULE}>{ViewMode.MODULE}</option>
+    //                 <option value={ViewMode.FILE}>{ViewMode.FILE}</option>
+    //                 <option value={ViewMode.TYPE}>{ViewMode.TYPE}</option>
+    //             </select>
+    //         </div >
+    //     </div>
+    // );
 
     return (
         <>
-            {viewSelector}
             {renderView()}
         </>
     )
