@@ -116,31 +116,26 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async getSwaggerExamples(data: any): Promise<JSON> {
+    async getSwaggerExamples(data: any): Promise<AxiosResponse> {
         const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
         if (!choreoToken) {
             throw new Error('User is not logged in');
         }
 
-        const url = new URL(CHOREO_API_PF);
-
-        const options = {
-            url: CHOREO_API_TEST_DATA_GEN,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': data.length,
-                'Authorization': `Bearer ${choreoToken.accessToken}`
-            },
-            body: data
-        };
-
-        console.log(`Calling swagger sample generator API - ${url.toString()} - ${new Date()}`);
-        const perfData = await this.httpClient.sendRequest(options);
-        if (!perfData) {
-            throw new Error();
+        console.log(`Calling swagger sample generator API - ${new Date()}`);
+        try {
+            return await getHttpClient()
+                .post(CHOREO_API_TEST_DATA_GEN, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        'Authorization': `Bearer ${choreoToken.accessToken}`
+                    },
+                    timeout: 15000
+                });
+        } catch (err) {
+            throw new Error(API_CALL_ERROR, { cause: err });
         }
-        return perfData;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

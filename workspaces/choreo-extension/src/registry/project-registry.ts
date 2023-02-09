@@ -132,7 +132,7 @@ export class ProjectRegistry {
             });
     }
 
-    async getSwaggerExamples(spec: any): Promise<JSON> {
+    async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
         return projectClient.getSwaggerExamples(spec)
             .then((result: any) => {
                 return result;

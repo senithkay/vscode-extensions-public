@@ -142,7 +142,7 @@ export class ChoreoExtensionApi {
         return ProjectRegistry.getInstance().getPerformanceForecast(data);
     }
 
-    public async getSwaggerExamples(spec: any): Promise<JSON> {
+    public async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
         return ProjectRegistry.getInstance().getSwaggerExamples(spec);
     }
 

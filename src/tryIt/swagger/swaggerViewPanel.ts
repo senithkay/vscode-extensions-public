@@ -18,7 +18,7 @@
  */
 
 import { ViewColumn, window, WebviewPanel, commands } from "vscode";
-import { WebViewRPCHandler, getCommonWebViewOptions } from '../../utils';
+import { WebViewRPCHandler, getCommonWebViewOptions, debug } from '../../utils';
 import { render } from './render';
 import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient, OASpec } from "../../core";
 import { SwaggerServer } from "../server";
@@ -101,12 +101,28 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
                         continue;
                     }
 
-                    const testData = await extApi.getSwaggerExamples(data) as any;
-                    if (!testData) {
+                    try {
+                        const response = await extApi.getSwaggerExamples(data);
+                        if (!response) {
+                            continue;
+                        }
+
+                        const status = response.status;
+                        if (status != 200) {
+                            debug(`Swagger examples API Error - ${status} Status code.`);
+                            debug(response.data);
+                            continue;
+                        }
+
+                        const responseData = response.data;
+                        debug(`Swagger examples data received ${new Date()}`);
+                        debug(responseData);
+
+                        cachedResponses.set(cacheKey, responseData.openapiSpec);
+                        spec.spec = responseData.openapiSpec;
+                    } catch {
                         continue;
                     }
-                    cachedResponses.set(cacheKey, testData.openapiSpec);
-                    spec.spec = testData.openapiSpec;
                 }
             }
         }
