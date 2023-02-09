@@ -1151,21 +1151,21 @@ export function isBalVersionUpdateOne(version: string): boolean{
 
 export function getContentFromSource(source: string, position: NodePosition) {
     const splitSource: string[] = source.split("\n");
-    let sliceContent = "";
+    const sliceContent: string[] = [];
     if (splitSource?.length) {
         for (let line = position.startLine; line <= (position.endLine || position.startLine); line++) {
             if (line === position.startLine) {
-                sliceContent = line === position.endLine
+                sliceContent.push(line === position.endLine
                     ? splitSource[line].slice(position.startColumn, position.endColumn)
-                    : splitSource[line].slice(position.startColumn);
+                    : splitSource[line].slice(position.startColumn));
             } else if (line === position.endLine) {
-                sliceContent = sliceContent + splitSource[line].slice(0, position.endColumn || position.startColumn);
+                sliceContent.push(splitSource[line].slice(0, position.endColumn || position.startColumn));
             } else {
-                sliceContent = " ".repeat(position.startColumn) + splitSource[line];
+                sliceContent.push(" ".repeat(position.startColumn) + splitSource[line]);
             }
         }
     }
-    return sliceContent;
+    return sliceContent.join("\n");
 }
 
 export function getStatementPosition(source: string, statement: string, targetPosition: NodePosition): NodePosition {
