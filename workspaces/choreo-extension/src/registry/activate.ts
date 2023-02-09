@@ -12,10 +12,13 @@
  */
 import * as vscode from 'vscode';
 import { choreoProjectRegistryRefreshCmdId } from '../constants';
+import { getLogger } from '../logger/logger';
 import { ProjectRegistry } from './project-registry';
 
 export function activateRegistry() {
+    getLogger().debug('Activating Choreo project registry');
     vscode.commands.registerCommand(choreoProjectRegistryRefreshCmdId, async () => {
+        getLogger().debug('Refreshing Choreo projects in registry');
         const projectRegistry = ProjectRegistry.getInstance();
         return projectRegistry.refreshProjects();
     });

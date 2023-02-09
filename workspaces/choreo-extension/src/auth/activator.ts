@@ -15,12 +15,14 @@ import { commands, window } from "vscode";
 import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./auth";
 import { ext } from '../extensionVariables';
 import { choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
+import { getLogger } from '../logger/logger';
 
 export async function activateAuth() {
     await initFromExistingChoreoSession();
 
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {
+            getLogger().debug("Signing in to Choreo");
             ext.api.status = "LoggingIn";
             const openSuccess = await openAuthURL();
             if (openSuccess) {
@@ -30,15 +32,18 @@ export async function activateAuth() {
                     cancellable: true
                 }, async (_progress, cancellationToken) => {
                     cancellationToken.onCancellationRequested(async () => {
+                        getLogger().warn("Signing in to Choreo cancelled");
                         await signOut();
                     });
                     await ext.api.waitForLogin();
                 });
             } else {
+                getLogger().error("Unable to open external link for authentication.");
                 await signOut();
                 window.showErrorMessage("Unable to open external link for authentication.");
             }
         } catch (error) {
+            getLogger().error("Error while signing in to Choreo", error);
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }
@@ -47,9 +52,11 @@ export async function activateAuth() {
 
     commands.registerCommand(choreoSignOutCmdId, async () => {
         try {
+            getLogger().debug("Signing out from Choreo");
             await signOut();
             window.showInformationMessage('Successfully signed out from Choreo!');
         } catch (error) {
+            getLogger().error("Error while signing out from Choreo", error);
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }
@@ -58,9 +65,11 @@ export async function activateAuth() {
 }
 
 async function initFromExistingChoreoSession() {
+    getLogger().debug("Initializing from existing Choreo session");
     const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
+        getLogger().debug("Found existing Choreo session");
         await signIn();
     } else {
         await signOut();

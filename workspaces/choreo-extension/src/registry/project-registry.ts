@@ -17,6 +17,7 @@ import { ext } from "../extensionVariables";
 import { existsSync } from 'fs';
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
+import { getLogger } from "../logger/logger";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
