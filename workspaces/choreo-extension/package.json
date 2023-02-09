@@ -175,6 +175,7 @@
     "@typescript-eslint/parser": "^5.42.0",
     "@vscode/test-electron": "^2.2.0",
     "@vscode/vsce": "^2.16.0",
+    "axios": "^1.2.2",
     "copyfiles": "^2.4.1",
     "del-cli": "^5.0.0",
     "eslint": "^8.26.0",
