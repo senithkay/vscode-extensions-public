@@ -16,15 +16,15 @@ import { CreateComponentParams, CreateProjectParams, GetComponentsParams, GetPro
 import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './project-queries';
 import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
-import { URL } from "url";
-import { HttpClient } from './httpClient';
+import { getHttpClient } from '../http-client';
+import { AxiosResponse } from 'axios';
 
 const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
     `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/4.0` :
     "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0";
+const API_CALL_ERROR = "API CALL ERROR";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
-    httpClient: HttpClient = new HttpClient();
 
     constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {
     }
@@ -91,31 +91,25 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async getPerformanceForecastData(data: any): Promise<JSON> {
+    async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
         const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
         if (!choreoToken) {
             throw new Error('User is not logged in');
         }
 
-        const url = new URL(CHOREO_API_PF);
-
-        const options = {
-            url: CHOREO_API_PF,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': data.length,
-                'Authorization': `Bearer ${choreoToken.accessToken}`
-            },
-            body: data
-        };
-
-        console.log(`Calling perf API - ${url.toString()} - ${new Date()}`);
-        const perfData = await this.httpClient.sendRequest(options);
-        if (!perfData) {
-            throw new Error();
+        console.log(`Calling perf API - ${new Date()}`);
+        try {
+            return await getHttpClient()
+                .post(CHOREO_API_PF, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        'Authorization': `Bearer ${choreoToken.accessToken}`
+                    }
+                });
+        } catch (err) {
+            throw new Error(API_CALL_ERROR, { cause: err });
         }
-        return perfData;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

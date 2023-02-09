@@ -29,6 +29,7 @@ import { getLogger } from './logger/logger';
 
 import * as path from "path";
 import { enrichDeploymentData } from "./utils";
+import { AxiosResponse } from 'axios';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -137,7 +138,7 @@ export class ChoreoExtensionApi {
         return Promise.resolve(undefined);
     }
 
-    public async getPerformanceForecastData(data: any): Promise<JSON> {
+    public async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
         return ProjectRegistry.getInstance().getPerformanceForecast(data);
     }
 

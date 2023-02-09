@@ -28,7 +28,7 @@ import { debug } from "../utils";
 import { DefaultWebviewPanel } from "./performanceGraphPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { PALETTE_COMMANDS } from "../project";
-import { CMP_PERF_ANALYZER, sendTelemetryEvent, TM_EVENT_OPEN_PERF_GRAPH } from "../telemetry";
+import { CMP_PERF_ANALYZER, sendTelemetryEvent, TM_EVENT_OPEN_PERF_GRAPH, TM_EVENT_PERF_REQUEST } from "../telemetry";
 import { getChoreoExtAPI } from "../choreo-features/activate";
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
@@ -38,7 +38,7 @@ const maxRetries = 5;
 let langClient: ExtendedLangClient;
 let extension: BallerinaExtension;
 let retryAttempts = 0;
-const cachedResponses = new Map<any, PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse>();
+const cachedResponses = new Map<string, PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse>();
 const perfContext: PerfContext = {
     resourceData: undefined,
     advancedData: undefined,
@@ -307,17 +307,47 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
         getChoreoExtAPI().then(async (extApi) => {
             if (extApi) {
                 try {
-                    const res = await extApi.getPerformanceForecastData(data) as any;
-                    if (!res) {
+                    const response = await extApi.getPerformanceForecastData(data);
+                    if (!response) {
                         return reject();
                     }
-                    if (res.message) {
-                        checkErrors(res);
+
+                    const status = response.status;
+                    if (status != 200) {
+                        debug(`Perf Error - ${status} Status code. Retry counted. ${new Date()}`);
+                        debug(response.data);
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            { 'is_successful': "false", 'error_code': `${response.status}` });
+                        handleRetries();
+                        reject();
+                    }
+
+                    const responseData = response.data;
+                    debug(`Perf Data received ${new Date()}`);
+                    debug(responseData);
+
+                    if (responseData.message) {
+                        debug(`Perf Error ${new Date()}`);
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            { 'is_successful': "false", 'error_code': `${responseData.message}` });
+                        checkErrors(responseData);
                         return reject();
+                    }
+
+                    cachedResponses.set(responseData, responseData);
+                    if (analyzeType === ANALYZETYPE.REALTIME) {
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            {
+                                'is_successful': "true", 'type': `${analyzeType}`,
+                                'is_low_data': `${((responseData as PerformanceAnalyzerRealtimeResponse).concurrency.max == 1)}`
+                            });
+
                     } else {
-                        cachedResponses.set(data, res);
-                        return resolve(res)
+                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                            { 'is_successful': "true", 'type': `${analyzeType}` });
+
                     }
+                    return resolve(responseData);
                 } catch {
                     return reject();
                 }
