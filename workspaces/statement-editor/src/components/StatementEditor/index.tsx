@@ -40,8 +40,9 @@ import {
     getSelectedModelPosition,
     getStatementIndex,
     getStatementPosition,
-    getStatementPositionNew,
-    getUpdatedSource, isBindingPattern, isDocumentationSupportedModel,
+    getUpdatedSource,
+    isBindingPattern,
+    isDocumentationSupportedModel,
     isModuleMember,
     isOperator,
 } from "../../utils";
@@ -288,9 +289,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const updateDraftFileContent = async (statement: string, fileContent: string) => {
         const updatedContent = getUpdatedSource(statement, fileContent, targetPosition, moduleList, skipStatementSemicolon);
         const stmtIndex = getStatementIndex(fileContent, statement, targetPosition);
-        const newTargetPosition = isExpressionMode
-            ? getStatementPositionNew(updatedContent, statement, stmtIndex)
-            : getStatementPosition(updatedContent, statement, targetPosition);
+        const newTargetPosition = getStatementPosition(updatedContent, statement, stmtIndex);
 
         await updateFileContent(updatedContent, true);
 

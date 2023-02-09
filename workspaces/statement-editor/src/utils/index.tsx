@@ -1167,22 +1167,6 @@ export function getContentFromSource(source: string, position: NodePosition) {
     return sliceContent.join("\n");
 }
 
-export function getStatementPosition(source: string, statement: string, targetPosition: NodePosition): NodePosition {
-    const newStartLine = getStatementLine(source, statement);
-    if (newStartLine !== targetPosition.startLine) {
-        const position = { ...targetPosition };
-        position.startLine = newStartLine;
-        if (targetPosition.endLine) {
-            position.endLine =
-                targetPosition.endLine === targetPosition.startLine
-                    ? newStartLine
-                    : targetPosition.endLine + (newStartLine - targetPosition.startLine);
-        }
-        return position;
-    }
-    return targetPosition;
-}
-
 export function getStatementLine(source: string, statement: string): number {
     const stmtFirstLine = statement.split('\n')[0];
     const sourceLines = source.split('\n');
@@ -1196,7 +1180,7 @@ export function getStatementLine(source: string, statement: string): number {
     return stmtNewFirstLine;
 }
 
-export function getStatementPositionNew(updatedContent: string, statement: string, stmtIndex: number): NodePosition {
+export function getStatementPosition(updatedContent: string, statement: string, stmtIndex: number): NodePosition {
     const sourceLines = updatedContent.split('\n');
     const statementLines = statement.split('\n');
     let lineIndex = 0;
