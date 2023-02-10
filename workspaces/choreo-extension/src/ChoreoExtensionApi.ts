@@ -29,6 +29,7 @@ import { getLogger } from './logger/logger';
 
 import * as path from "path";
 import { enrichDeploymentData } from "./utils";
+import { AxiosResponse } from 'axios';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -119,14 +120,14 @@ export class ChoreoExtensionApi {
         return false;
     }
 
-    public async getChoreoProject(): Promise<Project|undefined> {
+    public async getChoreoProject(): Promise<Project | undefined> {
         const workspaceFile = workspace.workspaceFile;
         if (workspaceFile) {
             const workspaceFilePath = workspaceFile.fsPath;
             const workspaceFileContent = readFileSync(workspaceFilePath, 'utf8');
             const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
             const projectID = workspaceConfig.metadata?.choreo?.projectID,
-                  orgId = workspaceConfig.metadata?.choreo?.orgId;
+                orgId = workspaceConfig.metadata?.choreo?.orgId;
             if (projectID && orgId) {
                 return ProjectRegistry.getInstance().getProject(projectID, orgId);
             }
@@ -135,6 +136,10 @@ export class ChoreoExtensionApi {
 
     public getProjectManager(projectId: string): Promise<IProjectManager | undefined> {
         return Promise.resolve(undefined);
+    }
+
+    public async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
+        return ProjectRegistry.getInstance().getPerformanceForecast(data);
     }
 
     public async enrichChoreoMetadata(model: Map<string, ComponentModel>):
@@ -149,7 +154,7 @@ export class ChoreoExtensionApi {
                 const projectComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
                     (this._selectedOrg as Organization).handle);
                 if (currentProjectLocation) {
-                    projectComponents.forEach(({name, apiVersions, accessibility}) => {
+                    projectComponents.forEach(({ name, apiVersions, accessibility }) => {
                         if (accessibility) {
                             model.forEach(localModel => {
                                 enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
