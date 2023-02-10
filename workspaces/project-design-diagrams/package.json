@@ -42,7 +42,8 @@
     "@projectstorm/react-diagrams-core": "^6.7.4",
     "@projectstorm/geometry": "^6.7.4",
     "lodash.debounce": "^4.0.8",
-    "file-loader": "^5.0.2"
+    "file-loader": "^5.0.2",
+    "@projectstorm/react-diagrams-defaults": "^6.7.4"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
