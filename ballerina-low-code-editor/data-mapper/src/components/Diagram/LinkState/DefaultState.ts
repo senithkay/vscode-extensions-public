@@ -15,6 +15,7 @@ import { DiagnosticTooltipID } from "../Diagnostic/DiagnosticTooltip/DiagnosticT
 import { MappingConstructorNode, RequiredParamNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from '../Node/FromClause';
+import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 import { CreateLinkState } from './CreateLinkState';
@@ -82,7 +83,8 @@ export class DefaultState extends State<DiagramEngine> {
 					if (element instanceof PortModel
 						|| element instanceof MappingConstructorNode
 						|| element instanceof RequiredParamNode
-						|| element instanceof FromClauseNode) this.transitionWithEvent(this.createLink, event);
+						|| element instanceof FromClauseNode
+						|| element instanceof LetExpressionNode) this.transitionWithEvent(this.createLink, event);
 				}
 			})
 		);
