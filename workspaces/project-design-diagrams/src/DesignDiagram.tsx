@@ -30,6 +30,10 @@ import { ControlsLayer, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 
+interface ContainerStyleProps {
+    backgroundColor?: string;
+}
+
 const Container = styled.div`
     align-items: center;
     position: relative;
@@ -39,6 +43,7 @@ const Container = styled.div`
     justify-content: center;
     min-height: 100vh;
     min-width: 100vw;
+    background: ${(props: ContainerStyleProps) => `${props.backgroundColor}`};
 `;
 
 interface DiagramProps {
@@ -60,6 +65,8 @@ export function DesignDiagram(props: DiagramProps) {
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
+
+    const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
 
     useEffect(() => {
         rpcInstance.isChoreoProject().then((response) => {
@@ -116,7 +123,7 @@ export function DesignDiagram(props: DiagramProps) {
 
     return (
         <DesignDiagramContext {...ctx}>
-            <Container>
+            <Container backgroundColor={diagramBGColor}>
                 {showEditForm &&
                     <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
                 {editingEnabled && projectComponents && projectComponents.size < 1 ?

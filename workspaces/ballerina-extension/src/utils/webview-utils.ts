@@ -121,7 +121,7 @@ export function getLibraryWebViewContent(options: WebViewOptions, webView: Webvi
                         100% { transform: rotate(360deg); }
                     }
                     html {
-                        overflow: scroll;
+                        overflow: hidden;
                     }
                     ${styles}
                 </style>

@@ -23,8 +23,9 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
+import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { DiagramContext } from '../../components/common/';
-import { AddComponentDetails, Colors } from '../../resources';
+import { Colors } from '../../resources';
 import { AdvancedSettingsWidget, CreateButton, TextInputWidget } from './components';
 import { OrganizationRegex, PackageNameRegex, VersionRegex } from './resources/constants';
 import { ControlsContainer, Header, PrimaryContainer, TitleText } from './resources/styles';
@@ -42,7 +43,7 @@ export function EditForm(props: EditFormProps) {
     const { visibility, defaultOrg, updateVisibility } = props;
     const { setNewComponentID } = useContext(DiagramContext);
 
-    const [component, editComponent] = useState<AddComponentDetails>(initBallerinaComponent);
+    const [component, editComponent] = useState<BallerinaComponentCreationParams>(initBallerinaComponent);
     const [generatingComponent, setGenerationStatus] = useState<boolean>(false);
     const [validatedComponentName, setValidatedComponentName] = useState<string>('');
 
