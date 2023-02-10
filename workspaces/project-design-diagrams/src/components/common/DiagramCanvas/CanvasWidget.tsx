@@ -142,6 +142,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const autoDistribute = () => {
         const hasGwNode = diagramEngine.getModel().getNodes().find(node => (node instanceof GatewayNodeModel));
         setTimeout(() => {
+            if (dagreEngine.options.graph.ranker !== layout) {
+                dagreEngine.options.graph.ranker = layout;
+            }
             if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES
                 || currentView === Views.CELL_VIEW) {
                 // Removing GW links on refresh
