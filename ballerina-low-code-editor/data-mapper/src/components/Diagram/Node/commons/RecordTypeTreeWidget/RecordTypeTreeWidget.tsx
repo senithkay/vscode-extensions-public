@@ -44,11 +44,15 @@ const useStyles = makeStyles((theme: Theme) =>
             float: "right",
             width: 'fit-content',
             marginLeft: "auto",
+            display: "flex",
+            alignItems: "center"
         },
         treeLabelInPort: {
             float: "left",
             // marginRight: "5px",
             width: 'fit-content',
+            display: "flex",
+            alignItems: "center"
         },
         label: {
             width: "300px",
@@ -135,27 +139,30 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
             </div>
 
             <TreeHeader>
-                <span className={classes.treeLabelInPort}>
-                    {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn} />
-                    }
-                </span>
-                <span className={classes.label}>
-                    <IconButton
-                        className={classes.expandIcon}
-                        onClick={handleExpand}
-                        data-testid={`${id}-expand-icon-record-source-node`}
-                    >
-                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                    </IconButton>
-                    {label}
-                    <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
-                </span>
-                <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} />
-                    }
-                </span>
+                <div id={"recordfield-" + id}>
+                    <span className={classes.treeLabelInPort}>
+                        {portIn &&
+                            <DataMapperPortWidget engine={engine} port={portIn} />
+                        }
+                    </span>
+                    <span className={classes.label}>
+                        <IconButton
+                            id={"button-wrapper-" + id}
+                            className={classes.expandIcon}
+                            onClick={handleExpand}
+                            data-testid={`${id}-expand-icon-record-source-node`}
+                        >
+                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                        </IconButton>
+                        {label}
+                        <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
+                    </span>
+                    <span className={classes.treeLabelOutPort}>
+                        {portOut &&
+                            <DataMapperPortWidget engine={engine} port={portOut} />
+                        }
+                    </span>
+                </div>
             </TreeHeader>
             <TreeBody>
                 {expanded &&

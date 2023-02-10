@@ -67,11 +67,15 @@ const useStyles = makeStyles((theme: Theme) =>
 			float: "right",
 			width: 'fit-content',
 			marginLeft: "auto",
+			display: "flex",
+			alignItems: "center"
 		},
 		treeLabelInPort: {
 			float: "left",
 			marginRight: "5px",
 			width: 'fit-content',
+			display: "flex",
+			alignItems: "center"
 		},
 		label: {
 			width: "300px",
@@ -163,26 +167,29 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader>
-				<span className={classes.treeLabelInPort}>
-					{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
-                            || !expanded
-                            || !isBodyMappingConstructor
-                            || hasEmptyFields
-                        ) &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
-					}
-				</span>
-				<span className={classes.label}>
-					<IconButton
-						className={classes.expandIcon}
-						style={{ marginLeft: indentation }}
-						onClick={handleExpand}
-						data-testid={`${id}-expand-icon-mapping-target-node`}
-					>
-						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-					</IconButton>
-					{label}
-				</span>
+				<div id={"recordfield-" + id}>
+					<span className={classes.treeLabelInPort}>
+						{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
+								|| !expanded
+								|| !isBodyMappingConstructor
+								|| hasEmptyFields
+							) &&
+							<DataMapperPortWidget engine={engine} port={portIn}/>
+						}
+					</span>
+					<span className={classes.label}>
+						<IconButton
+							id={"button-wrapper-" + id}
+							className={classes.expandIcon}
+							style={{ marginLeft: indentation }}
+							onClick={handleExpand}
+							data-testid={`${id}-expand-icon-mapping-target-node`}
+						>
+							{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+						</IconButton>
+						{label}
+					</span>
+				</div>
 			</TreeHeader>
 			<TreeBody>
 				{expanded && editableRecordFields &&

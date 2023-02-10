@@ -24,10 +24,24 @@ export const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#FFFFFF",
             display: "flex",
             minHeight: "24px",
-            width: "100%"
+            width: "100%",
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            }
+        },
+        treeLabelPortSelected: {
+            backgroundColor: '#F0F1FB',
+        },
+        treeLabelDisableHover: {
+            '&:hover': {
+                backgroundColor: '#FFFFFF',
+            }
         },
         treeLabelDisabled: {
             backgroundColor: "#F7F8FB",
+            '&:hover': {
+                backgroundColor: '#F7F8FB',
+            }
         },
         treeLabelArray: {
             flexDirection: "column"
@@ -54,11 +68,15 @@ export const useStyles = makeStyles((theme: Theme) =>
             float: "right",
             width: 'fit-content',
             marginLeft: "auto",
+            display: "flex",
+            alignItems: "center"
         },
         treeLabelInPort: {
             float: "left",
             marginRight: "5px",
             width: 'fit-content',
+            display: "flex",
+            alignItems: "center"
         },
         typeLabel: {
             marginLeft: "3px",
@@ -68,7 +86,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontFamily: "GilmerRegular",
             fontSize: "13px",
             minWidth: "100px",
-            backgroundColor: "#FFFFFF",
             marginRight: "24px",
             fontWeight: 400
         },
@@ -115,7 +132,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: "#222228",
             fontFamily: "GilmerMedium",
             fontSize: "13px",
-            backgroundColor: "#FFFFFF",
         },
         valueLabelDisabled: {
             backgroundColor: "#F7F8FB",

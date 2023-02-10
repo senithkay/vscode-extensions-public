@@ -15,10 +15,11 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getDefaultValue, getExprBodyFromLetExpression, getFieldLabel, getFieldName } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
@@ -64,6 +65,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     const value = body && body.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);
+    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
     useEffect(() => {
         if (editable) {
@@ -113,13 +115,21 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
         return items;
     }, [value]);
 
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
+
     return (
         <>
             {value && (
-                <div className={classes.treeLabel}>
+                <div
+                    id={"recordfield-" + fieldId}
+                    className={classnames(classes.treeLabel,
+                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "")}
+                >
                     <span className={classes.treeLabelInPort}>
                         {portIn &&
-                            <DataMapperPortWidget engine={engine} port={portIn}/>
+                            <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
                         }
                     </span>
                     <span>{label}</span>
