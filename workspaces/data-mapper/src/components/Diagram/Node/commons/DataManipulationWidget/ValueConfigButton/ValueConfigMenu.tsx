@@ -73,6 +73,7 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
     return (
         <>
             <IconButton
+                id="button-wrapper"
                 aria-label="valueConfig"
                 className={classes.tripleDotsIcon}
                 onClick={(e) => handleClick(e)}

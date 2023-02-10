@@ -26,7 +26,7 @@ import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
     getFieldName,
@@ -89,6 +89,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
     let indentation = treeDepth * 16;
+    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
     useEffect(() => {
         if (fieldToBeEdited === fieldId) {
@@ -143,6 +144,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const handleExpand = () => {
         handleCollapse(fieldId, !expanded);
+    };
+
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
     };
 
     let isDisabled = portIn.descendantHasValue || (value && !connectedViaLink);
@@ -240,17 +245,26 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         <>
             {!isArray && (
                 <div
+                    id={"recordfield-" + fieldId}
                     className={classnames(classes.treeLabel,
-                        (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}
+                    (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "",
+                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+                    (isDisabled && !portIn.ancestorHasValue) ? classes.treeLabelDisableHover : "")}
                 >
                     <span className={classes.treeLabelInPort}>
-                        {portIn &&
-                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
-                        }
+                        {portIn && (
+                            <DataMapperPortWidget
+                                engine={engine}
+                                port={portIn}
+                                disable={isDisabled && expanded}
+                                handlePortState={handlePortState}
+                            />
+                        )}
                     </span>
                     <span className={classes.label}>
                         {fields && (
                             <IconButton
+                                id={"button-wrapper-" + fieldId}
                                 className={classes.expandIcon}
                                 style={{ marginLeft: indentation }}
                                 onClick={handleExpand}

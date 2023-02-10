@@ -12,7 +12,9 @@ import { DiagramEngine, DragDiagramItemsState, PortModel } from '@projectstorm/r
 
 import { DMCanvasContainerID } from "../Canvas/DataMapperCanvasWidget";
 import { DiagnosticTooltipID } from "../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
+import { MappingConstructorNode, RequiredParamNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { FromClauseNode } from '../Node/FromClause';
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 import { CreateLinkState } from './CreateLinkState';
@@ -77,7 +79,10 @@ export class DefaultState extends State<DiagramEngine> {
 				fire: (event: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(event);
 
-					if (element instanceof PortModel) this.transitionWithEvent(this.createLink, event);
+					if (element instanceof PortModel
+						|| element instanceof MappingConstructorNode
+						|| element instanceof RequiredParamNode
+						|| element instanceof FromClauseNode) this.transitionWithEvent(this.createLink, event);
 				}
 			})
 		);

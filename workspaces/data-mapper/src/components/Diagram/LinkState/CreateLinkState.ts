@@ -4,6 +4,8 @@ import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canva
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
+import { MappingConstructorNode, RequiredParamNode } from '../Node';
+import { FromClauseNode } from '../Node/FromClause';
 import { LinkConnectorNode } from '../Node/LinkConnector';
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
@@ -22,7 +24,32 @@ export class CreateLinkState extends State<DiagramEngine> {
 			new Action({
 				type: InputType.MOUSE_UP,
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
-					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+
+					if (!(element instanceof PortModel)
+						&& !(event.target as Element).closest('button[id^="button-wrapper"]')) {
+						if (element instanceof MappingConstructorNode) {
+							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
+							if (recordFieldElement) {
+								const fieldId = (recordFieldElement.id.split("-"))[1] + ".IN";
+								const portModel = element.getPort(fieldId) as RecordFieldPortModel
+								if (portModel) {
+									element = portModel;
+								}
+							}
+						}
+
+						if (element instanceof RequiredParamNode || element instanceof  FromClauseNode) {
+							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
+							if (recordFieldElement) {
+								const fieldId = (recordFieldElement.id.split("-"))[1] + ".OUT";
+								const portModel = element.getPort(fieldId) as RecordFieldPortModel
+								if (portModel) {
+									element = portModel;
+								}
+							}
+						}
+					}
 
 					if (element instanceof PortModel && !this.sourcePort) {
 						if (element instanceof RecordFieldPortModel) {

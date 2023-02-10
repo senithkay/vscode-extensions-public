@@ -30,7 +30,7 @@ import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
     getDefaultValue,
@@ -92,6 +92,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);
     const typeName = getTypeName(field.type);
     const elements = field.elements;
+    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
@@ -123,6 +124,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             isDisabled = true;
         }
     }
+
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
 
     const label = (
         <span style={{ marginRight: "auto" }}>
@@ -268,18 +273,27 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     return (
         <div
             className={classnames(classes.treeLabel, classes.treeLabelArray,
-                (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}
+            (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "",
+            (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+            (isDisabled && !portIn.ancestorHasValue) ? classes.treeLabelDisableHover : "")}
         >
             {!isReturnTypeDesc && (
-                <div className={classes.ArrayFieldRow}>
+                <div id={"recordfield-"+fieldId} className={classes.ArrayFieldRow}>
                 <span className={classes.treeLabelInPort}>
-                    {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} dataTestId={`array-type-editable-record-field-${portIn.getName()}`}/>
-                    }
+                    {portIn && (
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portIn}
+                            disable={isDisabled && expanded}
+                            handlePortState={handlePortState}
+                            dataTestId={`array-type-editable-record-field-${portIn.getName()}`}
+                        />
+                    )}
                 </span>
                 <span className={classes.label}>
                     {(hasValue && !connectedViaLink) && (
                         <IconButton
+                            id={"button-wrapper-" + fieldId}
                             className={classes.expandIcon}
                             style={{ marginLeft: indentation }}
                             onClick={handleExpand}
