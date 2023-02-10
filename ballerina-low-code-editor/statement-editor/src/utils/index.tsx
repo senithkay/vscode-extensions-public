@@ -1183,6 +1183,7 @@ export function getStatementLine(source: string, statement: string): number {
 export function getStatementPosition(updatedContent: string, statement: string, stmtIndex: number): NodePosition {
     const sourceLines = updatedContent.split('\n');
     const statementLines = statement.split('\n');
+    const isNewStatement = stmtIndex === -1;
     let lineIndex = 0;
     let noOfMatches = -1;
     let position: NodePosition = {
@@ -1201,12 +1202,12 @@ export function getStatementPosition(updatedContent: string, statement: string, 
             if (matched) {
                 if (lineIndex === 0) {
                     noOfMatches++;
-                    if (noOfMatches === stmtIndex) {
+                    if (noOfMatches === stmtIndex || isNewStatement) {
                         position.startLine = index;
                         position.startColumn = sourceLine.indexOf(statementLines[lineIndex]);
                     }
                 }
-                if (lineIndex === statementLines.length - 1 && noOfMatches === stmtIndex) {
+                if (lineIndex === statementLines.length - 1 && (noOfMatches === stmtIndex || isNewStatement)) {
                     position.endLine = index;
                     position.endColumn = sourceLine.indexOf(statementLines[lineIndex]) + statementLines[lineIndex].length;
                 }
