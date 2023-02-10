@@ -23,7 +23,7 @@
 // Ballerina tools distribution will be copied to following location by maven
 import { readdirSync, realpathSync } from 'fs';
 import { join, sep } from 'path';
-import { killPortProcess } from 'kill-port-process';
+const kill = require("kill-port");
 
 const TEST_RESOURCES = join(__dirname, '..', '..', 'extractedDistribution').toString();
 const PLATFORM_PREFIX = /jballerina-tools-/;
@@ -70,7 +70,7 @@ export function delay(ms: number) {
 export function killPort(port: number) {
     if (!isWindows()) {
         (async () => {
-            await killPortProcess(port);
+            await kill(port);
         })();
     }
 }
