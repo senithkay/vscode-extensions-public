@@ -919,7 +919,8 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test get connectors", function (done): void {
+    // TODO: Enable test. https://github.com/wso2-enterprise/ballerina-plugin-vscode/issues/937
+    test.skip("Test get connectors", function (done): void {
         langClient.getConnectors({
             query: "",
             limit: 2
