@@ -1,6 +1,5 @@
 const path = require("path");
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 module.exports = {
   entry: "./src/components/index.tsx",
   target: "web",
@@ -53,9 +52,6 @@ module.exports = {
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
-    }),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "src", "components", "index.html"),
     }),
   ],
 };
