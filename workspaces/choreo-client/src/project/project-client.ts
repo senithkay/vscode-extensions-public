@@ -23,7 +23,7 @@ const API_CALL_ERROR = "API CALL ERROR";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI: string) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI: string, private _swaggerExamplesAPI: string) {
     }
 
     private async _getClient() {
@@ -118,7 +118,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         console.log(`Calling swagger sample generator API - ${new Date()}`);
         try {
             return await getHttpClient()
-                .post(CHOREO_API_TEST_DATA_GEN, data, {
+                .post(this._swaggerExamplesAPI, data, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Content-Length': data.length,

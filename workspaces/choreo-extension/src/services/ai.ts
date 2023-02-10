@@ -13,12 +13,16 @@
 
 export interface ChoreoAIAPIS {
     perfAPI: string;
+    swaggerExamplesAPI: string;
 }
 
 export const DEFAULT_CHOREO_AI_APIS: ChoreoAIAPIS = {
     perfAPI: process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
         `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/4.0` :
-        "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0"
+        "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0",
+    swaggerExamplesAPI: process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
+        `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/ai-test-assistant/1.0.0/generate-data` :
+        "https://apis.choreo.dev/ai-test-assistant/1.0.0/generate-data"
 };
 
 export class ChoreoAIConfig {
@@ -26,5 +30,9 @@ export class ChoreoAIConfig {
 
     public getPerfAPI(): string {
         return this._config.perfAPI;
+    }
+
+    public getSwaggerExamplesAPI(): string {
+        return this._config.swaggerExamplesAPI
     }
 }
