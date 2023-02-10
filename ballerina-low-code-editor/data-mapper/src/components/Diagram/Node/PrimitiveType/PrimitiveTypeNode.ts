@@ -109,10 +109,9 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             } else {
                 [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             }
-            const lm = new DataMapperLinkModel(value,
-                                               filterDiagnostics(this.context.diagnostics,
-                                                   (otherVal.position || value.position) as NodePosition),
-                                    true);
+            const diagnostics = filterDiagnostics(
+                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
+            const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
