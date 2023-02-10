@@ -458,7 +458,7 @@ export function getTargetBlock(targetPosition: NodePosition, blockNode: STNode):
         const blockStatements = blockNode.statements as STNode[];
         if (!blockStatements || blockStatements.length === 0) {
             // Empty block
-            return blockNode;
+            return blockNode as BlockStatement;
         }
 
         const targetBlock = blockStatements?.find(
