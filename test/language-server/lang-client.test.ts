@@ -920,19 +920,19 @@ suite("Language Server Tests", function () {
     });
 
     // TODO: Enable test. https://github.com/wso2-enterprise/ballerina-plugin-vscode/issues/937
-    test.skip("Test get connectors", function (done): void {
-        langClient.getConnectors({
-            query: "",
-            limit: 2
-        }).then(async (res) => {
-            const response = res as BallerinaConnectorsResponse;
-            expect(response).not.contains.keys("error");
-            assert.strictEqual(response.central.length, 2, "Invalid triggers");
-            done();
-        }, error => {
-            done(error);
-        });
-    });
+    // test("Test get connectors", function (done): void {
+    //     langClient.getConnectors({
+    //         query: "",
+    //         limit: 2
+    //     }).then(async (res) => {
+    //         const response = res as BallerinaConnectorsResponse;
+    //         expect(response).not.contains.keys("error");
+    //         assert.strictEqual(response.central.length, 2, "Invalid triggers");
+    //         done();
+    //     }, error => {
+    //         done(error);
+    //     });
+    // });
 
     test("Test get connector", function (done): void {
         langClient.getConnector({
