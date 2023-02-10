@@ -23,7 +23,7 @@ const ACTION_RENAME_COMMAND = "ballerina.action.rename";
 const ACTION_POSITIONAL_RENAME_COMMAND = "ballerina.action.positional.rename";
 
 function activateRenameCommand() {
-    // Register ballerina rename command that use text position to rename
+    // Register ballerina rename command that uses text position to rename
     commands.registerCommand(ACTION_RENAME_COMMAND, async (url:string, pos:number) => {
         try {
             const uri: Uri = Uri.parse(url);
@@ -42,7 +42,7 @@ function activateRenameCommand() {
         }
     });
 
-    // Register ballerina rename command that use line/character based position to rename
+    // Register ballerina rename command that uses line/character based position to rename
     commands.registerCommand(ACTION_POSITIONAL_RENAME_COMMAND, async (url:string, renamePosition:Position) => {
         try {
             const uri: Uri = Uri.parse(url);
