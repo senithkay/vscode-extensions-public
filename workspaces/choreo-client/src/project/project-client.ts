@@ -19,18 +19,11 @@ import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
 import { AxiosResponse } from 'axios';
 
-const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
-    `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/4.0` :
-    "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0";
 const API_CALL_ERROR = "API CALL ERROR";
-
-const CHOREO_API_TEST_DATA_GEN = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
-    `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/ai-test-assistant/1.0.0/generate-data` :
-    "https://apis.choreo.dev/ai-test-assistant/1.0.0/generate-data";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI: string) {
     }
 
     private async _getClient() {
@@ -104,7 +97,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         console.log(`Calling perf API - ${new Date()}`);
         try {
             return await getHttpClient()
-                .post(CHOREO_API_PF, data, {
+                .post(this._perfAPI, data, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Content-Length': data.length,
