@@ -1,0 +1,30 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * 
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
+ */
+
+export interface ChoreoAIAPIS {
+    perfAPI: string;
+}
+
+export const DEFAULT_CHOREO_AI_APIS: ChoreoAIAPIS = {
+    perfAPI: process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
+        `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/4.0` :
+        "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0"
+};
+
+export class ChoreoAIConfig {
+    constructor(private _config: ChoreoAIAPIS = DEFAULT_CHOREO_AI_APIS) { }
+
+    public getPerfAPI(): string {
+        return this._config.perfAPI;
+    }
+}
