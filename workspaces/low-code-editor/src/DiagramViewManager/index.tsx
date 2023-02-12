@@ -27,7 +27,7 @@ import {
     getLowcodeST,
     getSyntaxTree
 } from "../DiagramGenerator/generatorUtil";
-import { EditorProps } from "../DiagramGenerator/vscode/Diagram";
+import { EditorProps, FileListEntry, Uri, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
@@ -74,117 +74,158 @@ export function DiagramViewManager(props: EditorProps) {
         getFileContent,
         getEnv,
         getBallerinaVersion,
-        workspaceName
+        workspaceName,
+        getAllFiles
     } = props;
     const classes = useGeneratorStyles();
+
     const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
+    const [currentFileContent, setCurrentFileContent] = useState<string>();
+    const [history, historyPush, historyPop, historyClear] = useComponentHistory();
+    // const [folderName, setFolderName] = vte<string>();
+    // const [filterMap, setFilterMap] = useState({});
+    const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
+    const [fileList, setFileList] = useState<FileListEntry[]>();
+    const [focusFile, setFocusFile] = useState<FileListEntry>();
+    const [focusUid, setFocusUid] = useState<string>();
     const [focusedST, setFocusedST] = useState<STNode>();
-    const [completeST, setCompleteST] = useState<STNode>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
-    const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [history, historyPush, historyPop, historyClear] = useComponentHistory();
-    const [folderName, setFolderName] = useState<string>();
-    const [filterMap, setFilterMap] = useState({});
-
-    React.useEffect(() => {
-        (async () => {
-            const version: string = await getBallerinaVersion();
-            setBalVersion(version);
-            // const isCodeServerInstance: string = await getEnv("CODE_SERVER_ENV");
-            // setCodeServer(isCodeServerInstance === "true");
-            // const sentryConfig: SentryConfig = await getSentryConfig();
-            // if (sentryConfig) {
-            //     init(sentryConfig);
-            // }
-        })();
-    }, []);
+    const [completeST, setCompleteST] = useState<STNode>();
 
     useEffect(() => {
-        if (history.length > 0) {
-            const {
-                filePath, uid
-            } = history[history.length - 1];
-            // diagramFocusSend({
-            //     type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
-            //         filePath,
-            //         position
-            //     }
-            // })
-            let dirName;
-
-            projectPaths.forEach(project => {
-                if (projectPaths.length > 1 && filePath.includes(project.uri.fsPath)) {
-                    dirName = project.name;
-                }
-            })
-
-            setFolderName(dirName);
-            setDiagramFocuState({
-                filePath,
-                uid
-            });
-
-        } else {
-            // diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
-            setDiagramFocuState(undefined);
-            setFolderName(undefined);
-        }
-    }, [history[history.length - 1]]);
-
-    useEffect(() => {
-        projectPaths.forEach(path => {
-            if (!filterMap[path.name]) {
-                filterMap[path.name] = true;
-            }
-        })
-        setFilterMap(filterMap);
-    }, [projectPaths]);
-
-    const fetchST = () => {
-        if (history.length > 0) {
-            const componentDetails = history[history.length - 1];
-            const { filePath, uid } = componentDetails;
+        if (currentProject) {
             (async () => {
-                try {
-                    const langClient = await langClientPromise;
-                    const generatedST = await getSyntaxTree(filePath, langClient);
-                    const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
-                    const content = await getFileContent(filePath);
-                    const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
-                    const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
+                const response = await getAllFiles('**/*.bal');
+                const fileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
+                const projectFiles: FileListEntry[] = fileList.map(fileUri => ({
+                    fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
+                    uri: fileUri
+                }));
 
-                    const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
-                    traversNode(visitedST, nodeFindingVisitor);
-
-                    setFocusedST(nodeFindingVisitor.getNode());
-                    setCompleteST(visitedST);
-                    setCurrentFileContent(content);
-                    setLowCodeResourcesVersion(resourceVersion);
-                    setLowCodeEnvInstance(envInstance);
-                } catch (err) {
-                    // tslint:disable-next-line: no-console
-                    console.error(err);
+                if (!focusFile && diagramFocus) {
+                    const currentlySelectedFile = projectFiles.find(projectFile => projectFile.uri.path.includes(diagramFocus.filePath));
+                    setFocusFile(currentlySelectedFile);
                 }
+                setFileList(projectFiles);
             })();
         }
-    }
-    useEffect(() => {
-        fetchST();
-    }, [lastUpdatedAt]);
-
+    }, [currentProject]);
 
     useEffect(() => {
-        fetchST();
-    }, [diagramFocusState]);
-
-    useEffect(() => {
-        // diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
         if (diagramFocus) {
-            updateSelectedComponent({ filePath: diagramFocus.filePath, position: diagramFocus.position })
-       }
-    }, [diagramFocus])
+            const { filePath } = diagramFocus;
+            const projectPath = projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
+            setCurrentProject(projectPath);
+        }
+    }, [diagramFocus]);
+
+    useEffect(() => {
+        if (focusFile) {
+            // TODO: handle showing components in a single file
+        } else {
+            // TODO: handle showing all components in all files
+        }
+    }, [focusFile]);
+
+    // React.useEffect(() => {
+    //     (async () => {
+    //         const version: string = await getBallerinaVersion();
+    //         setBalVersion(version);
+    //         // const isCodeServerInstance: string = await getEnv("CODE_SERVER_ENV");
+    //         // setCodeServer(isCodeServerInstance === "true");
+    //         // const sentryConfig: SentryConfig = await getSentryConfig();
+    //         // if (sentryConfig) {
+    //         //     init(sentryConfig);
+    //         // }
+    //     })();
+    // }, []);
+    //
+    // useEffect(() => {
+    //     if (history.length > 0) {
+    //         const {
+    //             filePath, uid
+    //         } = history[history.length - 1];
+    //         // diagramFocusSend({
+    //         //     type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
+    //         //         filePath,
+    //         //         position
+    //         //     }
+    //         // })
+    //         let dirName;
+    //
+    //         projectPaths.forEach(project => {
+    //             if (projectPaths.length > 1 && filePath.includes(project.uri.fsPath)) {
+    //                 dirName = project.name;
+    //             }
+    //         })
+    //
+    //         setFolderName(dirName);
+    //         setDiagramFocuState({
+    //             filePath,
+    //             uid
+    //         });
+    //
+    //     } else {
+    //         // diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
+    //         setDiagramFocuState(undefined);
+    //         setFolderName(undefined);
+    //     }
+    // }, [history[history.length - 1]]);
+    //
+    // useEffect(() => {
+    //     projectPaths.forEach(path => {
+    //         if (!filterMap[path.name]) {
+    //             filterMap[path.name] = true;
+    //         }
+    //     })
+    //     setFilterMap(filterMap);
+    // }, [projectPaths]);
+    //
+    // const fetchST = () => {
+    //     if (history.length > 0) {
+    //         const componentDetails = history[history.length - 1];
+    //         const { filePath, uid } = componentDetails;
+    //         (async () => {
+    //             try {
+    //                 const langClient = await langClientPromise;
+    //                 const generatedST = await getSyntaxTree(filePath, langClient);
+    //                 const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
+    //                 const content = await getFileContent(filePath);
+    //                 const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
+    //                 const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
+    //
+    //                 const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
+    //                 traversNode(visitedST, nodeFindingVisitor);
+    //
+    //                 setFocusedST(nodeFindingVisitor.getNode());
+    //                 setCompleteST(visitedST);
+    //                 setCurrentFileContent(content);
+    //                 setLowCodeResourcesVersion(resourceVersion);
+    //                 setLowCodeEnvInstance(envInstance);
+    //             } catch (err) {
+    //                 // tslint:disable-next-line: no-console
+    //                 console.error(err);
+    //             }
+    //         })();
+    //     }
+    // }
+    // useEffect(() => {
+    //     fetchST();
+    // }, [lastUpdatedAt]);
+    //
+    //
+    // useEffect(() => {
+    //     fetchST();
+    // }, [diagramFocusState]);
+    //
+    // useEffect(() => {
+    //     // diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
+    //     if (diagramFocus) {
+    //         updateSelectedComponent({ filePath: diagramFocus.filePath, position: diagramFocus.position })
+    //     }
+    // }, [diagramFocus])
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         const { filePath, position } = componentDetails;
@@ -217,63 +258,63 @@ export function DiagramViewManager(props: EditorProps) {
             }
         })();
     }
-
-    const handleNavigationHome = () => {
-        historyClear();
-    }
-
-    const viewComponent: React.ReactElement[] = [];
-
-    if (!diagramFocusState) {
-        viewComponent.push((
-            <OverviewDiagram
-                lastUpdatedAt={lastUpdatedAt}
-                projectPaths={projectPaths}
-                notifyComponentSelection={updateSelectedComponent}
-                filterMap={filterMap}
-                updateFilterMap={setFilterMap}
-            />
-        ));
-    } else if (!!diagramFocusState && !!focusedST) {
-        if (STKindChecker.isServiceDeclaration(focusedST)) {
-            if (focusedST.expressions.length > 0) {
-                const listenerExpression = focusedST.expressions[0];
-                const typeData = listenerExpression.typeData;
-                const typeSymbol = typeData?.typeSymbol;
-                const signature = typeSymbol?.signature;
-                if (signature && signature.includes('http')) {
-                    viewComponent.push((
-                        <ServiceDesignOverlay
-                            model={focusedST}
-                            targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                            onCancel={handleNavigationHome}
-                        />
-                    ));
-                } else if (signature && signature.includes('graphql')) {
-                    viewComponent.push(
-                        <GraphqlDiagramOverlay
-                            model={focusedST}
-                            targetPosition={focusedST.position}
-                            ballerinaVersion={balVersion}
-                            onCancel={handleNavigationHome}
-                        />
-                    );
-                }
-            }
-        } else if (STKindChecker.isFunctionDefinition(focusedST)
-            && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
-            viewComponent.push((
-                <DataMapperOverlay
-                    targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                    model={focusedST}
-                    ballerinaVersion={balVersion}
-                    onCancel={handleNavigationHome}
-                />
-            ))
-        } else {
-            viewComponent.push(<Diagram />);
-        }
-    }
+    //
+    // const handleNavigationHome = () => {
+    //     historyClear();
+    // }
+    //
+    // const viewComponent: React.ReactElement[] = [];
+    //
+    // if (!diagramFocusState) {
+    //     viewComponent.push((
+    //         <OverviewDiagram
+    //             lastUpdatedAt={lastUpdatedAt}
+    //             projectPaths={projectPaths}
+    //             notifyComponentSelection={updateSelectedComponent}
+    //             filterMap={filterMap}
+    //             updateFilterMap={setFilterMap}
+    //         />
+    //     ));
+    // } else if (!!diagramFocusState && !!focusedST) {
+    //     if (STKindChecker.isServiceDeclaration(focusedST)) {
+    //         if (focusedST.expressions.length > 0) {
+    //             const listenerExpression = focusedST.expressions[0];
+    //             const typeData = listenerExpression.typeData;
+    //             const typeSymbol = typeData?.typeSymbol;
+    //             const signature = typeSymbol?.signature;
+    //             if (signature && signature.includes('http')) {
+    //                 viewComponent.push((
+    //                     <ServiceDesignOverlay
+    //                         model={focusedST}
+    //                         targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+    //                         onCancel={handleNavigationHome}
+    //                     />
+    //                 ));
+    //             } else if (signature && signature.includes('graphql')) {
+    //                 viewComponent.push(
+    //                     <GraphqlDiagramOverlay
+    //                         model={focusedST}
+    //                         targetPosition={focusedST.position}
+    //                         ballerinaVersion={balVersion}
+    //                         onCancel={handleNavigationHome}
+    //                     />
+    //                 );
+    //             }
+    //         }
+    //     } else if (STKindChecker.isFunctionDefinition(focusedST)
+    //         && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
+    //         viewComponent.push((
+    //             <DataMapperOverlay
+    //                 targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+    //                 model={focusedST}
+    //                 ballerinaVersion={balVersion}
+    //                 onCancel={handleNavigationHome}
+    //             />
+    //         ))
+    //     } else {
+    //         viewComponent.push(<Diagram />);
+    //     }
+    // }
     const navigateUptoParent = (position: NodePosition) => {
         if (!position) {
             return;
@@ -284,15 +325,15 @@ export function DiagramViewManager(props: EditorProps) {
         currentHistoryEntry.position = position;
         updateSelectedComponent(currentHistoryEntry);
     }
-
-    const handleFolderClick = () => {
-        Object.keys(filterMap).forEach((key) => {
-            filterMap[key] = key === folderName;
-        })
-
-        setFilterMap(filterMap);
-        historyClear();
-    }
+    //
+    // const handleFolderClick = () => {
+    //     Object.keys(filterMap).forEach((key) => {
+    //         filterMap[key] = key === folderName;
+    //     })
+    //
+    //     setFilterMap(filterMap);
+    //     historyClear();
+    // }
 
     return (
         <div>
@@ -302,26 +343,21 @@ export function DiagramViewManager(props: EditorProps) {
                         <ViewManagerProvider
                             {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateSelectedComponent, navigateUptoParent)}
                         >
-                            <HistoryProvider
-                                history={history}
-                                historyPush={historyPush}
-                                historyPop={historyPop}
-                                historyReset={historyClear}
-                            >
-                                <NavigationBar
-                                    projectName={workspaceName}
-                                    folderName={folderName}
-                                    isWorkspace={projectPaths.length > 1}
-                                    onFolderClick={handleFolderClick}
-                                />
-                                <div id={'canvas-overlay'} className={"overlayContainer"} />
-                                {viewComponent}
-                            </HistoryProvider>
+                            <NavigationBar
+                                projectList={projectPaths}
+                                fileList={fileList}
+                                currentProject={currentProject}
+                                currentFile={focusFile}
+                                updateCurrentFile={setFocusFile}
+                                updateCurrentProject={setCurrentProject}
+                            />
+                            <div id={'canvas-overlay'} className={"overlayContainer"} />
                         </ViewManagerProvider>
                     </IntlProvider>
                 </div>
             </MuiThemeProvider>
         </div>
     )
+    // {viewComponent}
 }
 

@@ -9,14 +9,23 @@ import { PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeRespons
 
 import './style.scss';
 
+export interface Uri {
+    fsPath: string
+    external: string
+    path: string;
+    sheme: string;
+}
+
 // TODO: check if there is a way to take this from the vscode dependency
 export interface WorkspaceFolder {
-    readonly uri: {
-        external: string
-        fsPath: string
-    };
+    readonly uri: Uri;
     readonly name: string;
     readonly index: number;
+}
+
+export interface FileListEntry {
+    fileName: string;
+    uri: Uri;
 }
 
 export interface DiagramFocus {
@@ -48,6 +57,7 @@ export interface EditorAPI {
     updateFileContent: (filePath: string, content: string, skipForceSave?: boolean) => Promise<boolean>;
     gotoSource: (filePath: string, position: { startLine: number, startColumn: number }) => Promise<boolean>;
     showPerformanceGraph: () => Promise<boolean>;
+    getAllFiles?: (regex?: string, ignoreGlob?: string) => Promise<Uri[]>; // TODO: make this not optional, added to get rid of test failures
     // TODO: move to a seperate interface
     getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) => Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>;
     showMessage: () => Promise<boolean>;
@@ -84,9 +94,9 @@ export const WorkspaceOverview: React.FC<EditorProps> = (props: EditorProps) => 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, showPerformanceGraph, getPerfDataFromChoreo,
-            sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
-            showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
+        sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
+        showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
+        runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {

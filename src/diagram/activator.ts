@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
-	TextDocumentShowOptions, ProgressLocation, ExtensionContext
+	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern
 } from 'vscode';
 import { render } from './renderer';
 import {
@@ -202,10 +202,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path) => {
 		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
-			console.log('test1 >>>');
 			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position);
 		} else {
-			console.log('test2 >>>');
 			const args = [{
 				filePath: path,
 				startLine: 0,
@@ -569,6 +567,13 @@ class DiagramPanel {
 				handler: async (args: any[]): Promise<any> => {
 					const envName = args[0];
 					return (envName in process.env) ? process.env[envName] : "NOT_FOUND";
+				}
+			},
+			{
+				methodName: "getAllFilesInProject",
+				handler: async (args: any[]): Promise<Uri[]> => {
+					// TODO: handle ignore glob pattern as well, and change the frontend filter
+					return workspace.findFiles(args[0]);
 				}
 			},
 		];

@@ -8,6 +8,9 @@ const useStyles = makeStyles(() =>
         },
         selectorComponent: {
             // margin: "0 10px",
+            "& .MuiSelect-root": {
+                minWidth: "100px"
+            },
             "& .MuiOutlinedInput-input": {
                 padding: "5px 5px"
             }

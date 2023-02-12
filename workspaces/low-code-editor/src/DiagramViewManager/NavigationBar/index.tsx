@@ -19,17 +19,49 @@ import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
+import { FileListEntry, WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
 
 interface NavigationBarProps {
-    projectName: string;
-    isWorkspace: boolean;
-    folderName?: string;
-    onFolderClick?: () => void;
+    projectList: WorkspaceFolder[];
+    fileList: FileListEntry[];
+    currentProject: WorkspaceFolder;
+    currentFile: FileListEntry;
+    updateCurrentProject: (project: WorkspaceFolder) => void;
+    updateCurrentFile: (file: FileListEntry) => void;
+    // projectName: string;
+    // isWorkspace: boolean;
+    // folderName?: string;
+    // onFolderClick?: () => void;
 }
 
+const ALL_COMPONENTS: string = 'All';
+
 export function NavigationBar(props: NavigationBarProps) {
-    const { projectName, folderName, isWorkspace, onFolderClick } = props;
+    // const { projectName, folderName, isWorkspace, onFolderClick } = props;
+    const { projectList, fileList, currentProject, currentFile } = props;
     const classes = useStyles();
+
+    const projectSelectorOptions: React.ReactElement[] = [];
+    const fileSelectorOptions: React.ReactElement[] = [];
+
+    fileSelectorOptions.push(
+        <option value={ALL_COMPONENTS}>{ALL_COMPONENTS}</option>
+    );
+    if (projectList && projectList.length > 0) {
+        projectList.forEach(project => {
+            projectSelectorOptions.push(
+                <option value={project.name}>{project.name}</option>
+            );
+        });
+    }
+
+    if (fileList && fileList.length > 0) {
+        fileList.forEach(fileEntry => [
+            fileSelectorOptions.push(
+                <option value={fileEntry.fileName}>{fileEntry.fileName}</option>
+            )
+        ])
+    }
 
     const renderProjectSelectorComponent = () => {
         return (
@@ -37,14 +69,11 @@ export function NavigationBar(props: NavigationBarProps) {
                 <InputLabel htmlFor="outlined-age-native-simple">Project</InputLabel>
                 <Select
                     native={true}
-                    value={'10'}
+                    value={currentProject?.name || ''}
                     label="Project"
                     inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
                 >
-                    <option aria-label="None" value="" />
-                    <option value={10}>Ten</option>
-                    <option value={20}>Twenty</option>
-                    <option value={30}>Thirty</option>
+                    {projectSelectorOptions}
                 </Select>
             </FormControl>
         )
@@ -55,14 +84,11 @@ export function NavigationBar(props: NavigationBarProps) {
                 <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
                 <Select
                     native={true}
-                    value={'10'}
+                    value={currentFile ? currentFile.fileName : ALL_COMPONENTS}
                     label="File"
                     inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
                 >
-                    <option aria-label="None" value="" />
-                    <option value={10}>Ten</option>
-                    <option value={20}>Twenty</option>
-                    <option value={30}>Thirty</option>
+                    {fileSelectorOptions}
                 </Select>
             </FormControl>
         )
@@ -74,7 +100,7 @@ export function NavigationBar(props: NavigationBarProps) {
             {renderProjectSelectorComponent()}
             <div className={classes.componentSeperator} >/</div>
             {renderFileSelector()}
-            <div className="component-details"/>
+            <div className="component-details" />
         </div>
     );
 }
