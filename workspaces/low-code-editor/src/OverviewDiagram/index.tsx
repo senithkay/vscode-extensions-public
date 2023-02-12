@@ -34,55 +34,33 @@ enum ViewMode {
 
 export interface OverviewDiagramProps {
     lastUpdatedAt: string;
-    projectPaths: WorkspaceFolder[]
+    currentProject: WorkspaceFolder;
     notifyComponentSelection: (info: ComponentViewInfo) => void;
-    filterMap: any;
-    updateFilterMap: (obj: any) => void;
 }
 
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
-    const { projectPaths, notifyComponentSelection, lastUpdatedAt, filterMap, updateFilterMap } = props;
+    const { currentProject, notifyComponentSelection, lastUpdatedAt } = props;
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
     const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
-    const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
     // const [filterMap, setFilterMap] = useState({});
-    const ref = useRef();
-    const isProjectWorkspace: boolean = projectPaths.length > 0;
-
-    const handleViewModeChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
-        switch (evt.target.value) {
-            case ViewMode.MODULE:
-                setViewMode(ViewMode.MODULE);
-                break;
-            case ViewMode.FILE:
-                setViewMode(ViewMode.FILE);
-                break;
-            case ViewMode.TYPE:
-                setViewMode(ViewMode.TYPE);
-                break;
-            default:
-            // ignored
-        }
-    }
 
     useEffect(() => {
         (async () => {
             try {
-                const langClient = await getDiagramEditorLangClient();
-                const filePaths: any = projectPaths
-                    .filter(path => filterMap[path.name])
-                    .map(path => ({ uri: path.uri.external }));
-                const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
-                    documentIdentifiers: [...filePaths]
-                });
-                updateProjectComponenets(componentResponse);
+                if (currentProject) {
+                    const langClient = await getDiagramEditorLangClient();
+                    const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
+                        documentIdentifiers: [{ uri: currentProject.uri.external }]
+                    });
+                    updateProjectComponenets(componentResponse);
+                }
             } catch (err) {
                 // tslint:disable-next-line: no-console
                 console.error(err);
             }
         })();
-    }, [lastUpdatedAt, filterMap]);
+    }, [lastUpdatedAt, currentProject]);
 
     const renderView = () => {
         const CurrentView = Views[viewMode];

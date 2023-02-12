@@ -263,7 +263,18 @@ export function DiagramViewManager(props: EditorProps) {
     //     historyClear();
     // }
     //
-    // const viewComponent: React.ReactElement[] = [];
+    const viewComponent: React.ReactElement[] = [];
+
+    if (currentProject && focusFile) {
+
+        viewComponent.push((
+            <OverviewDiagram
+                currentProject={currentProject}
+                lastUpdatedAt={lastUpdatedAt}
+                notifyComponentSelection={updateSelectedComponent}
+            />
+        ));
+    }
     //
     // if (!diagramFocusState) {
     //     viewComponent.push((
@@ -351,6 +362,7 @@ export function DiagramViewManager(props: EditorProps) {
                                 updateCurrentFile={setFocusFile}
                                 updateCurrentProject={setCurrentProject}
                             />
+                            {viewComponent}
                             <div id={'canvas-overlay'} className={"overlayContainer"} />
                         </ViewManagerProvider>
                     </IntlProvider>

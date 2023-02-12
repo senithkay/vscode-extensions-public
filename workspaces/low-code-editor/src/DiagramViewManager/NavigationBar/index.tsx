@@ -34,18 +34,18 @@ interface NavigationBarProps {
     // onFolderClick?: () => void;
 }
 
-const ALL_COMPONENTS: string = 'All';
+const ALL_FILES: string = 'All';
 
 export function NavigationBar(props: NavigationBarProps) {
     // const { projectName, folderName, isWorkspace, onFolderClick } = props;
-    const { projectList, fileList, currentProject, currentFile } = props;
+    const { projectList, fileList, currentProject, currentFile, updateCurrentProject } = props;
     const classes = useStyles();
 
     const projectSelectorOptions: React.ReactElement[] = [];
     const fileSelectorOptions: React.ReactElement[] = [];
 
     fileSelectorOptions.push(
-        <option value={ALL_COMPONENTS}>{ALL_COMPONENTS}</option>
+        <option value={ALL_FILES}>{ALL_FILES}</option>
     );
     if (projectList && projectList.length > 0) {
         projectList.forEach(project => {
@@ -63,6 +63,11 @@ export function NavigationBar(props: NavigationBarProps) {
         ])
     }
 
+    const handleProjectChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
+        const currentProject = projectList.find(project => project.name === evt.target.value);
+        updateCurrentProject(currentProject);
+    }
+
     const renderProjectSelectorComponent = () => {
         return (
             <FormControl variant="outlined" className={classes.selectorComponent} >
@@ -72,6 +77,7 @@ export function NavigationBar(props: NavigationBarProps) {
                     value={currentProject?.name || ''}
                     label="Project"
                     inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
+                    onChange={handleProjectChange}
                 >
                     {projectSelectorOptions}
                 </Select>
@@ -84,7 +90,7 @@ export function NavigationBar(props: NavigationBarProps) {
                 <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
                 <Select
                     native={true}
-                    value={currentFile ? currentFile.fileName : ALL_COMPONENTS}
+                    value={currentFile ? currentFile.fileName : ALL_FILES}
                     label="File"
                     inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
                 >
