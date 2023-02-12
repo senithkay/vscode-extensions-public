@@ -17,6 +17,7 @@ import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github
 import { ChoreoAuthConfig } from "./config";
 import { ext } from '../extensionVariables';
 import { getLogger } from '../logger/logger';
+import { ChoreoAIConfig } from '../services/ai';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -26,6 +27,8 @@ const REFRESH_TOKEN_ERROR = "Error while retreiving the refresh token details!";
 const SESSION_EXPIRED = "The session has expired, please login again!";
 
 export const choreoAuthConfig: ChoreoAuthConfig = new ChoreoAuthConfig();
+
+export const choreoAIConfig = new ChoreoAIConfig();
 
 export const tokenStore = new KeyChainTokenStorage();
 
@@ -48,7 +51,7 @@ export const authClient = new ChoreoAuthClient({
 
 export const orgClient = new ChoreoOrgClient(readonlyTokenStore, choreoAuthConfig.getAPIBaseURL());
 
-export const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI());
+export const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(), choreoAIConfig.getPerfAPI());
 
 export const githubAppClient = new ChoreoGithubAppClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(), choreoAuthConfig.getGHAppConfig());
 

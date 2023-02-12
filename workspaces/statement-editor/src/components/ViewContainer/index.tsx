@@ -101,11 +101,15 @@ export function ViewContainer(props: ViewContainerProps) {
         await handleModifications();
 
         const model = statementModel as ModuleVarDecl;
+        const configurablesAvailable = STKindChecker.isModulePart(syntaxTree) && STKindChecker.isModuleVarDecl(syntaxTree.members[0])
+            && STKindChecker.isConfigurableKeyword(syntaxTree.members[0].qualifiers[0]);
 
         const noOfLines = editors[activeEditorId].isExistingStmt
             ? 0
             : STKindChecker.isModulePart(syntaxTree) && !!syntaxTree.imports.length
-                ? model.source.split('\n').length
+                ? configurablesAvailable
+                    ? model.source.split('\n').length - 1
+                    : model.source.split('\n').length
                 : 1;
         const nextEditor: EditorModel = editors[activeEditorId - 1];
 

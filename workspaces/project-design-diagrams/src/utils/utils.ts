@@ -177,16 +177,6 @@ function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeMode
     });
 }
 
-export function setCellViewMargins(dagreEngine: DagreEngine) {
-    dagreEngine.options.graph.marginx = 120;
-    dagreEngine.options.graph.marginy = 300;
-}
-
-export function resetCellViewMargins(dagreEngine: DagreEngine) {
-    dagreEngine.options.graph.marginx = 40;
-    dagreEngine.options.graph.marginy = 40;
-}
-
 export function addGWNodesModel(engine: DiagramEngine) {
     addGWNodes(engine);
     addGWLinks(engine);

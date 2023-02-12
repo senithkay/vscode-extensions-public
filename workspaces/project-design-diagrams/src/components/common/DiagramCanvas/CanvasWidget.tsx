@@ -28,7 +28,8 @@ import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from
 import './styles/styles.css';
 import debounce from "lodash.debounce";
 import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
-import { addGWNodesModel, removeGWLinks, resetCellViewMargins, setCellViewMargins } from "../../../utils/utils";
+import { addGWNodesModel, removeGWLinks } from "../../../utils/utils";
+import { GatewayNodeModel } from "../../gateway/GatewayNode/GatewayNodeModel";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -135,19 +136,14 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         }
         if (diagramEngine.getModel()) {
             removeGWLinks(diagramEngine);
-            resetCellViewMargins(dagreEngine);
         }
     }, [currentView]);
 
     const autoDistribute = () => {
+        const hasGwNode = diagramEngine.getModel().getNodes().find(node => (node instanceof GatewayNodeModel));
         setTimeout(() => {
             if (dagreEngine.options.graph.ranker !== layout) {
                 dagreEngine.options.graph.ranker = layout;
-            }
-            if (currentView === Views.CELL_VIEW || currentView === Views.L1_SERVICES ) {
-                setCellViewMargins(dagreEngine);
-            } else {
-                resetCellViewMargins(dagreEngine);
             }
             if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES
                 || currentView === Views.CELL_VIEW) {
@@ -157,11 +153,16 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             dagreEngine.redistribute(diagramEngine.getModel());
             if (currentView === Views.CELL_VIEW) {
                 // Adding GW links and nodes after dagre distribution
-                addGWNodesModel(diagramEngine);
+                if (!hasGwNode) {
+                    addGWNodesModel(diagramEngine);
+                }
                 positionGatewayNodes(diagramEngine);
             }
             diagramEngine.repaintCanvas();
         }, 30);
+        if ((currentView === Views.CELL_VIEW) && !hasGwNode) {
+            debouncedZoomToFit();
+        }
     };
 
     const redrawDiagram = () => {
@@ -184,6 +185,10 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         }
         diagramEngine.repaintCanvas();
     };
+
+    const debouncedZoomToFit = debounce(() => {
+        zoomToFit();
+    }, 30);
 
     const downloadDiagram = useCallback(() => {
         const canvas: HTMLDivElement = diagramEngine.getCanvas();
