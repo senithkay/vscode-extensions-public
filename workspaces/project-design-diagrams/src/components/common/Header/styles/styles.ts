@@ -28,7 +28,7 @@ export const HeaderContainer = styled.div`
     font-family: inherit;
     height: 50px;
     justify-content: space-between;
-    min-width: 700px;
+    min-width: 600px;
     width: calc(100vw - 30px);
 `;
 

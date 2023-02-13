@@ -24,11 +24,11 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import ArrowDropdownIcon from '@mui/icons-material/ArrowDropDown';
 import CachedIcon from '@mui/icons-material/Cached';
 import MenuIcon from '@mui/icons-material/Menu';
-import SchemaIcon from '@mui/icons-material/Schema';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { ProjectDesignRPC } from '../../../../utils/rpc/project-design-rpc';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { PackagesPopup } from '../PackagesPopup/PackagesPopup';
+import { DiagramLayoutPopup } from '../DiagramLayoutPopup/DiagramLayoutPopup';
 import { MenuPanel } from '../../MenuPanel/MenuPanel';
 import { DagreLayout, Views } from '../../../../resources';
 import '../styles/styles.css';
@@ -47,10 +47,15 @@ export function DefaultControls(props: DefaultControlProps) {
     const { isChoreoProject } = useContext(DiagramContext);
 
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
-    const [anchorElement, setAnchorElement] = useState<HTMLButtonElement>(null);
+    const [pkgAnchorElement, setPkgAnchorElement] = useState<HTMLButtonElement>(null);
+    const [layoutAnchorElement, setLayoutAnchorElement] = useState<HTMLButtonElement>(null);
 
     const openPkgsPopup = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorElement(event.currentTarget);
+        setPkgAnchorElement(event.currentTarget);
+    };
+
+    const openLayoutPopup = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setLayoutAnchorElement(event.currentTarget);
     };
 
     const onClickProjectOverview = () => {
@@ -104,12 +109,11 @@ export function DefaultControls(props: DefaultControlProps) {
                     variant='outlined'
                     size='small'
                     className={'button'}
-                    startIcon={layout === DagreLayout.GRAPH ?
-                        <AccountTreeIcon fontSize='medium' /> : <SchemaIcon fontSize='medium' />
-                    }
-                    onClick={changeLayout}
+                    startIcon={<AccountTreeIcon fontSize='medium' />}
+                    endIcon={<ArrowDropdownIcon fontSize='medium' />}
+                    onClick={openLayoutPopup}
                 >
-                    {layout === DagreLayout.GRAPH ? 'Tree' : 'Graph'} View
+                    Layout
                 </Button>
                 <IconButton
                     className={'iconButton'}
@@ -121,10 +125,17 @@ export function DefaultControls(props: DefaultControlProps) {
             </div>
 
             <PackagesPopup
-                anchorElement={anchorElement}
-                closePopup={() => { setAnchorElement(null) }}
+                anchorElement={pkgAnchorElement}
+                closePopup={() => { setPkgAnchorElement(null) }}
                 projectPackages={projectPackages}
                 updateProjectPkgs={updateProjectPkgs}
+            />
+
+            <DiagramLayoutPopup
+                anchorElement={layoutAnchorElement}
+                closePopup={() => { setLayoutAnchorElement(null) }}
+                currentLayout={layout}
+                changeLayout={changeLayout}
             />
         </>
     )
