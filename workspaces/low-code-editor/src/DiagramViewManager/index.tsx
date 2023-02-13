@@ -88,6 +88,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [fileList, setFileList] = useState<FileListEntry[]>();
     const [focusFile, setFocusFile] = useState<FileListEntry>();
     const [focusUid, setFocusUid] = useState<string>();
+    const [stMemberId, setStMemberId] = useState<string>();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
@@ -103,7 +104,6 @@ export function DiagramViewManager(props: EditorProps) {
                     fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
                     uri: fileUri
                 }));
-                console.log('projectFiles >>>', projectFiles);
                 if (!focusFile && diagramFocus) {
                     const currentlySelectedFile = projectFiles.find(projectFile => projectFile.uri.path.includes(diagramFocus.filePath));
                     setFocusFile(currentlySelectedFile);
@@ -117,16 +117,29 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         if (diagramFocus) {
-            const { filePath } = diagramFocus;
+            const { filePath, position } = diagramFocus;
             const projectPath = projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
-            setCurrentProject(projectPath);
+
+            (async () => {
+                const response = await getAllFiles('**/*.bal');
+                const fileList: Uri[] = response.filter(fileUri => fileUri.path.includes(projectPath.uri.fsPath));
+                const projectFiles: FileListEntry[] = fileList.map(fileUri => ({
+                    fileName: fileUri.path.replace(`${projectPath.uri.fsPath}/`, ''),
+                    uri: fileUri
+                }));
+                const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
+                if (position) {
+                    fetchST(filePath, position);
+                }
+                setCurrentProject(projectPath);
+                setFileList(projectFiles);
+                setFocusFile(currentFile);
+            })();
+
         }
     }, [diagramFocus]);
 
     useEffect(() => {
-        console.log('focusFile useeffect ================================');
-        console.log('focusFile >>>', focusFile);
-        console.log('projectPaths >>>', projectPaths);
         if (focusFile) {
             // TODO: handle showing components in a single file
         } else {
@@ -188,34 +201,61 @@ export function DiagramViewManager(props: EditorProps) {
     //     setFilterMap(filterMap);
     // }, [projectPaths]);
     //
-    // const fetchST = () => {
-    //     if (history.length > 0) {
-    //         const componentDetails = history[history.length - 1];
-    //         const { filePath, uid } = componentDetails;
-    //         (async () => {
-    //             try {
-    //                 const langClient = await langClientPromise;
-    //                 const generatedST = await getSyntaxTree(filePath, langClient);
-    //                 const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
-    //                 const content = await getFileContent(filePath);
-    //                 const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
-    //                 const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
-    //
-    //                 const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
-    //                 traversNode(visitedST, nodeFindingVisitor);
-    //
-    //                 setFocusedST(nodeFindingVisitor.getNode());
-    //                 setCompleteST(visitedST);
-    //                 setCurrentFileContent(content);
-    //                 setLowCodeResourcesVersion(resourceVersion);
-    //                 setLowCodeEnvInstance(envInstance);
-    //             } catch (err) {
-    //                 // tslint:disable-next-line: no-console
-    //                 console.error(err);
-    //             }
-    //         })();
-    //     }
-    // }
+    const fetchST = (filePath: string, position: NodePosition) => {
+        // if (history.length > 0) {
+        //     const componentDetails = history[history.length - 1];
+        //     const { filePath, uid } = componentDetails;
+        //     (async () => {
+        //         try {
+        //             const langClient = await langClientPromise;
+        //             const generatedST = await getSyntaxTree(filePath, langClient);
+        //             const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
+        //             const content = await getFileContent(filePath);
+        //             const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
+        //             const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
+        //
+        //             const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
+        //             traversNode(visitedST, nodeFindingVisitor);
+        //
+        //             setFocusedST(nodeFindingVisitor.getNode());
+        //             setCompleteST(visitedST);
+        //             setCurrentFileContent(content);
+        //             setLowCodeResourcesVersion(resourceVersion);
+        //             setLowCodeEnvInstance(envInstance);
+        //         } catch (err) {
+        //             // tslint:disable-next-line: no-console
+        //             console.error(err);
+        //         }
+        //     })();
+        // }
+
+        (async () => {
+            try {
+                const langClient = await langClientPromise;
+                const generatedST = await getSyntaxTree(filePath, langClient);
+                const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
+                const content = await getFileContent(filePath);
+                const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
+                const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
+
+                const uidGenVisitor = new UIDGenerationVisitor(position);
+                traversNode(visitedST, uidGenVisitor);
+                const uid = uidGenVisitor.getUId();
+                const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
+                traversNode(visitedST, nodeFindingVisitor);
+
+                setFocusedST(nodeFindingVisitor.getNode());
+                setCompleteST(visitedST);
+                setCurrentFileContent(content);
+                setLowCodeResourcesVersion(resourceVersion);
+                setLowCodeEnvInstance(envInstance);
+                setFocusUid(uid);
+            } catch (err) {
+                // tslint:disable-next-line: no-console
+                console.error(err);
+            }
+        })();
+    }
     // useEffect(() => {
     //     fetchST();
     // }, [lastUpdatedAt]);
@@ -262,14 +302,14 @@ export function DiagramViewManager(props: EditorProps) {
             }
         })();
     }
-    //
-    // const handleNavigationHome = () => {
-    //     historyClear();
-    // }
-    //
+
+    const handleNavigationHome = () => {
+        historyClear();
+    }
+    
     const viewComponent: React.ReactElement[] = [];
 
-    if (currentProject) {
+    if (!focusedST && currentProject) {
 
         viewComponent.push((
             <OverviewDiagram
@@ -279,6 +319,45 @@ export function DiagramViewManager(props: EditorProps) {
                 notifyComponentSelection={updateSelectedComponent}
             />
         ));
+    } else if (focusedST) {
+        if (STKindChecker.isServiceDeclaration(focusedST)) {
+            if (focusedST.expressions.length > 0) {
+                const listenerExpression = focusedST.expressions[0];
+                const typeData = listenerExpression.typeData;
+                const typeSymbol = typeData?.typeSymbol;
+                const signature = typeSymbol?.signature;
+                if (signature && signature.includes('http')) {
+                    viewComponent.push((
+                        <ServiceDesignOverlay
+                            model={focusedST}
+                            targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                            onCancel={handleNavigationHome}
+                        />
+                    ));
+                } else if (signature && signature.includes('graphql')) {
+                    viewComponent.push(
+                        <GraphqlDiagramOverlay
+                            model={focusedST}
+                            targetPosition={focusedST.position}
+                            ballerinaVersion={balVersion}
+                            onCancel={handleNavigationHome}
+                        />
+                    );
+                }
+            }
+        } else if (STKindChecker.isFunctionDefinition(focusedST)
+            && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
+            viewComponent.push((
+                <DataMapperOverlay
+                    targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                    model={focusedST}
+                    ballerinaVersion={balVersion}
+                    onCancel={handleNavigationHome}
+                />
+            ))
+        } else {
+            viewComponent.push(<Diagram />);
+        }
     }
     //
     // if (!diagramFocusState) {
@@ -341,6 +420,7 @@ export function DiagramViewManager(props: EditorProps) {
         currentHistoryEntry.position = position;
         updateSelectedComponent(currentHistoryEntry);
     }
+
     //
     // const handleFolderClick = () => {
     //     Object.keys(filterMap).forEach((key) => {
@@ -357,7 +437,7 @@ export function DiagramViewManager(props: EditorProps) {
                 <div className={classes.lowCodeContainer}>
                     <IntlProvider locale='en' defaultLocale='en' messages={messages}>
                         <ViewManagerProvider
-                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateSelectedComponent, navigateUptoParent)}
+                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, focusFile, stMemberId, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateSelectedComponent, navigateUptoParent)}
                         >
                             <NavigationBar
                                 projectList={projectPaths}

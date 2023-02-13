@@ -6,7 +6,7 @@ import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree"
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
 import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isUnresolvedModulesAvailable } from "../../DiagramGenerator/generatorUtil";
-import { EditorProps, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";
+import { EditorProps, FileListEntry, PALETTE_COMMANDS, Uri } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
 import { DiagramFocusState } from "../hooks/diagram-focus";
@@ -15,7 +15,8 @@ export function getDiagramProviderProps(
     focusedST: STNode,
     lowCodeEnvInstance: string,
     currentFileContent: string,
-    diagramFocusState: DiagramFocusState,
+    focusFile: FileListEntry,
+    stMemberId: string,
     completeST: STNode,
     lowCodeResourcesVersion: any,
     balVersion: string,
@@ -31,7 +32,7 @@ export function getDiagramProviderProps(
 
 
     async function showTryitView(serviceName: string) {
-        runCommand(PALETTE_COMMANDS.TRY_IT, [diagramFocusState?.filePath, serviceName]);
+        runCommand(PALETTE_COMMANDS.TRY_IT, [focusFile?.uri.path, serviceName]);
     }
 
     async function showDocumentationView(url: string) {
@@ -52,7 +53,7 @@ export function getDiagramProviderProps(
         stSymbolInfo: getSymbolInfo(),
         currentFile: {
             content: currentFileContent,
-            path: diagramFocusState?.filePath,
+            path: focusFile?.uri.path,
             size: 1,
         },
         importStatements: getImportStatements(completeST),
@@ -76,7 +77,7 @@ export function getDiagramProviderProps(
             code: {
                 modifyDiagram: async (mutations: STModification[]) => {
                     const langClient = await langClientPromise;
-                    const uri = monaco.Uri.file(diagramFocusState?.filePath).toString();
+                    const uri = monaco.Uri.file(focusFile?.uri.path).toString();
                     const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                         astModifications: await InsertorDelete(mutations),
                         documentIdentifier: {
@@ -87,10 +88,10 @@ export function getDiagramProviderProps(
                     if (parseSuccess) {
                         // undoRedo.addModification(source);
                         setFileContent(source);
-                        props.updateFileContent(diagramFocusState?.filePath, source);
-                        visitedST = await getLowcodeST(newST, diagramFocusState?.filePath, langClient, experimentalEnabled, showMessage);
-                        if (diagramFocusState) {
-                            const stFindingVisitor = new FindNodeByUidVisitor(diagramFocusState.uid);
+                        props.updateFileContent(focusFile?.uri.path, source);
+                        visitedST = await getLowcodeST(newST, focusFile?.uri.path, langClient, experimentalEnabled, showMessage);
+                        if (stMemberId && stMemberId.length > 0) {
+                            const stFindingVisitor = new FindNodeByUidVisitor(stMemberId);
                             traversNode(visitedST, stFindingVisitor);
                             setFocusedST(stFindingVisitor.getNode());
                         }
@@ -111,7 +112,7 @@ export function getDiagramProviderProps(
                                 // setLoaderText('Pulling packages...');
                                 const {
                                     parseSuccess: pullSuccess,
-                                } = await resolveMissingDependency(diagramFocusState?.filePath, source);
+                                } = await resolveMissingDependency(focusFile?.uri.path, source);
                                 if (pullSuccess) {
                                     // Rebuild the file At backend
                                     langClient.didChange({
@@ -127,12 +128,12 @@ export function getDiagramProviderProps(
                                     } = await langClient.getSyntaxTree({ documentIdentifier: { uri } });
                                     visitedST = await getLowcodeST(
                                         stWithoutDiagnostics,
-                                        diagramFocusState?.filePath,
+                                        focusFile?.uri.path,
                                         langClient,
                                         experimentalEnabled,
                                         showMessage);
-                                    if (diagramFocusState) {
-                                        const stFindingVisitor = new FindNodeByUidVisitor(diagramFocusState.uid);
+                                    if (stMemberId && stMemberId.length > 0) {
+                                        const stFindingVisitor = new FindNodeByUidVisitor(stMemberId);
                                         traversNode(visitedST, stFindingVisitor);
                                         setFocusedST(stFindingVisitor.getNode());
                                     }
@@ -167,14 +168,14 @@ export function getDiagramProviderProps(
                     // await addPerfData(visitedST);
                 },
                 gotoSource: (position: { startLine: number; startColumn: number; }) => {
-                    props.gotoSource(diagramFocusState?.filePath, position);
+                    props.gotoSource(focusFile?.uri.path, position);
                 },
                 getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
                     const langClient = await langClientPromise;
                     // setMutationInProgress(true);
                     // setLoaderText('Fetching...');
                     const res: FunctionDef = await getFunctionSyntaxTree(
-                        defFilePath ? defFilePath : monaco.Uri.file(diagramFocusState?.filePath).toString(),
+                        defFilePath ? defFilePath : monaco.Uri.file(focusFile?.uri.path).toString(),
                         lineRange,
                         langClient
                     );
@@ -182,7 +183,7 @@ export function getDiagramProviderProps(
                     return res;
                 },
                 updateFileContent: (content: string, skipForceSave?: boolean) => {
-                    return props.updateFileContent(diagramFocusState?.filePath, content, skipForceSave);
+                    return props.updateFileContent(focusFile?.uri.path, content, skipForceSave);
                 },
                 // undo,
                 // isMutationInProgress,

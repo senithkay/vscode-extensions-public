@@ -12,7 +12,7 @@ const useStyles = makeStyles(() =>
                 minWidth: "100px"
             },
             "& .MuiOutlinedInput-input": {
-                padding: "5px 5px"
+                padding: "5px 30px 5px 5px"
             }
         }
     })

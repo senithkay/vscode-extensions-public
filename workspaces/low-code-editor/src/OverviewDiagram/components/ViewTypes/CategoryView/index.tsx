@@ -42,6 +42,7 @@ export function CategoryView(props: CategoryViewProps) {
         listeners: [],
         moduleVariables: []
     };
+
     // TODO: Handle the processing of response json in a better way
     if (projectComponents) {
         projectComponents.packages.forEach(packageInfo => {
@@ -52,7 +53,6 @@ export function CategoryView(props: CategoryViewProps) {
                             const filePath = genFilePath(packageInfo, module, element);
                             console.log(currentFile);
                             if (currentFile && currentFile.uri.path !== filePath) return;
-                            console.log('filePath: >>>', filePath);
                             currentComponents[key].push({
                                 filePath,
                                 position: {
