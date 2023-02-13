@@ -18,21 +18,27 @@ import { getUri } from "./utils";
 export class ProjectOverview {
 
   public static currentPanel: ProjectOverview | undefined;
+  private static _rpcHandler: WebViewRpc;
   public static project: Project | undefined;
   private readonly _panel: vscode.WebviewPanel;
   private _disposables: vscode.Disposable[] = [];
-  private _rpcHandler: WebViewRpc;
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, initialProject: string, orgName: string) {
     this._panel = panel;
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
     this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, initialProject, orgName);
-    this._rpcHandler = new WebViewRpc(this._panel);
+    if (!ProjectOverview._rpcHandler) {
+      ProjectOverview._rpcHandler = new WebViewRpc(this._panel);
+    } else if (ProjectOverview._rpcHandler.panel !== panel) {
+      ProjectOverview._rpcHandler = new WebViewRpc(this._panel);
+    }
   }
 
   public static render(extensionUri: vscode.Uri, project: Project, org: Organization) {
     if (ProjectOverview.currentPanel) {
-      ProjectOverview.currentPanel._panel.reveal(vscode.ViewColumn.One);
+      const panel = ProjectOverview.currentPanel._panel;
+      ProjectOverview.currentPanel = new ProjectOverview(panel, extensionUri, project.id, org.handle);
+      panel.reveal(vscode.ViewColumn.One);
     } else {
       const panel = vscode.window.createWebviewPanel("project-overview", "Project Overview", vscode.ViewColumn.One, {
         enableScripts: true, retainContextWhenHidden: true

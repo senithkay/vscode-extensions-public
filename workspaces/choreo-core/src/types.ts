@@ -127,6 +127,7 @@ export interface ComponentDetailed extends Component {
 export interface WorkspaceItem {
     name: string;
     path: string;
+    metadata?: WorkspaceComponentMetadata;
 }
 export interface WorkspaceConfig {
     folders: WorkspaceItem[];
@@ -138,6 +139,23 @@ export interface WorkspaceConfig {
         }
     }
 }
+export interface WorkspaceComponentMetadata {
+    org: {
+        id: number;
+        handle: string;
+    };
+    displayName: string;
+    displayType: ChoreoServiceComponentType;
+    description: string;
+    projectId: string;
+    accessibility: ComponentAccessibility;
+    repository: {
+        orgApp: string;
+        nameApp: string;
+        branchApp: string;
+        appSubPath: string;
+    };
+}
 
 export enum ChoreoServiceComponentType {
     REST_API = 'REST_API',
@@ -146,16 +164,75 @@ export enum ChoreoServiceComponentType {
     GRPC_API = 'GRPC_API',
 }
 
-export interface ComponentWizardInput {
+export interface ChoreoComponentCreationParams {
     name: string;
     projectId: string;
+    org: Organization;
     description: string;
-    type: ChoreoServiceComponentType;
+    displayType: ChoreoServiceComponentType;
     accessibility: ComponentAccessibility;
-    repositoryInfo: {
-        org: string;
-        repo: string;
-        branch: string;
-        subPath: string;
-    }
+    repositoryInfo: RepositoryDetails;
+}
+
+export interface RepositoryDetails {
+    org: string;
+    repo: string;
+    branch: string;
+    subPath: string;
+}
+
+export interface Location {
+    filePath: string;
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
+export interface DeploymentMetadata {
+    gateways: {
+        internet: {
+            isExposed: boolean;
+        },
+        intranet: {
+            isExposed: boolean;
+        }
+    };
+}
+
+export interface Service {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    annotation: any;
+    path: string;
+    serviceId: string;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    resources: any[];
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    remoteFunctions: any[];
+    serviceType: string;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    dependencies: any[];
+    deploymentMetadata: DeploymentMetadata;
+    elementLocation: Location;
+}
+
+interface LinePosition {
+    line: number;
+    offset: number;
+}
+export interface Entity {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    attributes: any[];
+    inclusions: string[];
+    elementLocation: Location;
+    isAnonymous: boolean;
+}
+
+export interface ComponentModel {
+    packageId: {
+        name: string,
+        org: string,
+        version: string
+    };
+    services: Map<string, Service>;
+    entities: Map<string, Entity>;
+    hasCompilationErrors: boolean;
 }

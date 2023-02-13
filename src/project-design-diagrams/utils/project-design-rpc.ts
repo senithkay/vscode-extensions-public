@@ -18,11 +18,11 @@
  */
 
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
-import { Project } from "@wso2-enterprise/choreo-core";
+import { BallerinaComponentCreationParams, ChoreoComponentCreationParams, Project } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { BallerinaProjectManager } from "./manager";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
-import { AddComponentDetails, ComponentModel, Service } from "../resources";
+import { ComponentModel, Service } from "../resources";
 import { ExtendedLangClient } from "src/core";
 import { addConnector, linkServices, pullConnector } from "./code-generator";
 import { getProjectResources } from "./utils";
@@ -41,6 +41,7 @@ export class ProjectDesignRPC {
     private _isChoreoProject: boolean;
     private _projectManager: ChoreoProjectManager | BallerinaProjectManager;
     private _choreoExtApi: IChoreoExtensionAPI | undefined;
+    private _activeChoreoProject: Project;
 
     constructor(webview: WebviewPanel, langClient: ExtendedLangClient) {
         this._messenger.registerWebviewPanel(webview);
@@ -60,8 +61,13 @@ export class ProjectDesignRPC {
             this._projectManager = new BallerinaProjectManager();
         }
 
-        this._messenger.onRequest({ method: 'createComponent' }, (addComponentDetails: AddComponentDetails): Promise<string> => {
-            return this._projectManager.createComponent(addComponentDetails);
+        this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string|boolean> => {
+            if (this._projectManager instanceof ChoreoProjectManager && 'repositoryInfo' in args) {
+                return this._projectManager.createLocalComponent(args);
+            } else if (this._projectManager instanceof BallerinaProjectManager && 'directory' in args) {
+                return this._projectManager.createLocalComponent(args);
+            }
+            window.showErrorMessage('Error while creating component.');
         });
 
         this._messenger.onRequest({ method: 'getProjectDetails' }, (): Promise<unknown> => {
@@ -114,10 +120,10 @@ export class ProjectDesignRPC {
 
         this._messenger.onRequest({method: 'showChoreoProjectOverview'}, async (): Promise<boolean> => {
             if (this._choreoExtApi) {
-                const currentProject: Project = await this._choreoExtApi.getChoreoProject();
-                if (currentProject) {
-                    return commands.executeCommand('wso2.choreo.project.overview', currentProject);
+                if (!this._activeChoreoProject) {
+                    this._activeChoreoProject = await this._choreoExtApi.getChoreoProject();
                 }
+                return commands.executeCommand('wso2.choreo.project.overview', this._activeChoreoProject);
             }
             window.showErrorMessage('Error while loading Choreo project overview.');
             return false;

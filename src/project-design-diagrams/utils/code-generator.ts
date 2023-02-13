@@ -138,17 +138,11 @@ export async function addConnector(langClient: ExtendedLangClient, connector: Co
     const initMember = getInitFunction(serviceDecl);
     if (initMember) {
         const updatedSTRes = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken,
-            generateConnectorClientDecl(connectorInfo), imports);
+            generateConnectorClientDecl(connectorInfo));
         let updatedST = updatedSTRes as STResponse;
-        if (updatedST?.parseSuccess) {
+        if (updatedST?.parseSuccess && updatedST.syntaxTree.members) {
             await updateSourceFile(langClient, filePath, updatedST.source);
-            const newLines = imports.size || 0;
-            const serviceDecl = updatedST.syntaxTree.members.find(
-                (member) =>
-                    member.kind === "ServiceDeclaration" &&
-                    targetService.elementLocation.startPosition.line + newLines === member.position.startLine &&
-                    targetService.elementLocation.startPosition.offset === member.position.startColumn
-            );
+            const serviceDecl = getServiceDeclaration(updatedST.syntaxTree.members, targetService, false);
 
             const updatedInitMember = getInitFunction(serviceDecl);
             if (updatedInitMember) {
@@ -240,7 +234,7 @@ async function updateSyntaxTree(
                 endColumn: 0,
                 type: "INSERT",
                 config: {
-                    STATEMENT: `import ${stmt};`,
+                    STATEMENT: `import ${stmt};\n`,
                 },
                 isImport: true,
             });
@@ -337,12 +331,12 @@ function generateConnectorClientInit(connector: BallerinaConnectorInfo): string 
     }
 
     const initFunction = connector.functions?.find((func) => func.name === "init");
-    if (!initFunction?.returnType) {
-        return "";
-    }
-
+    let returnType;
+    
     const defaultParameters = getDefaultParams(initFunction.parameters);
-    const returnType = getFormFieldReturnType(initFunction.returnType);
+    if (initFunction.returnType) {
+        returnType = getFormFieldReturnType(initFunction.returnType);
+    }
 
     return `self.${clientName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
 }
@@ -367,12 +361,13 @@ function genClientName(source: string, connector: Connector) {
 
     let index = 0;
     let varName = moduleName + "Ep";
-    while (source.indexOf(varName) > 0) {
+    let tempName = varName;
+    while (source.indexOf(tempName) > 0) {
         index++;
-        varName = varName + index;
+        tempName = varName + index;
     }
 
-    return varName;
+    return tempName;
 }
 
 function transformLabel(label: string): string {

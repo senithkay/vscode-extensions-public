@@ -13,12 +13,17 @@
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 import { GHAppAuthStatus, GithubOrgnization, IChoreoGithubAppClient } from "../types";
-import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest, GetRepoBranchesRequest } from "./types";
+import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest, GetRepoBranchesRequest, GetStatusRquest } from "./types";
 
 export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
 
     constructor(private _messenger: Messenger) {
     }
+
+    get status(): Promise<GHAppAuthStatus> {
+        return this._messenger.sendRequest(GetStatusRquest, HOST_EXTENSION, undefined);
+    }
+
     triggerAuthFlow(): Promise<boolean> {
         return this._messenger.sendRequest(TriggerAuthFlowRequest, HOST_EXTENSION, undefined);
     }

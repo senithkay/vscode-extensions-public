@@ -23,6 +23,7 @@ export interface ComponentModel {
     packageId: PackageID;
     services: Map<string, Service>;
     entities: Map<string, Entity>;
+    hasCompilationErrors: boolean;
 }
 
 interface PackageID {
@@ -94,6 +95,7 @@ export interface Entity {
     attributes: Attribute[];
     inclusions: string[];
     elementLocation: Location;
+    isAnonymous: boolean;
 }
 
 export interface Attribute {
@@ -139,14 +141,6 @@ export interface ServiceModels {
     levelTwo: DiagramModel;
 }
 
-export interface AddComponentDetails {
-    name: string;
-    version: string;
-    org: string;
-    package: string;
-    directory: string;
-}
-
 export interface Location {
     filePath: string;
     startPosition: LinePosition;
@@ -162,12 +156,18 @@ export enum Views {
     TYPE = 'T',
     TYPE_COMPOSITION = 'TC',
     L1_SERVICES = 'S1',
-    L2_SERVICES = 'S2'
+    L2_SERVICES = 'S2',
+    CELL_VIEW = 'CellView',
 }
 
 export enum Level {
     ONE = 1,
     TWO = 2
+}
+
+export enum DagreLayout {
+    TREE = 'tight-tree',
+    GRAPH = 'longest-path'
 }
 
 export enum ServiceTypes {
@@ -179,10 +179,14 @@ export enum ServiceTypes {
 }
 
 export enum Colors {
+    DIAGRAM_BACKGROUND = '#FFF',
+    CELL_DIAGRAM_BACKGROUND = '#e4e4e4',
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
     SECONDARY_SELECTED = '#fffaf2',
     SHADED_SELECTED = '#faead2',
-    GATEWAY = '#3db377'
+    GATEWAY = '#c9c9c9'
 }
+
+export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';

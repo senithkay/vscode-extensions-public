@@ -21,18 +21,21 @@ import React, { useEffect, useState } from 'react';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
-import { ComponentModel, ServiceModels, Views } from '../../../resources';
+import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
+import { CellContainer, CellDiagram } from "./style";
+import { Gateways } from "../../gateway/Gateways/Gateways";
 
 interface DiagramContainerProps {
     currentView: Views;
+    layout: DagreLayout;
     workspacePackages: Map<string, boolean>;
     workspaceComponents: Map<string, ComponentModel>;
     typeCompositionModel: DiagramModel;
 }
 
 export function DiagramContainer(props: DiagramContainerProps) {
-    const { currentView, typeCompositionModel, workspaceComponents, workspacePackages } = props;
+    const { currentView, layout, typeCompositionModel, workspaceComponents, workspacePackages } = props;
 
     const [serviceModels, setServiceModels] = useState<ServiceModels>(undefined);
     const [typeModel, setTypeModel] = useState<DiagramModel>(undefined);
@@ -64,8 +67,8 @@ export function DiagramContainer(props: DiagramContainerProps) {
     const hasModelLoaded = (): boolean => {
         switch (currentView) {
             case Views.L1_SERVICES:
-                return serviceModels !== undefined;
             case Views.L2_SERVICES:
+            case Views.CELL_VIEW:
                 return serviceModels !== undefined;
             case Views.TYPE:
                 return typeModel !== undefined;
@@ -75,7 +78,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
     }
 
     return (
-        <div>
+        <>
             {hasModelLoaded() ?
                 <>
                     {serviceModels &&
@@ -83,26 +86,39 @@ export function DiagramContainer(props: DiagramContainerProps) {
                             <div style={{ display: currentView === Views.L1_SERVICES ? 'block' : 'none' }}>
                                 <DiagramCanvasWidget
                                     type={Views.L1_SERVICES}
-                                    currentView={currentView}
                                     model={serviceModels.levelOne}
+                                    {...{currentView, layout}}
                                 />
                             </div>
 
                             <div style={{ display: currentView === Views.L2_SERVICES ? 'block' : 'none' }}>
                                 <DiagramCanvasWidget
                                     type={Views.L2_SERVICES}
-                                    currentView={currentView}
                                     model={serviceModels.levelTwo}
+                                    {...{currentView, layout}}
                                 />
                             </div>
+
+                            { currentView === Views.CELL_VIEW && (
+                                <CellDiagram>
+                                    <Gateways/>
+                                    <CellContainer>
+                                        <DiagramCanvasWidget
+                                            type={Views.CELL_VIEW}
+                                            model={serviceModels.levelOne}
+                                            {...{currentView, layout}}
+                                        />
+                                    </CellContainer>
+                                </CellDiagram>
+                            )}
                         </>
                     }
                     {typeModel &&
                         <div style={{ display: currentView === Views.TYPE ? 'block' : 'none' }}>
                             <DiagramCanvasWidget
                                 type={Views.TYPE}
-                                currentView={currentView}
                                 model={typeModel}
+                                {...{currentView, layout}}
                             />
                         </div>
                     }
@@ -110,14 +126,14 @@ export function DiagramContainer(props: DiagramContainerProps) {
                         <div style={{ display: currentView === Views.TYPE_COMPOSITION ? 'block' : 'none' }}>
                             <DiagramCanvasWidget
                                 type={Views.TYPE_COMPOSITION}
-                                currentView={currentView}
                                 model={typeCompositionModel}
+                                {...{currentView, layout}}
                             />
                         </div>
                     }
                 </> :
                 <CircularProgress />
             }
-        </div>
+        </>
     );
 }

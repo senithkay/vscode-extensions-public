@@ -11,12 +11,13 @@
  *  associated services.
  */
 
-import { Component, Organization, Project, serializeError } from "@wso2-enterprise/choreo-core";
+import { Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync } from 'fs';
-import { ChoreoProjectManager, ComponentMetadata } from "@wso2-enterprise/choreo-client/lib/manager";
+import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
+import { AxiosResponse } from 'axios';
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -52,7 +53,7 @@ export class ProjectRegistry {
         throw new Error(`Method not implemented`);
     }
 
-    async sync(): Promise<void> {
+    async clean(): Promise<void> {
         return new Promise((resolve) => {
             this._dataProjects = new Map<number, Project[]>([]);
             this._dataComponents = new Map<string, Component[]>([]);
@@ -60,9 +61,28 @@ export class ProjectRegistry {
         });
     }
 
+    // Adding a refersh method to refresh the data.
+    // Currently refresh is handled by clearing the registry
+    // and firing refresh on tree view.
+    // But tree view refresh API does not support async.
+    // Hence there's no way to know when the refresh is completed.
+    // We cannot remove tree view refresh either because if we depend
+    // on the registry to refresh the tree view, we will end up in a
+    // situation where the tree view is stuck until the registry refresh
+    // is completed without showing any loader animation.
+    // We will use this refresh method from every other places and keep
+    // the tree view refresh as it is just to be used for the tree view.
+    async refreshProjects(): Promise<Project[] | undefined> {
+        await this.clean();
+        const selectedOrg = ext.api.selectedOrg;
+        if (selectedOrg) {
+            return this.getProjects(selectedOrg.id);
+        }
+    }
+
     async getProject(projectId: string, orgId: number): Promise<Project | undefined> {
-        return this.getProjects(orgId).then((projects: Project[]) => {
-            return projects.find((project) => { return project.id === projectId; });
+        return this.getProjects(orgId).then(async (projects: Project[]) => {
+            return projects.find((project: Project) => project.id === projectId);
         });
     }
 
@@ -100,6 +120,16 @@ export class ProjectRegistry {
                 resolve(this._addLocalComponents(projectId, components ? components : []));
             });
         }
+    }
+
+    async getPerformanceForecast(data: string): Promise<AxiosResponse> {
+        return projectClient.getPerformanceForecastData(data)
+            .then((result: any) => {
+                return result;
+            }).catch((e: any) => {
+                serializeError(e);
+                throw(e);
+            });
     }
 
     setProjectLocation(projectId: string, location: string) {
@@ -148,8 +178,8 @@ export class ProjectRegistry {
             if (projectLocation !== undefined) {
                 // Get local components
                 const choreoPM = new ChoreoProjectManager();
-                const localComponentMeta: ComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
-                await localComponentMeta.forEach(async componentMetadata => {
+                const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
+                await Promise.all(localComponentMeta.map(async componentMetadata => {
                     const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
                     const componentRequest: CreateComponentParams = {
                         name: componentMetadata.displayName,
@@ -168,7 +198,7 @@ export class ProjectRegistry {
                     await projectClient.createComponent(componentRequest).then((component) => {
                         choreoPM.removeLocalComponent(projectLocation, componentMetadata);
                     });
-                });
+                }));
                 // Delete the components so they resolve from choreo
                 this._dataComponents.delete(projectId);
             }

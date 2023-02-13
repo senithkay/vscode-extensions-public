@@ -58,7 +58,7 @@ export function render(data: any, existingData: any, primaryButton: string, webV
                     );
                 }
 
-                window.configEditor.renderConfigEditor(${JSON.stringify(data)}, ${JSON.stringify(existingData)}, "Cancel", "${primaryButton}", onClickDefaultButton, onClickPrimaryButton);
+                window.configEditor.renderConfigEditor(${JSON.stringify(data)}, ${JSON.stringify(existingData)}, "Cancel", "${primaryButton}", onClickDefaultButton, onClickPrimaryButton, true);
             }
         `;
 

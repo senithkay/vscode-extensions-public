@@ -1,6 +1,5 @@
 .vscode/**
 .vscode-test/**
-out/**
 node_modules/**
 src/**
 .gitignore
@@ -11,6 +10,8 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+.nyc_output
+coverage
 
 # Ignore all webview-ui files except the build directory
 webview-ui/src/**

@@ -31,6 +31,8 @@ interface ServiceHeadProps {
     isSelected: boolean;
 }
 
+const ANON_RECORD_DISPLAY: string = 'record';
+
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
     const { getTypeComposition, currentView } = useContext(DiagramContext);
@@ -53,6 +55,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
 
     return (
         <EntityHead
+            isAnonymous={node.entityObject.isAnonymous}
             isSelected={isSelected}
             onMouseOver={() => handleOnHover('SELECT')}
             onMouseLeave={() => handleOnHover('UNSELECT')}
@@ -63,9 +66,10 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
             />
                 <EntityName
                     isClickable={isClickable}
+                    isAnonymous={node.entityObject.isAnonymous}
                     onClick={isClickable ? () => { getTypeComposition(node.getID()) } : () => { }}
                 >
-                    {displayName}
+                    {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
                 </EntityName>
                 {isHovered && node.entityObject.elementLocation &&
                     <NodeMenuWidget

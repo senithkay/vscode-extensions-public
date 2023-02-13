@@ -32,9 +32,9 @@ interface GatewayNodeWidgetProps {
 export function GatewayNodeWidget(props: GatewayNodeWidgetProps) {
     const { node, engine } = props;
 
-    let transform: string;
-    let topMargin: number;
-    let leftMargin: number;
+    let transform: string = '';
+    let topMargin: number = 0;
+    let leftMargin: number = 0;
     switch (node.type) {
         case 'NORTH':
             transform = 'rotate(0)';

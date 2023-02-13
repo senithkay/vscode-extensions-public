@@ -17,6 +17,7 @@ import {
     ExpressionFunctionBody,
     IdentifierToken,
     ListConstructor,
+    NodePosition,
     QueryExpression,
     SelectClause,
     STKindChecker,
@@ -35,6 +36,7 @@ import {
     getBalRecFieldName,
     getDefaultValue,
     getEnrichedRecordType,
+    getExprBodyFromLetExpression,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
@@ -81,6 +83,9 @@ export class ListConstructorNode extends DataMapperNodeModel {
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = getTypeName(valueEnrichedType.type);
             this.recordField = valueEnrichedType;
+            if (this.typeDef.typeName === PrimitiveBalType.Union) {
+                this.rootName = valueEnrichedType?.type?.typeName;
+            }
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, isSelectClause, this.recordField);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array) {
@@ -118,16 +123,21 @@ export class ListConstructorNode extends DataMapperNodeModel {
             }
             let outPort: RecordFieldPortModel;
             let mappedOutPort: RecordFieldPortModel;
+            const body = STKindChecker.isLetExpression(this.recordField.value)
+                ? getExprBodyFromLetExpression(this.recordField.value)
+                : this.recordField.value;
             if (this.recordField.type.typeName === PrimitiveBalType.Array
                 && this.recordField?.value
-                && !STKindChecker.isListConstructor(this.recordField.value)
+                && !STKindChecker.isListConstructor(body)
             ) {
                 outPort = this.getPort(`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${this.rootName}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
             } else {
                 [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             }
-            const lm = new DataMapperLinkModel(value, filterDiagnostics(this.context.diagnostics, value.position), true);
+            const diagnostics = filterDiagnostics(
+                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
+            const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,

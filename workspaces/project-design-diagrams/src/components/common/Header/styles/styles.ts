@@ -22,14 +22,14 @@ import { Colors } from '../../../../resources';
 
 export const HeaderContainer = styled.div`
     align-items: center;
+    color: #000;
     display: flex;
     flex-direction: row;
     font-family: inherit;
     height: 50px;
     justify-content: space-between;
     min-width: 700px;
-    padding-inline: 20px;
-    width: 100vw;
+    width: calc(100vw - 40px);
 `;
 
 export const DiagramTitle = styled.div`
@@ -43,7 +43,7 @@ export const DiagramTitle = styled.div`
 export const TypeContainer = styled.div`
     display: flex;
     flex-direction: column;
-    min-width: 312px;
+    min-width: 200px;
     padding: 12px 20px 12px 24px;
 `;
 

@@ -28,6 +28,7 @@ interface DiagramContextProps {
     currentView: Views;
     editingEnabled: boolean;
     setTargetService: (service: Service) => void;
+    refreshDiagram: () => void;
 }
 
 interface IDiagramContext {
@@ -41,6 +42,7 @@ interface IDiagramContext {
     newLinkNodes: LinkedNodes;
     setNewLinkNodes: (nodes: LinkedNodes) => void;
     setTargetService: (service: Service) => void;
+    refreshDiagram: () => void;
 }
 
 interface LinkedNodes {
@@ -55,7 +57,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
-    const { isChoreoProject, getTypeComposition, currentView, go2source, editingEnabled, children, setTargetService } = props;
+    const { isChoreoProject, getTypeComposition, currentView, go2source, editingEnabled, children, setTargetService, refreshDiagram } = props;
 
     const Ctx = {
         isChoreoProject,
@@ -67,7 +69,8 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         editingEnabled,
         newLinkNodes,
         setNewLinkNodes,
-        setTargetService
+        setTargetService,
+        refreshDiagram
     }
 
     return (

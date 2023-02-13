@@ -11,9 +11,9 @@
  *  associated services.
  */
 
-import { VSCodeButton, VSCodeLink, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
@@ -25,14 +25,24 @@ const WizardContainer = styled.div`
     flex-direction: column;
 `;
 
+const HeaderContainer = styled.div`
+    display  : flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+`;
+
 const ActionContainer = styled.div`
     display  : flex;
     flex-direction: row;
     gap: 10px;
 `;
 
-const LinkButton = styled.div`
-    padding-top  : 5px;
+const ComponentsHeader = styled.div`
+    display  : flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
 `;
 
 const ActiveLabel = styled.div`
@@ -62,51 +72,51 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const [project, setProject] = useState<Project | undefined>(undefined);
     const [components, setComponents] = useState<Component[] | undefined>(undefined);
     const [location, setLocation] = useState<string | undefined>(undefined);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
     const [isActive, setActive] = useState<boolean>(false);
     const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
     const projectId = props.projectId ? props.projectId : '';
     const orgName = props.orgName ? props.orgName : '';
 
-    const rpcInstance = ChoreoWebViewAPI.getInstance();
     // Set the starting project with the project id passed by props
     useEffect(() => {
-        rpcInstance.getAllProjects().then((fetchedProjects) => {
+        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
         });
-    }, []);
+    }, [projectId, orgName]);
 
     // Set the components of the project
     useEffect(() => {
-        rpcInstance.getComponents(projectId).then(setComponents);
-    }, []);
+        ChoreoWebViewAPI.getInstance().getComponents(projectId).then(setComponents);
+    }, [projectId, orgName]);
 
     useEffect(() => {
-        rpcInstance.getChoreoProject().then((p) => {
+        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
             if (p && p.id === projectId) {
                 setActive(true);
             } else {
                 setActive(false);
             }
         });
-    }, []);
+    }, [projectId, orgName]);
 
     // Get project location & repo
     useEffect(() => {
-        rpcInstance.getProjectLocation(projectId).then(setLocation);
-        rpcInstance.getProjectRepository(projectId).then(setProjectRepo);
-    }, []);
+        ChoreoWebViewAPI.getInstance().getProjectLocation(projectId).then(setLocation);
+        ChoreoWebViewAPI.getInstance().getProjectRepository(projectId).then(setProjectRepo);
+    }, [projectId, orgName]);
 
     // Listen to changes in project selection
-    rpcInstance.onSelectedProjectChanged((newProjectId) => {
+    ChoreoWebViewAPI.getInstance().onSelectedProjectChanged((newProjectId) => {
         setComponents(undefined);
         // setProject(undefined); will not remove project to fix the glitch
-        rpcInstance.getAllProjects().then((fetchedProjects) => {
+        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
         });
-        rpcInstance.getComponents(newProjectId).then(setComponents);
-        rpcInstance.getProjectLocation(newProjectId).then(setLocation);
-        rpcInstance.getChoreoProject().then((p) => {
+        ChoreoWebViewAPI.getInstance().getComponents(newProjectId).then(setComponents);
+        ChoreoWebViewAPI.getInstance().getProjectLocation(newProjectId).then(setLocation);
+        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
             if (p && p.id === newProjectId) {
                 setActive(true);
             } else {
@@ -115,30 +125,44 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
     });
 
-    const handleCloneProjectClick = (e: any) => {
-        rpcInstance.cloneChoreoProject(project ? project.id : '');
-    };
+    const handleCloneProjectClick = useCallback((e: any) => {
+        ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : '');
+    }, [project]);
 
-    const handleOpenProjectClick = (e: any) => {
-        rpcInstance.openChoreoProject(project ? project.id : '');
-    };
+    const handleOpenProjectClick = useCallback((e: any) => {
+        ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
+    }, [project]);
 
-    const handlePushToChoreoClick = (e: any) => {
+    const handlePushToChoreoClick = useCallback((e: any) => {
         setCreatingComponents(true);
-        rpcInstance.pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
+        ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
             setCreatingComponents(false);
-            rpcInstance.getComponents(project ? project.id : '').then(setComponents);
+            ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then(setComponents);
         });
-    };
+    }, [project]);
 
-    const handleOpenArchitectureViewClick = (e: any) => {
-        rpcInstance.openArchitectureView();
-    };
+    const handleOpenArchitectureViewClick = useCallback( (e: any) => {
+        ChoreoWebViewAPI.getInstance().openArchitectureView();
+    }, []);
+
+    const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
+
+    const onOpenConsoleClick = useCallback((e: any) => {
+        ChoreoWebViewAPI.getInstance().openExternal(consoleLink);
+    }, [consoleLink]);
+
+    const handleCreateComponentClick = useCallback((e: any) => {
+        ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.component.create');
+    }, []);
 
     return (
         <>
             <WizardContainer>
-                <h1>{project?.name}&nbsp;{isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}</h1>
+                <HeaderContainer>
+                    <h1>{project?.name}</h1>
+                    <VSCodeButton appearance="icon" title={"Open in Choreo Console"} onClick={onOpenConsoleClick}><Codicon name="link" /></VSCodeButton>
+                    {isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}
+                </HeaderContainer>
                 {location === undefined &&
                     <>
                         <p><InlineIcon><Codicon name="info" /></InlineIcon> To open the project clone in to your local machine</p>
@@ -146,11 +170,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
-                            <LinkButton>
-                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
-                                    Open in Choreo Console
-                                </VSCodeLink>
-                            </LinkButton>
                         </ActionContainer>
                     </>
                 }
@@ -161,11 +180,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
-                            <LinkButton>
-                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
-                                    Open in Choreo Console
-                                </VSCodeLink>
-                            </LinkButton>
                         </ActionContainer>
                     </>
                 }
@@ -176,17 +190,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="primary" onClick={handleOpenArchitectureViewClick}>Architecture View</VSCodeButton>
-                            <LinkButton>
-                                <VSCodeLink href={`https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`}>
-                                    Open in Choreo Console
-                                </VSCodeLink>
-                            </LinkButton>
                         </ActionContainer>
                     </>
                 }
 
 
-                <h2>Components</h2>
+                <ComponentsHeader>
+                    <h2>Components</h2>
+                    <VSCodeButton appearance="icon" onClick={handleCreateComponentClick} disabled={!isActive} title="Add Component"><Codicon name="plus" /></VSCodeButton>
+                </ComponentsHeader>
                 <ComponentList components={components} />
                 {components !== undefined && hasLocal(components) &&
                     <>

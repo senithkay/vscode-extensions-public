@@ -16,10 +16,10 @@
  * under the License.
  *
  */
-import React, {useEffect} from 'react';
-import { GatewayLinkModel } from './GatewayLinkModel';
+import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { Colors } from "../../../resources";
+import { GatewayLinkModel } from "./GatewayLinkModel";
 
 interface WidgetProps {
     engine: DiagramEngine;
@@ -29,28 +29,42 @@ interface WidgetProps {
 export function GatewayLinkWidget(props: WidgetProps) {
     const {link, engine} = props;
 
+    const [isVisible, setIsVisible] = useState<boolean>(true);
+
     useEffect(() => {
         link.initLinks(engine);
     });
 
+    useEffect(() => {
+        link.registerListener({
+            'updateVisibility': (evt: any) => {
+                setIsVisible(!evt.hide);
+            }
+        });
+    }, [link]);
+
     return (
         <>
-            <g>
-                <polygon
-                    points={link.getArrowHeadPoints()}
-                    fill={Colors.GATEWAY}
-                />
+            {(isVisible) ? (
+                <g>
+                    <polygon
+                        points={link.getArrowHeadPoints()}
+                        fill={Colors.GATEWAY}
+                        opacity={0.5}
+                    />
 
-                <path
-                    id={link.getID()}
-                    cursor={'pointer'}
-                    d={link.getCurvePath()}
-                    fill='none'
-                    pointerEvents='all'
-                    stroke={Colors.GATEWAY}
-                    strokeWidth={1}
-                />
-            </g>
+                    <path
+                        id={link.getID()}
+                        cursor={'pointer'}
+                        d={link.getCurvePath()}
+                        fill='none'
+                        pointerEvents='all'
+                        stroke={Colors.GATEWAY}
+                        strokeWidth={1}
+                        opacity={0.8}
+                    />
+                </g>
+            ) : null}
         </>
     );
 }

@@ -38,7 +38,8 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
-    const displayName: string = node.serviceObject.annotation.label ? node.serviceObject.annotation.label : node.serviceObject.path ?
+    const displayName: string = node.serviceObject.annotation && node.serviceObject.annotation.label ?
+        node.serviceObject.annotation.label : node.serviceObject.path ?
         node.serviceObject.path : node.serviceObject.serviceId;
 
     useEffect(() => {
@@ -87,6 +88,12 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 port={node.getPort(`top-${node.getID()}`)}
                 engine={engine}
             />
+            {node.getPort(`left-gw-${node.getID()}`) && (
+                <ServicePortWidget
+                    port={node.getPort(`left-gw-${node.getID()}`)}
+                    engine={engine}
+                />
+            )}
         </ServiceHead>
     )
 }

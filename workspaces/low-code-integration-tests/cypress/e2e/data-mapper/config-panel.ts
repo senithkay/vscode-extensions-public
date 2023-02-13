@@ -114,7 +114,10 @@ describe("Edit existing data mapper record types", () => {
         DataMapper.clickConfigUpdateBtn();
     });
 
-    it("Save data mapper config", () => DataMapper.saveConfig());
+    it("Save data mapper config", () => {
+        DataMapper.saveConfig()
+        DataMapper.confirmSaveConfig()
+    });
 
     it("Canvas contains the updated source and target nodes", () => {
         DataMapper.getSourceNode("updatedInput");

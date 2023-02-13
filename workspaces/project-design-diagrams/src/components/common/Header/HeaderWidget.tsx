@@ -20,14 +20,16 @@
 import React from 'react';
 import { RestrictedControls } from './DiagramControls/RestrictedControls';
 import { DefaultControls } from './DiagramControls/DefaultControls';
-import { Views } from '../../../resources';
+import { DagreLayout, Views } from '../../../resources';
 import { HeaderContainer, DiagramTitle } from './styles/styles';
 import './styles/styles.css';
 
 interface HeaderProps {
     currentView: Views;
+    layout: DagreLayout;
     prevView: Views;
     projectPackages: Map<string, boolean>;
+    changeLayout: () => void;
     switchView: (viewType: Views) => void;
     updateProjectPkgs: (packages: Map<string, boolean>) => void;
     onRefresh: () => void;
@@ -37,11 +39,12 @@ const headings: Map<Views, string> = new Map<Views, string>([
     [Views.TYPE, 'Type Diagram'],
     [Views.TYPE_COMPOSITION, 'Composition Diagram'],
     [Views.L1_SERVICES, 'Service Diagram: Level 1'],
-    [Views.L2_SERVICES, 'Service Diagram: Level 2']
+    [Views.L2_SERVICES, 'Service Diagram: Level 2'],
+    [Views.CELL_VIEW, 'Cell Diagram']
 ]);
 
 export function DiagramHeader(props: HeaderProps) {
-    const { currentView, prevView, projectPackages, switchView, updateProjectPkgs, onRefresh } = props;
+    const { currentView, layout, prevView, projectPackages, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
 
     return (
         <HeaderContainer>
@@ -52,7 +55,9 @@ export function DiagramHeader(props: HeaderProps) {
                 /> :
                 <DefaultControls
                     projectPackages={projectPackages}
+                    layout={layout}
                     updateProjectPkgs={updateProjectPkgs}
+                    changeLayout={changeLayout}
                     switchView={switchView}
                     onRefresh={onRefresh}
                 />

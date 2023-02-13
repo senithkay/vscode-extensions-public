@@ -23,12 +23,16 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
-import { Colors, ComponentModel, Location, Service, Views } from './resources';
+import { Colors, ComponentModel, DagreLayout, Location, Service, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { ProjectDesignRPC } from './utils/rpc/project-design-rpc';
 import { ControlsLayer, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
+
+interface ContainerStyleProps {
+    backgroundColor?: string;
+}
 
 const Container = styled.div`
     align-items: center;
@@ -39,6 +43,7 @@ const Container = styled.div`
     justify-content: center;
     min-height: 100vh;
     min-width: 100vw;
+    background: ${(props: ContainerStyleProps) => `${props.backgroundColor}`};
 `;
 
 interface DiagramProps {
@@ -51,6 +56,7 @@ export function DesignDiagram(props: DiagramProps) {
     const { go2source, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
+    const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.GRAPH);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
@@ -60,6 +66,8 @@ export function DesignDiagram(props: DiagramProps) {
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
+    const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
+
     useEffect(() => {
         rpcInstance.isChoreoProject().then((response) => {
             setIsChoreoProject(response);
@@ -67,6 +75,10 @@ export function DesignDiagram(props: DiagramProps) {
 
         refreshDiagramResources();
     }, [props])
+
+    const changeDiagramLayout = () => {
+        switchLayout(layout === DagreLayout.GRAPH ? DagreLayout.TREE : DagreLayout.GRAPH);
+    }
 
     const getTypeComposition = (typeID: string) => {
         previousScreen.current = currentView;
@@ -105,12 +117,13 @@ export function DesignDiagram(props: DiagramProps) {
         go2source,
         editingEnabled,
         setTargetService,
-        isChoreoProject
+        isChoreoProject,
+        refreshDiagram: refreshDiagramResources
     }
 
     return (
         <DesignDiagramContext {...ctx}>
-            <Container>
+            <Container backgroundColor={diagramBGColor}>
                 {showEditForm &&
                     <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
                 {editingEnabled && projectComponents && projectComponents.size < 1 ?
@@ -125,6 +138,8 @@ export function DesignDiagram(props: DiagramProps) {
                             <DiagramHeader
                                 currentView={currentView}
                                 prevView={previousScreen.current}
+                                layout={layout}
+                                changeLayout={changeDiagramLayout}
                                 projectPackages={projectPkgs}
                                 switchView={setCurrentView}
                                 updateProjectPkgs={setProjectPkgs}
@@ -132,6 +147,7 @@ export function DesignDiagram(props: DiagramProps) {
                             />
                             <DiagramContainer
                                 currentView={currentView}
+                                layout={layout}
                                 workspacePackages={projectPkgs}
                                 workspaceComponents={projectComponents}
                                 typeCompositionModel={typeCompositionModel.current}

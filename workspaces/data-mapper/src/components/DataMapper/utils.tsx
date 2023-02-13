@@ -85,3 +85,23 @@ export function isArraysSupported(version: string): boolean {
         return false;
     }
 }
+
+export function isGoToQueryWithinLetExprSupported(version: string): boolean {
+    if (!version) {
+        return false;
+    }
+    const versionStr = version.match(balVersionRegex);
+    const splittedVersions = versionStr[0]?.split(".");
+    if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) === 3)) {
+        // >= 2201.3.3
+        return (parseInt(splittedVersions[2], 10) >= 3);
+    } else  if ((parseInt(splittedVersions[0], 10) === 2201) && (parseInt(splittedVersions[1], 10) > 3)) {
+        // > 2201.3
+        return true;
+    } else  if (parseInt(splittedVersions[0], 10) > 2201) {
+        // > 2201 (eg: 2301, 2202)
+        return true;
+    } else {
+        return false;
+    }
+}

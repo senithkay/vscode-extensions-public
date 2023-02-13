@@ -15,19 +15,18 @@ import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
     GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
-    GetLoginStatusRequest, ExecuteCommandNotification, GetComponents,
+    GetLoginStatusRequest, ExecuteCommandRequest, GetComponents,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
     Organization, Project, CloseWebViewNotification,
-    ComponentWizardInput,
-    CreateComponentRequest,
-    ShowErrorMessage, Component,
-    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    ShowErrorMessage, Component, GetProjectLocation, OpenExternal,
+    OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo, OpenArchitectureView
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
+import { ChoreoProjectManagerRPCWebview } from "@wso2-enterprise/choreo-client/lib/manager/rpc/manager-client-rpc-webview";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
@@ -37,12 +36,14 @@ export class ChoreoWebViewAPI {
     private static _instance: ChoreoWebViewAPI;
     private _projectClientRpc: ChoreoProjectClientRPCWebView;
     private _githubAppClient: ChoreoGithubAppClientRPCWebView;
+    private _choreoProjectManager: ChoreoProjectManagerRPCWebview;
 
     constructor(vscodeAPI: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscodeAPI);
         this._messenger.start();
         this._projectClientRpc = new ChoreoProjectClientRPCWebView(this._messenger);
         this._githubAppClient = new ChoreoGithubAppClientRPCWebView(this._messenger);
+        this._choreoProjectManager = new ChoreoProjectManagerRPCWebview(this._messenger);
     }
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
@@ -59,10 +60,6 @@ export class ChoreoWebViewAPI {
 
     public async getAllProjects(): Promise<Project[]> {
         return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
-    }
-
-    public async createComponent(args: ComponentWizardInput): Promise<string> {
-        return this._messenger.sendRequest(CreateComponentRequest, HOST_EXTENSION, args);
     }
 
     public async getComponents(projectId: string): Promise<Component[]> {
@@ -122,7 +119,7 @@ export class ChoreoWebViewAPI {
     }
 
     public triggerCmd(cmdId: string, ...args: any) {
-        this._messenger.sendNotification(ExecuteCommandNotification, HOST_EXTENSION, [cmdId, ...args]);
+        return this._messenger.sendRequest(ExecuteCommandRequest, HOST_EXTENSION, [cmdId, ...args]);
     }
 
     public getProjectClient(): IChoreoProjectClient {
@@ -135,6 +132,10 @@ export class ChoreoWebViewAPI {
 
     public getChoreoGithubAppClient(): ChoreoGithubAppClientRPCWebView {
         return this._githubAppClient;
+    }
+
+    public getChoreoProjectManager(): ChoreoProjectManagerRPCWebview {
+        return this._choreoProjectManager;
     }
 
     public closeWebView() {

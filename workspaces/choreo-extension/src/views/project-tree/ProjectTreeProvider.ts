@@ -10,13 +10,12 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
-import { Project } from "@wso2-enterprise/choreo-core";
+import { EventEmitter, ProviderResult, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window } from "vscode";
 import { ext } from "../../extensionVariables";
 import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
 import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
-import { projectClient } from "../../auth/auth";
 import { ProjectRegistry } from "../../registry/project-registry";
+import { getLogger } from "../../logger/logger";
 
 export type ProjectTreeItem = ChoreoProjectTreeItem | ChoreoSignInPendingTreeItem;
 
@@ -42,8 +41,8 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
                 if (element instanceof ChoreoProjectTreeItem && project && project.id === element.project.id) {
                     element.description = element.description + " (opened)";
                 }
-                resolve(element);
             }
+            resolve(element);
         });
     }
 
@@ -63,13 +62,18 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
 
     private async loadProjects(): Promise<ChoreoProjectTreeItem[]> {
         const selectedOrg = ext.api.selectedOrg;
+        getLogger().debug("Loading projects for organization: " + selectedOrg?.name);
         if (selectedOrg) {
-            return ProjectRegistry.getInstance().getProjects(selectedOrg.id)
-                .then((projects) => {
-                    return projects.map((proj) => new ChoreoProjectTreeItem(proj));
-                });
+            try {
+               const projects = await ProjectRegistry.getInstance().refreshProjects() || [];
+               return projects.map((proj) => new ChoreoProjectTreeItem(proj));
+            } catch (error) {
+                getLogger().error("Error loading projects for organization: " + selectedOrg?.name, error);
+                window.showErrorMessage("Error loading projects for organization: " + selectedOrg?.name);
+            }
         } else {
-            throw Error("Selected organization is not set.");
+            getLogger().debug("No organization selected");
         }
+        return [];
     }
 }

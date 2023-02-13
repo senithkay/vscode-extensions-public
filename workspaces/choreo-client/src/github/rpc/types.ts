@@ -13,6 +13,7 @@
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { GHAppAuthStatus, GithubOrgnization  } from '../types';
 
+export const GetStatusRquest: RequestType<void, GHAppAuthStatus> = { method: 'ghapp/getStatus' };
 export const TriggerAuthFlowRequest: RequestType<void, boolean> = { method: 'ghapp/triggerAuthFlow' };
 export const ObtainAccessTokenRequest: RequestType<string, void> = { method: 'ghapp/obatainAccessToken' };
 export const TriggerInstallFlowRequest: RequestType<void, boolean> = { method: 'ghapp/triggerInstallFlow' };
