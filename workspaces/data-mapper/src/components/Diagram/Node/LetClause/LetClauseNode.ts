@@ -22,8 +22,10 @@ import {
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
+import { getFilteredSubFields, getSearchFilteredType } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
@@ -48,23 +50,24 @@ export class LetClauseNode extends DataMapperNodeModel {
     }
 
     initPorts(): void {
-        this.getSourceType();
         if (this.sourceBindingPattern) {
             const name = this.sourceBindingPattern.variableName.value;
 
-            const parentPort = this.addPortsForHeaderField(this.typeDef, name, "OUT", EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
+            if (this.typeDef){
+                const parentPort = this.addPortsForHeaderField(this.typeDef, name, "OUT", EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
 
-            if (this.typeDef && (this.typeDef.typeName === PrimitiveBalType.Record)) {
-                const fields = this.typeDef.fields;
-                fields.forEach((subField) => {
-                    this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,
-                        EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
-                         this.context.collapsedFields, parentPort.collapsed);
-                });
-            } else {
-                this.addPortsForInputRecordField(this.typeDef, "OUT", this.sourceBindingPattern.variableName.value,
-                        EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
-                         this.context.collapsedFields, parentPort.collapsed);
+                if (this.typeDef && (this.typeDef.typeName === PrimitiveBalType.Record)) {
+                    const fields = this.typeDef.fields;
+                    fields.forEach((subField) => {
+                        this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,
+                            EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
+                            this.context.collapsedFields, parentPort.collapsed);
+                    });
+                } else {
+                    this.addPortsForInputRecordField(this.typeDef, "OUT", this.sourceBindingPattern.variableName.value,
+                            EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
+                            this.context.collapsedFields, parentPort.collapsed);
+                }
             }
         }
     }
@@ -73,7 +76,7 @@ export class LetClauseNode extends DataMapperNodeModel {
         // Currently, we create links from "IN" ports and back tracing the inputs.
     }
 
-    private getSourceType() {
+    public getSourceType() {
         const expr = (this.value.letVarDeclarations[0] as LetVarDecl)?.expression;
         const bindingPattern = (this.value.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
@@ -87,17 +90,13 @@ export class LetClauseNode extends DataMapperNodeModel {
                 endLine: exprPosition.endLine,
                 endColumn: exprPosition.endColumn
             });
-            if (type && type.typeName === PrimitiveBalType.Record) {
-                this.typeDef = type;
-            } else if (type && type.typeName === PrimitiveBalType.Array) {
-                this.typeDef = type;
-            } else {
-                this.typeDef = {
-                    ...type,
-                    name: (expr as SimpleNameReference)?.name?.value
-                }
+            if (type){
+                const name = this.sourceBindingPattern.variableName.value;
+                const isRecordOrArray = type.typeName === PrimitiveBalType.Record || type.typeName === PrimitiveBalType.Array;
+                this.typeDef = getSearchFilteredType(isRecordOrArray ? type : {...type, name: (expr as SimpleNameReference)?.name?.value}, name)
             }
         }
+        return this.typeDef;
     }
 
     setPosition(point: Point): void;

@@ -41,6 +41,7 @@ import {
     isConnectedViaLink
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
+import { OutputSearchHighlight } from "../SearchHighlight";
 import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
@@ -131,7 +132,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
                 style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
             >
-                {fieldName}
+                <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {fieldName && typeName && ":"}
             </span>

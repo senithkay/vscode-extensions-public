@@ -227,3 +227,38 @@ describe("Expanded query view for defined record within mapping constructor", ()
 
     it("Delete query link", () => DataMapper.deleteQueryLink('input.Items', 'Output.innerOutput'));
 })
+
+
+describe("Verify input & output search", () => {
+    before(() => {
+        cy.visit(getIntegrationTestPageURL(INITIAL_BAL_FILE));
+        Canvas.getDataMapper("transform").clickEdit();
+    });
+
+    it("Create mapping between two record array element", () => {
+        DataMapper.createMapping("input.Items", "Output.Items");
+        DataMapper.linkExists("input.Items", "Output.Items");
+    });
+
+    it("Convert link into query using code action", () => {
+        DataMapper.clickLinkCodeAction("input.Items", "Output.Items");
+    });
+
+    it("Navigate into expanded query view", () => {
+        DataMapper.clickExpandQueryView("Output.Items");
+        DataMapper.getQueryExprNode("source.ItemsItem");
+        DataMapper.getTargetNode();
+    });
+
+    it("Verify input search", () => {
+        DataMapper.searchInput('id');
+        DataMapper.sourcePortExists('expandedQueryExpr.source.ItemsItem.Id');
+        DataMapper.sourcePortNotExists('expandedQueryExpr.source.Confirmed');
+    });
+
+    it("Verify output search", () => {
+        DataMapper.searchOutput('id');
+        DataMapper.mappingPortExists('Id');
+        DataMapper.mappingPortNotExists('Confirmed');
+    });
+})

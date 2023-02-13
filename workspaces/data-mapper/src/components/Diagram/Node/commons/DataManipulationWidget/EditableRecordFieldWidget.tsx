@@ -33,6 +33,7 @@ import {
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
+import { OutputSearchHighlight } from "../SearchHighlight";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -180,7 +181,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
-                {fieldName}
+                <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {typeName && ":"}
             </span>

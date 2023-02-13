@@ -162,3 +162,53 @@ describe("Verify that asterisk mark is shown appropriately", () => {
 
     it("Asterisk mark is not shown for an optional field", () => DataMapper.outputLabelNotContain('Output.d1', "*"));
 })
+
+describe("Verify input & output search", () => {
+    before(() => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM))
+        Canvas.getDataMapper("transform").clickEdit();
+    });
+
+    it("Canvas contains the source and target nodes", () => {
+        DataMapper.getSourceNode("input");
+        DataMapper.getSourceNode("secondInput");
+        DataMapper.getTargetNode("Output");
+    });
+
+    it("Verify input search", () => {
+        DataMapper.searchInput('st2');
+        DataMapper.sourcePortExists('input');
+        DataMapper.sourcePortExists('input.st2');
+        DataMapper.sourcePortNotExists('input.st1');
+        DataMapper.sourcePortNotExists('secondInput');
+        DataMapper.sourcePortNotExists('secondInput.st1');
+        DataMapper.getSourceNode("secondInput").should('not.exist');
+
+        DataMapper.searchInput('st1');
+        DataMapper.sourcePortExists('input');
+        DataMapper.sourcePortExists('input.st1');
+        DataMapper.sourcePortNotExists('input.st2');
+        DataMapper.sourcePortExists('secondInput');
+        DataMapper.sourcePortExists('secondInput.st1');
+    });
+
+    it("Verify output search", () => {
+        DataMapper.searchOutput('st1');
+        DataMapper.mappingPortExists('Output.st1');
+        DataMapper.mappingPortNotExists('Output.Items');
+    });
+
+    it("Verify clear search function", () => {
+        DataMapper.clearSearchInput();
+        DataMapper.clearSearchOutput();
+
+        DataMapper.mappingPortExists('Output.st1');
+        DataMapper.mappingPortExists('Output.Items');
+
+        DataMapper.sourcePortExists('input');
+        DataMapper.sourcePortExists('input.st1');
+        DataMapper.sourcePortExists('input.st2');
+        DataMapper.sourcePortExists('secondInput');
+        DataMapper.sourcePortExists('secondInput.st1');
+    });
+})

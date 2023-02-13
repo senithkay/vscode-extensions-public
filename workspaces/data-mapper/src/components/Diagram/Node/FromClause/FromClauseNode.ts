@@ -20,9 +20,10 @@ import {
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getTypeFromStore } from "../../utils/dm-utils";
+import { getFilteredSubFields, getSearchFilteredType, getTypeFromStore } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
@@ -33,8 +34,8 @@ export class FromClauseNode extends DataMapperNodeModel {
     public typeDef: Type;
     public sourceBindingPattern: CaptureBindingPattern;
     public x: number;
+    public y: number;
     public numberOfFields:  number;
-    public initialYPosition: number;
 
     constructor(
         public context: IDataMapperContext,
@@ -44,23 +45,22 @@ export class FromClauseNode extends DataMapperNodeModel {
             QUERY_EXPR_SOURCE_NODE_TYPE
         );
         this.numberOfFields = 1;
-        this.initialYPosition = 0;
     }
 
     initPorts(): void {
-        this.getSourceType();
         if (this.sourceBindingPattern) {
             const name = this.sourceBindingPattern.variableName.value;
+            if (this.typeDef){
+                const parentPort = this.addPortsForHeaderField(this.typeDef, name, "OUT", EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
 
-            const parentPort = this.addPortsForHeaderField(this.typeDef, name, "OUT", EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
-
-            if (this.typeDef && this.typeDef.typeName === PrimitiveBalType.Record) {
-                const fields = this.typeDef.fields;
-                fields.forEach((subField) => {
-                    this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,
-                        EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
-                        this.context.collapsedFields, parentPort.collapsed);
-                });
+                if (this.typeDef && this.typeDef.typeName === PrimitiveBalType.Record) {
+                    const fields = this.typeDef.fields;
+                    fields.forEach((subField) => {
+                        this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,
+                            EXPANDED_QUERY_SOURCE_PORT_PREFIX, parentPort,
+                            this.context.collapsedFields, parentPort.collapsed);
+                    });
+                }
             }
         }
     }
@@ -69,25 +69,27 @@ export class FromClauseNode extends DataMapperNodeModel {
         // Currently, we create links from "IN" ports and back tracing the inputs.
     }
 
-    private getSourceType() {
+    public getSourceType() {
         const bindingPattern = this.value.typedBindingPattern.bindingPattern;
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
         }
         const type = getTypeFromStore(this.value.expression.position as NodePosition);
         if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
-            this.typeDef = type.memberType;
+            this.typeDef = getSearchFilteredType(type.memberType, this.sourceBindingPattern?.variableName?.value);
         }
+        return this.typeDef;
     }
 
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
     setPosition(x: unknown, y?: unknown): void {
-        if (typeof x === 'number' && typeof y === 'number'){
-            if (!this.x){
+        if (typeof x === 'number' && typeof y === 'number') {
+            if (!this.x || !this.y) {
                 this.x = x;
+                this.y = y;
+                super.setPosition(x, y);
             }
-            super.setPosition(this.x, y);
         }
     }
 }

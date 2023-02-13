@@ -22,6 +22,7 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getOptionalRecordField, getTypeName } from "../../../utils/dm-utils";
+import { InputSearchHighlight } from "../SearchHighlight";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -127,7 +128,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const label = (
         <span style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel} style={{ marginLeft: indentation }}>
-                {fieldName}
+                <InputSearchHighlight>{fieldName}</InputSearchHighlight>
                 {field.optional && "?"}
                 {typeName && ":"}
             </span>

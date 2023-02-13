@@ -20,6 +20,7 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getDefaultValue, getExprBodyFromLetExpression, getFieldLabel, getFieldName } from "../../../utils/dm-utils";
+import { OutputSearchHighlight } from "../SearchHighlight";
 
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
@@ -73,7 +74,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     const label = (
         <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn.getName()}`}>
             <span className={classes.valueLabel}>
-                {value}
+                <OutputSearchHighlight>{value}</OutputSearchHighlight>
             </span>
         </span>
     );

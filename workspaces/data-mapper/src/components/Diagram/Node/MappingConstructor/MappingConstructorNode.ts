@@ -25,6 +25,7 @@ import {
     traversNode
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
@@ -36,6 +37,7 @@ import {
     getBalRecFieldName,
     getDefaultValue,
     getEnrichedRecordType,
+    getFilteredSubFields,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
@@ -71,24 +73,25 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
+        const enrichedTypedef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
+        this.typeDef = this.getSearchFilteredOutput(enrichedTypedef)
 
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)
                 && this.typeDef.typeName === PrimitiveBalType.Array
                 && this.typeDef?.memberType
-                && this.typeDef.memberType.typeName === PrimitiveBalType.Record)
-            {
+                && this.typeDef.memberType.typeName === PrimitiveBalType.Record) {
                 this.rootName = this.typeDef.memberType?.name;
             }
+
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = getTypeName(this.typeDef.typeName === PrimitiveBalType.Union ? this.typeDef : valueEnrichedType.type);
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
                 STKindChecker.isSelectClause(this.value), valueEnrichedType);
-            if (this.typeDef.typeName === PrimitiveBalType.Union){
+            if (this.typeDef.typeName === PrimitiveBalType.Union) {
                 // todo: check primitive and array types
                 this.rootName = valueEnrichedType?.type?.name;
             }
@@ -144,7 +147,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 const keepDefault = ((mappedField && !mappedField?.name
                     && mappedField.typeName !== PrimitiveBalType.Array
                     && mappedField.typeName !== PrimitiveBalType.Record)
-                        || !STKindChecker.isMappingConstructor(this.value.expression)
+                    || !STKindChecker.isMappingConstructor(this.value.expression)
                 );
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
@@ -222,5 +225,35 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             }
             super.setPosition(x, y || this.y);
         }
+    }
+
+    private getSearchFilteredOutput(type: Type) {
+        const searchValue = useDMSearchStore.getState().outputSearch;
+        if (!type) {
+            return null
+        }
+        if (!searchValue) {
+            return type;
+        }
+
+        if (type.typeName === PrimitiveBalType.Array) {
+            const subFields = type.memberType?.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+
+            return {
+                ...type,
+                memberType: {
+                    ...type.memberType,
+                    fields: subFields || []
+                }
+            }
+        } else if (type.typeName === PrimitiveBalType.Record) {
+            const subFields = type.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+
+            return {
+                ...type,
+                fields: subFields || []
+            }
+        }
+        return  null;
     }
 }

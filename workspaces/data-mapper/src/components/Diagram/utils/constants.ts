@@ -11,7 +11,7 @@ export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 export const OFFSETS = {
     SOURCE_NODE: {
         X: 50,
-        Y: 100,
+        Y: 150,
     },
     TARGET_NODE: {
         X: 950,
@@ -23,6 +23,7 @@ export const OFFSETS = {
     QUERY_MAPPING_HEADER_NODE: {
         X: 25,
         Y: 25,
+        MARGIN_BOTTOM: 65
     },
     LINK_CONNECTOR_NODE: {
         X: 750
@@ -32,6 +33,9 @@ export const OFFSETS = {
     },
     QUERY_EXPRESSION_NODE: {
         X: 750
-    }
+    },
+    INTERMEDIATE_CLAUSE_HEIGHT: 80,
+    QUERY_VIEW_LEFT_MARGIN: 80,
+    QUERY_VIEW_TOP_MARGIN: 50,
 }
 

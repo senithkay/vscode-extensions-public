@@ -24,6 +24,7 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
 import { getExprBodyFromLetExpression } from "../../../utils/dm-utils";
+import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
@@ -128,7 +129,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
-					{valueLabel}
+					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
 					{typeName && ":"}
 				</span>
 			)}

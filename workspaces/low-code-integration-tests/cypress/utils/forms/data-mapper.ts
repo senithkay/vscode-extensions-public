@@ -124,6 +124,22 @@ export class DataMapper {
         this.getMappingPort(targetPort).click({ force: true })
     }
 
+    static searchInput = (searchValue) => {
+        cy.get(`[id="search-0"]`).clear().type(`${searchValue}{enter}`)
+    }
+
+    static clearSearchInput = () => {
+        cy.get(`[data-testid='search-clear-0']`).click();
+    }
+
+    static searchOutput = (searchValue) => {
+        cy.get(`[id="search-1"]`).clear().type(`${searchValue}{enter}`)
+    }
+
+    static clearSearchOutput = () => {
+        cy.get(`[data-testid='search-clear-1']`).click();
+    }
+
     static createMappingFromQueryExpression = (sourcePort: string, targetPort: string) => {
         cy.get(`[data-name='expandedQueryExpr.source.${sourcePort}.OUT']`).click();
         this.getMappingPort(targetPort).click({ force: true })

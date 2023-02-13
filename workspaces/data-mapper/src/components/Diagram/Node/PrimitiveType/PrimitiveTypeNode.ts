@@ -28,7 +28,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getDefaultValue,
     getEnrichedRecordType,
@@ -174,7 +174,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             if (!this.x || !this.y) {
                 this.x = x;
                 this.y = y;
-                super.setPosition(x, y);
+                super.setPosition(x, y + OFFSETS.TARGET_NODE.Y);
             }
         }
     }
