@@ -57,7 +57,7 @@ export class SwaggerServer {
             body: JSON.stringify(responseData),
             text: JSON.stringify(responseData),
             obj: responseData,
-            headers: response.headers
+            headers: response.headers as Record<string, string>
           };
           resolve(isOriginalResponse ? responseData : res);
         })
