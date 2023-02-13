@@ -21,20 +21,12 @@ const BASE_VISITOR_PATH = '../src/base-visitor' + TEST_SUFFIX + '.ts';
 const CHECK_KIND_UTIL_PATH = '../src/check-kind-util' + TEST_SUFFIX + '.ts';
 const CACHE_REPO = false;
 
+const ignoredBalFiles: string[] = ['ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/'];
+
 const modelInfo: any = {};
-const ignoredBalFiles: string[] = [
-    'ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/test_project_bar/map-constant.bal',
-    'ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/test_project_errors/errors.bal',
-    'ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/test_project_immutable/constructs.bal',
-    'ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/test_project_isolation/isolated_constructs.bal',
-    'ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/test_project_negative/simple-literal-negative.bal',
-    'ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/test_project_public_var/module_public_var.bal',
-    'ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/test_project_readonly_obj/constructs.bal',
-    'ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/test_project_records/client_oauth2_provider.bal',
-    'ballerina-lang/tests/jballerina-unit-test/src/test/resources/test-src/bala/test_projects/test_project_records/closed_record_type_reference.bal',
-];
 let balFiles: string[] = [];
 const triedBalFiles: string[] = [];
+const skippedBalFiles: string[] = [];
 const notParsedBalFiles: string[] = [];
 const usedBalFiles: string[] = [];
 const timedOutBalFiles: string[] = [];
@@ -178,11 +170,13 @@ async function formatSource(source: string) {
 
 function printSummary() {
     const found = balFiles.length;
+    const skipped = skippedBalFiles.length;
     const notParsed = notParsedBalFiles.length;
     const used = usedBalFiles.length;
     const timedOut = timedOutBalFiles.length;
 
     logMessage(`${found} Files found`);
+    logMessage(`${skipped} Files were skipped`);
     logMessage(`${notParsed} Could not be parsed`);
     logMessage(`${used} Used for util generation`);
     logMessage(`${timedOut} timed out while parsing`);
@@ -194,10 +188,11 @@ function printSummary() {
     }
 }
 
+// Ignoring some files due to syntax tree generation issues
 function isIgnoredFile(fileName: string) {
     for (var i = 0; i < ignoredBalFiles.length; i++) {
         if (fileName.indexOf(ignoredBalFiles[i]) > 0) {
-            logMessage(`>>>>>>>>>>>>>>>>>>>>>>> skiped file ${fileName}`);
+            skippedBalFiles.push(fileName);
             return true;
         }
     }
