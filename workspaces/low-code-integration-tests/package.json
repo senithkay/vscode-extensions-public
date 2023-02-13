@@ -30,7 +30,7 @@
         "@cypress/webpack-batteries-included-preprocessor": "^2.2.3",
         "@cypress/webpack-preprocessor": "^5.14.0",
         "@testing-library/cypress": "^8.0.3",
-        "@wso2-enterprise/ballerina-low-code-editor": "file:workspaces/low-code-editor",
+        "@wso2-enterprise/ballerina-low-code-editor": "^3.3.9",
         "cypress-terminal-report": "^4.1.2",
         "cypress": "^10.10.0",
         "find-process": "^1.4.7",
