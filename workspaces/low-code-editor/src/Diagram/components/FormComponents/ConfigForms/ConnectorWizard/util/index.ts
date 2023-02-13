@@ -467,7 +467,7 @@ export function getTargetBlock(targetPosition: NodePosition, blockNode: STNode):
                 block.position?.endLine >= targetPosition.startLine
         );
         if (!targetBlock) {
-            return blockNode;
+            return blockNode as BlockStatement;
         }
 
         switch (targetBlock.kind) {
