@@ -22,6 +22,7 @@ import { join, sep } from "path";
 import { ballerinaExtInstance } from "../core";
 
 export const RESOURCES_CDN = `https://choreo-shared-codeserver-cdne.azureedge.net/ballerina-low-code-resources@${process.env.BALLERINA_LOW_CODE_RESOURCES_VERSION}`;
+const isDevMode = process.env.WEB_VIEW_WATCH_MODE === "true";
 
 function getWebViewResourceRoot(): string {
     return join((ballerinaExtInstance.context as ExtensionContext).extensionPath,
@@ -144,24 +145,20 @@ function getComposerURI(webView: Webview): string {
         'jslibs'), webView);
 }
 
-export function getComposerPath(disableComDebug: boolean, devHost: string, webView: Webview): string {
-    return (process.env.WEB_VIEW_WATCH_MODE === "true" && !disableComDebug)
-        ? devHost
-        : getComposerURI(webView);
-}
-
 function getComposerCSSFiles(disableComDebug: boolean, devHost: string, webView: Webview): string[] {
-    const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
+    const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs', 'themes', 'ballerina-default.min.css');
     return [
-        isCodeServer ? (`${RESOURCES_CDN}/jslibs/themes/ballerina-default.min.css`) : join(getComposerPath(disableComDebug, devHost, webView), 'themes', 'ballerina-default.min.css')
+        (isDevMode && !disableComDebug) ? join(devHost, 'themes', 'ballerina-default.min.css')
+            : webView.asWebviewUri(Uri.file(filePath)).toString()
     ];
 }
 
 function getComposerJSFiles(componentName: string, disableComDebug: boolean, devHost: string, webView: Webview): string[] {
-    const isCodeServer = ballerinaExtInstance.getCodeServerContext().codeServerEnv;
+    const filePath = join((ballerinaExtInstance.context as ExtensionContext).extensionPath, 'resources', 'jslibs') + sep + componentName + '.js'; 
     return [
-        isCodeServer ? (`${RESOURCES_CDN}/jslibs/${componentName}.js`) : join(getComposerPath(disableComDebug, devHost, webView), componentName + '.js'),
-        process.env.WEB_VIEW_WATCH_MODE === "true" ? 'http://localhost:8097' : '' // For React Dev Tools
+        (isDevMode && !disableComDebug) ? join(devHost, componentName + '.js')
+            : webView.asWebviewUri(Uri.file(filePath)).toString(),
+        isDevMode ? 'http://localhost:8097' : '' // For React Dev Tools
     ];
 }
 
