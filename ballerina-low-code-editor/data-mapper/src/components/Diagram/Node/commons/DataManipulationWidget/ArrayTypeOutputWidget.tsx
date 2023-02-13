@@ -11,7 +11,7 @@
 * associated services.
 */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -24,7 +24,7 @@ import classnames from "classnames";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
-import { getExprBodyFromLetExpression } from "../../../utils/dm-utils";
+import { getExprBodyFromLetExpression, isConnectedViaLink } from "../../../utils/dm-utils";
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
@@ -101,6 +101,9 @@ const useStyles = makeStyles((theme: Theme) =>
 			width: "25px",
 			marginLeft: "auto"
 		},
+		expandIconDisabled: {
+			color: "#9797a9",
+		},
 		treeLabelDisabled: {
 			backgroundColor: "#F7F8FB",
 			'&:hover': {
@@ -149,9 +152,17 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 			STKindChecker.isListConstructor(field.value) && field.value.expressions.length === 0
 	));
 
+	const hasElementConnectedViaLink = useMemo(() => {
+		if (isBodyListConstructor) {
+			return body.expressions.some(expr => isConnectedViaLink(expr));
+		}
+	}, [body]);
+
 	let isDisabled = portIn.descendantHasValue;
-	if (!isDisabled && isBodyListConstructor && expanded && body.expressions.length > 0) {
+	if (expanded && !isDisabled && isBodyListConstructor && body.expressions.length > 0) {
 		portIn.setDescendantHasValue();
+		isDisabled = true;
+	} else if (!expanded && !hasElementConnectedViaLink && !isDisabled && isBodyListConstructor && body.expressions.length > 0) {
 		isDisabled = true;
 	}
 
@@ -194,7 +205,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 				</span>
 				<span className={classes.label}>
 					<IconButton
-						className={classes.expandIcon}
+						className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
 						style={{ marginLeft: indentation }}
 						onClick={handleExpand}
 					>
