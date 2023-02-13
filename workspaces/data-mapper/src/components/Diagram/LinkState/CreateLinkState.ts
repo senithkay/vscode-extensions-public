@@ -6,6 +6,7 @@ import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagram
 import { ExpressionLabelModel } from "../Label";
 import { MappingConstructorNode, RequiredParamNode } from '../Node';
 import { FromClauseNode } from '../Node/FromClause';
+import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from '../Node/LinkConnector';
 import { ModuleVariableNode } from "../Node/ModuleVariable";
@@ -44,8 +45,9 @@ export class CreateLinkState extends State<DiagramEngine> {
 						if (element instanceof RequiredParamNode
 							|| element instanceof  FromClauseNode
 							|| element instanceof LetExpressionNode
-							|| element instanceof ModuleVariableNode)
-						{
+							|| element instanceof ModuleVariableNode
+							|| element instanceof LetClauseNode
+						) {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".OUT";
