@@ -95,25 +95,25 @@ export function DiagramViewManager(props: EditorProps) {
     const [balVersion, setBalVersion] = React.useState("");
     const [completeST, setCompleteST] = useState<STNode>();
 
-    useEffect(() => {
-        if (currentProject) {
-            (async () => {
-                const response = await getAllFiles('**/*.bal');
-                const fileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
-                const projectFiles: FileListEntry[] = fileList.map(fileUri => ({
-                    fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
-                    uri: fileUri
-                }));
-                if (!focusFile && diagramFocus) {
-                    const currentlySelectedFile = projectFiles.find(projectFile => projectFile.uri.path.includes(diagramFocus.filePath));
-                    setFocusFile(currentlySelectedFile);
-                } else {
-                    setFocusFile(undefined);
-                }
-                setFileList(projectFiles);
-            })();
-        }
-    }, [currentProject]);
+    // useEffect(() => {
+    //     if (currentProject) {
+    //         (async () => {
+    //             const response = await getAllFiles('**/*.bal');
+    //             const fileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
+    //             const projectFiles: FileListEntry[] = fileList.map(fileUri => ({
+    //                 fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
+    //                 uri: fileUri
+    //             }));
+    //             if (!focusFile && diagramFocus) {
+    //                 const currentlySelectedFile = projectFiles.find(projectFile => projectFile.uri.path.includes(diagramFocus.filePath));
+    //                 setFocusFile(currentlySelectedFile);
+    //             } else {
+    //                 setFocusFile(undefined);
+    //             }
+    //             setFileList(projectFiles);
+    //         })();
+    //     }
+    // }, [currentProject]);
 
     useEffect(() => {
         if (diagramFocus) {
@@ -128,8 +128,9 @@ export function DiagramViewManager(props: EditorProps) {
                     uri: fileUri
                 }));
                 const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
+                console.log("currentFile >>>", currentFile);
                 if (position) {
-                    fetchST(filePath, position);
+                    fetchST(filePath, { position });
                 }
                 setCurrentProject(projectPath);
                 setFileList(projectFiles);
@@ -139,13 +140,10 @@ export function DiagramViewManager(props: EditorProps) {
         }
     }, [diagramFocus]);
 
-    useEffect(() => {
-        if (focusFile) {
-            // TODO: handle showing components in a single file
-        } else {
-            // TODO: handle showing all components in all files
-        }
-    }, [focusFile]);
+    // useEffect(() => {
+    //     setFocusUid(undefined);
+    //     setFocusedST(undefined);
+    // }, [focusFile]);
 
     // React.useEffect(() => {
     //     (async () => {
@@ -200,35 +198,10 @@ export function DiagramViewManager(props: EditorProps) {
     //     })
     //     setFilterMap(filterMap);
     // }, [projectPaths]);
-    //
-    const fetchST = (filePath: string, position: NodePosition) => {
-        // if (history.length > 0) {
-        //     const componentDetails = history[history.length - 1];
-        //     const { filePath, uid } = componentDetails;
-        //     (async () => {
-        //         try {
-        //             const langClient = await langClientPromise;
-        //             const generatedST = await getSyntaxTree(filePath, langClient);
-        //             const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
-        //             const content = await getFileContent(filePath);
-        //             const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
-        //             const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
-        //
-        //             const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
-        //             traversNode(visitedST, nodeFindingVisitor);
-        //
-        //             setFocusedST(nodeFindingVisitor.getNode());
-        //             setCompleteST(visitedST);
-        //             setCurrentFileContent(content);
-        //             setLowCodeResourcesVersion(resourceVersion);
-        //             setLowCodeEnvInstance(envInstance);
-        //         } catch (err) {
-        //             // tslint:disable-next-line: no-console
-        //             console.error(err);
-        //         }
-        //     })();
-        // }
 
+    // TODO: move to util file
+    const fetchST = (filePath: string, options: { position?: NodePosition, uid?: string }) => {
+        const { position, uid } = options;
         (async () => {
             try {
                 const langClient = await langClientPromise;
@@ -237,28 +210,40 @@ export function DiagramViewManager(props: EditorProps) {
                 const content = await getFileContent(filePath);
                 const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                 const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
+                let focusedST;
 
-                const uidGenVisitor = new UIDGenerationVisitor(position);
-                traversNode(visitedST, uidGenVisitor);
-                const uid = uidGenVisitor.getUId();
-                const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
-                traversNode(visitedST, nodeFindingVisitor);
+                if (position) {
+                    const uidGenVisitor = new UIDGenerationVisitor(position);
+                    traversNode(visitedST, uidGenVisitor);
+                    const generatedUid = uidGenVisitor.getUId();
+                    const nodeFindingVisitor = new FindNodeByUidVisitor(generatedUid);
+                    traversNode(visitedST, nodeFindingVisitor);
+                    focusedST = nodeFindingVisitor.getNode();
+                    setFocusUid(generatedUid);
+                }
 
-                setFocusedST(nodeFindingVisitor.getNode());
+                if (uid) {
+                    const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
+                    traversNode(visitedST, nodeFindingVisitor);
+                    focusedST = nodeFindingVisitor.getNode();
+                }
+
+                setFocusedST(focusedST);
                 setCompleteST(visitedST);
                 setCurrentFileContent(content);
                 setLowCodeResourcesVersion(resourceVersion);
                 setLowCodeEnvInstance(envInstance);
-                setFocusUid(uid);
             } catch (err) {
                 // tslint:disable-next-line: no-console
                 console.error(err);
             }
         })();
     }
-    // useEffect(() => {
-    //     fetchST();
-    // }, [lastUpdatedAt]);
+    useEffect(() => {
+        console.log('hello >>>', focusFile, focusUid);
+        if (!focusFile || !focusUid) return;
+        fetchST(focusFile.uri.path, { uid: focusUid });
+    }, [lastUpdatedAt]);
     //
     //
     // useEffect(() => {
@@ -306,7 +291,7 @@ export function DiagramViewManager(props: EditorProps) {
     const handleNavigationHome = () => {
         historyClear();
     }
-    
+
     const viewComponent: React.ReactElement[] = [];
 
     if (!focusedST && currentProject) {
@@ -430,6 +415,11 @@ export function DiagramViewManager(props: EditorProps) {
     //     setFilterMap(filterMap);
     //     historyClear();
     // }
+    //
+    const handleFileChange = (entry: FileListEntry) => {
+        setFocusFile(entry);
+        setFocusUid(undefined);
+    }
 
     return (
         <div>
@@ -444,7 +434,7 @@ export function DiagramViewManager(props: EditorProps) {
                                 fileList={fileList}
                                 currentProject={currentProject}
                                 currentFile={focusFile}
-                                updateCurrentFile={setFocusFile}
+                                updateCurrentFile={handleFileChange}
                                 updateCurrentProject={setCurrentProject}
                             />
                             {viewComponent}
