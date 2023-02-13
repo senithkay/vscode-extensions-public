@@ -41,7 +41,8 @@ export const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#F7F8FB",
             '&:hover': {
                 backgroundColor: '#F7F8FB',
-            }
+            },
+            cursor: 'not-allowed'
         },
         treeLabelArray: {
             flexDirection: "column"
