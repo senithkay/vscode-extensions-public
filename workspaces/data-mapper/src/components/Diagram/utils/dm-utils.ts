@@ -231,8 +231,11 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	if (targetMappingConstruct) {
 		const fieldsAvailable = !!targetMappingConstruct.fields.length;
 		if (fieldsAvailable) {
-			targetPosition = mappingConstruct.fields[mappingConstruct.fields.length - 1].position as NodePosition;
-			source = `,${getLinebreak()}${source}`;
+			const lastField = mappingConstruct.fields[mappingConstruct.fields.length - 1];
+			targetPosition = lastField.position as NodePosition;
+			source = STKindChecker.isSpecificField(lastField) && isEmptyValue(lastField.position)
+				? source
+				: `,${getLinebreak()}${source}`;
 		} else {
 			targetPosition = mappingConstruct.openBrace.position as NodePosition;
 			source = `${getLinebreak()}${source}`
@@ -276,10 +279,10 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 	let targetMappingConstructor: STNode = mappingConstruct;
 	const parentFields: string[] = [];
 	let nextField = field;
+	const fieldName = getFieldName(nextField);
 	const modifications: STModification[] = [];
 
 	while (nextField && nextField.parentType) {
-		const fieldName = nextField.type.name;
 		if (fieldName && !(nextField.hasValue() && STKindChecker.isMappingConstructor(nextField.value))) {
 			parentFields.push(getBalRecFieldName(fieldName));
 		}
@@ -323,7 +326,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	if (!source) {
 		const specificField = STKindChecker.isMappingConstructor(targetMappingConstructor)
-			&& getSpecificField(targetMappingConstructor, field.type.name);
+			&& getSpecificField(targetMappingConstructor, fieldName);
 		if (specificField && !specificField.valueExpr.source) {
 			return createValueExprSource(field.type.name, newValue, parentFields, 1,
 				specificField.colon.position as NodePosition, applyModifications);

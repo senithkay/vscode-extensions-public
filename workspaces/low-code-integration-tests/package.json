@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/ballerina-low-code-integration-tests",
-    "version": "1.0.5",
+    "version": "3.3.9",
     "description": "Ballerina Low Code Integration Tests",
     "scripts": {
         "build": "echo 'not imlemented'",
@@ -30,7 +30,7 @@
         "@cypress/webpack-batteries-included-preprocessor": "^2.2.3",
         "@cypress/webpack-preprocessor": "^5.14.0",
         "@testing-library/cypress": "^8.0.3",
-        "@wso2-enterprise/ballerina-low-code-editor": "^1.0.0",
+        "@wso2-enterprise/ballerina-low-code-editor": "file:workspaces/low-code-editor",
         "cypress-terminal-report": "^4.1.2",
         "cypress": "^10.10.0",
         "find-process": "^1.4.7",
