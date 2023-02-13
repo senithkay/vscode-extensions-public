@@ -17,13 +17,14 @@
  *
  */
 
-import React from 'react';
-import { Location, Service } from '../../../resources';
-import { AddConnectorWidget, Go2SourceWidget, LinkingWidget } from './components';
+import React from "react";
+import { Location, Service } from "../../../resources";
+import { AddConnectorButton, Go2SourceButton, LinkingButton } from "./components";
+import { Paper, MenuList, Divider } from "@mui/material";
 
 interface MenuProps {
-    location: Location,
-    linkingEnabled: boolean,
+    location: Location;
+    linkingEnabled: boolean;
     service?: Service;
 }
 
@@ -32,13 +33,18 @@ export function NodeMenuPanel(props: MenuProps) {
 
     return (
         <>
-            <Go2SourceWidget location={location} />
-            {linkingEnabled && service &&
-                <>
-                    <LinkingWidget service={service} />
-                    <AddConnectorWidget service={service} />
-                </>
-            }
+            <Paper sx={{ maxWidth: "100%" }}>
+                <MenuList>
+                    <Go2SourceButton location={location} />
+                    {linkingEnabled && service && (
+                        <>
+                            <Divider />
+                            <LinkingButton service={service} />
+                            <AddConnectorButton service={service} />
+                        </>
+                    )}
+                </MenuList>
+            </Paper>
         </>
     );
 }
