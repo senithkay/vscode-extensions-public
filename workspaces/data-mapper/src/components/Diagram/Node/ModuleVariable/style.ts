@@ -21,6 +21,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 borderRadius: '3px',
                 width: '100%',
                 display: 'flex',
+                cursor: 'pointer',
                 '&:hover': {
                     backgroundColor: '#F0F1FB',
                 }

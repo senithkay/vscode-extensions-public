@@ -24,6 +24,10 @@ export const TreeHeader = styled.div`
     border-radius: 3px;
     width: 100%;
     display: flex;
+    cursor: pointer;
+    &:hover {
+      background-color: #F0F1FB;
+    }
 `;
 
 export const TreeBody = styled.div`
@@ -37,4 +41,5 @@ export const TreeBody = styled.div`
     flex: none;
     flex-grow: 0;
     width: 100%;
+    cursor: pointer;
 `;
