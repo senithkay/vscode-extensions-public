@@ -46,7 +46,7 @@
     "@wso2-enterprise/ballerina-low-code-edtior-ui-components": "workspace:*",
     "@wso2-enterprise/ballerina-statement-editor": "workspace:*",
     "@wso2-enterprise/ballerina-data-mapper": "workspace:*",
-    "@wso2-enterprise/lang-service": "workspace:^1.0.0",
+    "@wso2-enterprise/lang-service": "workspace:*",
     "@wso2-enterprise/syntax-tree": "workspace:*",
     "classnames": "^2.2.6",
     "clipboard-copy": "^3.1.0",

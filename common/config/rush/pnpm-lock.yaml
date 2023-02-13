@@ -1090,7 +1090,7 @@ importers:
       '@types/uuid': ^8.3.0
       '@types/webpack': ^4.41.26
       '@wso2-enterprise/ballerina-languageclient': workspace:*
-      '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:^1.1.11
+      '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       babel-loader: ^8.2.2
       classnames: ^2.2.6
@@ -1310,7 +1310,7 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/ballerina-low-code-edtior-ui-components': workspace:*
       '@wso2-enterprise/ballerina-statement-editor': workspace:*
-      '@wso2-enterprise/lang-service': workspace:^1.0.0
+      '@wso2-enterprise/lang-service': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       babel-loader: ^8.2.2
       babel-plugin-istanbul: ^6.1.1
@@ -7277,8 +7277,8 @@ packages:
       react-refresh: 0.11.0
       schema-utils: 3.1.1
       source-map: 0.7.4
-      webpack: 5.75.0
-      webpack-dev-server: 4.11.1_webpack@5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
+      webpack-dev-server: 4.11.1_pda42hcaj7d62cr262fr632kue
     dev: true
 
   /@pmmmwh/react-refresh-webpack-plugin/0.5.10_x3rapmus2apa74i2ntcwk45gga:
@@ -18065,7 +18065,7 @@ packages:
       postcss-modules-values: 4.0.0_postcss@8.4.21
       postcss-value-parser: 4.2.0
       semver: 7.3.8
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
     dev: true
 
   /css-minimizer-webpack-plugin/3.4.1_webpack@5.75.0:
@@ -18093,7 +18093,7 @@ packages:
       schema-utils: 4.0.0
       serialize-javascript: 6.0.1
       source-map: 0.6.1
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
     dev: true
 
   /css-prefers-color-scheme/6.0.3_postcss@8.4.21:
@@ -20075,7 +20075,7 @@ packages:
       micromatch: 4.0.5
       normalize-path: 3.0.0
       schema-utils: 4.0.0
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
     dev: true
 
   /eslint/6.8.0:
@@ -20949,7 +20949,7 @@ packages:
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.1.1
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
 
   /file-system-cache/1.1.0:
     resolution: {integrity: sha512-IzF5MBq+5CR0jXx5RxPe4BICl/oEhBSXKaL9fLhAXrIfIUS77Hr4vzrYyqYMHN6uTt+BOqi3fDCTjjEBCjERKw==}
@@ -21318,7 +21318,7 @@ packages:
       semver: 7.3.8
       tapable: 1.1.3
       typescript: 4.9.5
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
     dev: true
 
   /fork-ts-checker-webpack-plugin/6.5.2_evijigonbo4skk2vlqtwtdqibu:
@@ -22771,7 +22771,7 @@ packages:
       lodash: 4.17.21
       pretty-error: 4.0.0
       tapable: 2.2.1
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
     dev: true
 
   /htmlparser2/3.10.1:
@@ -30256,7 +30256,7 @@ packages:
       klona: 2.0.6
       postcss: 8.4.21
       semver: 7.3.8
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
     dev: true
 
   /postcss-logical/5.0.4_postcss@8.4.21:
@@ -34772,7 +34772,7 @@ packages:
       abab: 2.0.6
       iconv-lite: 0.6.3
       source-map-js: 1.0.2
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
     dev: true
 
   /source-map-loader/4.0.1_webpack@5.75.0:
@@ -35463,7 +35463,7 @@ packages:
     peerDependencies:
       webpack: ^5.0.0
     dependencies:
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
     dev: true
 
   /style-search/0.1.0:
@@ -38384,7 +38384,7 @@ packages:
       webpack: ^4.44.2 || ^5.47.0
     dependencies:
       tapable: 2.2.1
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
       webpack-sources: 2.3.1
     dev: true
 
@@ -38579,6 +38579,7 @@ packages:
       - '@swc/core'
       - esbuild
       - uglify-js
+    dev: true
 
   /webpack/5.75.0_webpack-cli@4.10.0:
     resolution: {integrity: sha512-piaIaoVJlqMsPtX/+3KTTO6jfvrSYgauFVdt8cr9LTHKmcq/AMd4mhzsiP7ZF/PGRNPGA8336jldh9l2Kt2ogQ==}
@@ -38960,7 +38961,7 @@ packages:
       fast-json-stable-stringify: 2.1.0
       pretty-bytes: 5.6.0
       upath: 1.2.0
-      webpack: 5.75.0
+      webpack: 5.75.0_webpack-cli@4.10.0
       webpack-sources: 1.4.3
       workbox-build: 6.5.4
     transitivePeerDependencies:
