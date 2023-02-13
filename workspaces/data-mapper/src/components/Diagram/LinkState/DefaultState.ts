@@ -15,6 +15,7 @@ import { DiagnosticTooltipID } from "../Diagnostic/DiagnosticTooltip/DiagnosticT
 import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, RequiredParamNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from '../Node/FromClause';
+import { JoinClauseNode } from "../Node/JoinClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { ModuleVariableNode } from "../Node/ModuleVariable";
@@ -91,6 +92,7 @@ export class DefaultState extends State<DiagramEngine> {
 						|| element instanceof LetExpressionNode
 						|| element instanceof ModuleVariableNode
 						|| element instanceof LetClauseNode
+						|| element instanceof JoinClauseNode
 					) {
 						this.transitionWithEvent(this.createLink, event);
 					}
