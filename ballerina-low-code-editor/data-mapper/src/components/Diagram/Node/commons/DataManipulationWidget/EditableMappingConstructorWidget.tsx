@@ -11,7 +11,7 @@
 * associated services.
 */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useState } from 'react';
 
 import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -23,7 +23,7 @@ import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
-import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { isEmptyValue } from "../../../utils/dm-utils";
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
@@ -62,13 +62,6 @@ const useStyles = makeStyles((theme: Theme) =>
 			color: "#222228",
 			fontFamily: "GilmerMedium",
 			fontSize: "13px",
-		},
-		treeLabelOutPort: {
-			float: "right",
-			width: 'fit-content',
-			marginLeft: "auto",
-			display: "flex",
-			alignItems: "center"
 		},
 		treeLabelInPort: {
 			float: "left",
@@ -125,6 +118,8 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
     } = props;
 	const classes = useStyles();
 
+	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
 	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
 	const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
@@ -162,34 +157,36 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 
 	const handleExpand = () => {
 		context.handleCollapse(id, !expanded);
-	}
+	};
+
+	const handlePortState = (state: PortState) => {
+		setPortState(state)
+	};
 
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
-			<TreeHeader>
-				<div id={"recordfield-" + id}>
-					<span className={classes.treeLabelInPort}>
-						{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
-								|| !expanded
-								|| !isBodyMappingConstructor
-								|| hasEmptyFields
-							) &&
-							<DataMapperPortWidget engine={engine} port={portIn}/>
-						}
-					</span>
-					<span className={classes.label}>
-						<IconButton
-							id={"button-wrapper-" + id}
-							className={classes.expandIcon}
-							style={{ marginLeft: indentation }}
-							onClick={handleExpand}
-							data-testid={`${id}-expand-icon-mapping-target-node`}
-						>
-							{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-						</IconButton>
-						{label}
-					</span>
-				</div>
+			<TreeHeader isSelected={portState !== PortState.Unselected} id={"recordfield-" + id}>
+				<span className={classes.treeLabelInPort}>
+					{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
+							|| !expanded
+							|| !isBodyMappingConstructor
+							|| hasEmptyFields
+						) &&
+						<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
+					}
+				</span>
+				<span className={classes.label}>
+					<IconButton
+						id={"button-wrapper-" + id}
+						className={classes.expandIcon}
+						style={{ marginLeft: indentation }}
+						onClick={handleExpand}
+						data-testid={`${id}-expand-icon-mapping-target-node`}
+					>
+						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+					</IconButton>
+					{label}
+				</span>
 			</TreeHeader>
 			<TreeBody>
 				{expanded && editableRecordFields &&

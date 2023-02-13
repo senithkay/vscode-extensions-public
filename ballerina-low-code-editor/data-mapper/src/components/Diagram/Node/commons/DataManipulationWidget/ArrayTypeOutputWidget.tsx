@@ -11,7 +11,7 @@
 * associated services.
 */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useState } from "react";
 
 import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -22,7 +22,7 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getExprBodyFromLetExpression } from "../../../utils/dm-utils";
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
@@ -71,6 +71,8 @@ const useStyles = makeStyles((theme: Theme) =>
 			float: "left",
 			marginRight: "5px",
 			width: 'fit-content',
+			display: "flex",
+			alignItems: "center"
 		},
 		label: {
 			width: "300px",
@@ -107,6 +109,8 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
 
+	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+
 	const body = field?.value && STKindChecker.isLetExpression(field.value)
 		? getExprBodyFromLetExpression(field.value)
 		: field.value;
@@ -142,18 +146,22 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const handleExpand = () => {
 		context.handleCollapse(id, !expanded);
-	}
+	};
+
+	const handlePortState = (state: PortState) => {
+		setPortState(state)
+	};
 
 	return (
 		<TreeContainer>
-			<TreeHeader>
+			<TreeHeader isSelected={portState !== PortState.Unselected} id={"recordfield-" + id}>
 				<span className={classes.treeLabelInPort}>
 					{portIn && (isBodyQueryExpression || !hasSyntaxDiagnostics) && (!hasValue
 							|| !expanded
 							|| !isBodyListConstructor
 							|| (STKindChecker.isListConstructor(field.value) && field.value.expressions.length === 0)
 						) &&
-						<DataMapperPortWidget engine={engine} port={portIn} />
+						<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
 					}
 				</span>
 				<span className={classes.label}>

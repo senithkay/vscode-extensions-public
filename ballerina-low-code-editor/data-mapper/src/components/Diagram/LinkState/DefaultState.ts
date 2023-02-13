@@ -12,7 +12,7 @@ import { DiagramEngine, DragDiagramItemsState, PortModel } from '@projectstorm/r
 
 import { DMCanvasContainerID } from "../Canvas/DataMapperCanvasWidget";
 import { DiagnosticTooltipID } from "../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
-import { MappingConstructorNode, RequiredParamNode } from '../Node';
+import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, RequiredParamNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from '../Node/FromClause';
 import { LetClauseNode } from "../Node/LetClause";
@@ -84,6 +84,8 @@ export class DefaultState extends State<DiagramEngine> {
 
 					if (element instanceof PortModel
 						|| element instanceof MappingConstructorNode
+						|| element instanceof ListConstructorNode
+						|| element instanceof PrimitiveTypeNode
 						|| element instanceof RequiredParamNode
 						|| element instanceof FromClauseNode
 						|| element instanceof LetExpressionNode
