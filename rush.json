@@ -236,7 +236,9 @@
     /**
      * The list of shell commands to run before the Rush build command starts
      */
-    "preRushBuild": ["npm run init-submodules"],
+    "preRushBuild": [
+      "npm run init-submodules"
+    ],
     /**
      * The list of shell commands to run after the Rush build command finishes
      */
@@ -404,103 +406,128 @@
     // }
     {
       "packageName": "@wso2-enterprise/ballerina-languageclient",
-      "projectFolder": "workspaces/ballerina-languageclient"
+      "projectFolder": "workspaces/ballerina-languageclient",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@ballerina/ballerina-by-examples",
-      "projectFolder": "workspaces/bbe"
+      "projectFolder": "workspaces/bbe",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/choreo-client",
-      "projectFolder": "workspaces/choreo-client"
+      "projectFolder": "workspaces/choreo-client",
+      "versionPolicyName": "choreo-extension"
     },
     {
       "packageName": "@wso2-enterprise/choreo-core",
-      "projectFolder": "workspaces/choreo-core"
+      "projectFolder": "workspaces/choreo-core",
+      "versionPolicyName": "choreo-extension"
     },
     {
       "packageName": "choreo",
-      "projectFolder": "workspaces/choreo-extension"
+      "projectFolder": "workspaces/choreo-extension",
+      "versionPolicyName": "choreo-extension"
     },
     {
       "packageName": "@wso2-enterprise/choreo-vscode-webviews",
-      "projectFolder": "workspaces/choreo-webviews"
+      "projectFolder": "workspaces/choreo-webviews",
+      "versionPolicyName": "choreo-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-configurable-editor",
-      "projectFolder": "workspaces/configurable-editor"
+      "projectFolder": "workspaces/configurable-editor",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-data-mapper",
-      "projectFolder": "workspaces/data-mapper"
+      "projectFolder": "workspaces/data-mapper",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-expression-editor",
-      "projectFolder": "workspaces/expression-editor"
+      "projectFolder": "workspaces/expression-editor",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "graphqlview-lib",
-      "projectFolder": "workspaces/graphql"
+      "projectFolder": "workspaces/graphql",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/lang-service",
-      "projectFolder": "workspaces/lang-service"
+      "projectFolder": "workspaces/lang-service",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-low-code-diagram",
-      "projectFolder": "workspaces/low-code-diagram"
+      "projectFolder": "workspaces/low-code-diagram",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-low-code-editor-distribution",
-      "projectFolder": "workspaces/low-code-distribution"
+      "projectFolder": "workspaces/low-code-distribution",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-low-code-editor",
-      "projectFolder": "workspaces/low-code-editor"
+      "projectFolder": "workspaces/low-code-editor",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-low-code-edtior-commons",
-      "projectFolder": "workspaces/low-code-editor-commons"
+      "projectFolder": "workspaces/low-code-editor-commons",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-low-code-integration-tests",
-      "projectFolder": "workspaces/low-code-integration-tests"
+      "projectFolder": "workspaces/low-code-integration-tests",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-low-code-edtior-ui-components",
-      "projectFolder": "workspaces/low-code-ui-components"
+      "projectFolder": "workspaces/low-code-ui-components",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "notebook-renderer",
-      "projectFolder": "workspaces/notebook-renderer"
+      "projectFolder": "workspaces/notebook-renderer",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "perf",
-      "projectFolder": "workspaces/perf-forecast"
+      "projectFolder": "workspaces/perf-forecast",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "project-design-diagrams",
-      "projectFolder": "workspaces/project-design-diagrams"
+      "projectFolder": "workspaces/project-design-diagrams",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/ballerina-statement-editor",
-      "projectFolder": "workspaces/statement-editor"
+      "projectFolder": "workspaces/statement-editor",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "swaggerview-lib",
-      "projectFolder": "workspaces/swagger"
+      "projectFolder": "workspaces/swagger",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "@wso2-enterprise/syntax-tree",
-      "projectFolder": "workspaces/syntax-tree"
+      "projectFolder": "workspaces/syntax-tree",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "variableview-lib",
-      "projectFolder": "workspaces/variable-view"
+      "projectFolder": "workspaces/variable-view",
+      "versionPolicyName": "ballerina-extension"
     },
     {
       "packageName": "ballerina",
-      "projectFolder": "workspaces/ballerina-extension"
+      "projectFolder": "workspaces/ballerina-extension",
+      "versionPolicyName": "ballerina-extension"
     }
   ]
 }

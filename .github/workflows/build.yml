@@ -42,7 +42,10 @@ jobs:
           # pnpm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
           
       - name: Build plugin repo
-        run: node common/scripts/install-run-rush.js install && rush build
+        run: |
+          npm i -g pnpm
+          node common/scripts/install-run-rush.js install 
+          node common/scripts/install-run-rush.js build --verbose
         env:
           IS_RELEASE: ${{ inputs.isRelease }}
 
@@ -80,7 +83,9 @@ jobs:
           node-version: 16.x
 
       - name: Install node modules
-        run: rush install
+        run: |
+          npm i -g pnpm
+          rush install
 
       - name: Set up Ballerina
         run: |
@@ -142,7 +147,9 @@ jobs:
           node-version: 16.x
 
       - name: Install node modules
-        run: rush install
+        run: |
+          npm i -g pnpm
+          rush install
 
       - name: Install Ballerina
         run: |
@@ -188,7 +195,9 @@ jobs:
           rm build.zip
 
       - name: Install node modules
-        run: rush install
+        run: |
+          npm i -g pnpm
+          rush install
 
       - name: Install Cypress Dependencies
         run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
