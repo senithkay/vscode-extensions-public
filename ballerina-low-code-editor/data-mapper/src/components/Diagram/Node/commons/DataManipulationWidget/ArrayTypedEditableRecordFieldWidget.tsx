@@ -74,7 +74,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         deleteField,
         isReturnTypeDesc
     } = props;
-    const { stSymbolInfo, applyModifications, handleCollapse } = context;
+    const { applyModifications, handleCollapse } = context;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);

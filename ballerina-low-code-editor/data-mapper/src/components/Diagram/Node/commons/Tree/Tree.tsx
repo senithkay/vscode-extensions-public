@@ -17,16 +17,18 @@ export const TreeContainer = styled.div`
     line-height: 24px;
 `;
 
-export const TreeHeader = styled.div(({ isSelected }: { isSelected?: boolean }) => ({
+export const TreeHeader = styled.div((
+    { isSelected, isDisabled }: { isSelected?: boolean, isDisabled?: boolean }
+) => ({
     height: '40px',
     padding: '8px',
-    background: `${isSelected ? '#F0F1FB' : '#E6E8F0'}`,
+    background: `${isDisabled ? '#F7F8FB' : isSelected ? '#F0F1FB' : '#E6E8F0'}`,
     borderRadius: '3px',
     width: '100%',
     display: 'flex',
-    cursor: 'pointer',
+    cursor: `${isDisabled ? 'not-allowed' : 'pointer'}`,
     '&:hover': {
-        backgroundColor: '#F0F1FB'
+        backgroundColor: `${isDisabled ? '#F7F8FB' : '#F0F1FB'}`
     }
 }));
 
