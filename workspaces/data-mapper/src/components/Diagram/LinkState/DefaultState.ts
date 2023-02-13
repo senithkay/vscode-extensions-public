@@ -16,6 +16,7 @@ import { MappingConstructorNode, RequiredParamNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from '../Node/FromClause';
 import { LetExpressionNode } from "../Node/LetExpression";
+import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 import { CreateLinkState } from './CreateLinkState';
@@ -84,7 +85,8 @@ export class DefaultState extends State<DiagramEngine> {
 						|| element instanceof MappingConstructorNode
 						|| element instanceof RequiredParamNode
 						|| element instanceof FromClauseNode
-						|| element instanceof LetExpressionNode) this.transitionWithEvent(this.createLink, event);
+						|| element instanceof LetExpressionNode
+						|| element instanceof ModuleVariableNode) this.transitionWithEvent(this.createLink, event);
 				}
 			})
 		);
