@@ -1,12 +1,12 @@
 {
     "name": "notebook-renderer",
-    "version": "1.0.0",
+    "version": "3.3.9",
     "description": "Render-er for Ballerina notebook rich outputs",
     "main": "index.js",
     "scripts": {
         "start": "webpack-dev-server --open",
         "compile": "webpack --mode none",
-         "build": "webpack && pnpm run postbuild",
+        "build": "webpack && pnpm run postbuild",
         "storybook": "start-storybook -p 6006",
         "build-storybook": "build-storybook",
         "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs"
@@ -39,10 +39,10 @@
         "@types/vscode-notebook-renderer": "~1.72.0"
     },
     "resolutions": {
-      "@storybook/react/webpack": "^5.56.0",
-      "@storybook/core-common/webpack": "^5.56.0",
-      "@storybook/core-server/webpack": "^5.56.0",
-      "@storybook/builder-webpack4/webpack": "^5.56.0",
-      "@storybook/manager-webpack4/webpack": "^5.56.0"
+        "@storybook/react/webpack": "^5.56.0",
+        "@storybook/core-common/webpack": "^5.56.0",
+        "@storybook/core-server/webpack": "^5.56.0",
+        "@storybook/builder-webpack4/webpack": "^5.56.0",
+        "@storybook/manager-webpack4/webpack": "^5.56.0"
     }
 }

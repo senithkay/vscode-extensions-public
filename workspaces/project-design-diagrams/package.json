@@ -1,11 +1,11 @@
 {
   "name": "project-design-diagrams",
-  "version": "1.0.0",
+  "version": "3.3.9",
   "description": "Generates the design diagrams for Ballerina projects.",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --progress --mode=development",
-     "build": "webpack && pnpm run postbuild",
+    "build": "webpack && pnpm run postbuild",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs"

@@ -1,6 +1,6 @@
 {
     "name": "variableview-lib",
-    "version": "1.0.0",
+    "version": "3.3.9",
     "description": "Render-er for Ballerina notebook variable view",
     "main": "index.js",
     "scripts": {
@@ -39,10 +39,10 @@
         "ts-node": "~10.9.1"
     },
     "resolutions": {
-      "@storybook/react/webpack": "^5.56.0",
-      "@storybook/core-common/webpack": "^5.56.0",
-      "@storybook/core-server/webpack": "^5.56.0",
-      "@storybook/builder-webpack4/webpack": "^5.56.0",
-      "@storybook/manager-webpack4/webpack": "^5.56.0"
+        "@storybook/react/webpack": "^5.56.0",
+        "@storybook/core-common/webpack": "^5.56.0",
+        "@storybook/core-server/webpack": "^5.56.0",
+        "@storybook/builder-webpack4/webpack": "^5.56.0",
+        "@storybook/manager-webpack4/webpack": "^5.56.0"
     }
 }

@@ -1,11 +1,11 @@
 {
   "name": "perf",
-  "version": "1.0.0",
+  "version": "3.3.9",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --open",
-     "build": "webpack && pnpm run postbuild",
+    "build": "webpack && pnpm run postbuild",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs"
