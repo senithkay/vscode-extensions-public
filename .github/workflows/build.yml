@@ -37,12 +37,12 @@ jobs:
       - name: Update version
         if: ${{ inputs.isRelease == true }}
         run: |
-          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
+          pnpm version ${{ inputs.version }} --preid beta --no-git-tag-version
           cd ballerina-low-code-editor
-          # npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
+          # pnpm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
           
       - name: Build plugin repo
-        run: npm run build
+        run: node common/scripts/install-run-rush.js install && rush build
         env:
           IS_RELEASE: ${{ inputs.isRelease }}
 
@@ -80,10 +80,11 @@ jobs:
           node-version: 16.x
 
       - name: Install node modules
-        run: npm install --legacy-peer-deps
+        run: rush install
 
       - name: Set up Ballerina
         run: |
+          cd workspace/ballerina-extension
           mkdir extractedDistribution
           wget ${{ env.ballerina_zip_url }}
           unzip -qq ./ballerina-${{ env.ballerina_version }}-swan-lake.zip -d ./extractedDistribution
@@ -94,7 +95,7 @@ jobs:
           echo "$balHome/bin" >> $GITHUB_PATH
 
       - name: Run Test
-        run: xvfb-run --auto-servernum npm run test
+        run: xvfb-run --auto-servernum pnpm run test
         env:
           balVersion: ${{ steps.set-version.outputs.balVersion }}
           balHome: ${{ steps.set-version.outputs.balHome }}
@@ -141,7 +142,7 @@ jobs:
           node-version: 16.x
 
       - name: Install node modules
-        run: npm install --legacy-peer-deps
+        run: rush install
 
       - name: Install Ballerina
         run: |
@@ -150,11 +151,13 @@ jobs:
 
       - name: UI Test
         run: |
+          cd workspace/ballerina-extension
           sudo apt-get install xvfb
-          npx extest get-vscode -c ${{ env.vscVersion }} && npx extest get-chromedriver -c ${{ env.vscVersion }} && npx extest install-vsix -f $(ls *.vsix)
+          pnpm run ui-test-setup
+          pnpm run ui-test
           export DISPLAY=:98.0
           Xvfb -ac :98 -screen 0 1920x1080x16 & 
-          npm run ui-test
+          pnpm run ui-test
 
       - name: Publish UI Test Screenshots
         uses: actions/upload-artifact@v3
@@ -185,7 +188,7 @@ jobs:
           rm build.zip
 
       - name: Install node modules
-        run: npm i --legacy-peer-deps
+        run: rush install
 
       - name: Install Cypress Dependencies
         run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
@@ -203,7 +206,7 @@ jobs:
       - name: Run Integration Tests
         run: |
           cd workspaces/low-code-integration-tests  
-          npm run ${{ matrix.testStage  }}
+          pnpm run ${{ matrix.testStage  }}
 
       - name: Publish test fail screenshots
         uses: actions/upload-artifact@v3
@@ -253,7 +256,7 @@ jobs:
           rm build.zip
 
       - name: Install node modules
-        run: npm i --legacy-peer-deps
+        run: rush install
 
       - name: Download partial code coverages
         uses: actions/download-artifact@v3
