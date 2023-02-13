@@ -278,7 +278,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             (isDisabled && !portIn.ancestorHasValue) ? classes.treeLabelDisableHover : "")}
         >
             {!isReturnTypeDesc && (
-                <div id={"recordfield-"+fieldId} className={classes.ArrayFieldRow}>
+                <div id={"recordfield-" + fieldId} className={classes.ArrayFieldRow}>
                 <span className={classes.treeLabelInPort}>
                     {portIn && (
                         <DataMapperPortWidget

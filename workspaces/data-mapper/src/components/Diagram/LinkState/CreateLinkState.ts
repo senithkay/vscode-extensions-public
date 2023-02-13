@@ -4,7 +4,7 @@ import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canva
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
-import { MappingConstructorNode, RequiredParamNode } from '../Node';
+import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, RequiredParamNode } from '../Node';
 import { FromClauseNode } from '../Node/FromClause';
 import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
@@ -31,7 +31,10 @@ export class CreateLinkState extends State<DiagramEngine> {
 
 					if (!(element instanceof PortModel)
 						&& !(event.target as Element).closest('button[id^="button-wrapper"]')) {
-						if (element instanceof MappingConstructorNode) {
+						if (element instanceof MappingConstructorNode
+							|| element instanceof ListConstructorNode
+							|| element instanceof PrimitiveTypeNode
+						) {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
 							if (recordFieldElement) {
 								const fieldId = (recordFieldElement.id.split("-"))[1] + ".IN";

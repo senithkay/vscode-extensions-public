@@ -17,18 +17,18 @@ export const TreeContainer = styled.div`
     line-height: 24px;
 `;
 
-export const TreeHeader = styled.div`
-    height: 40px;
-    padding: 8px;
-    background: #E6E8F0;
-    border-radius: 3px;
-    width: 100%;
-    display: flex;
-    cursor: pointer;
-    &:hover {
-      background-color: #F0F1FB;
+export const TreeHeader = styled.div(({ isSelected }: { isSelected?: boolean }) => ({
+    height: '40px',
+    padding: '8px',
+    background: `${isSelected ? '#F0F1FB' : '#E6E8F0'}`,
+    borderRadius: '3px',
+    width: '100%',
+    display: 'flex',
+    cursor: 'pointer',
+    '&:hover': {
+        backgroundColor: '#F0F1FB'
     }
-`;
+}));
 
 export const TreeBody = styled.div`
     display: flex;
