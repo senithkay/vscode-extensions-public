@@ -113,7 +113,7 @@ export function DefaultControls(props: DefaultControlProps) {
                     endIcon={<ArrowDropdownIcon fontSize='medium' />}
                     onClick={openLayoutPopup}
                 >
-                    Layout
+                    {layout === DagreLayout.TREE ? 'Tree' : 'Graph'} Layout
                 </Button>
                 <IconButton
                     className={'iconButton'}
