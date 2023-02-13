@@ -17,16 +17,18 @@ import { BallerinaProjectComponents, ModuleSummary, PackageSummary } from "@wso2
 import { DEFAULT_MODULE_NAME } from "../../..";
 import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
 import { ComponentView } from "../ComponentView";
+import { FileListEntry } from "../../../../DiagramGenerator/vscode/Diagram";
 
 import './style.scss'
 
 interface CategoryViewProps {
     projectComponents: BallerinaProjectComponents;
     updateSelection: (info: ComponentViewInfo) => void;
+    currentFile: FileListEntry;
 }
 
 export function CategoryView(props: CategoryViewProps) {
-    const { projectComponents, updateSelection } = props;
+    const { projectComponents, updateSelection, currentFile } = props;
 
     const currentComponents: ComponentCollection = {
         functions: [],
@@ -47,8 +49,12 @@ export function CategoryView(props: CategoryViewProps) {
                 Object.keys(module).forEach(key => {
                     if (key !== 'name') {
                         module[key].forEach((element: any) => {
+                            const filePath = genFilePath(packageInfo, module, element);
+                            console.log(currentFile);
+                            if (currentFile && currentFile.uri.path !== filePath) return;
+                            console.log('filePath: >>>', filePath);
                             currentComponents[key].push({
-                                filePath: genFilePath(packageInfo, module, element),
+                                filePath,
                                 position: {
                                     startLine: element.startLine,
                                     startColumn: element.startColumn,

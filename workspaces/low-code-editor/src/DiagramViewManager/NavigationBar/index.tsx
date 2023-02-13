@@ -38,7 +38,7 @@ const ALL_FILES: string = 'All';
 
 export function NavigationBar(props: NavigationBarProps) {
     // const { projectName, folderName, isWorkspace, onFolderClick } = props;
-    const { projectList, fileList, currentProject, currentFile, updateCurrentProject } = props;
+    const { projectList, fileList, currentProject, currentFile, updateCurrentProject, updateCurrentFile } = props;
     const classes = useStyles();
 
     const projectSelectorOptions: React.ReactElement[] = [];
@@ -68,6 +68,15 @@ export function NavigationBar(props: NavigationBarProps) {
         updateCurrentProject(currentProject);
     }
 
+    const handleFileChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
+        if (evt.target.value === ALL_FILES) {
+            updateCurrentFile(undefined);
+        } else {
+            const currentFile = fileList.find(file => file.fileName === evt.target.value);
+            updateCurrentFile(currentFile);
+        }
+    }
+
     const renderProjectSelectorComponent = () => {
         return (
             <FormControl variant="outlined" className={classes.selectorComponent} >
@@ -93,6 +102,7 @@ export function NavigationBar(props: NavigationBarProps) {
                     value={currentFile ? currentFile.fileName : ALL_FILES}
                     label="File"
                     inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
+                    onChange={handleFileChange}
                 >
                     {fileSelectorOptions}
                 </Select>

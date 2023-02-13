@@ -17,12 +17,13 @@ import { FilterList } from "@material-ui/icons";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useDiagramContext } from "../Contexts/Diagram";
-import { WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
+import { FileListEntry, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 
 import { Filter as FilterComponent } from './components/Filter'
 import * as Views from './components/ViewTypes';
 import './style.scss';
 import { ComponentViewInfo } from "./util";
+import { CategoryView } from "./components/ViewTypes/CategoryView";
 
 export const DEFAULT_MODULE_NAME = 'default';
 
@@ -35,12 +36,13 @@ enum ViewMode {
 export interface OverviewDiagramProps {
     lastUpdatedAt: string;
     currentProject: WorkspaceFolder;
+    currentFile: FileListEntry;
     notifyComponentSelection: (info: ComponentViewInfo) => void;
 }
 
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
-    const { currentProject, notifyComponentSelection, lastUpdatedAt } = props;
+    const { currentProject, currentFile, notifyComponentSelection, lastUpdatedAt } = props;
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
     const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
     // const [filterMap, setFilterMap] = useState({});
@@ -53,6 +55,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                     const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                         documentIdentifiers: [{ uri: currentProject.uri.external }]
                     });
+
                     updateProjectComponenets(componentResponse);
                 }
             } catch (err) {
@@ -62,18 +65,6 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
         })();
     }, [lastUpdatedAt, currentProject]);
 
-    const renderView = () => {
-        const CurrentView = Views[viewMode];
-        if (!CurrentView) return <></>;
-        return (
-            <div className="view-container">
-                <CurrentView
-                    projectComponents={projectComponents}
-                    updateSelection={notifyComponentSelection}
-                />
-            </div>
-        )
-    }
 
     // const handleFilterClick = () => {
     //     setIsFilterOpen(true);
@@ -125,8 +116,12 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
     // );
 
     return (
-        <>
-            {renderView()}
-        </>
+        <div className="view-container">
+            <CategoryView
+                projectComponents={projectComponents}
+                currentFile={currentFile}
+                updateSelection={function(info: ComponentViewInfo): void { throw new Error("Function not implemented."); }}
+            />
+        </div>
     )
 }

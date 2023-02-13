@@ -103,10 +103,12 @@ export function DiagramViewManager(props: EditorProps) {
                     fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
                     uri: fileUri
                 }));
-
+                console.log('projectFiles >>>', projectFiles);
                 if (!focusFile && diagramFocus) {
                     const currentlySelectedFile = projectFiles.find(projectFile => projectFile.uri.path.includes(diagramFocus.filePath));
                     setFocusFile(currentlySelectedFile);
+                } else {
+                    setFocusFile(undefined);
                 }
                 setFileList(projectFiles);
             })();
@@ -122,6 +124,9 @@ export function DiagramViewManager(props: EditorProps) {
     }, [diagramFocus]);
 
     useEffect(() => {
+        console.log('focusFile useeffect ================================');
+        console.log('focusFile >>>', focusFile);
+        console.log('projectPaths >>>', projectPaths);
         if (focusFile) {
             // TODO: handle showing components in a single file
         } else {
@@ -226,7 +231,6 @@ export function DiagramViewManager(props: EditorProps) {
     //         updateSelectedComponent({ filePath: diagramFocus.filePath, position: diagramFocus.position })
     //     }
     // }, [diagramFocus])
-
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         const { filePath, position } = componentDetails;
         (async () => {
@@ -265,11 +269,12 @@ export function DiagramViewManager(props: EditorProps) {
     //
     const viewComponent: React.ReactElement[] = [];
 
-    if (currentProject && focusFile) {
+    if (currentProject) {
 
         viewComponent.push((
             <OverviewDiagram
                 currentProject={currentProject}
+                currentFile={focusFile}
                 lastUpdatedAt={lastUpdatedAt}
                 notifyComponentSelection={updateSelectedComponent}
             />
