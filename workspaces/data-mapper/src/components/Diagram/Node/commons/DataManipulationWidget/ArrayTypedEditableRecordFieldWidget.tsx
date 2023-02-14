@@ -59,6 +59,7 @@ export interface ArrayTypedEditableRecordFieldWidgetProps {
     treeDepth?: number;
     deleteField?: (node: STNode) => Promise<void>;
     isReturnTypeDesc?: boolean;
+    hasHoveredParent?: boolean;
 }
 
 export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRecordFieldWidgetProps) {
@@ -72,12 +73,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         fieldIndex,
         treeDepth = 0,
         deleteField,
-        isReturnTypeDesc
+        isReturnTypeDesc,
+        hasHoveredParent
     } = props;
     const { applyModifications, handleCollapse } = context;
     const classes = useStyles();
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
     const fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
@@ -133,7 +136,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <span style={{ marginRight: "auto" }}>
             <span
                 className={classnames(classes.valueLabel,
-                    (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
+                    isDisabled ? classes.valueLabelDisabled : "")}
                 style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
             >
                 {fieldName}
@@ -143,7 +146,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             {typeName !== '[]' ? (
                 <span
                     className={classnames(
-                        classes.typeLabel, (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}
+                        classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}
                 >
                     {typeName}
                 </span>
@@ -184,6 +187,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                 fieldIndex={index}
                                 treeDepth={treeDepth + 1}
                                 deleteField={deleteField}
+                                hasHoveredParent={isHovered || hasHoveredParent}
                             />
                         </TreeBody>
                         <br />
@@ -202,6 +206,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         fieldIndex={index}
                         treeDepth={treeDepth + 1}
                         deleteField={deleteField}
+                        hasHoveredParent={isHovered || hasHoveredParent}
                     />
                 )
             } else {
@@ -216,6 +221,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             fieldIndex={index}
                             deleteField={deleteField}
                             isArrayElement={true}
+                            hasHoveredParent={isHovered || hasHoveredParent}
                         />
                     </TreeBody>
                 );
@@ -270,40 +276,57 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
+
     return (
         <div
             className={classnames(classes.treeLabel, classes.treeLabelArray,
-            (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "",
-            (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
-            (isDisabled && !portIn.ancestorHasValue) ? classes.treeLabelDisableHover : "")}
+                isDisabled ? classes.treeLabelDisabled : "",
+                hasHoveredParent ? classes.treeLabelPortSelected : ""
+            )}
         >
             {!isReturnTypeDesc && (
-                <div id={"recordfield-" + fieldId} className={classes.ArrayFieldRow}>
-                <span className={classes.treeLabelInPort}>
-                    {portIn && (
-                        <DataMapperPortWidget
-                            engine={engine}
-                            port={portIn}
-                            disable={isDisabled && expanded}
-                            handlePortState={handlePortState}
-                            dataTestId={`array-type-editable-record-field-${portIn.getName()}`}
-                        />
+                <div
+                    id={"recordfield-" + fieldId}
+                    className={classnames(classes.ArrayFieldRow,
+                        isDisabled ? classes.ArrayFieldRowDisabled : "",
+                        (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+                        hasHoveredParent ? classes.treeLabelPortSelected : ""
                     )}
-                </span>
-                <span className={classes.label}>
-                    {(hasValue && !connectedViaLink) && (
-                        <IconButton
-                            id={"button-wrapper-" + fieldId}
-                            className={classes.expandIcon}
-                            style={{ marginLeft: indentation }}
-                            onClick={handleExpand}
-                            data-testid={`${portIn?.getName()}-expand-icon-array-field`}
-                        >
-                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                        </IconButton>
-                    )}
-                    {label}
-                </span>
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                >
+                    <span className={classes.treeLabelInPort}>
+                        {portIn && (
+                            <DataMapperPortWidget
+                                engine={engine}
+                                port={portIn}
+                                disable={isDisabled && expanded}
+                                handlePortState={handlePortState}
+                                dataTestId={`array-type-editable-record-field-${portIn.getName()}`}
+                            />
+                        )}
+                    </span>
+                    <span className={classes.label}>
+                        {(hasValue && !connectedViaLink) && (
+                            <IconButton
+                                id={"button-wrapper-" + fieldId}
+                                className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
+                                style={{ marginLeft: indentation }}
+                                onClick={handleExpand}
+                                data-testid={`${portIn?.getName()}-expand-icon-array-field`}
+                            >
+                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                            </IconButton>
+                        )}
+                        {label}
+                    </span>
                     {isLoading ? (
                         <CircularProgress size={18} className={classes.loader} />
                     ) : (

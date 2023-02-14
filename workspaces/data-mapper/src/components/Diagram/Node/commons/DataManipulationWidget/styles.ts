@@ -49,7 +49,15 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         ArrayFieldRow: {
             display: "flex",
-            alignItems: 'center'
+            alignItems: 'center',
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            }
+        },
+        ArrayFieldRowDisabled: {
+            '&:hover': {
+                backgroundColor: '#F7F8FB'
+            }
         },
         innerTreeLabel: {
             display: "flex",
@@ -181,6 +189,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: "25px",
             width: "25px",
             marginLeft: "auto"
+        },
+        expandIconDisabled: {
+            color: "#9797a9",
         },
         requiredMark: {
             color: theme.palette.error.main,
