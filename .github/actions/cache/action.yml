@@ -25,5 +25,6 @@ runs:
       with:
         path: |
           common/temp/pnpm-store
+          ~/.cache/Cypress
         key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
         
