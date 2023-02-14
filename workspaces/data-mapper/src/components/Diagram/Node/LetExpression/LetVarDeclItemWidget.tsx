@@ -20,7 +20,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LetVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
-import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ViewOption } from "../../../DataMapper/DataMapper";
@@ -48,6 +47,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
     const classes = useStyles();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [isHovered, setIsHovered] = useState(false);
 
     const typeName = getTypeName(typeDesc);
     const portOut = getPort(`${id}.OUT`);
@@ -74,6 +74,14 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
         handleCollapse(id, !expanded);
     };
 
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
+
     const onClickOnExpand = () => {
         context.changeSelection(ViewOption.EXPAND,
             {
@@ -91,10 +99,11 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
 
     return (
         <>
-            <div
+            <TreeHeader
                 id={"recordfield-" + id}
-                className={classnames(classes.nodeHeader,
-                (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "")}
+                isSelected={portState !== PortState.Unselected}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
             >
                 <span className={classes.label}>
                     {isRecord && (
@@ -118,7 +127,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
-            </div>
+            </TreeHeader>
             {
                 expanded && isRecord && (
                     <TreeBody>
@@ -132,6 +141,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                                     parentId={id}
                                     handleCollapse={handleCollapse}
                                     treeDepth={0}
+                                    hasHoveredParent={isHovered}
                                 />
                             );
                         })}
