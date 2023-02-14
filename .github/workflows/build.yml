@@ -209,7 +209,7 @@ jobs:
       - name: Run Integration Tests
         run: |
           cd workspaces/low-code-integration-tests  
-          pnpm run ${{ matrix.testStage  }}
+          npm run ${{ matrix.testStage  }}
 
       - name: Publish test fail screenshots
         uses: actions/upload-artifact@v3
