@@ -11,7 +11,6 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: 16.x
-        cache: 'pnpm'
 
     - name: Cache Rush
       uses: actions/cache@v2
@@ -19,13 +18,12 @@ runs:
         path: |
           common/temp/install-run
           ~/.rush
-        key: ${{ runner.os }}-${{ hashFiles('rush.json') }}
+        key: Rush-cache-${{ hashFiles('rush.json') }}
 
     - name: Cache pnpm
       uses: actions/cache@v2
       with:
         path: |
           common/temp/pnpm-store
-          ~/.cache/Cypress
-        key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+        key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
         
