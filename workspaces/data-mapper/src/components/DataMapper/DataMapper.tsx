@@ -407,6 +407,10 @@ function DataMapperC(props: DataMapperProps) {
         handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen || showConfigPanel);
     }, [currentEditableField, selection.selectedST, isConfigPanelOpen, showConfigPanel])
 
+    useEffect(() => {
+        resetSearchStore();
+    }, [fnName]);
+
     const cPanelProps = {
         fnST,
         targetPosition,
