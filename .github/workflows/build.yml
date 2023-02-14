@@ -154,10 +154,8 @@ jobs:
           cd workspaces/ballerina-extension
           sudo apt-get install xvfb
           pnpm run ui-test-setup
-          pnpm run ui-test
           export DISPLAY=:98.0
-          Xvfb -ac :98 -screen 0 1920x1080x16 & 
-          pnpm run ui-test
+          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run ui-test
 
       - name: Publish UI Test Screenshots
         uses: actions/upload-artifact@v3
