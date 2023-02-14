@@ -298,7 +298,6 @@ function DataMapperC(props: DataMapperProps) {
         }
         setFunctionST(fnST);
         setImports(importStatements);
-        resetSearchStore();
     }, [fnST]);
 
     useEffect(() => {
