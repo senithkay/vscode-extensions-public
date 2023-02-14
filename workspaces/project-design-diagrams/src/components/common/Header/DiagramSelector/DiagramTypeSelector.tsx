@@ -34,13 +34,14 @@ export function DiagramTypeSelector(props: DropdownProps) {
 
     return (
         <TypeContainer>
-            <TypeTitle>Design Diagrams</TypeTitle>
-
             <TypeCard onClick={() => handleDiagramType(Views.L1_SERVICES)}>
                 Services Diagram - Level 1
             </TypeCard>
             <TypeCard onClick={() => handleDiagramType(Views.L2_SERVICES)}>
                 Services Diagram - Level 2
+            </TypeCard>
+            <TypeCard onClick={() => handleDiagramType(Views.CELL_VIEW)}>
+                Cell Diagram
             </TypeCard>
             <TypeCard onClick={() => handleDiagramType(Views.TYPE)}>
                 Type Diagram

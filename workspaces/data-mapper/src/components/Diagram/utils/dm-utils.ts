@@ -76,12 +76,16 @@ export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
 	let nextExp: FieldAccess | OptionalFieldAccess = expr;
 	while (nextExp && (STKindChecker.isFieldAccess(nextExp) || STKindChecker.isOptionalFieldAccess(nextExp))) {
-		fieldNames.push({ name: (nextExp.fieldName as SimpleNameReference).name.value, isOptional: STKindChecker.isOptionalFieldAccess(nextExp) });
-		if (STKindChecker.isSimpleNameReference(nextExp.expression)) {
-			fieldNames.push({ name: nextExp.expression.name.value, isOptional: false });
+		if (STKindChecker.isIndexedExpression(nextExp.expression) && STKindChecker.isFieldAccess(nextExp.expression?.containerExpression)) {
+			nextExp = nextExp.expression?.containerExpression;
+		} else {
+			fieldNames.push({ name: (nextExp.fieldName as SimpleNameReference).name.value, isOptional: STKindChecker.isOptionalFieldAccess(nextExp) });
+			if (STKindChecker.isSimpleNameReference(nextExp.expression)) {
+				fieldNames.push({ name: nextExp.expression.name.value, isOptional: false });
+			}
+			nextExp = (STKindChecker.isFieldAccess(nextExp.expression) || STKindChecker.isOptionalFieldAccess(nextExp.expression))
+				? nextExp.expression : undefined;
 		}
-		nextExp = (STKindChecker.isFieldAccess(nextExp.expression) || STKindChecker.isOptionalFieldAccess(nextExp.expression))
-			? nextExp.expression : undefined;
 	}
 	let isRestOptional = false;
 	const fieldsToReturn = fieldNames.reverse().map((item) => {
@@ -116,9 +120,14 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		|| isMappedToRootMappingConstructor(targetPort)
 		|| isMappedToMappingConstructorWithinArray(targetPort)
 		|| isMappedToExprFuncBody(targetPort, targetNode.context.selection.selectedST.stNode)) {
-		const targetExpr = STKindChecker.isLetExpression(targetPort.editableRecordField.value)
-			? getExprBodyFromLetExpression(targetPort.editableRecordField.value)
-			: targetPort.editableRecordField.value;
+		let targetExpr: STNode;
+		if (STKindChecker.isLetExpression(targetPort.editableRecordField.value)) {
+			targetExpr = getExprBodyFromLetExpression(targetPort.editableRecordField.value);
+		} else if (STKindChecker.isQueryExpression(targetPort.editableRecordField.value)) {
+			targetExpr = targetPort.editableRecordField.value?.selectClause.expression;
+		} else {
+			targetExpr = targetPort.editableRecordField.value;
+		}
 		const valuePosition = targetExpr.position as NodePosition;
 		const isValueEmpty = isEmptyValue(valuePosition);
 		if (!isValueEmpty) {
@@ -231,8 +240,11 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	if (targetMappingConstruct) {
 		const fieldsAvailable = !!targetMappingConstruct.fields.length;
 		if (fieldsAvailable) {
-			targetPosition = mappingConstruct.fields[mappingConstruct.fields.length - 1].position as NodePosition;
-			source = `,${getLinebreak()}${source}`;
+			const lastField = mappingConstruct.fields[mappingConstruct.fields.length - 1];
+			targetPosition = lastField.position as NodePosition;
+			source = STKindChecker.isSpecificField(lastField) && isEmptyValue(lastField.position)
+				? source
+				: `,${getLinebreak()}${source}`;
 		} else {
 			targetPosition = mappingConstruct.openBrace.position as NodePosition;
 			source = `${getLinebreak()}${source}`
@@ -276,10 +288,10 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 	let targetMappingConstructor: STNode = mappingConstruct;
 	const parentFields: string[] = [];
 	let nextField = field;
+	const fieldName = getFieldName(nextField);
 	const modifications: STModification[] = [];
 
 	while (nextField && nextField.parentType) {
-		const fieldName = nextField.type.name;
 		if (fieldName && !(nextField.hasValue() && STKindChecker.isMappingConstructor(nextField.value))) {
 			parentFields.push(getBalRecFieldName(fieldName));
 		}
@@ -323,7 +335,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	if (!source) {
 		const specificField = STKindChecker.isMappingConstructor(targetMappingConstructor)
-			&& getSpecificField(targetMappingConstructor, field.type.name);
+			&& getSpecificField(targetMappingConstructor, fieldName);
 		if (specificField && !specificField.valueExpr.source) {
 			return createValueExprSource(field.type.name, newValue, parentFields, 1,
 				specificField.colon.position as NodePosition, applyModifications);
@@ -515,11 +527,25 @@ export function getInputNodeExpr(expr: STNode, dmNode: DataMapperNodeModel) {
 			if (!paramNode) {
 				if (STKindChecker.isSpecificField(selectedST) && STKindChecker.isQueryExpression(selectedST.valueExpr)) {
 					paramNode = selectedST.valueExpr.queryPipeline.fromClause;
+				} else if (STKindChecker.isSpecificField(selectedST)
+					&& STKindChecker.isBracedExpression(selectedST.valueExpr)
+					&& STKindChecker.isQueryExpression(selectedST.valueExpr.expression)) {
+					paramNode = selectedST.valueExpr.expression.queryPipeline.fromClause;
+				} else if (STKindChecker.isSpecificField(selectedST)
+					&& STKindChecker.isIndexedExpression(selectedST.valueExpr)
+					&& STKindChecker.isBracedExpression(selectedST.valueExpr.containerExpression)
+					&& STKindChecker.isQueryExpression(selectedST.valueExpr.containerExpression.expression)) {
+					paramNode = selectedST.valueExpr.containerExpression.expression.queryPipeline.fromClause;
+				} else if (STKindChecker.isFunctionDefinition(selectedST)
+					&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
+					&& STKindChecker.isIndexedExpression(selectedST.functionBody.expression)
+					&& STKindChecker.isBracedExpression(selectedST.functionBody.expression.containerExpression)
+					&& STKindChecker.isQueryExpression(selectedST.functionBody.expression.containerExpression.expression)) {
+					paramNode = selectedST.functionBody.expression.containerExpression.expression.queryPipeline.fromClause;
 				} else if (STKindChecker.isLetVarDecl(selectedST) && STKindChecker.isQueryExpression(selectedST.expression)) {
 					paramNode = selectedST.expression.queryPipeline.fromClause;
 				} else if (STKindChecker.isFunctionDefinition(selectedST)
-					&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody))
-				{
+					&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
 					const bodyExpr = STKindChecker.isLetExpression(selectedST.functionBody.expression)
 						? getExprBodyFromLetExpression(selectedST.functionBody.expression)
 						: selectedST.functionBody.expression;
@@ -746,7 +772,16 @@ export function getEnrichedRecordType(type: Type,
 		}
 	} else {
 		valueNode = node;
-		nextNode = STKindChecker.isLetExpression(node) ? getExprBodyFromLetExpression(node) : node;
+		if (STKindChecker.isLetExpression(node)) {
+			nextNode = getExprBodyFromLetExpression(node);
+		} else if (
+			STKindChecker.isQueryExpression(node) &&
+			STKindChecker.isMappingConstructor(node.selectClause.expression)
+		) {
+			nextNode = node.selectClause.expression;
+		} else {
+			nextNode = node;
+		}
 	}
 
 	editableRecordField = new EditableRecordField(type, valueNode, parentType);

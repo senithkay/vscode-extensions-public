@@ -20,11 +20,12 @@
 import { PortModel, PortModelAlignment } from '@projectstorm/react-diagrams';
 
 export class ServicePortModel extends PortModel {
-	constructor(id: string, portType: PortModelAlignment) {
+
+	constructor(id: string, portType: PortModelAlignment, hasWestGW?: boolean) {
 		super({
 			type: 'servicePort',
-			name: `${portType}-${id}`,
-			id: `${portType}-${id}`,
+			name: `${portType}-${hasWestGW ? 'gw-' : ""}${id}`,
+			id: `${portType}-${hasWestGW ? 'gw-' : ""}${id}`,
 			alignment: portType
 		});
 	}

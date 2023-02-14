@@ -156,7 +156,8 @@ export enum Views {
     TYPE = 'T',
     TYPE_COMPOSITION = 'TC',
     L1_SERVICES = 'S1',
-    L2_SERVICES = 'S2'
+    L2_SERVICES = 'S2',
+    CELL_VIEW = 'CellView',
 }
 
 export enum Level {
@@ -178,12 +179,14 @@ export enum ServiceTypes {
 }
 
 export enum Colors {
+    DIAGRAM_BACKGROUND = '#FFF',
+    CELL_DIAGRAM_BACKGROUND = '#e4e4e4',
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
     SECONDARY_SELECTED = '#fffaf2',
     SHADED_SELECTED = '#faead2',
-    GATEWAY = '#3db377'
+    GATEWAY = '#c9c9c9'
 }
 
 export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';

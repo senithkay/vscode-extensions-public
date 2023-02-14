@@ -35,7 +35,7 @@ export class SharedLinkModel extends DefaultLinkModel {
 		this.diagramEngine = diagramEngine;
 		this.getSourcePort().registerListener({
 			positionChanged: () => this.onPositionChange()
-		})
+		});
 
 		this.getTargetPort().registerListener({
 			positionChanged: () => this.onPositionChange()

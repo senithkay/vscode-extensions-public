@@ -23,6 +23,8 @@ import { join } from "path";
 import { ExtendedLangClient } from "src/core";
 import { terminateActivation } from "../activator";
 import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, Service } from "../resources";
+import { getChoreoExtAPI } from "../../choreo-features/activate";
+import _ from "lodash";
 
 export function getProjectResources(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
     return new Promise((resolve, reject) => {
@@ -43,38 +45,23 @@ export function getProjectResources(langClient: ExtendedLangClient): Promise<Map
 
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
-        }).then((response) => {
-            const packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
+        }).then(async (response) => {
+            const clonedComponentModels = _.cloneDeep(response.componentModels);
+            let packageModels: Map<string, ComponentModel> = new Map(Object.entries(clonedComponentModels));
             for (let [_key, packageModel] of packageModels) {
                 if (packageModel.hasCompilationErrors) {
                     window.showInformationMessage(DIAGNOSTICS_WARNING);
                     break;
                 }
             }
-            injectDeploymentMetadata(packageModels);
-            resolve(response.componentModels);
+            const choreoExt = await getChoreoExtAPI();
+            if (choreoExt) {
+                packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
+            }
+            resolve(clonedComponentModels);
         }).catch((error) => {
             reject(error);
             terminateActivation(ERROR_MESSAGE);
         });
     });
-}
-
-// For testing purposes
-function injectDeploymentMetadata(components: Map<string, ComponentModel>) {
-    components.forEach((component) => {
-        const services: Map<string, Service> = new Map(Object.entries(component.services));
-        services.forEach((service) => {
-            service.deploymentMetadata = {
-                gateways: {
-                    internet: {
-                        isExposed: Math.random() < 0.5
-                    },
-                    intranet: {
-                        isExposed: Math.random() > 0.5
-                    }
-                }
-            }
-        })
-    })
 }

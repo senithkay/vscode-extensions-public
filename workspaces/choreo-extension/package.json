@@ -120,6 +120,33 @@
           "when": "view == choreo-account && viewItem == choreo.org"
         }
       ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Choreo",
+      "properties": {
+        "Logging.loggingLevel": {
+          "type": "string",
+          "enum": [
+            "off",
+            "fatal",
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "trace"
+          ],
+          "default": "error",
+          "description": "The verbosity of logging. The Order is off < fatal < error < warn < info < debug < trace.",
+          "scope": "window"
+        },
+        "Logging.sourceLocationTracking": {
+          "type": "boolean",
+          "default": false,
+          "description": "Should Source Code Location Info be added to log entries, DANGER - May be very slow, only use in debugging scenarios",
+          "scope": "window"
+        }
+      }
     }
   },
   "scripts": {
@@ -148,6 +175,7 @@
     "@typescript-eslint/parser": "^5.42.0",
     "@vscode/test-electron": "^2.2.0",
     "@vscode/vsce": "^2.16.0",
+    "axios": "^1.2.2",
     "copyfiles": "^2.4.1",
     "del-cli": "^5.0.0",
     "eslint": "^8.26.0",
@@ -164,6 +192,9 @@
     "yarn": "^1.22.19"
   },
   "dependencies": {
+    "@vscode-logging/logger": "^1.2.3",
+    "@vscode-logging/types": "^0.1.4",
+    "@vscode-logging/wrapper": "^1.0.2",
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@wso2-enterprise/choreo-client": "^1.0.0",
     "@wso2-enterprise/choreo-core": "^1.0.0",

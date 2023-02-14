@@ -17,6 +17,7 @@ import { ext } from "../extensionVariables";
 import { existsSync } from 'fs';
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
+import { AxiosResponse } from 'axios';
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -121,6 +122,16 @@ export class ProjectRegistry {
         }
     }
 
+    async getPerformanceForecast(data: string): Promise<AxiosResponse> {
+        return projectClient.getPerformanceForecastData(data)
+            .then((result: any) => {
+                return result;
+            }).catch((e: any) => {
+                serializeError(e);
+                throw(e);
+            });
+    }
+
     setProjectLocation(projectId: string, location: string) {
         // Project locations are stored in global state
         let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);
@@ -168,7 +179,7 @@ export class ProjectRegistry {
                 // Get local components
                 const choreoPM = new ChoreoProjectManager();
                 const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
-                await localComponentMeta.forEach(async componentMetadata => {
+                await Promise.all(localComponentMeta.map(async componentMetadata => {
                     const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
                     const componentRequest: CreateComponentParams = {
                         name: componentMetadata.displayName,
@@ -187,7 +198,7 @@ export class ProjectRegistry {
                     await projectClient.createComponent(componentRequest).then((component) => {
                         choreoPM.removeLocalComponent(projectLocation, componentMetadata);
                     });
-                });
+                }));
                 // Delete the components so they resolve from choreo
                 this._dataComponents.delete(projectId);
             }

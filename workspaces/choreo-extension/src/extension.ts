@@ -30,6 +30,8 @@ import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 
 import { activateWizards } from './wizards/activate';
 
+import { getLogger, initLogger } from "./logger/logger";
+
 export function activateBallerinaExtension() {
 	const ext = extensions.getExtension("wso2.ballerina");
 	if (ext && !ext.isActive) {
@@ -37,7 +39,9 @@ export function activateBallerinaExtension() {
 	}
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+	await initLogger(context);
+  	getLogger().debug("Activating Choreo Extension");
 	ext.isPluginStartup = true;
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
@@ -52,12 +56,15 @@ export function activate(context: vscode.ExtensionContext) {
 	showChoreoProjectOverview();
 	activateStatusBarItem();
 	activateRegistry();
+	getLogger().debug("Choreo Extension activated");
 	return ext.api;
 }
 
 export async function showChoreoProjectOverview() {
+	getLogger().debug("Show Choreo Project Overview if a Choreo project is opened.");
 	const isChoreoProject = await ext.api.isChoreoProject();
 	if (isChoreoProject) {
+		getLogger().debug("Choreo project is opened. Showing Choreo Project Overview.");
 		await window.withProgress({
             title: `Opening Choreo Project Workspace.`,
             location: ProgressLocation.Notification,
@@ -66,10 +73,12 @@ export async function showChoreoProjectOverview() {
             let cancelled: boolean = false;
 
             cancellationToken.onCancellationRequested(async () => {
+				getLogger().debug("Choreo Project Overview loading cancelled.");
                 cancelled = true;
             });
 			// execute choreo project overview cmd
 			try {
+				getLogger().debug("Loading Choreo Project Metadata.	");
 				// first sign in to Choreo
 				await signIn();
 				if (cancelled) {
@@ -79,10 +88,12 @@ export async function showChoreoProjectOverview() {
 				if (cancelled) {
 					return;
 				}
+				getLogger().debug("Choreo Project Metadata loaded. Opening Choreo Project Overview.");
 				if (project) {
 					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
 				}
 			} catch (error: any) {
+				getLogger().error("Error while loading Choreo project overview. " + error.message);
 				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
 			}
 		});
@@ -92,12 +103,14 @@ export async function showChoreoProjectOverview() {
 
 
 export function getGitExtensionAPI() {
+	getLogger().debug("Getting Git Extension API");
 	const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')!.exports;
 	return gitExtension.getAPI(1);
 }
 
 
 function createProjectTreeView() {
+	getLogger().debug("Creating Choreo Projects Tree View");
 	const choreoResourcesProvider = new ProjectsTreeProvider();
 	ext.projectsTreeProvider = choreoResourcesProvider;
 
@@ -120,15 +133,18 @@ function createProjectTreeView() {
 
 
 function createAccountTreeView() {
-
+	getLogger().debug("Creating Choreo Account Tree View");
 	const accountTreeProvider = new AccountTreeProvider();
 	vscode.commands.registerCommand(setSelectedOrgCmdId, async (treeItem) => {
+		getLogger().debug("Setting selected organization to " + treeItem.org.name);
 		if (treeItem instanceof ChoreoOrgTreeItem) {
 			treeItem.iconPath = new ThemeIcon('loading~spin');
 			accountTreeProvider.refresh(treeItem);
 			try {
+				getLogger().debug("Exchanging access tokens for the organization " + treeItem.org.name);
 				await exchangeOrgAccessTokens(treeItem.org.handle);
 			} catch (error: any) {
+				getLogger().error("Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
 				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
 			}
 			ext.api.selectedOrg = treeItem.org;
@@ -140,6 +156,7 @@ function createAccountTreeView() {
 	});
 
 	ext.context.subscriptions.push(ext.api.onStatusChanged((newStatus) => {
+		getLogger().debug("Updating Choreo Account Tree View description based on the new status " + newStatus);
 		let description = '';
 		if (newStatus === "LoggedIn" && ext.api.userName) {
 			description = ext.api.userName;
