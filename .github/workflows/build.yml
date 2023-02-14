@@ -30,6 +30,7 @@ jobs:
         run: |
           wget ${{ env.ballerina_deb_url }}
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+          rm ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
       - name: Update version
         if: ${{ inputs.isRelease == true }}
@@ -48,7 +49,7 @@ jobs:
           IS_RELEASE: ${{ inputs.isRelease }}
 
       - name: Compress build
-        run: zip -r build.zip ./ -x '*temp*'
+        run: zip -r build.zip ./ -x 'common/temp*'
 
       - name: Save build
         uses: actions/upload-artifact@v3
