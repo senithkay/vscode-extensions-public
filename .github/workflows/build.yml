@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./cache
+      - uses: .github/actions/cache
 
       - name: Install Ballerina
         run: |
@@ -75,7 +75,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - uses: ./cache
+      - uses: .github/actions/cache
 
       - name: Install node modules
         run: |
@@ -135,7 +135,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - uses: ./cache
+      - uses: .github/actions/cache
 
       - name: Install node modules
         run: |
@@ -184,7 +184,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - uses: ./cache
+      - uses: .github/actions/cache
 
       - name: Install node modules
         run: |
