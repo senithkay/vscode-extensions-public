@@ -48,9 +48,7 @@ jobs:
           IS_RELEASE: ${{ inputs.isRelease }}
 
       - name: Compress build
-        run: |
-          node common/scripts/install-run-rush.js purge
-          zip -r build.zip ./
+        run: zip -r build.zip ./ -x '*temp*'
 
       - name: Save build
         uses: actions/upload-artifact@v3
