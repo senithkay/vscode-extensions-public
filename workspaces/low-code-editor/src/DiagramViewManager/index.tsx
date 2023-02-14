@@ -249,7 +249,7 @@ export function DiagramViewManager(props: EditorProps) {
                             onCancel={handleNavigationHome}
                         />
                     ));
-                } else if (signature && signature.includes('graphql')) {
+                } else if (experimentalEnabled && signature && signature.includes('graphql')) {
                     viewComponent.push(
                         <GraphqlDiagramOverlay
                             model={focusedST}
