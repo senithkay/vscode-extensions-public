@@ -44,7 +44,6 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Add an intermediary where clause", () => {
-        cy.wait(4000);
         DataMapper.addIntermediaryClause(-1, "Add where clause");
         DataMapper.clickIntermediateExpression(0);
         StatementEditor.shouldBeVisible().getEditorPane();

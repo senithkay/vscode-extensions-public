@@ -328,7 +328,7 @@ export class NodeInitVisitor implements Visitor {
                     exprType = getTypeFromStore(parentNode.expression.position as NodePosition);
                 }
 
-                if (exprType.typeName === PrimitiveBalType.Array && exprType?.memberType?.typeName === PrimitiveBalType.Record) {
+                if (exprType?.typeName === PrimitiveBalType.Array && exprType?.memberType?.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         node.selectClause,
@@ -341,7 +341,7 @@ export class NodeInitVisitor implements Visitor {
                         node.selectClause,
                         parentIdentifier,
                     );
-                } else if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Array) {
+                } else if (exprType?.memberType && exprType?.memberType?.typeName === PrimitiveBalType.Array) {
                     this.outputNode = new ListConstructorNode(
                         this.context,
                         node.selectClause,
