@@ -37,7 +37,7 @@ class MultilineConstructsConfigSetupVisitor implements Visitor {
             (node.closeBrace.viewState as StatementEditorViewState)
                 .multilineConstructConfig.isClosingBraceWithNewLine = true;
         }
-        if (STKindChecker.isSpecificField(parent) || STKindChecker.isComputedNameField(parent)) {
+        if (parent && (STKindChecker.isSpecificField(parent) || STKindChecker.isComputedNameField(parent))) {
             (node.closeBrace.viewState as StatementEditorViewState)
                 .multilineConstructConfig.isFieldWithNewLine = true;
         }

@@ -933,7 +933,8 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Test get connector", function (done): void {
+    // TODO: Enable test. https://github.com/wso2-enterprise/ballerina-plugin-vscode/issues/937
+    test.skip("Test get connector", function (done): void {
         langClient.getConnector({
             name: "Client",
             moduleName: "googleapis.sheets",

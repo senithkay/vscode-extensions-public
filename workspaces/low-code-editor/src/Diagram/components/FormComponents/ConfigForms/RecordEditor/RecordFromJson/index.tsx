@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 
 import { FormControl, FormHelperText } from "@material-ui/core";
+import { DIAGNOSTIC_SEVERITY } from "@wso2-enterprise/ballerina-languageclient";
 import { JsonToRecordResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
@@ -162,7 +163,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 let modulePart: STNode;
                 let newPosition: NodePosition;
                 const updatedBlock = formState.isSeparateDef ? recordResponse.codeBlock : formatRecord(recordResponse.codeBlock);
-                if (recordResponse?.diagnostics?.length === 0) {
+                if (recordResponse?.diagnostics?.length === 0 || (recordResponse?.diagnostics[0]?.severity
+                    !== DIAGNOSTIC_SEVERITY.ERROR)) {
                     if (formState.isSeparateDef) {
                         // Uses module part since we receive multiple records
                         modulePart = await getModulePartST({

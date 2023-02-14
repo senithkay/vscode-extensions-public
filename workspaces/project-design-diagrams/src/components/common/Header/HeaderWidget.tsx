@@ -39,7 +39,8 @@ const headings: Map<Views, string> = new Map<Views, string>([
     [Views.TYPE, 'Type Diagram'],
     [Views.TYPE_COMPOSITION, 'Composition Diagram'],
     [Views.L1_SERVICES, 'Service Diagram: Level 1'],
-    [Views.L2_SERVICES, 'Service Diagram: Level 2']
+    [Views.L2_SERVICES, 'Service Diagram: Level 2'],
+    [Views.CELL_VIEW, 'Cell Diagram']
 ]);
 
 export function DiagramHeader(props: HeaderProps) {

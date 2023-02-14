@@ -30,15 +30,20 @@ import { ControlsLayer, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 
+interface ContainerStyleProps {
+    backgroundColor?: string;
+}
+
 const Container = styled.div`
     align-items: center;
-    position: relative;
+    background: ${(props: ContainerStyleProps) => `${props.backgroundColor}`};
     display: flex;
     flex-direction: column;
     font-family: GilmerRegular;
     justify-content: center;
     min-height: 100vh;
     min-width: 100vw;
+    position: relative;
 `;
 
 interface DiagramProps {
@@ -51,7 +56,7 @@ export function DesignDiagram(props: DiagramProps) {
     const { go2source, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
-    const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.GRAPH);
+    const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
@@ -60,6 +65,8 @@ export function DesignDiagram(props: DiagramProps) {
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
+
+    const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
 
     useEffect(() => {
         rpcInstance.isChoreoProject().then((response) => {
@@ -116,7 +123,7 @@ export function DesignDiagram(props: DiagramProps) {
 
     return (
         <DesignDiagramContext {...ctx}>
-            <Container>
+            <Container backgroundColor={diagramBGColor}>
                 {showEditForm &&
                     <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
                 {editingEnabled && projectComponents && projectComponents.size < 1 ?
