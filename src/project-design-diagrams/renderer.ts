@@ -22,7 +22,7 @@ import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } f
 
 export function render(webView: Webview) {
     const body = `
-        <div class = "container" id = "webview-container" />
+        <div class="container" id="webview-container" />
     `;
     const bodyCss = ``;
     const styles = `
@@ -62,7 +62,7 @@ export function render(webView: Webview) {
                 designDiagram.renderDesignDiagrams(
                     go2source, 
                     openDesignDiagram,
-                    document.getElementById("diagram-container")
+                    document.getElementById("webview-container")
                 );
             }
 

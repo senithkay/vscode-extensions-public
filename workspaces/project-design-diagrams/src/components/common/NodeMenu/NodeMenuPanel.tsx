@@ -18,7 +18,7 @@
  */
 
 import React from "react";
-import { Location, Service } from "../../../resources";
+import { Location, RemoteFunction, ResourceFunction, Service } from "../../../resources";
 import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton } from "./components";
 import { Paper, MenuList, Divider } from "@mui/material";
 
@@ -32,13 +32,13 @@ interface MenuProps {
 export function NodeMenuPanel(props: MenuProps) {
     const { location, linkingEnabled, service, resource } = props;
 
-    // { service && <GoToDesign element={service} /> }
-    // { resource && <GoToDesign element={resource} /> }
     return (
         <>
             <Paper sx={{ maxWidth: "100%" }}>
                 <MenuList>
                     <Go2SourceButton location={location} />
+                    {service && <GoToDesign element={service} />}
+                    {resource && <GoToDesign element={resource} />}
                     {linkingEnabled && service && (
                         <>
                             <Divider />
