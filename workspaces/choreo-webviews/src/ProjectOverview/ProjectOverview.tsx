@@ -125,15 +125,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
     });
 
-    const handleCloneProjectClick = useCallback((e: any) => {
+    const handleCloneProjectClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : '');
     }, [project]);
 
-    const handleOpenProjectClick = useCallback((e: any) => {
+    const handleOpenProjectClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
     }, [project]);
 
-    const handlePushToChoreoClick = useCallback((e: any) => {
+    const handlePushToChoreoClick = useCallback(() => {
         setCreatingComponents(true);
         ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
             setCreatingComponents(false);
@@ -141,17 +141,17 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
     }, [project]);
 
-    const handleOpenArchitectureViewClick = useCallback( (e: any) => {
+    const handleOpenArchitectureViewClick = useCallback( () => {
         ChoreoWebViewAPI.getInstance().openArchitectureView();
     }, []);
 
     const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
 
-    const onOpenConsoleClick = useCallback((e: any) => {
+    const onOpenConsoleClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openExternal(consoleLink);
     }, [consoleLink]);
 
-    const handleCreateComponentClick = useCallback((e: any) => {
+    const handleCreateComponentClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.component.create');
     }, []);
 
