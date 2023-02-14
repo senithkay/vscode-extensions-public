@@ -32,6 +32,7 @@ import { ResourceBody } from "./Resource";
 import { ServiceHeader } from "./ServiceHeader";
 import { useStyles } from "./style";
 import "./style.scss";
+import { ArrowBack } from "@material-ui/icons";
 
 export interface ServiceDesignProps {
     model: STNode;
@@ -121,6 +122,9 @@ export function ServiceDesign(props: ServiceDesignProps) {
                 <>
                     {/*<ServiceHeader onClose={onClose} model={fnSTZ} />*/}
                     <div className={classes.serviceTitle}>
+                        <div className={classes.navigationIcon} >
+                            <ArrowBack />
+                        </div>
                         <div>
                             <span className={classes.servicePath}>Service {servicePath}</span>
                             <span className={classes.listenerText}>
@@ -128,7 +132,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                             </span>
                         </div>
                         <div className={classes.serviceConfigure} >
-                            <SettingsIcon onClick={handleServiceConfigureFormClick}/>
+                            <SettingsIcon onClick={handleServiceConfigureFormClick} />
                         </div>
                     </div>
                     <div className={classes.expandAll}>

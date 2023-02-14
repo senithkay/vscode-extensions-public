@@ -95,25 +95,21 @@ export function DiagramViewManager(props: EditorProps) {
     const [balVersion, setBalVersion] = React.useState("");
     const [completeST, setCompleteST] = useState<STNode>();
 
-    // useEffect(() => {
-    //     if (currentProject) {
-    //         (async () => {
-    //             const response = await getAllFiles('**/*.bal');
-    //             const fileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
-    //             const projectFiles: FileListEntry[] = fileList.map(fileUri => ({
-    //                 fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
-    //                 uri: fileUri
-    //             }));
-    //             if (!focusFile && diagramFocus) {
-    //                 const currentlySelectedFile = projectFiles.find(projectFile => projectFile.uri.path.includes(diagramFocus.filePath));
-    //                 setFocusFile(currentlySelectedFile);
-    //             } else {
-    //                 setFocusFile(undefined);
-    //             }
-    //             setFileList(projectFiles);
-    //         })();
-    //     }
-    // }, [currentProject]);
+    useEffect(() => {
+        if (currentProject) {
+            (async () => {
+                const response = await getAllFiles('**/*.bal');
+                const fileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
+                const projectFiles: FileListEntry[] = fileList.map(fileUri => ({
+                    fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
+                    uri: fileUri
+                }));
+                setFileList(projectFiles);
+                setFocusFile(undefined);
+                setFocusedST(undefined);
+            })();
+        }
+    }, [currentProject]);
 
     useEffect(() => {
         if (diagramFocus) {
@@ -239,8 +235,8 @@ export function DiagramViewManager(props: EditorProps) {
             }
         })();
     }
+
     useEffect(() => {
-        console.log('hello >>>', focusFile, focusUid);
         if (!focusFile || !focusUid) return;
         fetchST(focusFile.uri.path, { uid: focusUid });
     }, [lastUpdatedAt]);
@@ -417,8 +413,10 @@ export function DiagramViewManager(props: EditorProps) {
     // }
     //
     const handleFileChange = (entry: FileListEntry) => {
+        console.log('handleFileChange >>>', entry);
         setFocusFile(entry);
         setFocusUid(undefined);
+        setFocusedST(undefined);
     }
 
     return (

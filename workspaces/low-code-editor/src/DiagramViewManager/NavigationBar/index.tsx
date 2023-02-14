@@ -28,10 +28,6 @@ interface NavigationBarProps {
     currentFile: FileListEntry;
     updateCurrentProject: (project: WorkspaceFolder) => void;
     updateCurrentFile: (file: FileListEntry) => void;
-    // projectName: string;
-    // isWorkspace: boolean;
-    // folderName?: string;
-    // onFolderClick?: () => void;
 }
 
 const ALL_FILES: string = 'All';

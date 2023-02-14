@@ -120,7 +120,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
             <CategoryView
                 projectComponents={projectComponents}
                 currentFile={currentFile}
-                updateSelection={function(info: ComponentViewInfo): void { throw new Error("Function not implemented."); }}
+                updateSelection={notifyComponentSelection}
             />
         </div>
     )
