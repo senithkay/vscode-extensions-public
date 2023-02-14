@@ -1,3 +1,5 @@
+import { TEST_SUFFIX } from "./generate";
+
 export function genInterfacesFileCode(modelInfo: any) {
     const modelNames = Object.keys(modelInfo).sort();
     const interfaces = modelNames.map((key) => {
@@ -7,7 +9,7 @@ export function genInterfacesFileCode(modelInfo: any) {
     return `
         // This is an auto-generated file. Do not edit.
         // Run 'BALLERINA_HOME="your/ballerina/home" npm run gen-models' to generate.
-        // tslint:disable:ban-types
+        // eslint-disable ban-types
 
         export interface VisibleEndpoint {
             kind?: string;
@@ -88,7 +90,7 @@ export function genInterfacesFileCode(modelInfo: any) {
         }
 
         ${interfaces.join("\n")}
-        // tslint:enable:ban-types
+        // eslint-enable ban-types
     `;
 }
 
@@ -100,7 +102,7 @@ export function genBaseVisitorFileCode(modelNames: string[]) {
     return `
         // This is an auto-generated file. Do not edit.
         // Run 'BALLERINA_HOME="your/ballerina/home" npm run gen-models' to generate.
-        import * as Ballerina from "./syntax-tree-interfaces";
+        import * as Ballerina from "./syntax-tree-interfaces${TEST_SUFFIX}";
 
         export interface Visitor {
             beginVisitSTNode?(node: Ballerina.STNode, parent?: Ballerina.STNode): void;
@@ -119,7 +121,7 @@ export function genCheckKindUtilCode(modelNames: string[]) {
     return `
         // This is an auto-generated file. Do not edit.
         // Run 'BALLERINA_HOME="your/ballerina/home" npm run gen-models' to generate.
-        import * as Ballerina from "./syntax-tree-interfaces";
+        import * as Ballerina from "./syntax-tree-interfaces${TEST_SUFFIX}";
 
         export class STKindChecker {
             ${kindChecks.join("\n")}

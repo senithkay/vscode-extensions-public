@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
@@ -39,7 +41,7 @@ jobs:
         run: |
           npm version ${{ inputs.version }} --preid beta --no-git-tag-version
           cd ballerina-low-code-editor
-          # npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
           
       - name: Build plugin repo
         run: npm run build

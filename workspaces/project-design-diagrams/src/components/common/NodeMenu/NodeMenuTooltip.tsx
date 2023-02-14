@@ -62,10 +62,11 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                     componentsProps={{
                         tooltip: {
                             sx: {
-                                backgroundColor: '#e6e6e6',
+                                backgroundColor: 'none',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                padding: 0
                             }
                         },
                         arrow: {

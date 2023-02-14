@@ -17,38 +17,28 @@
  *
  */
 
-import React, { useContext, useState } from 'react';
-import Tooltip from '@mui/material/Tooltip';
-import TurnRightIcon from '@mui/icons-material/TurnRight';
-import { DiagramContext } from '../../DiagramContext/DiagramContext';
-import { Service } from '../../../../resources';
+import React, { useContext } from "react";
+import TurnRightIcon from "@mui/icons-material/TurnRight";
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
+import { Service } from "../../../../resources";
+import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import { useStyles } from "./styles";
 
-export function LinkingWidget(props: { service: Service }) {
+export function LinkingButton(props: { service: Service }) {
     const { service } = props;
-    const [isHovered, setIsHovered] = useState<boolean>(false);
-
+    const classes = useStyles();
     const { setNewLinkNodes } = useContext(DiagramContext);
 
     return (
-        <Tooltip
-            open={isHovered}
-            title={'Link Internally'}
-            arrow
-            placement='right'
+        <MenuItem
+            onClick={() => {
+                setNewLinkNodes({ source: service, target: undefined });
+            }}
         >
-            <TurnRightIcon
-                onClick={() => { setNewLinkNodes({ source: service, target: undefined }) }}
-                onMouseOver={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                style={{
-                    backgroundColor: isHovered ? 'orange' : '',
-                    borderRadius: '50%',
-                    color: isHovered ? 'whitesmoke' : 'orange',
-                    cursor: 'pointer',
-                    fontSize: '22px',
-                    padding: '2px'
-                }}
-            />
-        </Tooltip>
+            <ListItemIcon>
+                <TurnRightIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText className={classes.listItemText}>Link internally</ListItemText>
+        </MenuItem>
     );
 }
