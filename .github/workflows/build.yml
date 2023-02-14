@@ -93,28 +93,32 @@ jobs:
           echo "$balHome/bin" >> $GITHUB_PATH
 
       - name: Run Test
-        run: xvfb-run --auto-servernum pnpm run test
+        run: |
+          cd workspaces/ballerina-extension
+          xvfb-run --auto-servernum pnpm run test
         env:
           balVersion: ${{ steps.set-version.outputs.balVersion }}
           balHome: ${{ steps.set-version.outputs.balHome }}
 
       - name: Convert lcov to cobertura
-        run: python lcov_cobertura.py coverage/lcov.info -b src/ -o coverage/coverage.xml
+        run: |
+          cd workspaces/ballerina-extension
+          python lcov_cobertura.py coverage/lcov.info -b src/ -o coverage/coverage.xml
 
       - name: Publish coverage reports
         uses: actions/upload-artifact@v3
         with:
-          path: coverage
+          path: workspaces/ballerina-extension/coverage
           name: vscode-extension-coverage-${{ github.run_attempt }}
         if: always()
     
       - name: Rename code coverage file
-        run: mv coverage/coverage.xml coverage/plugin-coverage.xml
+        run: mv workspaces/ballerina-extension/coverage/coverage.xml workspaces/ballerina-extension/coverage/plugin-coverage.xml
     
       - name: Publish partial code coverage
         uses: actions/upload-artifact@v3
         with:
-          path: coverage/plugin-coverage.xml
+          path: workspaces/ballerina-extension/coverage/plugin-coverage.xml
           name: CodeCoverages
 
   UiTest_Stage:
@@ -158,7 +162,7 @@ jobs:
       - name: Publish UI Test Screenshots
         uses: actions/upload-artifact@v3
         with:
-          path: ./test-resources/screenshots/
+          path: workspaces/ballerina-extension/test-resources/screenshots/
           name: Ui-test-screenshots-${{ github.run_attempt }}
         if: failure()
 
