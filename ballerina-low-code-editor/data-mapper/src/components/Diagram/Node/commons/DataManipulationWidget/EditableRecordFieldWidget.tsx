@@ -90,6 +90,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
+    const isValueMappingConstructor = specificField
+        && specificField.valueExpr
+        && STKindChecker.isMappingConstructor(specificField.valueExpr);
     let indentation = treeDepth * 16;
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
@@ -192,7 +195,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
-                    (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
+                    isDisabled && !hasHoveredParent ? classes.valueLabelDisabled : ""
+                )}
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
                 {fieldName}
@@ -202,7 +206,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {typeName && (
                 <span
                     className={classnames(classes.typeLabel,
-                        (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}
+                        isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
+                    )}
                 >
                     {typeName}
                 </span>
@@ -257,9 +262,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 <div
                     id={"recordfield-" + fieldId}
                     className={classnames(classes.treeLabel,
-                        (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "",
-                        (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
-                        (isDisabled && !portIn.ancestorHasValue) ? classes.treeLabelDisableHover : "",
+                        isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
+                        isDisabled && isHovered ? classes.treeLabelDisableHover : "",
+                        portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
                         hasHoveredParent ? classes.treeLabelPortSelected : ""
                     )}
                     onMouseEnter={onMouseEnter}
@@ -279,7 +284,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         {fields && (
                             <IconButton
                                 id={"button-wrapper-" + fieldId}
-                                className={classes.expandIcon}
+                                className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
                                 style={{ marginLeft: indentation }}
                                 onClick={handleExpand}
                                 data-testid={`${portIn.getName()}-expand-icon-element`}
@@ -289,7 +294,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         )}
                         {label}
                     </span>
-                    {(!isDisabled || hasValue) && (
+                    {(!isDisabled || hasValue) && !isValueMappingConstructor && (
                         <>
                             {(isLoading || fieldId === fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />

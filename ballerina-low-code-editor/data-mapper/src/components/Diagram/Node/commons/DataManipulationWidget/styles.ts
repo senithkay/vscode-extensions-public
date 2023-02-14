@@ -34,7 +34,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         treeLabelDisableHover: {
             '&:hover': {
-                backgroundColor: '#FFFFFF',
+                backgroundColor: '#F4F5FB',
             }
         },
         treeLabelDisabled: {
