@@ -107,7 +107,9 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
 
-	const portIn = getPort(`${id}.IN`);
+	const type = field?.type?.typeName || typeName;
+ const fieldId = `${id}.${type}`;
+	const portIn = getPort(`${fieldId}.IN`);
 
 	let expanded = true;
 	if ((portIn && portIn.collapsed)) {
@@ -121,12 +123,12 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 			{valueLabel && (
 				<span className={classes.valueLabel}>
 					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
-					{typeName && ":"}
+					{type && ":"}
 				</span>
 			)}
-			{typeName && (
+			{type && (
 				<span className={classes.typeLabel}>
-					{typeName}
+					{type}
 				</span>
 			)}
 
@@ -134,7 +136,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	);
 
 	const handleExpand = () => {
-		context.handleCollapse(id, !expanded);
+		context.handleCollapse(fieldId, !expanded);
 	}
 
 	return (
