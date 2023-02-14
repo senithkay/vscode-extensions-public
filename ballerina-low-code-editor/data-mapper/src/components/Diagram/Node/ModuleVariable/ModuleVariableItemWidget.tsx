@@ -18,7 +18,6 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";
@@ -41,6 +40,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
     const classes = useStyles();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [isHovered, setIsHovered] = useState(false);
 
     const typeName = getTypeName(typeDesc);
     const portOut = getPort(`${id}.OUT`);
@@ -70,12 +70,21 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
         setPortState(state)
     };
 
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
+
     return (
         <>
-            <div
+            <TreeHeader
                 id={"recordfield-" + id}
-                className={classnames(classes.nodeHeader,
-                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "")}
+                isSelected={portState !== PortState.Unselected}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
             >
                 <span className={classes.label}>
                 {isRecord && (
@@ -94,7 +103,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
-            </div>
+            </TreeHeader>
             {
                 expanded && isRecord && (
                     <TreeBody>
@@ -108,6 +117,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                                     parentId={id}
                                     handleCollapse={handleCollapse}
                                     treeDepth={0}
+                                    hasHoveredParent={isHovered}
                                 />
                             );
                         })

@@ -19,7 +19,6 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../../utils/constants';
@@ -117,6 +116,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     const classes = useStyles();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [isHovered, setIsHovered] = useState(false);
 
     const typeName = getTypeName(typeDesc);
 
@@ -154,15 +154,24 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
         setPortState(state)
     };
 
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
+
     return (
         <TreeContainer data-testid={`${id}-node`}>
             <div className={classes.queryPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>
-            <div
+            <TreeHeader
                 id={"recordfield-" + id}
-                className={classnames(classes.treeLabel,
-                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "")}
+                isSelected={portState !== PortState.Unselected}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
             >
                 <span className={classes.label}>
                     <IconButton
@@ -181,7 +190,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
-            </div>
+            </TreeHeader>
             <TreeBody>
                 {expanded &&
                     typeDesc?.fields?.map((field) => {
@@ -194,6 +203,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                                 parentId={id}
                                 handleCollapse={handleCollapse}
                                 treeDepth={0}
+                                hasHoveredParent={isHovered}
                             />
                         );
                     })

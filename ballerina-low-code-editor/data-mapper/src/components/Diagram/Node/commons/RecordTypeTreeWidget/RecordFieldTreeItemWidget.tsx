@@ -104,11 +104,11 @@ export interface RecordFieldTreeItemWidgetProps {
     treeDepth?: number;
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
     isOptional?: boolean;
-
+    hasHoveredParent?: boolean;
 }
 
 export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
-    const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0, isOptional } = props;
+    const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0, isOptional, hasHoveredParent } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.name);
@@ -116,6 +116,8 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [isHovered, setIsHovered] = useState(false);
+
     let fields: Type[];
     let optional = false;
 
@@ -160,12 +162,24 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
         setPortState(state)
     };
 
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
+
     return (
         <>
             <div
                 id={"recordfield-" + fieldId}
                 className={classnames(classes.treeLabel,
-                (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "")}
+                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+                    hasHoveredParent ? classes.treeLabelPortSelected : ""
+                )}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
             >
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
@@ -201,6 +215,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             handleCollapse={handleCollapse}
                             treeDepth={treeDepth + 1}
                             isOptional={isOptional || optional}
+                            hasHoveredParent={isHovered || hasHoveredParent}
                         />
                     );
                 })
