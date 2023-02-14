@@ -79,6 +79,7 @@ export function DiagramViewManager(props: EditorProps) {
     } = props;
     const classes = useGeneratorStyles();
 
+    const isWorkspace: boolean = projectPaths.length > 1;
     const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
@@ -99,8 +100,8 @@ export function DiagramViewManager(props: EditorProps) {
         if (currentProject) {
             (async () => {
                 const response = await getAllFiles('**/*.bal');
-                const fileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
-                const projectFiles: FileListEntry[] = fileList.map(fileUri => ({
+                const fileListResponse: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
+                const projectFiles: FileListEntry[] = fileListResponse.map(fileUri => ({
                     fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
                     uri: fileUri
                 }));
@@ -114,21 +115,20 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (diagramFocus) {
             const { filePath, position } = diagramFocus;
-            const projectPath = projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
+            const currentProjectPath = projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
 
             (async () => {
                 const response = await getAllFiles('**/*.bal');
-                const fileList: Uri[] = response.filter(fileUri => fileUri.path.includes(projectPath.uri.fsPath));
-                const projectFiles: FileListEntry[] = fileList.map(fileUri => ({
-                    fileName: fileUri.path.replace(`${projectPath.uri.fsPath}/`, ''),
+                const filteredFileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProjectPath.uri.fsPath));
+                const projectFiles: FileListEntry[] = filteredFileList.map(fileUri => ({
+                    fileName: fileUri.path.replace(`${currentProjectPath.uri.fsPath}/`, ''),
                     uri: fileUri
                 }));
                 const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
-                console.log("currentFile >>>", currentFile);
                 if (position) {
                     fetchST(filePath, { position });
                 }
-                setCurrentProject(projectPath);
+                setCurrentProject(currentProjectPath);
                 setFileList(projectFiles);
                 setFocusFile(currentFile);
             })();
@@ -206,7 +206,7 @@ export function DiagramViewManager(props: EditorProps) {
                 const content = await getFileContent(filePath);
                 const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                 const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
-                let focusedST;
+                let selectedST;
 
                 if (position) {
                     const uidGenVisitor = new UIDGenerationVisitor(position);
@@ -214,17 +214,17 @@ export function DiagramViewManager(props: EditorProps) {
                     const generatedUid = uidGenVisitor.getUId();
                     const nodeFindingVisitor = new FindNodeByUidVisitor(generatedUid);
                     traversNode(visitedST, nodeFindingVisitor);
-                    focusedST = nodeFindingVisitor.getNode();
+                    selectedST = nodeFindingVisitor.getNode();
                     setFocusUid(generatedUid);
                 }
 
                 if (uid) {
                     const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
                     traversNode(visitedST, nodeFindingVisitor);
-                    focusedST = nodeFindingVisitor.getNode();
+                    selectedST = nodeFindingVisitor.getNode();
                 }
 
-                setFocusedST(focusedST);
+                setFocusedST(selectedST);
                 setCompleteST(visitedST);
                 setCurrentFileContent(content);
                 setLowCodeResourcesVersion(resourceVersion);
@@ -413,7 +413,6 @@ export function DiagramViewManager(props: EditorProps) {
     // }
     //
     const handleFileChange = (entry: FileListEntry) => {
-        console.log('handleFileChange >>>', entry);
         setFocusFile(entry);
         setFocusUid(undefined);
         setFocusedST(undefined);
@@ -428,6 +427,7 @@ export function DiagramViewManager(props: EditorProps) {
                             {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, focusFile, stMemberId, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateSelectedComponent, navigateUptoParent)}
                         >
                             <NavigationBar
+                                workspaceName={workspaceName}
                                 projectList={projectPaths}
                                 fileList={fileList}
                                 currentProject={currentProject}

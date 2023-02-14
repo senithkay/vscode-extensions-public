@@ -21,9 +21,9 @@ import { FileListEntry, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagr
 
 import { Filter as FilterComponent } from './components/Filter'
 import * as Views from './components/ViewTypes';
+import { CategoryView } from "./components/ViewTypes/CategoryView";
 import './style.scss';
 import { ComponentViewInfo } from "./util";
-import { CategoryView } from "./components/ViewTypes/CategoryView";
 
 export const DEFAULT_MODULE_NAME = 'default';
 

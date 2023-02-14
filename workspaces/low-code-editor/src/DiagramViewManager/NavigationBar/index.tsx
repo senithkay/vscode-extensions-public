@@ -12,16 +12,18 @@
  */
 import React from "react";
 
-import { FormControl, InputLabel, Select } from "@material-ui/core";
-import { Apps, ArrowBack, Folder, Home } from "@material-ui/icons";
+import { ClickAwayListener, FormControl, InputLabel, Popover, Select } from "@material-ui/core";
+import { Apps, ArrowBack, ArrowDropDown, Folder, Home } from "@material-ui/icons";
+import classNames from "classnames";
 
+import { FileListEntry, WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
-import { FileListEntry, WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
 
 interface NavigationBarProps {
+    workspaceName: string;
     projectList: WorkspaceFolder[];
     fileList: FileListEntry[];
     currentProject: WorkspaceFolder;
@@ -34,22 +36,20 @@ const ALL_FILES: string = 'All';
 
 export function NavigationBar(props: NavigationBarProps) {
     // const { projectName, folderName, isWorkspace, onFolderClick } = props;
-    const { projectList, fileList, currentProject, currentFile, updateCurrentProject, updateCurrentFile } = props;
+    const {
+        workspaceName, projectList, fileList, currentProject, currentFile, updateCurrentProject, updateCurrentFile
+    } = props;
     const classes = useStyles();
 
-    const projectSelectorOptions: React.ReactElement[] = [];
+    const [isProjectSelectorOpen, setIsProjectSelectorOpen] = React.useState(false);
+    const popoverRef = React.useRef<HTMLDivElement>(null);
+
+    const isWorkspace = projectList.length > 1;
     const fileSelectorOptions: React.ReactElement[] = [];
 
     fileSelectorOptions.push(
         <option value={ALL_FILES}>{ALL_FILES}</option>
     );
-    if (projectList && projectList.length > 0) {
-        projectList.forEach(project => {
-            projectSelectorOptions.push(
-                <option value={project.name}>{project.name}</option>
-            );
-        });
-    }
 
     if (fileList && fileList.length > 0) {
         fileList.forEach(fileEntry => [
@@ -59,59 +59,125 @@ export function NavigationBar(props: NavigationBarProps) {
         ])
     }
 
-    const handleProjectChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
-        const currentProject = projectList.find(project => project.name === evt.target.value);
-        updateCurrentProject(currentProject);
+    const handleProjectChange = (selectedProject: WorkspaceFolder) => {
+        updateCurrentProject(selectedProject);
     }
 
     const handleFileChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
         if (evt.target.value === ALL_FILES) {
             updateCurrentFile(undefined);
         } else {
-            const currentFile = fileList.find(file => file.fileName === evt.target.value);
-            updateCurrentFile(currentFile);
+            const selectedFile = fileList.find(file => file.fileName === evt.target.value);
+            updateCurrentFile(selectedFile);
         }
     }
 
     const renderProjectSelectorComponent = () => {
+        // <FormControl variant="outlined" className={classes.selectorComponent} >
+        //     <InputLabel htmlFor="outlined-age-native-simple">Project</InputLabel>
+        //     <Select
+        //         native={true}
+        //         value={currentProject?.name || ''}
+        //         label="Project"
+        //         inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
+        //         onChange={handleProjectChange}
+        //     >
+        //         {projectSelectorOptions}
+        //     </Select>
+        // </FormControl>
+
+        const projectSelectorOptions: React.ReactElement[] = [];
+        const handlePojectSelectorClose = () => {
+            setIsProjectSelectorOpen(false);
+        }
+
+        const handlePojectSelectorOpen = () => {
+            setIsProjectSelectorOpen(true);
+        }
+
+        const handleOptionSelect = (project: WorkspaceFolder) => {
+            handlePojectSelectorClose();
+            handleProjectChange(project);
+        }
+
+        if (projectList && projectList.length > 0) {
+            projectList.forEach(project => {
+                const handleOptionClick = () => {
+                    handleOptionSelect(project);
+                }
+
+                projectSelectorOptions.push(
+                    <div className={classes.projectSelectorOption} onClick={handleOptionClick}>
+                        <span>{project.name}</span>
+                    </div>
+                );
+            });
+        }
+
+
         return (
-            <FormControl variant="outlined" className={classes.selectorComponent} >
-                <InputLabel htmlFor="outlined-age-native-simple">Project</InputLabel>
-                <Select
-                    native={true}
-                    value={currentProject?.name || ''}
-                    label="Project"
-                    inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
-                    onChange={handleProjectChange}
+            <div className="btn-container" ref={popoverRef} onClick={handlePojectSelectorOpen} >
+                <Folder />
+                <span className="icon-text">{currentProject?.name || ''}</span>
+                <ArrowDropDown />
+                <Popover
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'left', }}
+                    title={'Filter'}
+                    open={isProjectSelectorOpen}
+                    anchorEl={popoverRef ? popoverRef.current : undefined}
+                    onClose={handlePojectSelectorClose}
                 >
-                    {projectSelectorOptions}
-                </Select>
-            </FormControl>
+                    <ClickAwayListener
+                        mouseEvent="onMouseDown"
+                        touchEvent="onTouchStart"
+                        onClickAway={handlePojectSelectorClose}
+                    >
+                        <div className="project-selector-container">
+                            {projectSelectorOptions}
+                        </div>
+                    </ClickAwayListener>
+                </Popover>
+            </div>
         )
     }
-    const renderFileSelector = () => {
-        return (
-            <FormControl variant="outlined" className={classes.selectorComponent} >
-                <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
-                <Select
-                    native={true}
-                    value={currentFile ? currentFile.fileName : ALL_FILES}
-                    label="File"
-                    inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
-                    onChange={handleFileChange}
-                >
-                    {fileSelectorOptions}
-                </Select>
-            </FormControl>
-        )
-    }
+    // const renderFileSelector = () => {
+    //     return (
+    //         <FormControl variant="outlined" className={classes.selectorComponent} >
+    //             <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
+    //             <Select
+    //                 native={true}
+    //                 value={currentFile ? currentFile.fileName : ALL_FILES}
+    //                 label="File"
+    //                 inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
+    //                 onChange={handleFileChange}
+    //             >
+    //                 {fileSelectorOptions}
+    //             </Select>
+    //         </FormControl>
+    //     )
+    // }
+
+    const backButton = (
+        <div className="btn-container">
+            <ArrowBack />
+        </div>
+    );
+
+    // const showBackButton: boolean = history.length > 0;
+    const renderWorkspaceNameComponent = () => (
+        <div className="btn-container" >
+            {isWorkspace ? <Apps /> : <Folder />}
+            <span className="icon-text">{`${workspaceName}`}</span>
+        </div>
+    );
 
     // {renderWorkspaceNameComponent(isWorkspace)}
     return (
         <div id="nav-var-main" className="header-bar">
-            {renderProjectSelectorComponent()}
-            <div className={classes.componentSeperator} >/</div>
-            {renderFileSelector()}
+            {renderWorkspaceNameComponent()}
+            {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
+            {isWorkspace && renderProjectSelectorComponent()}
             <div className="component-details" />
         </div>
     );

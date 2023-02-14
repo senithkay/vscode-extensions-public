@@ -19,8 +19,8 @@ export interface ComponentViewInfo {
     position: NodePosition;
     fileName?: string;
     moduleName?: string;
-    name?: string;
     uid?: string;
+    name?: string;
 }
 
 export interface ComponentCollection {

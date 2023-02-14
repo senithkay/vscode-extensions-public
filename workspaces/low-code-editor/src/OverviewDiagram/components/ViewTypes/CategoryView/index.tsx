@@ -15,9 +15,9 @@ import React from "react";
 import { BallerinaProjectComponents, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DEFAULT_MODULE_NAME } from "../../..";
+import { FileListEntry } from "../../../../DiagramGenerator/vscode/Diagram";
 import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
 import { ComponentView } from "../ComponentView";
-import { FileListEntry } from "../../../../DiagramGenerator/vscode/Diagram";
 
 import './style.scss'
 
@@ -51,7 +51,6 @@ export function CategoryView(props: CategoryViewProps) {
                     if (key !== 'name') {
                         module[key].forEach((element: any) => {
                             const filePath = genFilePath(packageInfo, module, element);
-                            console.log(currentFile);
                             if (currentFile && currentFile.uri.path !== filePath) return;
                             currentComponents[key].push({
                                 filePath,
