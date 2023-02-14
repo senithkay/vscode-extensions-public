@@ -119,6 +119,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const classes = useStyles();
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+	const [isHovered, setIsHovered] = useState(false);
 
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
 	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
@@ -163,9 +164,22 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		setPortState(state)
 	};
 
+	const onMouseEnter = () => {
+		setIsHovered(true);
+	};
+
+	const onMouseLeave = () => {
+		setIsHovered(false);
+	};
+
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
-			<TreeHeader isSelected={portState !== PortState.Unselected} id={"recordfield-" + id}>
+			<TreeHeader
+				isSelected={portState !== PortState.Unselected}
+				id={"recordfield-" + id}
+				onMouseEnter={onMouseEnter}
+				onMouseLeave={onMouseLeave}
+			>
 				<span className={classes.treeLabelInPort}>
 					{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
 							|| !expanded
@@ -202,6 +216,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 								context={context}
 								treeDepth={0}
 								deleteField={deleteField}
+								hasHoveredParent={isHovered}
 							/>
 						);
 					})

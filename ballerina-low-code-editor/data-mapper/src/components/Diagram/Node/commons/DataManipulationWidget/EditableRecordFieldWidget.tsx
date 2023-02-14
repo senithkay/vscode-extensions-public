@@ -49,6 +49,7 @@ export interface EditableRecordFieldWidgetProps {
     fieldIndex?: number;
     treeDepth?: number;
     deleteField?: (node: STNode) => Promise<void>;
+    hasHoveredParent?: boolean;
 }
 
 export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
@@ -61,10 +62,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         context,
         fieldIndex,
         treeDepth = 0,
-        deleteField
+        deleteField,
+        hasHoveredParent
     } = props;
     const {
-        stSymbolInfo,
         fieldToBeEdited,
         isStmtEditorCanceled,
         handleFieldToBeEdited,
@@ -74,6 +75,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     } = context;
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
     let fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
@@ -148,6 +150,14 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const handlePortState = (state: PortState) => {
         setPortState(state)
+    };
+
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
     };
 
     let isDisabled = portIn.descendantHasValue || (value && !connectedViaLink);
@@ -247,21 +257,25 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 <div
                     id={"recordfield-" + fieldId}
                     className={classnames(classes.treeLabel,
-                    (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "",
-                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
-                    (isDisabled && !portIn.ancestorHasValue) ? classes.treeLabelDisableHover : "")}
+                        (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "",
+                        (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+                        (isDisabled && !portIn.ancestorHasValue) ? classes.treeLabelDisableHover : "",
+                        hasHoveredParent ? classes.treeLabelPortSelected : ""
+                    )}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
                 >
                     <span className={classes.treeLabelInPort}>
-                        {portIn && (
-                            <DataMapperPortWidget
-                                engine={engine}
-                                port={portIn}
-                                disable={isDisabled && expanded}
-                                handlePortState={handlePortState}
-                            />
-                        )}
+                    {portIn && (
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portIn}
+                            disable={isDisabled && expanded}
+                            handlePortState={handlePortState}
+                        />
+                    )}
                     </span>
-                    <span className={classes.label}>
+                        <span className={classes.label}>
                         {fields && (
                             <IconButton
                                 id={"button-wrapper-" + fieldId}
@@ -275,7 +289,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         )}
                         {label}
                     </span>
-
                     {(!isDisabled || hasValue) && (
                         <>
                             {(isLoading || fieldId === fieldToBeEdited) ? (
@@ -300,6 +313,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         fieldIndex={fieldIndex}
                         treeDepth={treeDepth}
                         deleteField={deleteField}
+                        hasHoveredParent={isHovered || hasHoveredParent}
                     />
                 </>
             )}
@@ -317,6 +331,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 context={context}
                                 treeDepth={treeDepth + 1}
                                 deleteField={deleteField}
+                                hasHoveredParent={isHovered || hasHoveredParent}
                             />
                         </>
                     );

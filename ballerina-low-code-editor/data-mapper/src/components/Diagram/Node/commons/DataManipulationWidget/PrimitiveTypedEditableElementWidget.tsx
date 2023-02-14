@@ -34,10 +34,21 @@ export interface PrimitiveTypedEditableElementWidgetProps {
     fieldIndex?: number;
     deleteField?: (node: STNode) => Promise<void>;
     isArrayElement?: boolean;
+    hasHoveredParent?: boolean;
 }
 
 export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditableElementWidgetProps) {
-    const { parentId, field, getPort, engine, context, fieldIndex, deleteField, isArrayElement } = props;
+    const {
+        parentId,
+        field,
+        getPort,
+        engine,
+        context,
+        fieldIndex,
+        deleteField,
+        isArrayElement,
+        hasHoveredParent
+    } = props;
     const classes = useStyles();
 
     const fieldName = getFieldName(field);
@@ -65,7 +76,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     const value = body && body.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);
-    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
     useEffect(() => {
         if (editable) {
@@ -125,7 +136,9 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
                 <div
                     id={"recordfield-" + fieldId}
                     className={classnames(classes.treeLabel,
-                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "")}
+                        (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+                        hasHoveredParent ? classes.treeLabelPortSelected : ""
+                    )}
                 >
                     <span className={classes.treeLabelInPort}>
                         {portIn &&
