@@ -128,12 +128,12 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
 	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
 	const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
-	const hasEmptyFields = mappings.length === 0 || !mappings.some(mapping => {
-		if (mapping.value) {
-			return !isEmptyValue(mapping.value.position);
-		}
-		return true;
-	});
+	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
+        if (mapping.value) {
+            return !isEmptyValue(mapping.value.position);
+        }
+        return true;
+    }));
 
 	const portIn = getPort(`${id}.IN`);
 
