@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/ballerina-data-mapper",
-    "version": "1.0.0",
+    "version": "3.3.9",
     "description": "Ballerina Data Mapper",
     "files": [
         "lib"
@@ -11,7 +11,7 @@
     "scripts": {
         "prebuild": "npm run lint",
         "build": "npm run storybook:setup && tsc --pretty && npm run copy:assets",
-        "copy:assets":  "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Gilmer/*.*\" lib/",
+        "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Gilmer/*.*\" lib/",
         "watch": "tsc --pretty --watch",
         "clean": "rimraf lib/",
         "clean:nm": "rimraf node_modules",
@@ -32,10 +32,10 @@
         "@projectstorm/react-diagrams": "^6.7.4",
         "@projectstorm/react-diagrams-core": "^6.7.4",
         "@projectstorm/geometry": "^6.7.4",
-        "@wso2-enterprise/ballerina-languageclient": "^1.0.0",
-        "@wso2-enterprise/ballerina-low-code-edtior-commons": "^1.0.0",
-        "@wso2-enterprise/ballerina-low-code-edtior-ui-components": "^1.0.0",
-        "@wso2-enterprise/syntax-tree": "^1.0.0",
+        "@wso2-enterprise/ballerina-languageclient": "^3.3.9",
+        "@wso2-enterprise/ballerina-low-code-edtior-commons": "^3.3.9",
+        "@wso2-enterprise/ballerina-low-code-edtior-ui-components": "^3.3.9",
+        "@wso2-enterprise/syntax-tree": "^3.3.9",
         "blueimp-md5": "^2.19.0",
         "classnames": "^2.2.6",
         "clipboard-copy": "^3.1.0",

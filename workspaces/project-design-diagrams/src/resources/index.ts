@@ -20,7 +20,6 @@
 export { Colors, DagreLayout, GRAPHQL_SUBSCRIBE_ACTION, Level, ServiceTypes, Views } from './model';
 
 export type {
-    AddComponentDetails,
     Attribute,
     Cardinality,
     ComponentModel,

@@ -14,8 +14,8 @@
     "gen-models": "npm run build && node lib/generate"
   },
   "dependencies": {
-    "@wso2-enterprise/ballerina-languageclient": "file:../../ballerina-languageclient",
-    "@wso2-enterprise/syntax-tree": "file:../../syntax-tree",
+    "@wso2-enterprise/ballerina-languageclient": "^3.3.9",
+    "@wso2-enterprise/syntax-tree": "^3.3.9",
     "dts-generator": "^3.0.0",
     "gitly": "^2.2.2",
     "glob": "^7.1.3",

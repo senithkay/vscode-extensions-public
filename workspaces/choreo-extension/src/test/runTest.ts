@@ -10,32 +10,57 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import * as path from 'path';
-import * as os from 'os';
+import { resolve, join } from 'path';
+import { homedir } from 'os';
 
-import { downloadAndUnzipVSCode } from '@vscode/test-electron';
+import { downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath } from '@vscode/test-electron';
 import { runTests } from './lib/runTest';
+import { spawnSync } from 'child_process';
+import { readdirSync } from 'fs';
 
 async function main() {
 	try {
 		// The folder containing the Extension Manifest package.json
 		// Passed to `--extensionDevelopmentPath`
-		const extensionDevelopmentPath = path.resolve(__dirname, '..', '..');
+		const extensionDevelopmentPath = resolve(__dirname, '..', '..');
 
 		// The path to test runner
 		// Passed to --extensionTestsPath
-		const extensionTestsPath = path.resolve(__dirname, './suite/index');
+		const extensionTestsPath = resolve(__dirname, './suite/index');
 
 		const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
 
-		const home = path.join(os.homedir(), '.vscode-test');
+		const home = join(homedir(), '.vscode-test');
+
+		const [cli, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
+
+		// Pick the Ballerina VSIX from the root and install
+		const extensionPath: string | undefined = getBallerinaVSIXPath();
+		if (extensionPath) {
+			spawnSync(cli, [...args, '--install-extension', extensionPath], {
+				encoding: 'utf-8',
+				stdio: 'inherit'
+			});
+		}
 
 		// Download VS Code, unzip it and run the integration test
-		await runTests({ extensionDevelopmentPath, extensionTestsPath, vscodeExecutablePath, launchArgs: ['--disable-extensions', '--user-data-dir', home] });
+		await runTests({ extensionDevelopmentPath, extensionTestsPath, vscodeExecutablePath, launchArgs: ['--user-data-dir', home] });
 	} catch (err) {
 		console.error('Failed to run tests');
 		process.exit(1);
 	}
+}
+
+function getBallerinaVSIXPath(): string | undefined {
+	const rootFolder: string = join(__dirname, '..', '..', '..', '..');
+	const vsixFileName: string | undefined =
+		readdirSync(rootFolder).find(file => file.startsWith('ballerina') && file.endsWith('.vsix'));
+
+	if (vsixFileName) {
+		const extensionPath: string = join(rootFolder, vsixFileName);
+		return extensionPath;
+	}
+	return undefined;
 }
 
 main();
