@@ -32,7 +32,11 @@ export function ServicePortWidget(props: CustomPortWidgetProps) {
     let portStyles: CSSProperties = { right: 0 };
     switch (port.getOptions().alignment) {
         case PortModelAlignment.LEFT:
-            portStyles = { left: 0 };
+            if (port.getID().includes(`left-gw-`)) {
+                portStyles = { left: 0, top: 25, zIndex: 1 };
+            } else {
+                portStyles = { left: 0, zIndex: 0 };
+            }
             break;
         case PortModelAlignment.TOP:
             portStyles = { top: 0 };

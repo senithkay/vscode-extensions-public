@@ -28,8 +28,8 @@ export const HeaderContainer = styled.div`
     font-family: inherit;
     height: 50px;
     justify-content: space-between;
-    min-width: 700px;
-    width: calc(100vw - 40px);
+    min-width: 600px;
+    width: calc(100vw - 30px);
 `;
 
 export const DiagramTitle = styled.div`
@@ -43,7 +43,7 @@ export const DiagramTitle = styled.div`
 export const TypeContainer = styled.div`
     display: flex;
     flex-direction: column;
-    min-width: 312px;
+    min-width: 200px;
     padding: 12px 20px 12px 24px;
 `;
 

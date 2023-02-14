@@ -17,7 +17,7 @@
  *
  */
 
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
@@ -25,8 +25,11 @@ import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { DagreLayout, Views } from '../../../resources';
 import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from '../../../utils';
-import { Canvas } from './styles/styles';
 import './styles/styles.css';
+import debounce from "lodash.debounce";
+import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
+import { addGWNodesModel, removeGWLinks } from "../../../utils/utils";
+import { GatewayNodeModel } from "../../gateway/GatewayNode/GatewayNodeModel";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -55,7 +58,46 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE ||
         type === Views.TYPE_COMPOSITION ? createEntitiesEngine : createServicesEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
-    const diagramRef = useRef<HTMLDivElement>(null);
+
+    const hideGWLinks = () => {
+        diagramEngine?.getModel()?.getLinks()?.forEach(link => {
+            if (link instanceof GatewayLinkModel) {
+                link.fireEvent({ hide: true }, 'updateVisibility');
+            }
+        });
+        positionGatewayNodes(diagramEngine);
+    };
+
+    const showGWLinks = () => {
+        diagramEngine?.getModel()?.getLinks()?.forEach(link => {
+            if (link instanceof GatewayLinkModel) {
+                link.fireEvent({ hide: false }, 'updateVisibility');
+            }
+        });
+        positionGatewayNodes(diagramEngine);
+    };
+
+    const onDiagramMoveStarted = debounce(() => {
+        hideGWLinks();
+    }, 30);
+
+    const onDiagramMoveFinished = debounce(() => {
+        showGWLinks();
+    }, 30);
+
+    const onWindowDragFinished = debounce(() => {
+        showGWLinks();
+    }, 1500);
+
+    const onWindowResize = () => {
+        hideGWLinks();
+        onWindowDragFinished();
+    };
+
+    const onScroll = () => {
+        hideGWLinks();
+        onWindowDragFinished();
+    };
 
     useEffect(() => {
         if (currentView === Views.L1_SERVICES && editingEnabled) {
@@ -67,7 +109,11 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             }
             document.addEventListener('keydown', handleEscapePress);
         }
-    }, [])
+        if (currentView === Views.CELL_VIEW) {
+            document.addEventListener('scroll', onScroll);
+            window.addEventListener("resize", onWindowResize);
+        }
+    }, []);
 
     // Reset the model and redistribute if the model changes
     useEffect(() => {
@@ -79,7 +125,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 setDiagramModel(undefined);
             }
         }
-    }, [model, layout])
+    }, [model, layout]);
 
     // Initial distribution of the nodes when the screen is on display (refer note above)
     useEffect(() => {
@@ -88,33 +134,69 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             setDiagramModel(model);
             autoDistribute();
         }
-    }, [currentView])
+        if (diagramEngine.getModel()) {
+            removeGWLinks(diagramEngine);
+        }
+    }, [currentView]);
 
     const autoDistribute = () => {
+        const hasGwNode = diagramEngine.getModel().getNodes().find(node => (node instanceof GatewayNodeModel));
         setTimeout(() => {
             if (dagreEngine.options.graph.ranker !== layout) {
                 dagreEngine.options.graph.ranker = layout;
             }
+            if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES
+                || currentView === Views.CELL_VIEW) {
+                // Removing GW links on refresh
+                removeGWLinks(diagramEngine);
+            }
             dagreEngine.redistribute(diagramEngine.getModel());
-            positionGatewayNodes(diagramEngine);
+            if (currentView === Views.CELL_VIEW) {
+                // Adding GW links and nodes after dagre distribution
+                if (!hasGwNode) {
+                    addGWNodesModel(diagramEngine);
+                }
+                positionGatewayNodes(diagramEngine);
+            }
             diagramEngine.repaintCanvas();
         }, 30);
+        if ((currentView === Views.CELL_VIEW) && !hasGwNode) {
+            debouncedZoomToFit();
+        }
+    };
+
+    const redrawDiagram = () => {
+        if (currentView === Views.CELL_VIEW) {
+            positionGatewayNodes(diagramEngine);
+        }
+        diagramEngine.repaintCanvas();
     };
 
     const onZoom = (zoomIn: boolean) => {
         let delta: number = zoomIn ? +5 : -5;
         diagramEngine.getModel().setZoomLevel(diagramEngine.getModel().getZoomLevel() + delta);
-        diagramEngine.repaintCanvas();
-    }
+        redrawDiagram();
+    };
 
-    const zoomToFit = () => { diagramEngine.zoomToFitNodes({}) }
+    const zoomToFit = () => {
+        diagramEngine.zoomToFitNodes({ maxZoom: 1 });
+        if (currentView === Views.CELL_VIEW) {
+            positionGatewayNodes(diagramEngine);
+        }
+        diagramEngine.repaintCanvas();
+    };
+
+    const debouncedZoomToFit = debounce(() => {
+        zoomToFit();
+    }, 30);
 
     const downloadDiagram = useCallback(() => {
-        if (diagramRef.current === null) {
+        const canvas: HTMLDivElement = diagramEngine.getCanvas();
+        if (!canvas) {
             return;
         }
 
-        toJpeg(diagramRef.current, { cacheBust: true, quality: 0.95 })
+        toJpeg(canvas, { cacheBust: true, quality: 0.95, width: canvas.scrollWidth, height: canvas.scrollHeight })
             .then((dataUrl) => {
                 const link = document.createElement('a');
                 link.download = 'project-diagram.jpeg';
@@ -123,15 +205,18 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             })
             .catch((err) => {
                 console.log(err);
-            })
-    }, [diagramRef.current])
+            });
+    }, [diagramEngine.getCanvas()]);
 
     return (
         <>
             {diagramEngine && diagramEngine.getModel() &&
-                <Canvas ref={diagramRef}>
-                    <CanvasWidget engine={diagramEngine} className={'diagram-container'} />
-                </Canvas>
+                <div
+                    onMouseDown={currentView === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
+                    onMouseUp={currentView === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
+                >
+                    <CanvasWidget engine={diagramEngine} className={'diagram-container'}  />
+                </div>
             }
 
             <DiagramControls

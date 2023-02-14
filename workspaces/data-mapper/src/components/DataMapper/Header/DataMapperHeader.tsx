@@ -14,7 +14,8 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { withStyles } from "@material-ui/core/styles";
+import { IconButton } from "@material-ui/core";
+import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
 import TooltipBase from "@material-ui/core/Tooltip";
 import HomeIcon from '@material-ui/icons/Home';
 
@@ -23,7 +24,7 @@ import { SelectionState, ViewOption } from "../DataMapper";
 
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 
-export const tooltipStyles = {
+export const headerStyles = {
     tooltip: {
         color: "#8d91a3",
         backgroundColor: "#fdfdfd",
@@ -33,8 +34,14 @@ export const tooltipStyles = {
     },
     arrow: {
         color: "#fdfdfd"
+    },
+    homeButton: {
+        cursor: "pointer",
+        marginRight: '10px'
     }
 };
+
+const useStyles = makeStyles((theme: Theme) => createStyles(headerStyles));
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
@@ -46,11 +53,18 @@ export interface DataMapperHeaderProps {
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
     const { selection, dmSupported, changeSelection, onClose, onConfigOpen } = props;
-    const TooltipComponent = withStyles(tooltipStyles)(TooltipBase);
+    const TooltipComponent = withStyles(headerStyles)(TooltipBase);
 
     return (
         <HeaderContainer>
-            <HomeButton onClick={onClose} data-testid='dm-header-home-button'/>
+            <IconButton
+                aria-label="home"
+                className={useStyles().homeButton}
+                onClick={onClose}
+                data-testid="dm-header-home-button"
+            >
+                <HomeIcon />
+            </IconButton>
             <BreadCrumb>
                 <Title> Data Mapper: </Title>
                 <HeaderBreadcrumb
@@ -84,11 +98,6 @@ const HeaderContainer = styled.div`
     background-color: white;
     align-items: center;
     border-bottom: 1px solid rgba(102,103,133,0.15);
-`;
-
-const HomeButton = styled(HomeIcon)`
-    cursor: pointer;
-    margin-right: 10px;
 `;
 
 const Title = styled.div`

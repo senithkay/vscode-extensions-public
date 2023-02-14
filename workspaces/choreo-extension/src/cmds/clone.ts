@@ -14,14 +14,15 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import * as os from 'os';
 import path = require('path');
 import { simpleGit } from 'simple-git';
-import { commands, ProgressLocation, TreeItem, Uri, window, workspace } from 'vscode';
+import { commands, ProgressLocation, Uri, window, workspace } from 'vscode';
 import { Component, Project, Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
-import { ChoreoProjectTreeItem } from './../views/project-tree/ProjectTreeItem';
 import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
+import { getLogger } from '../logger/logger';
 
 export const cloneProject = async (project: Project) => {
+    getLogger().debug("Cloning project: " + project.name);
     const workspaceName = workspace.name;
     const workspaceFolders = workspace.workspaceFolders;
     const isWorkspaceExist = workspaceName || workspaceFolders;
@@ -30,6 +31,7 @@ export const cloneProject = async (project: Project) => {
     const selectedOrg = ext.api.selectedOrg;
 
     if (selectedOrg) {
+        getLogger().debug("getting folder path to clone project: " + project.name);
         const parentDirs = await window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
@@ -39,23 +41,29 @@ export const cloneProject = async (project: Project) => {
         });
 
         if (!parentDirs || parentDirs.length === 0) {
+            getLogger().debug("No folder selected to clone project: " + project.name);
             window.showErrorMessage('A folder must be selected to start cloning');
             return;
         }
 
         const parentPath = parentDirs[0].fsPath;
         const workspacePath = path.join(parentPath, projectName);
+        getLogger().debug("folder path to clone project: " + project.name + " is " + workspacePath);
         if (existsSync(workspacePath)) {
             // TODO: Optimize the UX. eg: prompt again to change selected path or generate
             // a suffix for the project name
+            getLogger().error("A folder already exists at " + workspacePath);
             window.showErrorMessage('A folder already exists at ' + workspacePath);
             return;
         }
-
+        getLogger().debug("creating folder to clone project: " + project.name + " at " + workspacePath);
         mkdirSync(workspacePath);
         
         // Get Mono Repo if configured
         const monoRepo = ProjectRegistry.getInstance().getProjectRepository(project.id);
+        if (monoRepo) {
+            getLogger().debug("Mono Repo configured for project: " + project.name + " at " + monoRepo);
+        }
 
         const workspaceFile: WorkspaceConfig = {
             folders: [{
@@ -76,10 +84,12 @@ export const cloneProject = async (project: Project) => {
             location: ProgressLocation.Notification,
             cancellable: true
         }, async (_progress, cancellationToken) => {
+            getLogger().debug("Starting cloning project: " + project.name);
             let cancelled: boolean = false;
             let currentCloneIndex = 0;
 
             cancellationToken.onCancellationRequested(async () => {
+                getLogger().debug("Cloning cancelled for project: " + project.name);
                 cancelled = true;
             });
 
@@ -90,12 +100,21 @@ export const cloneProject = async (project: Project) => {
             const choreoManagedRepos = repos.filter((repo) => repo && !repo.isUserManage);
             const userManagedRepos = userManagedComponents.map((cmp) => cmp.repository);
             const userManagedReposWithoutDuplicates: Repository[] = [];
+            
+            if (choreoManagedRepos.length > 0) {
+                getLogger().error("Cloning is omitted for : " + choreoManagedRepos.length + " components as they are managed by Choreo");
+                getLogger().debug("Cloning is omitted for : " + choreoManagedRepos.map((cMR) => cMR ? (cMR.organizationApp + "/" + cMR.nameApp) : '').join("\n "));
+            }
+
+            getLogger().debug("Cloning " + userManagedRepos.length + " components");
 
             userManagedRepos.forEach(repo => {
                 if (repo && !userManagedReposWithoutDuplicates.find((tarRepo) => tarRepo.organizationApp === repo.organizationApp && tarRepo.nameApp === repo.nameApp)) {
                     userManagedReposWithoutDuplicates.push(repo);
                 }
             });
+
+            getLogger().debug("Cloning " + userManagedReposWithoutDuplicates.length + " repositories without duplicates");
 
             const folders = userManagedComponents.map(({ name, repository }) => {
                 if (repository) {
@@ -119,12 +138,16 @@ export const cloneProject = async (project: Project) => {
             const workspaceFilePath = path.join(workspacePath, workspaceFileName);
 
             writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
+            getLogger().info("Workspace file created at " + workspaceFilePath);
+            getLogger().debug("Workspace file content: " + JSON.stringify(workspaceFile));
 
             while (!cancelled && currentCloneIndex < userManagedReposWithoutDuplicates.length) {
                 const { organizationApp, nameApp, branchApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
                 const repoOrgPath = path.join(workspacePath, "repos", organizationApp);
+                getLogger().info("Cloning " + organizationApp + "/" + nameApp + " to " + repoOrgPath);
                 mkdirSync(repoOrgPath, { recursive: true });
                 const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(repoOrgPath, nameApp), ["--recursive", "--branch", branchApp]);
+                getLogger().debug("Cloned " + organizationApp + "/" + nameApp + " to " + repoOrgPath);
                 currentCloneIndex = currentCloneIndex + 1;
             }
 
@@ -133,15 +156,19 @@ export const cloneProject = async (project: Project) => {
                 const monoRepoSplit = monoRepo.split("/");
                 if (monoRepoSplit.length === 2 && !existsSync(path.join(workspacePath, "repos", monoRepoSplit[0], monoRepoSplit[1]))) {
                     const repoOrgPath = path.join(workspacePath, "repos", monoRepoSplit[0]);
+                    getLogger().info("Cloning Mono Repo " + monoRepo + " to " + repoOrgPath);
                     mkdirSync(repoOrgPath, { recursive: true });
                     const monoRepoURL = `git@github.com:${monoRepo}.git`;
                     const _result = await simpleGit().clone(monoRepoURL, path.join(repoOrgPath, monoRepoSplit[1]), ["--recursive"]);
+                    getLogger().debug("Cloned Mono Repo " + monoRepo + " to " + repoOrgPath);
                 }
             }
 
+            getLogger().debug("Cloning completed for project: " + project.name);
             // Register the project location in registry
             ProjectRegistry.getInstance().setProjectLocation(id, workspaceFilePath);
 
+            getLogger().debug("Opening workspace in current window: " + workspaceFilePath);
             await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
             await commands.executeCommand("workbench.explorer.fileView.focus");
 
