@@ -24,10 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 16.x
+      - uses: ./cache
 
       - name: Install Ballerina
         run: |
@@ -40,10 +37,9 @@ jobs:
           pnpm version ${{ inputs.version }} --preid beta --no-git-tag-version
           cd ballerina-low-code-editor
           # pnpm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
-          
+
       - name: Install modules
         run: |
-          npm i -g pnpm
           node common/scripts/install-run-rush.js install 
 
       - name: Build repo
@@ -79,14 +75,10 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 16.x
+      - uses: ./cache
 
       - name: Install node modules
         run: |
-          npm i -g pnpm
           node common/scripts/install-run-rush.js install
 
       - name: Set up Ballerina
@@ -143,14 +135,10 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 16.x
+      - uses: ./cache
 
       - name: Install node modules
         run: |
-          npm i -g pnpm
           node common/scripts/install-run-rush.js install
 
       - name: Install Ballerina
@@ -196,9 +184,10 @@ jobs:
           unzip build.zip
           rm build.zip
 
+      - uses: ./cache
+
       - name: Install node modules
         run: |
-          npm i -g pnpm
           node common/scripts/install-run-rush.js install
 
       - name: Install Cypress Dependencies
