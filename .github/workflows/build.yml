@@ -82,7 +82,7 @@ jobs:
 
       - name: Set up Ballerina
         run: |
-          cd workspace/ballerina-extension
+          cd workspaces/ballerina-extension
           mkdir extractedDistribution
           wget ${{ env.ballerina_zip_url }}
           unzip -qq ./ballerina-${{ env.ballerina_version }}-swan-lake.zip -d ./extractedDistribution
@@ -147,7 +147,7 @@ jobs:
 
       - name: UI Test
         run: |
-          cd workspace/ballerina-extension
+          cd workspaces/ballerina-extension
           sudo apt-get install xvfb
           pnpm run ui-test-setup
           pnpm run ui-test
