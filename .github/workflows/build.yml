@@ -41,11 +41,13 @@ jobs:
           cd ballerina-low-code-editor
           # pnpm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
           
-      - name: Build plugin repo
+      - name: Install modules
         run: |
           npm i -g pnpm
           node common/scripts/install-run-rush.js install 
-          node common/scripts/install-run-rush.js build --verbose
+
+      - name: Build repo
+        run: node common/scripts/install-run-rush.js build --verbose
         env:
           IS_RELEASE: ${{ inputs.isRelease }}
 
@@ -85,7 +87,7 @@ jobs:
       - name: Install node modules
         run: |
           npm i -g pnpm
-          rush install
+          node common/scripts/install-run-rush.js rush install
 
       - name: Set up Ballerina
         run: |
@@ -149,7 +151,7 @@ jobs:
       - name: Install node modules
         run: |
           npm i -g pnpm
-          rush install
+          node common/scripts/install-run-rush.js rush install
 
       - name: Install Ballerina
         run: |
@@ -197,7 +199,7 @@ jobs:
       - name: Install node modules
         run: |
           npm i -g pnpm
-          rush install
+          node common/scripts/install-run-rush.js rush install
 
       - name: Install Cypress Dependencies
         run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
