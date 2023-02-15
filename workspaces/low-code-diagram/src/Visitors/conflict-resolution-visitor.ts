@@ -61,7 +61,7 @@ export class ConflictResolutionVisitor implements Visitor {
 
     beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {
         this.workerNames.push(DEFAULT_WORKER_NAME);
-        this.visitBlockStatement(node, parent);
+        this.visitBlockStatement(node as BlockStatement, parent);
     }
 
     endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {

@@ -20,12 +20,13 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExitToApp from "@material-ui/icons/ExitToApp";
 import QueryIcon from '@material-ui/icons/StorageOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, traversNode } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { DataMapperPortWidget } from '../../Port';
 import { FUNCTION_BODY_QUERY } from "../../utils/constants";
+import { QueryParentFindingVisitor } from '../../visitors/QueryParentFindingVisitor';
 
 import {
     QueryExpressionNode,
@@ -132,8 +133,23 @@ export function QueryExpressionNodeWidget(props: QueryExprAsSFVNodeWidgetProps) 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickOnExpand = () => {
-        const isExprBodyQuery = STKindChecker.isExpressionFunctionBody(node.parentNode)
-            || STKindChecker.isLetExpression(node.parentNode);
+        let isExprBodyQuery: boolean;
+
+        if (STKindChecker.isBracedExpression(node.parentNode)) {
+            // Handle scenarios where user tries to expand into
+            // braced indexed query expressions which are at the function body level
+            const specificFieldFindingVisitor = new QueryParentFindingVisitor(node.value.position);
+            traversNode(node.context.selection.selectedST.stNode, specificFieldFindingVisitor);
+            const specificField = specificFieldFindingVisitor.getSpecificField();
+            if (specificField && STKindChecker.isFunctionDefinition(specificField)) {
+                isExprBodyQuery = true;
+            }
+        } else if (
+            STKindChecker.isExpressionFunctionBody(node.parentNode) ||
+            STKindChecker.isLetExpression(node.parentNode)
+        ) {
+            isExprBodyQuery = true;
+        }
         node.context.changeSelection(ViewOption.EXPAND,
             {
                 ...node.context.selection,

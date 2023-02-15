@@ -153,7 +153,7 @@ export class InitVisitor implements Visitor {
     public beginVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode) {
         currentFnBody = node;
         this.allEndpoints = new Map<string, Endpoint>();
-        this.visitBlock(node, parent);
+        this.visitBlock(node as BlockStatement, parent);
     }
 
     public beginVisitBlockStatement(node: BlockStatement, parent?: STNode) {
