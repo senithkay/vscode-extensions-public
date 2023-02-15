@@ -108,10 +108,10 @@ export function DiagramViewManager(props: EditorProps) {
             fetchST(file.uri.path, { position });
             if (currentProject.name !== project.name) setCurrentProject(project);
             setFocusFile(file);
-        } else{
+        } else {
             setFocusedST(undefined);
             setFocusUid(undefined);
-        } 
+        }
     }, [history[history.length - 1]]);
 
     useEffect(() => {
@@ -144,7 +144,7 @@ export function DiagramViewManager(props: EditorProps) {
                 }));
                 const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
                 if (position) {
-                    fetchST(filePath, { position });
+                    historyPush({ project: currentProjectPath, file: currentFile, position });
                 }
                 setCurrentProject(currentProjectPath);
                 setFileList(projectFiles);
