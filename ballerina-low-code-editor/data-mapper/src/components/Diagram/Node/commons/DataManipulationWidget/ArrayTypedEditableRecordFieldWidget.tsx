@@ -353,6 +353,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         <span>[</span>
                         {arrayElements}
                         <Button
+                            id={"add-array-element"}
                             aria-label="add"
                             className={classes.addIcon}
                             onClick={handleAddArrayElement}
