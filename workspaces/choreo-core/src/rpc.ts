@@ -31,7 +31,8 @@ export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreo
 export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
-
+export const HasUnpushedComponents: RequestType<string, boolean> = { method: 'hasUnpushedComponents' };
+export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
 
 
 // notification types

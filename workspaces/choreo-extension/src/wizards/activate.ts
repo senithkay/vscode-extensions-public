@@ -57,5 +57,6 @@ export function activateWizards() {
         }
     });
 
+
     ext.context.subscriptions.push(projectOverview);
 }

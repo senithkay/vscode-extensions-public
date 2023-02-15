@@ -71,3 +71,24 @@ export function getComponentsByProjectIdQuery(orgHandle: string, projectId: stri
         }
     `;
 }
+
+export function getRepoMetadataQuery(organizationName: string, repoName: string, branch: string, subPath: string) {
+    return gql`
+        query {
+            repoMetadata (organizationName: "${organizationName}", repoName: "${repoName}", branch: "${branch}", subPath: "${subPath}", dockerFilePath: "", dockerContextPath: "", openAPIPath: "", componentId: "") {
+                 isBareRepo,
+                 isSubPathEmpty
+                 isSubPathValid
+                 isValidRepo
+                 hasBallerinaTomlInPath
+                 hasBallerinaTomlInRoot
+                 isDockerfilePathValid
+                 hasDockerfileInPath
+                 isDockerContextPathValid
+                 isOpenApiFilePathValid
+                 hasOpenApiFileInPath
+                 hasPomXmlInPath
+                 hasPomXmlInRoot
+            }
+        }`;
+}
