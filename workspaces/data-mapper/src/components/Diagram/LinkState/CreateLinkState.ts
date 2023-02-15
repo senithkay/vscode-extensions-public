@@ -30,8 +30,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
 
-					if (!(element instanceof PortModel)
-						&& !(event.target as Element).closest('button[id^="button-wrapper"]')) {
+					if (!(element instanceof PortModel)) {
 						if (element instanceof MappingConstructorNode
 							|| element instanceof ListConstructorNode
 							|| element instanceof PrimitiveTypeNode

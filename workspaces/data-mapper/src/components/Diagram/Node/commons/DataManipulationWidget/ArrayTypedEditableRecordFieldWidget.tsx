@@ -177,7 +177,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     <>
                         <TreeBody>
                             <EditableRecordFieldWidget
-                                key={fieldId}
+                                key={index}
                                 engine={engine}
                                 field={element.member}
                                 getPort={getPort}

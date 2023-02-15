@@ -107,10 +107,10 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
             {
                 expanded && isRecord && (
                     <TreeBody>
-                        {typeDesc.fields.map((field) => {
+                        {typeDesc.fields.map((field, index) => {
                             return (
                                 <RecordFieldTreeItemWidget
-                                    key={id}
+                                    key={index}
                                     engine={engine}
                                     field={field}
                                     getPort={getPort}

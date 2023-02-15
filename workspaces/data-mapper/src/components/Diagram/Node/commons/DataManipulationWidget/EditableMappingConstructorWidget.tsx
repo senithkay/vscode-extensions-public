@@ -204,10 +204,10 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 			</TreeHeader>
 			<TreeBody>
 				{expanded && editableRecordFields &&
-					editableRecordFields.map((item) => {
+					editableRecordFields.map((item, index) => {
 						return (
 							<EditableRecordFieldWidget
-								key={id}
+								key={index}
 								engine={engine}
 								field={item}
 								getPort={getPort}

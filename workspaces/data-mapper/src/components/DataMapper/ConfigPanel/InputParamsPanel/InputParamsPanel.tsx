@@ -95,6 +95,7 @@ export function InputParamsPanel(props: InputConfigWidgetProps) {
                 editingIndex === index ? (
                     <>
                         <InputParamEditor
+                            key={index}
                             index={editingIndex}
                             param={param}
                             onUpdate={onUpdate}
