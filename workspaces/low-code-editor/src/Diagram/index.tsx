@@ -363,7 +363,7 @@ export function Diagram() {
                             {...formConfig}
                         />
                     )}
-                    {isGraphQLViewOpen && (
+                    {experimentalEnabled && isGraphQLViewOpen && (
                         <GraphqlDiagramOverlay
                             {...dataMapperArgs}
                         />
