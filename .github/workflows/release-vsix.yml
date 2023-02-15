@@ -6,6 +6,9 @@ on:
       isPreRelease:
         required: true
         type: boolean 
+      updateVersion:
+        required: true
+        type: boolean     
       version:
         type: choice
         description: 'Enter the version type'
@@ -21,7 +24,7 @@ jobs:
   Build:
     uses: ./.github/workflows/build.yml
     with:
-      isRelease: true
+      updateVersion: ${{ github.event.inputs.updateVersion }}
       isPreRelease: ${{ github.event.inputs.isPreRelease }}
       version: ${{ github.event.inputs.version }}
     secrets: inherit  
@@ -81,8 +84,11 @@ jobs:
 
       - name: Publish low code diagram
         run: |
-          npm version ${{ steps.vsix.outputs.version }} --no-git-tag-version --workspaces
-          npm publish --tag latest --workspaces
+          workspaces=("ballerina-languageclient", "configurable-editor", "data-mapper", "expression-editor", "lang-service", "low-code-diagram", "low-code-distribution", "low-code-editor", "low-code-editor-commons", "low-code-integration-tests", "low-code-ui-components", "statement-editor", "syntax-tree")
+          for workspace in "${workspaces[@]}"; do
+            npm version ${{ steps.vsix.outputs.version }} --no-git-tag-version --workspace=workspaces/$version
+            npm publish --tag latest --workspace=workspaces/$version
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
