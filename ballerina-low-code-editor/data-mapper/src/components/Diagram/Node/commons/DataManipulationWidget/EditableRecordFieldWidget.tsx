@@ -323,11 +323,11 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 </>
             )}
             {fields && expanded &&
-                fields.map((subField) => {
+                fields.map((subField, index) => {
                     return (
                         <>
                             <EditableRecordFieldWidget
-                                key={fieldId}
+                                key={index}
                                 engine={engine}
                                 field={subField}
                                 getPort={getPort}

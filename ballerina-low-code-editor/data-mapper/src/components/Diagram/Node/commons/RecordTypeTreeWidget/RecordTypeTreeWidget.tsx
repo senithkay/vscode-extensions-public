@@ -193,10 +193,10 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
             </TreeHeader>
             <TreeBody>
                 {expanded &&
-                    typeDesc?.fields?.map((field) => {
+                    typeDesc?.fields?.map((field, index) => {
                         return (
                             <RecordFieldTreeItemWidget
-                                key={id}
+                                key={index}
                                 engine={engine}
                                 field={field}
                                 getPort={getPort}

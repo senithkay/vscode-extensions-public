@@ -204,10 +204,10 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                 </span>
             </div>
             {fields && expanded &&
-                fields.map((subField) => {
+                fields.map((subField, index) => {
                     return (
                         <RecordFieldTreeItemWidget
-                            key={fieldId}
+                            key={index}
                             engine={engine}
                             field={subField}
                             getPort={getPort}
