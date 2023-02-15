@@ -4,6 +4,7 @@
   "description": "WSO2 Choreo VSCode Extension",
   "version": "1.0.0",
   "publisher": "wso2",
+  "icon": "resources/icons/choreo.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/wso2/ballerina-plugin-vscode"
