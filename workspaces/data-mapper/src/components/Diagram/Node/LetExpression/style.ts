@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme: Theme) =>
                 marginRight: "24px"
             },
             treeLabelPortSelected: {
-                backgroundColor: '#F0F1FB',
+                backgroundColor: '#DFE2FF',
             },
             valueLabel: {
                 verticalAlign: "middle",

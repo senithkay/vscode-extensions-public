@@ -265,7 +265,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
                         isDisabled && isHovered ? classes.treeLabelDisableHover : "",
                         portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
-                        hasHoveredParent ? classes.treeLabelPortSelected : ""
+                        hasHoveredParent ? classes.treeLabelParentHovered : ""
                     )}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}

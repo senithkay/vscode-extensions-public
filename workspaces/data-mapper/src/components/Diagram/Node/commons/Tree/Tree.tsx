@@ -22,7 +22,7 @@ export const TreeHeader = styled.div((
 ) => ({
     height: '40px',
     padding: '8px',
-    background: `${isDisabled ? '#F7F8FB' : isSelected ? '#F0F1FB' : '#E6E8F0'}`,
+    background: `${isDisabled ? '#F7F8FB' : isSelected ? '#DFE2FF' : '#E6E8F0'}`,
     borderRadius: '3px',
     width: '100%',
     display: 'flex',

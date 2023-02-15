@@ -30,6 +30,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         treeLabelPortSelected: {
+            backgroundColor: '#DFE2FF',
+        },
+        treeLabelParentHovered: {
             backgroundColor: '#F0F1FB',
         },
         treeLabelDisableHover: {

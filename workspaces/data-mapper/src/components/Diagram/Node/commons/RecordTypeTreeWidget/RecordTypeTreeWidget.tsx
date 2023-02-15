@@ -29,21 +29,6 @@ import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        treeLabel: {
-            height: '40px',
-            padding: '8px',
-            background: '#E6E8F0',
-            borderRadius: '3px',
-            width: '100%',
-            display: 'flex',
-            cursor: 'pointer',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
-        },
-        treeLabelPortSelected: {
-            backgroundColor: '#F0F1FB',
-        },
         typeLabel: {
             marginLeft: "3px",
             verticalAlign: "middle",
@@ -59,13 +44,6 @@ const useStyles = makeStyles((theme: Theme) =>
             float: "right",
             width: 'fit-content',
             marginLeft: "auto",
-            display: "flex",
-            alignItems: "center"
-        },
-        treeLabelInPort: {
-            float: "left",
-            // marginRight: "5px",
-            width: 'fit-content',
             display: "flex",
             alignItems: "center"
         },

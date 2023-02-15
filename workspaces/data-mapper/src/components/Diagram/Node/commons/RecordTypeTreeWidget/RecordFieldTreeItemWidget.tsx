@@ -38,6 +38,9 @@ const useStyles = makeStyles((theme: Theme) =>
             }
         },
         treeLabelPortSelected: {
+            backgroundColor: '#DFE2FF',
+        },
+        treeLabelParentHovered: {
             backgroundColor: '#F0F1FB',
         },
         treeLabelOutPort: {
@@ -176,7 +179,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                 id={"recordfield-" + fieldId}
                 className={classnames(classes.treeLabel,
                     (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
-                    hasHoveredParent ? classes.treeLabelPortSelected : ""
+                    hasHoveredParent ? classes.treeLabelParentHovered : ""
                 )}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}

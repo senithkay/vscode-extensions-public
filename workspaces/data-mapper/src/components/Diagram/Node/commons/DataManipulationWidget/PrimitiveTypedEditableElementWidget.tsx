@@ -137,7 +137,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
                     id={"recordfield-" + fieldId}
                     className={classnames(classes.treeLabel,
                         (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
-                        hasHoveredParent ? classes.treeLabelPortSelected : ""
+                        hasHoveredParent ? classes.treeLabelParentHovered : ""
                     )}
                 >
                     <span className={classes.treeLabelInPort}>
