@@ -54,6 +54,12 @@ jobs:
           find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
           zip -r build.zip ./
 
+      - name: Save VSIXs
+        uses: actions/upload-artifact@v3
+        with:
+          path: '**/*.vsix'
+          name: VSIXs
+
       - name: Save build
         uses: actions/upload-artifact@v3
         with:
