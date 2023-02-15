@@ -28,7 +28,7 @@ import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from
 import './styles/styles.css';
 import debounce from "lodash.debounce";
 import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
-import { addGWNodesModel, removeGWLinks } from "../../../utils/utils";
+import { addGWNodesModel, cellDiagramZoomToFit, removeGWLinks } from "../../../utils/utils";
 import { GatewayNodeModel } from "../../gateway/GatewayNode/GatewayNodeModel";
 
 interface DiagramCanvasProps {
@@ -133,6 +133,8 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             diagramEngine.setModel(model);
             setDiagramModel(model);
             autoDistribute();
+        } else {
+            debouncedZoomToFit();
         }
         if (diagramEngine.getModel()) {
             removeGWLinks(diagramEngine);
@@ -156,11 +158,8 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 addGWNodesModel(diagramEngine, !hasGwNode);
                 positionGatewayNodes(diagramEngine);
             }
-            diagramEngine.repaintCanvas();
-        }, 30);
-        if ((currentView === Views.CELL_VIEW) && !hasGwNode) {
             debouncedZoomToFit();
-        }
+        }, 30);
     };
 
     const redrawDiagram = () => {
@@ -179,14 +178,15 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
         if (currentView === Views.CELL_VIEW) {
-            positionGatewayNodes(diagramEngine);
+            cellDiagramZoomToFit(diagramEngine);
         }
-        diagramEngine.repaintCanvas();
     };
 
     const debouncedZoomToFit = debounce(() => {
-        zoomToFit();
-    }, 30);
+        if (diagramEngine.getModel()?.getNodes().length > 0) {
+            zoomToFit();
+        }
+    }, 50);
 
     const downloadDiagram = useCallback(() => {
         const canvas: HTMLDivElement = diagramEngine.getCanvas();

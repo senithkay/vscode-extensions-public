@@ -44,6 +44,8 @@ export const diagramTopXOffset = 585;
 export const diagramTopYOffset = 200;
 export const diagramLeftXOffset = 20;
 export const diagramLeftYOffset = 25;
+export const CELL_DIAGRAM_MARGIN_X = 300;
+export const CELL_DIAGRAM_MARGIN_Y = 100;
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();
@@ -190,6 +192,18 @@ export function removeGWLinks(engine: DiagramEngine) {
             engine.getModel().removeLink(link);
         }
     });
+}
+
+export function cellDiagramZoomToFit(diagramEngine: DiagramEngine) {
+    // Exclude gateway nodes from the zoom to fit, since we are manually positioning them after zoom to fit
+    const nodesWithoutGW = diagramEngine.getModel().getNodes().filter(
+        node => !(node instanceof GatewayNodeModel)
+    );
+    const nodesRect = diagramEngine.getBoundingNodesRect(nodesWithoutGW);
+    diagramEngine.getModel().setOffset((nodesRect.getWidth() / 2) + CELL_DIAGRAM_MARGIN_X,
+        (nodesRect.getHeight() / 2) + CELL_DIAGRAM_MARGIN_Y);
+    positionGatewayNodes(diagramEngine);
+    diagramEngine.repaintCanvas();
 }
 
 export function getWestGWArrowHeadSlope(slope: number) {
