@@ -28,7 +28,6 @@ import {
 
 import {
     CompletionResponse,
-    getDiagnosticMessage,
     getFilteredDiagnostics,
     getSelectedDiagnostics,
     LinePosition,
@@ -887,7 +886,7 @@ export function getExprWithArgs(suggestionValue: string, prefix?: string): strin
     const params = paramRegex.exec(suggestionValue);
     let exprWithArgs = suggestionValue;
     if (params) {
-        let paramList = params[1].split(',');
+        let paramList = params[1].split(/,\s*(?![^()]*\))/);
         paramList = paramList.map((param: string) => {
             if (param) {
                 let paramName = param.trim().split(' ').pop();
@@ -1151,29 +1150,21 @@ export function isBalVersionUpdateOne(version: string): boolean{
 
 export function getContentFromSource(source: string, position: NodePosition) {
     const splitSource: string[] = source.split("\n");
-    let sliceContent = "";
+    const sliceContent: string[] = [];
     if (splitSource?.length) {
         for (let line = position.startLine; line <= (position.endLine || position.startLine); line++) {
-            sliceContent += splitSource[line];
+            if (line === position.startLine) {
+                sliceContent.push(line === position.endLine
+                    ? splitSource[line].slice(position.startColumn, position.endColumn)
+                    : splitSource[line].slice(position.startColumn));
+            } else if (line === position.endLine) {
+                sliceContent.push(splitSource[line].slice(0, position.endColumn || position.startColumn));
+            } else {
+                sliceContent.push(" ".repeat(position.startColumn) + splitSource[line]);
+            }
         }
     }
-    return sliceContent;
-}
-
-export function getStatementPosition(source: string, statement: string, targetPosition: NodePosition): NodePosition {
-    const newStartLine = getStatementLine(source, statement);
-    if (newStartLine !== targetPosition.startLine) {
-        const position = { ...targetPosition };
-        position.startLine = newStartLine;
-        if (targetPosition.endLine) {
-            position.endLine =
-                targetPosition.endLine === targetPosition.startLine
-                    ? newStartLine
-                    : targetPosition.endLine + (newStartLine - targetPosition.startLine);
-        }
-        return position;
-    }
-    return targetPosition;
+    return sliceContent.join("\n");
 }
 
 export function getStatementLine(source: string, statement: string): number {
@@ -1189,7 +1180,62 @@ export function getStatementLine(source: string, statement: string): number {
     return stmtNewFirstLine;
 }
 
+export function getStatementPosition(updatedContent: string, statement: string, stmtIndex: number): NodePosition {
+    const sourceLines = updatedContent.split('\n');
+    const statementLines = statement.split('\n');
+    const isNewStatement = stmtIndex === -1;
+    let lineIndex = 0;
+    let noOfMatches = -1;
+    let position: NodePosition = {
+        startLine: undefined, startColumn: undefined, endLine: undefined, endColumn: undefined
+    };
+    sourceLines.forEach((sourceLine, index) => {
+        if (position.startLine === undefined || position.endLine === undefined) {
+            let matched = sourceLine.includes(statementLines[lineIndex]);
+            if (!matched && sourceLine.includes(statementLines[0])) {
+                lineIndex = 0;
+                position = {
+                    startLine: undefined, startColumn: undefined, endLine: undefined, endColumn: undefined
+                };
+                matched = true;
+            }
+            if (matched) {
+                if (lineIndex === 0) {
+                    noOfMatches++;
+                    if (noOfMatches === stmtIndex || isNewStatement) {
+                        position.startLine = index;
+                        position.startColumn = sourceLine.indexOf(statementLines[lineIndex]);
+                    }
+                }
+                if (lineIndex === statementLines.length - 1 && (noOfMatches === stmtIndex || isNewStatement)) {
+                    position.endLine = index;
+                    position.endColumn = sourceLine.indexOf(statementLines[lineIndex]) + statementLines[lineIndex].length;
+                }
+                lineIndex++;
+            } else {
+                lineIndex = 0;
+                position = {
+                    startLine: undefined, startColumn: undefined, endLine: undefined, endColumn: undefined
+                };
+            }
+        }
+    });
+    return position;
+}
+
 export function filterCodeActions(codeActions: CodeAction[]): CodeAction[] {
     const filteredCodeActions = codeActions?.filter((action) => action.kind === "quickfix");
     return filteredCodeActions || codeActions;
+}
+
+export function getStatementIndex(source: string, statement: string, stmtPosition: NodePosition) {
+    const sourceLines = source.split('\n');
+    const stmtFirstLine = statement.split('\n')[0];
+    let statementIndex = -1;
+    sourceLines.forEach((line: string, index: number) => {
+        if (line.includes(stmtFirstLine) && index <= stmtPosition.startLine) {
+            statementIndex++;
+        }
+    });
+    return statementIndex;
 }

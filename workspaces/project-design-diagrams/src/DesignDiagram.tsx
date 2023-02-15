@@ -36,14 +36,14 @@ interface ContainerStyleProps {
 
 const Container = styled.div`
     align-items: center;
-    position: relative;
+    background: ${(props: ContainerStyleProps) => `${props.backgroundColor}`};
     display: flex;
     flex-direction: column;
     font-family: GilmerRegular;
     justify-content: center;
     min-height: 100vh;
     min-width: 100vw;
-    background: ${(props: ContainerStyleProps) => `${props.backgroundColor}`};
+    position: relative;
 `;
 
 interface DiagramProps {
@@ -56,7 +56,7 @@ export function DesignDiagram(props: DiagramProps) {
     const { go2source, editingEnabled = true } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
-    const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.GRAPH);
+    const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);

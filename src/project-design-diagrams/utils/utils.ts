@@ -45,7 +45,7 @@ export function getProjectResources(langClient: ExtendedLangClient): Promise<Map
 
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
-        }).then((response) => {
+        }).then(async (response) => {
             const clonedComponentModels = _.cloneDeep(response.componentModels);
             let packageModels: Map<string, ComponentModel> = new Map(Object.entries(clonedComponentModels));
             for (let [_key, packageModel] of packageModels) {
@@ -54,10 +54,11 @@ export function getProjectResources(langClient: ExtendedLangClient): Promise<Map
                     break;
                 }
             }
-            getChoreoExtAPI().then(async(resp) => {
-                packageModels = await resp.enrichChoreoMetadata(packageModels);
-                resolve(clonedComponentModels);
-            });
+            const choreoExt = await getChoreoExtAPI();
+            if (choreoExt) {
+                packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
+            }
+            resolve(clonedComponentModels);
         }).catch((error) => {
             reject(error);
             terminateActivation(ERROR_MESSAGE);
