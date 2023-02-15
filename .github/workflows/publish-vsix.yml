@@ -3,6 +3,10 @@ name: Publish VSIX to VSCode Marketplace and OpenVSX
 on:
   workflow_dispatch:
     inputs:
+      isPreRelease:
+        required: true
+        type: boolean 
+        default: false
       vscode:
         description: Publish to VSCode marketplace
         type: boolean
@@ -50,6 +54,11 @@ jobs:
           version=${fileName%.*}
           echo "vsixName=$file" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
+          if [ "${{ github.event.inputs.isPreRelease }}" == "true" ]; then
+            echo "releaseMode=--pre-release" >> $GITHUB_OUTPUT
+          else
+            echo "releaseMode= " >> $GITHUB_OUTPUT
+          fi  
 
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         run: |
@@ -64,11 +73,11 @@ jobs:
 
       - name: Publish to VSCode marketplace
         if: ${{ github.event.inputs.vscode == 'true' }}
-        run: vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }}
+        run: vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}
 
       - name: Publish to OpenVSX marketplace
         if: ${{ github.event.inputs.openVSX == 'true' }}
-        run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }}
+        run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}
 
       - name: "Release Notification"
         if: ${{ github.event.inputs.notify == 'true' }}

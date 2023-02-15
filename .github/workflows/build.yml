@@ -6,6 +6,9 @@ on:
       isRelease:
         required: true
         type: boolean
+      isPreRelease:
+        required: true
+        type: boolean  
       version:
         type: string
         required: false
@@ -37,16 +40,14 @@ jobs:
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
       - name: Update version
-        if: ${{ inputs.isRelease == true }}
+        if: ${{ inputs.isRelease == true && inputs.updateVersion == true }}
         run: |
           npm version ${{ inputs.version }} --preid beta --no-git-tag-version
-          cd ballerina-low-code-editor
-          npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
           
       - name: Build plugin repo
         run: npm run build
         env:
-          IS_RELEASE: ${{ inputs.isRelease }}
+          isPreRelease: ${{ inputs.isPreRelease }}
 
       - name: Compress build
         run: |
