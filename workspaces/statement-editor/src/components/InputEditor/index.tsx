@@ -198,7 +198,7 @@ export function InputEditor(props: InputEditorProps) {
             // Check syntax diagnostics
             let isIncorrectSyntax = false;
             const semicolonRegex = new RegExp('(;)(?=(?:[^"]|"[^"]*")*$)');
-            if (model && userInput.includes(";") && !STKindChecker.isLocalVarDecl(model)) {
+            if (model && userInput.includes(";") && !STKindChecker.isLocalVarDecl(model) && !STKindChecker.isReturnStatement(model)) {
                 isIncorrectSyntax = semicolonRegex.test(userInput);
             }
             if (isIncorrectSyntax) {

@@ -153,9 +153,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             dagreEngine.redistribute(diagramEngine.getModel());
             if (currentView === Views.CELL_VIEW) {
                 // Adding GW links and nodes after dagre distribution
-                if (!hasGwNode) {
-                    addGWNodesModel(diagramEngine);
-                }
+                addGWNodesModel(diagramEngine, !hasGwNode);
                 positionGatewayNodes(diagramEngine);
             }
             diagramEngine.repaintCanvas();
@@ -220,6 +218,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             }
 
             <DiagramControls
+                showDownloadButton={currentView !== Views.CELL_VIEW}
                 zoomToFit={zoomToFit}
                 onZoom={onZoom}
                 onDownload={downloadDiagram}

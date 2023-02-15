@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing, VSCodeLink, VSCodePanelView, VSCodePanels } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { css, cx } from "@emotion/css";
 import { useContext, useEffect, useState } from "react";
@@ -24,6 +24,7 @@ import { ChoreoServiceComponentType, Component, ComponentAccessibility } from "@
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { GithubRepoBranchSelector } from "../GithubRepoBranchSelector/GithubRepoBranchSelector";
 import { ErrorBanner } from "../Commons/ErrorBanner";
+import { RequiredFormInput } from "../Commons/styles";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -62,7 +63,7 @@ export function ComponentWizard() {
     const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
     const [repository, setRepository] = useState<string>('');
     const [componentNames, setComponentNames] = useState<string[]>([]);
-    const [showRepoSelector, setShowRepoSelector] = useState<boolean>(false);
+    const [showRepoSelector, setShowRepoSelector] = useState<boolean>(true);
     const [selectedBranch, setSelectedBranch] = useState<string>('');
     const [folderName, setFolderName] = useState<string>(name);
 
@@ -160,7 +161,7 @@ export function ComponentWizard() {
                         onInput={(e: any) => setComponentName(e.target.value)}
                         value={name}
                     >
-                        Component Name
+                        Component Name <RequiredFormInput />
                         {isDuplicateName && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                     </VSCodeTextField>
                     {isDuplicateName && <ErrorBanner errorMsg={`Component ${name} already exists.`} />}
@@ -180,24 +181,25 @@ export function ComponentWizard() {
                         <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
                     </VSCodeDropdown>
 
-                    <VSCodePanels>
-                        <VSCodePanelView title="Repository Configuration">
-                            <RepoInfoContainer>
-                                <label htmlFor="repository">Selected Repository</label>
-                                <VSCodeTextField id="repository" value={repository} readOnly={!showRepoSelector} />
-                                <VSCodeLink onClick={() => setShowRepoSelector(!showRepoSelector)}>{showRepoSelector ? 'Hide Repositories' : 'Show Repositories'}</VSCodeLink>
-                                {showRepoSelector && <GithubRepoSelector onRepoSelect={handleRepoSelection} />}
-                                <GithubRepoBranchSelector repository={repository} onBranchSelected={setSelectedBranch} />
-                                <VSCodeTextField
-                                    placeholder="Sub folder"
-                                    onInput={(e: any) => setFolderName(e.target.value)}
-                                    value={folderName}
-                                >
-                                    Sub Folder
-                                </VSCodeTextField>
-                            </RepoInfoContainer>
-                        </VSCodePanelView>
-                    </VSCodePanels>
+                    <RepoInfoContainer>
+                        <label htmlFor="repository">Selected Repository <RequiredFormInput /></label>
+                        <VSCodeTextField id="repository" value={repository} readOnly={!showRepoSelector} />
+                        {repository && selectedBranch && selectedOrg &&
+                            <VSCodeLink onClick={() => setShowRepoSelector(!showRepoSelector)}>
+                                {showRepoSelector ? 'Hide Repositories' : 'Show Repositories'}
+                            </VSCodeLink>
+                        }
+                        {(showRepoSelector || !repository || !selectedOrg)
+                            && <GithubRepoSelector onRepoSelect={handleRepoSelection} />}
+                        <GithubRepoBranchSelector repository={repository} onBranchSelected={setSelectedBranch} />
+                        <VSCodeTextField
+                            placeholder="Sub folder"
+                            onInput={(e: any) => setFolderName(e.target.value)}
+                            value={folderName}
+                        >
+                            Sub Folder <RequiredFormInput />
+                        </VSCodeTextField>
+                    </RepoInfoContainer>
 
                     <ActionContainer>
                         <VSCodeButton
