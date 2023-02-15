@@ -39,11 +39,13 @@ export interface OverviewDiagramProps {
     currentProject: WorkspaceFolder;
     currentFile: FileListEntry;
     notifyComponentSelection: (info: ComponentViewInfo) => void;
+    updateCurrentFile: (file: FileListEntry) => void;
+    fileList: FileListEntry[];
 }
 
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
-    const { currentProject, currentFile, notifyComponentSelection, lastUpdatedAt } = props;
+    const { currentProject, currentFile, notifyComponentSelection, lastUpdatedAt, updateCurrentFile, fileList } = props;
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
     const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
     // const [filterMap, setFilterMap] = useState({});
@@ -122,6 +124,8 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                 projectComponents={projectComponents}
                 currentFile={currentFile}
                 updateSelection={notifyComponentSelection}
+                updateCurrentFile={updateCurrentFile}
+                fileList={fileList}
             />
              <TopLevelActionButton />
         </div>

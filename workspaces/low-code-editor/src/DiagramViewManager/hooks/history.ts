@@ -13,15 +13,24 @@
 
 import React, { useState } from "react";
 
-import { ComponentViewInfo } from "../../OverviewDiagram/util";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { FileListEntry, WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
+
+
+export interface HistoryEntry {
+    project: WorkspaceFolder;
+    file: FileListEntry;
+    position?: NodePosition;
+    uid?: string;
+}
 
 export function useComponentHistory():
-    [ComponentViewInfo[], (info: ComponentViewInfo) => void, () => void, () => void] {
-    const [history, updateHistory] = useState<ComponentViewInfo[]>([]);
+    [HistoryEntry[], (info: HistoryEntry) => void, () => void, () => void] {
+    const [history, updateHistory] = useState<HistoryEntry[]>([]);
 
-    const historyPush = (componentViewInfo: ComponentViewInfo) => {
-        updateHistory([...history, componentViewInfo]);
+    const historyPush = (historyEntry: HistoryEntry) => {
+        updateHistory([...history, historyEntry]);
     }
 
     const historyPop = () => {

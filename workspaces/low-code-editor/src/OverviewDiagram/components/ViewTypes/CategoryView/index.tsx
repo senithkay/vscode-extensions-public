@@ -12,24 +12,29 @@
  */
 import React from "react";
 
+import { FormControl, InputLabel, Select } from "@material-ui/core";
 import { BallerinaProjectComponents, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DEFAULT_MODULE_NAME } from "../../..";
 import { FileListEntry } from "../../../../DiagramGenerator/vscode/Diagram";
 import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
 import { ComponentView } from "../ComponentView";
 
+import useStyles from "./style";
 import './style.scss'
 
 interface CategoryViewProps {
     projectComponents: BallerinaProjectComponents;
     updateSelection: (info: ComponentViewInfo) => void;
     currentFile: FileListEntry;
+    fileList: FileListEntry[];
+    updateCurrentFile: (file: FileListEntry) => void;
 }
 
-export function CategoryView(props: CategoryViewProps) {
-    const { projectComponents, updateSelection, currentFile } = props;
+const ALL_FILES: string = 'All';
 
+export function CategoryView(props: CategoryViewProps) {
+    const { projectComponents, updateSelection, currentFile, fileList, updateCurrentFile } = props;
+    const classes = useStyles();
     const currentComponents: ComponentCollection = {
         functions: [],
         services: [],
@@ -82,6 +87,45 @@ export function CategoryView(props: CategoryViewProps) {
     //     </div>
     // );
 
+    const renderFileFilterBar = () => {
+
+        const handleFileChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
+            if (evt.target.value === ALL_FILES) {
+                updateCurrentFile(undefined);
+            } else {
+                const selectedFile = fileList.find(file => file.fileName === evt.target.value);
+                updateCurrentFile(selectedFile);
+            }
+        }
+
+        const fileSelectorOptions: React.ReactElement[] = [];
+
+        fileSelectorOptions.push(
+            <option value={ALL_FILES}>{ALL_FILES}</option>
+        );
+        if (fileList && fileList.length > 0) {
+            fileList.forEach(fileEntry => [
+                fileSelectorOptions.push(
+                    <option value={fileEntry.fileName}>{fileEntry.fileName}</option>
+                )
+            ])
+        }
+        return (
+            <FormControl variant="outlined" className={classes.selectorComponent} >
+                <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
+                <Select
+                    native={true}
+                    value={currentFile ? currentFile.fileName : ALL_FILES}
+                    label="File"
+                    inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
+                    onChange={handleFileChange}
+                >
+                    {fileSelectorOptions}
+                </Select>
+            </FormControl>
+        );
+    }
+
     const categories: React.ReactElement[] = [];
 
     Object.keys(currentComponents).filter(key => currentComponents[key].length).forEach(key => {
@@ -101,6 +145,7 @@ export function CategoryView(props: CategoryViewProps) {
 
     return (
         <>
+            {renderFileFilterBar()}
             {categories}
         </>
     )

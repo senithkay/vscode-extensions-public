@@ -32,7 +32,6 @@ interface NavigationBarProps {
     updateCurrentFile: (file: FileListEntry) => void;
 }
 
-const ALL_FILES: string = 'All';
 
 export function NavigationBar(props: NavigationBarProps) {
     // const { projectName, folderName, isWorkspace, onFolderClick } = props;
@@ -45,31 +44,9 @@ export function NavigationBar(props: NavigationBarProps) {
     const popoverRef = React.useRef<HTMLDivElement>(null);
 
     const isWorkspace = projectList.length > 1;
-    const fileSelectorOptions: React.ReactElement[] = [];
-
-    fileSelectorOptions.push(
-        <option value={ALL_FILES}>{ALL_FILES}</option>
-    );
-
-    if (fileList && fileList.length > 0) {
-        fileList.forEach(fileEntry => [
-            fileSelectorOptions.push(
-                <option value={fileEntry.fileName}>{fileEntry.fileName}</option>
-            )
-        ])
-    }
 
     const handleProjectChange = (selectedProject: WorkspaceFolder) => {
         updateCurrentProject(selectedProject);
-    }
-
-    const handleFileChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
-        if (evt.target.value === ALL_FILES) {
-            updateCurrentFile(undefined);
-        } else {
-            const selectedFile = fileList.find(file => file.fileName === evt.target.value);
-            updateCurrentFile(selectedFile);
-        }
     }
 
     const renderProjectSelectorComponent = () => {

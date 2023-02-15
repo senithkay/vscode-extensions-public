@@ -33,7 +33,7 @@ import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
 
 import { Provider as HistoryProvider } from './context/history';
-import { useComponentHistory } from "./hooks/history";
+import { HistoryEntry, useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
@@ -96,6 +96,21 @@ export function DiagramViewManager(props: EditorProps) {
     const [balVersion, setBalVersion] = React.useState("");
     const [completeST, setCompleteST] = useState<STNode>();
 
+
+    useEffect(() => {
+        if (!focusFile || !focusUid) return;
+        fetchST(focusFile.uri.path, { uid: focusUid });
+    }, [lastUpdatedAt]);
+
+    useEffect(() => {
+        if (history.length > 0) {
+            const { project, file, position } = history[history.length - 1];
+            fetchST(file.uri.path, { position });
+            if (currentProject.name !== project.name) setCurrentProject(project);
+            setFocusFile(file);
+        }
+    }, [history[history.length - 1]]);
+
     useEffect(() => {
         if (currentProject) {
             (async () => {
@@ -110,7 +125,7 @@ export function DiagramViewManager(props: EditorProps) {
                 setFocusedST(undefined);
             })();
         }
-    }, [currentProject]);
+    }, [currentProject?.name]);
 
     useEffect(() => {
         if (diagramFocus) {
@@ -141,18 +156,18 @@ export function DiagramViewManager(props: EditorProps) {
     //     setFocusedST(undefined);
     // }, [focusFile]);
 
-    // React.useEffect(() => {
-    //     (async () => {
-    //         const version: string = await getBallerinaVersion();
-    //         setBalVersion(version);
-    //         // const isCodeServerInstance: string = await getEnv("CODE_SERVER_ENV");
-    //         // setCodeServer(isCodeServerInstance === "true");
-    //         // const sentryConfig: SentryConfig = await getSentryConfig();
-    //         // if (sentryConfig) {
-    //         //     init(sentryConfig);
-    //         // }
-    //     })();
-    // }, []);
+    React.useEffect(() => {
+        (async () => {
+            const version: string = await getBallerinaVersion();
+            setBalVersion(version);
+            // const isCodeServerInstance: string = await getEnv("CODE_SERVER_ENV");
+            // setCodeServer(isCodeServerInstance === "true");
+            // const sentryConfig: SentryConfig = await getSentryConfig();
+            // if (sentryConfig) {
+            //     init(sentryConfig);
+            // }
+        })();
+    }, []);
     //
     // useEffect(() => {
     //     if (history.length > 0) {
@@ -196,8 +211,7 @@ export function DiagramViewManager(props: EditorProps) {
     // }, [projectPaths]);
 
     // TODO: move to util file
-    const fetchST = (filePath: string, options: { position?: NodePosition, uid?: string }) => {
-        const { position, uid } = options;
+    const fetchST = (filePath: string, options?: { position?: NodePosition, uid?: string }) => {
         (async () => {
             try {
                 const langClient = await langClientPromise;
@@ -208,8 +222,8 @@ export function DiagramViewManager(props: EditorProps) {
                 const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
                 let selectedST;
 
-                if (position) {
-                    const uidGenVisitor = new UIDGenerationVisitor(position);
+                if (options && options.position) {
+                    const uidGenVisitor = new UIDGenerationVisitor(options.position);
                     traversNode(visitedST, uidGenVisitor);
                     const generatedUid = uidGenVisitor.getUId();
                     const nodeFindingVisitor = new FindNodeByUidVisitor(generatedUid);
@@ -218,8 +232,8 @@ export function DiagramViewManager(props: EditorProps) {
                     setFocusUid(generatedUid);
                 }
 
-                if (uid) {
-                    const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
+                if (options && options.uid) {
+                    const nodeFindingVisitor = new FindNodeByUidVisitor(options.uid);
                     traversNode(visitedST, nodeFindingVisitor);
                     selectedST = nodeFindingVisitor.getNode();
                 }
@@ -236,10 +250,6 @@ export function DiagramViewManager(props: EditorProps) {
         })();
     }
 
-    useEffect(() => {
-        if (!focusFile || !focusUid) return;
-        fetchST(focusFile.uri.path, { uid: focusUid });
-    }, [lastUpdatedAt]);
     //
     //
     // useEffect(() => {
@@ -254,34 +264,13 @@ export function DiagramViewManager(props: EditorProps) {
     // }, [diagramFocus])
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         const { filePath, position } = componentDetails;
-        (async () => {
-            try {
-                const langClient = await langClientPromise;
-                const generatedST = await getSyntaxTree(filePath, langClient);
-                const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
-
-                const content = await getFileContent(filePath);
-                const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
-                const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
-
-                const uidGenVisitor = new UIDGenerationVisitor(position);
-                traversNode(visitedST, uidGenVisitor);
-                componentDetails.uid = uidGenVisitor.getUId();
-                const nodeFindingVisitor = new FindNodeByUidVisitor(componentDetails.uid);
-                traversNode(visitedST, nodeFindingVisitor);
-
-                setDiagramFocuState({ filePath, uid: componentDetails.uid });
-                setFocusedST(nodeFindingVisitor.getNode());
-                setCompleteST(visitedST);
-                setCurrentFileContent(content);
-                setLowCodeResourcesVersion(resourceVersion);
-                setLowCodeEnvInstance(envInstance);
-                historyPush(componentDetails);
-            } catch (err) {
-                // tslint:disable-next-line: no-console
-                console.error(err);
-            }
-        })();
+        const fileListEntry = fileList.find(file => file.uri.path === filePath);
+        historyPush({
+            file: fileListEntry,
+            project: currentProject,
+            position,
+        });
+        // fetchST(filePath, { position });
     }
 
     const handleNavigationHome = () => {
@@ -298,6 +287,8 @@ export function DiagramViewManager(props: EditorProps) {
                 currentFile={focusFile}
                 lastUpdatedAt={lastUpdatedAt}
                 notifyComponentSelection={updateSelectedComponent}
+                updateCurrentFile={setFocusFile}
+                fileList={fileList}
             />
         ));
     } else if (focusedST) {
@@ -420,7 +411,7 @@ export function DiagramViewManager(props: EditorProps) {
 
     const updateActiveFile = (currentFile: FileListEntry) => {
         setFocusFile(currentFile);
-        fetchST(currentFile.uri.path, {});
+        fetchST(currentFile.uri.path);
     };
 
     return (
@@ -431,17 +422,24 @@ export function DiagramViewManager(props: EditorProps) {
                         <ViewManagerProvider
                             {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, focusFile, fileList, stMemberId, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateActiveFile, updateSelectedComponent, navigateUptoParent)}
                         >
-                            <NavigationBar
-                                workspaceName={workspaceName}
-                                projectList={projectPaths}
-                                fileList={fileList}
-                                currentProject={currentProject}
-                                currentFile={focusFile}
-                                updateCurrentFile={handleFileChange}
-                                updateCurrentProject={setCurrentProject}
-                            />
-                            {viewComponent}
-                            <div id={'canvas-overlay'} className={"overlayContainer"} />
+                            <HistoryProvider
+                                history={history}
+                                historyPush={historyPush}
+                                historyPop={historyPop}
+                                historyReset={historyClear}
+                            >
+                                <NavigationBar
+                                    workspaceName={workspaceName}
+                                    projectList={projectPaths}
+                                    fileList={fileList}
+                                    currentProject={currentProject}
+                                    currentFile={focusFile}
+                                    updateCurrentFile={handleFileChange}
+                                    updateCurrentProject={setCurrentProject}
+                                />
+                                {viewComponent}
+                                <div id={'canvas-overlay'} className={"overlayContainer"} />
+                            </HistoryProvider>
                         </ViewManagerProvider>
                     </IntlProvider>
                 </div>

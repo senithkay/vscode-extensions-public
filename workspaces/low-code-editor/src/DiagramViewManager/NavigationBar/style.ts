@@ -8,6 +8,15 @@ const useStyles = makeStyles(() =>
             "&:hover": {
                 backgroundColor: "#e6e7ec",
             }
+        },
+        selectorComponent: {
+            // margin: "0 10px",
+            "& .MuiSelect-root": {
+                minWidth: "100px"
+            },
+            "& .MuiOutlinedInput-input": {
+                padding: "5px 30px 5px 5px"
+            }
         }
     })
 )

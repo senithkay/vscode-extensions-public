@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 
 import { List, ListItem, ListItemText } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { FileListEntry } from "../../../../../DiagramGenerator/vscode/Diagram";
@@ -40,7 +40,7 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
     useEffect(() => {
       if (fullST){
         setPosition({
-            startLine: fullST.position.endLine + 1,
+            startLine: (fullST as ModulePart).eofToken.position.startLine,
             startColumn: 0
         });
       }
@@ -54,11 +54,6 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
     const handleGoBack = () => {
         setShowFileList(true);
     };
-
-    console.log(">>> currentFile", currentFile)
-    console.log(">>> fileList", fileList)
-    console.log(">>> fullST", fullST)
-    console.log(">>> position", position)
 
     return (
         <>
