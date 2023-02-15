@@ -218,6 +218,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             }
 
             <DiagramControls
+                showDownloadButton={currentView !== Views.CELL_VIEW}
                 zoomToFit={zoomToFit}
                 onZoom={onZoom}
                 onDownload={downloadDiagram}

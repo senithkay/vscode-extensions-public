@@ -19,11 +19,15 @@
 
 import styled from '@emotion/styled';
 
+interface ControlPanelProps {
+    height?: string;
+}
+
 export const ControlPanel = styled.div`
     bottom: 15px;
     display: flex;
     flex-direction: column;
-    height: 150px;
+    height: ${(props: ControlPanelProps) => `${props.height}`};
     justify-content: space-between;
     position: absolute;
     right: 15px;
