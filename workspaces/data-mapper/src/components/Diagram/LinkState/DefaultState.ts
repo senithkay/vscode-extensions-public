@@ -82,9 +82,12 @@ export class DefaultState extends State<DiagramEngine> {
 				type: InputType.MOUSE_UP,
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
 					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
-					const isExpandOrCollapse = (actionEvent.event.target as Element).closest('button[id^="button-wrapper"]');
+					const isExpandOrCollapse = (actionEvent.event.target as Element)
+						.closest('button[id^="button-wrapper"]');
+					const isAddElement = (actionEvent.event.target as Element)
+						.closest('button[id^="add-array-element"]');
 
-					if (!isExpandOrCollapse && (element instanceof PortModel
+					if (!isExpandOrCollapse && !isAddElement && (element instanceof PortModel
 						|| element instanceof MappingConstructorNode
 						|| element instanceof ListConstructorNode
 						|| element instanceof PrimitiveTypeNode
