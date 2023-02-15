@@ -103,12 +103,16 @@ export function DiagramViewManager(props: EditorProps) {
     }, [lastUpdatedAt]);
 
     useEffect(() => {
+        console.log('history entries >>>', history);
         if (history.length > 0) {
             const { project, file, position } = history[history.length - 1];
             fetchST(file.uri.path, { position });
             if (currentProject.name !== project.name) setCurrentProject(project);
             setFocusFile(file);
-        }
+        } else{
+            setFocusedST(undefined);
+            setFocusUid(undefined);
+        } 
     }, [history[history.length - 1]]);
 
     useEffect(() => {
@@ -431,10 +435,7 @@ export function DiagramViewManager(props: EditorProps) {
                                 <NavigationBar
                                     workspaceName={workspaceName}
                                     projectList={projectPaths}
-                                    fileList={fileList}
                                     currentProject={currentProject}
-                                    currentFile={focusFile}
-                                    updateCurrentFile={handleFileChange}
                                     updateCurrentProject={setCurrentProject}
                                 />
                                 {viewComponent}

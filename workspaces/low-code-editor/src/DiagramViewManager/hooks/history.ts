@@ -34,7 +34,8 @@ export function useComponentHistory():
     }
 
     const historyPop = () => {
-        if (history.length > 0) return;
+        console.log('history pop >>>', history);
+        if (history.length === 0) return;
         updateHistory(history.slice(0, history.length - 1));
     }
 
