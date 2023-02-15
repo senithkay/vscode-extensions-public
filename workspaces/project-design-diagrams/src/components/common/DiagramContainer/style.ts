@@ -18,7 +18,7 @@ export const CellContainer = styled.div`
   width: calc(100vw - 120px);
   position: relative;
   border-radius: 40px;
-  border: 2px solid #757575;
+  border: 1px solid #5567D5;
   overflow: hidden;
 `;
 
