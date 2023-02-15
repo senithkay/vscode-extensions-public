@@ -64,7 +64,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled,
             isCodeServerInstance
@@ -313,7 +313,7 @@ export function AddVariableConfig(props: AddVariableConfigProps) {
                         applyModifications: modifyDiagram,
                         updateFileContent,
                         library,
-                        syntaxTree,
+                        syntaxTree: fullST,
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,

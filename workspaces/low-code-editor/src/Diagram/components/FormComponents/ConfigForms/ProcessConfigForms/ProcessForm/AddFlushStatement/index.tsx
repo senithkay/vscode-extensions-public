@@ -42,7 +42,7 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled,
             isCodeServerInstance
@@ -84,7 +84,7 @@ export function AddFlushStatement(props: AddFlushStatementProps) {
             applyModifications: modifyDiagram,
             updateFileContent,
             library,
-            syntaxTree,
+            syntaxTree: fullST,
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
