@@ -103,7 +103,6 @@ export function DiagramViewManager(props: EditorProps) {
     }, [lastUpdatedAt]);
 
     useEffect(() => {
-        console.log('history entries >>>', history);
         if (history.length > 0) {
             const { project, file, position } = history[history.length - 1];
             fetchST(file.uri.path, { position });
