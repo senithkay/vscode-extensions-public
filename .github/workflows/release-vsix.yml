@@ -24,9 +24,9 @@ jobs:
   Build:
     uses: ./.github/workflows/build.yml
     with:
-      updateVersion: ${{ github.event.inputs.updateVersion }}
-      isPreRelease: ${{ github.event.inputs.isPreRelease }}
-      version: ${{ github.event.inputs.version }}
+      updateVersion: ${{ inputs.updateVersion }}
+      isPreRelease: ${{ inputs.isPreRelease }}
+      version: ${{ inputs.version }}
     secrets: inherit  
 
   Release:
