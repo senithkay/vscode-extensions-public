@@ -3,6 +3,12 @@ name: Release VSIX
 on:
   workflow_dispatch:
     inputs:
+      isPreRelease:
+        required: true
+        type: boolean 
+      updateVersion:
+        required: true
+        type: boolean     
       version:
         type: choice
         description: 'Enter the version type'
@@ -18,7 +24,8 @@ jobs:
   Build:
     uses: ./.github/workflows/build.yml
     with:
-      isRelease: true
+      updateVersion: ${{ github.event.inputs.updateVersion }}
+      isPreRelease: ${{ github.event.inputs.isPreRelease }}
       version: ${{ github.event.inputs.version }}
     secrets: inherit  
 
@@ -77,8 +84,11 @@ jobs:
 
       - name: Publish low code diagram
         run: |
-          cd ballerina-low-code-editor
-          npm publish --tag latest --workspaces
+          workspaces=("ballerina-languageclient", "configurable-editor", "data-mapper", "expression-editor", "lang-service", "low-code-diagram", "low-code-distribution", "low-code-editor", "low-code-editor-commons", "low-code-integration-tests", "low-code-ui-components", "statement-editor", "syntax-tree")
+          for workspace in "${workspaces[@]}"; do
+            npm version ${{ steps.vsix.outputs.version }} --no-git-tag-version --workspace=workspaces/$version
+            npm publish --tag latest --workspace=workspaces/$version
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
@@ -87,7 +97,7 @@ jobs:
         run: |
           git config --global user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
           git config --global user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
-          git add ballerina-low-code-editor/\*.json *.json
+          git add *.json
           git commit -m "Update version to v${{ steps.vsix.outputs.version }}"
           git checkout -b "v${{ steps.vsix.outputs.version }}"
           git remote set-url origin https://${{ secrets.BALLERINA_BOT_USERNAME }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
