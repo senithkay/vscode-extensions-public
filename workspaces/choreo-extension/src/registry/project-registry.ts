@@ -132,6 +132,16 @@ export class ProjectRegistry {
             });
     }
 
+    async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
+        return projectClient.getSwaggerExamples(spec)
+            .then((result: any) => {
+                return result;
+            }).catch((e: any) => {
+                serializeError(e);
+                return false;
+            });
+    }
+
     setProjectLocation(projectId: string, location: string) {
         // Project locations are stored in global state
         let projectLocations: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_LOCATIONS);

@@ -12,6 +12,9 @@
  */
 import React from "react";
 
+const ICON_COLOR = "#5567D5";
+const BG_COLOR = "#FFF";
+
 export function GatewayIcon() {
     return (
         <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -21,13 +24,13 @@ export function GatewayIcon() {
                 <rect x="-22.86" y="-13.14" style={{fill: "none"}} width="45.72" height="26.28"/>
                 <g>
                     <polygon
-                        style={{fill: "#757575"}}
+                        style={{fill: ICON_COLOR}}
                         points="-22.86,-6.34 0.07,-6.34 0.07,-13.14 22.86,0 0.07,13.14 0.07,6.34 -22.86,6.34"
                     />
                 </g>
             </symbol>
             <circle
-                style={{fill: "#FFFFFF", stroke: "#757575", strokeWidth: 5, strokeMiterlimit: 10}}
+                style={{fill: BG_COLOR, stroke: ICON_COLOR, strokeWidth: 5, strokeMiterlimit: 10}}
                 cx="80"
                 cy="80"
                 r="74.68"

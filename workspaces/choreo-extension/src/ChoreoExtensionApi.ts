@@ -142,6 +142,10 @@ export class ChoreoExtensionApi {
         return ProjectRegistry.getInstance().getPerformanceForecast(data);
     }
 
+    public async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
+        return ProjectRegistry.getInstance().getSwaggerExamples(spec);
+    }
+
     public async enrichChoreoMetadata(model: Map<string, ComponentModel>):
         Promise<Map<string, ComponentModel> | undefined> {
         if (this._selectedProjectId && this._selectedOrg?.id && this._selectedOrg) {

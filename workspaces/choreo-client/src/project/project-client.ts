@@ -23,7 +23,7 @@ const API_CALL_ERROR = "API CALL ERROR";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI: string) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI: string, private _swaggerExamplesAPI: string) {
     }
 
     private async _getClient() {
@@ -103,6 +103,28 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                         'Content-Length': data.length,
                         'Authorization': `Bearer ${choreoToken.accessToken}`
                     }
+                });
+        } catch (err) {
+            throw new Error(API_CALL_ERROR, { cause: err });
+        }
+    }
+
+    async getSwaggerExamples(data: any): Promise<AxiosResponse> {
+        const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
+        if (!choreoToken) {
+            throw new Error('User is not logged in');
+        }
+
+        console.log(`Calling swagger sample generator API - ${new Date()}`);
+        try {
+            return await getHttpClient()
+                .post(this._swaggerExamplesAPI, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        'Authorization': `Bearer ${choreoToken.accessToken}`
+                    },
+                    timeout: 15000
                 });
         } catch (err) {
             throw new Error(API_CALL_ERROR, { cause: err });
