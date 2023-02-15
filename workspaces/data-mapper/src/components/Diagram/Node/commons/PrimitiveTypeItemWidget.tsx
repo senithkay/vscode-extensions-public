@@ -26,18 +26,6 @@ import { TreeContainer, TreeHeader } from './Tree/Tree';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        treeLabel: {
-            height: '40px',
-            padding: '8px',
-            background: '#E6E8F0',
-            borderRadius: '3px',
-            width: '100%',
-            display: 'flex',
-            cursor: 'pointer',
-            '&:hover': {
-                backgroundColor: '#F0F1FB',
-            }
-        },
         treeLabelPortSelected: {
             backgroundColor: '#F0F1FB',
         },
@@ -56,12 +44,6 @@ const useStyles = makeStyles((theme: Theme) =>
             float: "right",
             width: 'fit-content',
             marginLeft: "auto",
-            display: "flex",
-            alignItems: "center"
-        },
-        treeLabelInPort: {
-            float: "left",
-            width: 'fit-content',
             display: "flex",
             alignItems: "center"
         },
@@ -143,11 +125,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
             <div className={classes.queryPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>
-            <div
-                id={"recordfield-" + id}
-                className={classnames(classes.treeLabel,
-                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "")}
-            >
+            <TreeHeader id={"recordfield-" + id} isSelected={portState !== PortState.Unselected}>
                 <span className={classes.label}>
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
@@ -157,7 +135,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
                         <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
-            </div>
+            </TreeHeader>
         </TreeContainer>
     );
 }
