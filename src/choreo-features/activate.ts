@@ -29,6 +29,7 @@ export interface IChoreoExtensionAPI {
     getChoreoProject(): Promise<Project|undefined>;
     isChoreoProject(): Promise<boolean>;
     getPerformanceForecastData(data: string): Promise<AxiosResponse<any>>;
+    getSwaggerExamples(spec: any): Promise<AxiosResponse<any>>;
     enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined>;
 }
 
