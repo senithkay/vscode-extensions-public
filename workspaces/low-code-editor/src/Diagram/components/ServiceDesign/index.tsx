@@ -122,9 +122,6 @@ export function ServiceDesign(props: ServiceDesignProps) {
                 <>
                     {/*<ServiceHeader onClose={onClose} model={fnSTZ} />*/}
                     <div className={classes.serviceTitle}>
-                        <div className={classes.navigationIcon} >
-                            <ArrowBack />
-                        </div>
                         <div>
                             <span className={classes.servicePath}>Service {servicePath}</span>
                             <span className={classes.listenerText}>

@@ -81,36 +81,36 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	}
 
 	const editor = window.activeTextEditor;
-	if (isCommand) {
-		if (!editor || !editor.document.fileName.endsWith('.bal')) {
-			const message = 'Current file is not a ballerina file.';
-			sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
-			window.showErrorMessage(message);
-			return;
-		}
-	}
-
-	if (isCommand) {
-		if (!editor) {
-			window.showErrorMessage(CMP_DIAGRAM_VIEW);
-			return;
-		}
-
-		diagramElement = {
-			fileUri: editor!.document.uri,
-			startLine: editor!.selection.active.line,
-			startColumn: editor!.selection.active.character,
-			isDiagram: true,
-
-		};
-	} else {
-		diagramElement = {
-			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
-			startLine,
-			startColumn,
-			isDiagram: true,
-		};
-	}
+	// if (isCommand) {
+	// 	if (!editor || !editor.document.fileName.endsWith('.bal')) {
+	// 		const message = 'Current file is not a ballerina file.';
+	// 		sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
+	// 		window.showErrorMessage(message);
+	// 		return;
+	// 	}
+	// }
+	//
+	// if (isCommand) {
+	// 	if (!editor) {
+	// 		window.showErrorMessage(CMP_DIAGRAM_VIEW);
+	// 		return;
+	// 	}
+	//
+	// 	diagramElement = {
+	// 		fileUri: editor!.document.uri,
+	// 		startLine: editor!.selection.active.line,
+	// 		startColumn: editor!.selection.active.character,
+	// 		isDiagram: true,
+	//
+	// 	};
+	// } else {
+	// 	diagramElement = {
+	// 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
+	// 		startLine,
+	// 		startColumn,
+	// 		isDiagram: true,
+	// 	};
+	// }
 
 	diagramElement = {
 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),

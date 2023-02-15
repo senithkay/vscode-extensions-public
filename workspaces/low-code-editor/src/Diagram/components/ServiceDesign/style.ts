@@ -161,8 +161,8 @@ export const useStyles = makeStyles(() =>
             flexDirection: "row",
             height: 50,
             width: "100%",
-            boxShadow: "inset 0 -1px 0 0 #E6E7EC",
-            backgroundColor: "#F7F8FB",
+            // boxShadow: "inset 0 -1px 0 0 #E6E7EC",
+            // backgroundColor: "#F7F8FB",
         },
         serviceConfigure: {
             display: "flex",
