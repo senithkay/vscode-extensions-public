@@ -24,6 +24,7 @@ import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { Warning } from "../Diagram/utils/st-util";
+import { FileListEntry } from "../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
 
 export interface ZoomStatus {
@@ -119,6 +120,7 @@ export interface LowCodeEditorAPI {
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
     openExternalUrl?: (url: string) => Promise<boolean>;
     navigation: {
+        updateActiveFile: (currentFile: FileListEntry) => void;
         updateSelectedComponent: (info: ComponentViewInfo) => void;
         navigateUptoParent: (position: NodePosition) => void;
     }
@@ -129,6 +131,7 @@ export interface LowCodeEditorAPI {
 export interface LowCodeEditorProperties {
     userInfo?: UserState;
     currentFile: CurrentFile;
+    fileList: FileListEntry[];
     syntaxTree: STNode;
     fullST: STNode;
     originalSyntaxTree: ModulePart;

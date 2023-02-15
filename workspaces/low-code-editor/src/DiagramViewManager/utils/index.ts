@@ -16,6 +16,7 @@ export function getDiagramProviderProps(
     lowCodeEnvInstance: string,
     currentFileContent: string,
     focusFile: FileListEntry,
+    fileList: FileListEntry[],
     stMemberId: string,
     completeST: STNode,
     lowCodeResourcesVersion: any,
@@ -24,6 +25,7 @@ export function getDiagramProviderProps(
     setFocusedST: React.Dispatch<React.SetStateAction<STNode>>,
     setCompleteST: React.Dispatch<React.SetStateAction<STNode>>,
     setFileContent: (content: string) => void,
+    updateActiveFile: (currentFile: FileListEntry) => void,
     updateSelectedComponent: (info: ComponentViewInfo) => void,
     navigateUptoParent: (position: NodePosition) => void
 ): LowCodeEditorProps {
@@ -56,6 +58,7 @@ export function getDiagramProviderProps(
             path: focusFile?.uri.path,
             size: 1,
         },
+        fileList,
         importStatements: getImportStatements(completeST),
         experimentalEnabled,
         lowCodeResourcesVersion,
@@ -214,6 +217,7 @@ export function getDiagramProviderProps(
             runBackgroundTerminalCommand,
             openExternalUrl,
             navigation: {
+                updateActiveFile,
                 updateSelectedComponent,
                 navigateUptoParent
             }

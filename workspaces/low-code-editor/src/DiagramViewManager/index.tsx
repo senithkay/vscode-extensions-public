@@ -418,13 +418,18 @@ export function DiagramViewManager(props: EditorProps) {
         setFocusedST(undefined);
     }
 
+    const updateActiveFile = (currentFile: FileListEntry) => {
+        setFocusFile(currentFile);
+        fetchST(currentFile.uri.path, {});
+    };
+
     return (
         <div>
             <MuiThemeProvider theme={theme}>
                 <div className={classes.lowCodeContainer}>
                     <IntlProvider locale='en' defaultLocale='en' messages={messages}>
                         <ViewManagerProvider
-                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, focusFile, stMemberId, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateSelectedComponent, navigateUptoParent)}
+                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, focusFile, fileList, stMemberId, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateActiveFile, updateSelectedComponent, navigateUptoParent)}
                         >
                             <NavigationBar
                                 workspaceName={workspaceName}

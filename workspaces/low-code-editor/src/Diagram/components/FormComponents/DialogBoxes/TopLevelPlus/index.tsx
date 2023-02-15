@@ -10,27 +10,86 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+import React, { useEffect, useState } from "react";
 
+import { List, ListItem, ListItemText } from "@material-ui/core";
+import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
+import { useDiagramContext } from "../../../../../Contexts/Diagram";
+import { FileListEntry } from "../../../../../DiagramGenerator/vscode/Diagram";
 import { FormGeneratorProps } from "../../FormGenerator";
 
 import { PlusOptionsSelector } from "./PlusOptionsSelector";
 
 export function TopLevelOptionRenderer(props: FormGeneratorProps) {
     const { onCancel } = props;
-    const { kind, targetPosition, isTriggerType, isLastMember, showCategorized } = props.configOverlayFormStatus.formArgs;
+    const { kind, targetPosition, isTriggerType, showCategorized } = props.configOverlayFormStatus.formArgs;
+
+    const {
+        api: {
+            navigation: { updateActiveFile },
+        },
+        props: { currentFile, fileList, fullST },
+    } = useDiagramContext();
+
+    const [showFileList, setShowFileList] = useState(currentFile.path ? false : true);
+    const [position, setPosition] = useState<NodePosition>(targetPosition);
+
+    useEffect(() => {
+      if (fullST){
+        setPosition({
+            startLine: fullST.position.endLine + 1,
+            startColumn: 0
+        });
+      }
+    }, [fullST]);
+
+    const handleFileSelect = (entry: FileListEntry) => {
+        setShowFileList(false);
+        updateActiveFile(entry);
+    };
+
+    const handleGoBack = () => {
+        setShowFileList(true);
+    };
+
+    console.log(">>> currentFile", currentFile)
+    console.log(">>> fileList", fileList)
+    console.log(">>> fullST", fullST)
+    console.log(">>> position", position)
 
     return (
         <>
-            <PlusOptionsSelector
-                kind={kind}
-                onClose={onCancel}
-                targetPosition={targetPosition}
-                isTriggerType={isTriggerType}
-                isLastMember={isLastMember}
-                showCategorized={showCategorized}
-            />
-        </>
+            {showFileList && (
+                <>
+                    <FormHeaderSection
+                        onCancel={onCancel}
+                        formTitle={"lowcode.develop.configForms.plusholder.selectFiles"}
+                        defaultMessage={"Select a file to add component"}
+                    />
+                    <List component="nav" style={{ width: 315 }}>
+                        {fileList.map((file, index) => (
+                            <ListItem button={true} key={index} onClick={() => handleFileSelect(file)}>
+                                <ListItemText primary={file.fileName} secondary={file.uri.path} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </>
+            )}
 
+            {!showFileList && (
+                <PlusOptionsSelector
+                    kind={kind}
+                    onClose={onCancel}
+                    goBack={handleGoBack}
+                    targetPosition={position}
+                    isTriggerType={isTriggerType}
+                    isLastMember={true}
+                    showCategorized={showCategorized}
+                />
+            )}
+        </>
     );
 }

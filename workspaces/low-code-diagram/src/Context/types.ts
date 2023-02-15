@@ -66,6 +66,18 @@ export interface ComponentViewInfo {
     name?: string;
     uid?: string;
 }
+// TODO: move this to commons module
+export interface FileListEntry {
+    fileName: string;
+    uri: Uri;
+}
+// TODO: move this to commons module
+export interface Uri {
+    fsPath: string
+    external: string
+    path: string;
+    sheme: string;
+}
 
 export interface LowCodeDiagramAPI {
     edit?: {
@@ -120,6 +132,7 @@ export interface LowCodeDiagramAPI {
         onEvent?: (event: LowcodeEvent) => void;
     },
     navigation: {
+        updateActiveFile: (currentFile: FileListEntry) => void,
         updateSelectedComponent: (info: ComponentViewInfo) => void;
         navigateUptoParent: (position: NodePosition) => void;
     }

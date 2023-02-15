@@ -17,6 +17,7 @@ import { Story } from '@storybook/react/types-6-0';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
+import { FileListEntry } from '../../../../../../../DiagramGenerator/vscode/Diagram';
 import { ComponentViewInfo } from '../../../../../../../OverviewDiagram/util';
 
 import { AddWhileForm, WhileProps } from "./index";
@@ -84,6 +85,8 @@ const api = {
     },
     navigation: {
         // tslint:disable-next-line:no-empty
+        updateActiveFile: (currentFile: FileListEntry) => { },
+        // tslint:disable-next-line:no-empty
         updateSelectedComponent: (info: ComponentViewInfo) => { },
         // tslint:disable-next-line:no-empty
         navigateUptoParent: (position: NodePosition) => { }
@@ -100,6 +103,8 @@ export const mockedEditorProps = {
         size: 3,
         content: ''
     },
+    // @ts-ignore
+    fileList: undefined,
     // @ts-ignore
     syntaxTree: undefined,
     // @ts-ignore

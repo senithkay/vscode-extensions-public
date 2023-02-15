@@ -20,6 +20,7 @@ import { useDiagramContext } from "../Contexts/Diagram";
 import { FileListEntry, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 
 import { Filter as FilterComponent } from './components/Filter'
+import { TopLevelActionButton } from "./components/TopLevelActionButton";
 import * as Views from './components/ViewTypes';
 import { CategoryView } from "./components/ViewTypes/CategoryView";
 import './style.scss';
@@ -122,6 +123,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                 currentFile={currentFile}
                 updateSelection={notifyComponentSelection}
             />
+             <TopLevelActionButton />
         </div>
     )
 }
