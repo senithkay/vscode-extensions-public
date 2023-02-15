@@ -16,10 +16,10 @@ import { FormControl, InputLabel, Select } from "@material-ui/core";
 import { BallerinaProjectComponents, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { FileListEntry } from "../../../../DiagramGenerator/vscode/Diagram";
+import useStyles from "../../../../DiagramViewManager/NavigationBar/style";
 import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
 import { ComponentView } from "../ComponentView";
 
-import useStyles from "../../../../DiagramViewManager/NavigationBar/style";
 import './style.scss'
 
 interface CategoryViewProps {

@@ -17,6 +17,7 @@ import { Button } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 
 import { FormGenerator } from "../../../Diagram/components/FormComponents/FormGenerator";
+
 import {useStyles} from './styles';
 
 export function TopLevelActionButton() {
