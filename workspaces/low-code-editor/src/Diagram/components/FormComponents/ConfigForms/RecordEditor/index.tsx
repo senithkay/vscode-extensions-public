@@ -48,7 +48,7 @@ export function RecordEditor(props: RecordEditorProps) {
         props: {
             stSymbolInfo,
             currentFile,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled
         },
@@ -79,7 +79,7 @@ export function RecordEditor(props: RecordEditorProps) {
                 applyModifications: modifyDiagram,
                 updateFileContent,
                 library,
-                syntaxTree,
+                syntaxTree: fullST,
                 stSymbolInfo,
                 importStatements,
                 experimentalEnabled,

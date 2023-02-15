@@ -40,7 +40,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             ballerinaVersion,
             isMutationProgress: isMutationInProgress,
             currentFile,
-            syntaxTree,
+            fullST,
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
@@ -74,7 +74,7 @@ export function AddReturnForm(props: ReturnFormProps) {
     }
 
     const isOptionalReturn = () => {
-        const st = syntaxTree as ModulePart;
+        const st = fullST as ModulePart;
         let noReturn = true;
         /*
          TODO: Revise this logic as this will not work for blocks like
@@ -145,7 +145,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                         applyModifications: modifyDiagram,
                         updateFileContent,
                         library,
-                        syntaxTree,
+                        syntaxTree: fullST,
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,

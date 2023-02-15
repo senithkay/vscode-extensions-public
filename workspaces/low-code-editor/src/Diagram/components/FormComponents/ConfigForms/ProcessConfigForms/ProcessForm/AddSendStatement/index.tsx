@@ -36,7 +36,7 @@ export function AddSendStatement(props: AddSendStatementProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled,
             isCodeServerInstance
@@ -86,7 +86,7 @@ export function AddSendStatement(props: AddSendStatementProps) {
             applyModifications: modifyDiagram,
             updateFileContent,
             library,
-            syntaxTree,
+            syntaxTree: fullST,
             stSymbolInfo,
             importStatements,
             experimentalEnabled,

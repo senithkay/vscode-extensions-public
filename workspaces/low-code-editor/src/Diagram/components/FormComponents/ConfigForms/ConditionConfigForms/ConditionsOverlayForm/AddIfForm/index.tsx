@@ -61,7 +61,7 @@ export function AddIfForm(props: IfProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
-            syntaxTree,
+            fullST,
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
@@ -309,7 +309,7 @@ export function AddIfForm(props: IfProps) {
                         applyModifications: modifyDiagram,
                         updateFileContent,
                         library,
-                        syntaxTree,
+                        syntaxTree: fullST,
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,

@@ -16,10 +16,10 @@ import { FormControl, InputLabel, Select } from "@material-ui/core";
 import { BallerinaProjectComponents, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { FileListEntry } from "../../../../DiagramGenerator/vscode/Diagram";
+import useStyles from "../../../../DiagramViewManager/NavigationBar/style";
 import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
 import { ComponentView } from "../ComponentView";
 
-import useStyles from "./style";
 import './style.scss'
 
 interface CategoryViewProps {
@@ -131,7 +131,7 @@ export function CategoryView(props: CategoryViewProps) {
     Object.keys(currentComponents).filter(key => currentComponents[key].length).forEach(key => {
         const components = currentComponents[key].map((comp: ComponentViewInfo) => (
             // tslint:disable-next-line: jsx-key
-            <ComponentView info={comp} updateSelection={updateSelection} />
+            <ComponentView key={comp.uid} info={comp} updateSelection={updateSelection} />
         ))
         categories.push(
             <>

@@ -13,12 +13,13 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useEffect, useState } from "react";
 
-import { List, ListItem, ListItemText } from "@material-ui/core";
+import { Box, List, ListItem, ListItemText } from "@material-ui/core";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModulePart, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { FileListEntry } from "../../../../../DiagramGenerator/vscode/Diagram";
+import { TextPreLoader } from "../../../../../PreLoader/TextPreLoader";
 import { FormGeneratorProps } from "../../FormGenerator";
 
 import { PlusOptionsSelector } from "./PlusOptionsSelector";
@@ -34,16 +35,16 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
         props: { currentFile, fileList, fullST },
     } = useDiagramContext();
 
-    const [showFileList, setShowFileList] = useState(currentFile.path ? false : true);
+    const [showFileList, setShowFileList] = useState(currentFile.path && fullST ? false : true);
     const [position, setPosition] = useState<NodePosition>(targetPosition);
 
     useEffect(() => {
-      if (fullST){
-        setPosition({
-            startLine: (fullST as ModulePart).eofToken.position.startLine,
-            startColumn: 0
-        });
-      }
+        if (fullST) {
+            setPosition({
+                startLine: (fullST as ModulePart).eofToken.position.startLine,
+                startColumn: 0,
+            });
+        }
     }, [fullST]);
 
     const handleFileSelect = (entry: FileListEntry) => {
@@ -73,8 +74,7 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
                     </List>
                 </>
             )}
-
-            {!showFileList && (
+            {!showFileList && fullST && (
                 <PlusOptionsSelector
                     kind={kind}
                     onClose={onCancel}
@@ -84,6 +84,11 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
                     isLastMember={true}
                     showCategorized={showCategorized}
                 />
+            )}
+            {!showFileList && !fullST && (
+                <Box display="flex" justifyContent="center" alignItems="center" height="80vh" width="315px">
+                    <TextPreLoader position="absolute" text="Loading..." />
+                </Box>
             )}
         </>
     );
