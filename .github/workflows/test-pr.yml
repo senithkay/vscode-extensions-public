@@ -6,6 +6,10 @@ on:
     paths-ignore:
       - '**/*.md'
 
+concurrency: 
+  group: ${{ github.head_ref }}
+  cancel-in-progress: true
+
 env:
   ballerina_version: 2201.2.3
   ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.2.3/ballerina-2201.2.3-swan-lake.zip
