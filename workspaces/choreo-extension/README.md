@@ -20,7 +20,7 @@ Henceforth, the users will be able to experience the capabilities of the Choreo 
 
 #### Create a Choreo Project
 
-The Choreo extension provides the capability to create a new Choreo project from VS Code Editor. This can be done by one of the following approaches.
+The Choreo extension provides the capability to create a new Choreo project from the VS Code Editor. This can be done by one of the following approaches.
 1) Via the `Choreo: Create New Project` command available in the VS Code command palette
 ![Create New Project Cmd](docs/img/create-project-cmd.gif)
 
@@ -76,6 +76,6 @@ By successfully cloning the projects, the users can directly access the complete
 
 The Choreo extension links the capability to visualize the architecture of the Ballerina components in Choreo projects. To access this feature, the users will also need to install the [Ballerina Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) for the VS Code editor.
 
-Once the Ballerina extension is installed, the users can visualize the architecture of the Ballerina components by selecting the **View Architecture** option in the Project Overview panel. This will open up a separate webview panel containing the architecture of the Ballerina components in the Choreo project. The users can delve into a high-level view of the components in the project, their interactions, and their exposure via the service diagrams and cell diagram.
+Once the Ballerina extension is installed, the users can visualize the architecture of the Ballerina components by selecting the **View Architecture** option in the Project Overview panel. This will open up a view through which the users can delve into a high-level view of the components in the project, their interactions, and their exposure via the service diagrams and cell diagram.
     ![View Architecture](docs/img/architecture-view.gif)
 
