@@ -20,14 +20,14 @@
 import styled from '@emotion/styled';
 
 interface ControlPanelProps {
-    height?: string;
+    showDownloadButton?: boolean;
 }
 
 export const ControlPanel = styled.div`
     bottom: 15px;
     display: flex;
     flex-direction: column;
-    height: ${(props: ControlPanelProps) => `${props.height}`};
+    height: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 150 : 110}px`};
     justify-content: space-between;
     position: absolute;
     right: 15px;

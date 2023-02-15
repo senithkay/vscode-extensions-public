@@ -38,7 +38,7 @@ export function DiagramControls(props: ControlProps) {
     const { onDownload, onZoom, zoomToFit, showDownloadButton = true } = props;
 
     return (
-        <ControlPanel height={ showDownloadButton ? "150px" : "110px"}>
+        <ControlPanel showDownloadButton={showDownloadButton} >
             {showDownloadButton && (
                 <IconButton
                     className={'control-button'}
