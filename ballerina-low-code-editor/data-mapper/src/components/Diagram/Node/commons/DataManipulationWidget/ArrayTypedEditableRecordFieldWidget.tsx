@@ -288,7 +288,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         <div
             className={classnames(classes.treeLabel, classes.treeLabelArray,
                 isDisabled ? classes.treeLabelDisabled : "",
-                hasHoveredParent ? classes.treeLabelPortSelected : ""
+                hasHoveredParent ? classes.treeLabelParentHovered : ""
             )}
         >
             {!isReturnTypeDesc && (
@@ -297,7 +297,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     className={classnames(classes.ArrayFieldRow,
                         isDisabled ? classes.ArrayFieldRowDisabled : "",
                         (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
-                        hasHoveredParent ? classes.treeLabelPortSelected : ""
+                        hasHoveredParent ? classes.treeLabelParentHovered : ""
                     )}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}

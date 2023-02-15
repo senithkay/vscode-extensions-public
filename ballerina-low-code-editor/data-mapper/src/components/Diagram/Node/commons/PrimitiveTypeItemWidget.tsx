@@ -26,9 +26,6 @@ import { TreeContainer, TreeHeader } from './Tree/Tree';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        treeLabelPortSelected: {
-            backgroundColor: '#F0F1FB',
-        },
         typeLabel: {
             marginLeft: "3px",
             verticalAlign: "middle",
