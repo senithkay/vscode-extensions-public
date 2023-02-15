@@ -153,7 +153,7 @@
     "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
     "compile": "webpack --mode production",
     "watch": "npx webpack --watch",
-    "build": "npm run clean && npm run compile && npm run lint && npm run copy-webview-lib && npx vsce package --no-dependencies",
+    "build": "npm run clean && npm run compile && npm run lint && npm run copy-webview-lib",
     "copy-webview-lib": "copyfiles -f -E -F ./../../node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir dist",
     "watch-tests": "tsc -p . -w --outDir dist",
@@ -162,7 +162,9 @@
     "pretest": "npm run clean && npm run compile-tests && npm run lint && npm run copy-webview-lib",
     "lint": "eslint src --ext ts",
     "test-nyc-cli": "nyc --reporter=html node ./dist/test/runTest.js",
-    "test": "rm -rf .vscode-test/extensions && node ./dist/test/runTest.js && nyc report && nyc report --reporter=html"
+    "test": "rm -rf .vscode-test/extensions && node ./dist/test/runTest.js && nyc report && nyc report --reporter=html",
+    "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
+    "postbuild": "npm run package"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
