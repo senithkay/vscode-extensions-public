@@ -80,10 +80,11 @@ export class DefaultState extends State<DiagramEngine> {
 		this.registerAction(
 			new Action({
 				type: InputType.MOUSE_UP,
-				fire: (event: ActionEvent<MouseEvent>) => {
-					const element = this.engine.getActionEventBus().getModelForEvent(event);
+				fire: (actionEvent: ActionEvent<MouseEvent>) => {
+					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+					const isExpandOrCollapse = (actionEvent.event.target as Element).closest('button[id^="button-wrapper"]');
 
-					if (element instanceof PortModel
+					if (!isExpandOrCollapse && (element instanceof PortModel
 						|| element instanceof MappingConstructorNode
 						|| element instanceof ListConstructorNode
 						|| element instanceof PrimitiveTypeNode
@@ -93,8 +94,8 @@ export class DefaultState extends State<DiagramEngine> {
 						|| element instanceof ModuleVariableNode
 						|| element instanceof LetClauseNode
 						|| element instanceof JoinClauseNode
-					) {
-						this.transitionWithEvent(this.createLink, event);
+					)) {
+						this.transitionWithEvent(this.createLink, actionEvent);
 					}
 				}
 			})
