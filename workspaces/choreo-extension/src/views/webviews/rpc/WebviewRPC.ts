@@ -22,7 +22,8 @@ import {
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
     ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo,
-    OpenArchitectureView
+    OpenArchitectureView,
+    HasUnpushedComponents, Component, UpdateProjectOverview
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -117,6 +118,10 @@ export class WebViewRpc {
             commands.executeCommand("ballerina.view.architectureView");
         });
 
+        this._messenger.onRequest(UpdateProjectOverview, (projectId: string) => {
+            ext.api.projectUpdated();
+        });
+
         this._messenger.onRequest(PushLocalComponentsToChoreo, async (projectId: string): Promise<void> => {
             return window.withProgress({
                 title: `Pushing local components to Choreo.`,
@@ -128,6 +133,10 @@ export class WebViewRpc {
                     await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
                 }
             });
+        });
+
+        this._messenger.onRequest(HasUnpushedComponents, async (projectID: string): Promise<boolean> => {
+            return ProjectRegistry.getInstance().hasUnpushedComponents(projectID);
         });
 
         ext.api.onStatusChanged((newStatus) => {

@@ -129,6 +129,7 @@ export function ComponentWizard() {
                 }
             }).then(() => {
                 setProgressStatus(false);
+                ChoreoWebViewAPI.getInstance().updateProjectOverview(projectId);
                 closeWebView();
             }).catch((err: Error) => {
                 ChoreoWebViewAPI.getInstance().showErrorMsg(err.message);

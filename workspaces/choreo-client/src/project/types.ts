@@ -36,6 +36,13 @@ export interface CreateComponentParams {
     repositoryBranch: string;
 }
 
+export interface RepoParams {
+    orgApp: string;
+    repoApp: string;
+    branchApp: string;
+    subPath: string;
+}
+
 export interface ComponentMutationParams {
     projectId: string;
     name: string;

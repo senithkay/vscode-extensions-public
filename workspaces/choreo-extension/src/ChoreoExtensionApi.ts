@@ -83,6 +83,10 @@ export class ChoreoExtensionApi {
         this._onChoreoProjectChanged.fire(selectedProjectId);
     }
 
+    public projectUpdated() {
+        this._onChoreoProjectChanged.fire(this._selectedProjectId);
+    }
+
     public async signIn(authCode: string): Promise<void> {
         getLogger().debug("Signin triggered from ChoreoExtensionApi");
         return exchangeAuthToken(authCode);
