@@ -51,7 +51,7 @@ jobs:
         run: |
           find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
           zip -r build.zip ./
-          zip VSIX.zip ./**/*.vsix -j
+          zip VSIX.zip *.vsix
 
       - name: Save VSIX
         uses: actions/upload-artifact@v3
