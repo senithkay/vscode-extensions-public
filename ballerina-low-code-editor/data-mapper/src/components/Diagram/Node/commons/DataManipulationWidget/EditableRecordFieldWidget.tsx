@@ -163,16 +163,16 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsHovered(false);
     };
 
-    let isDisabled = portIn.descendantHasValue || (value && !connectedViaLink);
+    let isDisabled = portIn?.descendantHasValue || (value && !connectedViaLink);
     if (!isDisabled) {
-        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)) {
+        if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
             portIn.ancestorHasValue = true;
             isDisabled = true;
         }
         if (hasValue
             && !connectedViaLink
             && (isArray && !STKindChecker.isQueryExpression(specificField.valueExpr) || isRecord)) {
-            portIn.setDescendantHasValue();
+            portIn?.setDescendantHasValue();
             isDisabled = true;
         }
     }
@@ -195,7 +195,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
-                    isDisabled && !hasHoveredParent ? classes.valueLabelDisabled : ""
+                    isDisabled && !hasHoveredParent && portIn?.ancestorHasValue ? classes.valueLabelDisabled : ""
                 )}
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
@@ -206,7 +206,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {typeName && (
                 <span
                     className={classnames(classes.typeLabel,
-                        isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
+                        isDisabled && !hasHoveredParent && portIn?.ancestorHasValue ? classes.typeLabelDisabled : ""
                     )}
                 >
                     {typeName}
@@ -262,7 +262,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 <div
                     id={"recordfield-" + fieldId}
                     className={classnames(classes.treeLabel,
-                        isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
+                        isDisabled && portIn?.ancestorHasValue && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
                         isDisabled && isHovered ? classes.treeLabelDisableHover : "",
                         portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
                         hasHoveredParent ? classes.treeLabelParentHovered : ""
@@ -287,7 +287,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
                                 style={{ marginLeft: indentation }}
                                 onClick={handleExpand}
-                                data-testid={`${portIn.getName()}-expand-icon-element`}
+                                data-testid={`${portIn?.getName()}-expand-icon-element`}
                             >
                                 {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                             </IconButton>
