@@ -23,7 +23,9 @@ import {
     ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo,
     OpenArchitectureView,
-    HasUnpushedComponents, Component, UpdateProjectOverview
+    HasUnpushedComponents, Component, UpdateProjectOverview,
+    isSubpathAvailable,
+    SubpathAvailableRequest
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -34,6 +36,7 @@ import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
+import { existsSync } from "fs";
 
 export class WebViewRpc {
 
@@ -108,6 +111,10 @@ export class WebViewRpc {
 
         this._messenger.onRequest(isChoreoProject, () => {
             return ext.api.isChoreoProject();
+        });
+
+        this._messenger.onRequest(isSubpathAvailable, (params: SubpathAvailableRequest) => {   
+            return ProjectRegistry.getInstance().isSubpathAvailable(params.projectID, params.orgName, params.repoName, params.subpath);
         });
 
         this._messenger.onRequest(getChoreoProject, () => {
