@@ -63,7 +63,7 @@ export function ComponentWizard() {
     const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
     const [repository, setRepository] = useState<string>('');
     const [componentNames, setComponentNames] = useState<string[]>([]);
-    const [showRepoSelector, setShowRepoSelector] = useState<boolean>(true);
+    const [showRepoSelector, setShowRepoSelector] = useState<boolean>(false);
     const [selectedBranch, setSelectedBranch] = useState<string>('');
     const [folderName, setFolderName] = useState<string>(name);
 
@@ -72,6 +72,8 @@ export function ComponentWizard() {
             ChoreoWebViewAPI.getInstance().getProjectRepository(choreoProject?.id).then((repo: any) => {
                 if (repo) {
                     setRepository(repo);
+                } else {
+                    setShowRepoSelector(true);
                 }
             });
         }
@@ -183,14 +185,16 @@ export function ComponentWizard() {
                     </VSCodeDropdown>
 
                     <RepoInfoContainer>
-                        <label htmlFor="repository">Selected Repository <RequiredFormInput /></label>
-                        <VSCodeTextField id="repository" value={repository} readOnly={true} />
-                        {repository && selectedBranch && selectedOrg &&
-                            <VSCodeLink onClick={() => setShowRepoSelector(!showRepoSelector)}>
-                                {showRepoSelector ? 'Hide Repositories' : 'Show Repositories'}
+                        <label htmlFor="repository">Repository <RequiredFormInput /></label>
+                        {!showRepoSelector &&
+                            <VSCodeTextField id="repository" value={repository} readOnly={true} />                            
+                        }
+                        {!showRepoSelector &&
+                            <VSCodeLink onClick={() => setShowRepoSelector(true)}>
+                                Change
                             </VSCodeLink>
                         }
-                        {(showRepoSelector || !repository || !selectedOrg)
+                        {(showRepoSelector)
                             && <GithubRepoSelector onRepoSelect={handleRepoSelection} />}
                         <GithubRepoBranchSelector repository={repository} onBranchSelected={setSelectedBranch} />
                         <VSCodeTextField
