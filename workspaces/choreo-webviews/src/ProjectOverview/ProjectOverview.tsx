@@ -128,7 +128,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         } else {
             setComponentAction(ComponentAction.NOTHING);
         }
-    }, [components]);
+    }, [components, projectId]);
 
 
 
@@ -267,10 +267,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <ActionContainer>
                             {creatingComponents && <VSCodeProgressRing />}
                             <VSCodeButton
-                                appearance="primary"
+                                appearance="secondary"
                                 onClick={handleOpenSourceControlClick}>
                                 <Codicon name="git-pull-request" />&nbsp;
-                                Commit & Push
+                                Open Source Control
                             </VSCodeButton>
                             <VSCodeButton
                                 appearance="secondary"
