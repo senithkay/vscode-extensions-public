@@ -489,6 +489,15 @@ function getLangClient() {
                     resolve(resp);
                 });
             });
+        },
+        getGraphqlModel: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getGraphqlModel', [params], (resp) => {
+                    consoleLog(start, 'getGraphqlModel');
+                    resolve(resp);
+                });
+            });
         }
     }
 }

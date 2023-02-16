@@ -110,6 +110,7 @@ export interface STSymbolInfo {
     recordTypeDescriptions: Map<string, STNode>;
     listeners: Map<string, STNode>;
     moduleVariables: Map<string, STNode>;
+    constants: Map<string, STNode>;
     enums: Map<string, STNode>;
 }
 

@@ -98,6 +98,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
             elementSchema,
             props.connectionConfig,
             props.isFeaturePreview,
+            props.isLowCode,
             props.id + "-" + counter,
         ).properties;
     } else if (elementSchema[SchemaConstants.ANY_OF] !== undefined) {
@@ -124,7 +125,9 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     };
 
     const handleConnectionClick = (connectionEvent: React.MouseEvent<HTMLButtonElement>) => {
-        setConnectionAnchorEl(connectionEvent.currentTarget);
+        if (connectionConfigs.length > 0) {
+            setConnectionAnchorEl(connectionEvent.currentTarget);
+        }
     };
 
     const handleConnectionClose = () => {
@@ -228,6 +231,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                     description: entry.description,
                     id: entry.id,
                     isFeaturePreview: props.isFeaturePreview,
+                    isLowCode: props.isLowCode,
                     isRequired: entry.isRequired,
                     name: entry.name,
                     properties: entry.properties,

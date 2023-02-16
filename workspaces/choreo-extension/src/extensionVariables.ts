@@ -12,14 +12,18 @@
  */
 import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
+import { ProjectsTreeProvider } from "./views/project-tree/ProjectTreeProvider";
 
-export namespace ext {
-    export let context: ExtensionContext;
-    export let isPluginStartup: boolean;
-    export let api: ChoreoExtensionApi;
-    export let statusBarItem: StatusBarItem; 
+export class ExtensionVariables {
+    public context!: ExtensionContext;
+    public isPluginStartup!: boolean;
+    public api!: ChoreoExtensionApi;
+    public statusBarItem!: StatusBarItem; 
 
     // views
-    export let projectsTreeView: TreeView<TreeItem>;
-    export let accountTreeView: TreeView<TreeItem>;
+    public projectsTreeView!: TreeView<TreeItem>;
+    public projectsTreeProvider!: ProjectsTreeProvider;
+    public accountTreeView!: TreeView<TreeItem>;
 }
+
+export const ext = new ExtensionVariables();

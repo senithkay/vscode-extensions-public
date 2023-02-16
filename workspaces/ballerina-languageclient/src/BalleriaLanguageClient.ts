@@ -43,6 +43,8 @@ import {
     GetSyntaxTreeParams,
     GetSyntaxTreeResponse,
     GoToSourceParams,
+    GraphqlDesignServiceRequest,
+    GraphqlDesignServiceResponse,
     IBallerinaLangClient,
     JsonToRecordRequest,
     JsonToRecordResponse,
@@ -294,5 +296,9 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public rename(params: RenameParams): Promise<WorkspaceEdit> {
         return this._clientConnection.sendRequest("textDocument/rename", params);
+    }
+
+    public getGraphqlModel(params: GraphqlDesignServiceRequest): Thenable<GraphqlDesignServiceResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.GRAPHQL_DESIGN_MODEL, params);
     }
 }

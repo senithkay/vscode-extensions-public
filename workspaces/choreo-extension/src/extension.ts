@@ -17,11 +17,11 @@ import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
 import { activateAuth } from './auth';
 import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, signIn } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { cloneProject, cloneComponentCmd } from './cmds/clone';
-import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneComponentCmdId, refreshProjectsListCmdId, setSelectedOrgCmdId } from './constants';
+import { cloneProject } from './cmds/clone';
+import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, refreshProjectsTreeViewCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
-import { ProjectRegistry } from './registry/project-registry';
+import { activateRegistry } from './registry/activate';
 import { activateStatusBarItem } from './status-bar';
 import { activateURIHandlers } from './uri-handlers';
 import { AccountTreeProvider } from './views/account/AccountTreeProvider';
@@ -51,6 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
 	activateURIHandlers();
 	showChoreoProjectOverview();
 	activateStatusBarItem();
+	activateRegistry();
 	return ext.api;
 }
 
@@ -98,11 +99,10 @@ export function getGitExtensionAPI() {
 
 function createProjectTreeView() {
 	const choreoResourcesProvider = new ProjectsTreeProvider();
+	ext.projectsTreeProvider = choreoResourcesProvider;
 
-	vscode.commands.registerCommand(refreshProjectsListCmdId, async () => {
-		ProjectRegistry.getInstance().sync().then(() => {
-			choreoResourcesProvider.refresh();
-		});
+	vscode.commands.registerCommand(refreshProjectsTreeViewCmdId, () => {
+		choreoResourcesProvider.refresh();
 	});
 
 	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneProject);

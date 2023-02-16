@@ -1,0 +1,13 @@
+{
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "all": true,
+    "check-coverage": true,
+    "include": [
+        "src/**",
+        "../../node_modules/@wso2-enterprise/**"
+    ],
+    "exclude": [
+        "**/test/**"
+    ],
+    "excludeNodeModules": false
+}

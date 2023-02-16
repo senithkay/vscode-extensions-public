@@ -64,7 +64,9 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
     const [connectionClick, setConnectionClick] = useState(false);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
+        if (connectionConfigs.length > 0) {
+            setAnchorEl(event.currentTarget);
+        }
     };
 
     const handleClose = () => {
