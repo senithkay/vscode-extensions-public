@@ -119,9 +119,10 @@ export const cloneProject = async (project: Project) => {
             const folders = userManagedComponents.map(({ name, repository }) => {
                 if (repository) {
                     const { organizationApp, nameApp, appSubPath } = repository;
+                    const rootPath = path.join("repos", organizationApp, nameApp);
                     return {
                         name: name,
-                        path: appSubPath ? path.join("repos", organizationApp, nameApp, appSubPath) : nameApp
+                        path: appSubPath ? path.join(rootPath, appSubPath) : rootPath
                     };
                 } else {
                     // TODO: Make repository mandatory in the interface and get rid of this case
@@ -137,7 +138,7 @@ export const cloneProject = async (project: Project) => {
             const workspaceFileName = `${projectName}.code-workspace`;
             const workspaceFilePath = path.join(workspacePath, workspaceFileName);
 
-            writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
+            writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile, null, 4));
             getLogger().info("Workspace file created at " + workspaceFilePath);
             getLogger().debug("Workspace file content: " + JSON.stringify(workspaceFile));
 
