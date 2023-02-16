@@ -10,10 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import React from "react";
-import { getModuleIcon } from "../../../../Diagram/components/Portals/utils";
 
+import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { getModuleIcon } from "../../../../Diagram/components/Portals/utils";
 import { ComponentViewInfo } from "../../../util";
 
 import './style.scss';
@@ -49,7 +50,7 @@ function iconNameTranslator(type: string) {
         case 'services':
             return 'Service';
         case 'records':
-            return 'Record';
+            return 'TypeDefinition';
         case 'objects':
             return 'Object';
         case 'classes':
