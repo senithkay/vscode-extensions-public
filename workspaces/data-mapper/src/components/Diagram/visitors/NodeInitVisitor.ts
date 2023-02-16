@@ -222,6 +222,12 @@ export class NodeInitVisitor implements Visitor {
                         }
                     }
 
+                } else if (returnType.typeName === PrimitiveBalType.Array) {
+                    this.outputNode = new ListConstructorNode(
+                        this.context,
+                        exprFuncBody,
+                        typeDesc
+                    );
                 } else {
                     this.outputNode = new PrimitiveTypeNode(
                         this.context,
