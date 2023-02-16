@@ -262,7 +262,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     <>
                         <p>
                             <InlineIcon><Codicon name="lightbulb" /></InlineIcon>&nbsp;
-                            Some components are not committed to the github repo. Please commit your changes and click `Push to Choreo`
+                            Some components are not committed to the github repo. Please commit and push them before pushing to Choreo.
                         </p>
                         <ActionContainer>
                             {creatingComponents && <VSCodeProgressRing />}
