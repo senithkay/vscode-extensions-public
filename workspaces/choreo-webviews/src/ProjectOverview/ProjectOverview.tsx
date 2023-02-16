@@ -269,7 +269,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton
                                 appearance="secondary"
                                 onClick={handleOpenSourceControlClick}>
-                                <Codicon name="git-pull-request" />&nbsp;
+                                <Codicon name="source-control" />&nbsp;
                                 Open Source Control
                             </VSCodeButton>
                             <VSCodeButton
