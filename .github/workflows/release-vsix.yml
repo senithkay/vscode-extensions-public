@@ -32,7 +32,7 @@ jobs:
   Release:
     name: Release VSIX
     needs: [Build]
-    timeout-minutes: 5
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
@@ -86,8 +86,8 @@ jobs:
         run: |
           workspaces=("ballerina-languageclient", "configurable-editor", "data-mapper", "expression-editor", "lang-service", "low-code-diagram", "low-code-distribution", "low-code-editor", "low-code-editor-commons", "low-code-integration-tests", "low-code-ui-components", "statement-editor", "syntax-tree")
           for workspace in "${workspaces[@]}"; do
-            npm version ${{ steps.vsix.outputs.version }} --no-git-tag-version --workspace=workspaces/$version
-            npm publish --tag latest --workspace=workspaces/$version
+            npm version ${{ steps.vsix.outputs.version }} --no-git-tag-version --workspace=workspaces/$workspace
+            npm publish --tag latest --workspace=workspaces/$workspace
           done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
