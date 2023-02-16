@@ -22,6 +22,5 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       updateVersion: false
-      isPreRelease: true
     secrets: inherit  
     
