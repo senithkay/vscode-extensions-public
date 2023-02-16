@@ -855,10 +855,12 @@ export function getEnrichedRecordType(type: Type,
 				editableRecordField.elements = members;
 			}
 		}
-	} else if (type.typeName === PrimitiveBalType.Union) {
+	} else if (type.typeName === PrimitiveBalType.Union
+		&& editableRecordField.value
+		&& STKindChecker.isMappingConstructor(editableRecordField.value)) {
 		const acceptedMembers = getFilteredUnionOutputTypes(type);
 
-		if (acceptedMembers.length === 1){
+		if (acceptedMembers.length === 1) {
 			// Only handle union params such as Type|error or Type?
 			// Params such as Type1|Type2 will not be handled
 			editableRecordField = getEnrichedRecordType(acceptedMembers[0], node, selectedST, parentType, childrenTypes)
@@ -1302,6 +1304,17 @@ export const getOptionalRecordField = (field: Type): Type | undefined => {
 		const isSimpleOptionalType = field.members?.some(member => member.typeName === '()');
 		if (isSimpleOptionalType && field.members?.length === 2){
 			return field.members?.find(member => member.typeName === PrimitiveBalType.Record);
+		}
+	}
+}
+
+export const getOptionalArrayField = (field: Type): Type | undefined => {
+	if (PrimitiveBalType.Array === field.typeName && field.optional) {
+		return field;
+	} else if (PrimitiveBalType.Union === field.typeName) {
+		const isSimpleOptionalType = field.members?.some(member => member.typeName === '()');
+		if (isSimpleOptionalType && field.members?.length === 2){
+			return field.members?.find(member => member.typeName === PrimitiveBalType.Array);
 		}
 	}
 }
