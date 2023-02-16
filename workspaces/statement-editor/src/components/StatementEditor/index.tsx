@@ -38,8 +38,11 @@ import {
     getNextNode, getParentFunctionModel,
     getPreviousNode,
     getSelectedModelPosition,
+    getStatementIndex,
     getStatementPosition,
-    getUpdatedSource, isBindingPattern, isDocumentationSupportedModel,
+    getUpdatedSource,
+    isBindingPattern,
+    isDocumentationSupportedModel,
     isModuleMember,
     isOperator,
 } from "../../utils";
@@ -285,7 +288,8 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const updateDraftFileContent = async (statement: string, fileContent: string) => {
         const updatedContent = getUpdatedSource(statement, fileContent, targetPosition, moduleList, skipStatementSemicolon);
-        const newTargetPosition = getStatementPosition(updatedContent, statement, targetPosition);
+        const stmtIndex = getStatementIndex(fileContent, statement, targetPosition);
+        const newTargetPosition = getStatementPosition(updatedContent, statement, stmtIndex);
 
         await updateFileContent(updatedContent, true);
 
@@ -356,10 +360,12 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const updateStatementModel = async (updatedStatement: string, updatedSource: string, position: NodePosition) => {
         await updateFileContent(updatedSource, true);
-        const newTargetPosition = getStatementPosition(updatedSource, updatedStatement, targetPosition);
         setDraftSource(updatedSource);
-        setDraftPosition(newTargetPosition);
-        const partialST = await getPartialSTForStatement({ codeSnippet: updatedStatement }, getLangClient);
+        setDraftPosition(position);
+        const partialST = isModuleMember(model)
+            ? await getPartialSTForModuleMembers({ codeSnippet: updatedStatement }, getLangClient)
+            : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: updatedStatement }, getLangClient)
+                : await getPartialSTForStatement({ codeSnippet: updatedStatement }, getLangClient));
 
         if (!partialST.syntaxDiagnostics.length || config.type === CUSTOM_CONFIG_TYPE) {
             const diagnostics = await handleDiagnostics(partialST.source);

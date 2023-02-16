@@ -73,9 +73,13 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getLibraryData,
     getSentryConfig: () => Promise.resolve(undefined),
     getBallerinaVersion: () => Promise.resolve("2201.2.3 (swan lake update 2)"), // Test will check only latest forms
-    getEnv: (name: string) => Promise.resolve(undefined),
+    getEnv: () => Promise.resolve(undefined),
     experimentalEnabled: true,
-    openExternalUrl: (url: string) => Promise.resolve(undefined)
+    openExternalUrl: () => Promise.resolve(undefined),
+    projectPaths: undefined,
+    openInDiagram: undefined,
+    diagramFocus: undefined,
+    workspaceName: ''
   }
 }
 

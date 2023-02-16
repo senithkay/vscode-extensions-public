@@ -11,15 +11,16 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React from "react";
 
 import CloseIcon from '@material-ui/icons/Close';
 import HomeIcon from '@material-ui/icons/Home';
 import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { useStyles } from "./style";
 import { ConfigOverlayFormStatus, LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../Contexts/Diagram";
+
+import { useStyles } from "./style";
 
 export interface ServiceHeaderProps {
     model: ServiceDeclaration;

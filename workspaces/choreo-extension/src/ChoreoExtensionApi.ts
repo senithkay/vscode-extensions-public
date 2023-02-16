@@ -13,16 +13,30 @@
 import { Disposable, EventEmitter, workspace } from 'vscode';
 import { ext } from "./extensionVariables";
 
-import { IProjectManager, Organization, Project, ChoreoLoginStatus, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import {
+    IProjectManager,
+    Organization,
+    Project,
+    ChoreoLoginStatus,
+    WorkspaceConfig,
+    ComponentModel,
+} from "@wso2-enterprise/choreo-core";
 import { exchangeAuthToken } from "./auth/auth";
 import { readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
+
+import { getLogger } from './logger/logger';
+
+import * as path from "path";
+import { enrichDeploymentData } from "./utils";
+import { AxiosResponse } from 'axios';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
     waitForLogin(): Promise<boolean>;
     isChoreoProject(): Promise<boolean>;
     getChoreoProject(): Promise<Project | undefined>;
+    enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined>;
 }
 
 export class ChoreoExtensionApi {
@@ -70,6 +84,7 @@ export class ChoreoExtensionApi {
     }
 
     public async signIn(authCode: string): Promise<void> {
+        getLogger().debug("Signin triggered from ChoreoExtensionApi");
         return exchangeAuthToken(authCode);
     }
 
@@ -105,14 +120,14 @@ export class ChoreoExtensionApi {
         return false;
     }
 
-    public async getChoreoProject(): Promise<Project|undefined> {
+    public async getChoreoProject(): Promise<Project | undefined> {
         const workspaceFile = workspace.workspaceFile;
         if (workspaceFile) {
             const workspaceFilePath = workspaceFile.fsPath;
             const workspaceFileContent = readFileSync(workspaceFilePath, 'utf8');
             const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
             const projectID = workspaceConfig.metadata?.choreo?.projectID,
-                  orgId = workspaceConfig.metadata?.choreo?.orgId;
+                orgId = workspaceConfig.metadata?.choreo?.orgId;
             if (projectID && orgId) {
                 return ProjectRegistry.getInstance().getProject(projectID, orgId);
             }
@@ -123,4 +138,37 @@ export class ChoreoExtensionApi {
         return Promise.resolve(undefined);
     }
 
+    public async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
+        return ProjectRegistry.getInstance().getPerformanceForecast(data);
+    }
+
+    public async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
+        return ProjectRegistry.getInstance().getSwaggerExamples(spec);
+    }
+
+    public async enrichChoreoMetadata(model: Map<string, ComponentModel>):
+        Promise<Map<string, ComponentModel> | undefined> {
+        if (this._selectedProjectId && this._selectedOrg?.id && this._selectedOrg) {
+            const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(this._selectedProjectId);
+            // Remove workspace file from path
+            const currentProjectLocation = workspaceFileLocation?.slice(0, workspaceFileLocation.lastIndexOf(path.sep));
+            const repository = ProjectRegistry.getInstance().getProjectRepository(this._selectedProjectId);
+            if (repository && currentProjectLocation) {
+                const currentRepoLocation = path.join(currentProjectLocation, "repos", repository);
+                const projectComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
+                    (this._selectedOrg as Organization).handle);
+                if (currentProjectLocation) {
+                    projectComponents.forEach(({ name, apiVersions, accessibility }) => {
+                        if (accessibility) {
+                            model.forEach(localModel => {
+                                enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
+                                    accessibility, currentRepoLocation, name);
+                            });
+                        }
+                    });
+                }
+            }
+        }
+        return Promise.resolve(model);
+    }
 }

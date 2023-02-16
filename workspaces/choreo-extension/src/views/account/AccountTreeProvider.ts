@@ -19,6 +19,7 @@ import { ChoreoSignOutTreeItem } from "./ChoreoSignOutTreeItem";
 import { ChoreoOrgTreeItem } from "./ChoreoOrganizationTreeItem";
 import { ChoreoOrganizationsTreeItem } from "./ChoreoOrganizationsTreeItem";
 import { orgClient } from "../../auth/auth";
+import { getLogger } from "../../logger/logger";
 
 export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | ChoreoSignInTreeItem | ChoreoSignInPendingTreeItem;
  
@@ -59,18 +60,20 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
      }
 
      private async loadOrgTree(): Promise<ChoreoOrgTreeItem[]> {
-        return new Promise(async (resolve) => {
-            const loginSuccess = await ext.api.waitForLogin();
-            if (loginSuccess) {
+         getLogger().debug("Loading organizations of the user.");
+         const loginSuccess = await ext.api.waitForLogin();
+         if (loginSuccess) {
+             try {
                  const userInfo = await orgClient.getUserInfo();
                  if (userInfo.organizations && userInfo.organizations.length > 0) {
                      const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.None));
-                     resolve(treeItems);
-                     return;
+                     return treeItems;
                  }
-            } 
-            reject("Cannot fetch organizations of the user.");
-         });
+             } catch (error) {
+                getLogger().error("Error while loading organizations of the user.", error);
+             }
+         }
+         return [];
      }
  }
  

@@ -46,6 +46,7 @@ import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 import { DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 import { ComponentModel } from "../project-design-diagrams/resources";
+import { getChoreoExtAPI } from "../choreo-features/activate";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
 export const HTTP_CONNECTOR_LIST_CACHE = "HTTP_CONNECTOR_LIST_CACHE";
@@ -510,20 +511,20 @@ export class ExtendedLangClient extends LanguageClient {
         return this.sendRequest<Location | Location[] | LocationLink[]>("textDocument/definition", params);
     }
     async getResourcesWithEndpoints(params: PerformanceAnalyzerRequest, skipLogin?: boolean): Promise<PerformanceAnalyzerResponse[] | NOT_SUPPORTED_TYPE> {
-        if (!skipLogin && (!this.ballerinaExtInstance?.enabledPerformanceForecasting() ||
-            !this.ballerinaExtInstance?.getChoreoSession().loginStatus ||
-            this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled)) {
-            return Promise.resolve([{
-                type: 'error', message: "error",
-                endpoints: null, actionInvocations: null,
-                resourcePos: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
-                name: ""
-            }]);
-        }
-        // const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS);
-        const isSupported = true;
-        return isSupported ? this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params) :
-            Promise.resolve(NOT_SUPPORTED);
+        return getChoreoExtAPI().then(async (extApi) => {
+            if (!skipLogin && (!this.ballerinaExtInstance?.enabledPerformanceForecasting() || !extApi || !await extApi.waitForLogin() ||
+                this.ballerinaExtInstance.getPerformanceForecastContext().temporaryDisabled)) {
+                return Promise.resolve([{
+                    type: 'error', message: "error",
+                    endpoints: null, actionInvocations: null,
+                    resourcePos: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
+                    name: ""
+                }]);
+            }
+            const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS);
+            return isSupported ? this.sendRequest(EXTENDED_APIS.PERF_ANALYZER_RESOURCES_ENDPOINTS, params) :
+                Promise.resolve(NOT_SUPPORTED);
+        });
     }
     async getPackageComponentModels(params: GetPackageComponentModelsRequest): Promise<GetPackageComponentModelsResponse> {
         return this.sendRequest(EXTENDED_APIS.COMPONENT_MODEL_ENDPOINT, params);

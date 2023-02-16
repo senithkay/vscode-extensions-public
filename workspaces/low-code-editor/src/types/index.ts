@@ -24,6 +24,8 @@ import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { Warning } from "../Diagram/utils/st-util";
+import { FileListEntry } from "../DiagramGenerator/vscode/Diagram";
+import { ComponentViewInfo } from "../OverviewDiagram/util";
 
 export interface ZoomStatus {
     scale: number,
@@ -57,10 +59,10 @@ export interface LowCodeEditorActions {
 }
 
 export interface LowCodeEditorAPI {
-    helpPanel: {
+    helpPanel?: {
         openConnectorHelp: (connector?: Partial<Connector>, method?: string) => void;
     }
-    notifications: {
+    notifications?: {
         triggerErrorNotification?: (msg: Error | string) => void;
         triggerSuccessNotification?: (msg: Error | string) => void;
     }
@@ -74,27 +76,27 @@ export interface LowCodeEditorAPI {
     }
     code: {
         modifyDiagram: (mutations: STModification[], options?: any) => Promise<void>;
-        onMutate: (type: string, options: any) => void;
+        onMutate?: (type: string, options: any) => void;
         // Reuse go-to-def from LangServer?
-        setCodeLocationToHighlight: (position: NodePosition) => void;
+        setCodeLocationToHighlight?: (position: NodePosition) => void;
         gotoSource: (position: { startLine: number, startColumn: number }) => void;
         getFunctionDef: (lineRange: Range, defFilePath: string) => Promise<FunctionDef>;
         updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
-        isMutationInProgress: boolean;
-        isModulePullInProgress: boolean;
-        loaderText: string;
-        undo: () => Promise<void>;
+        // isMutationInProgress: boolean;
+        // isModulePullInProgress: boolean;
+        // loaderText: string;
+        // undo: () => Promise<void>;
     }
     // FIXME Doesn't make sense to take these methods below from outside
     // Move these inside and get an external API for pref persistance
     // against a unique ID (eg AppID) for rerender from prev state
-    panNZoom: {
+    panNZoom?: {
         pan: (panX: number, panY: number) => void;
         fitToScreen: () => void;
         zoomIn: () => void;
         zoomOut: () => void;
     };
-    configPanel: {
+    configPanel?: {
         dispactchConfigOverlayForm: (
             type: string, targetPosition: NodePosition,
             wizardType: WizardType, blockViewState?: BlockViewState, config?: ConditionConfig,
@@ -114,9 +116,14 @@ export interface LowCodeEditorAPI {
         getLibrariesList: (kind?: string) => Promise<LibraryDocResponse>;
         getLibrariesData: () => Promise<LibrarySearchResponse>;
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
-    },
-    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>
-    openExternalUrl?: (url: string) => Promise<boolean>
+    };
+    runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
+    openExternalUrl?: (url: string) => Promise<boolean>;
+    navigation: {
+        updateActiveFile: (currentFile: FileListEntry) => void;
+        updateSelectedComponent: (info: ComponentViewInfo) => void;
+        navigateUptoParent: (position: NodePosition) => void;
+    }
 }
 
 // FIXME Some of these props should be moved to low code state
@@ -124,7 +131,9 @@ export interface LowCodeEditorAPI {
 export interface LowCodeEditorProperties {
     userInfo?: UserState;
     currentFile: CurrentFile;
+    fileList: FileListEntry[];
     syntaxTree: STNode;
+    fullST: STNode;
     originalSyntaxTree: ModulePart;
     stSymbolInfo: STSymbolInfo;
     connectors?: BallerinaConnectorInfo[];

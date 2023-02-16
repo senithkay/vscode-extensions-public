@@ -49,7 +49,7 @@ export function CreateRecord(props: CreateRecordProps) {
         props: {
             stSymbolInfo,
             currentFile,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled
         },
@@ -104,7 +104,7 @@ export function CreateRecord(props: CreateRecordProps) {
                 applyModifications: handleModifyDiagram,
                 updateFileContent,
                 library,
-                syntaxTree,
+                syntaxTree: fullST,
                 stSymbolInfo,
                 importStatements,
                 experimentalEnabled,

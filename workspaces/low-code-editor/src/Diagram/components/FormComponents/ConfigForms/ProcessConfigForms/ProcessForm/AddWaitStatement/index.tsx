@@ -42,7 +42,7 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled,
             isCodeServerInstance
@@ -83,7 +83,7 @@ export function AddWaitStatement(props: AddWaitStatementProps) {
             applyModifications: modifyDiagram,
             updateFileContent,
             library,
-            syntaxTree,
+            syntaxTree: fullST,
             stSymbolInfo,
             importStatements,
             experimentalEnabled,

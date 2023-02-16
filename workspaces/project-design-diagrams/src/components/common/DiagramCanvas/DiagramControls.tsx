@@ -29,22 +29,25 @@ import './styles/styles.css';
 
 interface ControlProps {
     zoomToFit: () => void;
+    showDownloadButton: boolean;
     onZoom: (zoomIn: boolean) => void;
     onDownload: () => void;
 }
 
 export function DiagramControls(props: ControlProps) {
-    const { onDownload, onZoom, zoomToFit } = props;
+    const { onDownload, onZoom, zoomToFit, showDownloadButton = true } = props;
 
     return (
-        <ControlPanel>
-            <IconButton
-                className={'control-button'}
-                size='small'
-                onClick={onDownload}
-            >
-                <DownloadIcon fontSize='medium' />
-            </IconButton>
+        <ControlPanel showDownloadButton={showDownloadButton} >
+            {showDownloadButton && (
+                <IconButton
+                    className={'control-button'}
+                    size='small'
+                    onClick={onDownload}
+                >
+                    <DownloadIcon fontSize='medium' />
+                </IconButton>
+            )}
             <IconButton
                 className={'control-button'}
                 size='small'

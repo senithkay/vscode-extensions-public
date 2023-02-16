@@ -25,10 +25,10 @@ import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 import { Context } from "../../../../Contexts/Diagram";
 import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
+import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
 
 import { ResourceHeader } from "./ResourceHeader";
-import { RecordEditor } from "../../FormComponents/ConfigForms";
 
 export interface ResourceBodyProps {
     model: ResourceAccessorDefinition;
@@ -38,17 +38,19 @@ export interface ResourceBodyProps {
 
 export function ResourceBody(props: ResourceBodyProps) {
     const { model, handleDiagramEdit, isExpandedAll } = props;
-    const classes = useStyles();
-    const intl = useIntl();
+    const {
+        props: { currentFile, syntaxTree },
+        api: {
+            code: { modifyDiagram },
+            ls: { getDiagramEditorLangClient },
+        },
+    } = useContext(Context);
 
+    const classes = useStyles();
     const [isExpanded, setIsExpanded] = useState(false);
     const [schema, setSchema] = useState({});
-    const [recordSelected, setRecordSelected] = useState<TypeDefinition>(undefined);
 
 
-    const onCancelEdit = () => {
-        setRecordSelected(undefined);
-    }
     useEffect(() => {
         setIsExpanded(isExpandedAll)
     }, [isExpandedAll]);
@@ -69,7 +71,7 @@ export function ResourceBody(props: ResourceBodyProps) {
             startColumn: model.position.startColumn,
             startLine: model.position.startLine - 1
         }
-        handleDiagramEdit(model, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false, renderRecordPanel: renderRecordPanel });
+        handleDiagramEdit(model, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false, renderRecordPanel });
     }
 
     const handleDeleteBtnClick = (e?: React.MouseEvent) => {
@@ -82,19 +84,11 @@ export function ResourceBody(props: ResourceBodyProps) {
         modifyDiagram(modifications);
     }
 
-    const {
-        props: { currentFile, stSymbolInfo, importStatements, syntaxTree },
-        api: {
-            code: { modifyDiagram, updateFileContent },
-            ls: { getDiagramEditorLangClient, getExpressionEditorLangClient },
-            library,
-        },
-    } = useContext(Context);
 
 
     const bodyArgs: any[] = [];
 
-    model.functionSignature.parameters.forEach((param, i) => {
+    model.functionSignature?.parameters?.forEach((param, i) => {
         // value = record {|*http:Ok; Foo body;|}
         if (STKindChecker.isRequiredParam(param) && param.source.includes("Payload")) {
             if (param.typeData?.typeSymbol?.name) {
@@ -121,7 +115,7 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     const paramArgs: any[] = [];
 
-    model.functionSignature.parameters.forEach((param, i) => {
+    model.functionSignature?.parameters?.forEach((param, i) => {
         if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
             paramArgs.push(
                 <tr key={i} className={classes.signature}>
@@ -151,9 +145,8 @@ export function ResourceBody(props: ResourceBodyProps) {
     const records = RecordsFinderVisitor.getRecords();
 
     function getReturnTypesArray() {
-
-        const returnTypes = model.functionSignature.returnTypeDesc.type.source.split(/\|(?![^\{]*[\}])/gm);
-        return returnTypes;
+        const returnTypes = model.functionSignature?.returnTypeDesc?.type?.source.split(/\|(?![^\{]*[\}])/gm);
+        return returnTypes || [];
     }
 
     const getRecord = async (
@@ -177,16 +170,17 @@ export function ResourceBody(props: ResourceBodyProps) {
             startLine: record.startLine - 1
         }
         return (
-          <RecordEditor
-            formType={""}
-            targetPosition={lastMemberPosition}
-            name={"record"}
-            onCancel={closeRecordEditor}
-            onSave={() => {}}
-            isTypeDefinition={true}
-            isDataMapper={true}
-            showHeader={true}
-          />
+            <RecordEditor
+                formType={""}
+                targetPosition={lastMemberPosition}
+                name={"record"}
+                onCancel={closeRecordEditor}
+                // tslint:disable-next-line: no-empty
+                onSave={() => { }}
+                isTypeDefinition={true}
+                isDataMapper={true}
+                showHeader={true}
+            />
         );
     };
 

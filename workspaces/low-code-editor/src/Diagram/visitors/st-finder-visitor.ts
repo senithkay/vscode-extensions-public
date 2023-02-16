@@ -18,7 +18,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 
-class STFindingVisitor implements Visitor {
+export class STFindingVisitor implements Visitor {
     private position: NodePosition;
     private stNode: STNode;
 

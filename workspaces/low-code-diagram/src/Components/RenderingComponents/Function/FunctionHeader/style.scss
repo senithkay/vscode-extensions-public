@@ -1,0 +1,109 @@
+.header-container {
+    margin-left: 15px;
+    position: absolute;
+    z-index: 1;
+
+    .title-container {
+        margin: 15px 0 15px 0;
+        font-size: 20px;
+        font-weight: 500;
+        display: flex;
+
+        .config-form-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 5px;
+        }
+
+        .resource-badge {
+            border-radius: 4px;
+            align-content: center;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            font-weight: 300;
+            color: #fff;
+            font-size: 16px;
+            padding: 2px 5px;
+            margin-right: 5px;
+
+            &.get {
+                background-color: #1a98fc;
+            }
+
+            &.post {
+                background-color: #3fc47d;
+            }
+
+            &.put {
+                background-color: #ff9d52;
+            }
+
+            &.delete {
+                background-color: #f5242e;
+            }
+
+            &.patch {
+                background-color: #5567d5;
+            }
+
+            &.default {
+                background-color: #8d91a3;
+            }
+        }
+
+        span {
+            padding-bottom: 2px;
+            
+            sub {
+                vertical-align: bottom;
+            }
+        }
+
+        .signature-param {
+            margin-right: 24px;
+        }
+
+        .type-descriptor {
+            color: #5567d5;
+            font-style: italic;
+            margin-right: 5px;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .signature-param {
+            margin-right: 24px;
+        }
+    }
+
+    .argument-container {
+        display: flex;
+        flex-direction: row;
+
+        .argument-item {
+            display: flex;
+            margin-right: 5px;
+            border-radius: 10px;
+            border: 1px solid #5566d5;            
+
+            .type-name {
+                padding: 5px;
+                background: #5566d5;
+                border-top-left-radius: 10px;
+                border-bottom-left-radius: 10px;
+                color: white; 
+            }
+
+            .argument-name {
+                padding: 5px;
+                background: white;
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+        }
+    }
+}
+

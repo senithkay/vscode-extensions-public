@@ -116,6 +116,7 @@ export default function StatementQualifiers() {
                 transformOrigin={{ horizontal: 'left', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
                 className={statementEditorClasses.QualifierDropdownBase}
+                disableScrollLock={true}
             >
                 {supportedQualifiers.map((qualifier, key) => (
                     <ListItem

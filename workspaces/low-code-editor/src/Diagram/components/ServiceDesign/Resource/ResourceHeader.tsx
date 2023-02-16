@@ -13,14 +13,18 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { ErrorIcon, LabelDeleteIcon, LabelEditIcon, STModification, WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    DesignViewIcon, EditIcon, ErrorIcon, LabelDeleteIcon, LabelEditIcon, STModification, WarningIcon
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ComponentExpandButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
+import { useDiagramContext } from "../../../../Contexts/Diagram";
+import { useHistoryContext } from "../../../../DiagramViewManager/context/history";
+import { ComponentViewInfo } from "../../../../OverviewDiagram/util";
 import "../style.scss";
 
-import { ResourceOtherParams } from "./ResourceOtherParams";
 import { ResourceQueryParams } from "./ResourceQueryParams";
 
 interface ResourceHeaderProps {
@@ -33,6 +37,18 @@ interface ResourceHeaderProps {
 
 export function ResourceHeader(props: ResourceHeaderProps) {
     const { model, onExpandClick, isExpanded, onEdit, onDelete } = props;
+    const { history } = useHistoryContext();
+    const { api: { navigation: { updateSelectedComponent } } } = useDiagramContext();
+
+    const handleResourceHeaderClick = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        const currentElementInfo = history[history.length - 1];
+        const componentViewInfo: ComponentViewInfo = {
+            filePath: currentElementInfo.file.uri.path,
+            position: model.position
+        }
+        updateSelectedComponent(componentViewInfo);
+    }
 
     return (
         <div
@@ -47,6 +63,12 @@ export function ResourceHeader(props: ResourceHeaderProps) {
                     parameters={model.functionSignature.parameters}
                     relativeResourcePath={model.relativeResourcePath}
                 />
+            </div>
+            <div className="menu-option" onClick={handleResourceHeaderClick}>
+                <div className={classNames("icon", "icon-adjust")}>
+                    <DesignViewIcon />
+                </div>
+                {/* <div className="other">Edit</div> */}
             </div>
             <div className="menu-option" onClick={onEdit}>
                 <div className={classNames("icon", "icon-adjust")}>

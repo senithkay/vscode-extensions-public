@@ -31,6 +31,7 @@ import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
 import { openConfigEditor } from '../config-editor/configEditorPanel';
 import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -119,12 +120,12 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
         }
 
         await langClient.onReady().then(async () => {
-            const activeEditor = this.activeTextEditorUri ? this.activeTextEditorUri
+            const activeEditorUri = this.activeTextEditorUri ? this.activeTextEditorUri
                 : window.activeTextEditor!.document.uri;
-            const filePath = activeEditor.toString();
+            const fileUri = activeEditorUri.toString();
             await langClient!.getExecutorPositions({
                 documentIdentifier: {
-                    uri: filePath
+                    uri: fileUri
                 }
             }).then(executorsResponse => {
                 const response = executorsResponse as ExecutorPositionsResponse;
@@ -143,7 +144,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                 title: "Try it",
                                 tooltip: "Try running this service",
                                 command: PALETTE_COMMANDS.TRY_IT,
-                                arguments: [activeEditor.fsPath, position.name, range]
+                                arguments: [fileUri, position.name, range]
                             };
                             codeLenses.push(codeLens);
                         }
@@ -156,27 +157,62 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             // Open in diagram code lenses
             await langClient!.getSyntaxTree({
                 documentIdentifier: {
-                    uri: filePath
+                    uri: fileUri
                 }
             }).then(syntaxTreeResponse => {
                 const response = syntaxTreeResponse as GetSyntaxTreeResponse;
                 if (response.parseSuccess && response.syntaxTree) {
                     const syntaxTree = response.syntaxTree;
 
-                    syntaxTree.members.forEach(member => {
-                        if (member.kind === 'FunctionDefinition') {
-                            const functionBody = member.functionBody;
-                            if (functionBody.kind === 'ExpressionFunctionBody') {
-                                const position = functionBody.position;
-                                const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
-                                codeLens.command = {
-                                    title: "Design",
-                                    tooltip: "Open this code block in data mapping view",
-                                    command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                    arguments: [member.position, activeEditor.fsPath]
-                                };
-                                codeLenses.push(codeLens);
-                            }
+                    syntaxTree.members.forEach((member: STNode) => {
+                        if (STKindChecker.isFunctionDefinition(member)) {
+                            const position = member.functionKeyword.position;
+                            const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
+                            codeLens.command = {
+                                title: "Design",
+                                tooltip: "Open this code block in data mapping view",
+                                command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                arguments: [member.position, activeEditorUri.fsPath]
+                            };
+                            codeLenses.push(codeLens);
+                        } else if (STKindChecker.isServiceDeclaration(member)) {
+                            const position = member.serviceKeyword.position;
+                            const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
+                            codeLens.command = {
+                                title: "Design",
+                                tooltip: "Open this code block in data mapping view",
+                                command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                arguments: [member.position, activeEditorUri.fsPath]
+                            };
+                            codeLenses.push(codeLens);
+
+                            member.members.forEach(serviceMember => {
+                                if (STKindChecker.isObjectMethodDefinition(serviceMember)) {
+                                    const functionPosition = serviceMember.functionKeyword.position;
+                                    const codeLens = new CodeLens(
+                                        new Range(functionPosition.startLine, 0, functionPosition.endLine, 0)
+                                    );
+                                    codeLens.command = {
+                                        title: "Design",
+                                        tooltip: "Open this code block in data mapping view",
+                                        command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                        arguments: [serviceMember.position, activeEditorUri.fsPath]
+                                    };
+                                    codeLenses.push(codeLens);
+                                } else if (STKindChecker.isResourceAccessorDefinition(serviceMember)) {
+                                    const resourcePosition = serviceMember.qualifierList[0].position;
+                                    const codeLens = new CodeLens(
+                                        new Range(resourcePosition.startLine, 0, resourcePosition.endLine, 0)
+                                    );
+                                    codeLens.command = {
+                                        title: "Design",
+                                        tooltip: "Open this code block in data mapping view",
+                                        command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                        arguments: [serviceMember.position, activeEditorUri.fsPath]
+                                    };
+                                    codeLenses.push(codeLens);
+                                }
+                            })
                         }
                     });
                 }

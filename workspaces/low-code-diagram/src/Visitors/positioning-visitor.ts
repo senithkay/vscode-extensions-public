@@ -132,7 +132,7 @@ export class PositioningVisitor implements Visitor {
         viewState.wrapper.cx = viewState.bBox.x;
         viewState.wrapper.cy = viewState.bBox.y;
 
-        const topOffSet = viewState.bBox.offsetFromTop * 7;
+        const topOffSet = viewState.bBox.offsetFromTop * 10;
         viewState.bBox.cx = viewState.bBox.x + viewState.bBox.lw;
         viewState.bBox.cy = viewState.bBox.y + topOffSet;
 
@@ -160,7 +160,7 @@ export class PositioningVisitor implements Visitor {
 
         viewState.bBox.cx = viewState.bBox.x;
         viewState.bBox.cy = viewState.bBox.y;
-        const topOffSet = viewState.bBox.offsetFromTop * 7;
+        const topOffSet = viewState.bBox.offsetFromTop * 10;
         viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.lw;
         viewState.trigger.cy = viewState.bBox.cy + topOffSet;
 
@@ -206,7 +206,7 @@ export class PositioningVisitor implements Visitor {
         viewState.wrapper.cx = viewState.bBox.x;
         viewState.wrapper.cy = viewState.bBox.y;
 
-        const topOffSet = viewState.bBox.offsetFromTop * 7;
+        const topOffSet = viewState.bBox.offsetFromTop * 10;
         viewState.bBox.cx = viewState.bBox.x + viewState.bBox.lw;
         viewState.bBox.cy = viewState.bBox.y + topOffSet;
 
@@ -472,7 +472,7 @@ export class PositioningVisitor implements Visitor {
             height += START_SVG_HEIGHT + (functionTrigger.offsetFromBottom * 2);
         }
 
-        this.beginBlockPosition(node, index + node.statements.length, height, index);
+        this.beginBlockPosition(node as BlockStatement, index + node.statements.length, height, index);
     }
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {

@@ -80,6 +80,17 @@ function getLangClient() {
                 });
             });
         },
+        getBallerinaProjectComponents: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getBallerinaProjectComponents', [params], (resp) => {
+                    consoleLog(start, 'getBallerinaProjectComponents');
+                    // const unzippedResp = pako.inflate(resp.data, { to: 'string' });
+                    // resolve(JSON.parse(unzippedResp));
+                    resolve(resp);
+                });
+            });
+        },
         getCompletion: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();

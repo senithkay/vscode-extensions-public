@@ -154,6 +154,39 @@ export const useStyles = makeStyles(() =>
         editButton: {
             paddingRight: 16,
             cursor: "pointer"
+        },
+        serviceTitle: {
+            padding: 15,
+            display: "flex",
+            flexDirection: "row",
+            height: 50,
+            width: "100%",
+            // boxShadow: "inset 0 -1px 0 0 #E6E7EC",
+            // backgroundColor: "#F7F8FB",
+        },
+        serviceConfigure: {
+            display: "flex",
+            marginLeft: 5,
+            justifyContent: "center",
+            alignItems: "center",
+            "& :hover": {
+                background: "#e5e6ea",
+                cursor: "pointer"
+            }
+        },
+        navigationIcon: {
+            display: "flex",
+            margin: "0 5px",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        servicePath: {
+            fontSize: 20,
+            fontWeight: 400
+        },
+        listenerText: {
+            fontSize: 15,
+            fontWeight: 200
         }
     }),
 );

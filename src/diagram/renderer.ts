@@ -17,16 +17,22 @@
  *
  */
 
-import { Uri, Webview } from 'vscode';
+import { Uri, Webview, workspace } from 'vscode';
 import { getLibraryWebViewContent, WebViewOptions, getComposerWebViewOptions } from '../utils';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { DiagramFocus } from './model';
 
-export function render(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, webView: Webview): string {
-    return renderDiagram(filePath, startLine, startColumn, experimental, openInDiagram, webView);
+export function render(
+    filePath: Uri, startLine: number, startColumn: number, experimental: boolean,
+    openInDiagram: NodePosition, webView: Webview, diagramFocus?: DiagramFocus): string {
+
+    return renderDiagram(filePath, startLine, startColumn, experimental, openInDiagram, webView, diagramFocus);
 }
 
-function renderDiagram(filePath: Uri, startLine: number, startColumn: number, experimental: boolean, openInDiagram: NodePosition, webView: Webview): string {
-
+function renderDiagram(
+    filePath: Uri, startLine: number, startColumn: number, experimental: boolean,
+    openInDiagram: NodePosition, webView: Webview, diagramFocus?: DiagramFocus): string {
+    console.log('workspace name', workspace.name);
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
     `;
@@ -89,7 +95,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
         }
     `;
 
-    let ballerinaFilePath = filePath.fsPath;
+    let ballerinaFilePath = diagramFocus?.fileUri;
 
     const scripts = `
         function loadedScript() {
@@ -204,6 +210,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     );
                 })
             }
+            function getAllFiles(matchingPattern, ignorePattern) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getAllFilesInProject',
+                        [matchingPattern, ignorePattern],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                });
+            }
             function openExternalUrl(command, args) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -243,7 +260,10 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 startColumn,
                 lastUpdatedAt,
                 experimentalEnabled,
-                openInDiagram
+                openInDiagram,
+                projectPaths,
+                diagramFocus,
+                workspaceName
             }) {
                 try {
                     const options = {
@@ -251,6 +271,7 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                         editorProps: {
                             langClientPromise: Promise.resolve(getLangClient()),
                             filePath,
+                            projectPaths,
                             startLine,
                             startColumn,
                             getFileContent,
@@ -273,10 +294,14 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                             getBallerinaVersion,
                             getEnv,                           
                             experimentalEnabled,
-                            openInDiagram
+                            openInDiagram,
+                            diagramFocus,
+                            workspaceName,
+                            getAllFiles
                         }
                     };
-                    BLCEditor.renderDiagramEditor(options);
+
+                    BLCEditor.renderOverviewDiagram(options);
                 } catch(e) {
                     if (e.message === 'ballerinaComposer is not defined') {
                         drawLoading();
@@ -360,7 +385,13 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                     startColumn: args[0].startColumn,
                     lastUpdatedAt: (new Date()).toISOString(),
                     experimentalEnabled: ${experimental},
-                    openInDiagram: args[0].openInDiagram
+                    openInDiagram: args[0].openInDiagram,
+                    projectPaths: ${JSON.stringify(workspace.workspaceFolders)},
+                    diagramFocus: args[0].filePath && args[0].openInDiagram ? {
+                        filePath: args[0].filePath,
+                        position: args[0].openInDiagram
+                    }: undefined,
+                    workspaceName: ${JSON.stringify(workspace.name)}
                 });
                 return Promise.resolve({});
             });
@@ -374,7 +405,17 @@ function renderDiagram(filePath: Uri, startLine: number, startColumn: number, ex
                 startColumn: ${startColumn},
                 lastUpdatedAt: (new Date()).toISOString(),
                 experimentalEnabled: ${experimental},
-                openInDiagram: ${JSON.stringify(openInDiagram)}
+                openInDiagram: ${JSON.stringify(openInDiagram)},
+                projectPaths: ${JSON.stringify(workspace.workspaceFolders)},
+                diagramFocus: ${
+                    diagramFocus ?
+                        `{
+                            filePath: ${JSON.stringify(ballerinaFilePath)},
+                            position: ${JSON.stringify(openInDiagram)}
+                        }`
+                        : `undefined`
+                },
+                workspaceName: ${JSON.stringify(workspace.name)}
             });
 
             window.addEventListener('focus', event => {

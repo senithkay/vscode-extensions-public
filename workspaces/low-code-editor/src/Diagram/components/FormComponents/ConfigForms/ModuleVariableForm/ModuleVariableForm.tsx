@@ -55,7 +55,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
         props: {
             ballerinaVersion,
             currentFile,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled,
             stSymbolInfo,
@@ -203,7 +203,7 @@ export function ModuleVariableForm(props: ModuleVariableFormProps) {
                         applyModifications: modifyDiagram,
                         updateFileContent,
                         library,
-                        syntaxTree,
+                        syntaxTree: fullST,
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,

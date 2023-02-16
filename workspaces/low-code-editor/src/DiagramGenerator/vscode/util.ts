@@ -18,12 +18,18 @@
 import { createElement } from "react";
 import { render } from "react-dom";
 
-import { Diagram, EditorProps } from "./Diagram";
+import { Diagram, EditorProps, WorkspaceOverview } from "./Diagram";
 
-export function renderDiagramEditor(options: {
+export function renderDiagramEditor(options: { target: HTMLElement, editorProps: EditorProps }) {
+    const DiagramElement = createElement(Diagram, options.editorProps);
+    return render(DiagramElement, options.target);
+}
+
+
+export function renderOverviewDiagram(options: {
     target: HTMLElement,
     editorProps: EditorProps
 }) {
-    const DiagramElement = createElement(Diagram, options.editorProps);
+    const DiagramElement = createElement(WorkspaceOverview, options.editorProps);
     return render(DiagramElement, options.target);
 }

@@ -18,6 +18,7 @@ import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-ent
 
 import { StatementRenderer } from '../components/StatementRenderer';
 import { useStatementEditorStyles } from '../components/styles';
+import { StatementNodes } from '../constants';
 import { EditorModel } from "../models/definitions";
 import { CtxProviderProps, StatementEditorContextProvider } from '../store/statement-editor-context';
 import { visitor  as StatementFindingVisitor} from '../visitors/statement-finding-vistor';
@@ -50,7 +51,7 @@ export function StatementRendererWrapper(props: StatementRendererWrapperProps) {
                         return(
                           <div key={index} className={statementEditorClasses.statementExpressionContent} style={{  border: '1px solid #e6e7ec'}} >
                               <StatementEditorContextProvider  {...getStatementEditorContextProps(statement)}>
-                                  <StatementRenderer model={statement} />
+                                  <StatementRenderer model={statement as StatementNodes} />
                               </StatementEditorContextProvider>
                           </div>
                         )

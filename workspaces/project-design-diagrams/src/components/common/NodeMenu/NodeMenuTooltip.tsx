@@ -21,18 +21,18 @@ import React, { useState } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import { NodeMenuPanel } from './NodeMenuPanel';
-import { Location, Service } from '../../../resources';
+import { Location, RemoteFunction, ResourceFunction, Service } from '../../../resources';
 
 interface NodeMenuProps {
     location: Location;
     background: string;
     service?: Service;
+    resourceFunction?: ResourceFunction | RemoteFunction; // TODO: Figure out a way to merge resource and service
     linkingEnabled?: boolean;
 }
 
 export function NodeMenuWidget(props: NodeMenuProps) {
-    const { linkingEnabled, location, service, background } = props;
-
+    const { linkingEnabled, location, service, resourceFunction, background } = props;
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
     return (
@@ -46,6 +46,7 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                             linkingEnabled={linkingEnabled}
                             location={location}
                             service={service}
+                            resource={resourceFunction}
                         />
                     }
                     PopperProps={{
@@ -61,10 +62,11 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                     componentsProps={{
                         tooltip: {
                             sx: {
-                                backgroundColor: '#e6e6e6',
+                                backgroundColor: 'none',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                padding: 0
                             }
                         },
                         arrow: {

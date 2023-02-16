@@ -34,7 +34,7 @@ export class CollapsedRangeExpandVisitor implements Visitor {
             const statements: STNode[] = node.namedWorkerDeclarator.workerInitStatements;
             this.expandCollapseWithMatchingRange(blockViewState, statements);
         }
-        this.beginVisitBlock(node);
+        this.beginVisitBlock(node as BlockStatement);
     }
 
     beginVisitBlockStatement(node: BlockStatement, parent?: STNode): void {

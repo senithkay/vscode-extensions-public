@@ -11,11 +11,11 @@
  * associated services.
  */
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { CodeAction, CodeActionParams, Diagnostic  } from "vscode-languageserver-protocol";
+import { CodeAction, CodeActionParams, Diagnostic } from "vscode-languageserver-protocol";
 
 import { BaseLangClientInterface } from "./base-lang-client-interface";
 import { Type } from "./data-mapper";
-import { BallerinaProjectParams } from "./lang-client-extended";
+import { BallerinaProjectParams, DocumentIdentifier } from "./lang-client-extended";
 
 export interface CompletionParams {
     textDocument: {
@@ -28,6 +28,46 @@ export interface CompletionParams {
     context: {
         triggerKind: number;
     };
+}
+
+export interface BallerinaProjectComponents {
+    packages?: PackageSummary[];
+}
+
+export interface PackageSummary {
+    name: string,
+    filePath: string,
+    modules: ModuleSummary[]
+}
+
+export interface ComponentSummary {
+    functions: ComponentInfo[],
+    services: ComponentInfo[],
+    records: ComponentInfo[],
+    objects: ComponentInfo[],
+    classes: ComponentInfo[],
+    types: ComponentInfo[],
+    constants: ComponentInfo[],
+    enums: ComponentInfo[],
+    listeners: ComponentInfo[],
+    moduleVariables: ComponentInfo[],
+}
+
+export interface ModuleSummary extends ComponentSummary {
+    name: string
+}
+
+export interface ComponentInfo {
+    name: string,
+    filePath: string,
+    startLine: number,
+    startColumn: number,
+    endLine: number,
+    endColumn: number,
+}
+
+export interface GetBallerinaPackagesParams {
+    documentIdentifiers: DocumentIdentifier[];
 }
 
 export interface CompletionResponse {
@@ -66,15 +106,15 @@ export interface LinePosition {
 }
 
 export interface ExpressionTypeRequest {
-     documentIdentifier: { uri: string; };
+    documentIdentifier: { uri: string; };
     // tslint:disable-next-line: align
     position: LinePosition;
 }
 
 export interface ExpressionTypeResponse {
     documentIdentifier: { uri: string; };
-       // tslint:disable-next-line: align
-       types: string[];
+    // tslint:disable-next-line: align
+    types: string[];
 }
 
 export interface PartialSTRequest {
@@ -105,25 +145,25 @@ export interface SymbolInfoRequest {
 }
 
 export interface ParameterInfo {
-    name : string,
-    description? : string,
-    kind : string,
-    type : string,
-    modelPosition? : NodePosition,
-    fields? : ParameterInfo[]
+    name: string,
+    description?: string,
+    kind: string,
+    type: string,
+    modelPosition?: NodePosition,
+    fields?: ParameterInfo[]
 }
 
 export interface SymbolDocumentation {
-    description : string,
-    parameters? : ParameterInfo[],
-    returnValueDescription? : string,
-    deprecatedDocumentation? : string,
-    deprecatedParams? : ParameterInfo[]
+    description: string,
+    parameters?: ParameterInfo[],
+    returnValueDescription?: string,
+    deprecatedDocumentation?: string,
+    deprecatedParams?: ParameterInfo[]
 }
 
 export interface SymbolInfoResponse {
     symbolKind: string,
-    documentation : SymbolDocumentation
+    documentation: SymbolDocumentation
 }
 
 export interface ExpressionRange {
@@ -185,7 +225,7 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     getSTForSingleStatement: (
         param: PartialSTRequest
     ) => Thenable<PartialSTResponse>;
-    getSTForExpression	: (
+    getSTForExpression: (
         param: PartialSTRequest
     ) => Thenable<PartialSTResponse>;
     getSTForModuleMembers: (
@@ -202,13 +242,16 @@ export interface ExpressionEditorLangClientInterface extends BaseLangClientInter
     ) => Thenable<SymbolInfoResponse>;
     codeAction: (
         params: CodeActionParams
-    ) => Thenable<CodeAction[]> ;
+    ) => Thenable<CodeAction[]>;
     getTypeFromExpression: (
         params: TypeFromExpressionRequest
     ) => Thenable<TypesFromExpressionResponse>;
     getTypeFromSymbol: (
         params: TypeFromSymbolRequest
     ) => Thenable<TypesFromSymbolResponse>;
+    getBallerinaProjectComponents: (
+        params: GetBallerinaPackagesParams
+    ) => Promise<BallerinaProjectComponents>;
     getTypesFromFnDefinition: (
         params: TypesFromFnDefinitionRequest
     ) => Thenable<TypesFromSymbolResponse>;

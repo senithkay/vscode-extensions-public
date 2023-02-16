@@ -12,7 +12,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda sx-wrap-multiline
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 
@@ -20,6 +20,7 @@ import { RemoteFunction, ResourceFunction } from '../../../resources/model';
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { FunctionContainer } from '../styles/styles';
 
+import { FunctionMenuWidget } from "./FunctionMenuWidget";
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
 
@@ -33,6 +34,8 @@ interface FunctionCardProps {
 export function FunctionCard(props: FunctionCardProps) {
     const { engine, node, functionElement, isResourceFunction } = props;
 
+    const [isHovered, setIsHovered] = useState<boolean>(false);
+
     const functionPorts = useRef<PortModel[]>([]);
     const path = functionElement.identifier;
 
@@ -41,9 +44,16 @@ export function FunctionCard(props: FunctionCardProps) {
         functionPorts.current.push(node.getPortFromID(`right-${path}`));
     }, [functionElement]);
 
+    const handleOnHover = (task: string) => {
+        setIsHovered(task === 'SELECT' ? true : false);
+    };
+
 
     return (
-        <FunctionContainer>
+        <FunctionContainer
+            onMouseOver={() => handleOnHover('SELECT')}
+            onMouseLeave={() => handleOnHover('UNSELECT')}
+        >
             {isResourceFunction ? (
                     <ResourceFunctionWidget
                         engine={engine}
@@ -60,6 +70,9 @@ export function FunctionCard(props: FunctionCardProps) {
                         remotePath={path}
                     />
                 )
+            }
+            {isHovered &&
+            <FunctionMenuWidget location={node.serviceObject.position}/>
             }
         </FunctionContainer>
     );
