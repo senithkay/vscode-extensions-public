@@ -98,7 +98,7 @@ export function ServiceDesign(propsz: ServiceDesignProps) {
         <div className={classes.root}>
             {fnSTZ && (
                 <>
-                    <ServiceHeader onClose={onClose} model={fnSTZ} />
+                    <ServiceHeader handleDiagramEdit={handleDiagramEdit} onClose={onClose} model={fnSTZ} />
                     <div className={classes.expandAll}>
                         <div className={classes.collapseBtn} onClick={onExpandAllClick}>
                             Collapse All

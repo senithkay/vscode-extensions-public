@@ -15,20 +15,21 @@ import React, { useContext } from "react";
 
 import CloseIcon from '@material-ui/icons/Close';
 import HomeIcon from '@material-ui/icons/Home';
-import { ListenerDeclaration, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { ListenerDeclaration, NodePosition, ServiceDeclaration, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { useStyles } from "./style";
-import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigOverlayFormStatus, LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Context } from "../../../Contexts/Diagram";
 
 export interface ServiceHeaderProps {
     model: ServiceDeclaration;
     onClose?: () => void;
     onConfigOpen?: () => void;
+    handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
 }
 
 export function ServiceHeader(props: ServiceHeaderProps) {
-    const { model, onClose } = props;
+    const { model, onClose, handleDiagramEdit } = props;
     const classes = useStyles();
 
     let servicePath = "";
@@ -60,6 +61,17 @@ export function ServiceHeader(props: ServiceHeaderProps) {
         //     }
     }
 
+    const onEdit = (e?: React.MouseEvent) => {
+        e.stopPropagation();
+        const lastMemberPosition: NodePosition = {
+            endColumn: model.position.endColumn,
+            endLine: model.position.endLine - 1,
+            startColumn: model.position.startColumn,
+            startLine: model.position.startLine - 1
+        }
+        handleDiagramEdit(model, lastMemberPosition, { formType: "ServiceDeclaration", isLoading: false });
+    }
+
     return (
         <div className={classes.headerContainer}>
             <div className={classes.homeButton} onClick={onClose} >
@@ -74,7 +86,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
                 </div>
             </div>
             <div
-                // onClick={handleEditBtnClick}
+                onClick={onEdit}
                 className={classes.editButton}
                 id="edit-button"
             >

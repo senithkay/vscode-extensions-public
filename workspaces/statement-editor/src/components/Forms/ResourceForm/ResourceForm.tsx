@@ -374,7 +374,7 @@ export function ResourceForm(props: FunctionProps) {
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <FieldTitle title='Responses' optional={true} />
+                        <FieldTitle title='Responses' optional={false} />
                         <ResourceReturnEditor
                             returnSource={model.functionSignature?.returnTypeDesc?.source}
                             syntaxDiag={currentComponentSyntaxDiag}
