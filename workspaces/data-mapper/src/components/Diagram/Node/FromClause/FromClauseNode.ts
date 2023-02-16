@@ -22,7 +22,7 @@ import {
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getTypeFromStore } from "../../utils/dm-utils";
+import { getOptionalArrayField, getTypeFromStore } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
@@ -74,7 +74,14 @@ export class FromClauseNode extends DataMapperNodeModel {
         if (STKindChecker.isCaptureBindingPattern(bindingPattern)) {
             this.sourceBindingPattern = bindingPattern;
         }
-        const type = getTypeFromStore(this.value.expression.position as NodePosition);
+        let type: Type;
+        if (STKindChecker.isBinaryExpression(this.value.expression)
+            && STKindChecker.isElvisToken(this.value.expression.operator)) {
+            type = getOptionalArrayField(getTypeFromStore(this.value.expression.lhsExpr.position as NodePosition));
+        } else {
+            type = getTypeFromStore(this.value.expression.position as NodePosition);
+        }
+        
         if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
             this.typeDef = type.memberType;
         }
