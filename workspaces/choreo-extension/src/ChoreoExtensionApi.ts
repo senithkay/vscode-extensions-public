@@ -158,13 +158,11 @@ export class ChoreoExtensionApi {
                 const projectComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
                     (this._selectedOrg as Organization).handle);
                 if (currentProjectLocation) {
-                    projectComponents.forEach(({ name, apiVersions, accessibility }) => {
-                        if (accessibility) {
-                            model.forEach(localModel => {
-                                enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
-                                    accessibility, currentRepoLocation, name);
-                            });
-                        }
+                    projectComponents.forEach(({ name, apiVersions, accessibility, local = false }) => {
+                        model.forEach(localModel => {
+                            enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
+                                currentRepoLocation, name, local, accessibility);
+                        });
                     });
                 }
             }
