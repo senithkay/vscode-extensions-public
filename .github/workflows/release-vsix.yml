@@ -3,9 +3,6 @@ name: Release VSIX
 on:
   workflow_dispatch:
     inputs:
-      isPreRelease:
-        required: true
-        type: boolean 
       updateVersion:
         required: true
         type: boolean     
@@ -25,7 +22,6 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       updateVersion: ${{ inputs.updateVersion }}
-      isPreRelease: ${{ inputs.isPreRelease }}
       version: ${{ inputs.version }}
     secrets: inherit  
 
@@ -64,12 +60,6 @@ jobs:
           version=${fileName%.*}
           echo "vsixName=$file" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
-
-      - name: Upload VSIX
-        uses: actions/upload-artifact@v3
-        with:
-          path: ${{ steps.vsix.outputs.vsixName }}
-          name: VSIX
 
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         run: |
