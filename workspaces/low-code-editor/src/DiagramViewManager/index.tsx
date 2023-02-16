@@ -83,6 +83,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
+    const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     // const [folderName, setFolderName] = vte<string>();
     // const [filterMap, setFilterMap] = useState({});
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
@@ -96,11 +97,14 @@ export function DiagramViewManager(props: EditorProps) {
     const [balVersion, setBalVersion] = React.useState("");
     const [completeST, setCompleteST] = useState<STNode>();
 
+    useEffect(() => {
+        setUpdatedTimeStamp(lastUpdatedAt);
+    }, [lastUpdatedAt]);
 
     useEffect(() => {
         if (!focusFile || !focusUid) return;
         fetchST(focusFile.uri.path, { uid: focusUid });
-    }, [lastUpdatedAt]);
+    }, [updatedTimeStamp]);
 
     useEffect(() => {
         if (history.length > 0) {
@@ -288,10 +292,10 @@ export function DiagramViewManager(props: EditorProps) {
             <OverviewDiagram
                 currentProject={currentProject}
                 currentFile={focusFile}
-                lastUpdatedAt={lastUpdatedAt}
                 notifyComponentSelection={updateSelectedComponent}
                 updateCurrentFile={setFocusFile}
                 fileList={fileList}
+                lastUpdatedAt={updatedTimeStamp}
             />
         ));
     } else if (focusedST) {
@@ -417,13 +421,33 @@ export function DiagramViewManager(props: EditorProps) {
         fetchST(currentFile.uri.path);
     };
 
+    const diagramProps = getDiagramProviderProps(
+        focusedST,
+        lowCodeEnvInstance,
+        currentFileContent,
+        focusFile,
+        fileList,
+        stMemberId,
+        completeST,
+        lowCodeResourcesVersion,
+        balVersion,
+        props,
+        setFocusedST,
+        setCompleteST,
+        setCurrentFileContent,
+        updateActiveFile,
+        updateSelectedComponent,
+        navigateUptoParent,
+        setUpdatedTimeStamp
+    )
+
     return (
         <div>
             <MuiThemeProvider theme={theme}>
                 <div className={classes.lowCodeContainer}>
                     <IntlProvider locale='en' defaultLocale='en' messages={messages}>
                         <ViewManagerProvider
-                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, focusFile, fileList, stMemberId, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateActiveFile, updateSelectedComponent, navigateUptoParent)}
+                            {...diagramProps}
                         >
                             <HistoryProvider
                                 history={history}
