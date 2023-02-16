@@ -40,12 +40,10 @@ export function DiagramContainer(props: DiagramContainerProps) {
 
     const [serviceModels, setServiceModels] = useState<ServiceModels>(undefined);
     const [typeModel, setTypeModel] = useState<DiagramModel>(undefined);
-    const [cellModel, setCellModel] = useState<DiagramModel>(undefined);
 
     const setServiceNCellModels = () => {
         const genServiceModels = serviceModeller(workspaceComponents, workspacePackages)
         setServiceModels(genServiceModels);
-        setCellModel(_.cloneDeep(genServiceModels.levelOne));
     };
 
     useEffect(() => {
@@ -53,7 +51,6 @@ export function DiagramContainer(props: DiagramContainerProps) {
             setTypeModel(entityModeller(workspaceComponents, workspacePackages));
             if (serviceModels) {
                 setServiceModels(undefined);
-                setCellModel(undefined);
             }
         } else if (currentView !== Views.TYPE_COMPOSITION) {
             setServiceNCellModels();
@@ -77,9 +74,8 @@ export function DiagramContainer(props: DiagramContainerProps) {
         switch (currentView) {
             case Views.L1_SERVICES:
             case Views.L2_SERVICES:
-                return serviceModels !== undefined;
             case Views.CELL_VIEW:
-                return cellModel !== undefined;
+                return serviceModels !== undefined;
             case Views.TYPE:
                 return typeModel !== undefined;
             case Views.TYPE_COMPOSITION:
@@ -108,20 +104,20 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                     {...{currentView, layout}}
                                 />
                             </div>
+                            {currentView === Views.CELL_VIEW && 
+                                <CellDiagram>
+                                    <Gateways/>
+                                    <CellContainer>
+                                        <DiagramCanvasWidget
+                                            type={Views.CELL_VIEW}
+                                            model={serviceModels.cellModel}
+                                            {...{currentView, layout}}
+                                        />
+                                    </CellContainer>
+                                </CellDiagram>
+                            }
                         </>
                     }
-                    {cellModel && currentView === Views.CELL_VIEW && (
-                        <CellDiagram>
-                            <Gateways/>
-                            <CellContainer>
-                                <DiagramCanvasWidget
-                                    type={Views.CELL_VIEW}
-                                    model={cellModel}
-                                    {...{currentView, layout}}
-                                />
-                            </CellContainer>
-                        </CellDiagram>
-                    )}
                     {typeModel &&
                         <div style={{ display: currentView === Views.TYPE ? 'block' : 'none' }}>
                             <DiagramCanvasWidget
