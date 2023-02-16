@@ -111,18 +111,20 @@ export function CategoryView(props: CategoryViewProps) {
             ])
         }
         return (
-            <FormControl variant="outlined" className={classes.selectorComponent} >
-                <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
-                <Select
-                    native={true}
-                    value={currentFile ? currentFile.fileName : ALL_FILES}
-                    label="File"
-                    inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
-                    onChange={handleFileChange}
-                >
-                    {fileSelectorOptions}
-                </Select>
-            </FormControl>
+            <div className="title-bar">
+                <FormControl variant="outlined" className={classes.selectorComponent} >
+                    <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
+                    <Select
+                        native={true}
+                        value={currentFile ? currentFile.fileName : ALL_FILES}
+                        label="File"
+                        inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
+                        onChange={handleFileChange}
+                    >
+                        {fileSelectorOptions}
+                    </Select>
+                </FormControl>
+            </div>
         );
     }
 
@@ -131,7 +133,7 @@ export function CategoryView(props: CategoryViewProps) {
     Object.keys(currentComponents).filter(key => currentComponents[key].length).forEach(key => {
         const components = currentComponents[key].map((comp: ComponentViewInfo) => (
             // tslint:disable-next-line: jsx-key
-            <ComponentView key={comp.uid} info={comp} updateSelection={updateSelection} />
+            <ComponentView key={comp.uid} info={comp} updateSelection={updateSelection} type={key} />
         ))
         categories.push(
             <>

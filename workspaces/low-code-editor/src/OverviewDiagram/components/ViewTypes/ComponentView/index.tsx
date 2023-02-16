@@ -10,13 +10,16 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import React from "react";
+import { getModuleIcon } from "../../../../Diagram/components/Portals/utils";
 
 import { ComponentViewInfo } from "../../../util";
 
 import './style.scss';
 
 interface ComponentViewProps {
+    type?: string;
     info: ComponentViewInfo;
     updateSelection: (info: ComponentViewInfo) => void;
 }
@@ -25,17 +28,44 @@ interface ComponentViewProps {
 export function ComponentView(props: ComponentViewProps) {
     const { info, updateSelection } = props;
 
-
-
     const handleComponentClick = () => {
         updateSelection(info);
     }
 
     return (
         <div className="component" onClick={handleComponentClick}>
+            <div className="icon">
+                {getConstructIcon(`${iconNameTranslator(props.type)}Icon`)}
+            </div>
             <div className="title label">{info.name.length ? info.name : '/'}</div>
-            <div className="break" />
-            <div className="file label">{info.fileName}</div>
         </div>
     )
 }
+
+function iconNameTranslator(type: string) {
+    switch (type) {
+        case 'functions':
+            return 'Function';
+        case 'services':
+            return 'Service';
+        case 'records':
+            return 'Record';
+        case 'objects':
+            return 'Object';
+        case 'classes':
+            return 'Class';
+        case 'types':
+            return 'Type';
+        case 'constants':
+            return 'Constant';
+        case 'enums':
+            return 'Enum';
+        case 'listeners':
+            return 'Listener';
+        case 'moduleVariables':
+            return 'Variable';
+        default:
+        // not applicable
+    }
+}
+
