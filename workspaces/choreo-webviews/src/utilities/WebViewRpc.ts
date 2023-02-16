@@ -21,7 +21,7 @@ import {
     Organization, Project, CloseWebViewNotification,
     ShowErrorMessage, Component, GetProjectLocation, OpenExternal,
     OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
-    PushLocalComponentsToChoreo, OpenArchitectureView
+    PushLocalComponentsToChoreo, OpenArchitectureView, HasUnpushedComponents, UpdateProjectOverview
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -147,5 +147,13 @@ export class ChoreoWebViewAPI {
             this._instance = new ChoreoWebViewAPI(vscode);
         }
         return this._instance;
+    }
+
+    public async hasUnpushedComponents(projectId: string): Promise<boolean> {
+        return this._messenger.sendRequest(HasUnpushedComponents, HOST_EXTENSION, projectId);
+    }
+
+    public updateProjectOverview(projectId: string) {
+        return this._messenger.sendRequest(UpdateProjectOverview, HOST_EXTENSION, projectId);
     }
 }

@@ -15,14 +15,14 @@ import { ApiVersion, Service } from "@wso2-enterprise/choreo-core";
 import * as path from "path";
 
 export function enrichDeploymentData(services: Map<string, Service>, apiVersions: ApiVersion[],
-                                     accessibility: string, currentRepoLocation: string, componentName: string) {
+                                     currentRepoLocation: string, componentName: string, isLocal: boolean, accessibility?: string) {
     const choreoPath = path.join(currentRepoLocation, componentName);
     for (const service of services.values()) {
         // Checks whether both Choreo and local paths are same
         if (service.elementLocation.filePath.includes(choreoPath)) {
             let isInternetExposed = false;
             let isIntranetExposed = false;
-            if (apiVersions?.length > 0) {
+            if (!isLocal && apiVersions.length > 0) {
                 apiVersions.forEach((version: ApiVersion) => {
                     if (version.accessibility === "internal") {
                         isIntranetExposed = true;
@@ -31,7 +31,7 @@ export function enrichDeploymentData(services: Map<string, Service>, apiVersions
                         isInternetExposed = true;
                     }
                 });
-            } else {
+            } else if (isLocal) {
                 if (accessibility === "internal") {
                     isIntranetExposed = true;
                 }

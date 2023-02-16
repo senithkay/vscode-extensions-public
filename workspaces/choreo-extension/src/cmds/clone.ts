@@ -20,6 +20,21 @@ import { ext } from '../extensionVariables';
 import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
 import { getLogger } from '../logger/logger';
+import { execSync } from 'child_process';
+
+export function checkSSHAccessToGitHub() {
+    try {
+        execSync("ssh -T git@github.com -o \"StrictHostKeyChecking no\"");
+        return true;
+    } catch (error: any) {
+        if (error.message && error.message.includes("You've successfully authenticated")) {
+            return true;
+        }
+        window.showErrorMessage('Cannot access GitHub via SSH. Please check your SSH keys.');
+        getLogger().error("Error while checking SSH access to GitHub: " + error);
+        return false;
+    }
+}
 
 export const cloneProject = async (project: Project) => {
     getLogger().debug("Cloning project: " + project.name);
@@ -92,6 +107,11 @@ export const cloneProject = async (project: Project) => {
                 getLogger().debug("Cloning cancelled for project: " + project.name);
                 cancelled = true;
             });
+
+            const hasSSHAccess = checkSSHAccessToGitHub();
+            if (!hasSSHAccess) {
+                return;
+            }
 
             const components = await projectClient.getComponents({ orgHandle: selectedOrg.handle, projId: id });
             const userManagedComponents = components.filter((cmp) => cmp.repository && cmp.repository.isUserManage);

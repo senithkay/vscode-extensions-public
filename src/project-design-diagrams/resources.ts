@@ -54,7 +54,7 @@ export interface DeploymentMetadata {
         intranet: {
             isExposed: boolean;
         }
-    }
+    };
 }
 
 export enum ServiceTypes {
