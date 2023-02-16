@@ -1,14 +1,15 @@
-# Choreo Extension
+# Choreo for Visual Studio Code
 
 The Choreo VS Code extension provides a range of Choreo **project** and ***component** management capabilities to enrich the local development experience of Choreo projects. Learn more about [Choreo](https://wso2.com/choreo/docs/).
 
 ## Getting Started
 
-You require an active Choreo account to which you can sign in via the Choreo extension in the VS Code editor. You can then access Choreo's capabilities using the extension.
-
-Upon successfully activating this extension on the VS Code editor, you will be prompted to sign in to Choreo. Alternatively, you can initiate the sign-in process by clicking the Choreo icon on the activity bar of your VS Code editor and then clicking **Sign In** as shown below.
-
-![Sign In](docs/img/sign-in.png)
+You will require an active Choreo account to use the capabilities of the Choreo extension in the VS Code editor. If you have a Choreo account, you can set up the extension by following the steps below.
+1. Install the Choreo extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/) and await activation
+2. Sign in to Choreo using one of the following approaches:
+    -   Via the `Sign In` prompt that is displayed on activation of the extension
+    -   Via the `Sign In` option available in the Choreo activity panel of your VS Code editor window
+        ![Sign In](docs/img/sign-in.png)
 
 The above step redirects you to an external URI to complete the authentication process. If the sign-in is successful, all the projects and organizations linked to your Choreo account will be visible on the Choreo activity panel, as shown below.
 
