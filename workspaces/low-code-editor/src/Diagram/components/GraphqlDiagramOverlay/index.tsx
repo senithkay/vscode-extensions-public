@@ -99,7 +99,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     const handleDesignOperationClick = (functionPosition: NodePosition) => {
         const currentElementInfo = history[history.length - 1];
         const componentViewInfo: ComponentViewInfo = {
-            filePath: currentElementInfo.filePath,
+            filePath: currentElementInfo.file.uri.path,
             position: functionPosition
         }
         updateSelectedComponent(componentViewInfo);
