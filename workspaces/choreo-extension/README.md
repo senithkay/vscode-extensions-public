@@ -77,7 +77,11 @@ After filling in the required details and configuring the repository, you can cl
 
 ![Component Creation](docs/img/component-creation.gif)
 
-Once the changes are committed to the GitHub repository, you can directly update your Choreo projects using the **Push to Choreo** option. This updates the Choreo project with the latest changes in the GitHub repository.
+You can then use the **Open Source Control** option to review the changes made by creating the new component. Once done, you can push the changes to your configured GitHub repository.
+
+![Push to Github](docs/img/push-to-github.gif)
+
+If the changes are successfully synced, you will be able to directly update your Choreo projects using the **Push to Choreo** option.
 
 ![Push to Choreo](docs/img/push-to-choreo.png)
 
