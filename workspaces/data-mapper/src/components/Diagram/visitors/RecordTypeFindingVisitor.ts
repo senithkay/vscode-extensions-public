@@ -87,6 +87,7 @@ export class RecordTypeFindingVisitor implements Visitor {
 
     public beginVisitFromClause(node: FromClause) {
         let typePosition: NodePosition;
+        // tslint:disable-next-line: prefer-conditional-expression
         if (STKindChecker.isBinaryExpression(node.expression) && STKindChecker.isElvisToken(node.expression.operator)) {
             typePosition = node.expression.lhsExpr.position as NodePosition;
         } else {
