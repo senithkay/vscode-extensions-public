@@ -14,7 +14,7 @@
 import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { css, cx } from "@emotion/css";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ProjectSelector } from "../ProjectSelector/ProjectSelector";
@@ -66,6 +66,28 @@ export function ComponentWizard() {
     const [showRepoSelector, setShowRepoSelector] = useState<boolean>(false);
     const [selectedBranch, setSelectedBranch] = useState<string>('');
     const [folderName, setFolderName] = useState<string>(name);
+    const [folderNameError, setFolderNameError] = useState<string>("");
+
+
+    const setSubFolderName = useCallback(async (fName: string) => {
+        setFolderName(fName);
+        if (repository && projectId) {
+            // TODO: Debounce
+            const isSubpathAvailable = await ChoreoWebViewAPI.getInstance().isSubpathAvailable({
+                orgName: repository.split('/')[0],
+                repoName: repository.split('/')[1],
+                subpath: fName,
+                projectID: projectId
+            });
+            if (!isSubpathAvailable) {
+                setFolderNameError("The folder name is already in use in the repository");
+            } else {
+                setFolderNameError("");
+            }
+        } else {
+            setFolderNameError("");
+        }
+    }, [projectId, repository]);
 
     useEffect(() => {
         if (isChoreoProject && choreoProject) {
@@ -81,9 +103,9 @@ export function ComponentWizard() {
 
     useEffect(() => {
         if (name) {
-            setFolderName(name);
+            setSubFolderName(name);
         }
-    }, [name]);
+    }, [name, setSubFolderName]);
 
     useEffect(() => {
         if (isChoreoProject && choreoProject) {
@@ -111,7 +133,7 @@ export function ComponentWizard() {
         }
     }
 
-    const canCreateComponent = name && !isDuplicateName && projectId && accessibility && selectedType && selectedOrg && selectedBranch && folderName;
+    const canCreateComponent = name && !isDuplicateName && !folderNameError && projectId && accessibility && selectedType && selectedOrg && selectedBranch && folderName;
 
     const handleComponentCreation = () => {
         if (canCreateComponent) {
@@ -199,11 +221,13 @@ export function ComponentWizard() {
                         <GithubRepoBranchSelector repository={repository} onBranchSelected={setSelectedBranch} />
                         <VSCodeTextField
                             placeholder="Sub folder"
-                            onInput={(e: any) => setFolderName(e.target.value)}
+                            onInput={(e: any) => setSubFolderName(e.target.value)}
                             value={folderName}
                         >
                             Sub Folder <RequiredFormInput />
+                            {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                         </VSCodeTextField>
+                        {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
                     </RepoInfoContainer>
 
                     <ActionContainer>
@@ -215,7 +239,7 @@ export function ComponentWizard() {
                         </VSCodeButton>
                         <VSCodeButton
                             appearance="primary"
-                            disabled={!canCreateComponent}
+                            disabled={!canCreateComponent || inProgress}
                             onClick={handleComponentCreation}
                         >
                             Create
