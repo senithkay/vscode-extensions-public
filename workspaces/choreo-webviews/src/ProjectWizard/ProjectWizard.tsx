@@ -124,13 +124,15 @@ export function ProjectWizard() {
                             {error.message + error.cause}
                         </ErrorMessageContainer>
                     )}
-                    <VSCodeTextField
-                        autofocus
-                        readOnly={true}
-                        value={githubRepo}
-                    >
-                        Selected Repository
-                    </VSCodeTextField>
+                    {initMonoRepo && 
+                        <VSCodeTextField
+                            autofocus
+                            readOnly={true}
+                            value={githubRepo}
+                        >
+                            Selected Repository
+                        </VSCodeTextField>
+                    }
                     <ActionContainer>
 
                         <VSCodeButton

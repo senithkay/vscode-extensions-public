@@ -184,7 +184,7 @@ export function ComponentWizard() {
 
                     <RepoInfoContainer>
                         <label htmlFor="repository">Selected Repository <RequiredFormInput /></label>
-                        <VSCodeTextField id="repository" value={repository} readOnly={!showRepoSelector} />
+                        <VSCodeTextField id="repository" value={repository} readOnly={true} />
                         {repository && selectedBranch && selectedOrg &&
                             <VSCodeLink onClick={() => setShowRepoSelector(!showRepoSelector)}>
                                 {showRepoSelector ? 'Hide Repositories' : 'Show Repositories'}
