@@ -55,7 +55,7 @@ jobs:
       - name: Get version
         id: vsix
         run: |
-          file=$(ls *.vsix)
+          file=$(ls ballerina*.vsix)
           fileName=${file#*-}
           version=${fileName%.*}
           echo "vsixName=$file" >> $GITHUB_OUTPUT
