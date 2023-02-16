@@ -240,7 +240,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     <VSCodeButton appearance="icon" onClick={handleCreateComponentClick} disabled={!isActive} title="Add Component"><Codicon name="plus" /></VSCodeButton>
                 </ComponentsHeader>
                 <ComponentList components={components} />
-                {componentAction == ComponentAction.CHOREO_SYNC &&
+                {componentAction === ComponentAction.CHOREO_SYNC &&
                     <>
                         <p>
                             <InlineIcon><Codicon name="lightbulb" /></InlineIcon>&nbsp;
@@ -258,7 +258,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         </ActionContainer>
                     </>
                 }
-                {componentAction == ComponentAction.REPO_SYNC &&
+                {componentAction === ComponentAction.REPO_SYNC &&
                     <>
                         <p>
                             <InlineIcon><Codicon name="lightbulb" /></InlineIcon>&nbsp;
@@ -281,7 +281,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         </ActionContainer>
                     </>
                 }
-                {componentAction == ComponentAction.LOADING &&
+                {componentAction === ComponentAction.LOADING &&
                     <VSCodeProgressRing />
                 }
             </WizardContainer>

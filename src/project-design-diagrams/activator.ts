@@ -101,8 +101,8 @@ function setupWebviewPanel() {
                                 const range: Range = new Range(startPosition, endPosition);
                                 textEditor.revealRange(range, TextEditorRevealType.InCenter);
                                 textEditor.selection = new Selection(range.start, range.start);
-                            })
-                        })
+                            });
+                        });
                     }
                     return;
                 }
