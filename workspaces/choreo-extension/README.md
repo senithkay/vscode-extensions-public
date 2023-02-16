@@ -1,6 +1,6 @@
 # Choreo for Visual Studio Code
 
-The Choreo VS Code extension provides a range of Choreo **project** and ***component** management capabilities to enrich the local development experience of Choreo projects. Learn more about [Choreo](https://wso2.com/choreo/docs/).
+The Choreo VS Code extension provides a range of Choreo **project** and **component** management capabilities to enrich the local development experience of Choreo projects. Learn more about [Choreo](https://wso2.com/choreo/docs/).
 
 ## Getting Started
 
