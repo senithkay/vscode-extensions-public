@@ -132,7 +132,8 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
         };
         const codeSnippet = getSource(updateServiceDeclartion({
             serviceBasePath: servicePath, listenerConfig:
-                { createNewListener: false, listenerName: name, listenerPort: port, fromVar: false }
+                { createNewListener: false, listenerName: name, listenerPort: port, fromVar: false },
+            serviceType: 'graphql'
         }, updatePosition));
         const updatedContent = getUpdatedSource(codeSnippet, model?.source, updatePosition, undefined,
             true);
@@ -213,7 +214,7 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
             applyModifications([
                 updateServiceDeclartion(
                     {
-                        serviceBasePath: basePath,
+                        serviceBasePath: basePath, serviceType: 'graphql',
                         listenerConfig: { createNewListener: false, listenerName, listenerPort, fromVar: listenerPort && listenerPort.length === 0 }
                     },
                     serviceUpdatePosition
@@ -225,7 +226,8 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
                 createImportStatement('ballerina', 'graphql', { startColumn: 0, startLine: 0 }),
                 createServiceDeclartion({
                         serviceBasePath: basePath, listenerConfig:
-                            { createNewListener: false, listenerName, listenerPort, fromVar: listenerPort && listenerPort.length === 0 }
+                            { createNewListener: false, listenerName, listenerPort, fromVar: listenerPort && listenerPort.length === 0 },
+                        serviceType: 'graphql'
                     },
                     getUpdatedServiceInsertPosition(stSymbolInfo.listeners, listenerName, createdListnerCount,
                         targetPosition),

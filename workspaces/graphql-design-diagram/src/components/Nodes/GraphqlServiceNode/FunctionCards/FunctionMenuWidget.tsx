@@ -41,9 +41,9 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
                 title={
                     <>
                         {/*TODO update the correct function type*/}
-                        <DesignFunctionWidget position={location} functionType={FunctionType.QUERY}/>
+                        <DesignFunctionWidget position={location}/>
                         <EditFunctionWidget position={location} functionType={FunctionType.QUERY}/>
-                        <DeleteFunctionWidget position={location} functionType={FunctionType.QUERY}/>
+                        <DeleteFunctionWidget position={location}/>
                     </>
                 }
                 PopperProps={{

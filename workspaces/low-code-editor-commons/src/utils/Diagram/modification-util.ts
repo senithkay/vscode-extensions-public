@@ -14,7 +14,7 @@ import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { compile } from "handlebars";
 
 import { default as templates } from "../../templates/components";
-import { HTTPServiceConfigState, ListenerConfigFormState, STModification } from "../../types";
+import { ListenerConfigFormState, ServiceConfigState, STModification } from "../../types";
 
 import { getInsertComponentSource } from "./template-utils";
 
@@ -118,8 +118,8 @@ export function updateFunctionSignature(name: string, parameters: string, return
 }
 
 export function createServiceDeclartion(
-    config: HTTPServiceConfigState, targetPosition: NodePosition, isLastMember?: boolean): STModification {
-    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
+    config: ServiceConfigState, targetPosition: NodePosition, isLastMember?: boolean): STModification {
+    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener }, serviceType } = config;
 
     const modification: STModification = {
         startLine: targetPosition.startLine,
@@ -137,6 +137,7 @@ export function createServiceDeclartion(
                 'LISTENER_NAME': listenerName,
                 'PORT': listenerPort,
                 'BASE_PATH': serviceBasePath,
+                'SERVICE_TYPE': serviceType ? serviceType : 'http'
             }
         }
     } else if (listenerPort) {
@@ -146,6 +147,7 @@ export function createServiceDeclartion(
             config: {
                 'PORT': listenerPort,
                 'BASE_PATH': serviceBasePath,
+                'SERVICE_TYPE': serviceType ? serviceType : 'http'
             }
         }
 
@@ -190,8 +192,8 @@ export function createListenerDeclartion(config: ListenerConfigFormState, target
     }
 }
 
-export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPosition: NodePosition): STModification {
-    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener } } = config;
+export function updateServiceDeclartion(config: ServiceConfigState, targetPosition: NodePosition): STModification {
+    const { serviceBasePath, listenerConfig: { fromVar, listenerName, listenerPort, createNewListener }, serviceType } = config;
 
     const modification: STModification = {
         ...targetPosition,
@@ -206,6 +208,7 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
                 'LISTENER_NAME': listenerName,
                 'PORT': listenerPort,
                 'BASE_PATH': serviceBasePath,
+                'SERVICE_TYPE': serviceType ? serviceType : 'http'
             }
         }
     } else if (listenerPort) {
@@ -215,6 +218,7 @@ export function updateServiceDeclartion(config: HTTPServiceConfigState, targetPo
             config: {
                 'PORT': listenerPort,
                 'BASE_PATH': serviceBasePath,
+                'SERVICE_TYPE': serviceType ? serviceType : 'http'
             }
         }
 

@@ -17,7 +17,8 @@ import React, { useContext } from "react";
 import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import {
-    NodePosition, STNode
+    FunctionDefinition,
+    NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition, STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
@@ -25,7 +26,7 @@ import { DiagramOverlayPosition } from "../../../Portals/Overlay";
 
 interface GraphqlConfigFormProps {
     position: DiagramOverlayPosition;
-    model?: STNode,
+    model?: ResourceAccessorDefinition | ObjectMethodDefinition,
     targetPosition?: NodePosition,
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     onCancel: () => void;
@@ -33,7 +34,7 @@ interface GraphqlConfigFormProps {
 }
 
 export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
-    const { position, targetPosition, model, configOverlayFormStatus, onSave, onCancel } = props;
+    const { targetPosition, model, configOverlayFormStatus, onSave, onCancel } = props;
 
     const {
         api: {
@@ -47,13 +48,20 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
         }
     } = useContext(Context);
 
+    const position = model ? ({
+        startLine: model.functionName.position.startLine,
+        startColumn: model.functionName.position.startColumn,
+        endLine: model.functionSignature.position.endLine,
+        endColumn: model.functionSignature.position.endColumn
+    }) : targetPosition;
+
     return (
         <>
             <FormEditor
                 initialSource={model ? model.source : undefined}
                 initialModel={model}
                 isLastMember={false}
-                targetPosition={targetPosition}
+                targetPosition={position}
                 onCancel={onCancel}
                 type={"GraphqlResource"}
                 currentFile={currentFile}

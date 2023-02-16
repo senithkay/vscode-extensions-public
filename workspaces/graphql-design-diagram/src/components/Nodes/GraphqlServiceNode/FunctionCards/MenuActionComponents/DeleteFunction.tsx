@@ -15,24 +15,34 @@
 import React, { useContext, useState } from "react";
 
 import { IconButton, Tooltip } from "@material-ui/core";
-import {
-    DesignViewIcon, LabelDeleteIcon,
-    LabelEditIcon
+import { LabelDeleteIcon,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
-import { FunctionType, Position } from "../../../../resources/model";
+import { Position } from "../../../../resources/model";
 
 interface DeleteFunctionWidgetProps {
     position: Position;
-    functionType: FunctionType;
 }
 
 export function DeleteFunctionWidget(props: DeleteFunctionWidgetProps) {
-    const { position, functionType } = props;
-    const { functionPanel, model } = useContext(DiagramContext);
+    const { position } = props;
+    const { onDelete } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
+
+    const handleDeleteClick = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        const functionPosition: NodePosition = {
+            endColumn: position.endLine.offset,
+            endLine: position.endLine.line,
+            startColumn: position.startLine.offset,
+            startLine: position.startLine.line
+        };
+        onDelete(functionPosition);
+    };
+
 
 
     return (
@@ -47,7 +57,7 @@ export function DeleteFunctionWidget(props: DeleteFunctionWidgetProps) {
                     placement="right"
                 >
                     <IconButton
-                        // onClick={() => openFunctionPanel()}
+                        onClick={handleDeleteClick}
                         onMouseOver={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         style={{

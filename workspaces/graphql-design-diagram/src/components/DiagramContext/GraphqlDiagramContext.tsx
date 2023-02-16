@@ -21,25 +21,31 @@ interface GraphqlDiagramContextProps {
     functionPanel?: (position: NodePosition, functionType: string, model?: STNode) => void;
     servicePanel?: () => void;
     model?: STNode;
+    operationDesignView?: (functionPosition: NodePosition) => void;
+    onDelete?: (position: NodePosition) => void;
 }
 
 export const DiagramContext = createContext({
         functionPanel: (position: NodePosition, functionType: string, model?: STNode) => {},
         servicePanel: () => {},
-        model: undefined
+        model: undefined,
+        operationDesignView: (functionPosition: NodePosition) => {},
+        onDelete: (position: NodePosition) => {}
     }
 );
 
 export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
 
-    const { children, functionPanel, servicePanel, model } = props;
+    const { children, functionPanel, servicePanel, model, operationDesignView, onDelete } = props;
 
     return (
         <DiagramContext.Provider
             value={{
                 functionPanel,
                 servicePanel,
-                model
+                model,
+                operationDesignView,
+                onDelete
             }}
         >
             {children}
