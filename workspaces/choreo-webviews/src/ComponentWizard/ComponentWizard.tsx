@@ -127,16 +127,19 @@ export function ComponentWizard() {
                     branch: selectedBranch,
                     subPath: folderName
                 }
-            }).then(() => {
+            }).then((response: any) => {
                 setProgressStatus(false);
-                ChoreoWebViewAPI.getInstance().updateProjectOverview(projectId);
-                closeWebView();
+                if (response === true) {
+                    ChoreoWebViewAPI.getInstance().updateProjectOverview(projectId);
+                    closeWebView();
+                } else if (response?.message) {
+                    throw new Error(response.message);
+                }
             }).catch((err: Error) => {
                 ChoreoWebViewAPI.getInstance().showErrorMsg(err.message);
             });
         }
     };
-
 
     const closeWebView = () => {
         ChoreoWebViewAPI.getInstance().closeWebView();
