@@ -272,7 +272,7 @@ export function showChoreoSigninMessage(extension: BallerinaExtension) {
     window.showInformationMessage("Please sign in to Choreo to view performance predictions.",
         action).then((selection) => {
             if (action === selection) {
-                commands.executeCommand('sessionExplorer.focus');
+                commands.executeCommand('choreo-account.focus');
             }
         });
     extension.getPerformanceForecastContext().infoMessageStatus.signinChoreo = false;
@@ -306,54 +306,56 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
 
         getChoreoExtAPI().then(async (extApi) => {
             if (extApi) {
-                try {
-                    const response = await extApi.getPerformanceForecastData(data);
-                    if (!response) {
-                        return reject();
-                    }
-
-                    const status = response.status;
-                    if (status != 200) {
-                        debug(`Perf Error - ${status} Status code. Retry counted. ${new Date()}`);
-                        debug(response.data);
-                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
-                            { 'is_successful': "false", 'error_code': `${response.status}` });
-                        handleRetries();
-                        reject();
-                    }
-
-                    const responseData = response.data;
-                    debug(`Perf Data received ${new Date()}`);
-                    debug(responseData);
-
-                    if (responseData.message) {
-                        debug(`Perf Error ${new Date()}`);
-                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
-                            { 'is_successful': "false", 'error_code': `${responseData.message}` });
-                        checkErrors(responseData);
-                        return reject();
-                    }
-
-                    cachedResponses.set(responseData, responseData);
-                    if (analyzeType === ANALYZETYPE.REALTIME) {
-                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
-                            {
-                                'is_successful': "true", 'type': `${analyzeType}`,
-                                'is_low_data': `${((responseData as PerformanceAnalyzerRealtimeResponse).concurrency.max == 1)}`
-                            });
-
-                    } else {
-                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
-                            { 'is_successful': "true", 'type': `${analyzeType}` });
-
-                    }
-                    return resolve(responseData);
-                } catch {
+                if (!await extApi.waitForLogin()) {
+                    showChoreoSigninMessage(extension);
                     return reject();
+                } else {
+                    try {
+                        const response = await extApi.getPerformanceForecastData(data);
+                        if (!response) {
+                            return reject();
+                        }
+
+                        const status = response.status;
+                        if (status != 200) {
+                            debug(`Perf Error - ${status} Status code. Retry counted. ${new Date()}`);
+                            debug(response.data);
+                            sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                                { 'is_successful': "false", 'error_code': `${response.status}` });
+                            handleRetries();
+                            reject();
+                        }
+
+                        const responseData = response.data;
+                        debug(`Perf Data received ${new Date()}`);
+                        debug(responseData);
+
+                        if (responseData.message) {
+                            debug(`Perf Error ${new Date()}`);
+                            sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                                { 'is_successful': "false", 'error_code': `${responseData.message}` });
+                            checkErrors(responseData);
+                            return reject();
+                        }
+
+                        cachedResponses.set(responseData, responseData);
+                        if (analyzeType === ANALYZETYPE.REALTIME) {
+                            sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                                {
+                                    'is_successful': "true", 'type': `${analyzeType}`,
+                                    'is_low_data': `${((responseData as PerformanceAnalyzerRealtimeResponse).concurrency.max == 1)}`
+                                });
+
+                        } else {
+                            sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                                { 'is_successful': "true", 'type': `${analyzeType}` });
+
+                        }
+                        return resolve(responseData);
+                    } catch {
+                        return reject();
+                    }
                 }
-            } else {
-                showChoreoSigninMessage(extension);
-                return reject();
             }
         });
 

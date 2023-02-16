@@ -17,13 +17,17 @@
  *
  */
 
-import { ViewColumn, window, WebviewPanel } from "vscode";
-import { WebViewRPCHandler, getCommonWebViewOptions } from '../../utils';
+import { ViewColumn, window, WebviewPanel, commands } from "vscode";
+import { WebViewRPCHandler, getCommonWebViewOptions, debug } from '../../utils';
 import { render } from './render';
 import { ballerinaExtInstance, CodeServerContext, ExtendedLangClient, OASpec } from "../../core";
 import { SwaggerServer } from "../server";
 import { CMP_TRYIT_VIEW, sendTelemetryEvent, TM_EVENT_SWAGGER_RUN } from "../../telemetry";
 import { getPortPromise } from "portfinder";
+import { loader } from "./loader";
+import { getChoreoExtAPI } from '../../choreo-features/activate';
+
+const cachedResponses = new Map<any, JSON>();
 
 let swaggerViewPanel: WebviewPanel | undefined;
 let cors_proxy = require('cors-anywhere');
@@ -71,6 +75,58 @@ export async function showSwaggerView(langClient: ExtendedLangClient,
     const proxy = codeServerContext.codeServerEnv ? codeServerContext.manageChoreoRedirectUri : `http://localhost:${port}/`;
     WebViewRPCHandler.create(swaggerViewPanel, langClient);
     if (swaggerViewPanel) {
+        const loaderHtml = loader(swaggerViewPanel.webview);
+        if (loaderHtml) {
+            swaggerViewPanel.webview.html = loaderHtml;
+        }
+
+        const extApi = await getChoreoExtAPI();
+        if (extApi) {
+            if (!await extApi.waitForLogin()) {
+                const action = 'Sign in to Choreo';
+                window.showInformationMessage("Please sign in to Choreo to use AI generated sample data.",
+                    action).then((selection) => {
+                        if (action === selection) {
+                            commands.executeCommand('choreo-account.focus');
+                        }
+                    });
+            } else {
+                for (let index = 0; index < specs.length; index++) {
+                    const spec = specs[index];
+                    const data = { "openapiSpec": spec.spec };
+                    const cacheKey = JSON.stringify(data);
+
+                    if (cachedResponses.has(cacheKey)) {
+                        spec.spec = cachedResponses.get(cacheKey);
+                        continue;
+                    }
+
+                    try {
+                        const response = await extApi.getSwaggerExamples(data);
+                        if (!response) {
+                            continue;
+                        }
+
+                        const status = response.status;
+                        if (status != 200) {
+                            debug(`Swagger examples API Error - ${status} Status code.`);
+                            debug(response.data);
+                            continue;
+                        }
+
+                        const responseData = response.data;
+                        debug(`Swagger examples data received ${new Date()}`);
+                        debug(responseData);
+
+                        cachedResponses.set(cacheKey, responseData.openapiSpec);
+                        spec.spec = responseData.openapiSpec;
+                    } catch {
+                        continue;
+                    }
+                }
+            }
+        }
+
         const html = render({ specs, file, serviceName, proxy }, swaggerViewPanel.webview);
         if (html) {
             swaggerViewPanel.webview.html = html;
