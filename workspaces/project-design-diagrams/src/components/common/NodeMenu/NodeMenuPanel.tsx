@@ -17,13 +17,14 @@
  *
  */
 
-import React from 'react';
-import { Location, RemoteFunction, ResourceFunction, Service } from '../../../resources';
-import { AddConnectorWidget, Go2SourceWidget, GoToDesign, LinkingWidget } from './components';
+import React from "react";
+import { Location, RemoteFunction, ResourceFunction, Service } from "../../../resources";
+import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton } from "./components";
+import { Paper, MenuList, Divider } from "@mui/material";
 
 interface MenuProps {
-    location: Location,
-    linkingEnabled: boolean,
+    location: Location;
+    linkingEnabled: boolean;
     service?: Service;
     resource?: ResourceFunction | RemoteFunction; // TODO: figure out a way to merge service and resource
 }
@@ -33,15 +34,20 @@ export function NodeMenuPanel(props: MenuProps) {
 
     return (
         <>
-            <Go2SourceWidget location={location} />
-            {linkingEnabled && service &&
-                <>
-                    <LinkingWidget service={service} />
-                    <AddConnectorWidget service={service} />
-                </>
-            }
-            {service && <GoToDesign element={service} />}
-            {resource && <GoToDesign element={resource} />}
+            <Paper sx={{ maxWidth: "100%" }}>
+                <MenuList>
+                    <Go2SourceButton location={location} />
+                    {service && <GoToDesign element={service} />}
+                    {resource && <GoToDesign element={resource} />}
+                    {linkingEnabled && service && (
+                        <>
+                            <Divider />
+                            <LinkingButton service={service} />
+                            <AddConnectorButton service={service} />
+                        </>
+                    )}
+                </MenuList>
+            </Paper>
         </>
     );
 }

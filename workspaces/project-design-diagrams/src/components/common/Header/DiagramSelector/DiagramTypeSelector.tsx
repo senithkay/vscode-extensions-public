@@ -17,9 +17,10 @@
  *
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { Views } from '../../../../resources';
-import { TypeCard, TypeContainer, TypeTitle } from '../styles/styles';
+import { TypeCard, TypeContainer } from '../styles/styles';
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
 
 interface DropdownProps {
     switchView: (viewType: Views) => void;
@@ -28,20 +29,25 @@ interface DropdownProps {
 export function DiagramTypeSelector(props: DropdownProps) {
     const { switchView } = props;
 
+    const { isChoreoProject } = useContext(DiagramContext);
+
     const handleDiagramType = (view: Views) => {
         switchView(view);
     };
 
     return (
         <TypeContainer>
-            <TypeTitle>Design Diagrams</TypeTitle>
-
             <TypeCard onClick={() => handleDiagramType(Views.L1_SERVICES)}>
                 Services Diagram - Level 1
             </TypeCard>
             <TypeCard onClick={() => handleDiagramType(Views.L2_SERVICES)}>
                 Services Diagram - Level 2
             </TypeCard>
+            {isChoreoProject && (
+                <TypeCard onClick={() => handleDiagramType(Views.CELL_VIEW)}>
+                    Cell Diagram
+                </TypeCard>
+            )}
             <TypeCard onClick={() => handleDiagramType(Views.TYPE)}>
                 Type Diagram
             </TypeCard>

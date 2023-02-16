@@ -32,11 +32,9 @@ export async function getDiagramExplorer() {
     lowCodeActivity!.openView();
     const sideBar = new SideBarView();
     // test tree views
-    expect(await sideBar.getTitlePart().getTitle()).is.equal("BALLERINA LOW-CODE");
+    expect(await sideBar.getTitlePart().getTitle()).is.equal("BALLERINA LOW-CODE: DIAGRAM EXPLORER");
     const diagramExplorer = await sideBar.getContent().getSection('Diagram Explorer') as CustomTreeSection;
-    const choreoLogin = await sideBar.getContent().getSection('Choreo') as CustomTreeSection;
     expect(diagramExplorer).is.not.undefined;
-    expect(choreoLogin).is.not.undefined;
     await wait(5000);
     return diagramExplorer;
 }

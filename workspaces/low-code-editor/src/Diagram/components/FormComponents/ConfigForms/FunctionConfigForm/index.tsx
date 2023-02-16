@@ -60,7 +60,7 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
 
     const {
-        props: { syntaxTree, ballerinaVersion, currentFile },
+        props: { fullST, ballerinaVersion, currentFile },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram }
@@ -153,13 +153,13 @@ export function FunctionConfigForm(props: FunctionConfigFormProps) {
 
     useEffect(() => {
         // Getting all function names for function name validation
-        existingFunctionNames.current = (syntaxTree as any)
+        existingFunctionNames.current = (fullST as any)
             .members?.filter((member: any) => STKindChecker.isFunctionDefinition(member))
             .map((member: any) => member.functionName.value);
 
         if (model && STKindChecker.isFunctionDefinition(model)) {
             // Populating field values if trying to edit
-            existingFunctionNames.current = existingFunctionNames.current.filter(
+            existingFunctionNames.current = existingFunctionNames?.current?.filter(
                 (name) => name !== model.functionName.value
             );
             setFunctionName(model.functionName.value);

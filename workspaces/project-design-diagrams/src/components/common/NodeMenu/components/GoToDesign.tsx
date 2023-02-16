@@ -23,11 +23,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import { RemoteFunction, ResourceFunction, Service } from '../../../../resources';
 import { useDiagramContext } from '../../DiagramContext/DiagramContext';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
+import { ListItemIcon, ListItemText, MenuItem } from '@mui/material';
+import { useStyles } from "./styles";
 
 export function GoToDesign(props: { element: Service | ResourceFunction | RemoteFunction }) {
+    const classes = useStyles();
     const { element } = props;
     const { goToDesignDiagram } = useDiagramContext();
-    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const handleIconClick = () => {
         // commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM);
@@ -41,26 +43,12 @@ export function GoToDesign(props: { element: Service | ResourceFunction | Remote
     }
 
     return (
-        <Tooltip
-            open={isHovered}
-            title={'Go To Design'}
-            arrow
-            placement='right'
-        >
-            <EditIcon
-                onClick={handleIconClick}
-                onMouseOver={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                style={{
-                    backgroundColor: isHovered ? 'orange' : '',
-                    borderRadius: '50%',
-                    color: isHovered ? 'whitesmoke' : 'orange',
-                    cursor: 'pointer',
-                    fontSize: '22px',
-                    padding: '2px'
-                }}
-            />
-        </Tooltip>
+        <MenuItem onClick={handleIconClick}>
+            <ListItemIcon>
+                <EditIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText className={classes.listItemText}>Go to Design</ListItemText>
+        </MenuItem>
     );
 }
 

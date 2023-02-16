@@ -42,7 +42,7 @@ export function AddWhileForm(props: WhileProps) {
         props: {
             isMutationProgress: isMutationInProgress,
             currentFile,
-            syntaxTree,
+            fullST,
             stSymbolInfo,
             importStatements,
             ballerinaVersion,
@@ -171,7 +171,7 @@ export function AddWhileForm(props: WhileProps) {
                         applyModifications: modifyDiagram,
                         updateFileContent,
                         library,
-                        syntaxTree,
+                        syntaxTree: fullST,
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,

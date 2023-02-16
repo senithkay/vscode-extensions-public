@@ -12,71 +12,129 @@
  */
 import React from "react";
 
-import { Apps, ArrowBack, Folder, Home } from "@material-ui/icons";
+import { ClickAwayListener, FormControl, InputLabel, Popover, Select } from "@material-ui/core";
+import { Apps, ArrowBack, ArrowDropDown, Folder, Home } from "@material-ui/icons";
+import classNames from "classnames";
 
+import { FileListEntry, WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../context/history";
 
+import useStyles from './style';
 import './style.scss';
 
 interface NavigationBarProps {
-    projectName: string;
-    isWorkspace: boolean;
-    folderName?: string;
-    onFolderClick?: () => void;
+    workspaceName: string;
+    projectList: WorkspaceFolder[];
+    currentProject: WorkspaceFolder;
+    updateCurrentProject: (project: WorkspaceFolder) => void;
 }
 
+
 export function NavigationBar(props: NavigationBarProps) {
-    const { projectName, folderName, isWorkspace, onFolderClick } = props;
+    const {
+        workspaceName,
+        projectList,
+        currentProject,
+        updateCurrentProject,
+    } = props;
+    const classes = useStyles();
     const { history, historyPop, historyReset } = useHistoryContext();
-    // const homeButton = (
-    //     <div className="btn-container" onClick={historyReset}>
-    //         <Home />
-    //     </div>
-    // );
-    //
-    const backButton = (
-        <div className="btn-container" onClick={historyPop}>
-            <ArrowBack />
-        </div>
-    );
 
-    const showBackButton: boolean = history.length > 0;
-    const workspaceNameComponent = (
-        <div className="btn-container" onClick={historyReset} >
+    const [isProjectSelectorOpen, setIsProjectSelectorOpen] = React.useState(false);
+    const popoverRef = React.useRef<HTMLDivElement>(null);
+
+    const isWorkspace = projectList.length > 1;
+
+    const handleProjectChange = (selectedProject: WorkspaceFolder) => {
+        updateCurrentProject(selectedProject);
+    }
+
+    const renderProjectSelectorComponent = () => {
+        const projectSelectorOptions: React.ReactElement[] = [];
+        const handlePojectSelectorClose = () => {
+            setIsProjectSelectorOpen(false);
+        }
+
+        const handlePojectSelectorOpen = () => {
+            setIsProjectSelectorOpen(true);
+        }
+
+        const handleOptionSelect = (project: WorkspaceFolder) => {
+            handlePojectSelectorClose();
+            handleProjectChange(project);
+        }
+
+        if (projectList && projectList.length > 0) {
+            projectList.forEach(project => {
+                const handleOptionClick = () => {
+                    handleOptionSelect(project);
+                }
+
+                projectSelectorOptions.push(
+                    <div className={classes.projectSelectorOption} onClick={handleOptionClick}>
+                        <span>{project.name}</span>
+                    </div>
+                );
+            });
+        }
+
+
+        return (
+            <div className="btn-container" ref={popoverRef} onClick={handlePojectSelectorOpen} >
+                <Folder />
+                <span className="icon-text">{currentProject?.name || ''}</span>
+                <ArrowDropDown />
+                <Popover
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'left', }}
+                    title={'Filter'}
+                    open={isProjectSelectorOpen}
+                    anchorEl={popoverRef ? popoverRef.current : undefined}
+                    onClose={handlePojectSelectorClose}
+                >
+                    <ClickAwayListener
+                        mouseEvent="onMouseDown"
+                        touchEvent="onTouchStart"
+                        onClickAway={handlePojectSelectorClose}
+                    >
+                        <div className="project-selector-container">
+                            {projectSelectorOptions}
+                        </div>
+                    </ClickAwayListener>
+                </Popover>
+            </div>
+        )
+    }
+
+    const renderWorkspaceNameComponent = () => (
+        <div className="btn-container" >
             {isWorkspace ? <Apps /> : <Folder />}
-            <span className="icon-text">{`${projectName}${history.length > 0 ? '' : ' components'}`}</span>
+            <span className="icon-text">{`${workspaceName}`}</span>
         </div>
     );
 
-    const folderComponent = (
-        <>
-            <div>/</div>
-            <div className="btn-container" onClick={onFolderClick}>
-                <Folder style={{ paddingRight: 5 }} />
-                <span className="icon-text">{`${folderName}`}</span>
-            </div>
-        </>
-    )
+    const renderNavigationButtons = () => {
+        return (
+            <>
+                <div className="btn-container" onClick={historyPop} >
+                    <ArrowBack />
+                </div>
+                <div className="btn-container" onClick={historyReset} >
+                    <Home />
+                </div>
+            </>
+        );
+    }
 
-    // const moduleNameComponent = (
-    //     <div className="btn-container" onClick={historyReset}>
-    //         <Folder style={{ paddingRight: 5 }} />
-    //         <span className="icon-text">{`${projectName}`}</span>
-    //     </div>
-    // );
-
-    // {moduleNameComponent}
-
+    // {renderWorkspaceNameComponent(isWorkspace)}
     return (
-        <div id="nav-bar-main" className={'header-bar'}>
-            {showBackButton && backButton}
-            {workspaceNameComponent}
-            {folderName && folderName.length > 0 && folderComponent}
-            <div className="component-details">
-                {/*<span className="module-text">{componentDetailsText}</span>*/}
-            </div>
+        <div id="nav-var-main" className="header-bar">
+            {history.length > 0 && renderNavigationButtons()}
+            {renderWorkspaceNameComponent()}
+            {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
+            {isWorkspace && renderProjectSelectorComponent()}
+            <div className="component-details" />
         </div>
-    )
-    // {history.length === 0 && <span className="module-text">{moduleName} components</span>}
+    );
 }
 

@@ -30,6 +30,7 @@ interface DiagramContextProps {
     currentView: Views;
     editingEnabled: boolean;
     setTargetService: (service: Service) => void;
+    refreshDiagram: () => void;
 }
 
 interface IDiagramContext {
@@ -44,6 +45,7 @@ interface IDiagramContext {
     newLinkNodes: LinkedNodes;
     setNewLinkNodes: (nodes: LinkedNodes) => void;
     setTargetService: (service: Service) => void;
+    refreshDiagram: () => void;
 }
 
 interface LinkedNodes {
@@ -66,7 +68,8 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         editingEnabled,
         children,
         setTargetService,
-        goToDesignDiagram
+        goToDesignDiagram,
+        refreshDiagram
     } = props;
 
     const Ctx = {
@@ -80,7 +83,8 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         newLinkNodes,
         setNewLinkNodes,
         setTargetService,
-        goToDesignDiagram
+        goToDesignDiagram,
+        refreshDiagram
     }
 
     return (

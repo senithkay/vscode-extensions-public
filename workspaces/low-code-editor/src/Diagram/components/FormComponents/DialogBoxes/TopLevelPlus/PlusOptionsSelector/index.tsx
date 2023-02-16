@@ -25,6 +25,7 @@ export interface PlusOptionsProps {
     kind: string
     margin?: Margin;
     onClose: () => void;
+    goBack: () => void;
     targetPosition?: NodePosition;
     isTriggerType?: boolean;
     isLastMember?: boolean;
@@ -73,7 +74,7 @@ export const triggerEntries: PlusMenuEntry[] = [
 ]
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
-    const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
+    const { onClose, goBack, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
 
     const { props: { ballerinaVersion } } = useDiagramContext();
 
@@ -113,6 +114,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     <PlusOptionRenderer
                         entries={menuEntries}
                         onClose={handleOnClose}
+                        goBack={goBack}
                         onOptionSelect={onOptionSelect}
                         targetPosition={targetPosition}
                         showCategorized={showCategorized}

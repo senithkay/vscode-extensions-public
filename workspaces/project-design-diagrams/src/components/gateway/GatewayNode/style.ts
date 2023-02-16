@@ -12,7 +12,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Colors, Level } from "../../../resources";
+import { Colors } from "../../../resources";
 
 interface StyleProps {
     rotate?: string;
@@ -21,7 +21,7 @@ interface StyleProps {
 }
 
 export const GatewayContainer = styled.div`
-    background-color: ${Colors.GATEWAY};
+    opacity: 0;
     border-radius: 3px;
     color: #fff;
     cursor: pointer;

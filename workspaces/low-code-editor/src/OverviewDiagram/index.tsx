@@ -17,10 +17,12 @@ import { FilterList } from "@material-ui/icons";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useDiagramContext } from "../Contexts/Diagram";
-import { WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
+import { FileListEntry, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 
 import { Filter as FilterComponent } from './components/Filter'
+import { TopLevelActionButton } from "./components/TopLevelActionButton";
 import * as Views from './components/ViewTypes';
+import { CategoryView } from "./components/ViewTypes/CategoryView";
 import './style.scss';
 import { ComponentViewInfo } from "./util";
 
@@ -32,128 +34,100 @@ enum ViewMode {
     TYPE = 'Type'
 }
 
-
 export interface OverviewDiagramProps {
     lastUpdatedAt: string;
-    projectPaths: WorkspaceFolder[]
+    currentProject: WorkspaceFolder;
+    currentFile: FileListEntry;
     notifyComponentSelection: (info: ComponentViewInfo) => void;
-    filterMap: any;
-    updateFilterMap: (obj: any) => void;
+    updateCurrentFile: (file: FileListEntry) => void;
+    fileList: FileListEntry[];
 }
-
-
 
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
-    const { projectPaths, notifyComponentSelection, lastUpdatedAt, filterMap, updateFilterMap } = props;
+    const { currentProject, currentFile, notifyComponentSelection, lastUpdatedAt, updateCurrentFile, fileList } = props;
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
     const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
-    const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
     // const [filterMap, setFilterMap] = useState({});
-    const ref = useRef();
-    const isProjectWorkspace: boolean = projectPaths.length > 0;
-
-    const handleViewModeChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
-        switch (evt.target.value) {
-            case ViewMode.MODULE:
-                setViewMode(ViewMode.MODULE);
-                break;
-            case ViewMode.FILE:
-                setViewMode(ViewMode.FILE);
-                break;
-            case ViewMode.TYPE:
-                setViewMode(ViewMode.TYPE);
-                break;
-            default:
-            // ignored
-        }
-    }
 
     useEffect(() => {
         (async () => {
             try {
-                const langClient = await getDiagramEditorLangClient();
-                const filePaths: any = projectPaths
-                    .filter(path => filterMap[path.name])
-                    .map(path => ({ uri: path.uri.external }));
-                const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
-                    documentIdentifiers: [...filePaths]
-                });
-                updateProjectComponenets(componentResponse);
+                if (currentProject) {
+                    const langClient = await getDiagramEditorLangClient();
+                    const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
+                        documentIdentifiers: [{ uri: currentProject.uri.external }]
+                    });
+
+                    updateProjectComponenets(componentResponse);
+                }
             } catch (err) {
                 // tslint:disable-next-line: no-console
                 console.error(err);
             }
         })();
-    }, [lastUpdatedAt, filterMap]);
+    }, [lastUpdatedAt, currentProject]);
 
-    const renderView = () => {
-        const CurrentView = Views[viewMode];
-        if (!CurrentView) return <></>;
-        return (
-            <div className="view-container">
-                <CurrentView
-                    projectComponents={projectComponents}
-                    updateSelection={notifyComponentSelection}
-                />
-            </div>
-        )
-    }
 
-    const handleFilterClick = () => {
-        setIsFilterOpen(true);
-    }
+    // const handleFilterClick = () => {
+    //     setIsFilterOpen(true);
+    // }
+    //
+    // const handleFilterClose = () => {
+    //     setIsFilterOpen(false);
+    // }
+    //
+    // const handleMapChange = (obj: any) => {
+    //     updateFilterMap(obj);
+    // }
 
-    const handleFilterClose = () => {
-        setIsFilterOpen(false);
-    }
-
-    const handleMapChange = (obj: any) => {
-        updateFilterMap(obj);
-    }
-
-    const viewSelector = (
-        <div className="overview-action-bar">
-            <div
-                style={{ display: 'flex', paddingLeft: 15 }}
-                ref={ref}
-                onClick={handleFilterClick}
-            >
-                <span className="label">Filter</span>
-                <div>
-                    {isProjectWorkspace && <FilterList />}
-                    <Popover
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'left', }}
-                        title={'Filter'}
-                        open={isFilterOpen}
-                        anchorEl={ref ? ref.current : undefined}
-                        onClose={handleFilterClose}
-                    >
-                        <FilterComponent
-                            filterMap={filterMap}
-                            updateFilterMap={handleMapChange}
-                            handleFilterClose={handleFilterClose}
-                        />
-                    </Popover>
-                </div>
-            </div>
-            <div>
-                <span className="label">Group By</span>
-                <select onChange={handleViewModeChange} value={viewMode}>
-                    <option value={ViewMode.MODULE}>{ViewMode.MODULE}</option>
-                    <option value={ViewMode.FILE}>{ViewMode.FILE}</option>
-                    <option value={ViewMode.TYPE}>{ViewMode.TYPE}</option>
-                </select>
-            </div >
-        </div>
-    );
-
+    // const viewSelector = (
+    //     <div className="overview-action-bar">
+    //         <div
+    //             style={{ display: 'flex', paddingLeft: 15 }}
+    //             ref={ref}
+    //             onClick={handleFilterClick}
+    //         >
+    //             <span className="label">Filter</span>
+    //             <div>
+    //                 {isProjectWorkspace && <FilterList />}
+    //                 <Popover
+    //                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
+    //                     transformOrigin={{ vertical: 'top', horizontal: 'left', }}
+    //                     title={'Filter'}
+    //                     open={isFilterOpen}
+    //                     anchorEl={ref ? ref.current : undefined}
+    //                     onClose={handleFilterClose}
+    //                 >
+    //                     <FilterComponent
+    //                         filterMap={filterMap}
+    //                         updateFilterMap={handleMapChange}
+    //                         handleFilterClose={handleFilterClose}
+    //                     />
+    //                 </Popover>
+    //             </div>
+    //         </div>
+    //         <div>
+    //             <span className="label">Group By</span>
+    //             <select onChange={handleViewModeChange} value={viewMode}>
+    //                 <option value={ViewMode.MODULE}>{ViewMode.MODULE}</option>
+    //                 <option value={ViewMode.FILE}>{ViewMode.FILE}</option>
+    //                 <option value={ViewMode.TYPE}>{ViewMode.TYPE}</option>
+    //             </select>
+    //         </div >
+    //     </div>
+    // );
 
     return (
-        <>
-            {viewSelector}
-            {renderView()}
-        </>
+        <div className="view-container">
+            <CategoryView
+                projectComponents={projectComponents}
+                currentFile={currentFile}
+                updateSelection={notifyComponentSelection}
+                updateCurrentFile={updateCurrentFile}
+                fileList={fileList}
+            />
+             <TopLevelActionButton />
+        </div>
     )
 }

@@ -12,18 +12,19 @@
  */
 import React from 'react';
 
-import { ComponentViewInfo } from "../../OverviewDiagram/util";
+import { HistoryEntry } from '../hooks/history';
+
 
 export interface HistoryProviderState {
-    history: ComponentViewInfo[],
-    historyPush: (info: ComponentViewInfo) => void;
+    history: HistoryEntry[],
+    historyPush: (info: HistoryEntry) => void;
     historyPop: () => void;
     historyReset: () => void;
 }
 
 export const Context = React.createContext<HistoryProviderState>({
     history: [],
-    historyPush(info: ComponentViewInfo): void {
+    historyPush(info: HistoryEntry): void {
         throw new Error("Function not implemented.");
     },
     historyPop(): void {
@@ -37,7 +38,7 @@ export const Context = React.createContext<HistoryProviderState>({
 export const Provider: React.FC<HistoryProviderState> = (props) => {
     const { children, ...restProps } = props;
     return (
-        <Context.Provider value={{...restProps}} >
+        <Context.Provider value={{ ...restProps }} >
             {props.children}
         </Context.Provider>
     )

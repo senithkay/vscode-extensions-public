@@ -160,6 +160,8 @@ class DeleteConfigSetupVisitor implements Visitor {
     public beginVisitIdentifierToken(node: IdentifierToken, parent?: STNode) {
         if (parent && (parent.viewState as StatementEditorViewState).templateExprDeletable) {
             (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        } else if (parent?.parent && STKindChecker.isFieldAccess(parent.parent)) {
+            (node.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
     }
 }

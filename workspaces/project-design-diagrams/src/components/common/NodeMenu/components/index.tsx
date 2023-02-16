@@ -18,6 +18,7 @@
  */
 
 export { GoToDesign } from './GoToDesign';
-export { Go2SourceWidget } from './Go2SourceButton';
-export { LinkingWidget } from './LinkingButton';
-export { AddConnectorWidget } from './AddConnectorButton';
+export { Go2SourceButton } from './Go2SourceButton';
+export { LinkingButton } from './LinkingButton';
+export { AddConnectorButton } from './AddConnectorButton';
+

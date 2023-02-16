@@ -14,6 +14,7 @@
 import React, { useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
+import { ArrowBack } from "@material-ui/icons";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ConfigOverlayFormStatus, SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ComponentExpandButton, LinePrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -128,7 +129,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                             </span>
                         </div>
                         <div className={classes.serviceConfigure} >
-                            <SettingsIcon onClick={handleServiceConfigureFormClick}/>
+                            <SettingsIcon onClick={handleServiceConfigureFormClick} />
                         </div>
                     </div>
                     <div className={classes.expandAll}>

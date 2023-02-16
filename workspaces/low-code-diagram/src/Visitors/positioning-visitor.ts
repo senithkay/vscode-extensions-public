@@ -472,7 +472,7 @@ export class PositioningVisitor implements Visitor {
             height += START_SVG_HEIGHT + (functionTrigger.offsetFromBottom * 2);
         }
 
-        this.beginBlockPosition(node, index + node.statements.length, height, index);
+        this.beginBlockPosition(node as BlockStatement, index + node.statements.length, height, index);
     }
 
     public endVisitFunctionBodyBlock(node: FunctionBodyBlock, parent?: STNode): void {

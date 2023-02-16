@@ -133,7 +133,8 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
                     anchorOrigin: {
                         vertical: "bottom",
                         horizontal: "left",
-                    }
+                    },
+                    disableScrollLock: true
                 }}
                 renderValue={renderValue}
                 IconComponent={disabled ? EmptyChevronIcon : undefined}

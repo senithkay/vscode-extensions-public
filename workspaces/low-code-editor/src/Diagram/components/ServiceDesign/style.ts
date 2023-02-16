@@ -157,7 +157,12 @@ export const useStyles = makeStyles(() =>
         },
         serviceTitle: {
             padding: 15,
-            display: "flex"
+            display: "flex",
+            flexDirection: "row",
+            height: 50,
+            width: "100%",
+            // boxShadow: "inset 0 -1px 0 0 #E6E7EC",
+            // backgroundColor: "#F7F8FB",
         },
         serviceConfigure: {
             display: "flex",
@@ -168,6 +173,12 @@ export const useStyles = makeStyles(() =>
                 background: "#e5e6ea",
                 cursor: "pointer"
             }
+        },
+        navigationIcon: {
+            display: "flex",
+            margin: "0 5px",
+            justifyContent: "center",
+            alignItems: "center",
         },
         servicePath: {
             fontSize: 20,

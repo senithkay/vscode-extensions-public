@@ -210,6 +210,17 @@ function renderDiagram(
                     );
                 })
             }
+            function getAllFiles(matchingPattern, ignorePattern) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getAllFilesInProject',
+                        [matchingPattern, ignorePattern],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                });
+            }
             function openExternalUrl(command, args) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -285,7 +296,8 @@ function renderDiagram(
                             experimentalEnabled,
                             openInDiagram,
                             diagramFocus,
-                            workspaceName
+                            workspaceName,
+                            getAllFiles
                         }
                     };
 

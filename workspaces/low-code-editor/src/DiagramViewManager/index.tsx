@@ -27,13 +27,13 @@ import {
     getLowcodeST,
     getSyntaxTree
 } from "../DiagramGenerator/generatorUtil";
-import { EditorProps } from "../DiagramGenerator/vscode/Diagram";
+import { EditorProps, FileListEntry, Uri, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
 
 import { Provider as HistoryProvider } from './context/history';
-import { useComponentHistory } from "./hooks/history";
+import { HistoryEntry, useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
@@ -74,19 +74,90 @@ export function DiagramViewManager(props: EditorProps) {
         getFileContent,
         getEnv,
         getBallerinaVersion,
-        workspaceName
+        workspaceName,
+        getAllFiles
     } = props;
     const classes = useGeneratorStyles();
+
+    const isWorkspace: boolean = projectPaths.length > 1;
     const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
+    const [currentFileContent, setCurrentFileContent] = useState<string>();
+    const [history, historyPush, historyPop, historyClear] = useComponentHistory();
+    // const [folderName, setFolderName] = vte<string>();
+    // const [filterMap, setFilterMap] = useState({});
+    const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
+    const [fileList, setFileList] = useState<FileListEntry[]>();
+    const [focusFile, setFocusFile] = useState<FileListEntry>();
+    const [focusUid, setFocusUid] = useState<string>();
+    const [stMemberId, setStMemberId] = useState<string>();
     const [focusedST, setFocusedST] = useState<STNode>();
-    const [completeST, setCompleteST] = useState<STNode>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
-    const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [history, historyPush, historyPop, historyClear] = useComponentHistory();
-    const [folderName, setFolderName] = useState<string>();
-    const [filterMap, setFilterMap] = useState({});
+    const [completeST, setCompleteST] = useState<STNode>();
+
+
+    useEffect(() => {
+        if (!focusFile || !focusUid) return;
+        fetchST(focusFile.uri.path, { uid: focusUid });
+    }, [lastUpdatedAt]);
+
+    useEffect(() => {
+        if (history.length > 0) {
+            const { project, file, position } = history[history.length - 1];
+            fetchST(file.uri.path, { position });
+            if (currentProject.name !== project.name) setCurrentProject(project);
+            setFocusFile(file);
+        } else {
+            setFocusedST(undefined);
+            setFocusUid(undefined);
+        }
+    }, [history[history.length - 1]]);
+
+    useEffect(() => {
+        if (currentProject) {
+            (async () => {
+                const response = await getAllFiles('**/*.bal');
+                const fileListResponse: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
+                const projectFiles: FileListEntry[] = fileListResponse.map(fileUri => ({
+                    fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
+                    uri: fileUri
+                }));
+                setFileList(projectFiles);
+                setFocusFile(undefined);
+                setFocusedST(undefined);
+            })();
+        }
+    }, [currentProject?.name]);
+
+    useEffect(() => {
+        if (diagramFocus) {
+            const { filePath, position } = diagramFocus;
+            const currentProjectPath = projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
+
+            (async () => {
+                const response = await getAllFiles('**/*.bal');
+                const filteredFileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProjectPath.uri.fsPath));
+                const projectFiles: FileListEntry[] = filteredFileList.map(fileUri => ({
+                    fileName: fileUri.path.replace(`${currentProjectPath.uri.fsPath}/`, ''),
+                    uri: fileUri
+                }));
+                const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
+                if (position) {
+                    historyPush({ project: currentProjectPath, file: currentFile, position });
+                }
+                setCurrentProject(currentProjectPath);
+                setFileList(projectFiles);
+                setFocusFile(currentFile);
+            })();
+
+        }
+    }, [diagramFocus]);
+
+    // useEffect(() => {
+    //     setFocusUid(undefined);
+    //     setFocusedST(undefined);
+    // }, [focusFile]);
 
     React.useEffect(() => {
         (async () => {
@@ -100,122 +171,109 @@ export function DiagramViewManager(props: EditorProps) {
             // }
         })();
     }, []);
+    //
+    // useEffect(() => {
+    //     if (history.length > 0) {
+    //         const {
+    //             filePath, uid
+    //         } = history[history.length - 1];
+    //         // diagramFocusSend({
+    //         //     type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
+    //         //         filePath,
+    //         //         position
+    //         //     }
+    //         // })
+    //         let dirName;
+    //
+    //         projectPaths.forEach(project => {
+    //             if (projectPaths.length > 1 && filePath.includes(project.uri.fsPath)) {
+    //                 dirName = project.name;
+    //             }
+    //         })
+    //
+    //         setFolderName(dirName);
+    //         setDiagramFocuState({
+    //             filePath,
+    //             uid
+    //         });
+    //
+    //     } else {
+    //         // diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
+    //         setDiagramFocuState(undefined);
+    //         setFolderName(undefined);
+    //     }
+    // }, [history[history.length - 1]]);
+    //
+    // useEffect(() => {
+    //     projectPaths.forEach(path => {
+    //         if (!filterMap[path.name]) {
+    //             filterMap[path.name] = true;
+    //         }
+    //     })
+    //     setFilterMap(filterMap);
+    // }, [projectPaths]);
 
-    useEffect(() => {
-        if (history.length > 0) {
-            const {
-                filePath, uid
-            } = history[history.length - 1];
-            // diagramFocusSend({
-            //     type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
-            //         filePath,
-            //         position
-            //     }
-            // })
-            let dirName;
-
-            projectPaths.forEach(project => {
-                if (projectPaths.length > 1 && filePath.includes(project.uri.fsPath)) {
-                    dirName = project.name;
-                }
-            })
-
-            setFolderName(dirName);
-            setDiagramFocuState({
-                filePath,
-                uid
-            });
-
-        } else {
-            // diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
-            setDiagramFocuState(undefined);
-            setFolderName(undefined);
-        }
-    }, [history[history.length - 1]]);
-
-    useEffect(() => {
-        projectPaths.forEach(path => {
-            if (!filterMap[path.name]) {
-                filterMap[path.name] = true;
-            }
-        })
-        setFilterMap(filterMap);
-    }, [projectPaths]);
-
-    const fetchST = () => {
-        if (history.length > 0) {
-            const componentDetails = history[history.length - 1];
-            const { filePath, uid } = componentDetails;
-            (async () => {
-                try {
-                    const langClient = await langClientPromise;
-                    const generatedST = await getSyntaxTree(filePath, langClient);
-                    const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
-                    const content = await getFileContent(filePath);
-                    const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
-                    const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
-
-                    const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
-                    traversNode(visitedST, nodeFindingVisitor);
-
-                    setFocusedST(nodeFindingVisitor.getNode());
-                    setCompleteST(visitedST);
-                    setCurrentFileContent(content);
-                    setLowCodeResourcesVersion(resourceVersion);
-                    setLowCodeEnvInstance(envInstance);
-                } catch (err) {
-                    // tslint:disable-next-line: no-console
-                    console.error(err);
-                }
-            })();
-        }
-    }
-    useEffect(() => {
-        fetchST();
-    }, [lastUpdatedAt]);
-
-
-    useEffect(() => {
-        fetchST();
-    }, [diagramFocusState]);
-
-    useEffect(() => {
-        // diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
-        if (diagramFocus) {
-            updateSelectedComponent({ filePath: diagramFocus.filePath, position: diagramFocus.position })
-       }
-    }, [diagramFocus])
-
-    const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
-        const { filePath, position } = componentDetails;
+    // TODO: move to util file
+    const fetchST = (filePath: string, options?: { position?: NodePosition, uid?: string }) => {
         (async () => {
             try {
                 const langClient = await langClientPromise;
                 const generatedST = await getSyntaxTree(filePath, langClient);
                 const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
-
                 const content = await getFileContent(filePath);
                 const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                 const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
+                let selectedST;
 
-                const uidGenVisitor = new UIDGenerationVisitor(position);
-                traversNode(visitedST, uidGenVisitor);
-                componentDetails.uid = uidGenVisitor.getUId();
-                const nodeFindingVisitor = new FindNodeByUidVisitor(componentDetails.uid);
-                traversNode(visitedST, nodeFindingVisitor);
+                if (options && options.position) {
+                    const uidGenVisitor = new UIDGenerationVisitor(options.position);
+                    traversNode(visitedST, uidGenVisitor);
+                    const generatedUid = uidGenVisitor.getUId();
+                    const nodeFindingVisitor = new FindNodeByUidVisitor(generatedUid);
+                    traversNode(visitedST, nodeFindingVisitor);
+                    selectedST = nodeFindingVisitor.getNode();
+                    setFocusUid(generatedUid);
+                }
 
-                setDiagramFocuState({ filePath, uid: componentDetails.uid });
-                setFocusedST(nodeFindingVisitor.getNode());
+                if (options && options.uid) {
+                    const nodeFindingVisitor = new FindNodeByUidVisitor(options.uid);
+                    traversNode(visitedST, nodeFindingVisitor);
+                    selectedST = nodeFindingVisitor.getNode();
+                }
+
+                setFocusedST(selectedST);
                 setCompleteST(visitedST);
                 setCurrentFileContent(content);
                 setLowCodeResourcesVersion(resourceVersion);
                 setLowCodeEnvInstance(envInstance);
-                historyPush(componentDetails);
             } catch (err) {
                 // tslint:disable-next-line: no-console
                 console.error(err);
             }
         })();
+    }
+
+    //
+    //
+    // useEffect(() => {
+    //     fetchST();
+    // }, [diagramFocusState]);
+    //
+    // useEffect(() => {
+    //     // diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
+    //     if (diagramFocus) {
+    //         updateSelectedComponent({ filePath: diagramFocus.filePath, position: diagramFocus.position })
+    //     }
+    // }, [diagramFocus])
+    const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
+        const { filePath, position } = componentDetails;
+        const fileListEntry = fileList.find(file => file.uri.path === filePath);
+        historyPush({
+            file: fileListEntry,
+            project: currentProject,
+            position,
+        });
+        // fetchST(filePath, { position });
     }
 
     const handleNavigationHome = () => {
@@ -224,17 +282,19 @@ export function DiagramViewManager(props: EditorProps) {
 
     const viewComponent: React.ReactElement[] = [];
 
-    if (!diagramFocusState) {
+    if (!focusedST && currentProject) {
+
         viewComponent.push((
             <OverviewDiagram
+                currentProject={currentProject}
+                currentFile={focusFile}
                 lastUpdatedAt={lastUpdatedAt}
-                projectPaths={projectPaths}
                 notifyComponentSelection={updateSelectedComponent}
-                filterMap={filterMap}
-                updateFilterMap={setFilterMap}
+                updateCurrentFile={setFocusFile}
+                fileList={fileList}
             />
         ));
-    } else if (!!diagramFocusState && !!focusedST) {
+    } else if (focusedST) {
         if (STKindChecker.isServiceDeclaration(focusedST)) {
             if (focusedST.expressions.length > 0) {
                 const listenerExpression = focusedST.expressions[0];
@@ -274,6 +334,57 @@ export function DiagramViewManager(props: EditorProps) {
             viewComponent.push(<Diagram />);
         }
     }
+    //
+    // if (!diagramFocusState) {
+    //     viewComponent.push((
+    //         <OverviewDiagram
+    //             lastUpdatedAt={lastUpdatedAt}
+    //             projectPaths={projectPaths}
+    //             notifyComponentSelection={updateSelectedComponent}
+    //             filterMap={filterMap}
+    //             updateFilterMap={setFilterMap}
+    //         />
+    //     ));
+    // } else if (!!diagramFocusState && !!focusedST) {
+    //     if (STKindChecker.isServiceDeclaration(focusedST)) {
+    //         if (focusedST.expressions.length > 0) {
+    //             const listenerExpression = focusedST.expressions[0];
+    //             const typeData = listenerExpression.typeData;
+    //             const typeSymbol = typeData?.typeSymbol;
+    //             const signature = typeSymbol?.signature;
+    //             if (signature && signature.includes('http')) {
+    //                 viewComponent.push((
+    //                     <ServiceDesignOverlay
+    //                         model={focusedST}
+    //                         targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+    //                         onCancel={handleNavigationHome}
+    //                     />
+    //                 ));
+    //             } else if (signature && signature.includes('graphql')) {
+    //                 viewComponent.push(
+    //                     <GraphqlDiagramOverlay
+    //                         model={focusedST}
+    //                         targetPosition={focusedST.position}
+    //                         ballerinaVersion={balVersion}
+    //                         onCancel={handleNavigationHome}
+    //                     />
+    //                 );
+    //             }
+    //         }
+    //     } else if (STKindChecker.isFunctionDefinition(focusedST)
+    //         && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
+    //         viewComponent.push((
+    //             <DataMapperOverlay
+    //                 targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+    //                 model={focusedST}
+    //                 ballerinaVersion={balVersion}
+    //                 onCancel={handleNavigationHome}
+    //             />
+    //         ))
+    //     } else {
+    //         viewComponent.push(<Diagram />);
+    //     }
+    // }
     const navigateUptoParent = (position: NodePosition) => {
         if (!position) {
             return;
@@ -285,14 +396,26 @@ export function DiagramViewManager(props: EditorProps) {
         updateSelectedComponent(currentHistoryEntry);
     }
 
-    const handleFolderClick = () => {
-        Object.keys(filterMap).forEach((key) => {
-            filterMap[key] = key === folderName;
-        })
-
-        setFilterMap(filterMap);
-        historyClear();
+    //
+    // const handleFolderClick = () => {
+    //     Object.keys(filterMap).forEach((key) => {
+    //         filterMap[key] = key === folderName;
+    //     })
+    //
+    //     setFilterMap(filterMap);
+    //     historyClear();
+    // }
+    //
+    const handleFileChange = (entry: FileListEntry) => {
+        setFocusFile(entry);
+        setFocusUid(undefined);
+        setFocusedST(undefined);
     }
+
+    const updateActiveFile = (currentFile: FileListEntry) => {
+        setFocusFile(currentFile);
+        fetchST(currentFile.uri.path);
+    };
 
     return (
         <div>
@@ -300,7 +423,7 @@ export function DiagramViewManager(props: EditorProps) {
                 <div className={classes.lowCodeContainer}>
                     <IntlProvider locale='en' defaultLocale='en' messages={messages}>
                         <ViewManagerProvider
-                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, diagramFocusState, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateSelectedComponent, navigateUptoParent)}
+                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, focusFile, fileList, stMemberId, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateActiveFile, updateSelectedComponent, navigateUptoParent)}
                         >
                             <HistoryProvider
                                 history={history}
@@ -309,13 +432,13 @@ export function DiagramViewManager(props: EditorProps) {
                                 historyReset={historyClear}
                             >
                                 <NavigationBar
-                                    projectName={workspaceName}
-                                    folderName={folderName}
-                                    isWorkspace={projectPaths.length > 1}
-                                    onFolderClick={handleFolderClick}
+                                    workspaceName={workspaceName}
+                                    projectList={projectPaths}
+                                    currentProject={currentProject}
+                                    updateCurrentProject={setCurrentProject}
                                 />
-                                <div id={'canvas-overlay'} className={"overlayContainer"} />
                                 {viewComponent}
+                                <div id={'canvas-overlay'} className={"overlayContainer"} />
                             </HistoryProvider>
                         </ViewManagerProvider>
                     </IntlProvider>
@@ -323,5 +446,6 @@ export function DiagramViewManager(props: EditorProps) {
             </MuiThemeProvider>
         </div>
     )
+    // {viewComponent}
 }
 

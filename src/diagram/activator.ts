@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
-	TextDocumentShowOptions, ProgressLocation, ExtensionContext
+	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern
 } from 'vscode';
 import { render } from './renderer';
 import {
@@ -30,7 +30,7 @@ import {
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM } from '../telemetry';
+import { CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, getMessageObject } from '../telemetry';
 import { getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { sep } from "path";
@@ -89,19 +89,19 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	// 		return;
 	// 	}
 	// }
-
+	//
 	// if (isCommand) {
 	// 	if (!editor) {
-	// 		window.showErrorMessage(NO_DIAGRAM_VIEWS);
+	// 		window.showErrorMessage(CMP_DIAGRAM_VIEW);
 	// 		return;
 	// 	}
-
+	//
 	// 	diagramElement = {
 	// 		fileUri: editor!.document.uri,
 	// 		startLine: editor!.selection.active.line,
 	// 		startColumn: editor!.selection.active.character,
 	// 		isDiagram: true,
-
+	//
 	// 	};
 	// } else {
 	// 	diagramElement = {
@@ -111,13 +111,13 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	// 		isDiagram: true,
 	// 	};
 	// }
-	
+
 	diagramElement = {
 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
 		startLine,
 		startColumn,
 		isDiagram: true,
-		diagramFocus: filePath && filePath.length !== 0 && openInDiagram ?
+		diagramFocus: filePath && filePath.length !== 0 ?
 			{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined,
 		workspaceName: workspace.name
 	};
@@ -202,10 +202,8 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 
 	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path) => {
 		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
-			console.log('test1 >>>');
 			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position);
 		} else {
-			console.log('test2 >>>');
 			const args = [{
 				filePath: path,
 				startLine: 0,
@@ -224,7 +222,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		}
 
 		let nodePosition: NodePosition;
-		if (args.length > 1 
+		if (args.length > 1
 			&& (args[1] as NodePosition).startLine !== undefined
 			&& (args[1] as NodePosition).startColumn !== undefined
 			&& (args[1] as NodePosition).endLine !== undefined
@@ -569,6 +567,13 @@ class DiagramPanel {
 				handler: async (args: any[]): Promise<any> => {
 					const envName = args[0];
 					return (envName in process.env) ? process.env[envName] : "NOT_FOUND";
+				}
+			},
+			{
+				methodName: "getAllFilesInProject",
+				handler: async (args: any[]): Promise<Uri[]> => {
+					// TODO: handle ignore glob pattern as well, and change the frontend filter
+					return workspace.findFiles(args[0]);
 				}
 			},
 		];
