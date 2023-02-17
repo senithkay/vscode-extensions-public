@@ -11,13 +11,14 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useState } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import classnames from "classnames";
 
-import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
 import { getTypeName } from "../../utils/dm-utils";
 
@@ -30,7 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
             verticalAlign: "middle",
             padding: "5px",
             minWidth: "100px",
-            marginRight: "24px"
+            marginRight: "24px",
         },
         valueLabel: {
             verticalAlign: "middle",
@@ -40,10 +41,8 @@ const useStyles = makeStyles((theme: Theme) =>
             float: "right",
             width: 'fit-content',
             marginLeft: "auto",
-        },
-        treeLabelInPort: {
-            float: "left",
-            width: 'fit-content',
+            display: "flex",
+            alignItems: "center"
         },
         label: {
             width: "300px",
@@ -84,6 +83,8 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
     const { engine, typeDesc, id, getPort, valueLabel, nodeHeaderSuffix } = props;
     const classes = useStyles();
 
+    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+
     const typeName = getTypeName(typeDesc);
 
     const portIn = getPort(`${id}.IN`);
@@ -112,25 +113,23 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
     /** Invisible port to which the right angle link from the query header/clauses are connected to */
     const invisiblePort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
+
     return (
         <TreeContainer data-testid={`${id}-node`}>
             <div className={classes.queryPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>
-
-            <TreeHeader>
-                <span className={classes.treeLabelInPort}>
-                    {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn} />
-                    }
-                </span>
+            <TreeHeader id={"recordfield-" + id} isSelected={portState !== PortState.Unselected}>
                 <span className={classes.label}>
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} />
+                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
             </TreeHeader>

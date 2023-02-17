@@ -21,7 +21,7 @@ import {
     Organization, Project, CloseWebViewNotification,
     ShowErrorMessage, Component, GetProjectLocation, OpenExternal,
     OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
-    PushLocalComponentsToChoreo, OpenArchitectureView, HasUnpushedComponents, UpdateProjectOverview
+    PushLocalComponentsToChoreo, OpenArchitectureView, HasUnpushedComponents, UpdateProjectOverview, isSubpathAvailable, SubpathAvailableRequest
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -92,6 +92,10 @@ export class ChoreoWebViewAPI {
 
     public async isChoreoProject(): Promise<boolean> {
         return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async isSubpathAvailable(params: SubpathAvailableRequest): Promise<boolean> {
+        return this._messenger.sendRequest(isSubpathAvailable, HOST_EXTENSION, params);
     }
 
     public async getChoreoProject(): Promise<Project | undefined> {

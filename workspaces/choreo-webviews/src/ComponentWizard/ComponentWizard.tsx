@@ -14,7 +14,7 @@
 import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { css, cx } from "@emotion/css";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ProjectSelector } from "../ProjectSelector/ProjectSelector";
@@ -63,15 +63,39 @@ export function ComponentWizard() {
     const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
     const [repository, setRepository] = useState<string>('');
     const [componentNames, setComponentNames] = useState<string[]>([]);
-    const [showRepoSelector, setShowRepoSelector] = useState<boolean>(true);
+    const [showRepoSelector, setShowRepoSelector] = useState<boolean>(false);
     const [selectedBranch, setSelectedBranch] = useState<string>('');
     const [folderName, setFolderName] = useState<string>(name);
+    const [folderNameError, setFolderNameError] = useState<string>("");
+
+
+    const setSubFolderName = useCallback(async (fName: string) => {
+        setFolderName(fName);
+        if (repository && projectId) {
+            // TODO: Debounce
+            const isSubpathAvailable = await ChoreoWebViewAPI.getInstance().isSubpathAvailable({
+                orgName: repository.split('/')[0],
+                repoName: repository.split('/')[1],
+                subpath: fName,
+                projectID: projectId
+            });
+            if (!isSubpathAvailable) {
+                setFolderNameError("The folder name is already in use in the repository");
+            } else {
+                setFolderNameError("");
+            }
+        } else {
+            setFolderNameError("");
+        }
+    }, [projectId, repository]);
 
     useEffect(() => {
         if (isChoreoProject && choreoProject) {
             ChoreoWebViewAPI.getInstance().getProjectRepository(choreoProject?.id).then((repo: any) => {
                 if (repo) {
                     setRepository(repo);
+                } else {
+                    setShowRepoSelector(true);
                 }
             });
         }
@@ -79,9 +103,9 @@ export function ComponentWizard() {
 
     useEffect(() => {
         if (name) {
-            setFolderName(name);
+            setSubFolderName(name);
         }
-    }, [name]);
+    }, [name, setSubFolderName]);
 
     useEffect(() => {
         if (isChoreoProject && choreoProject) {
@@ -109,7 +133,7 @@ export function ComponentWizard() {
         }
     }
 
-    const canCreateComponent = name && !isDuplicateName && projectId && accessibility && selectedType && selectedOrg && selectedBranch && folderName;
+    const canCreateComponent = name && !isDuplicateName && !folderNameError && projectId && accessibility && selectedType && selectedOrg && selectedBranch && folderName;
 
     const handleComponentCreation = () => {
         if (canCreateComponent) {
@@ -127,16 +151,19 @@ export function ComponentWizard() {
                     branch: selectedBranch,
                     subPath: folderName
                 }
-            }).then(() => {
+            }).then((response: any) => {
                 setProgressStatus(false);
-                ChoreoWebViewAPI.getInstance().updateProjectOverview(projectId);
-                closeWebView();
+                if (response === true) {
+                    ChoreoWebViewAPI.getInstance().updateProjectOverview(projectId);
+                    closeWebView();
+                } else if (response?.message) {
+                    throw new Error(response.message);
+                }
             }).catch((err: Error) => {
                 ChoreoWebViewAPI.getInstance().showErrorMsg(err.message);
             });
         }
     };
-
 
     const closeWebView = () => {
         ChoreoWebViewAPI.getInstance().closeWebView();
@@ -183,23 +210,27 @@ export function ComponentWizard() {
                     </VSCodeDropdown>
 
                     <RepoInfoContainer>
-                        <label htmlFor="repository">Selected Repository <RequiredFormInput /></label>
-                        <VSCodeTextField id="repository" value={repository} readOnly={!showRepoSelector} />
-                        {repository && selectedBranch && selectedOrg &&
-                            <VSCodeLink onClick={() => setShowRepoSelector(!showRepoSelector)}>
-                                {showRepoSelector ? 'Hide Repositories' : 'Show Repositories'}
+                        <label htmlFor="repository">Repository <RequiredFormInput /></label>
+                        {!showRepoSelector &&
+                            <VSCodeTextField id="repository" value={repository} readOnly={true} />                            
+                        }
+                        {!showRepoSelector &&
+                            <VSCodeLink onClick={() => setShowRepoSelector(true)}>
+                                Change
                             </VSCodeLink>
                         }
-                        {(showRepoSelector || !repository || !selectedOrg)
+                        {(showRepoSelector)
                             && <GithubRepoSelector onRepoSelect={handleRepoSelection} />}
                         <GithubRepoBranchSelector repository={repository} onBranchSelected={setSelectedBranch} />
                         <VSCodeTextField
                             placeholder="Sub folder"
-                            onInput={(e: any) => setFolderName(e.target.value)}
+                            onInput={(e: any) => setSubFolderName(e.target.value)}
                             value={folderName}
                         >
                             Sub Folder <RequiredFormInput />
+                            {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                         </VSCodeTextField>
+                        {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
                     </RepoInfoContainer>
 
                     <ActionContainer>
@@ -211,7 +242,7 @@ export function ComponentWizard() {
                         </VSCodeButton>
                         <VSCodeButton
                             appearance="primary"
-                            disabled={!canCreateComponent}
+                            disabled={!canCreateComponent || inProgress}
                             onClick={handleComponentCreation}
                         >
                             Create

@@ -3,6 +3,14 @@ name: Publish VSIX to VSCode Marketplace and OpenVSX
 on:
   workflow_dispatch:
     inputs:
+      extension:
+        type: choice
+        description: 'Select the extension'
+        required: true
+        default: 'ballerina'
+        options:
+          - 'ballerina'
+          - 'choreo' 
       isPreRelease:
         required: true
         type: boolean 
@@ -49,11 +57,14 @@ jobs:
       - name: Get version
         id: vsix
         run: | 
-          file=$(ls *.vsix)
+          file=$(ls ${{ steps.vsix.outputs.extension }}*.vsix)
           fileName=${file#*-}
           version=${fileName%.*}
+          extension=${{ github.event.inputs.extension }}
+          extensionName="$(echo "$extension" | sed 's/.*/\u&/')"
           echo "vsixName=$file" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
+          echo "extensionName=$extensionName" >> $GITHUB_OUTPUT
           if [ "${{ github.event.inputs.isPreRelease }}" == "true" ]; then
             echo "releaseMode=--pre-release" >> $GITHUB_OUTPUT
           else
@@ -61,7 +72,7 @@ jobs:
           fi  
 
       - name: Create a release in wso2/ballerina-plugin-vscode repo
-        if: ${{ github.event.inputs.isPreRelease == 'false' }}
+        if: ${{ github.event.inputs.extension == 'ballerina' && github.event.inputs.isPreRelease == 'false' }}
         run: |
           id=`curl -X GET  -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" \
@@ -87,6 +98,10 @@ jobs:
           {
             "cards": [
               {
+                "header": {
+                    "title": "Marketplace Release",
+                    "subtitle": "${{ steps.vsix.outputs.extensionName }} Extension"
+                },
                 "sections": [
                   {
                     "widgets": [
@@ -100,7 +115,7 @@ jobs:
                               "text": "View",
                               "onClick": {
                                 "openLink": {
-                                  "url": "https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina"
+                                  "url": "https://marketplace.visualstudio.com/items?itemName=WSO2.${{ github.event.inputs.extension }}"
                                 }
                               }
                             }
@@ -117,7 +132,7 @@ jobs:
                               "text": "View",
                               "onClick": {
                                 "openLink": {
-                                  "url": "https://open-vsx.org/extension/wso2/ballerina"
+                                  "url": "https://open-vsx.org/extension/wso2/${{ github.event.inputs.extension }}"
                                 }
                               }
                             }

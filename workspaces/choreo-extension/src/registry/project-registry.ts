@@ -18,6 +18,7 @@ import { existsSync } from 'fs';
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
+import { dirname, join } from "path";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -244,6 +245,16 @@ export class ProjectRegistry {
         } else {
             return true;
         }
+    }
+    
+    public isSubpathAvailable(projectId: string, orgName: string, repoName: string, subPath: string): boolean {
+          const projectLocation = this.getProjectLocation(projectId);
+          if (projectLocation && orgName && repoName && subPath) {
+              const repoPath = join(dirname(projectLocation), "repos", orgName, repoName, subPath);
+              return !existsSync(repoPath);
+          }
+          // TODO Handle subpath check for non cloned repos
+          return true;
     }
 
     private _removeLocation(projectId: string) {
