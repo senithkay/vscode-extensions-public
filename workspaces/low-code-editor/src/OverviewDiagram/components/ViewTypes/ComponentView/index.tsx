@@ -56,7 +56,7 @@ function iconNameTranslator(type: string) {
         case 'classes':
             return 'Class';
         case 'types':
-            return 'Type';
+            return 'TypeDefinition';
         case 'constants':
             return 'Constant';
         case 'enums':
@@ -66,7 +66,7 @@ function iconNameTranslator(type: string) {
         case 'moduleVariables':
             return 'Variable';
         default:
-            return 'Class';
+            return 'TypeDefinition';
     }
 }
 
