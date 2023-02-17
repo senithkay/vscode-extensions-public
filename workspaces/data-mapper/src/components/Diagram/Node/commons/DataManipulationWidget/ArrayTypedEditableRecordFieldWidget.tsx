@@ -25,6 +25,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -46,7 +47,6 @@ import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
-import { Diagnostic } from "vscode-languageserver-protocol";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -95,7 +95,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);
     const typeName = getTypeName(field.type);
     const elements = field.elements;
-    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const diagnostic = (valExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
 
     const connectedViaLink = portIn && Object.keys(portIn.links).length > 0;
@@ -181,14 +181,18 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             value={valExpr?.source}
                             onClick={handleEditValue}
                         >
-                            <span className={classes.valueWithError} data-testid={`array-widget-field-${portIn?.getName()}`}>
+                            <span
+                                className={classes.valueWithError}
+                                data-testid={`array-widget-field-${portIn?.getName()}`}
+                            >
                                 {valExpr?.source}
                                 <span className={classes.errorIconWrapper}>
                                     <ErrorIcon />
                                 </span>
                             </span>
                         </DiagnosticTooltip>
-                    ) :  (<span
+                    ) : (
+                        <span
                             className={classes.value}
                             onClick={handleEditValue}
                             data-testid={`array-widget-field-${portIn?.getName()}`}
@@ -296,7 +300,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const handleAddArrayElement = async () => {
         setIsAddingElement(true)
-        try{
+        try {
             const fieldsAvailable = !!listConstructor.expressions.length;
             const defaultValue = field.type?.memberType && getDefaultValue(field.type.memberType);
             let targetPosition: NodePosition;
