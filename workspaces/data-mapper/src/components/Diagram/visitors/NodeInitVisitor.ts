@@ -18,7 +18,6 @@ import {
     IdentifierToken,
     JoinClause,
     LetClause,
-    LetExpression,
     LetVarDecl,
     ListConstructor,
     MappingConstructor,
@@ -258,16 +257,15 @@ export class NodeInitVisitor implements Visitor {
                 }
             }
         }
-        const hasExpanded = this.selection.prevST.length > 0;
-        if (!hasExpanded) {
-            // create node for configuring local variables
-            const letExprNode = new LetExpressionNode(
-                this.context,
-                exprFuncBody
-            );
-            letExprNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-            this.inputNodes.push(letExprNode);
-        }
+
+        // create node for configuring local variables
+        const letExprNode = new LetExpressionNode(
+            this.context,
+            exprFuncBody
+        );
+        letExprNode.setPosition(OFFSETS.SOURCE_NODE.X + (isFnBodyQueryExpr ? 80 : 0), 0);
+        this.inputNodes.push(letExprNode);
+
         // create node for module variables
         if (moduleVariables.size > 0) {
             const moduleVarNode = new ModuleVariableNode(
