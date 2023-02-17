@@ -7,6 +7,7 @@ on:
         default: true
         type: boolean      
       version:
+        default: 'N/A'
         type: string
         required: false
 
