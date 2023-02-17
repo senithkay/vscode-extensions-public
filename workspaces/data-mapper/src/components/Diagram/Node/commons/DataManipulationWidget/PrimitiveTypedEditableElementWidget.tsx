@@ -81,13 +81,13 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     useEffect(() => {
         if (editable) {
             context.enableStatementEditor({
-                value: field?.value && field.value.source,
-                valuePosition: field?.value && field.value.position as NodePosition,
+                value: body?.source,
+                valuePosition: body?.position as NodePosition,
                 label: getFieldLabel(fieldId)
             });
             setEditable(false);
         }
-    }, [editable]);
+    }, [editable, body]);
 
     const label = (
         <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn.getName()}`}>
