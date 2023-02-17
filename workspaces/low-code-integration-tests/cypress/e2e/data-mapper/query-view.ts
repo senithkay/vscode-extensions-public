@@ -236,7 +236,7 @@ describe("Verify input & output search", () => {
     });
 
     it("Create mapping between two record array element", () => {
-        DataMapper.createMapping("input.Items", "Output.Items");
+        DataMapper.createMappingUsingFields("input.Items", "Output.Items");
         DataMapper.linkExists("input.Items", "Output.Items");
     });
 
