@@ -159,16 +159,19 @@ export class ChoreoExtensionApi {
                 const projectRoot = workspaceFileLocation.slice(0, workspaceFileLocation.lastIndexOf(path.sep));
 
                 if (workspaceFileConfig?.folders && projectRoot) {
-                    const projectComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
+                    const choreoComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
                         (this._selectedOrg as Organization).handle);
 
-                    projectComponents.forEach(({ name, apiVersions, accessibility, local = false }) => {
-                        const wsComponent = workspaceFileConfig.folders.find(component => component.name === name);
-                        if (wsComponent && wsComponent.path) {
-                            model.forEach(localModel => {
-                                enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
-                                    path.join(projectRoot, wsComponent.path), local, accessibility);
-                            });
+                    choreoComponents.forEach(({ name, apiVersions, accessibility, local = false }) => {
+                        const wsConfig = workspaceFileConfig.folders.find(component => component.name === name);
+                        if (wsConfig && wsConfig.path) {
+                            for (const localModel of model.values()) {
+                                const response = enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
+                                    path.join(projectRoot, wsConfig.path), local, accessibility);
+                                if (response === true) {
+                                    break;
+                                }
+                            }
                         }
                     });
                 }

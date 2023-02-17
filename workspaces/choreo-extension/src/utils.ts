@@ -14,7 +14,7 @@
 import { ApiVersion, Service } from "@wso2-enterprise/choreo-core";
 
 export function enrichDeploymentData(services: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
-    isLocal: boolean, accessibility?: string) {
+    isLocal: boolean, accessibility?: string): boolean {
     for (const service of services.values()) {
         // Checks whether both Choreo and local paths are same
         if (service.elementLocation.filePath.includes(componentLocation)) {
@@ -47,7 +47,8 @@ export function enrichDeploymentData(services: Map<string, Service>, apiVersions
                     }
                 }
             };
-            break;
+            return true;
         }
     }
+    return false;
 }
