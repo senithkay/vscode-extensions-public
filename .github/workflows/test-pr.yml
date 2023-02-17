@@ -20,7 +20,5 @@ jobs:
   Build:
     if: github.event.pull_request.draft == false
     uses: ./.github/workflows/build.yml
-    with:
-      updateVersion: false
     secrets: inherit  
     

@@ -3,9 +3,9 @@ name: Build and run Tests
 on: 
   workflow_call:
     inputs: 
-      updateVersion:
-        required: true
-        type: boolean   
+      isPreRelease:
+        default: true
+        type: boolean      
       version:
         type: string
         required: false
@@ -37,15 +37,22 @@ jobs:
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
       - name: Update version
-        if: ${{ inputs.updateVersion == true }}
+        if: ${{ inputs.version != "N/A" }}
         run: |
-          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
-          npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspace=workspaces/choreo-extension
+          timestamp=$(date '+%Y%m%d%H%M%S')
+          currentVersion=$(node -p "require('./package.json').version")
+          currentVersionWOPreId=${currentVersion%-*}
+          currentVersionNo=${currentVersionWOPreId%.*}
+          newVersion=${currentVersionNo}.${timestamp}
+          version=${{ inputs.isPreRelease && $newVersion || inputs.version  }}
+          echo $version
+          npm version $version --preid beta --no-git-tag-version
+          npm version $version --preid beta --no-git-tag-version --workspace=workspaces/choreo-extension
           
       - name: Build plugin repo
         run: npm run build
         env:
-          isPreRelease: ${{ inputs.version == 'prerelease' && true || false  }}
+          isPreRelease: ${{ inputs.isPreRelease  }}
 
       - name: Compress build
         run: |
