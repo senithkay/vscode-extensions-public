@@ -69,8 +69,11 @@ const StringType = (props: StringTypeProps): ReactElement => {
     const classes = useStyles();
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (connectionConfigs.length > 0) {
+        if (connectionConfigs.length !== 0) {
+            setIsOpenCollapse(0);
             setAnchorEl(event.currentTarget);
+        } else {
+            setAnchorEl(null);
         }
     };
     const handleClose = () => {
@@ -87,12 +90,13 @@ const StringType = (props: StringTypeProps): ReactElement => {
         setOpenConnection(!openConnection);
     };
 
-    const onSelected = (index: string, mappingName: string, valueReference: string,
-                        valueType: string, connectionName: string) => () => {
-            if (typeof props.value === valueType) {
+    // tslint:disable: jsx-no-lambda jsx-no-multiline-js
+    const onSelected =
+        (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
+            if (valueType === "string") {
                 setSelectedValue(mappingName);
                 setSelectedValueRef(valueReference);
-                setSelectedIndex(connectionName.concat(index));
+                setSelectedIndex(index);
                 setAnchorEl(null);
             } else {
                 setAnchorEl(null);
@@ -112,10 +116,20 @@ const StringType = (props: StringTypeProps): ReactElement => {
         value,
     };
 
+    const [isOpenCollapse, setIsOpenCollapse] = useState(null);
+
+    const handleOpen = (clickedIndex: number) => {
+        if (isOpenCollapse === clickedIndex) {
+            setIsOpenCollapse(null);
+        } else {
+            setIsOpenCollapse(clickedIndex);
+        }
+    };
+
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index} className={classes.accordionBox}>
-                <ListItem button={true} className={classes.accordion}>
+                <ListItem button={true} className={classes.accordion} key={index} onClick={() => handleOpen(index)}>
                     {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
@@ -136,7 +150,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                         return (
                             <Collapse
                                 key={sIndex}
-                                in={openConnection}
+                                in={isOpenCollapse === index}
                                 timeout="auto"
                                 unmountOnExit={true}
                             >
@@ -161,7 +175,6 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                                 "}",
                                             connectionFields.valueRef,
                                             connectionFields.valueType,
-                                            connections.name,
                                         )}
                                         selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
                                     >
