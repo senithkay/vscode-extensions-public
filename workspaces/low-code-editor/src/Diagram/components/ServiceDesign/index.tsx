@@ -122,14 +122,15 @@ export function ServiceDesign(props: ServiceDesignProps) {
                 <>
                     {/*<ServiceHeader onClose={onClose} model={fnSTZ} />*/}
                     <div className={classes.serviceTitle}>
-                        <div>
+                        <div className={classes.serviceTitleText}>
                             <span className={classes.servicePath}>Service {servicePath}</span>
                             <span className={classes.listenerText}>
                                 {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
                             </span>
                         </div>
-                        <div className={classes.serviceConfigure} >
-                            <SettingsIcon onClick={handleServiceConfigureFormClick} />
+                        <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
+                            <SettingsIcon />
+                            <div>Configure Service</div>
                         </div>
                     </div>
                     <div className={classes.expandAll}>

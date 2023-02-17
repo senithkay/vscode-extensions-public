@@ -156,21 +156,32 @@ export const useStyles = makeStyles(() =>
             cursor: "pointer"
         },
         serviceTitle: {
-            padding: 15,
+            padding: 10,
             display: "flex",
+            justifyContent: "center",
             flexDirection: "row",
-            height: 50,
+            height: 40,
             width: "100%",
-            // boxShadow: "inset 0 -1px 0 0 #E6E7EC",
-            // backgroundColor: "#F7F8FB",
+            boxShadow: "inset 0 -1px 0 0 #E6E7EC",
+            backgroundColor: "#F7F8FB",
+            alignItems: "center",
+        },
+        serviceTitleText: {
+            flexGrow: 1,
         },
         serviceConfigure: {
             display: "flex",
             marginLeft: 5,
             justifyContent: "center",
             alignItems: "center",
+            borderRadius: 4,
+            padding: 5,
+            backgroundColor: "#5567d5",
+            color: "white",
+            "& #config-showed-options": {
+                fill: "white",
+            },
             "& :hover": {
-                background: "#e5e6ea",
                 cursor: "pointer"
             }
         },
