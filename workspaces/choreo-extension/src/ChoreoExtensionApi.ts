@@ -150,23 +150,26 @@ export class ChoreoExtensionApi {
         return ProjectRegistry.getInstance().getSwaggerExamples(spec);
     }
 
-    public async enrichChoreoMetadata(model: Map<string, ComponentModel>):
-        Promise<Map<string, ComponentModel> | undefined> {
-        if (this._selectedProjectId && this._selectedOrg?.id && this._selectedOrg) {
+    public async enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined> {
+        if (this._selectedProjectId && this._selectedOrg?.id) {
             const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(this._selectedProjectId);
-            // Remove workspace file from path
-            const currentProjectLocation = workspaceFileLocation?.slice(0, workspaceFileLocation.lastIndexOf(path.sep));
-            const repository = ProjectRegistry.getInstance().getProjectRepository(this._selectedProjectId);
-            if (repository && currentProjectLocation) {
-                const currentRepoLocation = path.join(currentProjectLocation, "repos", repository);
-                const projectComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
-                    (this._selectedOrg as Organization).handle);
-                if (currentProjectLocation) {
+            if (workspaceFileLocation) {
+                const workspaceFileConfig: WorkspaceConfig = JSON.parse(readFileSync(workspaceFileLocation).toString());
+                // Remove workspace file from path
+                const projectRoot = workspaceFileLocation.slice(0, workspaceFileLocation.lastIndexOf(path.sep));
+
+                if (workspaceFileConfig?.folders && projectRoot) {
+                    const projectComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
+                        (this._selectedOrg as Organization).handle);
+
                     projectComponents.forEach(({ name, apiVersions, accessibility, local = false }) => {
-                        model.forEach(localModel => {
-                            enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
-                                currentRepoLocation, name, local, accessibility);
-                        });
+                        const wsComponent = workspaceFileConfig.folders.find(component => component.name === name);
+                        if (wsComponent && wsComponent.path) {
+                            model.forEach(localModel => {
+                                enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
+                                    path.join(projectRoot, wsComponent.path), local, accessibility);
+                            });
+                        }
                     });
                 }
             }
