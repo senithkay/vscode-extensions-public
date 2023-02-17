@@ -1296,7 +1296,17 @@ export const getSearchFilteredOutput = (type: Type) => {
 		return type;
 	}
 
-	if (type.typeName === PrimitiveBalType.Array) {
+	const optionalRecordField = getOptionalRecordField(type);
+	if (optionalRecordField && type?.typeName === PrimitiveBalType.Union) {
+		const matchedSubFields: Type[] = optionalRecordField?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
+		return {
+			...type,
+			members: [
+				{ ...optionalRecordField, fields: matchedSubFields },
+				...type?.members?.filter(member => member.typeName !== PrimitiveBalType.Record)
+			]
+		};
+	} else if (type.typeName === PrimitiveBalType.Array) {
 		const subFields = type.memberType?.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
 
 		return {

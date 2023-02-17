@@ -21,17 +21,17 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 
+import { useDMSearchStore } from "../../../../../store/store";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getExprBodyFromLetExpression, isConnectedViaLink } from "../../../utils/dm-utils";
+import { SearchType } from "../../Search";
+import { SearchNodeWidget } from "../../Search/SearchNodeWidget";
 import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainerWithTopMargin, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
-import { SearchType } from "../../Search";
-import { SearchNodeWidget } from "../../Search/SearchNodeWidget";
-import { useDMSearchStore } from "../../../../../store/store";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

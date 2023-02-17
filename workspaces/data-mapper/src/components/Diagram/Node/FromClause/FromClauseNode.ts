@@ -20,7 +20,6 @@ import {
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
-import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { getOptionalArrayField, getSearchFilteredType, getTypeFromStore } from "../../utils/dm-utils";
@@ -81,7 +80,7 @@ export class FromClauseNode extends DataMapperNodeModel {
         } else {
             type = getTypeFromStore(this.value.expression.position as NodePosition);
         }
-        
+
         if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
             this.typeDef = getSearchFilteredType(type.memberType, this.sourceBindingPattern?.variableName?.value);
         }
