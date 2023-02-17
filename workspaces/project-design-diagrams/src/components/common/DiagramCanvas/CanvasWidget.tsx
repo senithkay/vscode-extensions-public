@@ -133,8 +133,6 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             diagramEngine.setModel(model);
             setDiagramModel(model);
             autoDistribute();
-        } else {
-            debouncedZoomToFit();
         }
         if (diagramEngine.getModel()) {
             removeGWLinks(diagramEngine);
