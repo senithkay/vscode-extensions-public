@@ -40,8 +40,8 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <>
-                        {/*TODO update the correct function type*/}
                         <DesignFunctionWidget position={location}/>
+                        {/*TODO support for subscription and mutation types*/}
                         <EditFunctionWidget position={location} functionType={FunctionType.QUERY}/>
                         <DeleteFunctionWidget position={location}/>
                     </>

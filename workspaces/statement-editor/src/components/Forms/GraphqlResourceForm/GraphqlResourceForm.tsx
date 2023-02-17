@@ -187,8 +187,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
     };
 
     const onDeleteParam = async (paramItem: FunctionParam) => {
-        // setParameters(parameters.filter((item) => item.id !== paramItem.id));
-        // recalculateItemIds(parameters);
         const newParams = parameters.filter((item) => item.id !== paramItem.id);
         const parametersStr = newParams
             .map((item) => `${item.type} ${item.name}`)

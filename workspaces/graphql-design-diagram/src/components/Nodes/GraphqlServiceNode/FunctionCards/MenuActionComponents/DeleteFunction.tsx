@@ -15,7 +15,8 @@
 import React, { useContext, useState } from "react";
 
 import { IconButton, Tooltip } from "@material-ui/core";
-import { LabelDeleteIcon,
+import {
+    LabelDeleteIcon,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -42,8 +43,6 @@ export function DeleteFunctionWidget(props: DeleteFunctionWidgetProps) {
         };
         onDelete(functionPosition);
     };
-
-
 
     return (
         <>

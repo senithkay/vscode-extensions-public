@@ -43,7 +43,7 @@ export function EditFunctionWidget(props: EditFunctionWidgetProps) {
                 startColumn: position.startLine.offset,
                 startLine: position.startLine.line
             };
-            // TODO: enable form rendering functionality
+            // TODO: enable editing for resource forms
             functionPanel(functionPosition, "ResourceForm", getSTNodeFromRange(functionPosition, model));
         }
     };
