@@ -66,7 +66,7 @@ function iconNameTranslator(type: string) {
         case 'moduleVariables':
             return 'Variable';
         default:
-        // not applicable
+            return 'Class';
     }
 }
 
