@@ -20,6 +20,21 @@ import { ext } from '../extensionVariables';
 import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
 import { getLogger } from '../logger/logger';
+import { execSync } from 'child_process';
+
+export function checkSSHAccessToGitHub() {
+    try {
+        execSync("ssh -T git@github.com -o \"StrictHostKeyChecking no\"");
+        return true;
+    } catch (error: any) {
+        if (error.message && error.message.includes("You've successfully authenticated")) {
+            return true;
+        }
+        window.showErrorMessage('Cannot access GitHub via SSH. Please check your SSH keys.');
+        getLogger().error("Error while checking SSH access to GitHub: " + error);
+        return false;
+    }
+}
 
 export const cloneProject = async (project: Project) => {
     getLogger().debug("Cloning project: " + project.name);
@@ -93,6 +108,11 @@ export const cloneProject = async (project: Project) => {
                 cancelled = true;
             });
 
+            const hasSSHAccess = checkSSHAccessToGitHub();
+            if (!hasSSHAccess) {
+                return;
+            }
+
             const components = await projectClient.getComponents({ orgHandle: selectedOrg.handle, projId: id });
             const userManagedComponents = components.filter((cmp) => cmp.repository && cmp.repository.isUserManage);
             const repos = components.map((cmp) => cmp.repository);
@@ -119,9 +139,10 @@ export const cloneProject = async (project: Project) => {
             const folders = userManagedComponents.map(({ name, repository }) => {
                 if (repository) {
                     const { organizationApp, nameApp, appSubPath } = repository;
+                    const rootPath = path.join("repos", organizationApp, nameApp);
                     return {
                         name: name,
-                        path: appSubPath ? path.join("repos", organizationApp, nameApp, appSubPath) : nameApp
+                        path: appSubPath ? path.join(rootPath, appSubPath) : rootPath
                     };
                 } else {
                     // TODO: Make repository mandatory in the interface and get rid of this case
@@ -137,7 +158,7 @@ export const cloneProject = async (project: Project) => {
             const workspaceFileName = `${projectName}.code-workspace`;
             const workspaceFilePath = path.join(workspacePath, workspaceFileName);
 
-            writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
+            writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile, null, 4));
             getLogger().info("Workspace file created at " + workspaceFilePath);
             getLogger().debug("Workspace file content: " + JSON.stringify(workspaceFile));
 

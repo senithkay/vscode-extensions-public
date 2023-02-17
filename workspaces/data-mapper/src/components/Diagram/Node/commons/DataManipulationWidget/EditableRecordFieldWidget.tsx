@@ -26,7 +26,7 @@ import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
     getFieldName,
@@ -50,6 +50,7 @@ export interface EditableRecordFieldWidgetProps {
     fieldIndex?: number;
     treeDepth?: number;
     deleteField?: (node: STNode) => Promise<void>;
+    hasHoveredParent?: boolean;
 }
 
 export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps) {
@@ -62,10 +63,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         context,
         fieldIndex,
         treeDepth = 0,
-        deleteField
+        deleteField,
+        hasHoveredParent
     } = props;
     const {
-        stSymbolInfo,
         fieldToBeEdited,
         isStmtEditorCanceled,
         handleFieldToBeEdited,
@@ -75,6 +76,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     } = context;
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
     let fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
@@ -89,7 +91,11 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
+    const isValueMappingConstructor = specificField
+        && specificField.valueExpr
+        && STKindChecker.isMappingConstructor(specificField.valueExpr);
     let indentation = treeDepth * 16;
+    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
     useEffect(() => {
         if (fieldToBeEdited === fieldId) {
@@ -146,6 +152,18 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         handleCollapse(fieldId, !expanded);
     };
 
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
+
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
+
     let isDisabled = portIn.descendantHasValue || (value && !connectedViaLink);
     if (!isDisabled) {
         if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)) {
@@ -178,7 +196,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
-                    (isDisabled && portIn.ancestorHasValue) ? classes.valueLabelDisabled : "")}
+                    isDisabled && !hasHoveredParent ? classes.valueLabelDisabled : ""
+                )}
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
                 <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
@@ -188,7 +207,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             {typeName && (
                 <span
                     className={classnames(classes.typeLabel,
-                        (isDisabled && portIn.ancestorHasValue) ? classes.typeLabelDisabled : "")}
+                        isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
+                    )}
                 >
                     {typeName}
                 </span>
@@ -241,18 +261,31 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         <>
             {!isArray && (
                 <div
+                    id={"recordfield-" + fieldId}
                     className={classnames(classes.treeLabel,
-                        (isDisabled && portIn.ancestorHasValue) ? classes.treeLabelDisabled : "")}
+                        isDisabled && !hasHoveredParent && !isHovered ? classes.treeLabelDisabled : "",
+                        isDisabled && isHovered ? classes.treeLabelDisableHover : "",
+                        portState !== PortState.Unselected ? classes.treeLabelPortSelected : "",
+                        hasHoveredParent ? classes.treeLabelParentHovered : ""
+                    )}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
                 >
                     <span className={classes.treeLabelInPort}>
-                        {portIn &&
-                            <DataMapperPortWidget engine={engine} port={portIn} disable={isDisabled && expanded} />
-                        }
+                    {portIn && (
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portIn}
+                            disable={isDisabled && expanded}
+                            handlePortState={handlePortState}
+                        />
+                    )}
                     </span>
-                    <span className={classes.label}>
+                        <span className={classes.label}>
                         {fields && (
                             <IconButton
-                                className={classes.expandIcon}
+                                id={"button-wrapper-" + fieldId}
+                                className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
                                 style={{ marginLeft: indentation }}
                                 onClick={handleExpand}
                                 data-testid={`${portIn.getName()}-expand-icon-element`}
@@ -262,8 +295,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         )}
                         {label}
                     </span>
-
-                    {(!isDisabled || hasValue) && (
+                    {(!isDisabled || hasValue) && !isValueMappingConstructor && (
                         <>
                             {(isLoading || fieldId === fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />
@@ -287,15 +319,16 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         fieldIndex={fieldIndex}
                         treeDepth={treeDepth}
                         deleteField={deleteField}
+                        hasHoveredParent={isHovered || hasHoveredParent}
                     />
                 </>
             )}
             {fields && expanded &&
-                fields.map((subField) => {
+                fields.map((subField, index) => {
                     return (
                         <>
                             <EditableRecordFieldWidget
-                                key={fieldId}
+                                key={index}
                                 engine={engine}
                                 field={subField}
                                 getPort={getPort}
@@ -304,6 +337,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 context={context}
                                 treeDepth={treeDepth + 1}
                                 deleteField={deleteField}
+                                hasHoveredParent={isHovered || hasHoveredParent}
                             />
                         </>
                     );

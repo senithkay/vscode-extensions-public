@@ -13,6 +13,7 @@
 import { Organization, Project } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
 import { WebViewRpc } from "./rpc/WebviewRPC";
+import { ext } from "../../extensionVariables";
 import { getUri } from "./utils";
 
 export class ProjectOverview {
@@ -32,6 +33,11 @@ export class ProjectOverview {
     } else if (ProjectOverview._rpcHandler.panel !== panel) {
       ProjectOverview._rpcHandler = new WebViewRpc(this._panel);
     }
+    this._panel.onDidChangeViewState(e => {
+      if (e.webviewPanel.visible) {
+        ext.api.projectUpdated();
+      }
+    });
   }
 
   public static render(extensionUri: vscode.Uri, project: Project, org: Organization) {
@@ -43,7 +49,6 @@ export class ProjectOverview {
       const panel = vscode.window.createWebviewPanel("project-overview", "Project Overview", vscode.ViewColumn.One, {
         enableScripts: true, retainContextWhenHidden: true
       });
-
       ProjectOverview.currentPanel = new ProjectOverview(panel, extensionUri, project.id, org.handle);
     }
   }

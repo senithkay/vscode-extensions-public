@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useState } from "react";
 
 import { IconButton } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -20,7 +20,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../../utils/constants';
 import { getTypeName } from "../../../utils/dm-utils";
 import { InputSearchHighlight } from '../SearchHighlight';
@@ -45,11 +45,8 @@ const useStyles = makeStyles((theme: Theme) =>
             float: "right",
             width: 'fit-content',
             marginLeft: "auto",
-        },
-        treeLabelInPort: {
-            float: "left",
-            // marginRight: "5px",
-            width: 'fit-content',
+            display: "flex",
+            alignItems: "center"
         },
         label: {
             width: "300px",
@@ -97,6 +94,9 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     const { engine, typeDesc, id, getPort, handleCollapse, valueLabel, nodeHeaderSuffix } = props;
     const classes = useStyles();
 
+    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [isHovered, setIsHovered] = useState(false);
+
     const typeName = getTypeName(typeDesc);
 
     const portIn = getPort(`${id}.IN`);
@@ -129,20 +129,32 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     /** Invisible port to which the right angle link from the query header/clauses are connected to */
     const invisiblePort = getPort(`${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${valueLabel}`);
 
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
+
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
+
     return (
         <TreeContainer data-testid={`${id}-node`}>
             <div className={classes.queryPortWrap}>
                 {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
             </div>
-
-            <TreeHeader>
-                <span className={classes.treeLabelInPort}>
-                    {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn} />
-                    }
-                </span>
+            <TreeHeader
+                id={"recordfield-" + id}
+                isSelected={portState !== PortState.Unselected}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
                 <span className={classes.label}>
                     <IconButton
+                        id={"button-wrapper-" + id}
                         className={classes.expandIcon}
                         onClick={handleExpand}
                         data-testid={`${id}-expand-icon-record-source-node`}
@@ -154,16 +166,16 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} />
+                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
             </TreeHeader>
             <TreeBody>
                 {expanded &&
-                    typeDesc?.fields?.map((field) => {
+                    typeDesc?.fields?.map((field, index) => {
                         return (
                             <RecordFieldTreeItemWidget
-                                key={id}
+                                key={index}
                                 engine={engine}
                                 field={field}
                                 getPort={getPort}
@@ -171,6 +183,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                                 handleCollapse={handleCollapse}
                                 treeDepth={0}
                                 isOptional={typeDesc.optional || field.optional}
+                                hasHoveredParent={isHovered}
                             />
                         );
                     })

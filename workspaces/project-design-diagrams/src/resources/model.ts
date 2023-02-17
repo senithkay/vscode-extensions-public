@@ -139,6 +139,7 @@ export interface ConnectorProps {
 export interface ServiceModels {
     levelOne: DiagramModel;
     levelTwo: DiagramModel;
+    cellModel: DiagramModel;
 }
 
 export interface Location {
@@ -180,7 +181,7 @@ export enum ServiceTypes {
 
 export enum Colors {
     DIAGRAM_BACKGROUND = '#FFF',
-    CELL_DIAGRAM_BACKGROUND = '#e4e4e4',
+    CELL_DIAGRAM_BACKGROUND = 'rgba(85, 103, 213, 0.1)',
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',

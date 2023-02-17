@@ -41,9 +41,9 @@ import { DagreEngine } from "@projectstorm/react-diagrams";
 
 export const defaultZoomLevel = 100;
 export const diagramTopXOffset = 585;
-export const diagramTopYOffset = 200;
-export const diagramLeftXOffset = 20;
-export const diagramLeftYOffset = 25;
+export const diagramTopYOffset = 190;
+export const diagramLeftXOffset = 30;
+export const diagramLeftYOffset = 30;
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();
@@ -177,8 +177,10 @@ function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeMode
     });
 }
 
-export function addGWNodesModel(engine: DiagramEngine) {
-    addGWNodes(engine);
+export function addGWNodesModel(engine: DiagramEngine, addNodes: boolean = false) {
+    if (addNodes) {
+        addGWNodes(engine);
+    }
     addGWLinks(engine);
 }
 

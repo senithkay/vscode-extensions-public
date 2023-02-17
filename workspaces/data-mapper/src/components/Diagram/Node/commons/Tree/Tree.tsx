@@ -17,14 +17,20 @@ export const TreeContainer = styled.div`
     line-height: 24px;
 `;
 
-export const TreeHeader = styled.div`
-    height: 40px;
-    padding: 8px;
-    background: #E6E8F0;
-    border-radius: 3px;
-    width: 100%;
-    display: flex;
-`;
+export const TreeHeader = styled.div((
+    { isSelected, isDisabled }: { isSelected?: boolean, isDisabled?: boolean }
+) => ({
+    height: '40px',
+    padding: '8px',
+    background: `${isDisabled ? '#F7F8FB' : isSelected ? '#DFE2FF' : '#E6E8F0'}`,
+    borderRadius: '3px',
+    width: '100%',
+    display: 'flex',
+    cursor: `${isDisabled ? 'not-allowed' : 'pointer'}`,
+    '&:hover': {
+        backgroundColor: `${isDisabled ? '#F7F8FB' : '#F0F1FB'}`
+    }
+}));
 
 export const TreeBody = styled.div`
     display: flex;
@@ -37,4 +43,5 @@ export const TreeBody = styled.div`
     flex: none;
     flex-grow: 0;
     width: 100%;
+    cursor: pointer;
 `;

@@ -118,7 +118,8 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
                     anchorOrigin: {
                         vertical: "bottom",
                         horizontal: "left",
-                    }
+                    },
+                    disableScrollLock: true
                 }}
                 IconComponent={disabled ? EmptyChevronIcon : undefined}
             >
