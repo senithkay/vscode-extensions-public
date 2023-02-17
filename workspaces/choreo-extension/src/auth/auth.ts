@@ -51,7 +51,8 @@ export const authClient = new ChoreoAuthClient({
 
 export const orgClient = new ChoreoOrgClient(readonlyTokenStore, choreoAuthConfig.getAPIBaseURL());
 
-export const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(), choreoAIConfig.getPerfAPI());
+export const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(),
+    choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
 
 export const githubAppClient = new ChoreoGithubAppClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(), choreoAuthConfig.getGHAppConfig());
 
@@ -167,19 +168,19 @@ export async function signIn() {
     const choreoTokenInfo = await tokenStore.getToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
-            try {
-                const userInfo = await orgClient.getUserInfo();
-                getLogger().debug("Successfully retrived user info.");
-                await exchangeApimToken(choreoTokenInfo?.accessToken, userInfo.organizations[0].handle);
-                ext.api.userName = userInfo.displayName;
-                ext.api.selectedOrg = userInfo.organizations[0];
-                ext.api.status = "LoggedIn";
-            } catch (error: any) {
-                getLogger().error("Error while signing in! ", error);
-                vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
-                signOut();
-            }
-    } 
+        try {
+            const userInfo = await orgClient.getUserInfo();
+            getLogger().debug("Successfully retrived user info.");
+            await exchangeApimToken(choreoTokenInfo?.accessToken, userInfo.organizations[0].handle);
+            ext.api.userName = userInfo.displayName;
+            ext.api.selectedOrg = userInfo.organizations[0];
+            ext.api.status = "LoggedIn";
+        } catch (error: any) {
+            getLogger().error("Error while signing in! ", error);
+            vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
+            signOut();
+        }
+    }
 }
 
 export async function exchangeOrgAccessTokens(orgHandle: string) {

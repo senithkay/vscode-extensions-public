@@ -2,10 +2,10 @@ name: Build and run Tests
 
 on: 
   workflow_call:
-    inputs:
-      isRelease:
+    inputs: 
+      updateVersion:
         required: true
-        type: boolean
+        type: boolean   
       version:
         type: string
         required: false
@@ -37,21 +37,27 @@ jobs:
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
       - name: Update version
-        if: ${{ inputs.isRelease == true }}
+        if: ${{ inputs.updateVersion == true }}
         run: |
           npm version ${{ inputs.version }} --preid beta --no-git-tag-version
-          cd ballerina-low-code-editor
-          npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspace=workspaces/choreo-extension
           
       - name: Build plugin repo
         run: npm run build
         env:
-          IS_RELEASE: ${{ inputs.isRelease }}
+          isPreRelease: ${{ inputs.version == 'prerelease' && true || false  }}
 
       - name: Compress build
         run: |
           find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
           zip -r build.zip ./
+          zip VSIX.zip *.vsix
+
+      - name: Save VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          path: VSIX.zip
+          name: VSIX
 
       - name: Save build
         uses: actions/upload-artifact@v3

@@ -44,7 +44,7 @@ export class BallerinaProjectManager implements IProjectManager {
                 if (!isSubdir) {
                     const parsedPath = path.parse(workspaceFolder.uri.fsPath);
                     if (parsedPath.dir !== parentCandidate) {
-                        parentCandidate = path.parse(parentCandidate).dir
+                        parentCandidate = path.parse(parentCandidate).dir;
                     }
                 }
             });
@@ -106,6 +106,6 @@ export class BallerinaProjectManager implements IProjectManager {
     }
 
     getLocalComponents(workspaceFilePath: string): Component[] {
-        return []
+        return [];
     }
 }

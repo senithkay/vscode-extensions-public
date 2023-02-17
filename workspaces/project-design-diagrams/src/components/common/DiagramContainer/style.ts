@@ -15,7 +15,7 @@ import styled from '@emotion/styled';
 import { Colors } from "../../../resources";
 
 export const CellContainer = styled.div`
-  width: calc(100vw - 120px);
+  width: calc(100vw - 100px);
   position: relative;
   border-radius: 40px;
   border: 1px solid #5567D5;
@@ -28,10 +28,10 @@ interface DiagramContainerStyleProps {
 
 export const CellDiagram = styled.div`
   position: relative;
-  width: calc(100vw - 120px);
+  width: calc(100vw - 100px);
   display: ${(props: DiagramContainerStyleProps) => `${props.display}`};
   flex-direction: column;
-  padding-top: 40px;
+  padding-top: 30px;
   padding-bottom: 20px;
   height: calc(100vh - 50px);
 `;
@@ -43,8 +43,8 @@ interface GatewayContainerProps {
 }
 
 export const GatewayContainer = styled.div`
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   position: absolute;
   left: ${(props: GatewayContainerProps) => props.left};
   top: ${(props: GatewayContainerProps) => props.top};
