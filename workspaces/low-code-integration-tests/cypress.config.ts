@@ -18,4 +18,8 @@ export default defineConfig({
     },
     specPattern: 'cypress/e2e/./**/*.ts',
   },
+  retries: {
+    runMode: 2,
+    openMode: 0
+  },
 })
