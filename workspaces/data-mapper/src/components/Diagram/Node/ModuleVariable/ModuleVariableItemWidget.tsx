@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useState } from "react";
 
 import { IconButton } from '@material-ui/core';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -19,7 +19,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";
 import { RecordFieldTreeItemWidget } from "../commons/RecordTypeTreeWidget/RecordFieldTreeItemWidget";
 import { TreeBody, TreeHeader } from '../commons/Tree/Tree';
@@ -38,6 +38,9 @@ export interface ModuleVariableItemProps {
 export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
     const { engine, typeDesc, id, getPort, handleCollapse, valueLabel } = props;
     const classes = useStyles();
+
+    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [isHovered, setIsHovered] = useState(false);
 
     const typeName = getTypeName(typeDesc);
     const portOut = getPort(`${id}.OUT`);
@@ -61,11 +64,28 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
 
     const handleExpand = () => {
         handleCollapse(id, !expanded);
-    }
+    };
+
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
+
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
 
     return (
         <>
-            <TreeHeader>
+            <TreeHeader
+                id={"recordfield-" + id}
+                isSelected={portState !== PortState.Unselected}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
                 <span className={classes.label}>
                 {isRecord && (
                     <IconButton
@@ -80,23 +100,24 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} />
+                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
             </TreeHeader>
             {
                 expanded && isRecord && (
                     <TreeBody>
-                        {typeDesc.fields.map((field) => {
+                        {typeDesc.fields.map((field, index) => {
                             return (
                                 <RecordFieldTreeItemWidget
-                                    key={id}
+                                    key={index}
                                     engine={engine}
                                     field={field}
                                     getPort={getPort}
                                     parentId={id}
                                     handleCollapse={handleCollapse}
                                     treeDepth={0}
+                                    hasHoveredParent={isHovered}
                                 />
                             );
                         })

@@ -41,7 +41,7 @@ describe("Primitive array field manipulation within mapping constructor", () => 
     });
 
     it("Create mapping between the first array element and source node", () => {
-        DataMapper.createMapping('input.st1', 'Output.stArr.0');
+        DataMapper.createMappingUsingFields('input.st1', 'Output.stArr.0');
         DataMapper.linkExists('input.st1', 'Output.stArr.0');
     });
 
@@ -117,7 +117,7 @@ describe("Record type array field manipulation within mapping constructor", () =
     });
 
     it("Create an invalid mapping between a string value and first record item in the array", () => {
-        DataMapper.createMapping('input.st1', 'Output.Items.0');
+        DataMapper.createMappingUsingFields('input.st1', 'Output.Items.0');
         DataMapper.linkWithErrorExists('input.st1', 'Output.Items.0');
         DataMapper.deleteLinkWithDiagnostics('input.st1', 'Output.Items.0');
     });
@@ -125,7 +125,7 @@ describe("Record type array field manipulation within mapping constructor", () =
     it("Create mapping between a string value and a string field of the first record item in the array", () => {
         DataMapper.addElementToArrayField('Output.Items');
         DataMapper.getRecordArrayFieldElement('Output.Items.0');
-        DataMapper.createMapping('input.st1', 'Output.Items.0.Id');
+        DataMapper.createMappingUsingFields('input.st1', 'Output.Items.0.Id');
         DataMapper.linkExists('input.st1', 'Output.Items.0.Id');
     });
 
