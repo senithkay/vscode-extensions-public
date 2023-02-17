@@ -164,16 +164,17 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsHovered(false);
     };
 
-    let isDisabled = portIn.descendantHasValue || (value && !connectedViaLink);
+    let isDisabled = portIn?.descendantHasValue || (value && !connectedViaLink);
+
     if (!isDisabled) {
-        if (portIn.parentModel && (Object.entries(portIn.parentModel.links).length > 0 || portIn.parentModel.ancestorHasValue)) {
+        if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
             portIn.ancestorHasValue = true;
             isDisabled = true;
         }
         if (hasValue
             && !connectedViaLink
             && (isArray && !STKindChecker.isQueryExpression(specificField.valueExpr) || isRecord)) {
-            portIn.setDescendantHasValue();
+            portIn?.setDescendantHasValue();
             isDisabled = true;
         }
     }
@@ -288,7 +289,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                                 className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
                                 style={{ marginLeft: indentation }}
                                 onClick={handleExpand}
-                                data-testid={`${portIn.getName()}-expand-icon-element`}
+                                data-testid={`${portIn?.getName()}-expand-icon-element`}
                             >
                                 {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
                             </IconButton>
