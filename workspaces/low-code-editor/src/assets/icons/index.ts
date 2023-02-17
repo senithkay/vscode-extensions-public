@@ -44,6 +44,7 @@ export { default as ConstDeclaration } from './ConstantIcon';
 export { default as ModuleConnectorDecl } from './ModuleConnectorIcon';
 export { default as TypeDefinitionIcon } from './RecordIcon';
 export { default as TypeDefinition } from './RecordIcon';
+export { default as TypeIcon } from './RecordIcon';
 export { default as RecordEditor } from './RecordIcon';
 export { default as EnumDeclaration } from './EnumIcon';
 export { default as EnumIcon } from './EnumIcon';
