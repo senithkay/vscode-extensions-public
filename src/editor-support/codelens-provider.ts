@@ -169,8 +169,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                             const position = member.functionKeyword.position;
                             const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
                             codeLens.command = {
-                                title: "Design",
-                                tooltip: "Open this code block in data mapping view",
+                                title: "Visualize",
+                                tooltip: "Open this code block in low code view",
                                 command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
                                 arguments: [member.position, activeEditorUri.fsPath]
                             };
@@ -193,8 +193,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                         new Range(functionPosition.startLine, 0, functionPosition.endLine, 0)
                                     );
                                     codeLens.command = {
-                                        title: "Design",
-                                        tooltip: "Open this code block in data mapping view",
+                                        title: "Visualize",
+                                        tooltip: "Open this code block in low code view",
                                         command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
                                         arguments: [serviceMember.position, activeEditorUri.fsPath]
                                     };
@@ -205,8 +205,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                         new Range(resourcePosition.startLine, 0, resourcePosition.endLine, 0)
                                     );
                                     codeLens.command = {
-                                        title: "Design",
-                                        tooltip: "Open this code block in data mapping view",
+                                        title: "Visualize",
+                                        tooltip: "Open this code block in low code view",
                                         command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
                                         arguments: [serviceMember.position, activeEditorUri.fsPath]
                                     };

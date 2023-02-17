@@ -44,9 +44,10 @@ export function FunctionHeader() {
         // TODO: handle general funciton
         titleComponents.push(
             <>
-                <div>{`Function Design - ${functionNode.functionName.value}`}</div>
-                <div className="config-form-icon">
-                    <SettingsIcon onClick={handleConfigFormClick} />
+                <div className="title-components">{`Function Design - ${functionNode.functionName.value}`}</div>
+                <div className="config-form-icon" onClick={handleConfigFormClick} >
+                    <SettingsIcon />
+                    <div className="config-form-icon-text">Configure Interface</div>
                 </div>
             </>
         );
@@ -67,7 +68,8 @@ export function FunctionHeader() {
             });
     } else if (STKindChecker.isResourceAccessorDefinition(functionNode)) {
         // TODO: handle resource function
-        titleComponents.push(
+        const resourceTitleContent: React.ReactElement[] = [];
+        resourceTitleContent.push(
             <span className={classNames("resource-badge", functionNode.functionName.value)}>
                 {functionNode.functionName.value.toUpperCase()}
             </span>
@@ -75,11 +77,11 @@ export function FunctionHeader() {
 
         functionNode.relativeResourcePath.forEach(node => {
             if (STKindChecker.isIdentifierToken(node) || STKindChecker.isSlashToken(node)) {
-                titleComponents.push(
+                resourceTitleContent.push(
                     node.value
                 );
             } else if (STKindChecker.isResourcePathSegmentParam(node) || STKindChecker.isResourcePathRestParam(node)) {
-                titleComponents.push(
+                resourceTitleContent.push(
                     <>
                         [<span className={'type-descriptor'}>
                             {`${(node as any).typeDescriptor?.name?.value} `}
@@ -110,16 +112,26 @@ export function FunctionHeader() {
             ));
 
         if (queryParamComponents.length > 0) {
-            titleComponents.push(<span>?</span>);
-            titleComponents.push(...queryParamComponents);
+            resourceTitleContent.push(<span>?</span>);
+            resourceTitleContent.push(...queryParamComponents);
         }
+
+        titleComponents.push(
+            <>
+                <div className="title-components">{resourceTitleContent}</div>
+                <div className="config-form-icon" onClick={handleConfigFormClick}>
+                    <SettingsIcon />
+                    <div className="config-form-icon-text">Configure Interface</div>
+                </div>
+            </>
+        )
     }
 
     return (
-        <div id="function-header" className="header-container">
+        <>
             <div className="title-container">{titleComponents}</div>
             <div className="argument-container">{argumentComponents}</div>
-        </div>
+        </>
     )
 }
 

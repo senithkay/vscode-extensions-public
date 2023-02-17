@@ -46,6 +46,7 @@ export { default as TypeDefinitionIcon } from './RecordIcon';
 export { default as TypeDefinition } from './RecordIcon';
 export { default as RecordEditor } from './RecordIcon';
 export { default as EnumDeclaration } from './EnumIcon';
+export { default as EnumIcon } from './EnumIcon';
 export { default as ListenerIcon } from './ListenerIcon';
 export { default as ListenerDeclaration } from './ListenerIcon';
 export { default as ListenerFormIcon } from './ListenerFormIcon';
