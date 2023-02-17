@@ -36,18 +36,35 @@ jobs:
           wget ${{ env.ballerina_deb_url }}
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
-      - name: Update version
+      - name: Update versions
+        id: updateVersions
         if: ${{ inputs.version != "N/A" }}
         run: |
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspace=workspaces/choreo-extension
           timestamp=$(date '+%Y%m%d%H%M%S')
+          echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
+          
+      - name: Set prerelase version - ballerina
+        if: ${{ inputs.isPreRelease }}
+        run: |
           currentVersion=$(node -p "require('./package.json').version")
           currentVersionWOPreId=${currentVersion%-*}
           currentVersionNo=${currentVersionWOPreId%.*}
-          newVersion=${currentVersionNo}.${timestamp}
-          version=${{ inputs.isPreRelease && $newVersion || inputs.version  }}
-          echo $version
-          npm version $version --preid beta --no-git-tag-version
-          npm version $version --preid beta --no-git-tag-version --workspace=workspaces/choreo-extension
+          newVersion=${currentVersionNo}.${{ steps.updateVersions.outputs.timestamp }}
+          echo $newVersion
+          npm version $newVersion --preid beta --no-git-tag-version
+          
+      - name: Set prerelase version - choreo
+        if: ${{ inputs.isPreRelease }}
+        run: |
+          cd workspaces/choreo-extension
+          currentVersion=$(node -p "require('./package.json').version")
+          currentVersionWOPreId=${currentVersion%-*}
+          currentVersionNo=${currentVersionWOPreId%.*}
+          newVersion=${currentVersionNo}.${{ steps.updateVersions.outputs.timestamp }}
+          echo $newVersion
+          npm version $newVersion --preid beta --no-git-tag-version
           
       - name: Build plugin repo
         run: npm run build
