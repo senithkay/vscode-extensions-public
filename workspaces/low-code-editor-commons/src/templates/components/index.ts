@@ -92,7 +92,7 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     }
 }`,
     LISTENER_DECLARATION: `
-listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
+listener {{{ SERVICE_TYPE }}}:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 `,
     FUNCTION_DEFINITION: `
 {{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {{#if IS_EXPRESSION_BODIED}} => {{{ EXPRESSION_BODY }}}; {{else}} {

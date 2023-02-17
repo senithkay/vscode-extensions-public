@@ -164,7 +164,7 @@ export function createServiceDeclartion(
 }
 
 export function createListenerDeclartion(config: ListenerConfigFormState, targetPosition: NodePosition, isNew: boolean,
-                                         isLastMember?: boolean): STModification {
+                                         serviceType: string, isLastMember?: boolean): STModification {
     const { listenerName, listenerPort } = config;
     let modification: STModification;
     if (isNew) {
@@ -187,7 +187,8 @@ export function createListenerDeclartion(config: ListenerConfigFormState, target
         type: 'LISTENER_DECLARATION',
         config: {
             'LISTENER_NAME': listenerName,
-            'PORT': listenerPort
+            'PORT': listenerPort,
+            'SERVICE_TYPE': serviceType
         }
     }
 }

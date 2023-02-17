@@ -59,7 +59,8 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
 
     const {
         targetPosition, isEdit, isLastMember, currentFile, stSymbolInfo, onChange, applyModifications,
-        onCancel, getLangClient } = useContext(FormEditorContext);
+        onCancel, getLangClient
+    } = useContext(FormEditorContext);
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -77,7 +78,7 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
             } else if (STKindChecker.isListenerDeclaration(m)) {
                 portSemDiagMsg = m.initializer?.viewState?.diagnosticsInRange[0]?.message;
             }
-        })
+        });
     } else if (STKindChecker.isServiceDeclaration(model)) {
         serviceModel = model;
         const serviceListenerExpression = model.expressions.length > 0 && model.expressions[0];
@@ -111,13 +112,13 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
         }
         setIsInline(mode.length > 0);
         await serviceParamChange(basePath, listenerPort, listenerName);
-    }
+    };
 
     const listenerList = Array.from(stSymbolInfo.listeners)
         .filter(([, value]) => {
             const typeDescriptor = (value as ListenerDeclaration).typeDescriptor;
             return STKindChecker.isQualifiedNameReference(typeDescriptor)
-                && typeDescriptor.modulePrefix.value === GRAPHQL_MODULE_QUALIFIER
+                && typeDescriptor.modulePrefix.value === GRAPHQL_MODULE_QUALIFIER;
         })
         .map(([key]) => key);
 
@@ -166,24 +167,24 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
-    }
+    };
 
     const onBasePathFocus = async () => {
         setCurrentComponentName("path");
-    }
+    };
 
     const onBasePathChange = async (value: string) => {
         setBsePath(value);
         await serviceParamChange(value, listenerPort, listenerName);
-    }
+    };
 
     const onPortTextFieldFocus = async () => {
         setCurrentComponentName("port");
-    }
+    };
     const onPortChange = async (value: string) => {
         setListenerPort(value);
         await serviceParamChange(basePath, value, listenerName, 'port');
-    }
+    };
 
     const onListenerSelect = async (name: string) => {
         setCurrentComponentName("Listener Selector");
@@ -197,25 +198,30 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
         }
 
         await serviceParamChange(basePath, listenerPort, name, 'listenerName');
-    }
+    };
 
     const onListenerFormCancel = () => {
         setIsAddListenerInProgress(false);
         setListenerName("");
-    }
+    };
 
     const handleOnSave = () => {
         if (isEdit) {
             const serviceUpdatePosition: NodePosition = {
                 ...targetPosition, endLine: targetPosition.endLine + (createdListnerCount * 2),
                 startLine: targetPosition.startLine + (createdListnerCount * 2)
-            }
+            };
 
             applyModifications([
                 updateServiceDeclartion(
                     {
                         serviceBasePath: basePath, serviceType: 'graphql',
-                        listenerConfig: { createNewListener: false, listenerName, listenerPort, fromVar: listenerPort && listenerPort.length === 0 }
+                        listenerConfig: {
+                            createNewListener: false,
+                            listenerName,
+                            listenerPort,
+                            fromVar: listenerPort && listenerPort.length === 0
+                        }
                     },
                     serviceUpdatePosition
                 )
@@ -226,7 +232,12 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
                 createImportStatement('ballerina', 'graphql', { startColumn: 0, startLine: 0 }),
                 createServiceDeclartion({
                         serviceBasePath: basePath, listenerConfig:
-                            { createNewListener: false, listenerName, listenerPort, fromVar: listenerPort && listenerPort.length === 0 },
+                            {
+                                createNewListener: false,
+                                listenerName,
+                                listenerPort,
+                                fromVar: listenerPort && listenerPort.length === 0
+                            },
                         serviceType: 'graphql'
                     },
                     getUpdatedServiceInsertPosition(stSymbolInfo.listeners, listenerName, createdListnerCount,
@@ -238,11 +249,11 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
         }
 
         onCancel();
-    }
+    };
 
     const getPathInput = () => (
         <>
-            <FieldTitle title='Path' optional={false} />
+            <FieldTitle title="Path" optional={false}/>
             <LiteExpressionEditor
                 testId="service-base-path"
                 diagnostics={currentComponentName === 'path' ?
@@ -260,7 +271,7 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
     );
     const getPortInput = () => (
         <>
-            <FieldTitle title='Port' optional={false} />
+            <FieldTitle title="Port" optional={false}/>
             <LiteExpressionEditor
                 testId="port-number"
                 diagnostics={currentComponentName === 'port' ?
@@ -284,7 +295,7 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
                 if (!currentFile.content.includes(module)) {
                     setShouldAddNewLine(true);
                 }
-            })
+            });
         }
 
         setListenerName(listenerMod.config.LISTENER_NAME);
@@ -292,7 +303,7 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
         setListenerPort("");
         setCreatedListnerCount(createdListnerCount + 1);
         applyModifications(modifications);
-    }
+    };
 
     const getListenerSelector = () => (
         <>
@@ -311,7 +322,6 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
                         "" : listenerName
                 }
             />
-            {/*TODO: point to the correct listener form*/}
             {isAddListenerInProgress && (
                 <Panel onClose={onListenerFormCancel}>
                     <FormEditor
@@ -320,7 +330,7 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
                         targetPosition={getUpdatedServiceInsertPosition(stSymbolInfo.listeners,
                             finallyAddedListenerName, createdListnerCount, targetPosition)}
                         onCancel={onListenerFormCancel}
-                        type={"Listener"}
+                        type={"GraphqlListener"}
                         currentFile={currentFile}
                         getLangClient={getLangClient}
                         topLevelComponent={true}
@@ -329,7 +339,7 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
                 </Panel>
             )}
         </>
-    )
+    );
 
     return (
         <>
@@ -356,5 +366,5 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
                     undefined : true) && (currentComponentSyntaxDiag === undefined)}
             />
         </>
-    )
+    );
 }
