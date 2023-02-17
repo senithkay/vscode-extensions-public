@@ -31,7 +31,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, OFFSETS } from "../../utils/constants";
+import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getBalRecFieldName,
     getDefaultValue,
@@ -40,6 +40,7 @@ import {
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
+    getSearchFilteredOutput,
     getTypeName,
     getTypeOfOutput,
     getTypeOfValue
@@ -71,7 +72,8 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
+        const enrichedTypedef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
+        this.typeDef = getSearchFilteredOutput(enrichedTypedef);
 
         if (this.typeDef) {
             const isSelectClause = STKindChecker.isSelectClause(this.value);
@@ -207,7 +209,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
                 this.x = x;
                 this.y = y;
             }
-            super.setPosition(x, (y || this.y) + OFFSETS.TARGET_NODE.Y);
+            super.setPosition(x, y || this.y);
         }
     }
 }

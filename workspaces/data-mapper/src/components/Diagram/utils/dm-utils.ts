@@ -1273,3 +1273,33 @@ export const getFilteredSubFields = (type: Type, searchValue: string) => {
 
 	return null;
 }
+
+export const getSearchFilteredOutput = (type: Type) => {
+	const searchValue = useDMSearchStore.getState().outputSearch;
+	if (!type) {
+		return null
+	}
+	if (!searchValue) {
+		return type;
+	}
+
+	if (type.typeName === PrimitiveBalType.Array) {
+		const subFields = type.memberType?.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+
+		return {
+			...type,
+			memberType: {
+				...type.memberType,
+				fields: subFields || []
+			}
+		}
+	} else if (type.typeName === PrimitiveBalType.Record) {
+		const subFields = type.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+
+		return {
+			...type,
+			fields: subFields || []
+		}
+	}
+	return  null;
+}

@@ -25,7 +25,6 @@ import {
     traversNode
 } from "@wso2-enterprise/syntax-tree";
 
-import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
@@ -37,10 +36,10 @@ import {
     getBalRecFieldName,
     getDefaultValue,
     getEnrichedRecordType,
-    getFilteredSubFields,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
+    getSearchFilteredOutput,
     getTypeName,
     getTypeOfOutput,
     getTypeOfValue
@@ -74,7 +73,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
     async initPorts() {
         const enrichedTypedef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
-        this.typeDef = this.getSearchFilteredOutput(enrichedTypedef)
+        this.typeDef = getSearchFilteredOutput(enrichedTypedef);
 
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
@@ -225,35 +224,5 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             }
             super.setPosition(x, y || this.y);
         }
-    }
-
-    private getSearchFilteredOutput(type: Type) {
-        const searchValue = useDMSearchStore.getState().outputSearch;
-        if (!type) {
-            return null
-        }
-        if (!searchValue) {
-            return type;
-        }
-
-        if (type.typeName === PrimitiveBalType.Array) {
-            const subFields = type.memberType?.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
-
-            return {
-                ...type,
-                memberType: {
-                    ...type.memberType,
-                    fields: subFields || []
-                }
-            }
-        } else if (type.typeName === PrimitiveBalType.Record) {
-            const subFields = type.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
-
-            return {
-                ...type,
-                fields: subFields || []
-            }
-        }
-        return  null;
     }
 }

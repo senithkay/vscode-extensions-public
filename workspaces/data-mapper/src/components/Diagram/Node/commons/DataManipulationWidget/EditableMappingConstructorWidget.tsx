@@ -29,7 +29,7 @@ import { isEmptyValue } from "../../../utils/dm-utils";
 import { SearchType } from '../../Search';
 import { SearchNodeWidget } from '../../Search/SearchNodeWidget';
 import { OutputSearchHighlight } from '../SearchHighlight';
-import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
+import { TreeBody, TreeContainerWithTopMargin, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 
@@ -187,7 +187,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 				searchType={SearchType.Output}
 				width='100%'
 			/>
-			<TreeContainer data-testid={`${id}-node`} style={{ marginTop: 40 }}>
+			<TreeContainerWithTopMargin data-testid={`${id}-node`}>
 				<TreeHeader
 					isSelected={portState !== PortState.Unselected}
 					id={"recordfield-" + id}
@@ -236,7 +236,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						})
 					}
 				</TreeBody>
-			</TreeContainer>
+			</TreeContainerWithTopMargin>
 		</>
 	);
 }
