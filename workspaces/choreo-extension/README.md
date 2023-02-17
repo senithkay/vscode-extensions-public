@@ -2,13 +2,20 @@
 
 The Choreo VS Code extension provides a range of Choreo **project** and **component** management capabilities to enrich the local development experience of Choreo projects. Learn more about [Choreo](https://wso2.com/choreo/docs/).
 
+## Pre-requisites
+For a seamless development experience with the Choreo extension, you need to have the following configured in your local environment.
+1. [Visual Studio Code](https://code.visualstudio.com/download) with the Choreo extension installed
+2. [Ballerina Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) for VS Code, version 4.0.0 or later
+3. [SSH keys for your GitHub account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) set up for source control
+
 ## Getting Started
 
 You will require an active Choreo account to use the capabilities of the Choreo extension in the VS Code editor. If you have a Choreo account, you can set up the extension by following the steps below.
 1. Install the Choreo extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/) and await activation
 2. Sign in to Choreo using one of the following approaches:
-    -   Via the `Sign In` prompt that is displayed on activation of the extension
-    -   Via the `Sign In` option available in the Choreo activity panel of your VS Code editor window
+    -   Via the `Sign In` prompt that is displayed on successful activation of the extension
+    -   Via the `Sign In` options available when you click on the Choreo icon on the activity bar of your VS Code editor
+
         ![Sign In](docs/img/sign-in.png)
 
 The above step redirects you to an external URI to complete the authentication process. If the sign-in is successful, all the projects and organizations linked to your Choreo account will be visible on the Choreo activity panel, as shown below.
@@ -48,6 +55,8 @@ After filling in the required details and configuring the repository, you can cl
 By cloning a Choreo project, you are downloading a copy of the Choreo project to your local development environment. This option is not restricted to projects created only via the Choreo extension: it is available for all Choreo projects linked to your Choreo account.
 
 You can clone a project by selecting the respective project in the project tree view of the Choreo activity panel. This action opens the **Project Overview** panel that displays basic project-related details, including those of the components. Via this overview, you can click **Clone Project** to get the local copy of the project. If the cloning is successful, you are automatically redirected to a new VS Code workspace containing the project.
+
+>**Tip:** Project cloning will be successful only if you have configured the SSH keys for your GitHub account. For more information, see [Setting up SSH keys for your GitHub account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
 
 ![Project Cloning](docs/img/cloning-project.gif)
 
