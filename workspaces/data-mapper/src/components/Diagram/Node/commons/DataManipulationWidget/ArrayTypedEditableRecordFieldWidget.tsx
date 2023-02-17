@@ -38,7 +38,6 @@ import {
     getFieldName,
     getLinebreak,
     getTypeName,
-    isConnectedViaLink
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 import { TreeBody } from "../Tree/Tree";
@@ -47,6 +46,7 @@ import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -96,13 +96,9 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const typeName = getTypeName(field.type);
     const elements = field.elements;
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const diagnostic = (valExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
 
-    const connectedViaLink = useMemo(() => {
-        if (hasValue) {
-            return isConnectedViaLink(valExpr);
-        }
-        return false;
-    }, [field]);
+    const connectedViaLink = portIn && Object.keys(portIn.links).length > 0;
 
     let expanded = true;
     if (portIn && portIn.collapsed) {
@@ -130,6 +126,16 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
 
     const handlePortState = (state: PortState) => {
         setPortState(state)
+    };
+
+    const handleEditValue = () => {
+        if (field.value && STKindChecker.isSpecificField(field.value)) {
+            props.context.enableStatementEditor({
+                value: field.value.valueExpr.source,
+                valuePosition: field.value.valueExpr.position as NodePosition,
+                label: field.value.fieldName.value as string
+            });
+        }
     };
 
     const label = (
@@ -165,6 +171,32 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         </span>
                     </span>
                 </DiagnosticTooltip>
+            )}
+            {!listConstructor && !connectedViaLink && hasValue && (
+                <>
+                    {diagnostic ? (
+                        <DiagnosticTooltip
+                            placement="right"
+                            diagnostic={diagnostic}
+                            value={valExpr?.source}
+                            onClick={handleEditValue}
+                        >
+                            <span className={classes.valueWithError} data-testid={`array-widget-field-${portIn?.getName()}`}>
+                                {valExpr?.source}
+                                <span className={classes.errorIconWrapper}>
+                                    <ErrorIcon />
+                                </span>
+                            </span>
+                        </DiagnosticTooltip>
+                    ) :  (<span
+                            className={classes.value}
+                            onClick={handleEditValue}
+                            data-testid={`array-widget-field-${portIn?.getName()}`}
+                        >
+                            {valExpr?.source}
+                        </span>
+                    )}
+                </>
             )}
         </span>
     );
@@ -246,6 +278,17 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         setLoading(true);
         try {
             await deleteField(field.value);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddValue = async () => {
+        setLoading(true);
+        try {
+            await createSourceForUserInput(field, parentMappingConstruct, 'EXPRESSION', applyModifications);
+            // Adding field to the context to identify this newly initialized field in the next rendering
+            props.context.handleFieldToBeEdited(fieldId);
         } finally {
             setLoading(false);
         }
@@ -333,12 +376,17 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         <>
                             {((hasValue && !connectedViaLink) || !isDisabled) && (
                                 <ValueConfigMenu
-                                    menuItems={[
-                                        {
-                                            title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
-                                            onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion,
-                                        },
-                                    ]}
+                                    menuItems={
+                                        hasValue
+                                            ? [
+                                                { title: ValueConfigOption.EditValue, onClick: handleEditValue },
+                                                { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
+                                            ]
+                                            : [
+                                                { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization },
+                                                { title: ValueConfigOption.AddValue, onClick: handleAddValue },
+                                            ]
+                                    }
                                     isDisabled={!typeName || typeName === "[]"}
                                     portName={portIn?.getName()}
                                 />
