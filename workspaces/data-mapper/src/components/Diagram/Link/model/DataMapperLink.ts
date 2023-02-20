@@ -34,7 +34,8 @@ export class DataMapperLinkModel extends DefaultLinkModel {
 			const curve = new BezierCurve();
 			curve.setSource(this.getFirstPoint().getPosition());
 			curve.setTarget(this.getLastPoint().getPosition());
-			if (this.sourcePort instanceof IntermediatePortModel){
+
+			if (this.sourcePort instanceof IntermediatePortModel) {
 				curve.setSourceControl(this.getFirstPoint().getPosition());
 				curve.setTargetControl(this.getLastPoint().getPosition());
 			} else {

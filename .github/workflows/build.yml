@@ -2,14 +2,12 @@ name: Build and run Tests
 
 on: 
   workflow_call:
-    inputs:
+    inputs: 
       isPreRelease:
-        required: true
-        type: boolean  
-      updateVersion:
-        required: true
-        type: boolean   
+        default: true
+        type: boolean      
       version:
+        default: 'N/A'
         type: string
         required: false
 
@@ -39,27 +37,55 @@ jobs:
           wget ${{ env.ballerina_deb_url }}
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
-      - name: Update version
-        if: ${{ inputs.updateVersion == true }}
+      - name: Update versions
+        if: ${{ inputs.version != 'N/A' }}
         run: |
           npm version ${{ inputs.version }} --preid beta --no-git-tag-version
           npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspace=workspaces/choreo-extension
           
+      - name: Get timestamp
+        id: timestamp
+        run: |
+          timestamp=$(date '+%Y%m%d%H%M%S')
+          echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
+
+      - name: Set prerelase version - ballerina
+        if: ${{ inputs.isPreRelease }}
+        run: |
+          currentVersion=$(node -p "require('./package.json').version")
+          currentVersionWOPreId=${currentVersion%-*}
+          currentVersionNo=${currentVersionWOPreId%.*}
+          newVersion=${currentVersionNo}.${{ steps.timestamp.outputs.timestamp }}
+          echo $newVersion
+          npm version $newVersion --preid beta --no-git-tag-version
+          
+      - name: Set prerelase version - choreo
+        if: ${{ inputs.isPreRelease }}
+        run: |
+          cd workspaces/choreo-extension
+          currentVersion=$(node -p "require('./package.json').version")
+          currentVersionWOPreId=${currentVersion%-*}
+          currentVersionNo=${currentVersionWOPreId%.*}
+          newVersion=${currentVersionNo}.${{ steps.timestamp.outputs.timestamp }}
+          echo $newVersion
+          npm version $newVersion --preid beta --no-git-tag-version
+          
       - name: Build plugin repo
         run: npm run build
         env:
-          isPreRelease: ${{ inputs.isPreRelease }}
+          isPreRelease: ${{ inputs.isPreRelease  }}
 
       - name: Compress build
         run: |
           find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
           zip -r build.zip ./
+          zip VSIX.zip *.vsix
 
-      - name: Save VSIXs
+      - name: Save VSIX
         uses: actions/upload-artifact@v3
         with:
-          path: '**/*.vsix'
-          name: VSIXs
+          path: VSIX.zip
+          name: VSIX
 
       - name: Save build
         uses: actions/upload-artifact@v3

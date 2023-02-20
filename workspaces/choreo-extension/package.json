@@ -165,7 +165,8 @@
     "test-nyc-cli": "nyc --reporter=html node ./dist/test/runTest.js",
     "test": "rm -rf .vscode-test/extensions && node ./dist/test/runTest.js && nyc report && nyc report --reporter=html",
     "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
-    "postbuild": "npm run package"
+    "copyVSIX": "copyfiles *.vsix ../..",
+    "postbuild": "npm run package && npm run copyVSIX"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",

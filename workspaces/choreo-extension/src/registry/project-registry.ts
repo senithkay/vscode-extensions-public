@@ -18,6 +18,7 @@ import { existsSync } from 'fs';
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
+import { dirname, join } from "path";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -128,7 +129,7 @@ export class ProjectRegistry {
                 return result;
             }).catch((e: any) => {
                 serializeError(e);
-                throw(e);
+                throw (e);
             });
     }
 
@@ -214,6 +215,46 @@ export class ProjectRegistry {
             }
             resolve();
         });
+    }
+
+    async hasUnpushedComponents(projectId: string): Promise<boolean> {
+        const projectLocation: string | undefined = this.getProjectLocation(projectId);
+        if (projectLocation !== undefined) {
+            // Get local components
+            const choreoPM = new ChoreoProjectManager();
+            const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
+            if (localComponentMeta.length === 0) {
+                return true;
+            }
+            const hasPushed = await Promise.all(localComponentMeta.map(async componentMetadata => {
+                const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+                return projectClient.isComponentInRepo({
+                    branchApp: branchApp,
+                    orgApp: orgApp,
+                    repoApp: nameApp,
+                    subPath: appSubPath
+                });
+            })).then((results) => {
+                return results.some((result) => {
+                    return result === false;
+                });
+            }).catch((e) => {
+                return false;
+            });
+            return hasPushed;
+        } else {
+            return true;
+        }
+    }
+    
+    public isSubpathAvailable(projectId: string, orgName: string, repoName: string, subPath: string): boolean {
+          const projectLocation = this.getProjectLocation(projectId);
+          if (projectLocation && orgName && repoName && subPath) {
+              const repoPath = join(dirname(projectLocation), "repos", orgName, repoName, subPath);
+              return !existsSync(repoPath);
+          }
+          // TODO Handle subpath check for non cloned repos
+          return true;
     }
 
     private _removeLocation(projectId: string) {

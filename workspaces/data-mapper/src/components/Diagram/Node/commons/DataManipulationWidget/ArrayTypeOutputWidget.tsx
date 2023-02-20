@@ -11,7 +11,7 @@
 * associated services.
 */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useMemo, useState } from "react";
 
 import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -19,11 +19,12 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getExprBodyFromLetExpression } from "../../../utils/dm-utils";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
+import { getExprBodyFromLetExpression, isConnectedViaLink } from "../../../utils/dm-utils";
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
@@ -55,12 +56,22 @@ const useStyles = makeStyles((theme: Theme) =>
 			minWidth: "100px",
 			marginRight: "24px"
 		},
+		typeLabelDisabled: {
+			backgroundColor: "#F7F8FB",
+			color: "#40404B",
+			opacity: 0.5
+		},
 		valueLabel: {
 			verticalAlign: "middle",
 			padding: "5px",
 			color: "#222228",
 			fontFamily: "GilmerMedium",
 			fontSize: "13px",
+		},
+		valueLabelDisabled: {
+			backgroundColor: "#F7F8FB",
+			color: "#1D2028",
+			opacity: 0.5
 		},
 		treeLabelOutPort: {
 			float: "right",
@@ -71,6 +82,8 @@ const useStyles = makeStyles((theme: Theme) =>
 			float: "left",
 			marginRight: "5px",
 			width: 'fit-content',
+			display: "flex",
+			alignItems: "center"
 		},
 		label: {
 			width: "300px",
@@ -87,6 +100,16 @@ const useStyles = makeStyles((theme: Theme) =>
 			height: "25px",
 			width: "25px",
 			marginLeft: "auto"
+		},
+		expandIconDisabled: {
+			color: "#9797a9",
+		},
+		treeLabelDisabled: {
+			backgroundColor: "#F7F8FB",
+			'&:hover': {
+				backgroundColor: '#F7F8FB',
+			},
+			cursor: 'not-allowed'
 		}
 	}),
 );
@@ -102,10 +125,11 @@ export interface ArrayTypeOutputWidgetProps {
 	deleteField?: (node: STNode) => Promise<void>;
 }
 
-
 export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
+
+	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
 	const body = field?.value && STKindChecker.isLetExpression(field.value)
 		? getExprBodyFromLetExpression(field.value)
@@ -123,17 +147,35 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	}
 
 	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
+	const shouldPortVisible = (isBodyQueryExpression || !hasSyntaxDiagnostics)
+		&& (!hasValue || !expanded || !isBodyListConstructor || (
+			STKindChecker.isListConstructor(field.value) && field.value.expressions.length === 0
+	));
+
+	const hasElementConnectedViaLink = useMemo(() => {
+		if (isBodyListConstructor) {
+			return body.expressions.some(expr => isConnectedViaLink(expr));
+		}
+	}, [body]);
+
+	let isDisabled = portIn.descendantHasValue;
+	if (expanded && !isDisabled && isBodyListConstructor && body.expressions.length > 0) {
+		portIn.setDescendantHasValue();
+		isDisabled = true;
+	} else if (!expanded && !hasElementConnectedViaLink && !isDisabled && isBodyListConstructor && body.expressions.length > 0) {
+		isDisabled = true;
+	}
 
 	const label = (
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
-				<span className={classes.valueLabel}>
+				<span className={classnames(classes.valueLabel, isDisabled ? classes.valueLabelDisabled : "")}>
 					{valueLabel}
 					{typeName && ":"}
 				</span>
 			)}
 			{typeName && (
-				<span className={classes.typeLabel}>
+				<span className={classnames(classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
 					{typeName}
 				</span>
 			)}
@@ -142,23 +184,28 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const handleExpand = () => {
 		context.handleCollapse(id, !expanded);
-	}
+	};
+
+	const handlePortState = (state: PortState) => {
+		setPortState(state)
+	};
 
 	return (
 		<TreeContainer>
-			<TreeHeader>
+			<TreeHeader isSelected={portState !== PortState.Unselected} isDisabled={isDisabled} id={"recordfield-" + id}>
 				<span className={classes.treeLabelInPort}>
-					{portIn && (isBodyQueryExpression || !hasSyntaxDiagnostics) && (!hasValue
-							|| !expanded
-							|| !isBodyListConstructor
-							|| (STKindChecker.isListConstructor(field.value) && field.value.expressions.length === 0)
-						) &&
-						<DataMapperPortWidget engine={engine} port={portIn} />
-					}
+					{portIn && shouldPortVisible && (
+						<DataMapperPortWidget
+							engine={engine}
+							port={portIn}
+							disable={isDisabled}
+							handlePortState={handlePortState}
+						/>
+					)}
 				</span>
 				<span className={classes.label}>
 					<IconButton
-						className={classes.expandIcon}
+						className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
 						style={{ marginLeft: indentation }}
 						onClick={handleExpand}
 					>

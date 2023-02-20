@@ -29,7 +29,7 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Create mapping between two record array element", () => {
-        DataMapper.createMapping("input.Items", "Output.Items");
+        DataMapper.createMappingUsingFields("input.Items", "Output.Items");
         DataMapper.linkExists("input.Items", "Output.Items");
     });
 
@@ -65,9 +65,9 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExpression("ItemsItem.Id", "Id");
+        DataMapper.createMappingFromQueryExprUsingFields("ItemsItem.Id", "Id");
         cy.wait(4000);
-        DataMapper.createMappingFromQueryExpression("variable", "Id");
+        DataMapper.createMappingFromQueryExprUsingPorts("variable", "Id");
         DataMapper.checkIntermediateLinks(
             ["expandedQueryExpr.source.ItemsItem.Id", "expandedQueryExpr.source.variable"],
             "Id"
@@ -132,7 +132,7 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Create links between join clause node and target node", () => {
-        DataMapper.createMappingFromQueryExpression("variable.id", "Id");
+        DataMapper.createMappingFromQueryExprUsingFieldAndPort("variable.id", "Id");
         cy.wait(4000);
         DataMapper.checkIntermediateLinks(
             [
@@ -166,7 +166,7 @@ describe("Expanded query view for defined record within mapping constructor", ()
     });
 
     it("Create mapping between two record array element", () => {
-        DataMapper.createMapping('input.Items', 'Output.innerOutput');
+        DataMapper.createMappingUsingFields('input.Items', 'Output.innerOutput');
         DataMapper.linkExists('input.Items', 'Output.innerOutput');
     });
 
@@ -202,9 +202,9 @@ describe("Expanded query view for defined record within mapping constructor", ()
     });
 
     it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExpression('ItemsItem.Id', 'InnerOutput.st1');
+        DataMapper.createMappingFromQueryExprUsingPortAndField('ItemsItem.Id', 'InnerOutput.st1');
         cy.wait(4000);
-        DataMapper.createMappingFromQueryExpression('variable', 'InnerOutput.st1');
+        DataMapper.createMappingFromQueryExprUsingFields('variable', 'InnerOutput.st1');
         DataMapper.checkIntermediateLinks(['expandedQueryExpr.source.ItemsItem.Id', 'expandedQueryExpr.source.variable'], 'InnerOutput.st1')
     });
 

@@ -53,7 +53,7 @@ describe("Verify simple direct mappings", () => {
     });
 
     it("Verify direct mappings between two valid ports", () => {
-        DataMapper.createMapping('input.st1', 'Output.st1');
+        DataMapper.createMappingUsingFields('input.st1', 'Output.st1');
         cy.wait(4000);
         DataMapper.linkExists('input.st1', 'Output.st1');
     });
@@ -72,18 +72,18 @@ describe("Verify multiple mappings with link connector node", () => {
     });
 
     it("Create a mapping between two ports", () => {
-        DataMapper.createMapping('input.st1', 'Output.st1');
+        DataMapper.createMappingUsingPorts('input.st1', 'Output.st1');
         cy.wait(4000);
     });
 
     it("Create another mapping from the another source port to the same target port", () => {
-        DataMapper.createMapping('input.st2', 'Output.st1');
+        DataMapper.createMappingUsingFieldAndPort('input.st2', 'Output.st1');
         DataMapper.checkIntermediateLinks(['input.st1', 'input.st2'], 'Output.st1')
         cy.wait(4000);
     });
 
     it("Create a third mapping from the another source port to the same target port", () => {
-        DataMapper.createMapping('input.st3', 'Output.st1');
+        DataMapper.createMappingUsingPortAndField('input.st3', 'Output.st1');
         DataMapper.checkIntermediateLinks(['input.st1', 'input.st2', 'input.st3'], 'Output.st1')
         cy.wait(4000);
     });
@@ -110,7 +110,7 @@ describe("Verify diagnostics in mapping links", () => {
     });
 
     it("Create a mapping between an integer value and a string value", () => {
-        DataMapper.createMapping('input.int1', 'Output.st1');
+        DataMapper.createMappingUsingFields('input.int1', 'Output.st1');
         cy.wait(4000);
     });
 
