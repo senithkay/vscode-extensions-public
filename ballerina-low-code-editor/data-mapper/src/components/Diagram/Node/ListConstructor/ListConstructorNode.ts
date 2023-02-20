@@ -37,6 +37,7 @@ import {
     getBalRecFieldName,
     getDefaultValue,
     getExprBodyFromLetExpression,
+    getFilteredUnionOutputTypes,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
@@ -76,10 +77,17 @@ export class ListConstructorNode extends DataMapperNodeModel {
             if (isSelectClause){
                 this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
             }
+            if (this.typeDef.typeName === PrimitiveBalType.Union) {
+                this.typeName = getTypeName(this.typeDef);
+                const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
+                if (acceptedMembers.length === 1) {
+                    this.typeDef = acceptedMembers[0];
+                }
+            }
             const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
-            this.typeName = getTypeName(valueEnrichedType.type);
+            this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (this.typeDef.typeName === PrimitiveBalType.Union) {
                 this.rootName = valueEnrichedType?.type?.typeName;

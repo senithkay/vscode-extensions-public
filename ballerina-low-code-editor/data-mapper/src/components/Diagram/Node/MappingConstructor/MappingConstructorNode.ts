@@ -36,6 +36,7 @@ import {
     enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
+    getFilteredUnionOutputTypes,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
@@ -79,17 +80,21 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             {
                 this.rootName = this.typeDef.memberType?.name;
             }
+            if (this.typeDef.typeName === PrimitiveBalType.Union) {
+                this.typeName = getTypeName(this.typeDef);
+                const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
+                if (acceptedMembers.length === 1) {
+                    this.typeDef = acceptedMembers[0];
+                    this.rootName = acceptedMembers[0]?.name;
+                }
+            }
             const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
-            this.typeName = getTypeName(this.typeDef.typeName === PrimitiveBalType.Union ? this.typeDef : valueEnrichedType.type);
+            this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
                 STKindChecker.isSelectClause(this.value), valueEnrichedType);
-            if (this.typeDef.typeName === PrimitiveBalType.Union){
-                // todo: check primitive and array types
-                this.rootName = valueEnrichedType?.type?.name;
-            }
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordField = valueEnrichedType;
                 if (this.recordField.childrenTypes.length) {
