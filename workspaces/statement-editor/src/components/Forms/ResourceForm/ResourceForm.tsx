@@ -384,7 +384,6 @@ export function ResourceForm(props: FunctionProps) {
                                     onClick={handleOnSave}
                                     disabled={currentComponentSyntaxDiag?.length > 0
                                         || getResourcePathDiagnostics().length > 0
-                                        || model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange?.length > 0
                                         || isEditInProgress
                                         || changeInProgress}
                                 />
