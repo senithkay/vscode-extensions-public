@@ -39,7 +39,7 @@
          } catch (error) {
              // do nothing.
          }
-     })
+     });
  }
  
  export { activateExtractCommand };

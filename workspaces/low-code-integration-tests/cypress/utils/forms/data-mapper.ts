@@ -107,7 +107,9 @@ export class DataMapper {
 
     static getTargetNode = (name?: string) => cy.get(`[data-testid="mappingConstructor${name ? `.${name}` : ''}-node"]`)
 
-    static getMappingPort = (targetPort: string) => cy.get(`[data-name='mappingConstructor.${targetPort}.IN']`)
+    static getMappingPort = (targetPort: string) => cy.get(`[data-name='mappingConstructor.${targetPort}.IN']`);
+
+    static getMappingField = (targetField: string) => cy.get(`[id='recordfield-mappingConstructor.${targetField}']`);
 
     static mappingPortExists = (targetPort: string) => this.getMappingPort(targetPort).should('exist')
 
@@ -115,18 +117,50 @@ export class DataMapper {
 
     static getSourcePort = (sourcePort: string) => cy.get(`[data-name='${sourcePort}.OUT']`)
 
+    static getSourceField = (sourceField: string) => cy.get(`[id='recordfield-${sourceField}']`);
+
     static sourcePortExists = (sourcePort: string) => this.getSourcePort(sourcePort).should('exist')
 
     static sourcePortNotExists = (sourcePort: string) => this.getSourcePort(sourcePort).should('not.exist')
 
-    static createMapping = (sourcePort: string, targetPort: string) => {
+    static createMappingUsingFields = (sourcePort: string, targetPort: string) => {
         this.getSourcePort(sourcePort).click();
-        this.getMappingPort(targetPort).click({ force: true })
+        this.getMappingPort(targetPort).click({ force: true });
     }
 
-    static createMappingFromQueryExpression = (sourcePort: string, targetPort: string) => {
+    static createMappingUsingPorts = (sourcePort: string, targetPort: string) => {
+        this.getSourcePort(sourcePort).click();
+        this.getMappingPort(targetPort).click({ force: true });
+    }
+
+    static createMappingUsingFieldAndPort = (sourceField: string, targetPort: string) => {
+        this.getSourceField(sourceField).click();
+        this.getMappingPort(targetPort).click({ force: true });
+    }
+
+    static createMappingUsingPortAndField = (sourcePort: string, targetField: string) => {
+        this.getSourcePort(sourcePort).click();
+        this.getMappingField(targetField).click({ force: true });
+    }
+
+    static createMappingFromQueryExprUsingFields = (sourceField: string, targetField: string) => {
+        cy.get(`[id='recordfield-expandedQueryExpr.source.${sourceField}']`).click();
+        this.getMappingField(targetField).click({ force: true });
+    }
+
+    static createMappingFromQueryExprUsingPorts = (sourcePort: string, targetPort: string) => {
         cy.get(`[data-name='expandedQueryExpr.source.${sourcePort}.OUT']`).click();
-        this.getMappingPort(targetPort).click({ force: true })
+        this.getMappingPort(targetPort).click({ force: true });
+    }
+
+    static createMappingFromQueryExprUsingFieldAndPort = (sourceField: string, targetPort: string) => {
+        cy.get(`[id='recordfield-expandedQueryExpr.source.${sourceField}']`).click();
+        this.getMappingPort(targetPort).click({ force: true });
+    }
+
+    static createMappingFromQueryExprUsingPortAndField = (sourcePort: string, targetField: string) => {
+        cy.get(`[data-name='expandedQueryExpr.source.${sourcePort}.OUT']`).click();
+        this.getMappingField(targetField).click({ force: true });
     }
 
     static createMappingToIntermediatePort = (sourcePort: string, inputPorts: string) => {

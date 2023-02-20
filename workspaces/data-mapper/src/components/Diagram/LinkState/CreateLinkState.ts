@@ -4,7 +4,13 @@ import { Action, ActionEvent, InputType, State } from '@projectstorm/react-canva
 import { DiagramEngine, LinkModel, PortModel } from '@projectstorm/react-diagrams-core';
 
 import { ExpressionLabelModel } from "../Label";
+import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, RequiredParamNode } from '../Node';
+import { FromClauseNode } from '../Node/FromClause';
+import { JoinClauseNode } from "../Node/JoinClause";
+import { LetClauseNode } from "../Node/LetClause";
+import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from '../Node/LinkConnector';
+import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
 
@@ -22,7 +28,40 @@ export class CreateLinkState extends State<DiagramEngine> {
 			new Action({
 				type: InputType.MOUSE_UP,
 				fire: (actionEvent: ActionEvent<MouseEvent>) => {
-					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+					let element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+
+					if (!(element instanceof PortModel)) {
+						if (element instanceof MappingConstructorNode
+							|| element instanceof ListConstructorNode
+							|| element instanceof PrimitiveTypeNode
+						) {
+							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
+							if (recordFieldElement) {
+								const fieldId = (recordFieldElement.id.split("-"))[1] + ".IN";
+								const portModel = element.getPort(fieldId) as RecordFieldPortModel
+								if (portModel) {
+									element = portModel;
+								}
+							}
+						}
+
+						if (element instanceof RequiredParamNode
+							|| element instanceof  FromClauseNode
+							|| element instanceof LetExpressionNode
+							|| element instanceof ModuleVariableNode
+							|| element instanceof LetClauseNode
+							|| element instanceof JoinClauseNode
+						) {
+							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
+							if (recordFieldElement) {
+								const fieldId = (recordFieldElement.id.split("-"))[1] + ".OUT";
+								const portModel = element.getPort(fieldId) as RecordFieldPortModel
+								if (portModel) {
+									element = portModel;
+								}
+							}
+						}
+					}
 
 					if (element instanceof PortModel && !this.sourcePort) {
 						if (element instanceof RecordFieldPortModel) {

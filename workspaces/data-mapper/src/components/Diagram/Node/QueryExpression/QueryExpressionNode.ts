@@ -104,6 +104,13 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             } else if (STKindChecker.isSimpleNameReference(sourceFieldAccess)) {
                 fieldId = sourceFieldAccess.name.value;
                 paramName = fieldId;
+            } else if (STKindChecker.isBinaryExpression(sourceFieldAccess)
+                && STKindChecker.isElvisToken(sourceFieldAccess.operator)) {
+                fieldId = sourceFieldAccess.lhsExpr.source.trim();
+                if (STKindChecker.isFieldAccess(sourceFieldAccess.lhsExpr)
+                    && STKindChecker.isSimpleNameReference(sourceFieldAccess.lhsExpr.expression)) {
+                    paramName = sourceFieldAccess.lhsExpr.expression.name.value;
+                }
             }
 
             this.getModel().getNodes().map((node) => {
@@ -288,7 +295,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     public updatePosition() {
         if (this.targetPort){
             const position = this.targetPort.getPosition()
-            this.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, position.y - 2)
+            this.setPosition(OFFSETS.QUERY_EXPRESSION_NODE.X, position.y - 5.5)
         }
     }
 

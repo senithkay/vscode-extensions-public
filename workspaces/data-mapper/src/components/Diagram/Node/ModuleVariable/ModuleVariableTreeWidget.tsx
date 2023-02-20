@@ -70,6 +70,7 @@ const ModuleVarsHeader = styled.div`
     line-height: 35px;
     display: flex;
     justify-content: space-between;
+    cursor: default;
 `;
 
 const HeaderText = styled.span`
