@@ -151,7 +151,7 @@ export class ChoreoProjectManager implements IProjectManager {
                 const content: WorkspaceConfig = JSON.parse(contents);
                 content.folders.push({
                     path: join(join(join('repos', repositoryInfo.org), repositoryInfo.repo), repositoryInfo.subPath),
-                    name: repositoryInfo.subPath,
+                    name: name,
                     metadata: {
                         org: {
                             id: org.id,

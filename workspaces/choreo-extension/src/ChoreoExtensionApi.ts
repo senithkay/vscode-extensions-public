@@ -150,23 +150,29 @@ export class ChoreoExtensionApi {
         return ProjectRegistry.getInstance().getSwaggerExamples(spec);
     }
 
-    public async enrichChoreoMetadata(model: Map<string, ComponentModel>):
-        Promise<Map<string, ComponentModel> | undefined> {
-        if (this._selectedProjectId && this._selectedOrg?.id && this._selectedOrg) {
+    public async enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined> {
+        if (this._selectedProjectId && this._selectedOrg?.id) {
             const workspaceFileLocation = ProjectRegistry.getInstance().getProjectLocation(this._selectedProjectId);
-            // Remove workspace file from path
-            const currentProjectLocation = workspaceFileLocation?.slice(0, workspaceFileLocation.lastIndexOf(path.sep));
-            const repository = ProjectRegistry.getInstance().getProjectRepository(this._selectedProjectId);
-            if (repository && currentProjectLocation) {
-                const currentRepoLocation = path.join(currentProjectLocation, "repos", repository);
-                const projectComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
-                    (this._selectedOrg as Organization).handle);
-                if (currentProjectLocation) {
-                    projectComponents.forEach(({ name, apiVersions, accessibility, local = false }) => {
-                        model.forEach(localModel => {
-                            enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
-                                currentRepoLocation, name, local, accessibility);
-                        });
+            if (workspaceFileLocation) {
+                const workspaceFileConfig: WorkspaceConfig = JSON.parse(readFileSync(workspaceFileLocation).toString());
+                // Remove workspace file from path
+                const projectRoot = workspaceFileLocation.slice(0, workspaceFileLocation.lastIndexOf(path.sep));
+
+                if (workspaceFileConfig?.folders && projectRoot) {
+                    const choreoComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
+                        (this._selectedOrg as Organization).handle);
+
+                    choreoComponents.forEach(({ name, apiVersions, accessibility, local = false }) => {
+                        const wsConfig = workspaceFileConfig.folders.find(component => component.name === name);
+                        if (wsConfig && wsConfig.path) {
+                            for (const localModel of model.values()) {
+                                const response = enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
+                                    path.join(projectRoot, wsConfig.path), local, accessibility);
+                                if (response === true) {
+                                    break;
+                                }
+                            }
+                        }
                     });
                 }
             }
