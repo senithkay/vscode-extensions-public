@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+// tslint:disable: jsx-no-multiline-js
 import React from "react";
 
 import { ClientResourceAccessAction, NodePosition } from "@wso2-enterprise/syntax-tree";
@@ -35,7 +36,8 @@ export function ClientResourceAccessActionComponent(props: ClientResourceAccessA
         <>
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.rightArrowToken} className={"operator"} />
-            <TokenComponent model={model.slashToken} className={"operator"} />
+            {model.resourceAccessPath.length ? <TokenComponent model={model.slashToken} className={"operator"} />
+                : <ExpressionComponent model={model.slashToken} />}
             {model.resourceAccessPath && <ExpressionArrayComponent expressions={model.resourceAccessPath} />}
             {model.dotToken && <TokenComponent model={model.dotToken} className={"operator"} />}
 

@@ -736,6 +736,6 @@ export function retrieveUsedAction(actionModel: STNode, connector: BallerinaConn
 export function getActionExprWithArgs(suggestion: string, connector: BallerinaConnectorInfo): string {
     const newActionName = suggestion.split("(")[0];
     const newAction = connector?.functions.find((func) => func.name === newActionName);
-    const modelParams = getDefaultParams(newAction.parameters);
+    const modelParams = getDefaultParams(newAction?.parameters);
     return newActionName + "(" + modelParams.join(",") + ")";
 }
