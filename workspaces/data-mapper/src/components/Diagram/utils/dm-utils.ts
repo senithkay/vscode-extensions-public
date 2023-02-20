@@ -153,7 +153,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				&& ([PrimitiveBalType.Array, PrimitiveBalType.Union].includes(parent.parentModel.field.typeName as PrimitiveBalType))
 				&& !parent.isWithinSelectClause)
 		) {
-			parentFieldNames.push(parent.field.name);
+			parentFieldNames.push(getBalRecFieldName(parent.field.name));
 		}
 		parent = parent.parentModel;
 	}
@@ -288,10 +288,10 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 	let targetMappingConstructor: STNode = mappingConstruct;
 	const parentFields: string[] = [];
 	let nextField = field;
-	const fieldName = getFieldName(nextField);
 	const modifications: STModification[] = [];
 
 	while (nextField && nextField.parentType) {
+		const fieldName = getFieldName(nextField);
 		if (fieldName && !(nextField.hasValue() && STKindChecker.isMappingConstructor(nextField.value))) {
 			parentFields.push(getBalRecFieldName(fieldName));
 		}
@@ -335,7 +335,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	if (!source) {
 		const specificField = STKindChecker.isMappingConstructor(targetMappingConstructor)
-			&& getSpecificField(targetMappingConstructor, fieldName);
+			&& getSpecificField(targetMappingConstructor, getFieldName(field));
 		if (specificField && !specificField.valueExpr.source) {
 			return createValueExprSource(field.type.name, newValue, parentFields, 1,
 				specificField.colon.position as NodePosition, applyModifications);
@@ -650,7 +650,7 @@ export function getOutputPortForField(fields: STNode[],
 	if (node instanceof MappingConstructorNode) {
 		portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}`;
 	} else if (node instanceof ListConstructorNode) {
-		portIdBuffer = `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`;
+		portIdBuffer = `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${getBalRecFieldName(node.rootName)}`;
 	} else {
 		portIdBuffer = PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
 	}
@@ -667,7 +667,7 @@ export function getOutputPortForField(fields: STNode[],
 				&& field.valueExpr
 				&& !STKindChecker.isMappingConstructor(field.valueExpr))
 			{
-				portIdBuffer = `${portIdBuffer}.${field.fieldName.value}`;
+				portIdBuffer = `${portIdBuffer}.${getBalRecFieldName(field.fieldName.value)}`;
 			}
 		} else if (STKindChecker.isListConstructor(field) && nextTypeNode.elements) {
 			const [nextField, fieldIndex] = getNextField(nextTypeNode.elements, nextPosition);
@@ -680,15 +680,15 @@ export function getOutputPortForField(fields: STNode[],
 				const fieldIndex = nextTypeNode.childrenTypes.findIndex(
 					(recF) => recF?.value && isPositionsEquals(nextPosition, recF.value.position as NodePosition));
 				if (fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${nextTypeNode.type.name}` : ''}`;
+					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${getBalRecFieldName(nextTypeNode.type.name)}` : ''}`;
 					nextTypeNode = nextTypeNode.childrenTypes[fieldIndex];
 				} else if (isPositionsEquals(nextPosition, nextTypeNode?.value.position)) {
-					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${nextTypeNode.type.name}` : ''}`;
+					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${getBalRecFieldName(nextTypeNode.type.name)}` : ''}`;
 				}
 			} else if (nextTypeNode.elements) {
 				const [nextField, fieldIndex] = getNextField(nextTypeNode.elements, nextPosition);
 				if (nextField && fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}.${nextField.type?.name || ''}`;
+					portIdBuffer = `${portIdBuffer}.${getBalRecFieldName(nextField.type?.name) || ''}`;
 				}
 			}
 		}
@@ -841,16 +841,6 @@ export function getEnrichedRecordType(type: Type,
 				});
 				editableRecordField.elements = members;
 			}
-		}
-	} else if (type.typeName === PrimitiveBalType.Union
-		&& editableRecordField.value
-		&& STKindChecker.isMappingConstructor(editableRecordField.value)) {
-		const acceptedMembers = getFilteredUnionOutputTypes(type);
-
-		if (acceptedMembers.length === 1) {
-			// Only handle union params such as Type|error or Type?
-			// Params such as Type1|Type2 will not be handled
-			editableRecordField = getEnrichedRecordType(acceptedMembers[0], node, selectedST, parentType, childrenTypes)
 		}
 	}
 
