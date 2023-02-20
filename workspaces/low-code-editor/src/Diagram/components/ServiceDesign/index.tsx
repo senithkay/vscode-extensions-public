@@ -102,6 +102,10 @@ export function ServiceDesign(props: ServiceDesignProps) {
         handleDiagramEdit(undefined, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false, renderRecordPanel });
     };
 
+    const onSave = () => {
+        // Record Editor Save
+    }
+
     const renderRecordPanel = (closeRecordEditor: (createdRecord?: string) => void) => {
         const servicePosition = (syntaxTree as ModulePart);
         const lastMember: NodePosition = servicePosition.position;
@@ -117,8 +121,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                 targetPosition={lastMemberPosition}
                 name={"record"}
                 onCancel={closeRecordEditor}
-                // tslint:disable-next-line: no-empty
-                onSave={() => { }}
+                onSave={onSave}
                 isTypeDefinition={true}
                 isDataMapper={true}
                 showHeader={true}
