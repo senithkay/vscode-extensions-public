@@ -158,8 +158,8 @@ export interface WorkspaceComponentMetadata {
 }
 
 export enum ChoreoServiceComponentType {
-    REST_API = 'REST_API',
-    GQL_API = 'GQL_API',
+    REST_API = 'restAPI',
+    GQL_API = 'graphql',
     WEBSOCKET_API = 'WEBSOCKET_API',
     GRPC_API = 'GRPC_API',
 }

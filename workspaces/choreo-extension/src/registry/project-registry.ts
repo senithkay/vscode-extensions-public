@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
+import { ChoreoServiceComponentType, Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync } from 'fs';
@@ -184,8 +184,9 @@ export class ProjectRegistry {
     }
 
     pushLocalComponentsToChoreo(projectId: string, org: Organization): Promise<void> {
-        return new Promise(async (resolve) => {
+        return new Promise(async (resolve, reject) => {
             const projectLocation: string | undefined = this.getProjectLocation(projectId);
+            let failures: string = "";
             if (projectLocation !== undefined) {
                 // Get local components
                 const choreoPM = new ChoreoProjectManager();
@@ -208,10 +209,21 @@ export class ProjectRegistry {
                     };
                     await projectClient.createComponent(componentRequest).then((component) => {
                         choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+                    }).catch(() => {
+                        const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
+                        if (componentMetadata.displayType !== ChoreoServiceComponentType.REST_API
+                            && componentMetadata.displayType !== ChoreoServiceComponentType.GQL_API) {
+                            failures = `${failures} ${errorMsg} Component type is not supported.`;
+                        } else {
+                            failures = `${failures} ${errorMsg}`;
+                        }
                     });
                 }));
                 // Delete the components so they resolve from choreo
                 this._dataComponents.delete(projectId);
+            }
+            if (failures) {
+                reject(new Error(failures));
             }
             resolve();
         });
