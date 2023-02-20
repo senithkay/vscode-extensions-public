@@ -211,11 +211,10 @@ export class ProjectRegistry {
                         choreoPM.removeLocalComponent(projectLocation, componentMetadata);
                     }).catch(() => {
                         const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
+                        failures = `${failures} ${errorMsg}`;
                         if (componentMetadata.displayType !== ChoreoServiceComponentType.REST_API
                             && componentMetadata.displayType !== ChoreoServiceComponentType.GQL_API) {
-                            failures = `${failures} ${errorMsg} Component type is not supported.`;
-                        } else {
-                            failures = `${failures} ${errorMsg}`;
+                            failures = `${failures} Component type is not supported.`;
                         }
                     });
                 }));
