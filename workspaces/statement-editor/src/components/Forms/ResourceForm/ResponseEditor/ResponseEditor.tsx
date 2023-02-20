@@ -189,8 +189,8 @@ export function ResponseEditor(props: ParamProps) {
                 if (anonymousValue) {
                     const responseCode = optionList.find(item => item.code.toString() === response);
                     const newResponse = `type ${anonymousValue} record {|*${responseCode.source}; ${typeValue} body;|};`;
-                    const members = (syntaxTree as ModulePart).members;
-                    const lastMember: NodePosition = members[members.length - 1].position;
+                    const servicePosition = (syntaxTree as ModulePart);
+                    const lastMember: NodePosition = servicePosition.position;
                     const lastMemberPosition: NodePosition = {
                         endColumn: 0,
                         endLine: lastMember.endLine + 1,

@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Button } from '@material-ui/core';
 import AddIcon from "@material-ui/icons/Add";
@@ -23,7 +23,7 @@ import {
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 
-import { Param} from './ParamEditor/ParamEditor';
+import { Param } from './ParamEditor/ParamEditor';
 import { ParameterConfig } from './ParamEditor/ParamItem';
 import { responseCodes, ResponseEditor } from './ResponseEditor/ResponseEditor';
 import { ResponseItem } from './ResponseEditor/ResponseItem';
@@ -46,7 +46,7 @@ export const RESOURCE_HEADER_MAP_TYPE = "http:Headers";
 export function ResourceReturnEditor(props: QueryParamEditorProps) {
     const { returnSource, completions, onChange, syntaxDiag, readonly, onChangeInProgress } = props;
     const connectorClasses = connectorStyles();
-    const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
+    const [editingSegmentId, setEditingSegmentId] = useState<any>(-1);
     const [isNew, setIsNew] = useState<boolean>(false);
 
     const responses = getReturnTypesArray();
@@ -104,7 +104,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
 
 
     function getReturnTypesArray() {
-        const returnTypes = returnSource.replace("returns", "").split(/\|(?![^\{]*[\}])/gm);
+        const returnTypes = returnSource ? returnSource.replace("returns", "").split(/\|(?![^\{]*[\}])/gm) : [];
         return returnTypes;
     }
 
