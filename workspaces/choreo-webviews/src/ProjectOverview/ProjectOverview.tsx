@@ -158,13 +158,14 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
     }, [project]);
 
-    const handlePushToChoreoClick = useCallback((e: any) => {
+    const handlePushToChoreoClick = useCallback(async (e: any) => {
         setCreatingComponents(true);
-        ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
-            ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then((components) => {
-                setComponents(components);
-                setCreatingComponents(false);
-            });
+        await ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').catch(((error) => {
+            ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
+        }));
+        await ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then((components) => {
+            setComponents(components);
+            setCreatingComponents(false);
         });
     }, [project]);
 
