@@ -842,16 +842,6 @@ export function getEnrichedRecordType(type: Type,
 				editableRecordField.elements = members;
 			}
 		}
-	} else if (type.typeName === PrimitiveBalType.Union
-		&& editableRecordField.value
-		&& STKindChecker.isMappingConstructor(editableRecordField.value)) {
-		const acceptedMembers = getFilteredUnionOutputTypes(type);
-
-		if (acceptedMembers.length === 1) {
-			// Only handle union params such as Type|error or Type?
-			// Params such as Type1|Type2 will not be handled
-			editableRecordField = getEnrichedRecordType(acceptedMembers[0], node, selectedST, parentType, childrenTypes)
-		}
 	}
 
 	return editableRecordField;
