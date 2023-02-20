@@ -39,6 +39,7 @@ import {
     getFieldName,
     getLinebreak,
     getTypeName,
+    isConnectedViaLink,
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 import { TreeBody } from "../Tree/Tree";
@@ -98,7 +99,12 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const diagnostic = (valExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
 
-    const connectedViaLink = portIn && Object.keys(portIn.links).length > 0;
+    const connectedViaLink = useMemo(() => {
+        if (hasValue) {
+            return isConnectedViaLink(valExpr);
+        }
+        return false;
+    }, [field]);
 
     let expanded = true;
     if (portIn && portIn.collapsed) {
