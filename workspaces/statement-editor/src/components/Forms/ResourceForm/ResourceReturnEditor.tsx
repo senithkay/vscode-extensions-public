@@ -46,7 +46,7 @@ export const RESOURCE_HEADER_MAP_TYPE = "http:Headers";
 export function ResourceReturnEditor(props: QueryParamEditorProps) {
     const { returnSource, completions, onChange, syntaxDiag, readonly, onChangeInProgress } = props;
     const connectorClasses = connectorStyles();
-    const [editingSegmentId, setEditingSegmentId] = useState<any>(-1);
+    const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState<boolean>(false);
 
     const responses = getReturnTypesArray();
