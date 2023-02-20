@@ -50,7 +50,13 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
             return getSource(createListenerDeclartion({
                 listenerName: "l",
                 listenerPort: "9090"
-            }, targetPosition, false));
+            }, targetPosition, false, 'http'));
+        }
+        case "GraphqlListener": {
+            return getSource(createListenerDeclartion({
+                listenerName: "graphqlListener",
+                listenerPort: "9090"
+            }, targetPosition, false, 'graphql'));
         }
         case "Main": {
             return getSource(createFunctionSignature("public", "main", "",
@@ -60,7 +66,7 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
             return getSource(createResource("get", "greeting/hello", '', "error?", targetPosition));
         }
         case "GraphqlResource": {
-            return getSource(createResource("get", "hello", '', "error?", targetPosition));
+            return getSource(createResource("get", "hello", '', "string", targetPosition));
         }
     }
     return;

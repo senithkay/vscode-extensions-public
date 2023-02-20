@@ -110,7 +110,7 @@ export function DiagramViewManager(props: EditorProps) {
         if (history.length > 0) {
             const { project, file, position } = history[history.length - 1];
             fetchST(file.uri.path, { position });
-            if (currentProject.name !== project.name) setCurrentProject(project);
+            if (!currentProject || currentProject.name !== project.name) setCurrentProject(project);
             setFocusFile(file);
         } else {
             setFocusedST(undefined);

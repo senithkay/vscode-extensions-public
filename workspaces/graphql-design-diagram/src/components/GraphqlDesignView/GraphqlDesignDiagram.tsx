@@ -39,6 +39,8 @@ export interface GraphqlDesignDiagramProps {
     syntaxTree?: STNode;
     functionPanel?: (position: NodePosition, functionType: string, model?: STNode) => void;
     servicePanel?: () => void;
+    operationDesignView?: (functionPosition: NodePosition) => void;
+    onDelete?: (position: NodePosition) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -58,7 +60,9 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         langClientPromise,
         currentFile,
         functionPanel,
-        servicePanel
+        servicePanel,
+        operationDesignView,
+        onDelete
     } = props;
 
     const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
@@ -70,7 +74,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         (async () => {
             await getGraphqlDesignModel();
         })();
-    }, []);
+    }, [model]);
 
     const getGraphqlDesignModel = async () => {
         const request: GraphqlDesignServiceRequest = {
@@ -86,7 +90,9 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     const ctxt = {
         model,
         functionPanel,
-        servicePanel
+        servicePanel,
+        operationDesignView,
+        onDelete
     };
 
     return (

@@ -71,6 +71,7 @@ export interface ResourceFunction {
     identifier: string;
     subscription: boolean;
     returns: string;
+    position: Position;
     description: string;
     isDeprecated: boolean;
     deprecationReason: string;
@@ -81,6 +82,7 @@ export interface ResourceFunction {
 export interface RemoteFunction {
     identifier: string;
     returns: string;
+    position: Position;
     description: string;
     isDeprecated: boolean;
     deprecationReason: string;
@@ -124,6 +126,7 @@ export interface Param {
 
 export interface Interaction {
     componentName: string;
+    path: string;
 }
 
 // enums

@@ -186,6 +186,9 @@ export function FormEditor(props: FormEditorProps) {
                     if (!currentFile?.content?.includes("ballerina/http") && (type === "Service" ||
                         type === "Listener")) {
                         moduleList = new Set<string>(['ballerina/http']);
+                    } else if (!currentFile?.content?.includes("ballerina/graphql") && type ===
+                        "GraphqlListener") {
+                        moduleList = new Set<string>(['ballerina/graphql']);
                     }
                     const updatedContent = getUpdatedSource(source, currentFile.content, position, moduleList,
                         true

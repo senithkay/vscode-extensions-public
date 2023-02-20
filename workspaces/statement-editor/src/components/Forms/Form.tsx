@@ -19,6 +19,7 @@ import { ServiceConfigForm } from "./ServiceForm/SeviceForm";
 export { FunctionForm as Function };
 export { ServiceConfigForm as Service };
 export { ListenerForm as Listener };
+export { ListenerForm as GraphqlListener };
 export { FunctionForm as Main };
 export { ResourceForm as Resource };
 export { GraphqlResourceForm as GraphqlResource };
