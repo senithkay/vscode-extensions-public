@@ -110,11 +110,32 @@ export function GraphqlResourceForm(props: FunctionProps) {
         const parametersStr = newParams
             .map((item) => `${item.type} ${item.name}`)
             .join(", ");
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            parametersStr,
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
     };
 
     const onParamChange = async (param: FunctionParam) => {
         setCurrentComponentName("Param");
         const newParams = [...parameters, param];
+        const parametersStr = newParams
+            .map((item) => `${item.type} ${item.name}`)
+            .join(", ");
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            parametersStr,
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
+    };
+
+    const onUpdateParamChange = async (param: FunctionParam) => {
+        setCurrentComponentName("Param");
+        const newParams = [...parameters];
+        newParams[param.id] = param;
         const parametersStr = newParams
             .map((item) => `${item.type} ${item.name}`)
             .join(", ");
@@ -151,6 +172,53 @@ export function GraphqlResourceForm(props: FunctionProps) {
         onCancel();
     };
 
+    const closeNewParamView = () => {
+        setAddingNewParam(false);
+        setIsEditInProgress(false);
+        setEditingSegmentId(-1);
+        setCurrentComponentName(undefined);
+        setCurrentComponentSyntaxDiag(undefined);
+    };
+
+    const onSaveNewParam = (param: FunctionParam) => {
+        setParameters([...parameters, param]);
+        setAddingNewParam(false);
+        setEditingSegmentId(-1);
+    };
+
+    const onDeleteParam = async (paramItem: FunctionParam) => {
+        const newParams = parameters.filter((item) => item.id !== paramItem.id);
+        const parametersStr = newParams
+            .map((item) => `${item.type} ${item.name}`)
+            .join(", ");
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            parametersStr,
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
+    };
+
+    const handleOnEdit = (funcParam: FunctionParam) => {
+        const id = parameters.findIndex(param => param.id === funcParam.id);
+        // Once edit is clicked
+        if (id > -1) {
+            setEditingSegmentId(id);
+        }
+        setAddingNewParam(false);
+        setIsEditInProgress(true);
+    };
+
+    const handleOnUpdateParam = (param: FunctionParam) => {
+        const id = param.id;
+        if (id > -1) {
+            parameters[id] = param;
+            setParameters(parameters);
+        }
+        setAddingNewParam(false);
+        setEditingSegmentId(-1);
+    };
+
     const paramElements: React.ReactElement[] = [];
     parameters?.forEach((param, index) => {
         if (param.name) {
@@ -160,6 +228,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
                         key={index}
                         functionParam={param}
                         readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}
+                        onDelete={onDeleteParam}
+                        onEditClick={handleOnEdit}
                     />
                 );
             } else if (editingSegmentId === index) {
@@ -170,6 +240,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
                         id={editingSegmentId}
                         syntaxDiag={currentComponentSyntaxDiag}
                         onCancel={closeNewParamView}
+                        onUpdate={handleOnUpdateParam}
+                        onChange={onUpdateParamChange}
                         isEdit={true}
                     />
                 );
@@ -214,7 +286,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     const handlePathChange = async (value: string) => {
         setShouldUpdatePath(false);
-        setResourcePath(value);
+        // setResourcePath(value);
         await handleResourceParamChange(
             model.functionName.value,
             value,
@@ -258,19 +330,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
 
-    };
-
-    const closeNewParamView = () => {
-        setAddingNewParam(false);
-        setEditingSegmentId(-1);
-        setCurrentComponentName(undefined);
-        setCurrentComponentSyntaxDiag(undefined);
-    };
-
-    const onSaveNewParam = (param: FunctionParam) => {
-        setParameters([...parameters, param]);
-        setAddingNewParam(false);
-        setEditingSegmentId(-1);
     };
 
     const formContent = () => {
@@ -353,7 +412,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
 
     return (
-        <FormControl data-testid="function-form" className={connectorClasses.wizardFormControlExtended}>
+        <FormControl data-testid="graphql-resource-form" className={connectorClasses.wizardFormControlExtended}>
             <FormHeaderSection
                 onCancel={onCancel}
                 formTitle={"Configure GraphQL Query"}

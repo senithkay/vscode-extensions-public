@@ -368,3 +368,9 @@ export interface ListenerConfigFormState {
     listenerName?: string,
     listenerPort?: string,
 }
+
+export interface ServiceConfigState {
+    serviceBasePath: string;
+    listenerConfig: ListenerConfigFormState,
+    serviceType?: string
+}
