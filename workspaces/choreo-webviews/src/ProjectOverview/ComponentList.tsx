@@ -49,7 +49,7 @@ export function ComponentList(props: ComponentListProps) {
                 </VSCodeDataGridRow>
                 {
                     props.components?.map((component) => {
-                        var repo: Repository = component.repository ? component.repository : {
+                        const repo: Repository = component.repository ? component.repository : {
                             nameApp: "-",
                             appSubPath: "-",
                             nameConfig: "-",

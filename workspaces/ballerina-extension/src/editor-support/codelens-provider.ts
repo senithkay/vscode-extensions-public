@@ -31,7 +31,7 @@ import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
 import { openConfigEditor } from '../config-editor/configEditorPanel';
 import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { FunctionDefinition } from 'workspaces/syntax-tree/lib';
+import { FunctionDefinition } from '@wso2-enterprise/syntax-tree';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',

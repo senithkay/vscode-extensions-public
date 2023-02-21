@@ -158,7 +158,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
     }, [project]);
 
-    const handlePushToChoreoClick = useCallback(() => {
+    const handlePushToChoreoClick = useCallback(async () => {
         setCreatingComponents(true);
         await ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').catch(((error) => {
             ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);

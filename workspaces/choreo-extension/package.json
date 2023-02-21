@@ -154,7 +154,7 @@
     "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
     "compile": "webpack --mode production",
     "watch": "npx webpack --watch",
-    "build": "pnpm run clean && pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && npx vsce package --no-dependencies",
+    "build": "pnpm run clean && pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm run postbuild",
     "copy-webview-lib": "copyfiles -f -E -F ./node_modules/@wso2-enterprise/choreo-vscode-webviews/build/static/js/main.js ./resources/jslibs",
     "compile-tests": "tsc -p . --outDir dist",
     "watch-tests": "tsc -p . -w --outDir dist",
@@ -166,7 +166,7 @@
     "test": "rm -rf .vscode-test/extensions && node ./dist/test/runTest.js && nyc report && nyc report --reporter=html",
     "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
     "copyVSIX": "copyfiles *.vsix ../..",
-    "postbuild": "npm run package && npm run copyVSIX"
+    "postbuild": "pnpm run package && pnpm run copyVSIX"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
