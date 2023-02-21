@@ -17,14 +17,14 @@ import { css, cx } from "@emotion/css";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ProjectSelector } from "../ProjectSelector/ProjectSelector";
 import { ComponentTypeSelector } from "./ComponetTypeSelector/ComponentTypeSelector";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ChoreoServiceComponentType, Component, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { GithubRepoBranchSelector } from "../GithubRepoBranchSelector/GithubRepoBranchSelector";
 import { ErrorBanner } from "../Commons/ErrorBanner";
-import { RequiredFormInput } from "../Commons/styles";
+import { RequiredFormInput } from "../Commons/RequiredInput";
+import { LoadChoreoProjectPrompt } from "../Commons/LoadProjectPrompt";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -178,10 +178,10 @@ export function ComponentWizard() {
     return (
         <>
             {loginStatus !== "LoggedIn" && <SignIn />}
-            {!loginStatusPending && loginStatus === "LoggedIn" && (
+            {!loginStatusPending && loginStatus === "LoggedIn" && !isChoreoProject && <LoadChoreoProjectPrompt />}
+            {!loginStatusPending && loginStatus === "LoggedIn" && isChoreoProject && (
                 <WizardContainer>
-                    <h2>Create New Choreo Component {(isChoreoProject && choreoProject) ? ` in ${choreoProject?.name} Project` : ''}</h2>
-                    {!isChoreoProject && <ProjectSelector currentProject={projectId} setProject={setProjectId} />}
+                    <h2>Create New Choreo Component {choreoProject ? ` in ${choreoProject?.name} Project` : ''}</h2>
                     <ComponentTypeSelector selectedType={selectedType} onChange={setSelectedType} />
                     <VSCodeTextField
                         autofocus

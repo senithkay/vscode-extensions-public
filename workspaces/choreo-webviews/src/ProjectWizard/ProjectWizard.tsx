@@ -18,7 +18,7 @@ import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
-import { RequiredFormInput } from "../Commons/styles";
+import { RequiredFormInput } from "../Commons/RequiredInput";
 
 const WizardContainer = styled.div`
     width: 100%;
