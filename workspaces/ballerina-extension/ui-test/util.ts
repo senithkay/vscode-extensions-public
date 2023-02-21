@@ -18,10 +18,14 @@
  */
 
 import { expect } from "chai";
-import { SideBarView, CustomTreeSection, ActivityBar } from "vscode-extension-tester";
+import { SideBarView, CustomTreeSection, ActivityBar, By, until, VSBrowser, Locator } from "vscode-extension-tester";
 
 export function wait(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function waitUntil(locator: Locator) {
+    return VSBrowser.instance.driver.wait(until.elementLocated(locator), 15000);
 }
 
 export async function getDiagramExplorer() {

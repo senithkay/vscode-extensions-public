@@ -42,7 +42,6 @@ describe('VSCode UI Tests', () => {
         expect(await editorView.getAction("Show Diagram")).is.not.undefined;
         (await editorView.getAction("Show Diagram"))!.click();
 
-        await wait(5000);
         expect(await editorView.getAction("Show Source")).is.not.undefined;
 
     });

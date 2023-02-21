@@ -1,3 +1,4 @@
+import { waitUntil } from "../util";
 import { By, TreeItem } from "vscode-extension-tester";
 
 export class ExtendedCustomViewItem {
@@ -8,6 +9,8 @@ export class ExtendedCustomViewItem {
     }
 
     async getActionButton(title: string) {
-        return await this.treeItem.findElement(By.xpath("//li[@title='" + title + "']"));
+        const element = By.xpath("//li[@title='" + title + "']");
+        await waitUntil(element);
+        return await this.treeItem.findElement(element);
     }
 }
