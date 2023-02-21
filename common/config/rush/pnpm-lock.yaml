@@ -57,7 +57,7 @@ importers:
       vscode-debugadapter-testsupport: ^1.44.0
       vscode-debugprotocol: ^1.44.0
       vscode-extension-telemetry: ^0.1.7
-      vscode-extension-tester: ^5.3.0
+      vscode-extension-tester: ^5.4.0
       vscode-languageclient: ^7.0.0
       vscode-languageserver-protocol: ^3.16.0
       vscode-messenger: ^0.4.4
@@ -122,7 +122,7 @@ importers:
       typescript: 4.9.5
       vsce: 1.103.1
       vscode-debugadapter-testsupport: 1.51.0
-      vscode-extension-tester: 5.3.0_4r5rv57huad4ctfiz6vn747ruu
+      vscode-extension-tester: 5.4.0_4r5rv57huad4ctfiz6vn747ruu
       webpack: 5.75.0_webpack-cli@4.10.0
       webpack-cli: 4.10.0_webpack@5.75.0
       webpack-merge-and-include-globally: 2.3.4_webpack@5.75.0
@@ -397,7 +397,7 @@ importers:
       source-map-support: ^0.5.21
       ts-loader: ^9.4.1
       typescript: ^4.9.4
-      vscode-extension-tester: ^5.3.0
+      vscode-extension-tester: ^5.4.0
       vscode-messenger: ^0.4.4
       vscode-messenger-common: ^0.4.3
       webpack: ^5.56.0
@@ -444,7 +444,7 @@ importers:
       source-map-support: 0.5.21
       ts-loader: 9.4.2_hhrrucqyg4eysmfpujvov2ym5u
       typescript: 4.9.5
-      vscode-extension-tester: 5.3.0_4r5rv57huad4ctfiz6vn747ruu
+      vscode-extension-tester: 5.4.0_4r5rv57huad4ctfiz6vn747ruu
       webpack: 5.75.0_webpack-cli@4.10.0
       webpack-cli: 4.10.0_webpack@5.75.0
       yarn: 1.22.19
@@ -25565,8 +25565,8 @@ packages:
       vscode-uri: 3.0.7
     dev: false
 
-  /monaco-page-objects/3.3.0_mcttbz3hm275ldw6tl6gcvo6pq:
-    resolution: {integrity: sha512-BnyE3MYuKhcqqhkAdVWNDSS8wWaPSKPz9PDb2KovBqeTnzbiZ4R5SpupsupJe23Fg9QwKCXe06EcYU2ofwKyAA==}
+  /monaco-page-objects/3.4.0_7jf3oopqd6ghzu644vjoaulrqe:
+    resolution: {integrity: sha512-65W5vpceLM9494qffpK5rNsRSzNlYK7sC21Z+Xb9j23rgalnEkKuGCRf5Y7vNj+0bXpCh2Bk+n//K/kzJGseZA==}
     peerDependencies:
       selenium-webdriver: ^4.6.1
       typescript: '>=4.6.2'
@@ -25575,7 +25575,7 @@ packages:
       clone-deep: 4.0.1
       compare-versions: 5.0.3
       fs-extra: 11.1.0
-      selenium-webdriver: 4.8.0
+      selenium-webdriver: 4.8.1
       ts-essentials: 9.3.0_typescript@4.9.5
       typescript: 4.9.5
     dev: true
@@ -31187,8 +31187,8 @@ packages:
     dev: true
     optional: true
 
-  /selenium-webdriver/4.8.0:
-    resolution: {integrity: sha512-s/HL8WNwy1ggHR244+tAhjhyKMJnZLt1HKJ6Gn7nQgVjB/ybDF+46Uui0qI2J7AjPNJzlUmTncdC/jg/kKkn0A==}
+  /selenium-webdriver/4.8.1:
+    resolution: {integrity: sha512-p4MtfhCQdcV6xxkS7eI0tQN6+WNReRULLCAuT4RDGkrjfObBNXMJ3WT8XdK+aXTr5nnBKuh+PxIevM0EjJgkxA==}
     engines: {node: '>= 14.20.0'}
     dependencies:
       jszip: 3.10.1
@@ -34530,18 +34530,18 @@ packages:
       applicationinsights: 1.7.4
     dev: false
 
-  /vscode-extension-tester-locators/3.3.0_uesc2kg7tcvmuropzf2xkvkrym:
-    resolution: {integrity: sha512-rpeuCVNTxy5fGy2lQKPNUBCt6/7nSJBZY91J2MtwVYv1Nj6VbVZl38JNq7KAM9J+7pNSPYLsFAmHB2NzLWkD5g==}
+  /vscode-extension-tester-locators/3.4.0_qaiudtlfuhp6b2p3xuxmqscxdi:
+    resolution: {integrity: sha512-rCJCVUUUZni2udwZMcrI9LUIT4v5F5jaoTnTDGw4+WsImsuOQXQj/SG99bgbzY8ZsbF+8Kjuj1oNTa2lLL++gQ==}
     peerDependencies:
-      monaco-page-objects: ^3.3.0
+      monaco-page-objects: ^3.4.0
       selenium-webdriver: ^4.6.1
     dependencies:
-      monaco-page-objects: 3.3.0_mcttbz3hm275ldw6tl6gcvo6pq
-      selenium-webdriver: 4.8.0
+      monaco-page-objects: 3.4.0_7jf3oopqd6ghzu644vjoaulrqe
+      selenium-webdriver: 4.8.1
     dev: true
 
-  /vscode-extension-tester/5.3.0_4r5rv57huad4ctfiz6vn747ruu:
-    resolution: {integrity: sha512-AWUJkeEsKCxQniD2p1N6gtnLHilgAtz0FszRfqL898z4ZJuySmkKD2+GOuqeacU/PjmSEsVd3h8BcxyvDswcVw==}
+  /vscode-extension-tester/5.4.0_4r5rv57huad4ctfiz6vn747ruu:
+    resolution: {integrity: sha512-Kacxy8Eloh/4sEf46/03eVLzcmtl8e5dxtWCiAVQKmgSDHoJpH9YrI4i7L/FOlTmG8P0jBJnZg1IT3mKeFFlNQ==}
     hasBin: true
     peerDependencies:
       mocha: '>=5.2.0'
@@ -34557,13 +34557,13 @@ packages:
       hpagent: 1.2.0
       js-yaml: 4.1.0
       mocha: 10.2.0
-      monaco-page-objects: 3.3.0_mcttbz3hm275ldw6tl6gcvo6pq
+      monaco-page-objects: 3.4.0_7jf3oopqd6ghzu644vjoaulrqe
       sanitize-filename: 1.6.3
-      selenium-webdriver: 4.8.0
+      selenium-webdriver: 4.8.1
       targz: 1.0.1
       typescript: 4.9.5
       unzip-stream: 0.3.1
-      vscode-extension-tester-locators: 3.3.0_uesc2kg7tcvmuropzf2xkvkrym
+      vscode-extension-tester-locators: 3.4.0_qaiudtlfuhp6b2p3xuxmqscxdi
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
