@@ -57,7 +57,7 @@ jobs:
       - name: Get version
         id: vsix
         run: | 
-          file=$(ls ${{ steps.vsix.outputs.extension }}*.vsix)
+          file=$(ls ${{ github.event.inputs.extension }}*.vsix)
           fileName=${file#*-}
           version=${fileName%.*}
           extension=${{ github.event.inputs.extension }}
