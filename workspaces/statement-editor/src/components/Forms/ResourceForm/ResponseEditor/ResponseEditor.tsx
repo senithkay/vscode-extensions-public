@@ -242,6 +242,17 @@ export function ResponseEditor(props: ParamProps) {
             <div className={classes.paramContent}>
 
                 <div className={classes.paramDataTypeWrapper}>
+                    <ParamDropDown
+                        dataTestId="param-type-selector"
+                        placeholder={"Select Code"}
+                        customProps={{ values: optionsListString }}
+                        defaultValue={response}
+                        onChange={handleOnSelect}
+                        label="HTTP Response Code"
+                    />
+                </div>
+
+                <div className={classes.paramTypeWrapper}>
                     <FieldTitle title='Type' optional={false} />
                     <LiteExpressionEditor
                         testId="return-type"
@@ -251,17 +262,6 @@ export function ResponseEditor(props: ParamProps) {
                         completions={completions}
                         showRecordEditorButton={true}
                         handleShowRecordEditor={handleShowRecordEditor}
-                    />
-                </div>
-
-                <div className={classes.paramTypeWrapper}>
-                    <ParamDropDown
-                        dataTestId="param-type-selector"
-                        placeholder={"Select Code"}
-                        customProps={{ values: optionsListString }}
-                        defaultValue={response}
-                        onChange={handleOnSelect}
-                        label="HTTP Response Code"
                     />
                 </div>
 
