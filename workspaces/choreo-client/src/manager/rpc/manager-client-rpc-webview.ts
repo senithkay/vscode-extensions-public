@@ -10,14 +10,17 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ChoreoComponentCreationParams, Component, IProjectManager, Project } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { CreateLocalComponentRequest } from "./types";
+import { CreateLocalComponentRequest, IsRepoClonedRequest } from "./types";
 
 export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     constructor (private _messenger: Messenger) {
 
+    }
+    isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
+        return this._messenger.sendRequest(IsRepoClonedRequest, HOST_EXTENSION, params);
     }
     createLocalComponent(args: ChoreoComponentCreationParams): Promise<string | boolean> {
         return this._messenger.sendRequest(CreateLocalComponentRequest, HOST_EXTENSION, args);

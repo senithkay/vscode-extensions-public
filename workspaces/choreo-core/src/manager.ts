@@ -18,6 +18,7 @@ export interface IProjectManager {
     getProjectDetails(): Promise<Project>;
     getProjectRoot(): Promise<string | undefined>;
     getLocalComponents(workspaceFilePath: string): Component[];
+    isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean>;
 }
 
 export interface BallerinaComponentCreationParams {
@@ -26,4 +27,9 @@ export interface BallerinaComponentCreationParams {
     org: string;
     package: string;
     directory: string;
+}
+
+export interface IsRepoClonedRequestParams {
+    repository: string;
+    workspaceFilePath: string;
 }
