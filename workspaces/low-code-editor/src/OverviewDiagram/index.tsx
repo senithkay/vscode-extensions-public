@@ -127,7 +127,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                 updateCurrentFile={updateCurrentFile}
                 fileList={fileList}
             />
-             <TopLevelActionButton />
+            <TopLevelActionButton />
         </div>
     )
 }
