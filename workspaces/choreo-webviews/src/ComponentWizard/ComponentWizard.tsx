@@ -63,6 +63,8 @@ export function ComponentWizard() {
     const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
     const [repository, setRepository] = useState<string>('');
     const [isRepoCloned, setIsRepoCloned] = useState<boolean>(false);
+    const [isCloneInProgress, setIsCloneInProgress] = useState<boolean>(false);
+
     const [componentNames, setComponentNames] = useState<string[]>([]);
     const [showRepoSelector, setShowRepoSelector] = useState<boolean>(false);
     const [selectedBranch, setSelectedBranch] = useState<string>('');
@@ -92,12 +94,13 @@ export function ComponentWizard() {
 
     useEffect(() => {
        const checkRepoCloneStatus = async () => {
-            if (projectId && repository) {
+            if (projectId && repository && selectedBranch) {
                 const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
                 if (projectPath) {
                     const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
                         repository,
                         workspaceFilePath: projectPath,
+                        branch: selectedBranch
                     });
                     setIsRepoCloned(isCloned);
                 }
@@ -192,6 +195,22 @@ export function ComponentWizard() {
         }
     };
 
+    const handleRepoClone = async () => {
+        if (projectId && repository && selectedBranch) {
+            setIsCloneInProgress(true);
+            const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+            if (projectPath) {
+                const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
+                    repository,
+                    workspaceFilePath: projectPath,
+                    branch: selectedBranch
+                });
+                setIsRepoCloned(isCloned);
+            }
+            setIsCloneInProgress(false);
+        }
+    };
+
     return (
         <>
             {loginStatus !== "LoggedIn" && <SignIn />}
@@ -243,9 +262,17 @@ export function ComponentWizard() {
                         {(repository && !isRepoCloned) &&
                             <>
                                 Selected Repository is not available locally in Project folder. Clone the repository to continue.
-                                <VSCodeLink onClick={() => {} }>
-                                    Clone Repository
-                                </VSCodeLink>
+                                {!isCloneInProgress &&
+                                    <VSCodeLink onClick={handleRepoClone}>
+                                        Clone Repository
+                                    </VSCodeLink>
+                                }
+                                {isCloneInProgress && 
+                                    <>
+                                        <span>Cloning Repository...</span>
+                                        <VSCodeProgressRing />
+                                    </>
+                                }
                             </>
                         }
                         <VSCodeTextField
