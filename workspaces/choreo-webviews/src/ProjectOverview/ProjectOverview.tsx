@@ -63,8 +63,15 @@ export interface ProjectOverviewProps {
 
 function hasLocal(components: Component[]) {
     return components.some((component) => {
-        return component.local;
+        return component.repository === undefined;
     });
+}
+
+enum ComponentAction {
+    NOTHING,
+    LOADING,
+    REPO_SYNC, // components are not pushed to github repo
+    CHOREO_SYNC // components are not pushed to choreo
 }
 
 
@@ -76,6 +83,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
     const [isActive, setActive] = useState<boolean>(false);
     const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
+    const [componentAction, setComponentAction] = useState<ComponentAction>(ComponentAction.NOTHING);
     const projectId = props.projectId ? props.projectId : '';
     const orgName = props.orgName ? props.orgName : '';
 
@@ -107,6 +115,23 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().getProjectRepository(projectId).then(setProjectRepo);
     }, [projectId, orgName]);
 
+    useEffect(() => {
+        if (components !== undefined && hasLocal(components)) {
+            setComponentAction(ComponentAction.LOADING);
+            ChoreoWebViewAPI.getInstance().hasUnpushedComponents(projectId).then((status: boolean) => {
+                if (status) {
+                    setComponentAction(ComponentAction.REPO_SYNC);
+                } else {
+                    setComponentAction(ComponentAction.CHOREO_SYNC);
+                }
+            });
+        } else {
+            setComponentAction(ComponentAction.NOTHING);
+        }
+    }, [components, projectId]);
+
+
+
     // Listen to changes in project selection
     ChoreoWebViewAPI.getInstance().onSelectedProjectChanged((newProjectId) => {
         setComponents(undefined);
@@ -135,9 +160,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     const handlePushToChoreoClick = useCallback(() => {
         setCreatingComponents(true);
-        ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').then(() => {
+        await ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').catch(((error) => {
+            ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
+        }));
+        await ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then((components) => {
+            setComponents(components);
             setCreatingComponents(false);
-            ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then(setComponents);
         });
     }, [project]);
 
@@ -154,6 +182,19 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const handleCreateComponentClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.component.create');
     }, []);
+
+    const handleOpenSourceControlClick = useCallback((e: any) => {
+        ChoreoWebViewAPI.getInstance().triggerCmd('workbench.scm.focus');
+    }, []);
+
+    const handleRefreshComponentsClick = useCallback((e: any) => {
+        setComponentAction(ComponentAction.LOADING);
+        ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.projects.registry.refresh').then(() => {
+            ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then((components) => {
+                setComponents(components);
+            });
+        });
+    }, [project]);
 
     return (
         <>
@@ -200,16 +241,16 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     <VSCodeButton appearance="icon" onClick={handleCreateComponentClick} disabled={!isActive} title="Add Component"><Codicon name="plus" /></VSCodeButton>
                 </ComponentsHeader>
                 <ComponentList components={components} />
-                {components !== undefined && hasLocal(components) &&
+                {componentAction === ComponentAction.CHOREO_SYNC &&
                     <>
                         <p>
-                            <InlineIcon><Codicon name="lightbulb" /></InlineIcon>
-                            Some components are not created in Choreo. Please commit your changes to github repo and click `Push to Choreo`
+                            <InlineIcon><Codicon name="lightbulb" /></InlineIcon>&nbsp;
+                            Some components are not created in Choreo. Click `Push to Choreo` to create them.
                         </p>
                         <ActionContainer>
                             {creatingComponents && <VSCodeProgressRing />}
                             <VSCodeButton
-                                appearance="secondary"
+                                appearance="primary"
                                 disabled={creatingComponents}
                                 onClick={handlePushToChoreoClick}>
                                 <Codicon name="cloud-upload" />&nbsp;
@@ -217,6 +258,32 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             </VSCodeButton>
                         </ActionContainer>
                     </>
+                }
+                {componentAction === ComponentAction.REPO_SYNC &&
+                    <>
+                        <p>
+                            <InlineIcon><Codicon name="lightbulb" /></InlineIcon>&nbsp;
+                            Some components are not committed to the github repo. Please commit and push them before pushing to Choreo.
+                        </p>
+                        <ActionContainer>
+                            {creatingComponents && <VSCodeProgressRing />}
+                            <VSCodeButton
+                                appearance="secondary"
+                                onClick={handleOpenSourceControlClick}>
+                                <Codicon name="source-control" />&nbsp;
+                                Open Source Control
+                            </VSCodeButton>
+                            <VSCodeButton
+                                appearance="secondary"
+                                onClick={handleRefreshComponentsClick}>
+                                <Codicon name="refresh" />&nbsp;
+                                Recheck
+                            </VSCodeButton>
+                        </ActionContainer>
+                    </>
+                }
+                {componentAction === ComponentAction.LOADING &&
+                    <VSCodeProgressRing />
                 }
             </WizardContainer>
         </>

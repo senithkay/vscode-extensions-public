@@ -711,8 +711,8 @@ export class SizingVisitor implements Visitor {
                 targetBody = workerDecl.workerBody;
             }
 
-            sendHeight = this.calculateHeightUptoIndex(matchedPair.sourceIndex, sourceBody);
-            receiveHeight = this.calculateHeightUptoIndex(matchedPair.targetIndex, targetBody);
+            sendHeight = this.calculateHeightUptoIndex(matchedPair.sourceIndex, sourceBody as BlockStatement);
+            receiveHeight = this.calculateHeightUptoIndex(matchedPair.targetIndex, targetBody as BlockStatement);
 
             if (sendHeight > receiveHeight) {
                 const targetVS = matchedPair.targetViewState as StatementViewState;
@@ -856,7 +856,7 @@ export class SizingVisitor implements Visitor {
 
         }
 
-        this.beginSizingBlock(node, index);
+        this.beginSizingBlock(node as BlockStatement, index);
     }
 
     public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
@@ -896,7 +896,7 @@ export class SizingVisitor implements Visitor {
             height += START_SVG_HEIGHT + (triggerVS.offsetFromBottom * 2);
         }
 
-        this.endSizingBlock(node, index + node.statements.length, width, height, index, leftWidth, rightWidth);
+        this.endSizingBlock(node as BlockStatement, index + node.statements.length, width, height, index, leftWidth, rightWidth);
 
         if (!viewState.hasWorkerDecl) {
             viewState.plusButtons.forEach(plusVS => {

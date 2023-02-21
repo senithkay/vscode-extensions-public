@@ -15,16 +15,17 @@ export interface DataMapperPortWidgetProps {
 	port: IntermediatePortModel | RecordFieldPortModel;
 	disable?: boolean;
 	dataTestId?: string;
+	handlePortState?: (portState: PortState) => void ;
 }
 
-enum PortState {
+export enum PortState {
 	PortSelected,
 	LinkSelected,
 	Unselected
 }
 
 export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props: DataMapperPortWidgetProps) =>  {
-	const { engine, port, disable, dataTestId } = props;
+	const { engine, port, disable, dataTestId, handlePortState } = props;
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const [ disableNewLinking, setDisableNewLinking] = useState<boolean>(false);
 
@@ -43,11 +44,20 @@ export const DataMapperPortWidget: React.FC<DataMapperPortWidgetProps> = (props:
 				eventDidFire(event) {
 					if (event.function === "mappingStartedFrom" || event.function === "mappingFinishedTo") {
 						setPortState(PortState.PortSelected);
+						if (handlePortState) {
+							handlePortState(PortState.PortSelected);
+						}
 					} else if (event.function === "link-selected") {
 						setPortState(PortState.LinkSelected);
+						if (handlePortState) {
+							handlePortState(PortState.LinkSelected);
+						}
 					} else if (event.function === "link-unselected"
 						|| event.function === "mappingStartedFromSelectedAgain") {
 						setPortState(PortState.Unselected);
+						if (handlePortState) {
+							handlePortState(PortState.Unselected);
+						}
 					}
 				},
 			})
@@ -109,7 +119,7 @@ interface PortsContainerProps {
 
 const ActivePortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "pointer",
-	display: "inline",
+	display: "flex",
 	color: (props.active ? "rgb(0, 192, 255)" : props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : "#8D91A3"),
 	"&:hover": {
 		color: "rgb(0, 192, 255)"
@@ -123,5 +133,6 @@ const DisabledPortContainer = styled.div`
 
 const DisabledNewLinkingPortContainer = styled.div((props: PortsContainerProps) => ({
 	cursor: "not-allowed",
+	display: "flex",
 	color: props.hasLinks ? (props.hasError ? '#FE523C' : "#5567D5") : "#8D91A3",
 }));

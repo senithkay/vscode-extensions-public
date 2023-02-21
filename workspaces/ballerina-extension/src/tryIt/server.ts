@@ -82,6 +82,7 @@ export class SwaggerServer {
             if (errorCode === CONNECTION_REFUSED || errorCode === EAI_AGAIN) {
               resolve(isOriginalResponse ? errorCode : false);
             }
+            resolve(false);
           }
         });
     });

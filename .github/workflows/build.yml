@@ -2,11 +2,12 @@ name: Build and run Tests
 
 on: 
   workflow_call:
-    inputs:
-      isRelease:
-        required: true
-        type: boolean
+    inputs: 
+      isPreRelease:
+        default: true
+        type: boolean      
       version:
+        default: 'N/A'
         type: string
         required: false
 
@@ -23,6 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
       - uses: ./.github/actions/cache
 
@@ -32,13 +35,39 @@ jobs:
           sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
           rm ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
 
-      - name: Update version
-        if: ${{ inputs.isRelease == true }}
+      - name: Update versions
+        if: ${{ inputs.version != 'N/A' }}
         run: |
-          pnpm version ${{ inputs.version }} --preid beta --no-git-tag-version
-          cd ballerina-low-code-editor
-          # pnpm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspaces
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspace=workspaces/choreo-extension
+          
+      - name: Get timestamp
+        id: timestamp
+        run: |
+          timestamp=$(date '+%Y%m%d%H%M%S')
+          echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
 
+      - name: Set prerelase version - ballerina
+        if: ${{ inputs.isPreRelease }}
+        run: |
+          currentVersion=$(node -p "require('./package.json').version")
+          currentVersionWOPreId=${currentVersion%-*}
+          currentVersionNo=${currentVersionWOPreId%.*}
+          newVersion=${currentVersionNo}.${{ steps.timestamp.outputs.timestamp }}
+          echo $newVersion
+          npm version $newVersion --preid beta --no-git-tag-version
+          
+      - name: Set prerelase version - choreo
+        if: ${{ inputs.isPreRelease }}
+        run: |
+          cd workspaces/choreo-extension
+          currentVersion=$(node -p "require('./package.json').version")
+          currentVersionWOPreId=${currentVersion%-*}
+          currentVersionNo=${currentVersionWOPreId%.*}
+          newVersion=${currentVersionNo}.${{ steps.timestamp.outputs.timestamp }}
+          echo $newVersion
+          npm version $newVersion --preid beta --no-git-tag-version
+          
       - name: Install modules
         run: |
           node common/scripts/install-run-rush.js install 
@@ -46,10 +75,18 @@ jobs:
       - name: Build repo
         run: node common/scripts/install-run-rush.js build --verbose
         env:
-          IS_RELEASE: ${{ inputs.isRelease }}
+          isPreRelease: ${{ inputs.isPreRelease  }}
 
       - name: Compress build
-        run: zip -r build.zip ./ -x 'common/temp*' -y
+        run: |
+          zip -r build.zip ./ -x 'common/temp*' -y
+          zip VSIX.zip *.vsix
+
+      - name: Save VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          path: VSIX.zip
+          name: VSIX
 
       - name: Save build
         uses: actions/upload-artifact@v3

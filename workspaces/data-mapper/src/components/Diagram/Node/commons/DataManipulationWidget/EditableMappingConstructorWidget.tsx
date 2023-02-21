@@ -11,7 +11,7 @@
 * associated services.
 */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useState } from 'react';
 
 import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -23,7 +23,7 @@ import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
-import { DataMapperPortWidget, RecordFieldPortModel } from '../../../Port';
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { isEmptyValue } from "../../../utils/dm-utils";
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
@@ -63,15 +63,12 @@ const useStyles = makeStyles((theme: Theme) =>
 			fontFamily: "GilmerMedium",
 			fontSize: "13px",
 		},
-		treeLabelOutPort: {
-			float: "right",
-			width: 'fit-content',
-			marginLeft: "auto",
-		},
 		treeLabelInPort: {
 			float: "left",
 			marginRight: "5px",
 			width: 'fit-content',
+			display: "flex",
+			alignItems: "center"
 		},
 		label: {
 			width: "300px",
@@ -121,15 +118,18 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
     } = props;
 	const classes = useStyles();
 
+	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+	const [isHovered, setIsHovered] = useState(false);
+
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
 	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
 	const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
-	const hasEmptyFields = mappings.length === 0 || !mappings.some(mapping => {
+	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
         if (mapping.value) {
             return !isEmptyValue(mapping.value.position);
         }
         return true;
-    });
+    }));
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -158,22 +158,40 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 
 	const handleExpand = () => {
 		context.handleCollapse(id, !expanded);
-	}
+	};
+
+	const handlePortState = (state: PortState) => {
+		setPortState(state)
+	};
+
+	const onMouseEnter = () => {
+		setIsHovered(true);
+	};
+
+	const onMouseLeave = () => {
+		setIsHovered(false);
+	};
 
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
-			<TreeHeader>
+			<TreeHeader
+				isSelected={portState !== PortState.Unselected}
+				id={"recordfield-" + id}
+				onMouseEnter={onMouseEnter}
+				onMouseLeave={onMouseLeave}
+			>
 				<span className={classes.treeLabelInPort}>
 					{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
-                            || !expanded
-                            || !isBodyMappingConstructor
-                            || hasEmptyFields
-                        ) &&
-                        <DataMapperPortWidget engine={engine} port={portIn}/>
+							|| !expanded
+							|| !isBodyMappingConstructor
+							|| hasEmptyFields
+						) &&
+						<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
 					}
 				</span>
 				<span className={classes.label}>
 					<IconButton
+						id={"button-wrapper-" + id}
 						className={classes.expandIcon}
 						style={{ marginLeft: indentation }}
 						onClick={handleExpand}
@@ -186,10 +204,10 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 			</TreeHeader>
 			<TreeBody>
 				{expanded && editableRecordFields &&
-					editableRecordFields.map((item) => {
+					editableRecordFields.map((item, index) => {
 						return (
 							<EditableRecordFieldWidget
-								key={id}
+								key={index}
 								engine={engine}
 								field={item}
 								getPort={getPort}
@@ -198,6 +216,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 								context={context}
 								treeDepth={0}
 								deleteField={deleteField}
+								hasHoveredParent={isHovered}
 							/>
 						);
 					})

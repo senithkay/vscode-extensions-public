@@ -12,6 +12,7 @@
  */
 import {
     ActionStatement, AssignmentStatement, CallStatement, CompoundAssignmentStatement, DoStatement,
+    ElseBlock,
     ForeachStatement, ForkStatement,
     IfElseStatement,
     LocalVarDecl, LockStatement, MatchStatement,
@@ -138,7 +139,8 @@ export type StatementNodes = ActionStatement
     | ReturnStatement
     | RollbackStatement
     | TransactionStatement
-    | WhileStatement;
+    | WhileStatement
+    | ElseBlock;
 
 export type OtherStatementNodeTypes = ActionStatement
     | AssignmentStatement

@@ -22,6 +22,11 @@ import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync, write
 import path, { join } from "path";
 import { workspace } from "vscode";
 
+interface CmdResponse {
+    error: boolean;
+    message: string;
+}
+
 export class ChoreoProjectManager implements IProjectManager {
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
         const { displayType, org, repositoryInfo } = args;
@@ -34,14 +39,15 @@ export class ChoreoProjectManager implements IProjectManager {
                 mkdirSync(pkgRoot, { recursive: true });
             }
 
-            const resp: boolean = await ChoreoProjectManager._createBallerinaPackage(repositoryInfo.subPath, pkgRoot, displayType);
-            if (resp) {
+            const resp: CmdResponse = await ChoreoProjectManager._createBallerinaPackage(repositoryInfo.subPath, pkgRoot, displayType);
+            if (!resp.error) {
                 const pkgPath = join(pkgRoot, repositoryInfo.subPath);
                 ChoreoProjectManager._processTomlFiles(pkgPath, org.name);
                 ChoreoProjectManager._addDisplayAnnotation(pkgPath, displayType, repositoryInfo);
                 return await ChoreoProjectManager._addToWorkspace(workspaceFilePath, args);
+            } else {
+                throw new Error(resp.message);
             }
-            throw new Error("Error: Could not create component.");
         } else {
             throw new Error("Error: Could not detect a project workspace.");
         }
@@ -56,16 +62,22 @@ export class ChoreoProjectManager implements IProjectManager {
     }
 
     private static _createBallerinaPackage(pkgName: string, pkgRoot: string, componentType: ChoreoServiceComponentType)
-        : Promise<boolean> {
+        : Promise<CmdResponse> {
         const cmd =
             `bal new "${pkgName}" -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(componentType)}:1.1.0`;
-        return new Promise(function (resolve, reject) {
-            child_process.exec(`${cmd}`, { cwd: pkgRoot }, async (err) => {
+        return new Promise(function (resolve) {
+            child_process.exec(`${cmd}`, { cwd: pkgRoot }, async (err, stdout, stderror) => {
                 if (err) {
                     log(`error: ${err}`);
-                    reject(err);
+                    resolve({
+                        error: true,
+                        message: stderror
+                    });
                 } else {
-                    resolve(true);
+                    resolve({
+                        error: false,
+                        message: stdout
+                    });
                 }
             });
         });
@@ -139,7 +151,7 @@ export class ChoreoProjectManager implements IProjectManager {
                 const content: WorkspaceConfig = JSON.parse(contents);
                 content.folders.push({
                     path: join(join(join('repos', repositoryInfo.org), repositoryInfo.repo), repositoryInfo.subPath),
-                    name: repositoryInfo.subPath,
+                    name: name,
                     metadata: {
                         org: {
                             id: org.id,

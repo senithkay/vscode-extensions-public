@@ -17,38 +17,25 @@
  *
  */
 
-import React, { useContext, useState } from 'react';
-import Tooltip from '@mui/material/Tooltip';
-import AddLinkIcon from '@mui/icons-material/AddLink';
-import { DiagramContext } from '../../DiagramContext/DiagramContext';
-import { Service } from '../../../../resources';
+import React, { useContext } from "react";
+import AddLinkIcon from "@mui/icons-material/AddLink";
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
+import { Service } from "../../../../resources";
+import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import { useStyles } from "./styles";
 
-export function AddConnectorWidget(props: { service: Service }) {
+export function AddConnectorButton(props: { service: Service }) {
     const { service } = props;
-    const [isHovered, setIsHovered] = useState<boolean>(false);
+    const classes = useStyles();
 
     const { setTargetService } = useContext(DiagramContext);
 
     return (
-        <Tooltip
-            open={isHovered}
-            title={'Link Externally'}
-            arrow
-            placement='right'
-        >
-            <AddLinkIcon
-                onClick={() => { setTargetService(service) }}
-                onMouseOver={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                style={{
-                    backgroundColor: isHovered ? 'orange' : '',
-                    borderRadius: '50%',
-                    color: isHovered ? 'whitesmoke' : 'orange',
-                    cursor: 'pointer',
-                    fontSize: '22px',
-                    padding: '2px'
-                }}
-            />
-        </Tooltip>
+        <MenuItem onClick={() => setTargetService(service)}>
+            <ListItemIcon>
+                <AddLinkIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText className={classes.listItemText}>Link externally</ListItemText>
+        </MenuItem>
     );
 }

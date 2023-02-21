@@ -31,6 +31,7 @@ import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
 import { openConfigEditor } from '../config-editor/configEditorPanel';
 import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FunctionDefinition } from 'workspaces/syntax-tree/lib';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -167,7 +168,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                         if (member.kind === 'FunctionDefinition') {
                             const functionBody = member.functionBody;
                             if (functionBody.kind === 'ExpressionFunctionBody') {
-                                const position = functionBody.position;
+                                const position = (member as FunctionDefinition).functionSignature.position;
                                 const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
                                 codeLens.command = {
                                     title: "Design",
