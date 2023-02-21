@@ -44,7 +44,7 @@ jobs:
       - name: Get timestamp
         id: timestamp
         run: |
-          timestamp=$(date '+%Y%m%d%H%M%S')
+          timestamp=$(date '+%Y%m%d%H')
           echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
 
       - name: Set prerelase version - ballerina

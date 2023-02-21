@@ -47,6 +47,10 @@
         "title": "Clone to new Workspace"
       },
       {
+        "command": "wso2.choreo.project.repo.clone",
+        "title": "Clone a repo to current Project Workspace"
+      },
+      {
         "command": "wso2.choreo.projects.registry.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
