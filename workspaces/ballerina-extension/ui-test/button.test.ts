@@ -22,6 +22,8 @@ import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { EditorView, VSBrowser } from 'vscode-extension-tester';
 import { getDiagramExplorer, wait } from './util';
+import { ExtendedCustomViewItem } from './utils/ExtendedCustomViewItem';
+import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
 describe('VSCode UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
@@ -32,7 +34,7 @@ describe('VSCode UI Tests', () => {
     });
 
     it('Test Title bar', async () => {
-        const editorView = new EditorView();
+        const editorView = new ExtendedEditorView(new EditorView());
         expect(await editorView.getAction("Run")).is.not.undefined;
         expect(await editorView.getAction("Debug")).is.not.undefined;
 
@@ -40,8 +42,8 @@ describe('VSCode UI Tests', () => {
         expect(await editorView.getAction("Show Diagram")).is.not.undefined;
         (await editorView.getAction("Show Diagram"))!.click();
 
-        await wait(2000);
-        expect(await editorView.getAction("Show Source", 1)).is.not.undefined;
+        await wait(5000);
+        expect(await editorView.getAction("Show Source")).is.not.undefined;
 
     });
 
@@ -56,9 +58,12 @@ describe('VSCode UI Tests', () => {
         const rootFolder = (await diagramExplorer.getVisibleItems())[0];
         expect(rootFolder).is.not.undefined;
         expect(await rootFolder.getLabel()).is.equal("data");
-        expect(await rootFolder.getActionButton("New File")).is.not.undefined;
-        expect(await rootFolder.getActionButton("New Folder")).is.not.undefined;
-        expect(await rootFolder.getActionButton("Delete")).is.not.undefined;
+
+        const treeItem = new ExtendedCustomViewItem(rootFolder);       
+        
+        expect(await treeItem.getActionButton("New File")).is.not.undefined;
+        expect(await treeItem.getActionButton("New Folder")).is.not.undefined;
+        expect(await treeItem.getActionButton("Delete")).is.not.undefined;
         await rootFolder.expand();
         expect(await rootFolder.findChildItem("hello_world.bal")).is.not.undefined;
 
