@@ -36,11 +36,12 @@ interface CheckBoxGroupProps {
     withMargins?: boolean;
     testId?: string;
     checkBoxLabel?: ReactNode;
+    checkBoxTestId?: string;
 }
 
 export function CheckBoxGroup(props: CheckBoxGroupProps) {
     const { values, className, onChange, label, defaultValues, checkOptional, withMargins = true, disabled,
-            testId, checkBoxLabel } = props;
+            testId, checkBoxTestId, checkBoxLabel } = props;
     const formClasses = useFormStyles();
     const dropDownClasses = useTextInputStyles();
     const [selected, setSelected] = React.useState(defaultValues);
@@ -101,6 +102,7 @@ export function CheckBoxGroup(props: CheckBoxGroupProps) {
                                     disableRipple={true}
                                     disableTouchRipple={true}
                                     disabled={disabled}
+                                    data-testid={checkBoxTestId}
                                 />
                             }
                             label={checkBoxLabel || val}

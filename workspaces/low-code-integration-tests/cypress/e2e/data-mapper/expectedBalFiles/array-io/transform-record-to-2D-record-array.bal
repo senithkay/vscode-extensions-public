@@ -33,6 +33,11 @@ type UpdatedOutput record {
     string st1;
 };
 
+const NAME = "sampleName";
+final SecondInput moduleLevelRecord = {
+    st1: "sampleText"
+};
+
 function unsupportedTransform(Input|SecondInput input) returns map<int> => {};
 
 function incompleteTransform() => {};
@@ -62,3 +67,8 @@ function record2Record2DArray(Input input) returns Output[][] => [
         }
     ]
 ];
+
+function localVar2Record(Input input) returns Output => let string strValue1 = "sampleText", SecondInput secondInput = {
+        st1: "sampleText"
+    }
+    in {};

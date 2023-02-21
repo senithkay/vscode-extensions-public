@@ -22,6 +22,7 @@ import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
 
 const CANVAS_VIEW_BAL_FILES_DIR = "expectedBalFiles/canvas-view";
 const BASIC_MAPPING_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-basic-mapping.bal`;
+const MODULE_DECLARATION_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-module-declaration-mapping.bal`;
 const INLINE_RECORD_IO_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-inline-record-mapping.bal`;
 const PRIMITIVE_TYPE_IO_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-primitive-type-mapping.bal`;
 const DIRECT_ASSIGNMENT_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-direct-assignment.bal`;
@@ -93,6 +94,38 @@ describe("Verify mappings between inline record types", () => {
     });
 
     it("Delete mapping by clicking the delete button in the link", () => DataMapper.deleteLink('input.x', 'y', 'mappingConstructor'));
+});
+
+describe("Verify mappings between const and record field", () => {
+    before(() => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM));
+        Canvas.getDataMapper("transform").clickEdit();
+    });
+
+    it("Canvas contains the source and target nodes", () => {
+        DataMapper.getSourceNode("input");
+        DataMapper.getSourceNode("secondInput");
+        DataMapper.getTargetNode("mappingConstructor", "Output");
+    });
+
+    it("Assign a constant to a field using statement editor", () => {
+        DataMapper.targetNodeFieldMenuClick('Output.st1', "Add Value", 'mappingConstructor');
+        StatementEditor.shouldBeVisible().getEditorPane();
+        EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
+        InputEditor.typeInput(`NAME`);
+        EditorPane.reTriggerDiagnostics("IdentifierToken", `NAME`);
+        StatementEditor.save();
+    });
+
+    it("Verify link between constant and record field", () => {
+        DataMapper.linkExists('moduleVariable.NAME', 'Output.st1', 'mappingConstructor');
+    });
+
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + MODULE_DECLARATION_BAL_FILE);
+    });
+
+    it("Delete mapping by clicking the delete button in the link", () => DataMapper.deleteLink('moduleVariable.NAME', 'Output.st1', 'mappingConstructor'));
 });
 
 describe("Verify mappings between primitive types", () => {

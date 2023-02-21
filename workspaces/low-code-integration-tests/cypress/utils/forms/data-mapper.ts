@@ -11,6 +11,10 @@
  * associated services.
  */
 
+import { InputEditor } from "../components/statement-editor/input-editor";
+import { StatementEditor } from "../components/statement-editor/statement-editor";
+import { EditorPane } from "../components/statement-editor/editor-pane";
+
 export class DataMapper {
     static disabledSaveButton = () => this.getForm().contains("Save").should('be.disabled');
 
@@ -347,4 +351,70 @@ export class DataMapper {
     }
 
     public static getForm = () => cy.get('[data-testid="data-mapper-form"]');
+
+    public static getLocalVariablesForm = () => cy.get('[data-testid="data-mapper-local-variables-form"]');
+
+    static clickAddLocalVariableBtn = () => {
+        cy.get(`[data-testid=add-local-variable-btn`).click({force: true});
+    }
+
+    static closeLocalVariablePanel = () => {
+        this.getLocalVariablesForm().get('[data-testid="done-btn"]').should('not.be.disabled').click();
+    }
+
+    static addNewLocalVariableAtEnd = () => {
+        this.getLocalVariablesForm().get('[data-testid="create-new-local-variable-btn"]').click();
+        this.getLocalVariablesForm().get('[data-testid="done-btn"]').should('be.disabled');
+    }
+
+    static addNewLocalVariableAtGivenLocation = (index: number) => {
+        cy.get(`[data-testid="add-local-variable-btn-${index}"]`).click();
+        this.getLocalVariablesForm().get('[data-testid="done-btn"]').should('be.disabled');
+    }
+
+    static editLocalVariableName = (variableIndex: number, varName: string) => {
+        cy.get(`[data-testid="local-variable-name-${variableIndex}"]`).click();
+        cy.get(`[data-testid="local-variable-name-input-${variableIndex}"]`).clear().type(`${varName}{enter}`);
+    }
+
+    static editLocalVariableValueExpr = (variableIndex: number,
+                                         value: string, initialModelType: string,
+                                         updatedModelType: string,
+                                         textToBeEdited: string) => {
+        cy.get(`[data-testid="local-variable-value-${variableIndex}"]`).click();
+        StatementEditor.shouldBeVisible().getEditorPane();
+        EditorPane.getExpression(initialModelType).doubleClickExpressionContent(textToBeEdited);
+        InputEditor.typeInput(value);
+        EditorPane.reTriggerDiagnostics(updatedModelType, value);
+        StatementEditor.save();
+    }
+
+    static getLocalVariable = (varName: string) => {
+        return cy.get(`[data-testid="local-var-widget-label-letExpression.${varName}"]`);
+    }
+
+    static getLocalVariablePort = (varName: string) => {
+        return cy.get(`[data-testid="local-variable-port-letExpression.${varName}.OUT"]`);
+    }
+
+    static checkLocalVariables = (varNames: string[]) => {
+        for (const name of varNames) {
+            this.getLocalVariable(name).should('exist');
+            this.getLocalVariablePort(name).should('exist');
+        }
+    }
+
+    static clickEditLocalVariablesBtn = () => {
+        cy.get(`[data-testid="edit-local-variables-btn"]`).click();
+    }
+
+    static selectLocalVariables = (varIndices: number[]) => {
+        for (const index of varIndices) {
+            cy.get(`[data-testid="select-local-variable-${index}"]`).click();
+        }
+    }
+
+    static deleteSelectedLocalVariables = () => {
+        cy.get(`[data-testid="delete-selected-local-variables"]`).click();
+    }
 }

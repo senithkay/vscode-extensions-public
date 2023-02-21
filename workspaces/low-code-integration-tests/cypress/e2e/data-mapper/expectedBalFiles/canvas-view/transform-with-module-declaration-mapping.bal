@@ -42,7 +42,7 @@ function unsupportedTransform(Input|SecondInput input) returns map<int> => {};
 
 function incompleteTransform() => {};
 
-function transform(Input input, SecondInput secondInput) returns Output => {st1: "strValue"};
+function transform(Input input, SecondInput secondInput) returns Output => {st1: NAME};
 
 function inlineRecord2InlineRecord(record {int[] x;} input) returns record {int y;} => {};
 

@@ -42,7 +42,7 @@ function unsupportedTransform(Input|SecondInput input) returns map<int> => {};
 
 function incompleteTransform() => {};
 
-function transform(Input input, SecondInput secondInput) returns Output => {st1: "strValue"};
+function transform(Input input, SecondInput secondInput) returns Output => {};
 
 function inlineRecord2InlineRecord(record {int[] x;} input) returns record {int y;} => {};
 
@@ -58,7 +58,7 @@ function recordArray2RecordArray(Input[] input) returns Output[] => [];
 
 function record2Record2DArray(Input input) returns Output[][] => [];
 
-function localVar2Record(Input input) returns Output => let string strValue1 = "sampleText", SecondInput secondInput = {
-        st1: "sampleText"
-    }
-    in {};
+function localVar2Record(Input input) returns Output => let string strValue1Renamed = "sampleTextNew"
+    in {
+
+    };

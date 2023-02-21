@@ -39,7 +39,7 @@ export function ModuleVariableTreeWidget(props: ModuleVariableTreeWidgetProps) {
     return (
         <>
             {hasMappingsWithModuleVariables && (
-                <TreeContainer>
+                <TreeContainer data-testid={"module-variables-node"}>
                     <ModuleVarsHeader>
                         <HeaderText>Module Variables</HeaderText>
                     </ModuleVarsHeader>
