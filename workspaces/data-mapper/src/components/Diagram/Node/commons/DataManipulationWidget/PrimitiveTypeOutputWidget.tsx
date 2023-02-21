@@ -107,8 +107,8 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
 
-	const type = field?.type?.typeName || typeName;
- const fieldId = `${id}.${type}`;
+	const type = typeName || field?.type?.typeName;
+	const fieldId = `${id}.${type}`;
 	const portIn = getPort(`${fieldId}.IN`);
 
 	let expanded = true;

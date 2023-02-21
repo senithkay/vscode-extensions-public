@@ -25,6 +25,7 @@ import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
+import { Diagnostic } from "vscode-languageserver-protocol";
 
 import ErrorIcon from "../../../../../assets/icons/Error";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
@@ -38,7 +39,7 @@ import {
     getFieldName,
     getLinebreak,
     getTypeName,
-    isConnectedViaLink
+    isConnectedViaLink,
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 import { OutputSearchHighlight } from "../SearchHighlight";
@@ -96,7 +97,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);
     const typeName = getTypeName(field.type);
     const elements = field.elements;
-    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
+    const diagnostic = (valExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
@@ -133,6 +135,16 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         setPortState(state)
     };
 
+    const handleEditValue = () => {
+        if (field.value && STKindChecker.isSpecificField(field.value)) {
+            props.context.enableStatementEditor({
+                value: field.value.valueExpr.source,
+                valuePosition: field.value.valueExpr.position as NodePosition,
+                label: field.value.fieldName.value as string
+            });
+        }
+    };
+
     const label = (
         <span style={{ marginRight: "auto" }}>
             <span
@@ -166,6 +178,36 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         </span>
                     </span>
                 </DiagnosticTooltip>
+            )}
+            {!listConstructor && !connectedViaLink && hasValue && (
+                <>
+                    {diagnostic ? (
+                        <DiagnosticTooltip
+                            placement="right"
+                            diagnostic={diagnostic}
+                            value={valExpr?.source}
+                            onClick={handleEditValue}
+                        >
+                            <span
+                                className={classes.valueWithError}
+                                data-testid={`array-widget-field-${portIn?.getName()}`}
+                            >
+                                {valExpr?.source}
+                                <span className={classes.errorIconWrapper}>
+                                    <ErrorIcon />
+                                </span>
+                            </span>
+                        </DiagnosticTooltip>
+                    ) : (
+                        <span
+                            className={classes.value}
+                            onClick={handleEditValue}
+                            data-testid={`array-widget-field-${portIn?.getName()}`}
+                        >
+                            {valExpr?.source}
+                        </span>
+                    )}
+                </>
             )}
         </span>
     );
@@ -252,9 +294,20 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
+    const handleAddValue = async () => {
+        setLoading(true);
+        try {
+            await createSourceForUserInput(field, parentMappingConstruct, 'EXPRESSION', applyModifications);
+            // Adding field to the context to identify this newly initialized field in the next rendering
+            props.context.handleFieldToBeEdited(fieldId);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleAddArrayElement = async () => {
         setIsAddingElement(true)
-        try{
+        try {
             const fieldsAvailable = !!listConstructor.expressions.length;
             const defaultValue = field.type?.memberType && getDefaultValue(field.type.memberType);
             let targetPosition: NodePosition;
@@ -334,12 +387,17 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         <>
                             {((hasValue && !connectedViaLink) || !isDisabled) && (
                                 <ValueConfigMenu
-                                    menuItems={[
-                                        {
-                                            title: !hasValue ? ValueConfigOption.InitializeArray : ValueConfigOption.DeleteArray,
-                                            onClick: !hasValue ? handleArrayInitialization : handleArrayDeletion,
-                                        },
-                                    ]}
+                                    menuItems={
+                                        hasValue
+                                            ? [
+                                                { title: ValueConfigOption.EditValue, onClick: handleEditValue },
+                                                { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
+                                            ]
+                                            : [
+                                                { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization },
+                                                { title: ValueConfigOption.AddValue, onClick: handleAddValue },
+                                            ]
+                                    }
                                     isDisabled={!typeName || typeName === "[]"}
                                     portName={portIn?.getName()}
                                 />

@@ -288,7 +288,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const updateDraftFileContent = async (statement: string, fileContent: string) => {
         const updatedContent = getUpdatedSource(statement, fileContent, targetPosition, moduleList, skipStatementSemicolon);
-        const stmtIndex = getStatementIndex(fileContent, statement, targetPosition);
+        const stmtIndex = getStatementIndex(updatedContent, statement, targetPosition);
         const newTargetPosition = getStatementPosition(updatedContent, statement, stmtIndex);
 
         await updateFileContent(updatedContent, true);
