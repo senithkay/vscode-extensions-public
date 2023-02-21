@@ -47,7 +47,15 @@ function primitiveArray2PrimitiveArray(string[] names) returns string[] => [];
 
 function record2PrimitiveArray(Input input) returns int[] => [];
 
-function record2RecordArray(Input input) returns Output[] => [];
+function record2RecordArray(Input input) returns Output[] => [
+    {
+        Items: from var ItemsItem in input.Items
+            select {
+                Id: ItemsItem.Id,
+                Confirmed:
+            }
+    }
+];
 
 function recordArray2RecordArray(Input[] input) returns Output[] => [];
 

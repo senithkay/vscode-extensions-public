@@ -6,6 +6,7 @@ type Input record {
     int int1;
     record {
         string Id;
+        int count;
         boolean Confirmed;
     }[] Items;
 };

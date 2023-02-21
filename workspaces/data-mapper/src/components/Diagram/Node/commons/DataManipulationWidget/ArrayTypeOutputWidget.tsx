@@ -191,7 +191,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	};
 
 	return (
-		<TreeContainer>
+		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader isSelected={portState !== PortState.Unselected} isDisabled={isDisabled} id={"recordfield-" + id}>
 				<span className={classes.treeLabelInPort}>
 					{portIn && shouldPortVisible && (
@@ -208,6 +208,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 						className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
 						style={{ marginLeft: indentation }}
 						onClick={handleExpand}
+						data-testid={`${id}-expand-icon-mapping-target-node`}
 					>
 						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
 					</IconButton>

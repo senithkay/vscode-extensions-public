@@ -51,4 +51,14 @@ function record2RecordArray(Input input) returns Output[] => [];
 
 function recordArray2RecordArray(Input[] input) returns Output[] => [];
 
-function record2Record2DArray(Input input) returns Output[][] => [];
+function record2Record2DArray(Input input) returns Output[][] => [
+    [
+        {
+            Items: from var ItemsItem in input.Items
+                select {
+                    Id: ItemsItem.Id,
+                    Confirmed:
+                }
+        }
+    ]
+];

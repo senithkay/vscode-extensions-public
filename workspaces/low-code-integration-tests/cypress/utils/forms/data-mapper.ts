@@ -12,11 +12,11 @@
  */
 
 export class DataMapper {
-    static disabledSaveButton = () => this.getForm().contains("Save").should('be.disabled')
+    static disabledSaveButton = () => this.getForm().contains("Save").should('be.disabled');
 
     static displayUnsupportedTypesBanner = () => {
-        this.getForm().get('[data-test-id="unsupported-input-banner"]').should('exist')
-        this.getForm().get('[data-test-id="unsupported-output-banner"]').should('exist')
+        this.getForm().get('[data-test-id="unsupported-input-banner"]').should('exist');
+        this.getForm().get('[data-test-id="unsupported-output-banner"]').should('exist');
     }
 
     static addNewInputRecord = (jsonStr: string, recordName: string, separateRecords?: boolean) => {
@@ -40,22 +40,31 @@ export class DataMapper {
         cy.get('[test-id="json-input-container"]').get('[data-testid="save-btn"]').should('not.be.disabled').click();
     }
 
-    static addExitingInputRecord = (recordName: string) => {
+    static addExitingInputRecord = (recordName: string, setAsArray?: boolean) => {
         cy.get('[data-testid="dm-inputs"] > button[data-testid="exiting-record"]').click();
         cy.get('li').contains(recordName).click();
+        if (setAsArray) {
+            cy.get('[type="checkbox"]').check({ force: true });
+        }
         cy.contains("Add").click();
     }
 
-    static selectInputRecord = (recordName: string, oldRecordName: string) => {
+    static selectInputRecord = (recordName: string, setAsArray?: boolean) => {
         this.getForm().wait(5000);
         this.getForm().get(`[data-testid="type-select-dropdown"]`).click();
         this.getForm().get('li').contains(recordName).click();
-        this.getForm().contains("Update").click();
+        if (setAsArray) {
+            cy.get('[type="checkbox"]').check({ force: true });
+        }
+        this.getForm().contains("button","Update").should('not.be.disabled').click({force: true});
     }
 
-    static addExitingOutputRecord = (recordName: string) => {
+    static addExitingOutputRecord = (recordName: string, setAsArray?: boolean) => {
         cy.get('[data-testid="dm-output"] > button[data-testid="exiting-record"]').click();
         cy.get('li').contains(recordName).click();
+        if (setAsArray) {
+            cy.get('[type="checkbox"]').check({ force: true });
+        }
     }
 
     static getFunctionName = () => this.getForm().get('[data-testid="data-mapper-config-fn-name"]').find("input");
@@ -64,14 +73,14 @@ export class DataMapper {
 
     static clearFunctionName = () => this.getFunctionName().clear().blur();
 
-    static checkFnName = (inputValue: string) => this.getFunctionName().should('have.value', inputValue)
+    static checkFnName = (inputValue: string) => this.getFunctionName().should('have.value', inputValue);
 
     static containsValidFnName = () => {
-        this.getFunctionName().should('have.attr', 'aria-invalid', 'false');;
+        this.getFunctionName().should('have.attr', 'aria-invalid', 'false');
     }
 
     static containsInvalidFnName = () => {
-        this.getFunctionName().should('have.attr', 'aria-invalid', 'true');;
+        this.getFunctionName().should('have.attr', 'aria-invalid', 'true');
     }
 
     static editInputRecord = (index: number) => {
@@ -99,73 +108,73 @@ export class DataMapper {
         cy.contains("Continue").click({force: true});
     }
 
-    static openConfigureMenu = () => cy.contains("Configure").click()
+    static openConfigureMenu = () => cy.contains("Configure").click();
 
-    static getSourceNode = (name: string) => cy.get(`[data-testid="${name}-node"]`)
+    static getSourceNode = (name: string) => cy.get(`[data-testid="${name}-node"]`);
 
-    static getQueryExprNode = (name: string) => cy.get(`[data-testid="expandedQueryExpr.${name}-node"]`)
+    static getQueryExprNode = (name: string) => cy.get(`[data-testid="expandedQueryExpr.${name}-node"]`);
 
-    static getTargetNode = (name?: string) => cy.get(`[data-testid="mappingConstructor${name ? `.${name}` : ''}-node"]`)
+    static getTargetNode = (nodeType: string, name?: string) => cy.get(`[data-testid="${nodeType}${name ? `.${name}` : ''}-node"]`);
 
-    static getMappingPort = (targetPort: string) => cy.get(`[data-name='mappingConstructor.${targetPort}.IN']`);
+    static getMappingPort = (nodeType: string, targetPort: string) => cy.get(`[data-name='${nodeType}.${targetPort}.IN']`);
 
-    static getMappingField = (targetField: string) => cy.get(`[id='recordfield-mappingConstructor.${targetField}']`);
+    static getMappingField = (nodeType: string, targetField: string) => cy.get(`[id='recordfield-${nodeType}.${targetField}']`);
 
-    static mappingPortExists = (targetPort: string) => this.getMappingPort(targetPort).should('exist')
+    static mappingPortExists = (nodeType: string, targetPort: string) => this.getMappingPort(nodeType, targetPort).should('exist');
 
-    static mappingPortNotExists = (targetPort: string) => this.getMappingPort(targetPort).should('not.exist')
+    static mappingPortNotExists = (nodeType: string, targetPort: string) => this.getMappingPort(nodeType, targetPort).should('not.exist');
 
-    static getSourcePort = (sourcePort: string) => cy.get(`[data-name='${sourcePort}.OUT']`)
+    static getSourcePort = (sourcePort: string) => cy.get(`[data-name='${sourcePort}.OUT']`);
 
     static getSourceField = (sourceField: string) => cy.get(`[id='recordfield-${sourceField}']`);
 
-    static sourcePortExists = (sourcePort: string) => this.getSourcePort(sourcePort).should('exist')
+    static sourcePortExists = (sourcePort: string) => this.getSourcePort(sourcePort).should('exist');
 
-    static sourcePortNotExists = (sourcePort: string) => this.getSourcePort(sourcePort).should('not.exist')
+    static sourcePortNotExists = (sourcePort: string) => this.getSourcePort(sourcePort).should('not.exist');
 
-    static createMappingUsingFields = (sourcePort: string, targetPort: string) => {
-        this.getSourceField(sourcePort).click();
-        this.getMappingField(targetPort).click({ force: true });
-    }
-
-    static createMappingUsingPorts = (sourcePort: string, targetPort: string) => {
-        this.getSourcePort(sourcePort).click();
-        this.getMappingPort(targetPort).click({ force: true });
-    }
-
-    static createMappingUsingFieldAndPort = (sourceField: string, targetPort: string) => {
+    static createMappingUsingFields = (sourceField: string, targetField: string, targetNodeType: string) => {
         this.getSourceField(sourceField).click();
-        this.getMappingPort(targetPort).click({ force: true });
+        this.getMappingField(targetNodeType, targetField).click({ force: true });
     }
 
-    static createMappingUsingPortAndField = (sourcePort: string, targetField: string) => {
+    static createMappingUsingPorts = (sourcePort: string, targetPort: string, targetNodeType: string) => {
         this.getSourcePort(sourcePort).click();
-        this.getMappingField(targetField).click({ force: true });
+        this.getMappingPort(targetNodeType, targetPort).click({ force: true });
     }
 
-    static createMappingFromQueryExprUsingFields = (sourceField: string, targetField: string) => {
+    static createMappingUsingFieldAndPort = (sourceField: string, targetPort: string, targetNodeType: string) => {
+        this.getSourceField(sourceField).click();
+        this.getMappingPort(targetNodeType, targetPort).click({ force: true });
+    }
+
+    static createMappingUsingPortAndField = (sourcePort: string, targetField: string, targetNodeType: string) => {
+        this.getSourcePort(sourcePort).click();
+        this.getMappingField(targetNodeType, targetField).click({ force: true });
+    }
+
+    static createMappingFromQueryExprUsingFields = (sourceField: string, targetField: string, targetNodeType: string) => {
         cy.get(`[id='recordfield-expandedQueryExpr.source.${sourceField}']`).click();
-        this.getMappingField(targetField).click({ force: true });
+        this.getMappingField(targetNodeType, targetField).click({ force: true });
     }
 
-    static createMappingFromQueryExprUsingPorts = (sourcePort: string, targetPort: string) => {
+    static createMappingFromQueryExprUsingPorts = (sourcePort: string, targetPort: string, targetNodeType: string) => {
         cy.get(`[data-name='expandedQueryExpr.source.${sourcePort}.OUT']`).click();
-        this.getMappingPort(targetPort).click({ force: true });
+        this.getMappingPort(targetNodeType, targetPort).click({ force: true });
     }
 
-    static createMappingFromQueryExprUsingFieldAndPort = (sourceField: string, targetPort: string) => {
+    static createMappingFromQueryExprUsingFieldAndPort = (sourceField: string, targetPort: string, targetNodeType: string) => {
         cy.get(`[id='recordfield-expandedQueryExpr.source.${sourceField}']`).click();
-        this.getMappingPort(targetPort).click({ force: true });
+        this.getMappingPort(targetNodeType, targetPort).click({ force: true });
     }
 
-    static createMappingFromQueryExprUsingPortAndField = (sourcePort: string, targetField: string) => {
+    static createMappingFromQueryExprUsingPortAndField = (sourcePort: string, targetField: string, targetNodeType: string) => {
         cy.get(`[data-name='expandedQueryExpr.source.${sourcePort}.OUT']`).click();
-        this.getMappingField(targetField).click({ force: true });
+        this.getMappingField(targetNodeType, targetField).click({ force: true });
     }
 
     static createMappingToIntermediatePort = (sourcePort: string, inputPorts: string) => {
         cy.get(`[data-name='${sourcePort}.OUT']`).click();
-        cy.get(`[data-testid='link-connector-node-${inputPorts}-input']`).click({ force: true })
+        cy.get(`[data-testid='link-connector-node-${inputPorts}-input']`).click({ force: true });
     }
 
     static getLinkToIntermediatePort = (port: string)=>{
@@ -185,18 +194,18 @@ export class DataMapper {
         this.getLinkFromIntermediatePort(targetPort).should('not.exist');
     }
 
-    static getLink = (sourcePort: string, targetPort: string) => {
-        return cy.get(`[data-testid='link-from-${sourcePort}.OUT-to-mappingConstructor.${targetPort}.IN']`)
+    static getLink = (sourcePort: string, targetPort: string, targetNode: string) => {
+        return cy.get(`[data-testid='link-from-${sourcePort}.OUT-to-${targetNode}.${targetPort}.IN']`);
     }
 
-    static linkExists = (sourcePort: string, targetPort: string) => {
+    static linkExists = (sourcePort: string, targetPort: string, targetNode: string) => {
         cy.get(`[role="progressbar]"`).should('not.exist');
-        this.getLink(sourcePort, targetPort).should('exist')
+        this.getLink(sourcePort, targetPort, targetNode).should('exist');
     }
 
-    static linkWithErrorExists = (sourcePort: string, targetPort: string) => {
+    static linkWithErrorExists = (sourcePort: string, targetPort: string, targetNode: string) => {
         cy.get(`[role="progressbar]"`).should('not.exist');
-        this.getLink(sourcePort, targetPort).should('have.attr', 'data-diagnostics', 'true')
+        this.getLink(sourcePort, targetPort, targetNode).should('have.attr', 'data-diagnostics', 'true');
     }
 
     static checkIntermediateLinks = (sourcePort: string[], targetPort: string) => {
@@ -204,26 +213,26 @@ export class DataMapper {
         for (const port of sourcePort) {
             this.getLinkToIntermediatePort(port).should('exist');
         }
-        this.getLinkFromIntermediatePort(targetPort).should('exist')
+        this.getLinkFromIntermediatePort(targetPort).should('exist');
     }
 
-    static deleteLink = (sourcePort: string, targetPort: string) => {
+    static deleteLink = (sourcePort: string, targetPort: string, targetNode: string) => {
         cy.get(`[role="progressbar]"`).should('not.exist');
-        this.getLink(sourcePort, targetPort).click();
+        this.getLink(sourcePort, targetPort, targetNode).click();
         cy.get(`[data-testid='expression-label-delete']`).click();
-        this.getLink(sourcePort, targetPort).should('not.exist');
+        this.getLink(sourcePort, targetPort, targetNode).should('not.exist');
     }
 
-    static deleteLinkWithDiagnostics = (sourcePort: string, targetPort: string) => {
+    static deleteLinkWithDiagnostics = (sourcePort: string, targetPort: string, targetNode: string) => {
         cy.get(`[role="progressbar]"`).should('not.exist');
-        this.getLink(sourcePort, targetPort).click();
+        this.getLink(sourcePort, targetPort, targetNode).click();
         cy.get(`[data-testid='expression-label-diagnostic']`);
         cy.get(`[data-testid='expression-label-delete']`).click();
-        this.getLink(sourcePort, targetPort).should('not.exist');
+        this.getLink(sourcePort, targetPort, targetNode).should('not.exist');
     }
 
-    static targetNodeFieldMenuClick = (field: string, option: string) => {
-        cy.get(`[data-testid='value-config-mappingConstructor.${field}.IN']`).click();
+    static targetNodeFieldMenuClick = (field: string, option: string, targetNodeType: string) => {
+        cy.get(`[data-testid='value-config-${targetNodeType}.${field}.IN']`).click();
         cy.contains(option).click();
     }
 
@@ -235,39 +244,42 @@ export class DataMapper {
         cy.get(`[data-testid='record-widget-field-mappingConstructor.${field}.IN']`).should('not.exist');
     }
 
-    static getRecordArrayFieldElement = (field: string) => cy.get(`[data-testid='record-widget-field-label-mappingConstructor.${field}.IN']`)
+    static getRecordArrayFieldElement = (field: string, targetNodeType: string) =>
+        cy.get(`[data-testid='record-widget-field-label-${targetNodeType}.${field}.IN']`)
 
-    static outputLabelContains = (field: string, containsText: string) => this.getRecordArrayFieldElement(field).should("contain.text", containsText);
+    static outputLabelContains = (field: string, containsText: string) =>
+        this.getRecordArrayFieldElement(field, 'mappingConstructor').should("contain.text", containsText)
 
-    static outputLabelNotContain = (field: string, containsText: string) => this.getRecordArrayFieldElement(field).should("not.contain.text", containsText);
+    static outputLabelNotContain = (field: string, containsText: string) =>
+        this.getRecordArrayFieldElement(field, 'mappingConstructor').should("not.contain.text", containsText)
 
-    static addElementToArrayField = (field: string) => {
-        cy.get(`[data-testid='array-widget-mappingConstructor.${field}.IN-add-element']`).click();
+    static addElementToArrayField = (field: string, targetNodeType: string) => {
+        cy.get(`[data-testid='array-widget-${targetNodeType}.${field}.IN-add-element']`).click();
     }
 
-    static getArrayField = (field: string) => cy.get(`[data-testid='array-widget-mappingConstructor.${field}.IN-values']`)
+    static getArrayField = (field: string, targetNodeType: string) => cy.get(`[data-testid='array-widget-${targetNodeType}.${field}.IN-values']`);
 
-    static isArrayFieldExists = (field: string) => this.getArrayField(field).should('exist')
+    static isArrayFieldExists = (field: string, targetNodeType: string) => this.getArrayField(field, targetNodeType).should('exist');
 
-    static isArrayFieldNotExists = (field: string) => this.getArrayField(field).should('not.exist')
+    static isArrayFieldNotExists = (field: string, targetNodeType: string) => this.getArrayField(field, targetNodeType).should('not.exist');
 
-    static checkPrimitiveArrayFieldElementValue = (field: string, value: string) => {
-        cy.get(`[data-testid='primitive-array-element-mappingConstructor.${field}.IN']`).should("have.text", value);
+    static checkPrimitiveArrayFieldElementValue = (field: string, value: string, targetNodeType: string) => {
+        cy.get(`[data-testid='primitive-array-element-${targetNodeType}.${field}.IN']`).should("have.text", value);
     }
 
     static getArrayPortField = (field: string) => cy.get(`[data-testid='array-type-editable-record-field-mappingConstructor.${field}.IN']`);
 
-    static arrayFieldPortEnabled = (field: string) => this.getArrayPortField(field).should('have.css', 'cursor', 'pointer')
+    static arrayFieldPortEnabled = (field: string) => this.getArrayPortField(field).should('have.css', 'cursor', 'pointer');
 
-    static arrayFieldPortDisabled = (field: string) => this.getArrayPortField(field).should('have.css', 'cursor', 'not-allowed')
+    static arrayFieldPortDisabled = (field: string) => this.getArrayPortField(field).should('have.css', 'cursor', 'not-allowed');
 
     static checkRecordArrayFieldElementValue = (field: string, value: string) => {
         cy.get(`[data-testid='record-widget-field-mappingConstructor.${field}.IN']`).should("contain.text", value);
     }
 
-    static clickLinkCodeAction = (sourcePort: string, targetPort: string,) => {
+    static clickLinkCodeAction = (sourcePort: string, targetPort: string, targetNode: string) => {
         cy.get(`[role="progressbar]"`).should('not.exist');
-        this.getLink(sourcePort, targetPort).click();
+        this.getLink(sourcePort, targetPort, targetNode).click();
         cy.get(`[data-testid='expression-label-code-action']`).click();
         cy.get(`[data-testid='code-action-additional-0']`).click();
     }
@@ -295,7 +307,7 @@ export class DataMapper {
 
     static updateLetVariableName = (index: number, newName: string) => {
         cy.get(`[data-testid='let-clause-name-${index}']`).click();
-        cy.get(`[data-testid="let-clause-name-input-${index}"]`).clear().type(`${newName}{enter}`)
+        cy.get(`[data-testid="let-clause-name-input-${index}"]`).clear().type(`${newName}{enter}`);
     }
 
     static deleteIntermediateWhereClause = (index: number) => {
@@ -312,8 +324,8 @@ export class DataMapper {
         cy.get(`[data-testid='dm-header-breadcrumb-${index}']`).click();
     }
 
-    static toggleArrayFieldExpand = (field: string)=>{
-        cy.get(`[data-testid="mappingConstructor.${field}.IN-expand-icon-array-field"]`).click();
+    static toggleArrayFieldExpand = (field: string, targetNodeType: string) => {
+        cy.get(`[data-testid="${targetNodeType}.${field}.IN-expand-icon-array-field"]`).click();
     }
 
     static toggleRecordFieldExpand = (field: string)=>{
@@ -324,8 +336,8 @@ export class DataMapper {
         cy.get(`[data-testid="${nodeName}-expand-icon-record-source-node"]`).click({force: true});
     }
 
-    static toggleTargetNodeExpand = (nodeName: string)=>{
-        cy.get(`[data-testid="mappingConstructor.${nodeName}-expand-icon-mapping-target-node`).click({force: true});
+    static toggleTargetNodeExpand = (nodeName: string, targetNodeType: string) => {
+        cy.get(`[data-testid="${targetNodeType}.${nodeName}-expand-icon-mapping-target-node`).click({force: true});
     }
 
     static deleteQueryLink = (sourcePort: string, targetPort: string) => {
@@ -334,5 +346,5 @@ export class DataMapper {
         this.getLinkFromIntermediatePort(targetPort).should('not.exist');        
     }
 
-    public static getForm = () => cy.get('[data-testid="data-mapper-form"]')
+    public static getForm = () => cy.get('[data-testid="data-mapper-form"]');
 }

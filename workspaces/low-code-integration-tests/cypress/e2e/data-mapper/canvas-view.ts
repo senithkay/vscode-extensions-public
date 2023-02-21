@@ -20,121 +20,176 @@ import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { DataMapper } from "../../utils/forms/data-mapper";
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
 
+const CANVAS_VIEW_BAL_FILES_DIR = "expectedBalFiles/canvas-view";
+const BASIC_MAPPING_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-basic-mapping.bal`;
+const INLINE_RECORD_IO_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-inline-record-mapping.bal`;
+const PRIMITIVE_TYPE_IO_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-primitive-type-mapping.bal`;
+const DIRECT_ASSIGNMENT_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-direct-assignment.bal`;
+const LINK_CONNECTOR_BAL_FILE = `${CANVAS_VIEW_BAL_FILES_DIR}/transform-with-link-connector.bal`;
 const BAL_FILE_WITH_BASIC_TRANSFORM = "data-mapper/with-basic-transform.bal";
 
 describe("Verify simple direct mappings", () => {
     before(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM));
         Canvas.getDataMapper("transform").clickEdit();
     });
 
     it("Canvas contains the source and target nodes", () => {
         DataMapper.getSourceNode("input");
         DataMapper.getSourceNode("secondInput");
-        DataMapper.getTargetNode("Output");
+        DataMapper.getTargetNode("mappingConstructor", "Output");
     });
 
     it("Verify expand/collapse functionality of nodes", () => {
-        DataMapper.toggleSourceNodeExpand('input')
-        DataMapper.toggleSourceNodeExpand('secondInput')
-        DataMapper.toggleTargetNodeExpand('Output')
+        DataMapper.toggleSourceNodeExpand('input');
+        DataMapper.toggleSourceNodeExpand('secondInput');
+        DataMapper.toggleTargetNodeExpand('Output', 'mappingConstructor');
 
         DataMapper.sourcePortNotExists('input.st1');
         DataMapper.sourcePortNotExists('secondInput.st1');
-        DataMapper.mappingPortNotExists('Output.Items');
+        DataMapper.mappingPortNotExists('mappingConstructor', 'Output.Items');
 
-        DataMapper.toggleSourceNodeExpand('input')
-        DataMapper.toggleSourceNodeExpand('secondInput')
-        DataMapper.toggleTargetNodeExpand('Output')
+        DataMapper.toggleSourceNodeExpand('input');
+        DataMapper.toggleSourceNodeExpand('secondInput');
+        DataMapper.toggleTargetNodeExpand('Output', 'mappingConstructor');
 
         DataMapper.sourcePortExists('input.st1');
         DataMapper.sourcePortExists('secondInput.st1');
-        DataMapper.mappingPortExists('Output.Items');
+        DataMapper.mappingPortExists('mappingConstructor', 'Output.Items');
     });
 
     it("Verify direct mappings between two valid ports", () => {
-        DataMapper.createMappingUsingFields('input.st1', 'Output.st1');
+        DataMapper.createMappingUsingFields('input.st1', 'Output.st1', 'mappingConstructor');
         cy.wait(4000);
-        DataMapper.linkExists('input.st1', 'Output.st1');
+        DataMapper.linkExists('input.st1', 'Output.st1', 'mappingConstructor');
     });
 
     it("Generated source code is valid", () => {
-        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-with-basic-mapping.bal");
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + BASIC_MAPPING_BAL_FILE);
     });
 
-    it("Delete mapping by clicking the delete button in the link", () => DataMapper.deleteLink('input.st1', 'Output.st1'));
-})
+    it("Delete mapping by clicking the delete button in the link", () => DataMapper.deleteLink('input.st1', 'Output.st1', 'mappingConstructor'));
+});
+
+describe("Verify mappings between inline record types", () => {
+    before(() => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM));
+        Canvas.getDataMapper("inlineRecord2InlineRecord").clickEdit();
+    });
+
+    it("Canvas contains the source and target nodes", () => {
+        DataMapper.getSourceNode("input");
+        DataMapper.getTargetNode("mappingConstructor");
+    });
+
+    it("Verify direct mappings between two valid ports", () => {
+        DataMapper.createMappingUsingFields('input.x', 'y', 'mappingConstructor');
+        cy.wait(4000);
+        DataMapper.linkExists('input.x', 'y', 'mappingConstructor');
+    });
+
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + INLINE_RECORD_IO_BAL_FILE);
+    });
+
+    it("Delete mapping by clicking the delete button in the link", () => DataMapper.deleteLink('input.x', 'y', 'mappingConstructor'));
+});
+
+describe("Verify mappings between primitive types", () => {
+    before(() => {
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM));
+        Canvas.getDataMapper("primitive2Primitive").clickEdit();
+    });
+
+    it("Canvas contains the source and target nodes", () => {
+        DataMapper.getSourceNode("name");
+        DataMapper.getTargetNode("primitiveType");
+    });
+
+    it("Verify direct mappings between two valid ports", () => {
+        DataMapper.createMappingUsingFields('name', 'string', 'primitiveType');
+        cy.wait(4000);
+        DataMapper.linkExists('name', 'string', 'primitiveType');
+    });
+
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + PRIMITIVE_TYPE_IO_BAL_FILE);
+    });
+
+    it("Delete mapping by clicking the delete button in the link", () =>
+        DataMapper.deleteLink('name', 'string', 'primitiveType'));
+});
 
 describe("Verify multiple mappings with link connector node", () => {
     before(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM));
         Canvas.getDataMapper("transform").clickEdit();
     });
 
     it("Create a mapping between two ports", () => {
-        DataMapper.createMappingUsingPorts('input.st1', 'Output.st1');
+        DataMapper.createMappingUsingFields('input.st1', 'Output.st1', 'mappingConstructor');
         cy.wait(4000);
     });
 
     it("Create another mapping from the another source port to the same target port", () => {
-        DataMapper.createMappingUsingFieldAndPort('input.st2', 'Output.st1');
-        DataMapper.checkIntermediateLinks(['input.st1', 'input.st2'], 'Output.st1')
+        DataMapper.createMappingUsingFields('input.st2', 'Output.st1', 'mappingConstructor');
+        DataMapper.checkIntermediateLinks(['input.st1', 'input.st2'], 'Output.st1');
         cy.wait(4000);
     });
 
     it("Create a third mapping from the another source port to the same target port", () => {
-        DataMapper.createMappingUsingPortAndField('input.st3', 'Output.st1');
-        DataMapper.checkIntermediateLinks(['input.st1', 'input.st2', 'input.st3'], 'Output.st1')
+        DataMapper.createMappingUsingPorts('input.st3', 'Output.st1', 'mappingConstructor');
+        DataMapper.checkIntermediateLinks(['input.st1', 'input.st2', 'input.st3'], 'Output.st1');
         cy.wait(4000);
     });
 
     it("Create a fourth mapping from the another source port to the port in the connector node", () => {
         DataMapper.createMappingToIntermediatePort("secondInput.st1", "input.st1 + input.st2 + input.st3");
-        DataMapper.checkIntermediateLinks(['input.st1', 'input.st2', 'input.st3', "secondInput.st1"], 'Output.st1')
+        DataMapper.checkIntermediateLinks(['input.st1', 'input.st2', 'input.st3', "secondInput.st1"], 'Output.st1');
         cy.wait(4000);
     });
 
     it("Generated source code is valid", () => {
-        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-with-link-connector.bal");
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + LINK_CONNECTOR_BAL_FILE);
     });
 
     it("Delete all links one by one", () => {
-        DataMapper.deleteLinksWithLinkConnector(['input.st1', 'input.st2', 'input.st3', 'secondInput.st1'], 'Output.st1')
+        DataMapper.deleteLinksWithLinkConnector(['input.st1', 'input.st2', 'input.st3', 'secondInput.st1'], 'Output.st1');
     });
-})
+});
 
 describe("Verify diagnostics in mapping links", () => {
     before(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM));
         Canvas.getDataMapper("transform").clickEdit();
     });
 
     it("Create a mapping between an integer value and a string value", () => {
-        DataMapper.createMappingUsingFields('input.int1', 'Output.st1');
+        DataMapper.createMappingUsingFieldAndPort('input.int1', 'Output.st1', 'mappingConstructor');
         cy.wait(4000);
     });
 
     it("Verify that the links contains diagnostics", () => {
-        DataMapper.linkWithErrorExists('input.int1', 'Output.st1');
+        DataMapper.linkWithErrorExists('input.int1', 'Output.st1', 'mappingConstructor');
     });
 
     it("Delete the link with diagnostics", () => {
-        DataMapper.deleteLinkWithDiagnostics('input.int1', 'Output.st1');
+        DataMapper.deleteLinkWithDiagnostics('input.int1', 'Output.st1', 'mappingConstructor');
     });
-})
+});
 
 describe("Verify direct value assignment in data mapper", () => {
     before(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM));
         Canvas.getDataMapper("transform").clickEdit();
     });
 
     it("Assign a value directly to a field using statement editor", () => {
-        DataMapper.targetNodeFieldMenuClick('Output.st1', "Add Value");
+        DataMapper.targetNodeFieldMenuClick('Output.st1', "Add Value", 'mappingConstructor');
         StatementEditor.shouldBeVisible().getEditorPane();
         EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
         InputEditor.typeInput(`"strValue"`);
-        EditorPane.reTriggerDiagnostics("StringLiteralToken", `"strValue"`)
+        EditorPane.reTriggerDiagnostics("StringLiteralToken", `"strValue"`);
         StatementEditor.save();
     });
 
@@ -143,22 +198,22 @@ describe("Verify direct value assignment in data mapper", () => {
     });
 
     it("Generated source code is valid", () => {
-        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-with-direct-assignment.bal");
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + DIRECT_ASSIGNMENT_BAL_FILE);
     });
 
     it("Delete the assigned value using the menu", () => {
-        DataMapper.targetNodeFieldMenuClick('Output.st1', "Delete Value");
-        DataMapper.directValueAssignmentNotExists('Output.st1')
+        DataMapper.targetNodeFieldMenuClick('Output.st1', "Delete Value", 'mappingConstructor');
+        DataMapper.directValueAssignmentNotExists('Output.st1');
     });
-})
+});
 
 describe("Verify that asterisk mark is shown appropriately", () => {
     before(() => {
-        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM))
+        cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM));
         Canvas.getDataMapper("transform").clickEdit();
     });
 
     it("Asterisk mark is shown for a required field", () => DataMapper.outputLabelContains('Output.st1', "*"));
 
     it("Asterisk mark is not shown for an optional field", () => DataMapper.outputLabelNotContain('Output.d1', "*"));
-})
+});

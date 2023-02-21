@@ -6,6 +6,7 @@ type Input record {
     int d1;
     record {
         string Id;
+        int count;
         boolean Confirmed;
     }[] Items;
 };
@@ -16,6 +17,7 @@ type Output record {
     decimal d1;
     record {
         string Id;
+        int count;
         boolean Confirmed;
     }[] Items;
     string[] stArr;

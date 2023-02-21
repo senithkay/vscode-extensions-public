@@ -39,7 +39,9 @@ function incompleteTransform() => {};
 
 function transform(Input input, SecondInput secondInput) returns Output => {};
 
-function inlineRecord2InlineRecord(record {int[] x;} input) returns record {int y;} => {};
+function inlineRecord2InlineRecord(record {int[] x;} input) returns record {int y;} => {
+    y: input.x
+};
 
 function primitive2Primitive(string name) returns string => "";
 

@@ -41,7 +41,7 @@ function transform(Input input, SecondInput secondInput) returns Output => {};
 
 function inlineRecord2InlineRecord(record {int[] x;} input) returns record {int y;} => {};
 
-function primitive2Primitive(string name) returns string => "";
+function primitive2Primitive(string name) returns string => name;
 
 function primitiveArray2PrimitiveArray(string[] names) returns string[] => [];
 
