@@ -16,7 +16,7 @@ import styled from "@emotion/styled";
 
 const codiconStyles = css`
     color: var(--vscode-editorWarning-foreground);
-    zoom: 2;
+    zoom: 2.5;
 `;
 
 const Container = styled.div`
@@ -24,13 +24,14 @@ const Container = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
+    text-align: center;
 `;
 
 export function LoadChoreoProjectPrompt() {
     return (
         <Container>
             <i className={`codicon codicon-warning ${cx(codiconStyles)}`} />
-            <p>Load a Choreo project workspace to create components.</p>
+            <p>Current workspace does not contain a Choreo project. Please create/open a Choreo project first.</p>
         </Container>
     );
 }
