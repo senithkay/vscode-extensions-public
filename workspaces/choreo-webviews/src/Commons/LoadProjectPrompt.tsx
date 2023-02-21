@@ -16,8 +16,6 @@ import styled from "@emotion/styled";
 
 const codiconStyles = css`
     color: var(--vscode-editorWarning-foreground);
-    margin-right: 6px;
-    vertical-align: middle;
     zoom: 2;
 `;
 
