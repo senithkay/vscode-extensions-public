@@ -13,14 +13,14 @@
 
 import {
     ChoreoComponentCreationParams, ChoreoServiceComponentType, Component, IProjectManager,
-    Project, RepositoryDetails, WorkspaceConfig, WorkspaceComponentMetadata
+    Project, RepositoryDetails, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams
 } from "@wso2-enterprise/choreo-core";
 import { log } from "console";
 import { randomUUID } from "crypto";
 import child_process from "child_process";
 import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync, writeFileSync } from "fs";
 import path, { join } from "path";
-import { workspace } from "vscode";
+import { commands, workspace } from "vscode";
 
 interface CmdResponse {
     error: boolean;
@@ -28,6 +28,7 @@ interface CmdResponse {
 }
 
 export class ChoreoProjectManager implements IProjectManager {
+
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
         const { displayType, org, repositoryInfo } = args;
         if (workspace.workspaceFile) {
@@ -219,6 +220,16 @@ export class ChoreoProjectManager implements IProjectManager {
             }
         });
         return components;
+    }
+
+    public async isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
+        const { repository, workspaceFilePath } = params;
+        const projectDir = path.dirname(workspaceFilePath);
+        return existsSync(join(projectDir, 'repos', repository));
+    }
+
+    public async cloneRepo(params: RepoCloneRequestParams): Promise<boolean> {
+       return commands.executeCommand('wso2.choreo.project.repo.clone', params);
     }
 
     private static _getAnnotatedContent(content: string, packageName: string, serviceId: string, type: ChoreoServiceComponentType)
