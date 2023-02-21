@@ -64,8 +64,11 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
     const [connectionClick, setConnectionClick] = useState(false);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (connectionConfigs.length > 0) {
+        if (connectionConfigs.length !== 0) {
+            setIsOpenCollapse(0);
             setAnchorEl(event.currentTarget);
+        } else {
+            setAnchorEl(null);
         }
     };
 
@@ -104,7 +107,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
         type: "number",
         value,
     };
-
+    // tslint:disable: jsx-no-lambda jsx-no-multiline-js
     const onSelected = (index: string, mappingName: string, valueReference: string,
                         valueType: string, connectionName: string) => () => {
             if (valueType === "int") {
@@ -118,10 +121,20 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
             }
         };
 
+    const [isOpenCollapse, setIsOpenCollapse] = useState(null);
+
+    const handleOpen = (clickedIndex: number) => {
+        if (isOpenCollapse === clickedIndex) {
+            setIsOpenCollapse(null);
+        } else {
+            setIsOpenCollapse(clickedIndex);
+        }
+    };
+
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index} className={classes.accordionBox}>
-                <ListItem button={true} className={classes.accordion}>
+                <ListItem button={true} className={classes.accordion} key={index} onClick={() => handleOpen(index)}>
                     {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
@@ -142,7 +155,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                         return (
                             <Collapse
                                 key={sIndex}
-                                in={openConnection}
+                                in={isOpenCollapse === index}
                                 timeout="auto"
                                 unmountOnExit={true}
                             >
@@ -237,7 +250,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                             id={id}
                             isRequired={isRequired}
                             inputProps={
-                                connectionClick
+                                (connectionClick || selectedValueRef !== "")
                                     ? { inputMode: "text" }
                                     : {
                                         inputMode: "numeric",
@@ -246,7 +259,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                             }
                             placeholder="Select config or Enter a value"
                             setTextFieldValue={setIntegerConfig}
-                            type={connectionClick ? "text" : "number"}
+                            type={(connectionClick || selectedValueRef !== "") ? "text" : "number"}
                             value={selectedValue}
                             valueRef={selectedValueRef}
                         />

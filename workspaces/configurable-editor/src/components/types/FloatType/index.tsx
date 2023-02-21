@@ -64,8 +64,11 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
     const [connectionClick, setConnectionClick] = useState(false);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (connectionConfigs.length > 0) {
+        if (connectionConfigs.length !== 0) {
+            setIsOpenCollapse(0);
             setAnchorEl(event.currentTarget);
+        } else {
+            setAnchorEl(null);
         }
     };
 
@@ -97,7 +100,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
         type: "text",
         value,
     };
-
+    // tslint:disable: jsx-no-lambda jsx-no-multiline-js
     const onSelected = (index: string, mappingName: string, valueReference: string,
                         valueType: string, connectionName: string) => () => {
             if (valueType === "float") {
@@ -111,10 +114,20 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
             }
         };
 
+    const [isOpenCollapse, setIsOpenCollapse] = useState(null);
+
+    const handleOpen = (clickedIndex: number) => {
+        if (isOpenCollapse === clickedIndex) {
+            setIsOpenCollapse(null);
+        } else {
+            setIsOpenCollapse(clickedIndex);
+        }
+    };
+
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index} className={classes.accordionBox}>
-                <ListItem button={true} className={classes.accordion}>
+                <ListItem button={true} className={classes.accordion} key={index} onClick={() => handleOpen(index)}>
                     {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
@@ -135,7 +148,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                         return (
                             <Collapse
                                 key={sIndex}
-                                in={openConnection}
+                                in={isOpenCollapse === index}
                                 timeout="auto"
                                 unmountOnExit={true}
                             >
@@ -228,7 +241,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                             id={id}
                             isRequired={isRequired}
                             inputProps={
-                                connectionClick
+                                (connectionClick || selectedValueRef !== "")
                                     ? { inputMode: "text" }
                                     : {
                                         inputMode: "numeric",
@@ -237,7 +250,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                             }
                             placeholder="Select config or Enter a value"
                             setTextFieldValue={setFloatConfig}
-                            type={connectionClick ? "text" : "number"}
+                            type={(connectionClick || selectedValueRef !== "") ? "text" : "number"}
                             value={selectedValue}
                             valueRef={selectedValueRef}
                         />
