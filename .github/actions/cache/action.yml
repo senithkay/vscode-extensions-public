@@ -29,5 +29,5 @@ runs:
         key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
     - name: Install node modules
-      run: |
-        node common/scripts/install-run-rush.js install        
+      shell: bash
+      run: node common/scripts/install-run-rush.js install        
