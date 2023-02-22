@@ -45,6 +45,11 @@ jobs:
           run_id: ${{ github.event.inputs.workflowRunId }}
           name: VSIX
 
+      - name: Unzip
+        run: |
+          unzip VSIX.zip
+          rm VSIX.zip
+
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
         with:
@@ -57,7 +62,7 @@ jobs:
       - name: Get version
         id: vsix
         run: | 
-          file=$(ls ${{ steps.vsix.outputs.extension }}*.vsix)
+          file=$(ls ${{ github.event.inputs.extension }}*.vsix)
           fileName=${file#*-}
           version=${fileName%.*}
           extension=${{ github.event.inputs.extension }}

@@ -15,7 +15,7 @@ import * as os from 'os';
 import path = require('path');
 import { simpleGit } from 'simple-git';
 import { commands, ProgressLocation, Uri, window, workspace } from 'vscode';
-import { Component, Project, Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
+import { Component, Project, RepoCloneRequestParams, Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
@@ -35,6 +35,48 @@ export function checkSSHAccessToGitHub() {
         return false;
     }
 }
+
+export const cloneRepoToCuurentProjectWorkspace = async (params: RepoCloneRequestParams) => {
+    const { repository, branch, workspaceFilePath } = params;
+    let success = false;
+    await window.withProgress({
+        title: `Cloning ${repository} repository to Choreo workspace.`,
+        location: ProgressLocation.Notification,
+        cancellable: true
+    }, async (_progress, cancellationToken) => {
+        let cancelled: boolean = false;
+        cancellationToken.onCancellationRequested(async () => {
+            getLogger().debug("Cloning cancelled for " + repository);
+            cancelled = true;
+        });
+        if (!ext.api.isChoreoProject()) {
+            getLogger().error("Cannot clone repository to a non-Choreo project");
+            window.showErrorMessage('Current workspace is not a Choreo project. Please open a Choreo project to clone a repository.');
+            return;
+        }
+        const projectDir = path.dirname(workspaceFilePath);
+        const repoPath = path.join(projectDir, 'repos', repository);
+        if (!existsSync(path.dirname(repoPath))) {
+            mkdirSync(path.dirname(repoPath), { recursive: true });
+            getLogger().debug("Created org directory: " + path.dirname(repoPath));
+        }
+        if (existsSync(repoPath)) {
+            getLogger().debug("Repository already exists: " + repoPath);
+            window.showErrorMessage('Repository already exists: ' + repoPath);
+            return;
+        }
+        getLogger().debug("Cloning repository: " + repository + " to " + repoPath);
+        if (cancelled) {
+            return;
+        }
+        const _result = await simpleGit().clone(`git@github.com:${repository}.git`, repoPath, ["--recursive", "--branch", branch]);
+        getLogger().debug("Cloned repository: " + repository + " to " + repoPath);
+        success = true;
+    });
+    return success;
+};
+
+
 
 export const cloneProject = async (project: Project) => {
     getLogger().debug("Cloning project: " + project.name);

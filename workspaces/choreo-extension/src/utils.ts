@@ -12,44 +12,41 @@
  */
 
 import { ApiVersion, Service } from "@wso2-enterprise/choreo-core";
-import * as path from "path";
 
-export function enrichDeploymentData(services: Map<string, Service>, apiVersions: ApiVersion[],
-                                     currentRepoLocation: string, componentName: string, isLocal: boolean, accessibility?: string) {
-    const choreoPath = path.join(currentRepoLocation, componentName);
-    for (const service of services.values()) {
-        // Checks whether both Choreo and local paths are same
-        if (service.elementLocation.filePath.includes(choreoPath)) {
-            let isInternetExposed = false;
-            let isIntranetExposed = false;
-            if (!isLocal && apiVersions.length > 0) {
-                apiVersions.forEach((version: ApiVersion) => {
-                    if (version.accessibility === "internal") {
-                        isIntranetExposed = true;
-                    }
-                    if (version.accessibility === "external") {
-                        isInternetExposed = true;
-                    }
-                });
-            } else if (isLocal) {
-                if (accessibility === "internal") {
+export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
+    isLocal: boolean, accessibility?: string): boolean {
+    const services = [...pkgServices.values()];
+    const componentServices = services.filter((service) => service.elementLocation.filePath.includes(componentLocation));
+    for (const service of componentServices) {
+        let isInternetExposed = false;
+        let isIntranetExposed = false;
+        if (!isLocal && apiVersions.length > 0) {
+            apiVersions.forEach((version: ApiVersion) => {
+                if (version.accessibility === "internal") {
                     isIntranetExposed = true;
                 }
-                if (accessibility === "external") {
+                if (version.accessibility === "external") {
                     isInternetExposed = true;
                 }
+            });
+        } else if (isLocal) {
+            if (accessibility === "internal") {
+                isIntranetExposed = true;
             }
-            service.deploymentMetadata = {
-                gateways: {
-                    internet: {
-                        isExposed: isInternetExposed
-                    },
-                    intranet: {
-                        isExposed: isIntranetExposed
-                    }
-                }
-            };
-            break;
+            if (accessibility === "external") {
+                isInternetExposed = true;
+            }
         }
+        service.deploymentMetadata = {
+            gateways: {
+                internet: {
+                    isExposed: isInternetExposed
+                },
+                intranet: {
+                    isExposed: isIntranetExposed
+                }
+            }
+        };
     }
+    return componentServices.length > 0;
 }

@@ -29,7 +29,7 @@ export function getCreateProjectMutation(params: CreateProjectParams) {
 }
 
 export function getCreateComponentMutation(params: CreateComponentParams) {
-    const { name, displayName, description, orgId, orgHandle, projectId,
+    const { name, displayName, displayType, description, orgId, orgHandle, projectId,
         accessibility, srcGitRepoUrl, repositorySubPath, repositoryBranch } = params;
     return gql`mutation
         { createComponent(component: {  
@@ -37,7 +37,7 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
             orgId: ${orgId},  
             orgHandler: "${orgHandle}",
             displayName: "${displayName}",  
-            displayType: "restAPI",  
+            displayType: "${displayType}",  
             projectId: "${projectId}",  
             labels: "", 
             version: "1.0.0", 
@@ -53,7 +53,7 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
             repositorySubPath: "${repositorySubPath}", 
             repositoryType: "UserManagedNonEmpty",
             repositoryBranch: "${repositoryBranch}",})
-            {  id, orgId, projectId, handler}
+            {  id, orgId, projectId, handler }
         }
     `;
 }
