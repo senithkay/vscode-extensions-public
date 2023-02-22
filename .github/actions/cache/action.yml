@@ -27,4 +27,7 @@ runs:
           common/temp/pnpm-store
           ~/.cache/Cypress
         key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-        
+
+    - name: Install node modules
+      run: |
+        node common/scripts/install-run-rush.js install        

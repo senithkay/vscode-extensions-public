@@ -27,7 +27,8 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
-      - uses: ./.github/actions/cache
+      - name: Restore cache
+        uses: ./.github/actions/cache
 
       - name: Install Ballerina
         run: |
@@ -68,10 +69,6 @@ jobs:
           newVersion=${currentVersionNo}.${{ steps.timestamp.outputs.timestamp }}
           echo $newVersion
           npm version $newVersion --preid beta --no-git-tag-version
-          
-      - name: Install modules
-        run: |
-          node common/scripts/install-run-rush.js install 
 
       - name: Build repo
         run: node common/scripts/install-run-rush.js build --verbose
@@ -112,11 +109,8 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - uses: ./.github/actions/cache
-
-      - name: Install node modules
-        run: |
-          node common/scripts/install-run-rush.js install
+      - name: Restore cache
+        uses: ./.github/actions/cache
 
       - name: Set up Ballerina
         run: |
@@ -176,11 +170,8 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - uses: ./.github/actions/cache
-
-      - name: Install node modules
-        run: |
-          node common/scripts/install-run-rush.js install
+      - name: Restore cache
+        uses: ./.github/actions/cache
 
       - name: Install Ballerina
         run: |
@@ -223,11 +214,8 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - uses: ./.github/actions/cache
-
-      - name: Install node modules
-        run: |
-          node common/scripts/install-run-rush.js install
+      - name: Restore cache
+        uses: ./.github/actions/cache
 
       - name: Install Cypress Dependencies
         run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
@@ -294,8 +282,8 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Install node modules
-        run: rush install
+      - name: Restore cache
+        uses: ./.github/actions/cache
 
       - name: Download partial code coverages
         uses: actions/download-artifact@v3
