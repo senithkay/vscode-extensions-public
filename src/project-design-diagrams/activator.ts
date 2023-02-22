@@ -108,7 +108,7 @@ function setupWebviewPanel() {
                     return;
                 }
                 case "openDesignDiagram": {
-                    commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, message.position, message.filePath);
+                    commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, message.filePath, message.position, true);
                     return;
                 }
             }
