@@ -159,7 +159,7 @@ export function RegularFuncComponent(props: FunctionProps) {
 
     if (viewState.parentNamePlaceHolder) {
         headerComponent.push(
-            <div>/</div>
+            <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }}>/</div>
         );
         const handleParentNavigation = () => {
             navigateUptoParent(viewState.parentPosition);

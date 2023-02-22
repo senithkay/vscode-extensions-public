@@ -394,10 +394,9 @@ export function DiagramViewManager(props: EditorProps) {
             return;
         }
 
-        const currentHistoryEntry: ComponentViewInfo = structuredClone(history[history.length - 1]);
-        currentHistoryEntry.uid = undefined;
+        const currentHistoryEntry = structuredClone(history[history.length - 1]);
         currentHistoryEntry.position = position;
-        updateSelectedComponent(currentHistoryEntry);
+        historyPush(currentHistoryEntry);
     }
 
     //

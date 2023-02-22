@@ -128,7 +128,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
     // {renderWorkspaceNameComponent(isWorkspace)}
     return (
-        <div id="nav-var-main" className="header-bar">
+        <div id="nav-bar-main" className="header-bar">
             {history.length > 0 && renderNavigationButtons()}
             {renderWorkspaceNameComponent()}
             {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
