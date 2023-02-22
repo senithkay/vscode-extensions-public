@@ -11,10 +11,13 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext } from "react";
 
 import { ClientResourceAccessAction, NodePosition } from "@wso2-enterprise/syntax-tree";
 
+import { StatementEditorContext } from "../../../store/statement-editor-context";
+import { EXPR_PLACEHOLDER } from "../../../utils/expressions";
+import { NewExprAddButton } from "../../Button/NewExprAddButton";
 import { ExpressionComponent } from "../../Expression";
 import { ExpressionArrayComponent } from "../../ExpressionArray";
 import { TokenComponent } from "../../Token";
@@ -25,18 +28,39 @@ interface ClientResourceAccessActionProps {
 
 export function ClientResourceAccessActionComponent(props: ClientResourceAccessActionProps) {
     const { model } = props;
+    const {
+        modelCtx: {
+            updateModel
+        }
+    } = useContext(StatementEditorContext);
 
     const methodPosition: NodePosition = model.methodName?.position;
-    if (model.arguments) {
+    if (model.arguments && methodPosition) {
         methodPosition.endLine = model.arguments.closeParenToken.position.endLLine;
         methodPosition.endColumn = model.arguments.closeParenToken.position.endColumn;
     }
+
+    const addNewExpression = () => {
+        const isEmpty = model.arguments.arguments.length === 0;
+        const expr = isEmpty ? EXPR_PLACEHOLDER : `, ${EXPR_PLACEHOLDER}`;
+        const newPosition = isEmpty ? {
+            ...model.arguments?.closeParenToken.position,
+            endColumn: model.arguments?.closeParenToken.position.startColumn
+        } : {
+            startLine: model.arguments?.arguments[model.arguments.arguments?.length - 1].position.endLine,
+            startColumn: model.arguments?.arguments[model.arguments.arguments?.length - 1].position.endColumn,
+            endLine: model.arguments?.closeParenToken.position.startLine,
+            endColumn: model.arguments?.closeParenToken.position.startColumn
+        }
+        updateModel(expr, newPosition);
+    };
+
 
     return (
         <>
             <ExpressionComponent model={model.expression} />
             <TokenComponent model={model.rightArrowToken} className={"operator"} />
-            {model.resourceAccessPath.length ? <TokenComponent model={model.slashToken} className={"operator"} />
+            {model.resourceAccessPath.length ? <TokenComponent model={model.slashToken}  />
                 : <ExpressionComponent model={model.slashToken} />}
             {model.resourceAccessPath && <ExpressionArrayComponent expressions={model.resourceAccessPath} />}
             {model.dotToken && <TokenComponent model={model.dotToken} className={"operator"} />}
@@ -45,6 +69,7 @@ export function ClientResourceAccessActionComponent(props: ClientResourceAccessA
                 <ExpressionComponent model={model.methodName} stmtPosition={methodPosition}>
                     {model.arguments?.openParenToken && <TokenComponent model={model.arguments.openParenToken} />}
                     {model.arguments?.arguments && <ExpressionArrayComponent expressions={model.arguments.arguments} />}
+                    <NewExprAddButton model={model} onClick={addNewExpression}/>
                     {model.arguments?.closeParenToken && <TokenComponent model={model.arguments.closeParenToken} />}
                 </ExpressionComponent>
             )}
