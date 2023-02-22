@@ -183,11 +183,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.component.create');
     }, []);
 
-    const handleOpenSourceControlClick = useCallback((e: any) => {
+    const handleOpenSourceControlClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().triggerCmd('workbench.scm.focus');
     }, []);
 
-    const handleRefreshComponentsClick = useCallback((e: any) => {
+    const handleRefreshComponentsClick = useCallback(() => {
         setComponentAction(ComponentAction.LOADING);
         ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.projects.registry.refresh').then(() => {
             ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then((components) => {
