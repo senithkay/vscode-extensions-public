@@ -370,7 +370,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     type = formField.typeName;
                     response.hasReturn = true;
                 }
-                if (formField.typeName === "parameterized") {
+                if (formField.typeName === "parameterized" || (formField.name === "rowType" && formField.typeInfo.name === "rowType")) {
                     type = "record{}";
                     response.hasReturn = true;
                 }
