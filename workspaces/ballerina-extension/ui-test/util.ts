@@ -28,6 +28,10 @@ export function waitUntil(locator: Locator) {
     return VSBrowser.instance.driver.wait(until.elementLocated(locator), 15000);
 }
 
+export function waitForWebview(name: string) {
+    return waitUntil(By.xpath("//div[@title='" + name + "']"));
+}
+
 export async function getDiagramExplorer() {
     const activityBar = new ActivityBar();
     // test side bar low code activity

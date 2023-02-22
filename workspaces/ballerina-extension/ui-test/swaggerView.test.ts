@@ -21,7 +21,7 @@ import { WebView, VSBrowser, By, EditorView } from 'vscode-extension-tester';
 import { join } from 'path';
 import { before, describe, it } from 'mocha';
 import { expect } from 'chai';
-import { wait, getDiagramExplorer } from './util';
+import { wait, getDiagramExplorer, waitForWebview } from './util';
 import { DIAGRAM_LOADING_TIME, PROJECT_RUN_TIME } from './constants';
 import { Service } from './utils/Service';
 
@@ -59,24 +59,22 @@ describe('Swagger view UI Tests', () => {
         // open swagger view
         await (await service.getTryIt()).click();
         await webview.switchBack();
-        await wait(5000);
 
         // switch to swagger window
+        await waitForWebview("Swagger");
         const swaggerWebView = await new EditorView().openEditor('Swagger', 1) as WebView;
-        swaggerWebView.switchToFrame();
-        await wait(2000);
+        await swaggerWebView.switchToFrame();
 
         // expand get
-        const getTab = await swaggerWebView.findWebElement(By.className("operation-tag-content"));
+        const operationTag = By.className("operation-tag-content");
+        const getTab = await swaggerWebView.findWebElement(operationTag);
         expect(getTab).is.not.undefined;
         await getTab.click();
-        await wait(2000);
 
         // click try it
         const tryIt = (await swaggerWebView.findWebElements(By.className("try-out__btn")))[0];
         expect(tryIt).is.not.undefined;
         await tryIt.click();
-        await wait(2000);
 
         // cilck execute
         const execute = (await swaggerWebView.findWebElements(By.className("opblock-control__btn")))[0];
