@@ -174,11 +174,13 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/byline": "^4.2.33",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "16.x",
     "@types/sinon": "^10.0.0",
     "@types/vscode": "^1.73.0",
+    "@types/which": "^2.0.2",
     "@typescript-eslint/eslint-plugin": "^5.42.0",
     "@typescript-eslint/parser": "^5.42.0",
     "@vscode/test-electron": "^2.2.0",
@@ -203,15 +205,20 @@
     "@vscode-logging/logger": "^1.2.3",
     "@vscode-logging/types": "^0.1.4",
     "@vscode-logging/wrapper": "^1.0.2",
+    "@vscode/iconv-lite-umd": "^0.7.0",
     "@vscode/webview-ui-toolkit": "^1.2.0",
     "@wso2-enterprise/choreo-client": "^1.0.0",
     "@wso2-enterprise/choreo-core": "^1.0.0",
     "@wso2-enterprise/choreo-vscode-webviews": "1.0.0",
+    "byline": "^5.0.0",
+    "file-type": "^18.2.1",
     "gql-query-builder": "^3.8.0",
     "graphql": "^16.6.0",
     "graphql-request": "^5.0.0",
+    "jschardet": "^3.0.0",
     "jwt-decode": "^3.1.2",
     "simple-git": "^3.15.1",
-    "vscode-messenger": "^0.4.3"
+    "vscode-messenger": "^0.4.3",
+    "which": "^3.0.0"
   }
 }

@@ -43,7 +43,7 @@ export const cloneRepoToCuurentProjectWorkspace = async (params: RepoCloneReques
         title: `Cloning ${repository} repository to Choreo workspace.`,
         location: ProgressLocation.Notification,
         cancellable: true
-    }, async (_progress, cancellationToken) => {
+    }, async (progress, cancellationToken) => {
         let cancelled: boolean = false;
         cancellationToken.onCancellationRequested(async () => {
             getLogger().debug("Cloning cancelled for " + repository);
@@ -69,9 +69,13 @@ export const cloneRepoToCuurentProjectWorkspace = async (params: RepoCloneReques
         if (cancelled) {
             return;
         }
-        const _result = await simpleGit().clone(`git@github.com:${repository}.git`, repoPath, ["--recursive", "--branch", branch]);
-        getLogger().debug("Cloned repository: " + repository + " to " + repoPath);
-        success = true;
+        const git = ext.git;
+        if (git) {
+            await git.clone(`https://github.com/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken);        
+            // const _result = await simpleGit().clone(`git@github.com:${repository}.git`, repoPath, ["--recursive", "--branch", branch]);
+            getLogger().debug("Cloned repository: " + repository + " to " + repoPath);
+            success = true;
+        }
     });
     return success;
 };

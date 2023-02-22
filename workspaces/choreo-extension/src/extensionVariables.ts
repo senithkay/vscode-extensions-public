@@ -13,12 +13,14 @@
 import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 import { ProjectsTreeProvider } from "./views/project-tree/ProjectTreeProvider";
+import { Git } from "./git/git";
 
 export class ExtensionVariables {
     public context!: ExtensionContext;
     public isPluginStartup!: boolean;
     public api!: ChoreoExtensionApi;
     public statusBarItem!: StatusBarItem; 
+    public git!: Git|undefined;
 
     // views
     public projectsTreeView!: TreeView<TreeItem>;

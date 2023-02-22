@@ -1,0 +1,196 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+import { env, ExtensionContext, workspace, window, Disposable, commands, Uri, version as vscodeVersion, WorkspaceFolder, LogOutputChannel, l10n, LogLevel } from 'vscode';
+import { findGit, Git, IGit } from './git';
+import { Askpass } from './askpass';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
+import { createIPCServer, IPCServer } from './ipc/ipcServer';
+import { getLogger } from '../logger/logger';
+import { GithubCredentialProviderManager } from './github/credentialProvider';
+
+async function _init(context: ExtensionContext, disposables: Disposable[]): Promise<Git> {
+	const pathValue = workspace.getConfiguration('git').get<string | string[]>('path');
+	let pathHints = Array.isArray(pathValue) ? pathValue : pathValue ? [pathValue] : [];
+
+	const { isTrusted, workspaceFolders = [] } = workspace;
+	const excludes = isTrusted ? [] : workspaceFolders.map(f => path.normalize(f.uri.fsPath).replace(/[\r\n]+$/, ''));
+
+	if (!isTrusted && pathHints.length !== 0) {
+		// Filter out any non-absolute paths
+		pathHints = pathHints.filter(p => path.isAbsolute(p));
+	}
+
+	const info = await findGit(pathHints, gitPath => {
+		getLogger().info(l10n.t('Validating found git in: "{0}"', gitPath));
+		if (excludes.length === 0) {
+			return true;
+		}
+
+		const normalized = path.normalize(gitPath).replace(/[\r\n]+$/, '');
+		const skip = excludes.some(e => normalized.startsWith(e));
+		if (skip) {
+			getLogger().info(l10n.t('Skipped found git in: "{0}"', gitPath));
+		}
+		return !skip;
+	});
+
+	let ipcServer: IPCServer | undefined = undefined;
+
+	try {
+		ipcServer = await createIPCServer(context.storagePath);
+	} catch (err) {
+		getLogger().error(`Failed to create git IPC: ${err}`);
+	}
+
+	const askpass = new Askpass(ipcServer);
+	disposables.push(askpass);
+	const credentialsManager = new GithubCredentialProviderManager(askpass);
+	disposables.push(credentialsManager);
+
+	const environment = { ...askpass.getEnv(), ...ipcServer?.getEnv() };
+	getLogger().info(l10n.t('Using git "{0}" from "{1}"', info.version, info.path));
+
+	const git = new Git({
+		gitPath: info.path,
+		userAgent: `git/${info.version} (${(os as any).version?.() ?? os.type()} ${os.release()}; ${os.platform()} ${os.arch()}) vscode/${vscodeVersion} (${env.appName})`,
+		version: info.version,
+		env: environment,
+	});
+
+	checkGitVersion(info);
+	commands.executeCommand('setContext', 'gitVersion2.35', git.compareGitVersionTo('2.35') >= 0);
+
+	return git;
+}
+
+async function isGitRepository(folder: WorkspaceFolder): Promise<boolean> {
+	if (folder.uri.scheme !== 'file') {
+		return false;
+	}
+
+	const dotGit = path.join(folder.uri.fsPath, '.git');
+
+	try {
+		const dotGitStat = await new Promise<fs.Stats>((c, e) => fs.stat(dotGit, (err, stat) => err ? e(err) : c(stat)));
+		return dotGitStat.isDirectory();
+	} catch (err) {
+		return false;
+	}
+}
+
+async function warnAboutMissingGit(): Promise<void> {
+	const config = workspace.getConfiguration('git');
+	const shouldIgnore = config.get<boolean>('ignoreMissingGitWarning') === true;
+
+	if (shouldIgnore) {
+		return;
+	}
+
+	if (!workspace.workspaceFolders) {
+		return;
+	}
+
+	const areGitRepositories = await Promise.all(workspace.workspaceFolders.map(isGitRepository));
+
+	if (areGitRepositories.every(isGitRepository => !isGitRepository)) {
+		return;
+	}
+
+	const download = l10n.t('Download Git');
+	const neverShowAgain = l10n.t('Don\'t Show Again');
+	const choice = await window.showWarningMessage(
+		l10n.t('Git not found. Install it or configure it using the "git.path" setting.'),
+		download,
+		neverShowAgain
+	);
+
+	if (choice === download) {
+		commands.executeCommand('vscode.open', Uri.parse('https://aka.ms/vscode-download-git'));
+	} else if (choice === neverShowAgain) {
+		await config.update('ignoreMissingGitWarning', true, true);
+	}
+}
+
+export async function initGit(context: ExtensionContext): Promise<Git|undefined> {
+	const disposables: Disposable[] = [];
+	context.subscriptions.push(new Disposable(() => Disposable.from(...disposables).dispose()));
+
+	try {
+		return await _init(context, disposables);
+	} catch (err: any) {
+		if (!/Git installation not found/.test(err.message || '')) {
+			throw err;
+		}
+		console.warn(err.message);
+		commands.executeCommand('setContext', 'git.missing', true);
+		warnAboutMissingGit();
+	}
+}
+
+async function checkGitv1(info: IGit): Promise<void> {
+	const config = workspace.getConfiguration('git');
+	const shouldIgnore = config.get<boolean>('ignoreLegacyWarning') === true;
+
+	if (shouldIgnore) {
+		return;
+	}
+
+	if (!/^[01]/.test(info.version)) {
+		return;
+	}
+
+	const update = l10n.t('Update Git');
+	const neverShowAgain = l10n.t('Don\'t Show Again');
+
+	const choice = await window.showWarningMessage(
+		l10n.t('You seem to have git "{0}" installed. Code works best with git >= 2', info.version),
+		update,
+		neverShowAgain
+	);
+
+	if (choice === update) {
+		commands.executeCommand('vscode.open', Uri.parse('https://aka.ms/vscode-download-git'));
+	} else if (choice === neverShowAgain) {
+		await config.update('ignoreLegacyWarning', true, true);
+	}
+}
+
+async function checkGitWindows(info: IGit): Promise<void> {
+	if (!/^2\.(25|26)\./.test(info.version)) {
+		return;
+	}
+
+	const config = workspace.getConfiguration('git');
+	const shouldIgnore = config.get<boolean>('ignoreWindowsGit27Warning') === true;
+
+	if (shouldIgnore) {
+		return;
+	}
+
+	const update = l10n.t('Update Git');
+	const neverShowAgain = l10n.t('Don\'t Show Again');
+	const choice = await window.showWarningMessage(
+		l10n.t('There are known issues with the installed Git "{0}". Please update to Git >= 2.27 for the git features to work correctly.', info.version),
+		update,
+		neverShowAgain
+	);
+
+	if (choice === update) {
+		commands.executeCommand('vscode.open', Uri.parse('https://aka.ms/vscode-download-git'));
+	} else if (choice === neverShowAgain) {
+		await config.update('ignoreWindowsGit27Warning', true, true);
+	}
+}
+
+async function checkGitVersion(info: IGit): Promise<void> {
+	await checkGitv1(info);
+
+	if (process.platform === 'win32') {
+		await checkGitWindows(info);
+	}
+}
