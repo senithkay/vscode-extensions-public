@@ -50,6 +50,7 @@ jobs:
       - name: Set prerelase version - ballerina
         if: ${{ inputs.isPreRelease }}
         run: |
+          cd workspaces/ballerina-extension
           currentVersion=$(node -p "require('./package.json').version")
           currentVersionWOPreId=${currentVersion%-*}
           currentVersionNo=${currentVersionWOPreId%.*}
