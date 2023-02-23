@@ -6,6 +6,8 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 
+const CopyPlugin = require("copy-webpack-plugin");
+
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
@@ -64,5 +66,13 @@ const extensionConfig = {
       })
     ]
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: "src/git/*.sh", to: "[name][ext]" },
+      ],
+    }),
+  ],
+
 };
 module.exports = [extensionConfig];
