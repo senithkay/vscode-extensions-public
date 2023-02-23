@@ -33,7 +33,7 @@ import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
 
 import { Provider as HistoryProvider } from './context/history';
-import { HistoryEntry, useComponentHistory } from "./hooks/history";
+import { useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";

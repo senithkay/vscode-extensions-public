@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BackArrow, SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     RequiredParam,
     STKindChecker,
@@ -22,6 +22,7 @@ import classNames from "classnames";
 
 import { useDiagramContext } from "../../../../Context/diagram";
 import { useFunctionContext } from "../../../../Context/Function";
+import { FunctionViewState, ViewState } from "../../../../ViewState";
 
 import "./style.scss";
 
@@ -33,6 +34,7 @@ export function FunctionHeader() {
     const editApi = diagramApi?.edit;
     const renderEditForm = editApi?.renderEditForm;
 
+    const functionVS = functionNode.viewState as FunctionViewState;
     const titleComponents: React.ReactElement[] = [];
     const argumentComponents: React.ReactElement[] = [];
 
@@ -43,13 +45,7 @@ export function FunctionHeader() {
     if (STKindChecker.isFunctionDefinition(functionNode)) {
         // TODO: handle general funciton
         titleComponents.push(
-            <>
-                <div className="title-components">{`Function Design - ${functionNode.functionName.value}`}</div>
-                <div className="config-form-icon" onClick={handleConfigFormClick} >
-                    <SettingsIcon />
-                    <div className="config-form-icon-text">Configure Interface</div>
-                </div>
-            </>
+            <div className="title-components">{`Function Design - ${functionNode.functionName.value}`}</div>
         );
 
         functionNode.functionSignature.parameters
@@ -89,6 +85,8 @@ export function FunctionHeader() {
                         {STKindChecker.isResourcePathRestParam(node) ? '...' : ''}{(node as any).paramName?.value}]
                     </>
                 );
+            } else if (STKindChecker.isDotToken(node)) {
+                resourceTitleContent.push(<>/</>);
             }
         });
 
@@ -117,19 +115,30 @@ export function FunctionHeader() {
         }
 
         titleComponents.push(
-            <>
-                <div className="title-components">{resourceTitleContent}</div>
-                <div className="config-form-icon" onClick={handleConfigFormClick}>
-                    <SettingsIcon />
-                    <div className="config-form-icon-text">Configure Interface</div>
+            <div className="title-components">
+                <div className="parent-description">
+                    <BackArrow />
+                    {functionVS.parentNamePlaceHolder}
                 </div>
-            </>
+                <div className="content">
+                    {resourceTitleContent}
+                </div>
+            </div>
         )
     }
 
+    titleComponents.push(
+        <div className="config-form-icon" onClick={handleConfigFormClick}>
+            <SettingsIcon />
+            <div className="config-form-icon-text">Configure Interface</div>
+        </div>
+    );
+
     return (
         <>
-            <div className="title-container">{titleComponents}</div>
+            <div className="title-container">
+                {titleComponents}
+            </div>
             <div className="argument-container">{argumentComponents}</div>
         </>
     )

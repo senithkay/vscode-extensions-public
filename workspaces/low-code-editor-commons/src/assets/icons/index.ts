@@ -93,3 +93,5 @@ export { DesignViewIcon } from './DesignViewIcon';
 export { GraphqlQueryIcon } from "./GraphqlQueryIcon";
 export { GraphqlMutationIcon } from "./GraphqlMutationIcon";
 export { GraphqlSubscriptionIcon } from "./GraphqlSubscriptionIcon";
+export { default as BackArrow } from './BackArrow';
+
