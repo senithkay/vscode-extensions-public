@@ -43,8 +43,6 @@ export function ActionList(props: FormGeneratorProps) {
     const [keyword, setKeyword] = useState("");
     const [filteredActions, setFilteredActions] = useState<FunctionDefinitionInfo[]>([]);
 
-    const httpMethods = ["get", "post", "put", "delete", "patch", "head", "options"];
-
     useEffect(() => {
         const searchKeyword = keyword.toLowerCase().trim();
         if (searchKeyword.length > 1 && searchKeyword !== "") {
@@ -64,9 +62,6 @@ export function ActionList(props: FormGeneratorProps) {
 
     const actionElementList = filteredActions?.map((action) => {
         if (action.name === "init") {
-            return;
-        }
-        if (isHttp && !httpMethods.includes(action.name.toLowerCase())) {
             return;
         }
         return <ActionCard key={action.name} action={action} onSelect={onSelect} />;
