@@ -59,10 +59,10 @@ import {
 	getBalRecFieldName,
 	getExprBodyFromLetExpression,
 	getFieldName,
+	getFnDefForFnCall,
 	getInputNodes,
 	getOptionalRecordField,
-	isComplexExpression,
-	isExpressionBodiedFunction
+	isComplexExpression
 } from "../../utils/dm-utils";
 
 export interface DataMapperNodeModelGenerics {
@@ -233,7 +233,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	protected getOtherMappings(node: STNode, currentFields: STNode[]) {
 		const valNode = STKindChecker.isSpecificField(node) ? node.valueExpr : node;
 		const inputNodes = getInputNodes(valNode);
-		const isExprBodiedFunc = isExpressionBodiedFunction(valNode);
+		const isExprBodiedFunc = STKindChecker.isFunctionCall(valNode) && getFnDefForFnCall(valNode);
 		if (inputNodes.length === 1
 			&& !isComplexExpression(valNode)
 			&& !STKindChecker.isQueryExpression(valNode)

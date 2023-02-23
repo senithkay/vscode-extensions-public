@@ -2,6 +2,7 @@ import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient"
 import { LinePosition } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
+    FunctionDefinition,
     LetExpression,
     ModulePart,
     NodePosition,
@@ -143,6 +144,27 @@ export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
     }
 
     return fnDefs;
+}
+
+export async function getFunctionDefinitionNode(position: NodePosition,
+                                                fileUri: string,
+                                                langClientPromise: Promise<IBallerinaLangClient>): Promise<FunctionDefinition> {
+    const langClient = await langClientPromise;
+    const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: fileUri,
+        },
+    });
+    let fnDef: FunctionDefinition;
+    if (parseSuccess) {
+        const modPart = syntaxTree as ModulePart;
+        modPart.members.forEach((mem) => {
+            if (STKindChecker.isFunctionDefinition(mem) && isPositionsEquals(position, mem.functionName.position)) {
+                fnDef = mem;
+            }
+        });
+    }
+    return fnDef;
 }
 
 function isLocationLink(obj: any): obj is LocationLink {

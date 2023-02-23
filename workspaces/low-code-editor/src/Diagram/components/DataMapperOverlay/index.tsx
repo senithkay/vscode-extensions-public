@@ -39,10 +39,14 @@ export interface DataMapperProps {
     targetPosition?: NodePosition;
     ballerinaVersion?: string;
     onCancel?: () => void;
+    configOverlayFormStatus: ConfigOverlayFormStatus;
+    handleDiagramEdit?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus,
+                         onClose?: () => void, onSave?: () => void) => void;
+
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
-    const { targetPosition, ballerinaVersion, onCancel: onClose, model } = props;
+    const { targetPosition, ballerinaVersion, onCancel: onClose, model, handleDiagramEdit } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
@@ -145,7 +149,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
                         importStatements={importStatements}
                         recordPanel={renderRecordPanel}
                         syntaxTree={fullST}
-                    />
+                        handleDiagramEdit={handleDiagramEdit}/>
                 </div>
             </DiagramOverlay>
         </DiagramOverlayContainer>

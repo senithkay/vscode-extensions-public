@@ -12,10 +12,11 @@
  */
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    ConfigOverlayFormStatus,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { ExpressionInfo, SelectionState, ViewOption } from "../../components/DataMapper/DataMapper";
@@ -43,6 +44,11 @@ export interface IDataMapperContext {
     handleOverlay: (showOverlay: boolean) => void;
     ballerinaVersion: string;
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
+    handleDiagramEdit?: (model: STNode,
+                         targetPosition: NodePosition,
+                         configOverlayFormStatus: ConfigOverlayFormStatus,
+                         onClose?: () => void,
+                         onSave?: () => void) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -69,7 +75,8 @@ export class DataMapperContext implements IDataMapperContext {
         public handleFieldToBeEdited: (fieldId: string) => void,
         public handleOverlay: (showOverlay: boolean) => void,
         public ballerinaVersion: string,
-        public handleLocalVarConfigPanel: (showPanel: boolean) => void
+        public handleLocalVarConfigPanel: (showPanel: boolean) => void,
+        public handleDiagramEdit?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void
     ){}
 
     public get functionST(): FunctionDefinition {

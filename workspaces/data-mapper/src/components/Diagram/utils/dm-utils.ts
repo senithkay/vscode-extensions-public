@@ -24,6 +24,7 @@ import {
 	ExpressionFunctionBody,
 	FieldAccess,
 	FromClause,
+	FunctionCall,
 	IdentifierToken,
 	JoinClause,
 	LetClause,
@@ -1374,16 +1375,12 @@ export function isComplexExpression (node: STNode): boolean {
 			|| (STKindChecker.isBinaryExpression(node) && STKindChecker.isElvisToken(node.operator)))
 }
 
-export function isExpressionBodiedFunction(node: STNode): boolean {
-	if (STKindChecker.isFunctionCall(node)) {
-		const fnCallPosition: LinePosition = {
-			line: node.position.startLine,
-			offset: node.position.startColumn
-		};
-		const fnDefInfo = getFnDefFromStore(fnCallPosition);
-		return fnDefInfo.isExprBodiedFn;
-	}
-	return false;
+export function getFnDefForFnCall(node: FunctionCall): FnDefInfo {
+	const fnCallPosition: LinePosition = {
+		line: node.position.startLine,
+		offset: node.position.startColumn
+	};
+	return getFnDefFromStore(fnCallPosition);
 }
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {

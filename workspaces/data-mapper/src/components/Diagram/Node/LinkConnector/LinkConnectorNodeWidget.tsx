@@ -19,10 +19,12 @@ import TooltipBase from '@material-ui/core/Tooltip';
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
+import Navigation from "@material-ui/icons/Navigation";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
+import { getFunctionDefinitionNode } from "../../../../utils/st-utils";
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
 import { DataMapperPortWidget } from '../../Port';
 import { getFieldLabel } from '../../utils/dm-utils';
@@ -141,6 +143,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const engine = props.engine;
     const hasError = node.hasError();
     const diagnostic = hasError ? node.diagnostics[0] : null;
+    const fnDef = node.fnDefForFnCall;
 
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
@@ -175,6 +178,18 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             node.deleteLink();
         }
     };
+
+    const onClickOnGoToDef = async () => {
+        const {fnDefPosition, fileUri} = fnDef;
+        const fnST = await getFunctionDefinitionNode(fnDefPosition, fileUri, node.context.langClientPromise);
+        if (STKindChecker.isSpecificField(node.valueNode)) {
+            node.context.handleDiagramEdit(fnST, fnDefPosition, {
+                formType: 'DataMapper',
+                isLoading: false
+            });
+        }
+    };
+
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
 
     const loadingScreen = (
@@ -194,6 +209,13 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                         <ExpressionIcon  />
                     </span>
                 </TooltipComponent>
+                {fnDef && fnDef.isExprBodiedFn && (
+                    <div className={classes.element} onClick={onClickOnGoToDef} data-testid={`go-to-tnf-fn-${node?.value}`}>
+                        <div className={classes.iconWrapper}>
+                            <Navigation className={clsx(classes.editIcon)}/>
+                        </div>
+                    </div>
+                )}
                 <div className={classes.element} onClick={onClickEdit} data-testid={`link-connector-edit-${node?.value}`}>
                     <div className={classes.iconWrapper}>
                         <CodeOutlinedIcon className={clsx(classes.icons, classes.editIcon)}/>

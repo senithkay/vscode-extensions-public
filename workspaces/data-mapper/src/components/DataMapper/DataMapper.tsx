@@ -16,6 +16,7 @@ import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    ConfigOverlayFormStatus,
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse,
@@ -117,6 +118,11 @@ export interface DataMapperProps {
     importStatements: string[];
     recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element;
     syntaxTree?: STNode;
+    handleDiagramEdit?: (model: STNode,
+                         targetPosition: NodePosition,
+                         configOverlayFormStatus: ConfigOverlayFormStatus,
+                         onClose?: () => void,
+                         onSave?: () => void) => void;
 }
 
 export enum ViewOption {
@@ -194,7 +200,8 @@ function DataMapperC(props: DataMapperProps) {
         onSave,
         importStatements,
         recordPanel,
-        syntaxTree
+        syntaxTree,
+        handleDiagramEdit
     } = props;
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -325,7 +332,8 @@ function DataMapperC(props: DataMapperProps) {
                         handleFieldToBeEdited,
                         handleOverlay,
                         ballerinaVersion,
-                        handleLocalVarConfigPanel
+                        handleLocalVarConfigPanel,
+                        handleDiagramEdit
                     );
 
                     const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
