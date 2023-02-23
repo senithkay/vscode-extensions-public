@@ -28,6 +28,12 @@ runs:
           ~/.cache/Cypress
         key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+    - name: Build Cache
+      uses: actions/cache@v2
+      with:
+        path: common/temp/build-cache
+        key: build-cache
+
     - name: Install node modules
       shell: bash
       run: node common/scripts/install-run-rush.js install        
