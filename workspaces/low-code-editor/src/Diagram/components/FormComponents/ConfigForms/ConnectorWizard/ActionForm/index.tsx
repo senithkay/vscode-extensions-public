@@ -31,7 +31,7 @@ import {
 } from "../../../../../utils";
 import { FormGeneratorProps } from "../../../FormGenerator";
 import { wizardStyles as useFormStyles } from "../../style";
-import { getDefaultParams, getFormFieldReturnType, getReturnTypeImports, isParentNodeWithErrorReturn } from "../util";
+import { getDefaultParams, getPathParams, getFormFieldReturnType, getReturnTypeImports, isParentNodeWithErrorReturn } from "../util";
 
 interface ActionFormProps {
     action: FunctionDefinitionInfo;
@@ -71,27 +71,43 @@ export function ActionForm(props: FormGeneratorProps) {
         initialSource = model.source;
     } else {
         // Adding new endpoint
-        const defaultParameters = getDefaultParams(action.parameters);
+        const queryParameters = getDefaultParams(action.parameters);
+        const pathParameters = getPathParams(action.pathParams);
         const returnType = getFormFieldReturnType(action.returnType);
         const parentWithError = isParentNodeWithErrorReturn(functionNode);
         imports = getReturnTypeImports(returnType);
 
-        if (isHttp) {
-            const path = defaultParameters.shift();
+        if (action.qualifiers?.includes("resource")) {
+            // handle resource functions
             initialSource = getInitialSource(
                 createCheckedResourceServiceCall(
                     returnType.returnType,
                     genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
                     endpointName,
+                    pathParameters,
                     action.name,
-                    action.name === "get" ? "" : ".",
-                    defaultParameters,
+                    queryParameters,
                     targetPosition,
-                    action.name !== "get",
                     isClassField
                 )
             );
-        } else {
+        } else if (isHttp) {
+            // handle http functions if resource functions are not available in metadata
+            queryParameters.shift();
+            initialSource = getInitialSource(
+                createCheckedResourceServiceCall(
+                    returnType.returnType,
+                    genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
+                    endpointName,
+                    [],
+                    action.name === "get" ? "" : action.name,
+                    queryParameters,
+                    targetPosition,
+                    isClassField
+                )
+            );
+        } else if (action.qualifiers?.includes("remote") || action.isRemote) {
+            // handle remote function
             initialSource = getInitialSource(
                 returnType.hasReturn
                     ? returnType.hasError && parentWithError // INFO: New code actions will update parent function and `check` keyword
@@ -100,7 +116,7 @@ export function ActionForm(props: FormGeneratorProps) {
                               genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
                               endpointName,
                               action.name,
-                              defaultParameters,
+                              queryParameters,
                               targetPosition,
                               isClassField
                           )
@@ -109,13 +125,13 @@ export function ActionForm(props: FormGeneratorProps) {
                               genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
                               endpointName,
                               action.name,
-                              defaultParameters,
+                              queryParameters,
                               targetPosition,
                               isClassField
                           )
                     : returnType.hasError && parentWithError
-                    ? createCheckActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
-                    : createActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
+                    ? createCheckActionStatement(endpointName, action.name, queryParameters, targetPosition, isClassField)
+                    : createActionStatement(endpointName, action.name, queryParameters, targetPosition, isClassField)
             );
         }
     }
