@@ -8,6 +8,17 @@
                 "build",
                 "build-app",
                 "lib"
+            ],
+            "dependsOnAdditionalFiles": [
+                "../bbe/build/*",
+                "../low-code-distribution/build/*",
+                "../configurable-editor/build/*",
+                "../graphql/build/*",
+                "../notebook-renderer/build/*",
+                "../perf-forecast/build/*",
+                "../project-design-diagrams/build/*",
+                "../swagger/build/*",
+                "../variable-view/build/*"
             ]
         }
     ]
