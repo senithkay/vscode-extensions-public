@@ -7,6 +7,7 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 
 const CopyPlugin = require("copy-webpack-plugin");
+const PermissionsOutputPlugin = require('webpack-permissions-plugin');
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -72,6 +73,11 @@ const extensionConfig = {
         { from: "src/git/*.sh", to: "[name][ext]" },
       ],
     }),
+    new PermissionsOutputPlugin({
+      buildFolders: [
+        path.resolve(__dirname, 'dist/')
+      ]
+    })
   ],
 
 };

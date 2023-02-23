@@ -14,11 +14,12 @@ import { EventEmitter } from 'events';
 import * as iconv from '@vscode/iconv-lite-umd';
 import * as filetype from 'file-type';
 import { assign, groupBy, IDisposable, toDisposable, dispose, mkdirp, readBytes, detectUnicodeEncoding, Encoding, onceEvent, splitInChunks, Limiter, Versions, isWindows, pathEquals } from './util';
-import { CancellationError, CancellationToken, ConfigurationChangeEvent, LogOutputChannel, Progress, Uri, workspace } from 'vscode';
+import { CancellationError, CancellationToken, ConfigurationChangeEvent, LogOutputChannel, Progress, Uri, window, workspace } from 'vscode';
 import { detectEncoding } from './encoding';
 import { Ref, RefType, Branch, Remote, ForcePushMode, GitErrorCodes, LogOptions, Change, Status, CommitOptions, RefQuery } from './api/git';
 import * as byline from 'byline';
 import { StringDecoder } from 'string_decoder';
+import { getLogger } from '../logger/logger';
 
 // https://github.com/microsoft/vscode/issues/65693
 const MAX_CLI_LENGTH = 30000;
@@ -430,7 +431,7 @@ export class Git {
 
 			lineStream.on('data', (line: string) => {
 				let match: RegExpExecArray | null = null;
-
+				getLogger().debug(line);
 				if (match = /Counting objects:\s*(\d+)%/i.exec(line)) {
 					totalProgress = Math.floor(parseInt(match[1]) * 0.1);
 				} else if (match = /Compressing objects:\s*(\d+)%/i.exec(line)) {
@@ -444,6 +445,11 @@ export class Git {
 				if (totalProgress !== previousProgress) {
 					options.progress.report({ increment: totalProgress - previousProgress });
 					previousProgress = totalProgress;
+				}
+
+				if (line.startsWith('fatal:')) {
+					window.showErrorMessage(line);
+					getLogger().error(line);
 				}
 			});
 		};
