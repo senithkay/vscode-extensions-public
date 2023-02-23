@@ -3,11 +3,12 @@
         {
             "operationName": "build",
             "outputFolderNames": [
-                "*.vsix",
+                "vsix",
                 "dist",
                 "build",
                 "build-app",
-                "lib"
+                "lib",
+                "resources/jslibs"
             ],
             "dependsOnAdditionalFiles": [
                 "../bbe/build/*",
