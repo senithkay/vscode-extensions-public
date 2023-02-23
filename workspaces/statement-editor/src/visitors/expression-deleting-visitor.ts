@@ -17,6 +17,7 @@ import {
     ConstDeclaration,
     FieldAccess,
     FunctionCall,
+    IdentifierToken,
     IndexedExpression,
     IntersectionTypeDesc,
     KeySpecifier,
@@ -159,6 +160,24 @@ class ExpressionDeletingVisitor implements Visitor {
             if (STKindChecker.isReturnStatement(node.parent) && isPositionsEquals(this.deletePosition, node.position)) {
                 this.setProperties("", node.position);
             }
+        }
+    }
+
+    public beginVisitIdentifierToken(node: IdentifierToken, parent?: STNode) {
+        if (!this.isNodeFound && parent?.parent && STKindChecker.isClientResourceAccessAction(parent.parent)
+            && node.value.trim() === DEFAULT_EXPR && isPositionsEquals(this.deletePosition, node.position)) {
+            this.setProperties("", {
+                ...node.position,
+                startColumn: parent.parent.dotToken?.position?.startColumn,
+                endColumn: parent.parent.arguments?.closeParenToken.position?.endColumn
+            });
+        } else if (!this.isNodeFound && parent && STKindChecker.isClientResourceAccessAction(parent)
+            && isPositionsEquals(this.deletePosition, node.position)) {
+            this.setProperties("", {
+                ...node.position,
+                startColumn: (parent.slashToken.position.startColumn === node.position.startColumn - 1) ?
+                    node.position.startColumn : node.position.startColumn - 1
+            });
         }
     }
 
