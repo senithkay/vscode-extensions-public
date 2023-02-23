@@ -106,7 +106,7 @@ const copyFiles = () => {
 const copyCSS = () => {
     fs.copy(buildDir, libDir)
         .then(() => {
-            console.error('generated css files copied.');
+            console.info('generated css files copied.');
             copyAssets();
         })
         .catch((error) => {
@@ -117,9 +117,9 @@ const copyCSS = () => {
 const copyAssets = () => {
     fs.copy(path.join(semanticUILessModuleDir, 'themes', 'default', 'assets'), path.join(libDir, 'assets'))
         .then(() => {
-            console.error('semantic-ui-less assets copied.');
+            console.info('semantic-ui-less assets copied.');
             fs.removeSync(buildDir);
-            console.error('Done.');
+            console.info('Done.');
         })
         .catch((error) => {
             console.error(error);
