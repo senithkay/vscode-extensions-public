@@ -6,7 +6,6 @@ The Choreo VS Code extension provides a range of Choreo **project** and **compon
 For a seamless development experience with the Choreo extension, you need to have the following configured in your local environment.
 1. [Visual Studio Code](https://code.visualstudio.com/download) with the Choreo extension installed
 2. [Ballerina Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) for VS Code, version 4.0.0 or later
-3. [SSH keys for your GitHub account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) set up for source control
 
 ## Getting Started
 
@@ -16,7 +15,7 @@ You will require an active Choreo account to use the capabilities of the Choreo 
     -   Via the `Sign In` prompt that is displayed on successful activation of the extension
     -   Via the `Sign In` options available when you click on the Choreo icon on the activity bar of your VS Code editor
 
-        ![Sign In](docs/choreo-extension/images/sign-in.png)
+![Sign In](docs/choreo-extension/images/sign-in.png)
 
 The above step redirects you to an external URI to complete the authentication process. If the sign-in is successful, all the projects and organizations linked to your Choreo account will be visible on the Choreo activity panel, as shown below.
 
@@ -38,11 +37,11 @@ The Choreo extension allows you to create new projects in Choreo through the VS 
 
 -   Via the `Choreo: Create New Project` command available in the VS Code command palette
     
-    ![Create New Project Cmd](docs/choreo-extension/images/create-project-cmd.gif)
+![Create New Project Cmd](docs/choreo-extension/images/create-project-cmd.gif)
 
 -   Via the Choreo activity panel, by clicking the plus icon in the project tree view
     
-    ![Create New Project - TreeView](docs/choreo-extension/images/create-project-treeview.png)
+![Create New Project - TreeView](docs/choreo-extension/images/create-project-treeview.png)
 
 The above actions will open up a separate VS Code webview panel, where you can fill in the details of the new Choreo project. You can fill in the primary project details and configure a GitHub repository for the project. You can either choose an existing repository or configure a new one.
 
@@ -55,8 +54,6 @@ After filling in the required details and configuring the repository, you can cl
 By cloning a Choreo project, you are downloading a copy of the Choreo project to your local development environment. This option is not restricted to projects created only via the Choreo extension: it is available for all Choreo projects linked to your Choreo account.
 
 You can clone a project by selecting the respective project in the project tree view of the Choreo activity panel. This action opens the **Project Overview** panel that displays basic project-related details, including those of the components. Via this overview, you can click **Clone Project** to get the local copy of the project. If the cloning is successful, you are automatically redirected to a new VS Code workspace containing the project.
-
->**Tip:** Project cloning will be successful only if you have configured the SSH keys for your GitHub account. For more information, see [Setting up SSH keys for your GitHub account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account).
 
 ![Project Cloning](docs/choreo-extension/images/cloning-project.gif)
 
@@ -74,11 +71,11 @@ The Choreo extension allows you to create new Choreo components from the VS Code
 
 -   Via the `Choreo: Create New Component` command available in the VS Code command palette
     
-    ![Create New Component Cmd](docs/choreo-extension/images/create-component-cmd.gif)
+![Create New Component Cmd](docs/choreo-extension/images/create-component-cmd.gif)
 
 -   Via the **Project Overview** panel, by clicking the plus icon in the components section
 
-    ![Create New Component from Overview](docs/choreo-extension/images/create-component-from-overview.png)
+![Create New Component from Overview](docs/choreo-extension/images/create-component-from-overview.png)
 
 The above options will open up a separate VS Code webview panel, where you can fill in the details of the new Choreo component. You can fill in the primary component details and configure the GitHub repository. Similar to project creation, you can either choose an existing repository or configure a new one.
 
@@ -105,3 +102,13 @@ The Choreo extension allows you to visualize the architecture of the Ballerina c
 Once the Ballerina extension is installed, you can visualize the architecture of Ballerina components by selecting **View Architecture** in the **Project Overview** panel. This opens up a view through which you can access a high-level view of the components in the project, their interactions, and their exposure via the service diagrams and cell diagrams.
 
 ![View Architecture](docs/choreo-extension/images/architecture-view.gif)
+
+
+## Troubleshooting
+
+For troubleshooting, see the Choreo output. To view the Choreo output tab, click **View**, click **Output**, and select **Choreo** from the output list.
+
+
+## Ask for Help
+
+Create [Github issues](https://github.com/wso2/choreo-vscode/issues) to reach out to us.
