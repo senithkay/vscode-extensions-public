@@ -24,7 +24,7 @@ interface ControlPanelProps {
 }
 
 export const ControlPanel = styled.div`
-    bottom: 15px;
+    bottom: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 15 : 120}px`};
     display: flex;
     flex-direction: column;
     height: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 150 : 110}px`};

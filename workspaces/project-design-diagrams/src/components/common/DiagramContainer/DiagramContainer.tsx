@@ -23,9 +23,8 @@ import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
 import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
-import { CellContainer, CellDiagram } from "./style";
+import { CanvasWrapper, CellContainer, CellDiagram } from "./style";
 import { Gateways } from "../../gateway/Gateways/Gateways";
-import _ from "lodash";
 
 interface DiagramContainerProps {
     currentView: Views;
@@ -104,17 +103,30 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                     {...{currentView, layout}}
                                 />
                             </div>
-                            {currentView === Views.CELL_VIEW && 
-                                <CellDiagram>
+                            {currentView === Views.CELL_VIEW &&
+                                <div>
+                                    <svg style= {{ visibility: "hidden", position: "absolute", width: 0, height:0 }} xmlns="http://www.w3.org/2000/svg" version="1.1">
+                                        <defs>
+                                            <filter id="round">
+                                                <feGaussianBlur in="SourceGraphic" stdDeviation="5"/>
+                                                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo"/>
+                                                <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+                                            </filter>
+                                        </defs>
+                                    </svg>
                                     <Gateways/>
-                                    <CellContainer>
-                                        <DiagramCanvasWidget
-                                            type={Views.CELL_VIEW}
-                                            model={serviceModels.cellModel}
-                                            {...{currentView, layout}}
-                                        />
-                                    </CellContainer>
-                                </CellDiagram>
+                                    <CellDiagram>
+                                        <CellContainer>
+                                            <CanvasWrapper>
+                                                <DiagramCanvasWidget
+                                                    type={Views.CELL_VIEW}
+                                                    model={serviceModels.cellModel}
+                                                    {...{currentView, layout}}
+                                                />
+                                            </CanvasWrapper>
+                                        </CellContainer>
+                                    </CellDiagram>
+                                </div>
                             }
                         </>
                     }

@@ -22,11 +22,10 @@ import { GatewayIcon } from "../../common/DiagramContainer/GatewayIcon";
 import { GatewayContainer } from "../../common/DiagramContainer/style";
 
 export function Gateways() {
-    const gWOffset = 25;
-    const westGWLeft = '-30px';
-    const westGWTop = `calc(50% - ${gWOffset}px)`;
-    const northGWLeft = `calc(50% - ${gWOffset}px)`;
-    const northGWTop = '0';
+    const westGWLeft = '20px';
+    const westGWTop = `calc(50% - 10px)`;
+    const northGWLeft = `calc(50% - 20px)`;
+    const northGWTop = '50px';
 
     return (
         <>
