@@ -4,6 +4,7 @@ node_modules
 webviews/node_modules
 .vscode-test/
 *.vsix
+**/vsix
 !resources/jslibs/font/DroidSansMono.ttf
 resources/jslibs
 !.vscode
