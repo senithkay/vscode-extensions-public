@@ -35,6 +35,7 @@ import { useDMSearchStore, useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
+import { FunctionDefinitionStore } from "../Diagram/utils/fn-definition-store";
 import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
@@ -329,6 +330,8 @@ function DataMapperC(props: DataMapperProps) {
 
                     const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
                     await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
+                    const functionDefinitions = FunctionDefinitionStore.getInstance();
+                    await functionDefinitions.storeFunctionDefinitions(fnST, context);
 
                     setDmContext(context);
                 }

@@ -13,6 +13,7 @@
 import {
 	AnydataType,
 	keywords,
+	LinePosition,
 	PrimitiveBalType,
 	STModification,
 	STSymbolInfo,
@@ -70,6 +71,7 @@ import {
 	MODULE_VARIABLE_SOURCE_PORT_PREFIX,
 	PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
 } from "./constants";
+import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
 
@@ -1214,6 +1216,11 @@ export function getTypeFromStore(position: NodePosition): Type {
 	return recordTypeDescriptors.getTypeDescriptor(position);
 }
 
+export function getFnDefFromStore(position: LinePosition): FnDefInfo {
+	const functionDefinitionStore = FunctionDefinitionStore.getInstance();
+	return functionDefinitionStore.getFnDefinitions(position);
+}
+
 export function isEmptyValue(position: NodePosition): boolean {
 	return (position.startLine === position.endLine && position.startColumn === position.endColumn);
 }
@@ -1365,6 +1372,18 @@ function getSpecificField(mappingConstruct: MappingConstructor, targetFieldName:
 export function isComplexExpression (node: STNode): boolean {
 	return (STKindChecker.isConditionalExpression(node)
 			|| (STKindChecker.isBinaryExpression(node) && STKindChecker.isElvisToken(node.operator)))
+}
+
+export function isExpressionBodiedFunction(node: STNode): boolean {
+	if (STKindChecker.isFunctionCall(node)) {
+		const fnCallPosition: LinePosition = {
+			line: node.position.startLine,
+			offset: node.position.startColumn
+		};
+		const fnDefInfo = getFnDefFromStore(fnCallPosition);
+		return fnDefInfo.isExprBodiedFn;
+	}
+	return false;
 }
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {

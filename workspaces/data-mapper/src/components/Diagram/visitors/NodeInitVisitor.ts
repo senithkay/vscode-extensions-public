@@ -63,7 +63,8 @@ import {
     getPrevOutputType,
     getTypeFromStore,
     getTypeOfOutput,
-    isComplexExpression
+    isComplexExpression,
+    isExpressionBodiedFunction
 } from "../utils/dm-utils";
 
 import { QueryParentFindingVisitor } from "./QueryParentFindingVisitor"
@@ -549,8 +550,9 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isListConstructor(node.valueExpr)
         ) {
             const inputNodes = getInputNodes(node.valueExpr);
+            const isExprBodiedFunc = isExpressionBodiedFunction(node.valueExpr);
             if (inputNodes.length > 1
-                || (inputNodes.length === 1 && isComplexExpression(node.valueExpr))) {
+                || (inputNodes.length === 1 && (isComplexExpression(node.valueExpr) || isExprBodiedFunc))) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
