@@ -1,0 +1,3 @@
+{
+    "extends": "../../ballerina-extension/config/rush-project.json"
+}

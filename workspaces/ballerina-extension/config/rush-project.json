@@ -1,0 +1,14 @@
+{
+    "operationSettings": [
+        {
+            "operationName": "build",
+            "outputFolderNames": [
+                "*.vsix",
+                "dist",
+                "build",
+                "build-app",
+                "lib"
+            ]
+        }
+    ]
+}
