@@ -36,7 +36,7 @@ export function CellDiagram(props: CellDiagramProps) {
     return (
         <>
             <Gateways/>
-            <CellContainerWrapper currentView={currentView}>
+            <CellContainerWrapper>
                 <CellContainer>
                     <CanvasWrapper>
                         <DiagramCanvasWidget

@@ -102,11 +102,14 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                     {...{currentView, layout}}
                                 />
                             </div>
-                            <CellDiagram
-                                currentView={currentView}
-                                cellModel={serviceModels.cellModel}
-                                layout={layout}
-                            />
+
+                            {currentView === Views.CELL_VIEW &&
+                                <CellDiagram
+                                    currentView={currentView}
+                                    cellModel={serviceModels.cellModel}
+                                    layout={layout}
+                                />
+                            }
                         </>
                     }
                     {typeModel &&

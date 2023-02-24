@@ -131,9 +131,6 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             setDiagramModel(model);
             autoDistribute();
         }
-        // if (diagramEngine.getModel()) {
-        //     removeGWLinks(diagramEngine);
-        // }
     }, [currentView]);
 
     const autoDistribute = () => {

@@ -46,7 +46,6 @@ export const CanvasWrapper = styled.div`
 export const CellContainerWrapper = styled.div`
   position: relative;
   width: calc(100vw - 100px);
-  display: ${(props: DiagramContainerStyleProps) => props.currentView === Views.CELL_VIEW ? 'block' : 'none'};
   flex-direction: column;
   padding-top: 30px;
   padding-bottom: 20px;
