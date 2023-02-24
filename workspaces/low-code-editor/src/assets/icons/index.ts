@@ -33,6 +33,7 @@ export { default as AsyncSend } from './AsyncSend';
 export { default as AsyncReceive } from './AsyncReceive';
 export { default as AsyncWait } from './AsyncWait';
 export { default as Flush } from './Flush';
+export { default as PackageIcon } from './Package';
 
 // Module level icons
 export { default as ServiceIcon } from './ServiceIcon';
