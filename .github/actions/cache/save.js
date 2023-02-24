@@ -4,7 +4,8 @@ const { consts } = require("./constants");
 
 async function run() {
   try {
-    const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = await consts;
+    const { pnpmCacheDir, rushCacheDir, rushSysCacheDir } = await consts;
+    const { pnpmCacheKey, rushCacheKey } = process.env;
     // Save the PNPM cacheÒ
     await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
     core.info(`PNPM cache saved with key ${pnpmCacheKey}`);
