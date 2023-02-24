@@ -38,6 +38,8 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
+import { ServiceInvalidImg } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ServiceInvalidOverlay } from "../Diagram/components/ServiceInvalidOverlay";
 
 interface DiagramFocusState {
     filePath: string;
@@ -318,6 +320,10 @@ export function DiagramViewManager(props: EditorProps) {
                             onCancel={handleNavigationHome}
                         />
                     );
+                } else if (signature && signature === "$CompilationError$") {
+                    viewComponent.push((
+                        <ServiceInvalidOverlay />
+                    ));
                 }
             }
         } else if (STKindChecker.isFunctionDefinition(focusedST)
