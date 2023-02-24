@@ -23,9 +23,7 @@ import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
 import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
-import { CanvasWrapper, CellContainer, CellDiagram } from "./style";
-import { Gateways } from "../../gateway/Gateways/Gateways";
-import {CellBoundary} from "./CellBoundary";
+import { CellDiagram } from "../CellDiagram/CellDiagram";
 
 interface DiagramContainerProps {
     currentView: Views;
@@ -105,21 +103,11 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                 />
                             </div>
                             {currentView === Views.CELL_VIEW &&
-                                <div>
-                                    <CellBoundary/>
-                                    <Gateways/>
-                                    <CellDiagram>
-                                        <CellContainer>
-                                            <CanvasWrapper>
-                                                <DiagramCanvasWidget
-                                                    type={Views.CELL_VIEW}
-                                                    model={serviceModels.cellModel}
-                                                    {...{currentView, layout}}
-                                                />
-                                            </CanvasWrapper>
-                                        </CellContainer>
-                                    </CellDiagram>
-                                </div>
+                                <CellDiagram
+                                    currentView={currentView}
+                                    cellModel={serviceModels.cellModel}
+                                    layout={layout}
+                                />
                             }
                         </>
                     }
