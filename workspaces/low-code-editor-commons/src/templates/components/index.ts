@@ -48,6 +48,7 @@ if {{{ CONDITION }}} {
     REMOTE_SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}->{{{ FUNCTION }}}({{{ PARAMS }}});',
     ACTION_STATEMENT: '{{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
     ACTION_STATEMENT_CHECK: 'check {{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
+    RESOURCE_SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}->/{{{ PATH }}}{{#if WITH_FUNC}}{{{ FUNCTION }}}({{{ PARAMS }}}){{/if}};',
     RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
     RESOURCE: `
     resource function {{{ METHOD }}} {{{ PATH }}} ({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}} {

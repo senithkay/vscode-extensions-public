@@ -15,11 +15,7 @@ import React, { useContext } from "react";
 import { useIntl } from "react-intl";
 
 import { Box, FormControl } from "@material-ui/core";
-import {
-    FunctionDefinitionInfo,
-    genVariableName,
-    getAllVariables,
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { FunctionDefinitionInfo, genVariableName, getAllVariables } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -29,6 +25,7 @@ import {
     createActionStatement,
     createCheckActionStatement,
     createCheckedRemoteServiceCall,
+    createCheckedResourceServiceCall,
     createRemoteServiceCall,
     getInitialSource,
 } from "../../../../../utils";
@@ -41,6 +38,7 @@ interface ActionFormProps {
     endpointName: string;
     isClassField: boolean;
     functionNode: STNode;
+    isHttp: boolean;
 }
 
 export function ActionForm(props: FormGeneratorProps) {
@@ -49,7 +47,7 @@ export function ActionForm(props: FormGeneratorProps) {
     const intl = useIntl();
     const { model, targetPosition, onCancel, onSave, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
-    const { action, endpointName, isClassField, functionNode } = formArgs as ActionFormProps;
+    const { action, endpointName, isClassField, functionNode, isHttp } = formArgs as ActionFormProps;
 
     const {
         props: { currentFile, stSymbolInfo, fullST, experimentalEnabled, ballerinaVersion },
@@ -78,31 +76,48 @@ export function ActionForm(props: FormGeneratorProps) {
         const parentWithError = isParentNodeWithErrorReturn(functionNode);
         imports = getReturnTypeImports(returnType);
 
-        initialSource = getInitialSource(
-            returnType.hasReturn
-                ? (returnType.hasError && parentWithError) // INFO: New code actions will update parent function and `check` keyword
-                    ? createCheckedRemoteServiceCall(
-                          returnType.returnType,
-                          genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
-                          endpointName,
-                          action.name,
-                          defaultParameters,
-                          targetPosition,
-                          isClassField
-                      )
-                    : createRemoteServiceCall(
-                          returnType.returnType,
-                          genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
-                          endpointName,
-                          action.name,
-                          defaultParameters,
-                          targetPosition,
-                          isClassField
-                      )
-                : (returnType.hasError && parentWithError)
-                ? createCheckActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
-                : createActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
-        );
+        if (isHttp) {
+            const path = defaultParameters.shift();
+            initialSource = getInitialSource(
+                createCheckedResourceServiceCall(
+                    returnType.returnType,
+                    genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
+                    endpointName,
+                    action.name,
+                    action.name === "get" ? "" : ".",
+                    defaultParameters,
+                    targetPosition,
+                    action.name !== "get",
+                    isClassField
+                )
+            );
+        } else {
+            initialSource = getInitialSource(
+                returnType.hasReturn
+                    ? returnType.hasError && parentWithError // INFO: New code actions will update parent function and `check` keyword
+                        ? createCheckedRemoteServiceCall(
+                              returnType.returnType,
+                              genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
+                              endpointName,
+                              action.name,
+                              defaultParameters,
+                              targetPosition,
+                              isClassField
+                          )
+                        : createRemoteServiceCall(
+                              returnType.returnType,
+                              genVariableName(`${action.name}Response`, getAllVariables(stSymbolInfo)),
+                              endpointName,
+                              action.name,
+                              defaultParameters,
+                              targetPosition,
+                              isClassField
+                          )
+                    : returnType.hasError && parentWithError
+                    ? createCheckActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
+                    : createActionStatement(endpointName, action.name, defaultParameters, targetPosition, isClassField)
+            );
+        }
     }
 
     // HACK
