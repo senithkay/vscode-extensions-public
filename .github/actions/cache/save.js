@@ -6,6 +6,10 @@ async function run() {
   try {
     const { pnpmCacheDir, rushCacheDir, rushSysCacheDir } = await consts;
     const { pnpmCacheKey, rushCacheKey, pnpmCacheExists, rushCacheExists } = process.env;
+    console.log(pnpmCacheKey);
+    console.log(rushCacheKey);
+    console.log(pnpmCacheExists);
+    console.log(rushCacheExists);
     // Save the PNPM cache
     if (!pnpmCacheExists) {
       await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
