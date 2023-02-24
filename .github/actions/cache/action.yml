@@ -2,8 +2,8 @@ name: 'Cache'
 description: 'Cache Rush and pnmp'
 runs:
   using: 'node16'
-  main: 'restore.js'
-  post: 'save.js'
+  main: 'dist/restore/restore.js'
+  post: 'dist/save/save.js'
 
 # steps:
 #   - uses: pnpm/action-setup@v2
