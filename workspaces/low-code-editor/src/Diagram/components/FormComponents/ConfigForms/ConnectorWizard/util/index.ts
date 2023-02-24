@@ -417,7 +417,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     type = formField.typeName;
                     response.hasReturn = true;
                 }
-                if (formField.typeName === "parameterized") {
+                if (formField.typeName === "parameterized" || (formField.name === "rowType" && formField.typeInfo.name === "rowType")) {
                     type = "record{}";
                     response.hasReturn = true;
                 }
@@ -458,7 +458,7 @@ export function getTargetBlock(targetPosition: NodePosition, blockNode: STNode):
         const blockStatements = blockNode.statements as STNode[];
         if (!blockStatements || blockStatements.length === 0) {
             // Empty block
-            return blockNode;
+            return blockNode as BlockStatement;
         }
 
         const targetBlock = blockStatements?.find(
@@ -467,7 +467,7 @@ export function getTargetBlock(targetPosition: NodePosition, blockNode: STNode):
                 block.position?.endLine >= targetPosition.startLine
         );
         if (!targetBlock) {
-            return blockNode;
+            return blockNode as BlockStatement;
         }
 
         switch (targetBlock.kind) {

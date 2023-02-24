@@ -4,9 +4,6 @@
 
 const path = require('path');
 const MergeIntoSingleFile = require('webpack-merge-and-include-globally');
-const logging = require('webpack/lib/logging/runtime');
-
-logging.getLogger("plugin-vscode").info('IS_RELEASE: ' + process.env.IS_RELEASE);
 
 /** @type {import('webpack').Configuration} */
 module.exports = {

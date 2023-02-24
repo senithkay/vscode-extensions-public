@@ -23,6 +23,9 @@ import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
 import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
+import { CellContainer, CellDiagram } from "./style";
+import { Gateways } from "../../gateway/Gateways/Gateways";
+import _ from "lodash";
 
 interface DiagramContainerProps {
     currentView: Views;
@@ -38,6 +41,11 @@ export function DiagramContainer(props: DiagramContainerProps) {
     const [serviceModels, setServiceModels] = useState<ServiceModels>(undefined);
     const [typeModel, setTypeModel] = useState<DiagramModel>(undefined);
 
+    const setServiceNCellModels = () => {
+        const genServiceModels = serviceModeller(workspaceComponents, workspacePackages)
+        setServiceModels(genServiceModels);
+    };
+
     useEffect(() => {
         if (currentView === Views.TYPE) {
             setTypeModel(entityModeller(workspaceComponents, workspacePackages));
@@ -45,7 +53,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
                 setServiceModels(undefined);
             }
         } else if (currentView !== Views.TYPE_COMPOSITION) {
-            setServiceModels(serviceModeller(workspaceComponents, workspacePackages));
+            setServiceNCellModels();
             if (typeModel) {
                 setTypeModel(undefined);
             }
@@ -57,7 +65,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
             if (currentView === Views.TYPE && !typeModel) {
                 setTypeModel(entityModeller(workspaceComponents, workspacePackages));
             } else if (currentView !== Views.TYPE && !serviceModels) {
-                setServiceModels(serviceModeller(workspaceComponents, workspacePackages));
+                setServiceNCellModels();
             }
         }
     }, [currentView])
@@ -65,8 +73,8 @@ export function DiagramContainer(props: DiagramContainerProps) {
     const hasModelLoaded = (): boolean => {
         switch (currentView) {
             case Views.L1_SERVICES:
-                return serviceModels !== undefined;
             case Views.L2_SERVICES:
+            case Views.CELL_VIEW:
                 return serviceModels !== undefined;
             case Views.TYPE:
                 return typeModel !== undefined;
@@ -76,7 +84,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
     }
 
     return (
-        <div>
+        <>
             {hasModelLoaded() ?
                 <>
                     {serviceModels &&
@@ -96,6 +104,18 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                     {...{currentView, layout}}
                                 />
                             </div>
+                            {currentView === Views.CELL_VIEW && 
+                                <CellDiagram>
+                                    <Gateways/>
+                                    <CellContainer>
+                                        <DiagramCanvasWidget
+                                            type={Views.CELL_VIEW}
+                                            model={serviceModels.cellModel}
+                                            {...{currentView, layout}}
+                                        />
+                                    </CellContainer>
+                                </CellDiagram>
+                            }
                         </>
                     }
                     {typeModel &&
@@ -119,6 +139,6 @@ export function DiagramContainer(props: DiagramContainerProps) {
                 </> :
                 <CircularProgress />
             }
-        </div>
+        </>
     );
 }

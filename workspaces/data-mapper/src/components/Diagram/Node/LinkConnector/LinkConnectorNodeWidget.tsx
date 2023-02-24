@@ -160,6 +160,12 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.portName)
                     : props.node.editorLabel)
             });
+        } else {
+            props.node.context.enableStatementEditor({
+                valuePosition: valueNode.position as NodePosition,
+                value: valueNode.source,
+                label: "Expression"
+            });
         }
     };
 

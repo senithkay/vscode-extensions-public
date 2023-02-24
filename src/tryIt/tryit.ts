@@ -30,18 +30,19 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     const codeServerContext: CodeServerContext = ballerinaExtInstance.getCodeServerContext();
 
-    commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (documentPath: string, serviceName: string, range: Position) => {
-        if (!documentPath) {
+    commands.registerCommand(PALETTE_COMMANDS.TRY_IT, async (docUri: string, serviceName: string, range: Position) => {
+        if (!docUri) {
             return;
         }
 
-        const filePath: Uri = Uri.parse(documentPath);
+        const fileUri: Uri = Uri.parse(docUri);
 
         await langClient.getSyntaxTree({
             documentIdentifier: {
-                uri: filePath.toString()
+                uri: fileUri.toString()
             }
         }).then(stResponse => {
+
             const response = stResponse as GetSyntaxTreeResponse;
             if (response.parseSuccess && response.syntaxTree) {
                 response.syntaxTree.members.forEach(async member => {
@@ -68,7 +69,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 
                                 await createGraphqlView(langClient, `http://localhost:${port}${path}`);
                             } else {
-                                await createSwaggerView(langClient, filePath.fsPath, serviceName, codeServerContext);
+                                await createSwaggerView(langClient, fileUri.fsPath, serviceName, codeServerContext);
                             }
                         }
                     }

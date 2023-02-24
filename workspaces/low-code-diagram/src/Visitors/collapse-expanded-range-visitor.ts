@@ -50,7 +50,7 @@ export class CollapseExpandedRangeVisitor implements Visitor {
         this.beginVisitBlock(node);
     }
 
-    beginVisitBlock(node: BlockStatement) {
+    beginVisitBlock(node: BlockStatement | FunctionBodyBlock) {
         const blockVS: BlockViewState = node.viewState as BlockViewState;
         const collapsedViewStates: CollapseViewState[] = blockVS.collapsedViewStates;
         const statements: STNode[] = node.statements;

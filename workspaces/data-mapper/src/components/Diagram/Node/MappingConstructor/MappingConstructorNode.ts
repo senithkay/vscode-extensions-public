@@ -36,6 +36,7 @@ import {
     getBalRecFieldName,
     getDefaultValue,
     getEnrichedRecordType,
+    getFilteredUnionOutputTypes,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
@@ -82,16 +83,20 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             {
                 this.rootName = this.typeDef.memberType?.name;
             }
+            if (this.typeDef.typeName === PrimitiveBalType.Union) {
+                this.typeName = getTypeName(this.typeDef);
+                const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
+                if (acceptedMembers.length === 1) {
+                    this.typeDef = acceptedMembers[0];
+                    this.rootName = acceptedMembers[0]?.name;
+                }
+            }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
-            this.typeName = getTypeName(this.typeDef.typeName === PrimitiveBalType.Union ? this.typeDef : valueEnrichedType.type);
+            this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
                 STKindChecker.isSelectClause(this.value), valueEnrichedType);
-            if (this.typeDef.typeName === PrimitiveBalType.Union){
-                // todo: check primitive and array types
-                this.rootName = valueEnrichedType?.type?.name;
-            }
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordField = valueEnrichedType;
                 if (this.recordField.childrenTypes.length) {
@@ -136,9 +141,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
             const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
-            const lm = new DataMapperLinkModel(value,
-                                            filterDiagnostics(this.context.diagnostics, value.position as NodePosition),
-                                            true);
+            const diagnostics = filterDiagnostics(
+                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
+            const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
                 const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
                 const keepDefault = ((mappedField && !mappedField?.name

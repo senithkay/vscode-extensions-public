@@ -11,17 +11,20 @@
  *  associated services.
  */
 
-import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing, VSCodeLink, VSCodePanelView, VSCodePanels } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext, useEffect, useState } from "react";
+import { css, cx } from "@emotion/css";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { ProjectSelector } from "../ProjectSelector/ProjectSelector";
 import { ComponentTypeSelector } from "./ComponetTypeSelector/ComponentTypeSelector";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
-import { ChoreoServiceComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoServiceComponentType, Component, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { GithubRepoBranchSelector } from "../GithubRepoBranchSelector/GithubRepoBranchSelector";
+import { ErrorBanner } from "../Commons/ErrorBanner";
+import { RequiredFormInput } from "../Commons/RequiredInput";
+import { LoadChoreoProjectPrompt } from "../Commons/LoadProjectPrompt";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -44,25 +47,75 @@ const RepoInfoContainer = styled.div`
     gap: 20px;
 `;
 
+const ErrorIcon = css`
+    color: var(--vscode-errorForeground);
+`;
+
 export function ComponentWizard() {
-    const { loginStatus, loginStatusPending, isChoreoProject, choreoProject } = useContext(ChoreoWebViewContext);
+    const { loginStatus, loginStatusPending, isChoreoProject, choreoProject, selectedOrg } = useContext(ChoreoWebViewContext);
 
     const [name, setName] = useState<string>('');
+    const [isDuplicateName, setIsDuplicateName] = useState<boolean>(false);
     const [inProgress, setProgressStatus] = useState<boolean>(false);
     const [projectId, setProjectId] = useState<string | undefined>(choreoProject?.id);
     const [description, setDescription] = useState<string | undefined>('');
     const [accessibility, setAccessibility] = useState<ComponentAccessibility>('external');
     const [selectedType, setSelectedType] = useState<ChoreoServiceComponentType>(ChoreoServiceComponentType.REST_API);
     const [repository, setRepository] = useState<string>('');
+    const [isRepoCloned, setIsRepoCloned] = useState<boolean>(false);
+    const [isCloneInProgress, setIsCloneInProgress] = useState<boolean>(false);
+
+    const [componentNames, setComponentNames] = useState<string[]>([]);
     const [showRepoSelector, setShowRepoSelector] = useState<boolean>(false);
     const [selectedBranch, setSelectedBranch] = useState<string>('');
     const [folderName, setFolderName] = useState<string>(name);
+    const [folderNameError, setFolderNameError] = useState<string>("");
+
+
+    const setSubFolderName = useCallback(async (fName: string) => {
+        setFolderName(fName);
+        if (repository && projectId) {
+            // TODO: Debounce
+            const isSubpathAvailable = await ChoreoWebViewAPI.getInstance().isSubpathAvailable({
+                orgName: repository.split('/')[0],
+                repoName: repository.split('/')[1],
+                subpath: fName,
+                projectID: projectId
+            });
+            if (!isSubpathAvailable) {
+                setFolderNameError("The folder name is already in use in the repository");
+            } else {
+                setFolderNameError("");
+            }
+        } else {
+            setFolderNameError("");
+        }
+    }, [projectId, repository]);
+
+    useEffect(() => {
+       const checkRepoCloneStatus = async () => {
+            if (projectId && repository && selectedBranch) {
+                const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+                if (projectPath) {
+                    const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
+                        repository,
+                        workspaceFilePath: projectPath,
+                        branch: selectedBranch
+                    });
+                    setIsRepoCloned(isCloned);
+                }
+            }
+        };
+        checkRepoCloneStatus();
+    }, [selectedBranch, repository, projectId]);
 
     useEffect(() => {
         if (isChoreoProject && choreoProject) {
             ChoreoWebViewAPI.getInstance().getProjectRepository(choreoProject?.id).then((repo: any) => {
                 if (repo) {
                     setRepository(repo);
+                } else {
+                    setShowRepoSelector(true);
                 }
             });
         }
@@ -70,9 +123,9 @@ export function ComponentWizard() {
 
     useEffect(() => {
         if (name) {
-            setFolderName(name);
+            setSubFolderName(name);
         }
-    }, [name]);
+    }, [name, setSubFolderName]);
 
     useEffect(() => {
         if (isChoreoProject && choreoProject) {
@@ -80,15 +133,36 @@ export function ComponentWizard() {
         }
     }, [isChoreoProject, choreoProject]);
 
-    const canCreateComponent = name && projectId && accessibility && selectedType && selectedBranch && folderName;
+    useEffect(() => {
+        if (isChoreoProject && choreoProject && projectId) {
+            ChoreoWebViewAPI.getInstance().getComponents(projectId).then((components: Component[]) => {
+                if (components.length) {
+                    setComponentNames(components.map(component => component.displayName.toLowerCase()));
+                }
+            });
+        }
+    }, [choreoProject, isChoreoProject, projectId]);
 
-    const handleComponentCreation = async () => {
+    const setComponentName = (name: string) => {
+        setName(name);
+
+        if (componentNames.includes(name.toLowerCase())) {
+            setIsDuplicateName(true);
+        } else if (isDuplicateName) {
+            setIsDuplicateName(false);
+        }
+    };
+
+    const canCreateComponent = name && !isDuplicateName && !folderNameError && projectId && accessibility && selectedType && selectedOrg && selectedBranch && folderName && isRepoCloned;
+
+    const handleComponentCreation = () => {
         if (canCreateComponent) {
             setProgressStatus(true);
-            await ChoreoWebViewAPI.getInstance().createComponent({
+            ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent({
                 name: name,
                 projectId: projectId,
-                type: selectedType,
+                org: selectedOrg,
+                displayType: selectedType,
                 accessibility: accessibility,
                 description: description ?? '',
                 repositoryInfo: {
@@ -97,15 +171,19 @@ export function ComponentWizard() {
                     branch: selectedBranch,
                     subPath: folderName
                 }
-            }).then(() => {
+            }).then((response: any) => {
                 setProgressStatus(false);
-                closeWebView();
+                if (response === true) {
+                    ChoreoWebViewAPI.getInstance().updateProjectOverview(projectId);
+                    closeWebView();
+                } else if (response?.message) {
+                    throw new Error(response.message);
+                }
             }).catch((err: Error) => {
                 ChoreoWebViewAPI.getInstance().showErrorMsg(err.message);
             });
         }
     };
-
 
     const closeWebView = () => {
         ChoreoWebViewAPI.getInstance().closeWebView();
@@ -117,22 +195,41 @@ export function ComponentWizard() {
         }
     };
 
+    const handleRepoClone = async () => {
+        if (projectId && repository && selectedBranch) {
+            setIsCloneInProgress(true);
+            const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+            if (projectPath) {
+                const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
+                    repository,
+                    workspaceFilePath: projectPath,
+                    branch: selectedBranch
+                });
+                setIsRepoCloned(isCloned);
+            }
+            setIsCloneInProgress(false);
+        }
+    };
+
     return (
         <>
             {loginStatus !== "LoggedIn" && <SignIn />}
-            {!loginStatusPending && loginStatus === "LoggedIn" && (
+            {!loginStatusPending && loginStatus === "LoggedIn" && !isChoreoProject && <LoadChoreoProjectPrompt />}
+            {!loginStatusPending && loginStatus === "LoggedIn" && isChoreoProject && (
                 <WizardContainer>
-                    <h2>Create New Choreo Component {(isChoreoProject && choreoProject) ? ` in ${choreoProject?.name} Project` : ''}</h2>
-                    {!isChoreoProject && <ProjectSelector currentProject={projectId} setProject={setProjectId} />}
+                    <h2>Create New Choreo Component {choreoProject ? ` in ${choreoProject?.name} Project` : ''}</h2>
                     <ComponentTypeSelector selectedType={selectedType} onChange={setSelectedType} />
                     <VSCodeTextField
                         autofocus
                         placeholder="Name"
-                        onInput={(e: any) => setName(e.target.value)}
+                        onInput={(e: any) => setComponentName(e.target.value)}
                         value={name}
                     >
-                        Component Name
+                        Component Name <RequiredFormInput />
+                        {isDuplicateName && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                     </VSCodeTextField>
+                    {isDuplicateName && <ErrorBanner errorMsg={`Component ${name} already exists.`} />}
+
                     <VSCodeTextArea
                         autofocus
                         placeholder="Description"
@@ -148,24 +245,46 @@ export function ComponentWizard() {
                         <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
                     </VSCodeDropdown>
 
-                    <VSCodePanels>
-                        <VSCodePanelView title="Repository Configuration">
-                            <RepoInfoContainer>
-                                <label htmlFor="repository">Selected Repository</label>
-                                <VSCodeTextField id="repository" value={repository} readOnly={!showRepoSelector} />
-                                <VSCodeLink onClick={() => setShowRepoSelector(!showRepoSelector)}>{showRepoSelector ? 'Hide Repositories' : 'Show Repositories'}</VSCodeLink>
-                                {showRepoSelector && <GithubRepoSelector onRepoSelect={handleRepoSelection} />}
-                                <GithubRepoBranchSelector repository={repository} onBranchSelected={setSelectedBranch} />
-                                <VSCodeTextField
-                                    placeholder="subfolder"
-                                    onInput={(e: any) => setFolderName(e.target.value)}
-                                    value={folderName}
-                                >
-                                    Sub Folder
-                                </VSCodeTextField>
-                            </RepoInfoContainer>
-                        </VSCodePanelView>
-                    </VSCodePanels>
+                    <RepoInfoContainer>
+                        <label htmlFor="repository">Repository <RequiredFormInput /></label>
+                        {!showRepoSelector &&
+                            <VSCodeTextField id="repository" value={repository} readOnly={true} />                            
+                        }
+                        {!showRepoSelector &&
+                            <VSCodeLink onClick={() => setShowRepoSelector(true)}>
+                                Change
+                            </VSCodeLink>
+                        }
+                        {(showRepoSelector)
+                            && <GithubRepoSelector onRepoSelect={handleRepoSelection} />}
+                        <GithubRepoBranchSelector repository={repository} onBranchSelected={setSelectedBranch} />
+                        
+                        {(repository && !isRepoCloned) &&
+                            <>
+                                Selected Repository is not available locally in Project folder. Clone the repository to continue.
+                                {!isCloneInProgress &&
+                                    <VSCodeLink onClick={handleRepoClone}>
+                                        Clone Repository
+                                    </VSCodeLink>
+                                }
+                                {isCloneInProgress && 
+                                    <>
+                                        <span>Cloning Repository...</span>
+                                        <VSCodeProgressRing />
+                                    </>
+                                }
+                            </>
+                        }
+                        <VSCodeTextField
+                            placeholder="Sub folder"
+                            onInput={(e: any) => setSubFolderName(e.target.value)}
+                            value={folderName}
+                        >
+                            Sub Folder <RequiredFormInput />
+                            {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
+                        </VSCodeTextField>
+                        {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
+                    </RepoInfoContainer>
 
                     <ActionContainer>
                         <VSCodeButton
@@ -174,14 +293,14 @@ export function ComponentWizard() {
                         >
                             Cancel
                         </VSCodeButton>
-                        {inProgress && <VSCodeProgressRing />}
                         <VSCodeButton
                             appearance="primary"
-                            disabled={!canCreateComponent}
+                            disabled={!canCreateComponent || inProgress}
                             onClick={handleComponentCreation}
                         >
                             Create
                         </VSCodeButton>
+                        {inProgress && <VSCodeProgressRing />}
                     </ActionContainer>
                 </WizardContainer>
             )}

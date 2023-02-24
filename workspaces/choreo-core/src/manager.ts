@@ -11,12 +11,29 @@
  *  associated services.
  */
 
-import { Project, Component } from "./types";
+import { Project, Component, ChoreoComponentCreationParams } from "./types";
 
 export interface IProjectManager {
-    // TODO Summayya: Add remaining methods
-    createComponent(componentDetails: unknown): Promise<string>;
+    createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
     getProjectDetails(): Promise<Project>;
     getProjectRoot(): Promise<string | undefined>;
     getLocalComponents(workspaceFilePath: string): Component[];
+    isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean>;
+    cloneRepo(params: RepoCloneRequestParams): Promise<boolean>;
 }
+
+export interface BallerinaComponentCreationParams {
+    name: string;
+    version: string;
+    org: string;
+    package: string;
+    directory: string;
+}
+
+export interface IsRepoClonedRequestParams {
+    repository: string;
+    branch: string;
+    workspaceFilePath: string;
+}
+
+export type RepoCloneRequestParams = IsRepoClonedRequestParams;

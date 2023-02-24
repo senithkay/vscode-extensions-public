@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 
 import { FormControl, FormHelperText } from "@material-ui/core";
+import { DIAGNOSTIC_SEVERITY } from "@wso2-enterprise/ballerina-languageclient";
 import { JsonToRecordResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
@@ -22,6 +23,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModulePart, NodePosition, STKindChecker, STNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
 import classNames from "classnames";
+import debounce from "lodash.debounce";
 
 import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
@@ -53,6 +55,8 @@ interface RecordFromJsonProps {
     onCancel: () => void;
     isHeaderHidden?: boolean;
 }
+
+const debounceDelay = 300;
 
 const reducer = (state: RecordState, action: { type: string, payload: any }) => {
     switch (action.type) {
@@ -124,11 +128,12 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
     const onNameChange = async (name: string) => {
         dispatchFromState({
             type: 'recordNameChange', payload: {
-                recordName: name,
+                recordName: `${name.charAt(0).toUpperCase()}${name.slice(1)}`,
                 recordNameDiag: ""
             }
         });
     };
+    const debouncedNameChanged = debounce(onNameChange, debounceDelay);
 
     const onSeparateDefinitionSelection = (mode: string[]) => {
         dispatchFromState({ type: 'checkSeparateDef', payload: mode.length > 0 });
@@ -162,7 +167,8 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                 let modulePart: STNode;
                 let newPosition: NodePosition;
                 const updatedBlock = formState.isSeparateDef ? recordResponse.codeBlock : formatRecord(recordResponse.codeBlock);
-                if (recordResponse?.diagnostics?.length === 0) {
+                if (recordResponse?.diagnostics?.length === 0 || (recordResponse?.diagnostics[0]?.severity
+                    !== DIAGNOSTIC_SEVERITY.ERROR)) {
                     if (formState.isSeparateDef) {
                         // Uses module part since we receive multiple records
                         modulePart = await getModulePartST({
@@ -231,7 +237,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
                             customProps={{ readonly: false, isErrored: formState?.recordNameDiag }}
                             errorMessage={formState?.recordNameDiag}
                             onBlur={onNameOutFocus}
-                            onChange={onNameChange}
+                            onChange={debouncedNameChanged}
                         />
                         <div className={classNames(classes.inputWrapper, classes.flexItems)}>
                             <div className={classes.labelWrapper}>

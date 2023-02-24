@@ -12,7 +12,13 @@ import { DiagramEngine, DragDiagramItemsState, PortModel } from '@projectstorm/r
 
 import { DMCanvasContainerID } from "../Canvas/DataMapperCanvasWidget";
 import { DiagnosticTooltipID } from "../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
+import { ListConstructorNode, MappingConstructorNode, PrimitiveTypeNode, RequiredParamNode } from '../Node';
 import { DataMapperNodeModel } from "../Node/commons/DataMapperNode";
+import { FromClauseNode } from '../Node/FromClause';
+import { JoinClauseNode } from "../Node/JoinClause";
+import { LetClauseNode } from "../Node/LetClause";
+import { LetExpressionNode } from "../Node/LetExpression";
+import { ModuleVariableNode } from "../Node/ModuleVariable";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 import { CreateLinkState } from './CreateLinkState';
@@ -74,10 +80,26 @@ export class DefaultState extends State<DiagramEngine> {
 		this.registerAction(
 			new Action({
 				type: InputType.MOUSE_UP,
-				fire: (event: ActionEvent<MouseEvent>) => {
-					const element = this.engine.getActionEventBus().getModelForEvent(event);
+				fire: (actionEvent: ActionEvent<MouseEvent>) => {
+					const element = this.engine.getActionEventBus().getModelForEvent(actionEvent);
+					const isExpandOrCollapse = (actionEvent.event.target as Element)
+						.closest('button[id^="button-wrapper"]');
+					const isAddElement = (actionEvent.event.target as Element)
+						.closest('button[id^="add-array-element"]');
 
-					if (element instanceof PortModel) this.transitionWithEvent(this.createLink, event);
+					if (!isExpandOrCollapse && !isAddElement && (element instanceof PortModel
+						|| element instanceof MappingConstructorNode
+						|| element instanceof ListConstructorNode
+						|| element instanceof PrimitiveTypeNode
+						|| element instanceof RequiredParamNode
+						|| element instanceof FromClauseNode
+						|| element instanceof LetExpressionNode
+						|| element instanceof ModuleVariableNode
+						|| element instanceof LetClauseNode
+						|| element instanceof JoinClauseNode
+					)) {
+						this.transitionWithEvent(this.createLink, actionEvent);
+					}
 				}
 			})
 		);

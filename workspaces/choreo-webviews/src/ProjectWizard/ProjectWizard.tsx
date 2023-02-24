@@ -18,6 +18,7 @@ import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
+import { RequiredFormInput } from "../Commons/RequiredInput";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -101,7 +102,7 @@ export function ProjectWizard() {
                         onInput={(e: any) => setProjectName(e.target.value)}
                         value={projectName}
                     >
-                        Project Name
+                        Project Name <RequiredFormInput />
                     </VSCodeTextField>
                     <VSCodeTextArea
                         placeholder="Description"
@@ -123,13 +124,15 @@ export function ProjectWizard() {
                             {error.message + error.cause}
                         </ErrorMessageContainer>
                     )}
-                    <VSCodeTextField
-                        autofocus
-                        readOnly={true}
-                        value={githubRepo}
-                    >
-                        Selected Repository
-                    </VSCodeTextField>
+                    {initMonoRepo && 
+                        <VSCodeTextField
+                            autofocus
+                            readOnly={true}
+                            value={githubRepo}
+                        >
+                            Selected Repository
+                        </VSCodeTextField>
+                    }
                     <ActionContainer>
 
                         <VSCodeButton

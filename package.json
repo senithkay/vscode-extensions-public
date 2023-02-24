@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "3.3.6-beta.4",
+    "version": "4.0.0-beta.0",
     "publisher": "wso2",
     "repository": {
         "type": "git",
@@ -14,7 +14,7 @@
         "theme": "light"
     },
     "engines": {
-        "vscode": "^1.60.0"
+        "vscode": "^1.65.0"
     },
     "categories": [
         "Programming Languages",
@@ -640,7 +640,6 @@
         "ui-test-setup": "npx extest get-vscode -c 1.68.0 && npx extest get-chromedriver -c 1.68.0 && npx extest install-vsix -f $(ls *.vsix)",
         "ui-test": "npm run test-compile && npx extest run-tests 'out/ui-test/*.test.js' --mocha_config ui-test/.mocharc.js -o ui-test/settings.json",
         "test-coverage": "cross-env COVER_CONFIG=html npm run test",
-        "package": "vsce package --no-dependencies",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
         "lint": "tslint --fix 'src/**/*{.ts,.tsx}'",
         "storybook": "npm run storybook --workspace=workspaces/low-code-editor",
@@ -654,6 +653,7 @@
         "build:lce": "npm run build --workspace=workspaces/low-code-editor",
         "build": "npm run build --workspaces",
         "build:choreo-dep": "npm run build --workspace=workspaces/choreo-core && npm run build --workspace=workspaces/choreo-client && npm run build --workspace=workspaces/choreo-webviews",
+        "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
         "postbuild": "npm run package"
     },
     "dependencies": {
@@ -690,7 +690,7 @@
         "js-yaml": "^4.1.0",
         "jwt-decode": "3.1.2",
         "keytar": "^7.7.0",
-        "kill-port-process": "2.3.0",
+        "kill-port": "2.0.1",
         "mocha": "^9.0.0",
         "pako": "^2.0.4",
         "pkce-challenge": "2.2.0",

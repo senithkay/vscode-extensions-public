@@ -28,21 +28,17 @@ import { debug } from "../utils";
 import { DefaultWebviewPanel } from "./performanceGraphPanel";
 import { MESSAGE_TYPE, showMessage } from "../utils/showMessage";
 import { PALETTE_COMMANDS } from "../project";
-import { URL } from "url";
-import { CMP_PERF_ANALYZER, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_PERF_GRAPH, TM_EVENT_PERF_REQUEST } from "../telemetry";
+import { CMP_PERF_ANALYZER, sendTelemetryEvent, TM_EVENT_OPEN_PERF_GRAPH, TM_EVENT_PERF_REQUEST } from "../telemetry";
+import { getChoreoExtAPI } from "../choreo-features/activate";
 
 export const SHOW_GRAPH_COMMAND = "ballerina.forecast.performance.showGraph";
-export const CHOREO_API_PF = process.env.VSCODE_CHOREO_GATEWAY_BASE_URI ?
-    `${process.env.VSCODE_CHOREO_GATEWAY_BASE_URI}/performance-analyzer/2.0.0/get_estimations/4.0` :
-    "https://choreocontrolplane.choreo.dev/93tu/performance-analyzer/2.0.0/get_estimations/4.0";
 
 const maxRetries = 5;
-const https = require('https');
 
 let langClient: ExtendedLangClient;
 let extension: BallerinaExtension;
 let retryAttempts = 0;
-const cachedResponses = new Map<any, PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse>();
+const cachedResponses = new Map<string, PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse>();
 const perfContext: PerfContext = {
     resourceData: undefined,
     advancedData: undefined,
@@ -250,14 +246,14 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
 // }
 
 // export function updatePerfPath(concurrency: number, column: ViewColumn | undefined) {
-    // ExecutorCodeLensProvider.dataLabels = [];
-    // addInvocationsPerformanceLabels(concurrency);
-    // ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
+// ExecutorCodeLensProvider.dataLabels = [];
+// addInvocationsPerformanceLabels(concurrency);
+// ExecutorCodeLensProvider.onDidChangeCodeLenses.fire();
 
-    // if (!perfContext.file) {
-    //     return;
-    // }
-    // window.showTextDocument(Uri.parse(perfContext.file), { viewColumn: column ?? ViewColumn.Beside });
+// if (!perfContext.file) {
+//     return;
+// }
+// window.showTextDocument(Uri.parse(perfContext.file), { viewColumn: column ?? ViewColumn.Beside });
 // }
 
 export function openPerformanceDiagram(request: PerformanceGraphRequest) {
@@ -276,7 +272,7 @@ export function showChoreoSigninMessage(extension: BallerinaExtension) {
     window.showInformationMessage("Please sign in to Choreo to view performance predictions.",
         action).then((selection) => {
             if (action === selection) {
-                commands.executeCommand('sessionExplorer.focus');
+                commands.executeCommand('choreo-account.focus');
             }
         });
     extension.getPerformanceForecastContext().infoMessageStatus.signinChoreo = false;
@@ -292,8 +288,7 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
 
     return new Promise((resolve, reject) => {
 
-        if (!extension.getChoreoSession().loginStatus || retryAttempts >= maxRetries) {
-            showChoreoSigninMessage(extension);
+        if (retryAttempts >= maxRetries) {
             return reject();
         }
 
@@ -309,87 +304,60 @@ export function getDataFromChoreo(data: any, analyzeType: ANALYZETYPE): Promise<
             return resolve(cachedResponses.get(data));
         }
 
-        const url = new URL(CHOREO_API_PF);
-        const choreoToken = extension.getChoreoSession().choreoAccessToken!;
+        getChoreoExtAPI().then(async (extApi) => {
+            if (extApi) {
+                if (!await extApi.waitForLogin()) {
+                    showChoreoSigninMessage(extension);
+                    return reject();
+                } else {
+                    try {
+                        const response = await extApi.getPerformanceForecastData(data);
+                        if (!response) {
+                            return reject();
+                        }
 
-        const options = {
-            hostname: url.hostname,
-            path: url.pathname,
-            port: 443,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': data.length,
-                'Authorization': `Bearer ${choreoToken}`
-            }
-        };
+                        const status = response.status;
+                        if (status != 200) {
+                            debug(`Perf Error - ${status} Status code. Retry counted. ${new Date()}`);
+                            debug(response.data);
+                            sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                                { 'is_successful': "false", 'error_code': `${response.status}` });
+                            handleRetries();
+                            reject();
+                        }
 
-        debug(`Calling perf API - ${url.toString()} - ${choreoToken} ${new Date()}`);
-        const req = https.request(options, res => {
-            var str = '';
-            res.on('data', function (chunk) {
-                str += chunk;
-            });
+                        const responseData = response.data;
+                        debug(`Perf Data received ${new Date()}`);
+                        debug(responseData);
 
-            res.on('end', function () {
-                if (res.statusCode != 200) {
-                    debug(`Perf Error - ${res.statusCode} Status code. Retry counted. ${new Date()}`);
-                    debug(str);
-                    sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
-                        { 'is_successful': "false", 'error_code': `${res.statusCode}` });
-                    handleRetries();
-                    reject();
-                }
+                        if (responseData.message) {
+                            debug(`Perf Error ${new Date()}`);
+                            sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                                { 'is_successful': "false", 'error_code': `${responseData.message}` });
+                            checkErrors(responseData);
+                            return reject();
+                        }
 
-                try {
-                    const res = JSON.parse(str);
-                    debug(`Perf Data received ${new Date()}`);
-                    debug(str);
+                        cachedResponses.set(responseData, responseData);
+                        if (analyzeType === ANALYZETYPE.REALTIME) {
+                            sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                                {
+                                    'is_successful': "true", 'type': `${analyzeType}`,
+                                    'is_low_data': `${((responseData as PerformanceAnalyzerRealtimeResponse).concurrency.max == 1)}`
+                                });
 
-                    if (res.message) {
-                        debug(`Perf Error ${new Date()}`);
-                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
-                            { 'is_successful': "false", 'error_code': `${res.message}` });
-                        checkErrors(res);
+                        } else {
+                            sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
+                                { 'is_successful': "true", 'type': `${analyzeType}` });
+
+                        }
+                        return resolve(responseData);
+                    } catch {
                         return reject();
                     }
-
-                    cachedResponses.set(data, res);
-                    if (analyzeType === ANALYZETYPE.REALTIME) {
-                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
-                            {
-                                'is_successful': "true", 'type': `${analyzeType}`,
-                                'is_low_data': `${((res as PerformanceAnalyzerRealtimeResponse).concurrency.max == 1)}`
-                            });
-
-                    } else {
-                        sendTelemetryEvent(extension, TM_EVENT_PERF_REQUEST, CMP_PERF_ANALYZER,
-                            { 'is_successful': "true", 'type': `${analyzeType}` });
-
-                    }
-                    return resolve(res);
-
-                } catch (e: any) {
-                    debug(`Perf Error - Response json parsing failed. Retry counted. ${new Date()}`);
-                    debug(str);
-                    debug(e.toString());
-                    sendTelemetryException(extension, e, CMP_PERF_ANALYZER);
-                    handleRetries();
-                    reject();
                 }
-            });
+            }
         });
-
-        req.on('error', error => {
-            debug(`Perf Error - Connection Error. Retry counted. ${new Date()}`);
-            debug(error);
-            sendTelemetryException(extension, error, CMP_PERF_ANALYZER);
-            handleRetries();
-            reject();
-        });
-
-        req.write(data);
-        req.end();
 
     });
 }

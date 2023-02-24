@@ -20,7 +20,13 @@ import { CodeAction, TextDocumentEdit, TextEdit } from "vscode-languageserver-pr
 import CodeActionIcon from "../../assets/icons/CodeActionIcon";
 import { StatementSyntaxDiagnostics } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { filterCodeActions, getContentFromSource, getStatementLine, getUpdatedSource } from "../../utils";
+import {
+    filterCodeActions,
+    getContentFromSource,
+    getStatementLine,
+    getUpdatedSource,
+    isPositionsEquals
+} from "../../utils";
 
 import { useStyles } from "./style";
 
@@ -80,7 +86,7 @@ export function CodeActionButton(props: CodeActionButtonProps) {
 
     const applyCodeAction = async (action: CodeAction) => {
         const editorActiveStatement = getContentFromSource(updatedSource, currentFile.draftPosition);
-        const editorActivePosition = { ...currentFile.draftPosition };
+        const editorActivePosition: NodePosition = { ...currentFile.draftPosition };
         let currentSource = updatedSource;
 
         if (!(editorActivePosition.endLine || editorActivePosition.endLine === 0)) {
@@ -88,28 +94,62 @@ export function CodeActionButton(props: CodeActionButtonProps) {
                 statementModel.position.endLine - statementModel.position.startLine + editorActivePosition.startLine;
         }
 
-        (action.edit?.documentChanges[0] as TextDocumentEdit).edits.reverse().forEach(async (change: TextEdit) => {
-            let changingPosition: NodePosition;
-            if (change.newText.indexOf("\n") !== 0) {
-                changingPosition = {
-                    endColumn: change.range.end.character,
-                    endLine: change.range.end.line,
-                    startColumn: change.range.start.character,
-                    startLine: change.range.start.line,
+        const reversedTextEdits = (action.edit?.documentChanges[0] as TextDocumentEdit).edits.reverse();
+
+        reversedTextEdits.forEach(textEdit => {
+            let targetedEditPosition: NodePosition;
+            if (textEdit.newText.indexOf("\n") !== 0) {
+                targetedEditPosition = {
+                    endColumn: textEdit.range.end.character,
+                    endLine: textEdit.range.end.line,
+                    startColumn: textEdit.range.start.character,
+                    startLine: textEdit.range.start.line,
                 };
             } else {
                 // statement with a new line
-                changingPosition = {
+                targetedEditPosition = {
                     startColumn: 0,
-                    startLine: change.range.start.line + 1,
+                    startLine: textEdit.range.start.line + 1,
                 };
             }
 
-            currentSource = getUpdatedSource(change.newText, currentSource, changingPosition, undefined, true, false);
-            if (changingPosition.startLine < editorActivePosition.startLine) {
+            currentSource = getUpdatedSource(textEdit.newText, currentSource, targetedEditPosition, undefined, true, false);
+            if (targetedEditPosition.startLine < editorActivePosition.startLine) {
                 const newLine = getStatementLine(currentSource, editorActiveStatement);
                 editorActivePosition.startLine = newLine;
                 editorActivePosition.endLine += newLine - editorActivePosition.startLine;
+            } else if (targetedEditPosition.startLine >= editorActivePosition.startLine
+                && targetedEditPosition.endLine <= editorActivePosition.endLine) {
+                // The text edit applies for the editorActiveExpression
+                const isSingleLinedExpr = editorActivePosition.startLine === editorActivePosition.endLine;
+                const newTextLines = textEdit.newText.split('\n');
+                const noOfNewTextLines = newTextLines.length - 1;
+                editorActivePosition.endLine = editorActivePosition.endLine + noOfNewTextLines;
+
+                if (isPositionsEquals(targetedEditPosition, editorActivePosition)) {
+                    // The entire editorActiveExpression is replaced by the text edit
+                    editorActivePosition.endColumn = isSingleLinedExpr
+                        ? noOfNewTextLines > 0
+                            ? newTextLines[newTextLines.length - 1].length
+                            : editorActivePosition.startColumn + textEdit.newText.length
+                        : newTextLines[newTextLines.length - 1].length;
+                } else if (targetedEditPosition.startColumn === editorActivePosition.startColumn && isSingleLinedExpr) {
+                    // The text edit appends as a prefix
+                    editorActivePosition.endColumn = noOfNewTextLines > 0
+                        ? newTextLines[newTextLines.length - 1].length + editorActiveStatement.length
+                        : editorActivePosition.startColumn + textEdit.newText.length + editorActiveStatement.length;
+                } else if (targetedEditPosition.endColumn === editorActivePosition.endColumn) {
+                    // The text edit appends as a suffix
+                    editorActivePosition.endColumn = noOfNewTextLines > 0
+                        ? newTextLines[newTextLines.length - 1].length
+                        : editorActivePosition.endColumn + textEdit.newText.length;
+                } else if (isSingleLinedExpr || (!isSingleLinedExpr && targetedEditPosition.startLine === editorActivePosition.endLine)) {
+                    // The text edit placed within editorActiveExpression
+                    const charsAfterTextEdit = editorActivePosition.endColumn - targetedEditPosition.startColumn
+                    editorActivePosition.endColumn = noOfNewTextLines > 0
+                        ? newTextLines[newTextLines.length - 1].length + charsAfterTextEdit
+                        : editorActivePosition.endColumn + textEdit.newText.length;
+                }
             }
         });
 
@@ -135,6 +175,7 @@ export function CodeActionButton(props: CodeActionButtonProps) {
                 transformOrigin={{ vertical: "top", horizontal: "left" }}
                 className={classes.menu}
                 data-testid="code-action-menu"
+                disableScrollLock={true}
             >
                 {actionMenuItems}
             </Menu>

@@ -12,14 +12,18 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "./types";
-import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery } from './project-queries';
+import { CreateComponentParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams } from "./types";
+import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery, getRepoMetadataQuery } from './project-queries';
 import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
+import { getHttpClient } from '../http-client';
+import { AxiosResponse } from 'axios';
+
+const API_CALL_ERROR = "API CALL ERROR";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI: string, private _swaggerExamplesAPI: string) {
     }
 
     private async _getClient() {
@@ -81,6 +85,61 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             return data.createComponent;
         } catch (error) {
             throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
+        const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
+        if (!choreoToken) {
+            throw new Error('User is not logged in');
+        }
+
+        console.log(`Calling perf API - ${new Date()}`);
+        try {
+            return await getHttpClient()
+                .post(this._perfAPI, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        'Authorization': `Bearer ${choreoToken.accessToken}`
+                    }
+                });
+        } catch (err) {
+            throw new Error(API_CALL_ERROR, { cause: err });
+        }
+    }
+
+    async getSwaggerExamples(data: any): Promise<AxiosResponse> {
+        const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
+        if (!choreoToken) {
+            throw new Error('User is not logged in');
+        }
+
+        console.log(`Calling swagger sample generator API - ${new Date()}`);
+        try {
+            return await getHttpClient()
+                .post(this._swaggerExamplesAPI, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        'Authorization': `Bearer ${choreoToken.accessToken}`
+                    },
+                    timeout: 15000
+                });
+        } catch (err) {
+            throw new Error(API_CALL_ERROR, { cause: err });
+        }
+    }
+
+    async isComponentInRepo(params: RepoParams): Promise<boolean> {
+        const { orgApp, repoApp, branchApp, subPath } = params;
+        const query = getRepoMetadataQuery(orgApp, repoApp, branchApp, subPath);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.repoMetadata.isSubPathValid;
+        } catch (error) {
+            throw new Error("Error while executing " + query, { cause: error, });
         }
     }
 

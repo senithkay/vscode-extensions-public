@@ -3,6 +3,18 @@ name: Publish VSIX to VSCode Marketplace and OpenVSX
 on:
   workflow_dispatch:
     inputs:
+      extension:
+        type: choice
+        description: 'Select the extension'
+        required: true
+        default: 'ballerina'
+        options:
+          - 'ballerina'
+          - 'choreo' 
+      isPreRelease:
+        required: true
+        type: boolean 
+        default: false
       vscode:
         description: Publish to VSCode marketplace
         type: boolean
@@ -33,6 +45,11 @@ jobs:
           run_id: ${{ github.event.inputs.workflowRunId }}
           name: VSIX
 
+      - name: Unzip
+        run: |
+          unzip VSIX.zip
+          rm VSIX.zip
+
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
         with:
@@ -45,13 +62,22 @@ jobs:
       - name: Get version
         id: vsix
         run: | 
-          file=$(ls *.vsix)
+          file=$(ls ${{ github.event.inputs.extension }}*.vsix)
           fileName=${file#*-}
           version=${fileName%.*}
+          extension=${{ github.event.inputs.extension }}
+          extensionName="$(echo "$extension" | sed 's/.*/\u&/')"
           echo "vsixName=$file" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
+          echo "extensionName=$extensionName" >> $GITHUB_OUTPUT
+          if [ "${{ github.event.inputs.isPreRelease }}" == "true" ]; then
+            echo "releaseMode=--pre-release" >> $GITHUB_OUTPUT
+          else
+            echo "releaseMode= " >> $GITHUB_OUTPUT
+          fi  
 
       - name: Create a release in wso2/ballerina-plugin-vscode repo
+        if: ${{ github.event.inputs.extension == 'ballerina' && github.event.inputs.isPreRelease == 'false' }}
         run: |
           id=`curl -X GET  -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" \
@@ -64,11 +90,11 @@ jobs:
 
       - name: Publish to VSCode marketplace
         if: ${{ github.event.inputs.vscode == 'true' }}
-        run: vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }}
+        run: vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}
 
       - name: Publish to OpenVSX marketplace
-        if: ${{ github.event.inputs.openVSX == 'true' }}
-        run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }}
+        if: ${{ github.event.inputs.openVSX == 'true' && github.event.inputs.isPreRelease == 'false' }}
+        run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}
 
       - name: "Release Notification"
         if: ${{ github.event.inputs.notify == 'true' }}
@@ -77,6 +103,10 @@ jobs:
           {
             "cards": [
               {
+                "header": {
+                    "title": "Marketplace Release",
+                    "subtitle": "${{ steps.vsix.outputs.extensionName }} Extension"
+                },
                 "sections": [
                   {
                     "widgets": [
@@ -90,7 +120,7 @@ jobs:
                               "text": "View",
                               "onClick": {
                                 "openLink": {
-                                  "url": "https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina"
+                                  "url": "https://marketplace.visualstudio.com/items?itemName=WSO2.${{ github.event.inputs.extension }}"
                                 }
                               }
                             }
@@ -107,7 +137,7 @@ jobs:
                               "text": "View",
                               "onClick": {
                                 "openLink": {
-                                  "url": "https://open-vsx.org/extension/wso2/ballerina"
+                                  "url": "https://open-vsx.org/extension/wso2/${{ github.event.inputs.extension }}"
                                 }
                               }
                             }
@@ -125,5 +155,5 @@ jobs:
           curl \
             -X POST \
             -H 'Content-Type: application/json' \
-            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D" \
+            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ github.event.inputs.workflowRunId }}" \
             -d "$body"

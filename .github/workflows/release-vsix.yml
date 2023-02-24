@@ -3,29 +3,36 @@ name: Release VSIX
 on:
   workflow_dispatch:
     inputs:
+      isPreRelease:
+        required: true
+        type: boolean 
       version:
         type: choice
         description: 'Enter the version type'
         required: true
-        default: 'prerelease'
+        default: 'N/A'
         options:
           - 'patch'
           - 'minor'
           - 'major'
+          - 'prepatch'
+          - 'preminor'
+          - 'premajor'
           - 'prerelease'     
+          - 'N/A'     
 
 jobs:
   Build:
     uses: ./.github/workflows/build.yml
     with:
-      isRelease: true
-      version: ${{ github.event.inputs.version }}
+      isPreRelease: ${{ inputs.isPreRelease }}
+      version: ${{ inputs.version }}
     secrets: inherit  
 
   Release:
     name: Release VSIX
     needs: [Build]
-    timeout-minutes: 5
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
@@ -52,17 +59,11 @@ jobs:
       - name: Get version
         id: vsix
         run: |
-          file=$(ls *.vsix)
+          file=$(ls ballerina*.vsix)
           fileName=${file#*-}
           version=${fileName%.*}
           echo "vsixName=$file" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
-
-      - name: Upload VSIX
-        uses: actions/upload-artifact@v3
-        with:
-          path: ${{ steps.vsix.outputs.vsixName }}
-          name: VSIX
 
       - name: Create a release in wso2/ballerina-plugin-vscode repo
         run: |
@@ -77,9 +78,11 @@ jobs:
 
       - name: Publish low code diagram
         run: |
-          cd ballerina-low-code-editor
-          npm version ${{ steps.vsix.outputs.version }} --no-git-tag-version --workspaces
-          npm publish --tag latest --workspaces
+          workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree")
+          for workspace in "${workspaces[@]}"; do
+            npm version ${{ steps.vsix.outputs.version }} --no-git-tag-version --workspace=workspaces/$workspace
+            npm publish --tag latest --workspace=workspaces/$workspace
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
@@ -160,7 +163,7 @@ jobs:
           curl \
             -X POST \
             -H 'Content-Type: application/json' \
-            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D" \
+            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ github.run_id }}" \
             -d "$body"
 
   Notify:
@@ -212,5 +215,5 @@ jobs:
           curl \
             -X POST \
             -H 'Content-Type: application/json' \
-            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D" \
+            "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ github.run_id }}" \
             -d "$body"

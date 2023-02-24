@@ -20,12 +20,17 @@ import { BallerinaExtension } from "src/core";
 import { URLSearchParams } from "url";
 import { window, Uri, ProviderResult, extensions } from "vscode";
 import { Project } from "@wso2-enterprise/choreo-core";
+import { ComponentModel } from "../project-design-diagrams/resources";
+import { AxiosResponse } from "axios";
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
     waitForLogin(): Promise<boolean>;
     getChoreoProject(): Promise<Project|undefined>;
     isChoreoProject(): Promise<boolean>;
+    getPerformanceForecastData(data: string): Promise<AxiosResponse<any>>;
+    getSwaggerExamples(spec: any): Promise<AxiosResponse<any>>;
+    enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined>;
 }
 
 export async function getChoreoExtAPI(): Promise<IChoreoExtensionAPI | undefined> {
@@ -55,7 +60,7 @@ export function activateChoreoFeatures(balExt: BallerinaExtension) {
                                 window.showErrorMessage(`Choreo Login Failed: Choreo Extension not found!`);
                             }
                         }).catch(() => {
-                            window.showErrorMessage(`Choreo Login Failed: Choreo Extension activation failed!`)
+                            window.showErrorMessage(`Choreo Login Failed: Choreo Extension activation failed!`);
                         });
                 } else {
                     window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);

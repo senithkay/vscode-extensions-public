@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands, WebviewPanel, window, workspace, Uri, ProgressLocation } from "vscode";
+import { commands, WebviewPanel, window, Uri, ProgressLocation } from "vscode";
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from 'vscode-messenger-common';
 import {
@@ -20,27 +20,32 @@ import {
     CloseWebViewNotification, serializeError,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
-    ComponentWizardInput, CreateComponentRequest, ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo,
-    OpenArchitectureView
+    OpenArchitectureView,
+    HasUnpushedComponents, Component, UpdateProjectOverview,
+    isSubpathAvailable,
+    SubpathAvailableRequest
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
-import { ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager';
+import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';
 
 import { ext } from "../../../extensionVariables";
 import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
+import { existsSync } from "fs";
 
 export class WebViewRpc {
 
     private _messenger = new Messenger();
+    private _panel: WebviewPanel | undefined;
     private _manager = new ChoreoProjectManager();
 
     constructor(view: WebviewPanel) {
-        this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
+        this.registerPanel(view);
 
         this._messenger.onRequest(GetLoginStatusRequest, () => {
             return ext.api.status;
@@ -60,26 +65,6 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllProjectsRequest, async () => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getProjects(ext.api.selectedOrg.id);
-            }
-        });
-
-        // TODO: Refactor structure
-        this._messenger.onRequest(CreateComponentRequest, async (args: ComponentWizardInput) => {
-            if (ext.api.selectedOrg) {
-                const workspaceFilePath = workspace.workspaceFile?.fsPath;
-                if (workspaceFilePath) {
-                    return this._manager.createComponent({
-                        org: ext.api.selectedOrg,
-                        projectId: args.projectId,
-                        name: args.name,
-                        displayType: args.type,
-                        accessibility: args.accessibility,
-                        workspaceFilePath: workspaceFilePath,
-                        repositoryInfo: args.repositoryInfo
-                    });
-                } else {
-                    throw new Error("Failed to detect the project workpsace.");
-                }
             }
         });
 
@@ -128,12 +113,20 @@ export class WebViewRpc {
             return ext.api.isChoreoProject();
         });
 
+        this._messenger.onRequest(isSubpathAvailable, (params: SubpathAvailableRequest) => {   
+            return ProjectRegistry.getInstance().isSubpathAvailable(params.projectID, params.orgName, params.repoName, params.subpath);
+        });
+
         this._messenger.onRequest(getChoreoProject, () => {
             return ext.api.getChoreoProject();
         });
 
         this._messenger.onRequest(OpenArchitectureView, () => {
             commands.executeCommand("ballerina.view.architectureView");
+        });
+
+        this._messenger.onRequest(UpdateProjectOverview, (projectId: string) => {
+            ext.api.projectUpdated();
         });
 
         this._messenger.onRequest(PushLocalComponentsToChoreo, async (projectId: string): Promise<void> => {
@@ -149,6 +142,9 @@ export class WebViewRpc {
             });
         });
 
+        this._messenger.onRequest(HasUnpushedComponents, async (projectID: string): Promise<boolean> => {
+            return ProjectRegistry.getInstance().hasUnpushedComponents(projectID);
+        });
 
         ext.api.onStatusChanged((newStatus) => {
             this._messenger.sendNotification(LoginStatusChangedNotification, BROADCAST, newStatus);
@@ -178,5 +174,21 @@ export class WebViewRpc {
 
         // Register RPC handlers for Choreo Github app client
         registerChoreoGithubRPCHandlers(this._messenger, githubAppClient);
+
+        // Register RPC handlers for the Choreo Project Manager
+        registerChoreoProjectManagerRPCHandlers(this._messenger, this._manager);
+    }
+
+    public get panel(): WebviewPanel | undefined {
+        return this._panel;
+    }
+
+    public registerPanel(view: WebviewPanel) {
+        if (!this._panel) {
+            this._messenger.registerWebviewPanel(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
+            this._panel = view;
+        } else {
+            throw new Error("Panel already registered");
+        }
     }
 }

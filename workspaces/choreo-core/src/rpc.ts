@@ -11,7 +11,14 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project, ComponentWizardInput, Component } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component } from './types';
+
+export interface SubpathAvailableRequest {
+      subpath: string;
+      orgName: string;
+      repoName: string;
+      projectID: string;
+}
 
 // request types 
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
@@ -19,7 +26,6 @@ export const GetCurrentOrgRequest: RequestType<string, Organization> = { method:
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
-export const CreateComponentRequest: RequestType<ComponentWizardInput, string> = { method: 'createComponent' };
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
 export const GetProjectLocation: RequestType<string, string | undefined> = { method: 'getProjectLocation' };
 export const OpenExternal: RequestType<string, void> = { method: 'openExternal' };
@@ -28,11 +34,13 @@ export const CloneChoreoProject: RequestType<string, void> = { method: 'cloneCho
 export const setProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setProjectRepository' };
 export const getProjectRepository: RequestType<string, string> = { method: 'getProjectRepository' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
+export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
-
+export const HasUnpushedComponents: RequestType<string, boolean> = { method: 'hasUnpushedComponents' };
+export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
 
 
 // notification types

@@ -101,19 +101,22 @@ function setupWebviewPanel() {
                                 const range: Range = new Range(startPosition, endPosition);
                                 textEditor.revealRange(range, TextEditorRevealType.InCenter);
                                 textEditor.selection = new Selection(range.start, range.start);
-                            })
-                        })
+                            });
+                        });
                     }
                     return;
                 }
             }
         });
 
-        workspace.onDidChangeTextDocument(debounce(() => {
+        const refreshDiagram = debounce(() => {
             if (designDiagramWebview) {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
             }
-        }, 500));
+        }, 500);
+
+        workspace.onDidChangeTextDocument(refreshDiagram);
+        workspace.onDidChangeWorkspaceFolders(refreshDiagram);
 
         ProjectDesignRPC.create(designDiagramWebview, langClient);
 

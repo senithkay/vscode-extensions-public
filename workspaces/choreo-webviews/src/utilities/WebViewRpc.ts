@@ -19,15 +19,14 @@ import {
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
     ChoreoLoginStatus, SelectedProjectChangedNotification,
     Organization, Project, CloseWebViewNotification,
-    ComponentWizardInput,
-    CreateComponentRequest,
-    ShowErrorMessage, Component,
-    GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
-    PushLocalComponentsToChoreo, OpenArchitectureView
+    ShowErrorMessage, Component, GetProjectLocation, OpenExternal,
+    OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
+    PushLocalComponentsToChoreo, OpenArchitectureView, HasUnpushedComponents, UpdateProjectOverview, isSubpathAvailable, SubpathAvailableRequest
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
+import { ChoreoProjectManagerRPCWebview } from "@wso2-enterprise/choreo-client/lib/manager/rpc/manager-client-rpc-webview";
 
 import type { WebviewApi } from "vscode-webview";
 import { vscode } from "./vscode";
@@ -37,12 +36,14 @@ export class ChoreoWebViewAPI {
     private static _instance: ChoreoWebViewAPI;
     private _projectClientRpc: ChoreoProjectClientRPCWebView;
     private _githubAppClient: ChoreoGithubAppClientRPCWebView;
+    private _choreoProjectManager: ChoreoProjectManagerRPCWebview;
 
     constructor(vscodeAPI: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscodeAPI);
         this._messenger.start();
         this._projectClientRpc = new ChoreoProjectClientRPCWebView(this._messenger);
         this._githubAppClient = new ChoreoGithubAppClientRPCWebView(this._messenger);
+        this._choreoProjectManager = new ChoreoProjectManagerRPCWebview(this._messenger);
     }
 
     public async getLoginStatus(): Promise<ChoreoLoginStatus> {
@@ -59,10 +60,6 @@ export class ChoreoWebViewAPI {
 
     public async getAllProjects(): Promise<Project[]> {
         return this._messenger.sendRequest(GetAllProjectsRequest, HOST_EXTENSION, '');
-    }
-
-    public async createComponent(args: ComponentWizardInput): Promise<string> {
-        return this._messenger.sendRequest(CreateComponentRequest, HOST_EXTENSION, args);
     }
 
     public async getComponents(projectId: string): Promise<Component[]> {
@@ -95,6 +92,10 @@ export class ChoreoWebViewAPI {
 
     public async isChoreoProject(): Promise<boolean> {
         return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async isSubpathAvailable(params: SubpathAvailableRequest): Promise<boolean> {
+        return this._messenger.sendRequest(isSubpathAvailable, HOST_EXTENSION, params);
     }
 
     public async getChoreoProject(): Promise<Project | undefined> {
@@ -137,6 +138,10 @@ export class ChoreoWebViewAPI {
         return this._githubAppClient;
     }
 
+    public getChoreoProjectManager(): ChoreoProjectManagerRPCWebview {
+        return this._choreoProjectManager;
+    }
+
     public closeWebView() {
         this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
     }
@@ -146,5 +151,13 @@ export class ChoreoWebViewAPI {
             this._instance = new ChoreoWebViewAPI(vscode);
         }
         return this._instance;
+    }
+
+    public async hasUnpushedComponents(projectId: string): Promise<boolean> {
+        return this._messenger.sendRequest(HasUnpushedComponents, HOST_EXTENSION, projectId);
+    }
+
+    public updateProjectOverview(projectId: string) {
+        return this._messenger.sendRequest(UpdateProjectOverview, HOST_EXTENSION, projectId);
     }
 }
