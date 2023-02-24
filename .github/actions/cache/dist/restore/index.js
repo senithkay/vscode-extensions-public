@@ -62384,6 +62384,11 @@ const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir 
 
 async function run() {
     try {
+        console.log(pnpmCacheKey);
+        console.log(pnpmCacheDir);
+        console.log(rushCacheKey);
+        console.log(rushCacheDir);
+        console.log(rushSysCacheDir);
         const pnpmCacheHit = await cache.restoreCache([pnpmCacheDir], pnpmCacheKey);
         if (pnpmCacheHit) {
             core.info(`PNPM cache restored from key ${pnpmCacheKey}`);
