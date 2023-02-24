@@ -67,6 +67,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
 
     const showNewForms = isStatementEditorSupported(ballerinaVersion);
     const isLoading = fetchingMetadata || retrievingAction;
+    const isHttp = selectedConnector?.moduleName === "http";
 
     useEffect(() => {
         setWizardStep(getInitialWizardStep());
@@ -312,6 +313,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                         formArgs: {
                             actions: selectedConnector?.functions,
                             onSelect: handleSelectAction,
+                            isHttp
                         },
                         isLoading,
                     }}
@@ -342,10 +344,10 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                         formType: "ActionForm",
                         formArgs: {
                             action: selectedAction,
-                            connector: selectedConnector,
                             endpointName: selectedEndpoint,
                             isClassField,
-                            functionNode
+                            functionNode,
+                            isHttp,
                         },
                         isLoading,
                     }}
