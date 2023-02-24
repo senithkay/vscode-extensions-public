@@ -4,46 +4,46 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
 
-  steps:
-    - uses: pnpm/action-setup@v2
-      with:
-        version: 7.26.3
+steps:
+  - uses: pnpm/action-setup@v2
+    with:
+      version: 7.26.3
 
-    - name: Use Node.js 16.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16.x
+  - name: Use Node.js 16.x
+    uses: actions/setup-node@v3
+    with:
+      node-version: 16.x
 
-    - name: Cache Rush
-      uses: actions/cache@v2
-      with:
-        path: |
-          common/temp/install-run
-          ~/.rush
-        key: Rush-cache-${{ hashFiles('rush.json') }}
+  - name: Cache Rush
+    uses: actions/cache@v2
+    with:
+      path: |
+        common/temp/install-run
+        ~/.rush
+      key: Rush-cache-${{ hashFiles('rush.json') }}
 
-    - name: Cache pnpm
-      uses: actions/cache@v3
-      with:
-        path: |
-          common/temp/pnpm-store
-          ~/.cache/Cypress
-        key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+  - name: Cache pnpm
+    uses: actions/cache@v3
+    with:
+      path: |
+        common/temp/pnpm-store
+        ~/.cache/Cypress
+      key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-    - name: Build Cache
-      uses: actions/cache@v3
-      with:
-        path: common/temp/build-cache
-        key: build-cache
+  - name: Build Cache
+    uses: actions/cache@v3
+    with:
+      path: common/temp/build-cache
+      key: build-cache
 
-    - name: Install node modules
-      shell: bash
-      run: node common/scripts/install-run-rush.js install        
+  - name: Install node modules
+    shell: bash
+    run: node common/scripts/install-run-rush.js install        
 
-  post:
-    if: ${{ success() }}
-    - name: Build Cache
-      uses: actions/cache/save@v3
-      with:
-        path: common/temp/build-cache
-        key: build-cache
+post:
+  if: ${{ success() }}
+  - name: Build Cache
+    uses: actions/cache/save@v3
+    with:
+      path: common/temp/build-cache
+      key: build-cache
