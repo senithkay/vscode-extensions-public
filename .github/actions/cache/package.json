@@ -2,6 +2,7 @@
     "name": "rush-cache",
     "version": "1.0.0",
     "description": "Setup rush cache",
+    "type": "module",
     "repository": "https://github.com/gigara/rush-cache",
     "author": "Chamupathi Gigara Hettige",
     "license": "MIT",
