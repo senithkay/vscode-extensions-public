@@ -28,8 +28,6 @@ import { AccountTreeProvider } from './views/account/AccountTreeProvider';
 import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
 import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 
-import { initGit } from "./git/main";
-
 import { activateWizards } from './wizards/activate';
 
 import { getLogger, initLogger } from "./logger/logger";
@@ -52,7 +50,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.accountTreeView = createAccountTreeView();
 	activateAuth();
 	ext.isPluginStartup = false;
-	ext.git = await initGit(context);
 	activateBallerinaExtension();
 	activateWizards();
 	activateURIHandlers();

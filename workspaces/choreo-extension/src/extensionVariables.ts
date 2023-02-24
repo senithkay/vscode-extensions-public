@@ -19,8 +19,7 @@ export class ExtensionVariables {
     public context!: ExtensionContext;
     public isPluginStartup!: boolean;
     public api!: ChoreoExtensionApi;
-    public statusBarItem!: StatusBarItem; 
-    public git!: Git|undefined;
+    public statusBarItem!: StatusBarItem;
 
     // views
     public projectsTreeView!: TreeView<TreeItem>;

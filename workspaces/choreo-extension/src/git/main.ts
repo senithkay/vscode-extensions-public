@@ -13,7 +13,7 @@ import { createIPCServer, IPCServer } from './ipc/ipcServer';
 import { getLogger } from '../logger/logger';
 import { GithubCredentialProviderManager } from './github/credentialProvider';
 
-async function _init(context: ExtensionContext, disposables: Disposable[]): Promise<Git> {
+async function _init(context: ExtensionContext, disposables: Disposable[]): Promise<Git|undefined> {
 	const pathValue = workspace.getConfiguration('git').get<string | string[]>('path');
 	let pathHints = Array.isArray(pathValue) ? pathValue : pathValue ? [pathValue] : [];
 
@@ -84,52 +84,37 @@ async function isGitRepository(folder: WorkspaceFolder): Promise<boolean> {
 }
 
 async function warnAboutMissingGit(): Promise<void> {
-	const config = workspace.getConfiguration('git');
-	const shouldIgnore = config.get<boolean>('ignoreMissingGitWarning') === true;
-
-	if (shouldIgnore) {
-		return;
-	}
-
-	if (!workspace.workspaceFolders) {
-		return;
-	}
-
-	const areGitRepositories = await Promise.all(workspace.workspaceFolders.map(isGitRepository));
-
-	if (areGitRepositories.every(isGitRepository => !isGitRepository)) {
-		return;
-	}
 
 	const download = l10n.t('Download Git');
-	const neverShowAgain = l10n.t('Don\'t Show Again');
+	const installLater = l10n.t('Install Later');
 	const choice = await window.showWarningMessage(
 		l10n.t('Git not found. Install it or configure it using the "git.path" setting.'),
 		download,
-		neverShowAgain
+		installLater
 	);
 
 	if (choice === download) {
 		commands.executeCommand('vscode.open', Uri.parse('https://aka.ms/vscode-download-git'));
-	} else if (choice === neverShowAgain) {
-		await config.update('ignoreMissingGitWarning', true, true);
 	}
 }
 
 export async function initGit(context: ExtensionContext): Promise<Git|undefined> {
 	const disposables: Disposable[] = [];
 	context.subscriptions.push(new Disposable(() => Disposable.from(...disposables).dispose()));
-
+	let git: Git|undefined;
 	try {
-		return await _init(context, disposables);
+		git = await _init(context, disposables);
 	} catch (err: any) {
 		if (!/Git installation not found/.test(err.message || '')) {
-			throw err;
+			getLogger().error("Error initializing git. ", err);
+			window.showErrorMessage(err.message);
+			return;
 		}
 		console.warn(err.message);
 		commands.executeCommand('setContext', 'git.missing', true);
 		warnAboutMissingGit();
 	}
+	return git;
 }
 
 async function checkGitv1(info: IGit): Promise<void> {

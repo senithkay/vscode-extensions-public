@@ -21,6 +21,7 @@ import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
 import { getLogger } from '../logger/logger';
 import { execSync } from 'child_process';
+import { initGit } from '../git/main';
 
 export function checkSSHAccessToGitHub() {
     try {
@@ -69,7 +70,7 @@ export const cloneRepoToCuurentProjectWorkspace = async (params: RepoCloneReques
         if (cancelled) {
             return;
         }
-        const git = ext.git;
+        const git = await initGit(ext.context);
         if (git) {
             await git.clone(`https://github.com/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken);        
             // const _result = await simpleGit().clone(`git@github.com:${repository}.git`, repoPath, ["--recursive", "--branch", branch]);
@@ -156,11 +157,6 @@ export const cloneProject = async (project: Project) => {
                 cancelled = true;
             });
 
-            const hasSSHAccess = checkSSHAccessToGitHub();
-            if (!hasSSHAccess) {
-                return;
-            }
-
             const components = await projectClient.getComponents({ orgHandle: selectedOrg.handle, projId: id });
             const userManagedComponents = components.filter((cmp) => cmp.repository && cmp.repository.isUserManage);
             const repos = components.map((cmp) => cmp.repository);
@@ -220,7 +216,7 @@ export const cloneProject = async (project: Project) => {
                     location: ProgressLocation.Notification,
                     cancellable: true
                 }, async (progress, cancellationToken) => {
-                    const git = ext.git;
+                    const git = await initGit(ext.context);
                     if (git) {
                         await git.clone(`https://github.com/${organizationApp}/${nameApp}.git`, { recursive: true, ref: branchApp, parentPath: repoOrgPath, progress }, cancellationToken);        
                         // const _result = await simpleGit().clone(`git@github.com:${repository}.git`, repoPath, ["--recursive", "--branch", branch]);

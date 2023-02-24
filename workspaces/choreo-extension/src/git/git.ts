@@ -131,9 +131,9 @@ function findSystemGitWin32(base: string, onValidate: (path: string) => boolean)
 	return findSpecificGit(path.join(base, 'Git', 'cmd', 'git.exe'), onValidate);
 }
 
-function findGitWin32InPath(onValidate: (path: string) => boolean): Promise<IGit> {
-	const whichPromise = new Promise<string>((c, e) => which('git.exe', (err, path) => err ? e(err) : c(path || '')));
-	return whichPromise.then(path => findSpecificGit(path, onValidate));
+async function findGitWin32InPath(onValidate: (path: string) => boolean): Promise<IGit> {
+	const gitPath = await which('git.exe')
+	return findSpecificGit(gitPath, onValidate)
 }
 
 function findGitWin32(onValidate: (path: string) => boolean): Promise<IGit> {
@@ -174,7 +174,7 @@ export interface IExecutionResult<T extends string | Buffer> {
 
 function cpErrorHandler(cb: (reason?: any) => void): (reason?: any) => void {
 	return err => {
-		if (/ENOENT/.test(err.message)) {
+		if (err.message.includes('ENOENT')) {
 			err = new GitError({
 				error: err,
 				message: 'Failed to execute git (ENOENT)',
