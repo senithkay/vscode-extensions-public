@@ -128,8 +128,6 @@ export function DiagramViewManager(props: EditorProps) {
                     uri: fileUri
                 }));
                 setFileList(projectFiles);
-                setFocusFile(undefined);
-                setFocusedST(undefined);
             })();
         }
     }, [currentProject?.name]);
