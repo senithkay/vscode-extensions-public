@@ -22,6 +22,6 @@ async function run() {
   }
 }
 
-if (process.env['STATE'] == 'success') {
+if (process.env['STATE'] !== 'failure') {
   run();
 }
