@@ -608,7 +608,7 @@
         "watch": "webpack --mode none --watch",
         "test-compile": "tsc -p ./",
         "test": "pnpm run test-compile && node ./out/test/runTest.js",
-        "ui-test-setup": "npx extest get-vscode -c 1.75.0 && npx extest get-chromedriver -c 1.75.0 && npx extest install-vsix -f $(ls *.vsix)",
+        "ui-test-setup": "npx extest get-vscode -c 1.75.0 && npx extest get-chromedriver -c 1.75.0 && npx extest install-vsix -f $(ls vsix/*.vsix)",
         "ui-test": "pnpm run test-compile && npx extest run-tests 'out/ui-test/*.test.js' --mocha_config ui-test/.mocharc.js -o ui-test/settings.json",
         "test-coverage": "cross-env COVER_CONFIG=html pnpm run test",
         "build-tm-grammar": "js-yaml grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.yaml > grammar/ballerina-grammar/syntaxes/ballerina.tmLanguage.json",
