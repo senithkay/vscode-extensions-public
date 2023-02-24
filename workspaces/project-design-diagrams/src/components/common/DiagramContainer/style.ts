@@ -14,26 +14,43 @@
 import styled from '@emotion/styled';
 import { Views } from '../../../resources';
 
-export const CellContainer = styled.div`
-  width: calc(100vw - 100px);
-  position: relative;
-  border-radius: 40px;
-  border: 1px solid #5567D5;
-  overflow: hidden;
-  height: calc(100vh - 100px);
-`;
-
 interface DiagramContainerStyleProps {
   currentView: Views;
 }
 
-export const CellDiagram = styled.div`
+export const CellContainer = styled.div`
+  width: calc(100vw - 100px);
+  height: calc(100vh - 100px);
+  position: relative;
+  clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+  &:before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: #5567D5;
+    clip-path: inherit;
+    content: ''
+  }
+  overflow: hidden;
+`;
+
+export const CanvasWrapper = styled.div`
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: calc(100vw - 100px - 2px);
+  height: calc(100vh - 100px - 2px);
+  clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+`;
+
+export const CellContainerWrapper = styled.div`
   position: relative;
   width: calc(100vw - 100px);
   display: ${(props: DiagramContainerStyleProps) => props.currentView === Views.CELL_VIEW ? 'block' : 'none'};
   flex-direction: column;
   padding-top: 30px;
   padding-bottom: 20px;
+  z-index: 1;
   height: calc(100vh - 50px);
 `;
 
@@ -50,6 +67,5 @@ export const GatewayContainer = styled.div`
   left: ${(props: GatewayContainerProps) => props.left};
   top: ${(props: GatewayContainerProps) => props.top};
   transform: ${(props: GatewayContainerProps) => props.rotate ? `rotate(${props.rotate})` : 'rotate(0deg)'};
-  z-index: 1;
-  clip-path: circle(50% at 50% 50%);
+  z-index: 2;
 `;

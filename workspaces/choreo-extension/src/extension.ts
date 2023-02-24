@@ -17,8 +17,8 @@ import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
 import { activateAuth } from './auth';
 import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, signIn } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { cloneProject } from './cmds/clone';
-import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, refreshProjectsTreeViewCmdId, setSelectedOrgCmdId } from './constants';
+import { cloneProject, cloneRepoToCuurentProjectWorkspace as cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
+import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId, refreshProjectsTreeViewCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
 import { activateRegistry } from './registry/activate';
@@ -119,6 +119,7 @@ function createProjectTreeView() {
 	});
 
 	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
+	vscode.commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);
 
 	const treeView = window.createTreeView(choreoProjectsTreeId, {
 		treeDataProvider: choreoResourcesProvider, showCollapseAll: true

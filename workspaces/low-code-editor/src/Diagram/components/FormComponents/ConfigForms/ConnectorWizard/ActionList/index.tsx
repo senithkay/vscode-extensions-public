@@ -29,6 +29,7 @@ import { ActionCard } from "./ActionCard";
 interface ActionListProps {
     actions: FunctionDefinitionInfo[];
     onSelect: (action: FunctionDefinitionInfo) => void;
+    isHttp: boolean;
 }
 
 export function ActionList(props: FormGeneratorProps) {
@@ -37,7 +38,7 @@ export function ActionList(props: FormGeneratorProps) {
 
     const { onCancel, onBack, configOverlayFormStatus } = props;
     const { isLoading, formArgs } = configOverlayFormStatus;
-    const { actions, onSelect } = formArgs as ActionListProps;
+    const { actions, isHttp, onSelect } = formArgs as ActionListProps;
 
     const [keyword, setKeyword] = useState("");
     const [filteredActions, setFilteredActions] = useState<FunctionDefinitionInfo[]>([]);
@@ -109,10 +110,7 @@ export function ActionList(props: FormGeneratorProps) {
                         {!isLoading && filteredActions?.length > 0 && (
                             <>
                                 <Typography>
-                                    <FormattedMessage
-                                        id="lowcode.develop.configForms.actionList.subtitle"
-                                        defaultMessage="Select an action"
-                                    />
+                                    <FormattedMessage id="lowcode.develop.configForms.actionList.subtitle" defaultMessage="Select an action" />
                                 </Typography>
                                 <div data-testid="action-list" className={classes.actionList}>
                                     <List>{actionElementList}</List>
@@ -122,10 +120,7 @@ export function ActionList(props: FormGeneratorProps) {
                         {!isLoading && (filteredActions?.length === 0 || !actions) && (
                             <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
                                 <Typography className={classes.subTitle}>
-                                    <FormattedMessage
-                                        id="lowcode.develop.configForms.actionList.empty"
-                                        defaultMessage="No actions found"
-                                    />
+                                    <FormattedMessage id="lowcode.develop.configForms.actionList.empty" defaultMessage="No actions found" />
                                 </Typography>
                             </Box>
                         )}

@@ -13,6 +13,7 @@
 import {
     AssignmentStatement,
     BinaryExpression,
+    ComputedResourceAccessSegment,
     FunctionCall,
     IdentifierToken,
     IndexedExpression,
@@ -28,6 +29,7 @@ import {
     RecordField,
     RecordFieldWithDefaultValue,
     ReturnStatement,
+    SimpleNameReference,
     STKindChecker,
     STNode,
     TupleTypeDesc, TypeCastExpression,
@@ -162,7 +164,19 @@ class DeleteConfigSetupVisitor implements Visitor {
             (node.viewState as StatementEditorViewState).templateExprDeletable = true;
         } else if (parent?.parent && STKindChecker.isFieldAccess(parent.parent)) {
             (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        } else if (parent && STKindChecker.isClientResourceAccessAction(parent)) {
+            (node.viewState as StatementEditorViewState).templateExprDeletable = true;
         }
+    }
+
+    public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode) {
+        if (parent && STKindChecker.isClientResourceAccessAction(parent)) {
+            (node.viewState as StatementEditorViewState).templateExprDeletable = true;
+        }
+    }
+
+    public beginVisitComputedResourceAccessSegment(node: ComputedResourceAccessSegment, parent?: STNode) {
+        (node.viewState as StatementEditorViewState).templateExprDeletable = true;
     }
 }
 
