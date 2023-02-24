@@ -32,7 +32,9 @@ export function FunctionHeader() {
     const diagramContext = useDiagramContext();
     const diagramApi = diagramContext?.api;
     const editApi = diagramApi?.edit;
+    const navigationApi = diagramApi.navigation;
     const renderEditForm = editApi?.renderEditForm;
+    const navigateUptoParent = navigationApi?.navigateUptoParent;
 
     const functionVS = functionNode.viewState as FunctionViewState;
     const titleComponents: React.ReactElement[] = [];
@@ -114,9 +116,13 @@ export function FunctionHeader() {
             resourceTitleContent.push(...queryParamComponents);
         }
 
+        const handleNavigateToParent = () => {
+            navigateUptoParent(functionVS.parentPosition);
+        }
+
         titleComponents.push(
             <div className="title-components">
-                <div className="parent-description">
+                <div className="parent-description" onClick={handleNavigateToParent}>
                     <BackArrow />
                     {functionVS.parentNamePlaceHolder}
                 </div>
