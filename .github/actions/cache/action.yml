@@ -1,7 +1,9 @@
 name: 'Cache'
 description: 'Cache Rush and pnmp'
 runs:
-  using: "composite"
+  using: 'docker'
+  image: 'Dockerfile'
+
   steps:
     - uses: pnpm/action-setup@v2
       with:
