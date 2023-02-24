@@ -39,15 +39,15 @@ export interface Param {
 }
 
 export interface ResponseCode {
-    code: number;
+    code: string;
     source: string;
 }
 export const responseCodes: ResponseCode[] = [
-    { code: 100, source: "Default" },
-    { code: 200, source: "http:Ok" },
-    { code: 201, source: "http:Created" },
-    { code: 404, source: "http:NotFound" },
-    { code: 500, source: "http:InternalServerError" }
+    { code: "100", source: "Default" },
+    { code: "200 - OK", source: "http:Ok" },
+    { code: "201 - Created", source: "http:Created" },
+    { code: "404 - NotFound", source: "http:NotFound" },
+    { code: "500 - InternalServerError", source: "http:InternalServerError" }
 ];
 
 export interface ParamProps {
@@ -84,7 +84,7 @@ export function ResponseEditor(props: ParamProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
 
-    const optionsListString = optionList.map(item => item.code === 100 ? `${item.source}` : `${item.code}`);
+    const optionsListString = optionList.map(item => item.code === "100" ? `${item.source}` : `${item.code}`);
 
     // record {|*http:Created; PersonAccount body;|}
     const withType = model.includes("body;") ? model.split(";")[1] : "";
@@ -189,8 +189,8 @@ export function ResponseEditor(props: ParamProps) {
                 if (anonymousValue) {
                     const responseCode = optionList.find(item => item.code.toString() === response);
                     const newResponse = `type ${anonymousValue} record {|*${responseCode.source}; ${typeValue} body;|};`;
-                    const members = (syntaxTree as ModulePart).members;
-                    const lastMember: NodePosition = members[members.length - 1].position;
+                    const servicePosition = (syntaxTree as ModulePart);
+                    const lastMember: NodePosition = servicePosition.position;
                     const lastMemberPosition: NodePosition = {
                         endColumn: 0,
                         endLine: lastMember.endLine + 1,
@@ -242,6 +242,17 @@ export function ResponseEditor(props: ParamProps) {
             <div className={classes.paramContent}>
 
                 <div className={classes.paramDataTypeWrapper}>
+                    <ParamDropDown
+                        dataTestId="param-type-selector"
+                        placeholder={"Select Code"}
+                        customProps={{ values: optionsListString }}
+                        defaultValue={response}
+                        onChange={handleOnSelect}
+                        label="HTTP Response Code"
+                    />
+                </div>
+
+                <div className={classes.paramTypeWrapper}>
                     <FieldTitle title='Type' optional={false} />
                     <LiteExpressionEditor
                         testId="return-type"
@@ -251,17 +262,6 @@ export function ResponseEditor(props: ParamProps) {
                         completions={completions}
                         showRecordEditorButton={true}
                         handleShowRecordEditor={handleShowRecordEditor}
-                    />
-                </div>
-
-                <div className={classes.paramTypeWrapper}>
-                    <ParamDropDown
-                        dataTestId="param-type-selector"
-                        placeholder={"Select Code"}
-                        customProps={{ values: optionsListString }}
-                        defaultValue={response}
-                        onChange={handleOnSelect}
-                        label="HTTP Response Code"
                     />
                 </div>
 

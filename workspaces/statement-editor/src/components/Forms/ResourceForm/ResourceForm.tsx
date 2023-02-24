@@ -360,7 +360,7 @@ export function ResourceForm(props: FunctionProps) {
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <FieldTitle title='Responses' optional={true} />
+                        <FieldTitle title='Responses' optional={false} />
                         <ResourceReturnEditor
                             returnSource={model.functionSignature?.returnTypeDesc?.source}
                             syntaxDiag={currentComponentSyntaxDiag}
@@ -384,7 +384,6 @@ export function ResourceForm(props: FunctionProps) {
                                     onClick={handleOnSave}
                                     disabled={currentComponentSyntaxDiag?.length > 0
                                         || getResourcePathDiagnostics().length > 0
-                                        || model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange?.length > 0
                                         || isEditInProgress
                                         || changeInProgress}
                                 />
