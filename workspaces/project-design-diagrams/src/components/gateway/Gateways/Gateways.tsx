@@ -23,7 +23,7 @@ import { GatewayContainer } from "../../common/DiagramContainer/style";
 
 export function Gateways() {
     const westGWLeft = '20px';
-    const westGWTop = `calc(50% - 15px)`;
+    const westGWTop = `50%`;
     const northGWLeft = `calc(50% - 20px)`;
     const northGWTop = '50px';
 
