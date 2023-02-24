@@ -38,6 +38,7 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
+import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 interface DiagramFocusState {
     filePath: string;
@@ -281,7 +282,9 @@ export function DiagramViewManager(props: EditorProps) {
 
     const viewComponent: React.ReactElement[] = [];
 
-    if (!focusedST && currentProject) {
+    if (history.length > 0 && !focusedST) {
+        viewComponent.push(<TextPreLoader position={'absolute'} />);
+    } else if (!focusedST && currentProject) {
 
         viewComponent.push((
             <OverviewDiagram

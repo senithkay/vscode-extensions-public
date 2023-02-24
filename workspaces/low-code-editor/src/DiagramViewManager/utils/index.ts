@@ -9,7 +9,6 @@ import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isU
 import { EditorProps, FileListEntry, PALETTE_COMMANDS, Uri } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
-import { DiagramFocusState } from "../hooks/diagram-focus";
 
 export function getDiagramProviderProps(
     focusedST: STNode,
