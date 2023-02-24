@@ -81,7 +81,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
         return (
             <div className="btn-container" ref={popoverRef} onClick={handlePojectSelectorOpen} >
-                <PackageIcon />
+                <PackageIcon className={'icon'}/>
                 <span className="icon-text">{currentProject?.name || ''}</span>
                 <ArrowDropDown />
                 <Popover
@@ -108,7 +108,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
     const renderWorkspaceNameComponent = () => (
         <div className="btn-container" >
-            {isWorkspace ? <Apps /> : <PackageIcon />}
+            {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
             <span className="icon-text">{`${workspaceName}`}</span>
         </div>
     );

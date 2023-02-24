@@ -20,11 +20,12 @@ import React from 'react';
 
 interface PackageIconProps {
     fillColor?: string;
+    className?: string;
 }
 
-export default function PackageIcon({ fillColor }: PackageIconProps) {
+export default function PackageIcon({ fillColor, className }: PackageIconProps) {
     return (
-        <svg width="16px" height="16px" viewBox="0 0 48 48" >
+        <svg className={className} width="16px" height="16px" viewBox="0 0 48 48" >
             <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                 <g
                     id="BC-Main"
