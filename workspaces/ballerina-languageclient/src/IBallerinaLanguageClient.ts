@@ -233,13 +233,22 @@ export interface FormField {
     customAutoComplete?: string[];
     validationRegex?: any;
 }
+
+export interface PathParam {
+    name: string;
+    typeName: string;
+    isRestType: boolean;
+}
+
 export interface FunctionDefinitionInfo {
     name: string;
     documentation: string;
     parameters: FormField[];
+    pathParams?: PathParam[];
     returnType?: FormField;
+    qualifiers?: string[];
     isRemote?: boolean;
-    displayAnnotation?: DisplayAnnotation;
+    displayAnnotation?: any;
 }
 
 export interface BallerinaConnectorInfo extends Connector {

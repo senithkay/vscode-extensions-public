@@ -547,11 +547,10 @@ export function createCheckedResourceServiceCall(
     type: string,
     variable: string,
     callerName: string,
+    path: string[],
     functionName: string,
-    path: string,
     params: string[],
     targetPosition: NodePosition,
-    withFunctionName?: boolean,
     withSelf?: boolean
 ): STModification {
     const checkedResourceServiceCall: STModification = {
@@ -564,11 +563,10 @@ export function createCheckedResourceServiceCall(
             TYPE: type,
             VARIABLE: variable,
             CALLER: callerName,
-            PATH: path,
-            FUNCTION: functionName,
-            PARAMS: params.join(),
-            WITH_SELF: withSelf,
-            WITH_FUNC: withFunctionName,
+            PATH: path.length > 0 ? path.join("/") : undefined,
+            FUNCTION: functionName || undefined,
+            PARAMS: params?.length > 0 ? params.join() : undefined,
+            WITH_SELF: withSelf
         },
     };
 
