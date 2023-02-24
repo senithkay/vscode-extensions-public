@@ -62278,15 +62278,15 @@ const { consts } = __nccwpck_require__(7550);
 async function run() {
   try {
     const { pnpmCacheDir, rushCacheDir, rushSysCacheDir } = await consts;
-    const { pnpmCacheKey, rushCacheKey, pnpmCacheAvailable, rushCacheAvailable } = process.env;
-    // Save the PNPM cacheÒ
-    if (!pnpmCacheAvailable) {
+    const { pnpmCacheKey, rushCacheKey, pnpmCacheExists, rushCacheExists } = process.env;
+    // Save the PNPM cache
+    if (!pnpmCacheExists) {
       await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
       core.info(`PNPM cache saved with key ${pnpmCacheKey}`);
     }
 
-    // Save the Rush cacheÒ
-    if (!rushCacheAvailable) {
+    // Save the Rush cache
+    if (!rushCacheExists) {
       await cache.saveCache([rushCacheDir, rushSysCacheDir], rushCacheKey);
       core.info(`Rush cache saved with key ${rushCacheKey}`);
     }
