@@ -84,7 +84,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
     const [selectedValue, setSelectedValue] = useState<string | number>(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
     const [selectedIndex, setSelectedIndex] = React.useState("");
-
+    const [textInputDisabledState, setTextInputDisabledState] = React.useState(false);
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
     };
@@ -99,6 +99,13 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
         setIntegerConfig(propertyId, Number(propertyValue), propertyRef);
     };
 
+    useEffect(() => {
+        if (selectedValueRef !== "") {
+            setTextInputDisabledState(true);
+            setSelectedIndex(selectedIndex);
+        }
+    }, []);
+
     const textFieldInputProps: TextFieldInputProps = {
         id,
         isRequired,
@@ -111,11 +118,21 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
     const onSelected = (index: string, mappingName: string, valueReference: string,
                         valueType: string, connectionName: string) => () => {
             if (valueType === "int") {
-                setConnectionClick(true);
-                setSelectedValue(mappingName);
-                setSelectedValueRef(valueReference);
-                setSelectedIndex(connectionName.concat(index));
-                setAnchorEl(null);
+                if (selectedValueRef === valueReference) {
+                    setSelectedValueRef("");
+                    setSelectedValue("");
+                    setSelectedIndex("");
+                    setTextInputDisabledState(false);
+                    setConnectionClick(false);
+                    setAnchorEl(null);
+                } else {
+                    setConnectionClick(true);
+                    setSelectedValue(mappingName);
+                    setSelectedValueRef(valueReference);
+                    setSelectedIndex(index);
+                    setTextInputDisabledState(true);
+                    setAnchorEl(null);
+                }
             } else {
                 setAnchorEl(null);
             }
@@ -182,7 +199,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                                             connectionFields.valueType,
                                             connections.name,
                                         )}
-                                        selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
+                                        selected={connectionFields.configKey === selectedIndex}
                                     >
                                         <Box display="flex" width={1}>
                                             <Box
@@ -207,8 +224,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                                                 />
                                             </Box>
                                             {
-                                                connections.name.concat(connectionFields.configKey) === selectedIndex
-                                                &&   <MenuSelectedIcon />
+                                                connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
                                             }
                                         </Box>
                                     </MenuItem>
@@ -229,6 +245,8 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleClick}
+                color={selectedValueRef ? "primary" : "default"}
+                disabled={connectionConfigs.length !== 0 ? false : true}
             >
                 <SelectIcon />
             </IconButton>
@@ -260,6 +278,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                             placeholder="Select config or Enter a value"
                             setTextFieldValue={setIntegerConfig}
                             type={(connectionClick || selectedValueRef !== "") ? "text" : "number"}
+                            disabled={textInputDisabledState}
                             value={selectedValue}
                             valueRef={selectedValueRef}
                         />

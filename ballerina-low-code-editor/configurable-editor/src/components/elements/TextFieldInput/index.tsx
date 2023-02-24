@@ -29,6 +29,7 @@ export interface TextFieldInputProps {
     name?: string;
     value: any;
     valueRef?: string;
+    disabled?: boolean;
     type: string;
     inputProps?: object;
     placeholder?: string;
@@ -37,7 +38,7 @@ export interface TextFieldInputProps {
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, value, valueRef, type, inputProps, placeholder, setTextFieldValue, name } = props;
+    const { id, isRequired, value, valueRef, type, inputProps, placeholder, setTextFieldValue, name, disabled } = props;
     const [inputValue, setInputValue] = useState(value ? String(value) : undefined);
     const [inputValueRef, setInputValueRef] = useState(valueRef ? String(valueRef) : undefined);
 
@@ -84,6 +85,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
             InputLabelProps={{ shrink: false }}
             inputProps={newInputProps}
             data-cyid={name}
+            disabled={disabled}
         />
     );
 }

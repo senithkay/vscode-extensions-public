@@ -45,7 +45,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#F7F8FB",
             border: "1px solid #E0E2E9",
             borderRadius: 5,
-            color: "#5567D5",
             padding: theme.spacing(1.2),
         },
         card: {

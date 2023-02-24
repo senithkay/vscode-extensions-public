@@ -167,16 +167,20 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     }, [selectedValue2]);
 
     useEffect(() => {
-        let fullValue = "[ ";
-        for (const key in arrayValue) {
-            if (arrayValue.hasOwnProperty(key)) {
-                key === "0"
-                    ? (fullValue = fullValue + arrayValue[key])
-                    : (fullValue = fullValue + ", " + arrayValue[key]);
+        if (arrayValue.length !== 0) {
+            let fullValue = "[ ";
+            for (const key in arrayValue) {
+                if (arrayValue.hasOwnProperty(key)) {
+                    key === "0"
+                        ? (fullValue = fullValue + arrayValue[key])
+                        : (fullValue = fullValue + ", " + arrayValue[key]);
+                }
             }
+            fullValue = fullValue + " ]";
+            setSelectedValue2(fullValue);
+        } else {
+            setSelectedValue2("");
         }
-        fullValue = fullValue + " ]";
-        setSelectedValue2(fullValue);
     }, [selectedValue]);
 
     useEffect(() => {
@@ -190,16 +194,20 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     }, [arrayValues]);
 
     useEffect(() => {
-        let fullValue = "[ ";
-        for (const key in arrayValue) {
-            if (arrayValue.hasOwnProperty(key)) {
-                key === "0"
-                    ? (fullValue = fullValue + arrayValue[key])
-                    : (fullValue = fullValue + ", " + arrayValue[key]);
+        if (arrayValue.length !== 0) {
+            let fullValue = "[ ";
+            for (const key in arrayValue) {
+                if (arrayValue.hasOwnProperty(key)) {
+                    key === "0"
+                        ? (fullValue = fullValue + arrayValue[key])
+                        : (fullValue = fullValue + ", " + arrayValue[key]);
+                }
             }
+            fullValue = fullValue + " ]";
+            setSelectedValue(fullValue);
+        } else {
+            setSelectedValue("");
         }
-        fullValue = fullValue + " ]";
-        setSelectedValue(fullValue);
     }, [props.value]);
 
     arrayValues.forEach((arrayElement) => {

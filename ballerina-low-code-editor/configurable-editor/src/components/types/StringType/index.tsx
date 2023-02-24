@@ -86,18 +86,35 @@ const StringType = (props: StringTypeProps): ReactElement => {
     const [selectedValue, setSelectedValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
     const [openConnection, setOpenConnection] = React.useState(true);
+    const [textInputDisabledState, setTextInputDisabledState] = React.useState(false);
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
     };
+
+    useEffect(() => {
+        if (selectedValueRef !== "") {
+            setTextInputDisabledState(true);
+            setSelectedIndex(selectedIndex);
+        }
+    }, []);
 
     // tslint:disable: jsx-no-lambda jsx-no-multiline-js
     const onSelected =
         (index: string, mappingName: string, valueReference: string, valueType: string) => () => {
             if (valueType === "string") {
-                setSelectedValue(mappingName);
-                setSelectedValueRef(valueReference);
-                setSelectedIndex(index);
-                setAnchorEl(null);
+                if (selectedValueRef === valueReference) {
+                    setSelectedValueRef("");
+                    setSelectedValue("");
+                    setSelectedIndex("");
+                    setTextInputDisabledState(false);
+                    setAnchorEl(null);
+                } else {
+                    setSelectedValue(mappingName);
+                    setSelectedValueRef(valueReference);
+                    setSelectedIndex(index);
+                    setTextInputDisabledState(true);
+                    setAnchorEl(null);
+                }
             } else {
                 setAnchorEl(null);
             }
@@ -176,7 +193,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                             connectionFields.valueRef,
                                             connectionFields.valueType,
                                         )}
-                                        selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
+                                        selected={connectionFields.configKey === selectedIndex}
                                     >
                                     <Box display="flex" width={1}>
                                         <Box
@@ -200,8 +217,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                             />
                                         </Box>
                                         {
-                                                connections.name.concat(connectionFields.configKey) === selectedIndex
-                                                &&   <MenuSelectedIcon />
+                                                connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
                                             }
                                         </Box>
                                     </MenuItem>
@@ -222,6 +238,8 @@ const StringType = (props: StringTypeProps): ReactElement => {
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleClick}
+                color={selectedValueRef ? "primary" : "default"}
+                disabled={connectionConfigs.length !== 0 ? false : true}
             >
                 <SelectIcon />
             </IconButton>
@@ -245,6 +263,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                             placeholder="Select config or Enter a value"
                             setTextFieldValue={setStringType}
                             type="text"
+                            disabled={textInputDisabledState}
                             value={selectedValue}
                             valueRef={selectedValueRef}
                         />
