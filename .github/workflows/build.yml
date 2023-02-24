@@ -71,7 +71,9 @@ jobs:
           npm version $newVersion --preid beta --no-git-tag-version
 
       - name: Build repo
-        run: node common/scripts/install-run-rush.js build --verbose
+        run: |
+          node common/scripts/install-run-rush.js install
+          node common/scripts/install-run-rush.js build --verbose
         env:
           isPreRelease: ${{ inputs.isPreRelease  }}
 
