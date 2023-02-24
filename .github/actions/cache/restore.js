@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const cache = require('@actions/cache');
 
-import { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } from "./constants";
+const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = require("./constants.js");
 
 async function run() {
     try {
