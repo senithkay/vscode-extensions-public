@@ -125,7 +125,12 @@ export function DiagramViewManager(props: EditorProps) {
                     fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
                     uri: fileUri
                 }));
+
                 setFileList(projectFiles);
+                setCompleteST(undefined);
+                setFocusedST(undefined);
+                setFocusFile(undefined);
+                historyClear();
             })();
         }
     }, [currentProject?.name]);
