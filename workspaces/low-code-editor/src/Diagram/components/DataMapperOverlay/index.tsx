@@ -39,7 +39,7 @@ export interface DataMapperProps {
     targetPosition?: NodePosition;
     ballerinaVersion?: string;
     onCancel?: () => void;
-    configOverlayFormStatus: ConfigOverlayFormStatus;
+    configOverlayFormStatus?: ConfigOverlayFormStatus;
     handleDiagramEdit?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus,
                          onClose?: () => void, onSave?: () => void) => void;
 
@@ -56,7 +56,8 @@ export function DataMapperOverlay(props: DataMapperProps) {
             code: { modifyDiagram, updateFileContent },
             ls: { getDiagramEditorLangClient },
             library,
-        },
+            updateFilePath
+        }
     } = useContext(Context);
 
     const [functionST, setFunctionST] =
@@ -149,7 +150,9 @@ export function DataMapperOverlay(props: DataMapperProps) {
                         importStatements={importStatements}
                         recordPanel={renderRecordPanel}
                         syntaxTree={fullST}
-                        handleDiagramEdit={handleDiagramEdit}/>
+                        handleDiagramEdit={handleDiagramEdit}
+                        updateFilePath={updateFilePath}
+                    />
                 </div>
             </DiagramOverlay>
         </DiagramOverlayContainer>

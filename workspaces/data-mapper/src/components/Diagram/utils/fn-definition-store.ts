@@ -20,9 +20,7 @@ import {
 import { URI } from "vscode-uri";
 
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
-import {
-    getFnDefsForFnCalls, isPositionsEquals,
-} from "../../../utils/st-utils";
+import { getFnDefsForFnCalls } from "../../../utils/st-utils";
 import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisitor";
 
 export interface FnDefInfo {

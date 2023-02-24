@@ -49,6 +49,7 @@ export interface IDataMapperContext {
                          configOverlayFormStatus: ConfigOverlayFormStatus,
                          onClose?: () => void,
                          onSave?: () => void) => void;
+    updateFilePath?: (filePath: string) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -76,7 +77,8 @@ export class DataMapperContext implements IDataMapperContext {
         public handleOverlay: (showOverlay: boolean) => void,
         public ballerinaVersion: string,
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,
-        public handleDiagramEdit?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void
+        public handleDiagramEdit?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void,
+        public updateFilePath?: (filePath: string) => void
     ){}
 
     public get functionST(): FunctionDefinition {

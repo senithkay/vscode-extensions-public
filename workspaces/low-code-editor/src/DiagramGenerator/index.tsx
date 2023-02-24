@@ -104,6 +104,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
     const [fullSyntaxTree, setFullSyntaxTree] = React.useState(undefined);
     const [syntaxTree, setSyntaxTree] = React.useState(undefined);
     // const [zoomStatus, setZoomStatus] = React.useState(defaultZoomStatus);
+    const [currentFilePath, setCurrentFilePath] = React.useState(filePath);
     const [fileContent, setFileContent] = React.useState("");
     const [isMutationInProgress, setMutationInProgress] = React.useState<boolean>(false);
     const [isModulePullInProgress, setModulePullInProgress] = React.useState<boolean>(false);
@@ -126,13 +127,12 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
             let showDiagramError = false;
             try {
                 const langClient = await langClientPromise;
-                const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
-                const content = await props.getFileContent(filePath);
-
+                const genSyntaxTree: ModulePart = await getSyntaxTree(currentFilePath, langClient);
+                const content = await props.getFileContent(currentFilePath);
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
-                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, filePath, langClient, experimentalEnabled, showMessage);
+                const vistedSyntaxTree: STNode = await getLowcodeST(genSyntaxTree, currentFilePath, langClient, experimentalEnabled, showMessage);
                 if (!vistedSyntaxTree) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
@@ -148,7 +148,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
 
                 // setSyntaxTree(vistedSyntaxTree);
 
-                undoRedo.updateContent(filePath, content);
+                undoRedo.updateContent(currentFilePath, content);
                 setFileContent(content);
                 setLowCodeResourcesVersion(await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION"));
                 setLowCodeEnvInstance(await getEnv("VSCODE_CHOREO_SENTRY_ENV"));
@@ -166,7 +166,11 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
 
             setIsDiagramError(showDiagramError);
         })();
-    }, [lastUpdatedAt]);
+    }, [lastUpdatedAt, currentFilePath]);
+
+    const updateFilePath = async (path: string) => {
+        setCurrentFilePath(path);
+    };
 
     React.useEffect(() => {
         (async () => {
@@ -266,7 +270,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
     // }
 
     async function showTryitView(serviceName: string, range: LineRange) {
-        runCommand(PALETTE_COMMANDS.TRY_IT, [filePath, serviceName, range]);
+        runCommand(PALETTE_COMMANDS.TRY_IT, [currentFilePath, serviceName, range]);
     }
 
     async function showDocumentationView(url: string) {
@@ -331,7 +335,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 // tslint:disable-next-line: jsx-no-multiline-js
                 currentFile={{
                     content: fileContent,
-                    path: filePath,
+                    path: currentFilePath,
                     size: 1,
                     type: "File"
                 }}
@@ -383,7 +387,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                                     if (isAvailable) {
                                         setModulePullInProgress(true);
                                         setLoaderText('Pulling packages...');
-                                        const { parseSuccess: pullSuccess } = await resolveMissingDependency(filePath, source);
+                                        const { parseSuccess: pullSuccess } = await resolveMissingDependency(currentFilePath, source);
                                         if (pullSuccess) {
                                             // Rebuild the file At backend
                                             langClient.didChange({
@@ -399,7 +403,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                                             } = await langClient.getSyntaxTree({ documentIdentifier: { uri } });
                                             vistedSyntaxTree = await getLowcodeST(
                                                 stWithoutDiagnostics,
-                                                filePath,
+                                                currentFilePath,
                                                 langClient,
                                                 experimentalEnabled,
                                                 showMessage);
@@ -433,14 +437,14 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                             await addPerfData(vistedSyntaxTree);
                         },
                         gotoSource: (position: { startLine: number, startColumn: number }) => {
-                            props.gotoSource(filePath, position);
+                            props.gotoSource(currentFilePath, position);
                         },
                         getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
                             const langClient = await langClientPromise;
                             setMutationInProgress(true);
                             setLoaderText('Fetching...');
                             const res: FunctionDef = await getFunctionSyntaxTree(
-                                defFilePath ? defFilePath : monaco.Uri.file(filePath).toString(),
+                                defFilePath ? defFilePath : monaco.Uri.file(currentFilePath).toString(),
                                 lineRange,
                                 langClient
                             );
@@ -448,7 +452,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                             return res;
                         },
                         updateFileContent: (content: string, skipForceSave?: boolean) => {
-                            return props.updateFileContent(filePath, content, skipForceSave);
+                            return props.updateFileContent(currentFilePath, content, skipForceSave);
                         },
                         undo,
                         isMutationInProgress,
@@ -479,6 +483,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     runBackgroundTerminalCommand,
                     openArchitectureView,
                     openExternalUrl,
+                    updateFilePath
                 }}
             />
         </DiagramGenErrorBoundary>
@@ -499,7 +504,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
         const currentTime: number = Date.now();
         const langClient = await langClientPromise;
         if (currentTime - lastPerfUpdate > debounceTime) {
-            await addPerformanceData(syntaxTree, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setSyntaxTree);
+            await addPerformanceData(syntaxTree, currentFilePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setSyntaxTree);
             lastPerfUpdate = currentTime;
         }
     }

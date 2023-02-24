@@ -183,6 +183,8 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         const {fnDefPosition, fileUri} = fnDef;
         const fnST = await getFunctionDefinitionNode(fnDefPosition, fileUri, node.context.langClientPromise);
         if (STKindChecker.isSpecificField(node.valueNode)) {
+            const filePath = fileUri.replace(/^file:\/\//, "");
+            node.context.updateFilePath(filePath);
             node.context.handleDiagramEdit(fnST, fnDefPosition, {
                 formType: 'DataMapper',
                 isLoading: false

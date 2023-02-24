@@ -123,6 +123,7 @@ export interface DataMapperProps {
                          configOverlayFormStatus: ConfigOverlayFormStatus,
                          onClose?: () => void,
                          onSave?: () => void) => void;
+    updateFilePath?: (filePath: string) => void;
 }
 
 export enum ViewOption {
@@ -201,7 +202,8 @@ function DataMapperC(props: DataMapperProps) {
         importStatements,
         recordPanel,
         syntaxTree,
-        handleDiagramEdit
+        handleDiagramEdit,
+        updateFilePath
     } = props;
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -333,7 +335,8 @@ function DataMapperC(props: DataMapperProps) {
                         handleOverlay,
                         ballerinaVersion,
                         handleLocalVarConfigPanel,
-                        handleDiagramEdit
+                        handleDiagramEdit,
+                        updateFilePath
                     );
 
                     const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
