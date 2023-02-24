@@ -21,7 +21,7 @@ runs:
         key: Rush-cache-${{ hashFiles('rush.json') }}
 
     - name: Cache pnpm
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           common/temp/pnpm-store
@@ -29,7 +29,7 @@ runs:
         key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
     - name: Build Cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: common/temp/build-cache
         key: build-cache
@@ -37,3 +37,11 @@ runs:
     - name: Install node modules
       shell: bash
       run: node common/scripts/install-run-rush.js install        
+
+  post:
+    if: ${{ success() }}
+    - name: Build Cache
+      uses: actions/cache/save@v3
+      with:
+        path: common/temp/build-cache
+        key: build-cache
