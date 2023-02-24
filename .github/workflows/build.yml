@@ -27,6 +27,15 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.26.3
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
       - name: Restore cache
         uses: ./.github/actions/cache
 
