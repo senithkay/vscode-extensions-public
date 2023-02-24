@@ -2,33 +2,24 @@
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 7550:
-/***/ ((module, __webpack_exports__, __nccwpck_require__) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-"use strict";
-__nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-__nccwpck_require__.r(__webpack_exports__);
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "pnpmCacheDir": () => (/* binding */ pnpmCacheDir),
-/* harmony export */   "pnpmCacheKey": () => (/* binding */ pnpmCacheKey),
-/* harmony export */   "rushBuildCacheDir": () => (/* binding */ rushBuildCacheDir),
-/* harmony export */   "rushCacheDir": () => (/* binding */ rushCacheDir),
-/* harmony export */   "rushCacheKey": () => (/* binding */ rushCacheKey),
-/* harmony export */   "rushSysCacheDir": () => (/* binding */ rushSysCacheDir)
-/* harmony export */ });
 
-const cache = __nccwpck_require__(4470);
+const glob = __nccwpck_require__(4470);
 const path = __nccwpck_require__(1017);
 const projectPath = "./";
 
-const rushCacheKey = `rush-${process.platform}-` + (await cache.hashFiles("rush.json"));
-const rushCacheDir = path.join(projectPath, 'common', 'temp', 'install-run');
-const rushBuildCacheDir = path.join(projectPath, 'common', 'temp', 'build-cache');
-const rushSysCacheDir = path.join(process.env.HOME, '.rush');
+module.exports.consts = (async () => {
+    const rushCacheKey = `rush-${process.platform}-` + (await glob.hashFiles("rush.json"));
+    const rushCacheDir = path.join(projectPath, 'common', 'temp', 'install-run');
+    const rushBuildCacheDir = path.join(projectPath, 'common', 'temp', 'build-cache');
+    const rushSysCacheDir = path.join(process.env.HOME, '.rush');
 
-const pnpmCacheDir = path.join(projectPath, 'common', 'temp', 'pnpm-store');
-const pnpmCacheKey = `pnpm-${process.platform}-` + (await cache.hashFiles("**/pnpm-lock.yaml"));
-__webpack_async_result__();
-} catch(e) { __webpack_async_result__(e); } }, 1);
+    const pnpmCacheDir = path.join(projectPath, 'common', 'temp', 'pnpm-store');
+    const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles("**/pnpm-lock.yaml"));
+    return { rushCacheKey, rushCacheDir, rushBuildCacheDir, rushSysCacheDir, pnpmCacheDir, pnpmCacheKey };
+})();
+
 
 /***/ }),
 
@@ -62272,103 +62263,6 @@ module.exports = JSON.parse('[["0","\\u0000",128],["a1","｡",62],["8140","　�
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/async module */
-/******/ 	(() => {
-/******/ 		var webpackQueues = typeof Symbol === "function" ? Symbol("webpack queues") : "__webpack_queues__";
-/******/ 		var webpackExports = typeof Symbol === "function" ? Symbol("webpack exports") : "__webpack_exports__";
-/******/ 		var webpackError = typeof Symbol === "function" ? Symbol("webpack error") : "__webpack_error__";
-/******/ 		var resolveQueue = (queue) => {
-/******/ 			if(queue && !queue.d) {
-/******/ 				queue.d = 1;
-/******/ 				queue.forEach((fn) => (fn.r--));
-/******/ 				queue.forEach((fn) => (fn.r-- ? fn.r++ : fn()));
-/******/ 			}
-/******/ 		}
-/******/ 		var wrapDeps = (deps) => (deps.map((dep) => {
-/******/ 			if(dep !== null && typeof dep === "object") {
-/******/ 				if(dep[webpackQueues]) return dep;
-/******/ 				if(dep.then) {
-/******/ 					var queue = [];
-/******/ 					queue.d = 0;
-/******/ 					dep.then((r) => {
-/******/ 						obj[webpackExports] = r;
-/******/ 						resolveQueue(queue);
-/******/ 					}, (e) => {
-/******/ 						obj[webpackError] = e;
-/******/ 						resolveQueue(queue);
-/******/ 					});
-/******/ 					var obj = {};
-/******/ 					obj[webpackQueues] = (fn) => (fn(queue));
-/******/ 					return obj;
-/******/ 				}
-/******/ 			}
-/******/ 			var ret = {};
-/******/ 			ret[webpackQueues] = x => {};
-/******/ 			ret[webpackExports] = dep;
-/******/ 			return ret;
-/******/ 		}));
-/******/ 		__nccwpck_require__.a = (module, body, hasAwait) => {
-/******/ 			var queue;
-/******/ 			hasAwait && ((queue = []).d = 1);
-/******/ 			var depQueues = new Set();
-/******/ 			var exports = module.exports;
-/******/ 			var currentDeps;
-/******/ 			var outerResolve;
-/******/ 			var reject;
-/******/ 			var promise = new Promise((resolve, rej) => {
-/******/ 				reject = rej;
-/******/ 				outerResolve = resolve;
-/******/ 			});
-/******/ 			promise[webpackExports] = exports;
-/******/ 			promise[webpackQueues] = (fn) => (queue && fn(queue), depQueues.forEach(fn), promise["catch"](x => {}));
-/******/ 			module.exports = promise;
-/******/ 			body((deps) => {
-/******/ 				currentDeps = wrapDeps(deps);
-/******/ 				var fn;
-/******/ 				var getResult = () => (currentDeps.map((d) => {
-/******/ 					if(d[webpackError]) throw d[webpackError];
-/******/ 					return d[webpackExports];
-/******/ 				}))
-/******/ 				var promise = new Promise((resolve) => {
-/******/ 					fn = () => (resolve(getResult));
-/******/ 					fn.r = 0;
-/******/ 					var fnQueue = (q) => (q !== queue && !depQueues.has(q) && (depQueues.add(q), q && !q.d && (fn.r++, q.push(fn))));
-/******/ 					currentDeps.map((dep) => (dep[webpackQueues](fnQueue)));
-/******/ 				});
-/******/ 				return fn.r ? promise : getResult();
-/******/ 			}, (err) => ((err ? reject(promise[webpackError] = err) : outerResolve(exports)), resolveQueue(queue)));
-/******/ 			queue && (queue.d = 0);
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__nccwpck_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__nccwpck_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
@@ -62378,14 +62272,12 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(2619);
-const exec = __nccwpck_require__(341);
 const cache = __nccwpck_require__(7599);
-const fs = __nccwpck_require__(7147);
-const path = __nccwpck_require__(1017);
-const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = __nccwpck_require__(7550);
+const { consts } = __nccwpck_require__(7550);
 
 async function run() {
   try {
+    const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = await consts;
     // Save the PNPM cacheÒ
     await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
     core.info(`PNPM cache saved with key ${pnpmCacheKey}`);

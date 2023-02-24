@@ -1,12 +1,10 @@
 const core = require('@actions/core');
-const exec = require('@actions/exec');
 const cache = require('@actions/cache');
-const fs = require('fs');
-const path = require('path');
-const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = require("./constants.js");
+const { consts } = require("./constants");
 
 async function run() {
   try {
+    const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = await consts;
     // Save the PNPM cacheÒ
     await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
     core.info(`PNPM cache saved with key ${pnpmCacheKey}`);

@@ -1,15 +1,11 @@
 const core = require('@actions/core');
 const cache = require('@actions/cache');
 
-const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = require("./constants.js");
+const { consts } = require("./constants");
 
 async function run() {
     try {
-        console.log(pnpmCacheKey);
-        console.log(pnpmCacheDir);
-        console.log(rushCacheKey);
-        console.log(rushCacheDir);
-        console.log(rushSysCacheDir);
+        const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = await consts;
         const pnpmCacheHit = await cache.restoreCache([pnpmCacheDir], pnpmCacheKey);
         if (pnpmCacheHit) {
             core.info(`PNPM cache restored from key ${pnpmCacheKey}`);
