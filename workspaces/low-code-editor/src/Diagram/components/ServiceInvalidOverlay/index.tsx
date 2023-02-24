@@ -11,8 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import { ServiceInvalidImg } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import React from "react";
+
+import { ServiceInvalidImg } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { ServiceInvalidStyles } from "./style";
 
 export function ServiceInvalidOverlay() {

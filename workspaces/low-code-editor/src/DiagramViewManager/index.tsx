@@ -21,6 +21,7 @@ import { Diagram } from "../Diagram";
 import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
 import { GraphqlDiagramOverlay } from "../Diagram/components/GraphqlDiagramOverlay";
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
+import { ServiceInvalidOverlay } from "../Diagram/components/ServiceInvalidOverlay";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
 import {
@@ -38,8 +39,6 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
-import { ServiceInvalidImg } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ServiceInvalidOverlay } from "../Diagram/components/ServiceInvalidOverlay";
 
 interface DiagramFocusState {
     filePath: string;
