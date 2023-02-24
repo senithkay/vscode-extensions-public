@@ -25,6 +25,7 @@ import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../reso
 import { entityModeller, serviceModeller } from '../../../utils';
 import { CanvasWrapper, CellContainer, CellDiagram } from "./style";
 import { Gateways } from "../../gateway/Gateways/Gateways";
+import {CellBoundary} from "./CellBoundary";
 
 interface DiagramContainerProps {
     currentView: Views;
@@ -105,15 +106,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
                             </div>
                             {currentView === Views.CELL_VIEW &&
                                 <div>
-                                    <svg style= {{ visibility: "hidden", position: "absolute", width: 0, height:0 }} xmlns="http://www.w3.org/2000/svg" version="1.1">
-                                        <defs>
-                                            <filter id="round">
-                                                <feGaussianBlur in="SourceGraphic" stdDeviation="5"/>
-                                                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo"/>
-                                                <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
-                                            </filter>
-                                        </defs>
-                                    </svg>
+                                    <CellBoundary/>
                                     <Gateways/>
                                     <CellDiagram>
                                         <CellContainer>
