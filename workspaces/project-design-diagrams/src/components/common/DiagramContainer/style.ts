@@ -12,7 +12,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Colors } from "../../../resources";
+import { Views } from '../../../resources';
 
 export const CellContainer = styled.div`
   width: calc(100vw - 100px);
@@ -20,16 +20,17 @@ export const CellContainer = styled.div`
   border-radius: 40px;
   border: 1px solid #5567D5;
   overflow: hidden;
+  height: calc(100vh - 100px);
 `;
 
 interface DiagramContainerStyleProps {
-    display?: string;
+  currentView: Views;
 }
 
 export const CellDiagram = styled.div`
   position: relative;
   width: calc(100vw - 100px);
-  display: ${(props: DiagramContainerStyleProps) => `${props.display}`};
+  display: ${(props: DiagramContainerStyleProps) => props.currentView === Views.CELL_VIEW ? 'block' : 'none'};
   flex-direction: column;
   padding-top: 30px;
   padding-bottom: 20px;
@@ -37,9 +38,9 @@ export const CellDiagram = styled.div`
 `;
 
 interface GatewayContainerProps {
-    left?: string;
-    top?: string;
-    rotate?: string;
+  left?: string;
+  top?: string;
+  rotate?: string;
 }
 
 export const GatewayContainer = styled.div`

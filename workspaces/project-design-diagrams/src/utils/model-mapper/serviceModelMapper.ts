@@ -60,6 +60,7 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l2Model.addAll(...Array.from(l2Nodes.values()),
         ...Array.from(l2ExtNodes.values()), ...l2Links);
 
+    // set cell model
     let cellModel = new DiagramModel();
     cellModel.addAll(...Array.from(cellNodes.values()),
         ...Array.from(cellExtNodes.values()), ...Array.from(cellLinks.values()))
@@ -80,14 +81,15 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
                     service.serviceId = uniqueId(`${packageName}/${service.path}`);
                 }
                 // create the L1 service nodes
-                const l1Node = new ServiceNodeModel(service, Level.ONE, extractGateways(service));
+                const l1Node = new ServiceNodeModel(service, Level.ONE);
                 l1Nodes.set(service.serviceId, l1Node);
 
+                // create the cell diagram nodes
                 const cellNode = new ServiceNodeModel(service, Level.ONE, extractGateways(service));
                 cellNodes.set(service.serviceId, cellNode);
 
                 // create the L2 service nodes
-                const l2Node = new ServiceNodeModel(service, Level.TWO, extractGateways(service));
+                const l2Node = new ServiceNodeModel(service, Level.TWO);
                 l2Nodes.set(service.serviceId, l2Node);
             });
         }
@@ -178,6 +180,7 @@ function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
         }
     }
 
+    // create cell diagram links if not created already
     if (!cellLinks.has(linkID)) {
         let cellTarget: ServiceNodeModel = cellNodes.get(interaction.resourceId.serviceId);
         if (cellTarget) {
@@ -250,6 +253,13 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
         l1ExtNodes.set(connectorType, l1ExtService);
     }
 
+    // maps L1 links to external services
+    let l1Link: ServiceLinkModel = mapExtLinks(l1Source, l1ExtService, location, undefined);
+    if (l1Link) {
+        l1Links.set(`${l1Source.getID()}${connectorType}`, l1Link);
+    }
+
+    // create cell external service node if not available
     let cellExtService: ExtServiceNodeModel;
     if (cellExtNodes.has(connectorType)) {
         cellExtService = cellExtNodes.get(connectorType);
@@ -258,12 +268,7 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
         cellExtNodes.set(connectorType, cellExtService);
     }
 
-    // maps L1 links to external services
-    let l1Link: ServiceLinkModel = mapExtLinks(l1Source, l1ExtService, location, undefined);
-    if (l1Link) {
-        l1Links.set(`${l1Source.getID()}${connectorType}`, l1Link);
-    }
-
+    // maps cell links to external services
     let cellLink: ServiceLinkModel = mapExtLinks(cellSource, cellExtService, location, undefined);
     if (cellLink) {
         cellLinks.set(`${cellSource.getID()}${connectorType}`, cellLink);
