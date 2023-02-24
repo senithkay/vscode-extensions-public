@@ -79,8 +79,6 @@ export function DiagramViewManager(props: EditorProps) {
     } = props;
     const classes = useGeneratorStyles();
 
-    const isWorkspace: boolean = projectPaths.length > 1;
-    const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
@@ -90,7 +88,6 @@ export function DiagramViewManager(props: EditorProps) {
     const [fileList, setFileList] = useState<FileListEntry[]>();
     const [focusFile, setFocusFile] = useState<FileListEntry>();
     const [focusUid, setFocusUid] = useState<string>();
-    const [stMemberId, setStMemberId] = useState<string>();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
@@ -424,7 +421,7 @@ export function DiagramViewManager(props: EditorProps) {
         currentFileContent,
         focusFile,
         fileList,
-        stMemberId,
+        focusUid,
         completeST,
         lowCodeResourcesVersion,
         balVersion,
