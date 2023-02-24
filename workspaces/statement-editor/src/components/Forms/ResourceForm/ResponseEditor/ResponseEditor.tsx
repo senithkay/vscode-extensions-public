@@ -39,15 +39,15 @@ export interface Param {
 }
 
 export interface ResponseCode {
-    code: number;
+    code: string;
     source: string;
 }
 export const responseCodes: ResponseCode[] = [
-    { code: 100, source: "Default" },
-    { code: 200, source: "http:Ok" },
-    { code: 201, source: "http:Created" },
-    { code: 404, source: "http:NotFound" },
-    { code: 500, source: "http:InternalServerError" }
+    { code: "100", source: "Default" },
+    { code: "200 - OK", source: "http:Ok" },
+    { code: "201 - Created", source: "http:Created" },
+    { code: "404 - NotFound", source: "http:NotFound" },
+    { code: "500 - InternalServerError", source: "http:InternalServerError" }
 ];
 
 export interface ParamProps {
@@ -84,7 +84,7 @@ export function ResponseEditor(props: ParamProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
 
-    const optionsListString = optionList.map(item => item.code === 100 ? `${item.source}` : `${item.code}`);
+    const optionsListString = optionList.map(item => item.code === "100" ? `${item.source}` : `${item.code}`);
 
     // record {|*http:Created; PersonAccount body;|}
     const withType = model.includes("body;") ? model.split(";")[1] : "";
