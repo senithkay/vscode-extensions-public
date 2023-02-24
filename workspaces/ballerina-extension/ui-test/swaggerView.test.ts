@@ -70,11 +70,13 @@ describe('Swagger view UI Tests', () => {
         const getTab = await swaggerWebView.findWebElement(operationTag);
         expect(getTab).is.not.undefined;
         await getTab.click();
+        await wait(2000);
 
         // click try it
         const tryIt = (await swaggerWebView.findWebElements(By.className("try-out__btn")))[0];
         expect(tryIt).is.not.undefined;
         await tryIt.click();
+        await wait(2000);
 
         // cilck execute
         const execute = (await swaggerWebView.findWebElements(By.className("opblock-control__btn")))[0];
