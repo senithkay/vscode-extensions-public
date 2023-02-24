@@ -16,6 +16,7 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony export */   "rushSysCacheDir": () => (/* binding */ rushSysCacheDir)
 /* harmony export */ });
 
+const cache = __nccwpck_require__(7599);
 const projectPath = "./";
 
 const rushCacheKey = `rush-${process.platform}-` + (await cache.hashFiles("rush.json"));
