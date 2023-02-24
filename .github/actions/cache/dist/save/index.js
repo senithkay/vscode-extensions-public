@@ -17,6 +17,7 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony export */ });
 
 const cache = __nccwpck_require__(4470);
+const path = __nccwpck_require__(1017);
 const projectPath = "./";
 
 const rushCacheKey = `rush-${process.platform}-` + (await cache.hashFiles("rush.json"));

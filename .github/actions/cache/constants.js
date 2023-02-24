@@ -1,5 +1,6 @@
 
 const cache = require('@actions/glob');
+const path = require('path');
 const projectPath = "./";
 
 export const rushCacheKey = `rush-${process.platform}-` + (await cache.hashFiles("rush.json"));
