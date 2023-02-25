@@ -62284,18 +62284,18 @@ async function run() {
     console.log(pnpmCacheExists);
     console.log(rushCacheExists);
     // Save the PNPM cache
-    if (!pnpmCacheExists) {
-      console.log(pnpmCacheDir);
-      // const x = await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
-      console.log(x);
-      core.info(`PNPM cache saved with key ${pnpmCacheKey}`);
-    }
+    // if (!pnpmCacheExists) {
+    //   console.log(pnpmCacheDir);
+    //   // const x = await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
+    //   console.log(x);
+    //   core.info(`PNPM cache saved with key ${pnpmCacheKey}`);
+    // }
 
-    // Save the Rush cache
-    if (!rushCacheExists) {
-      await cache.saveCache([rushCacheDir, rushSysCacheDir], rushCacheKey);
-      core.info(`Rush cache saved with key ${rushCacheKey}`);
-    }
+    // // Save the Rush cache
+    // if (!rushCacheExists) {
+    //   await cache.saveCache([rushCacheDir, rushSysCacheDir], rushCacheKey);
+    //   core.info(`Rush cache saved with key ${rushCacheKey}`);
+    // }
   } catch (error) {
     core.setFailed(error.message);
   }
