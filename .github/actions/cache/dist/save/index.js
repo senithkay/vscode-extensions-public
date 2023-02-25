@@ -62285,7 +62285,9 @@ async function run() {
     console.log(rushCacheExists);
     // Save the PNPM cache
     if (!pnpmCacheExists) {
-      await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
+      console.log(pnpmCacheDir);
+      const x = await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
+      console.log(x);
       core.info(`PNPM cache saved with key ${pnpmCacheKey}`);
     }
 
