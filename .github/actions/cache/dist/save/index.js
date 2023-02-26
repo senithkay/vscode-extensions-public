@@ -5277,15 +5277,15 @@ const path = __nccwpck_require__(1017);
 
 async function run() {
   try {
-const projectPath = "./";
-    
+    const projectPath = "./";
+
     const rushCacheKey = `rush-${process.platform}-` + (await glob.hashFiles("rush.json"));
     // const rushCacheDir = path.join(projectPath, 'common', 'temp', 'install-run');
     // const rushBuildCacheDir = path.join(projectPath, 'common', 'temp', 'build-cache');
     // const rushSysCacheDir = path.join(process.env.HOME, '.rush');
 
-    const pnpmCacheDir =" path.join(projectPath, 'common', 'temp', 'pnpm-store')";
-    const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles("**/pnpm-lock.yaml"));
+    const pnpmCacheDir = " path.join(projectPath, 'common', 'temp', 'pnpm-store')";
+    const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles("**/pnpm-lock.yaml", { options: { followSymbolicLinks: false } }));
 
     // const pnpmCacheKey = core.getState("pnpmCacheKey");
     // const rushCacheKey = core.getState("rushCacheKey");
