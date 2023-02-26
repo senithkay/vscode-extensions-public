@@ -5293,7 +5293,7 @@ async function run() {
     const rushCacheExists = core.getState("rushCacheExists");
 
     console.log(pnpmCacheDir);
-    console.log(pnpmCacheKey);
+    // console.log(pnpmCacheKey);
     console.log(rushCacheKey);
     console.log(pnpmCacheExists);
     console.log(rushCacheExists);
