@@ -1,5 +1,15 @@
 name: 'Cache'
 description: 'Cache Rush and pnmp'
+inputs:
+  pnpmKeyFiles:
+    description: 'Which files to use as the hashing key of pnpm'
+    required: false
+    default: |
+      common/config/rush/pnpm-lock.yaml 
+      pnpm-lock.yaml
+outputs:
+  time: # id of output
+    description: 'The time we greeted you'
 runs:
   using: 'node16'
   main: 'dist/restore/index.js'
