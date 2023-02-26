@@ -1,15 +1,16 @@
 const core = require('@actions/core');
 // const cache = require('@actions/cache');
-// const { consts } = require("./constants");
+const { consts } = require("./constants");
 
 async function run() {
   try {
-    // const { pnpmCacheDir, rushCacheDir, rushSysCacheDir } = await consts;
+    const { pnpmCacheDir, rushCacheDir, rushSysCacheDir } = await consts;
     const pnpmCacheKey = core.getState("pnpmCacheKey");
     const rushCacheKey = core.getState("rushCacheKey");
     const pnpmCacheExists = core.getState("pnpmCacheExists");
     const rushCacheExists = core.getState("rushCacheExists");
 
+    console.log(pnpmCacheDir);
     console.log(pnpmCacheKey);
     console.log(rushCacheKey);
     console.log(pnpmCacheExists);
