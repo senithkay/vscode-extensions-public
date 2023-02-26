@@ -62283,13 +62283,13 @@ async function run() {
     const rushCacheExists = core.getState("rushCacheExists");
 
     // Save the PNPM cache
-    if (!pnpmCacheExists) {
+    if (pnpmCacheExists == 'false') {
       const x = await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
       core.info(`PNPM cache saved with key ${pnpmCacheKey}`);
     }
 
     // Save the Rush cache
-    if (!rushCacheExists) {
+    if (rushCacheExists == 'false') {
       await cache.saveCache([rushCacheDir, rushSysCacheDir], rushCacheKey);
       core.info(`Rush cache saved with key ${rushCacheKey}`);
     }
