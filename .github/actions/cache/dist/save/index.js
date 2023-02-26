@@ -5285,7 +5285,7 @@ async function run() {
     // const rushSysCacheDir = path.join(process.env.HOME, '.rush');
 
     const pnpmCacheDir = " path.join(projectPath, 'common', 'temp', 'pnpm-store')";
-    const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles("**/pnpm-lock.yaml", { options: { followSymbolicLinks: false }, verbose: true }));
+    // const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles("**/pnpm-lock.yaml", { options: { followSymbolicLinks: false }, verbose: true }));
 
     // const pnpmCacheKey = core.getState("pnpmCacheKey");
     // const rushCacheKey = core.getState("rushCacheKey");
