@@ -6,8 +6,8 @@ const { consts } = require("./constants");
 async function run() {
     try {
         const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = await consts;
-        core.exportVariable("pnpmCacheKey", pnpmCacheKey);
-        core.exportVariable("rushCacheKey", rushCacheKey);
+        core.saveState("pnpmCacheKey", pnpmCacheKey);
+        core.saveState("rushCacheKey", rushCacheKey);
 
         const pnpmCacheHit = await cache.restoreCache([pnpmCacheDir], pnpmCacheKey);
         if (pnpmCacheHit) {

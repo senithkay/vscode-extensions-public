@@ -5,7 +5,11 @@ const { consts } = require("./constants");
 async function run() {
   try {
     const { pnpmCacheDir, rushCacheDir, rushSysCacheDir } = await consts;
-    const { pnpmCacheKey, rushCacheKey, pnpmCacheExists, rushCacheExists } = process.env;
+    const pnpmCacheKey = core.getState("pnpmCacheKey");
+    const rushCacheKey = core.getState("rushCacheKey");
+    const pnpmCacheExists = core.getState("pnpmCacheExists");
+    const rushCacheExists = core.getState("rushCacheExists");
+
     console.log(pnpmCacheKey);
     console.log(rushCacheKey);
     console.log(pnpmCacheExists);
