@@ -7,6 +7,10 @@ inputs:
     default: |
       common/config/rush/pnpm-lock.yaml 
       pnpm-lock.yaml
+  rushKeyFiles:
+    description: 'Which files to use as the hashing key of Rush'
+    required: false
+    default: rush.json    
 outputs:
   time: # id of output
     description: 'The time we greeted you'

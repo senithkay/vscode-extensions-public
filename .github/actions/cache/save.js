@@ -1,23 +1,12 @@
 const core = require('@actions/core');
-const glob = require('@actions/glob');
-const path = require('path');
 // const cache = require('@actions/cache');
-// const { consts } = require("./constants");
+const { consts } = require("./constants");
 
 async function run() {
   try {
-    const projectPath = "./";
-
-    const rushCacheKey = `rush-${process.platform}-` + (await glob.hashFiles("rush.json", { options: { followSymbolicLinks: false }, verbose: true }));
-    // const rushCacheDir = path.join(projectPath, 'common', 'temp', 'install-run');
-    // const rushBuildCacheDir = path.join(projectPath, 'common', 'temp', 'build-cache');
-    // const rushSysCacheDir = path.join(process.env.HOME, '.rush');
-
-    const pnpmCacheDir = " path.join(projectPath, 'common', 'temp', 'pnpm-store')";
-    const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles(core.getInput("pnpmKeyFiles")));
-
-    // const pnpmCacheKey = core.getState("pnpmCacheKey");
-    // const rushCacheKey = core.getState("rushCacheKey");
+    const { pnpmCacheDir, rushCacheDir, rushSysCacheDir } = await consts;
+    const pnpmCacheKey = core.getState("pnpmCacheKey");
+    const rushCacheKey = core.getState("rushCacheKey");
     const pnpmCacheExists = core.getState("pnpmCacheExists");
     const rushCacheExists = core.getState("rushCacheExists");
 

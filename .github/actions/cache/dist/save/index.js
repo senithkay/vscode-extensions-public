@@ -1,6 +1,29 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 7550:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+
+const core = __nccwpck_require__(2619);
+const glob = __nccwpck_require__(4470);
+const path = __nccwpck_require__(1017);
+const projectPath = "./";
+
+module.exports.consts = (async () => {
+    const rushCacheKey = `rush-${process.platform}-` + (await glob.hashFiles(core.getInput("rushKeyFiles")));
+    const rushCacheDir = path.join(projectPath, 'common', 'temp', 'install-run');
+    const rushBuildCacheDir = path.join(projectPath, 'common', 'temp', 'build-cache');
+    const rushSysCacheDir = path.join(process.env.HOME, '.rush');
+
+    const pnpmCacheDir = path.join(projectPath, 'common', 'temp', 'pnpm-store');
+    const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles(core.getInput("pnpmKeyFiles")));
+    return { rushCacheKey, rushCacheDir, rushBuildCacheDir, rushSysCacheDir, pnpmCacheDir, pnpmCacheKey };
+})();
+
+
+/***/ }),
+
 /***/ 5183:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -5270,25 +5293,14 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(2619);
-const glob = __nccwpck_require__(4470);
-const path = __nccwpck_require__(1017);
 // const cache = require('@actions/cache');
-// const { consts } = require("./constants");
+const { consts } = __nccwpck_require__(7550);
 
 async function run() {
   try {
-    const projectPath = "./";
-
-    const rushCacheKey = `rush-${process.platform}-` + (await glob.hashFiles("rush.json", { options: { followSymbolicLinks: false }, verbose: true }));
-    // const rushCacheDir = path.join(projectPath, 'common', 'temp', 'install-run');
-    // const rushBuildCacheDir = path.join(projectPath, 'common', 'temp', 'build-cache');
-    // const rushSysCacheDir = path.join(process.env.HOME, '.rush');
-
-    const pnpmCacheDir = " path.join(projectPath, 'common', 'temp', 'pnpm-store')";
-    const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles(core.getInput("pnpmKeyFiles")));
-
-    // const pnpmCacheKey = core.getState("pnpmCacheKey");
-    // const rushCacheKey = core.getState("rushCacheKey");
+    const { pnpmCacheDir, rushCacheDir, rushSysCacheDir } = await consts;
+    const pnpmCacheKey = core.getState("pnpmCacheKey");
+    const rushCacheKey = core.getState("rushCacheKey");
     const pnpmCacheExists = core.getState("pnpmCacheExists");
     const rushCacheExists = core.getState("rushCacheExists");
 
