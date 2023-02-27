@@ -9,7 +9,6 @@ import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isU
 import { EditorProps, FileListEntry, PALETTE_COMMANDS, Uri } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
-import { DiagramFocusState } from "../hooks/diagram-focus";
 
 export function getDiagramProviderProps(
     focusedST: STNode,
@@ -27,7 +26,8 @@ export function getDiagramProviderProps(
     setFileContent: (content: string) => void,
     updateActiveFile: (currentFile: FileListEntry) => void,
     updateSelectedComponent: (info: ComponentViewInfo) => void,
-    navigateUptoParent: (position: NodePosition) => void
+    navigateUptoParent: (position: NodePosition) => void,
+    setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
             getLibrariesData, getLibrariesList, getLibraryData } = props;
@@ -90,6 +90,7 @@ export function getDiagramProviderProps(
                     let visitedST: STNode;
                     if (parseSuccess) {
                         // undoRedo.addModification(source);
+                        setUpdateTimestamp(new Date().getTime().toString());
                         setFileContent(source);
                         props.updateFileContent(focusFile?.uri.path, source);
                         visitedST = await getLowcodeST(newST, focusFile?.uri.path, langClient, experimentalEnabled, showMessage);

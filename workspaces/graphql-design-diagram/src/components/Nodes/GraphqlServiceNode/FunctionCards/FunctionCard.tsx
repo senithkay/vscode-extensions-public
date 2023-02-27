@@ -72,7 +72,7 @@ export function FunctionCard(props: FunctionCardProps) {
                 )
             }
             {isHovered &&
-            <FunctionMenuWidget location={node.serviceObject.position}/>
+            <FunctionMenuWidget location={functionElement.position}/>
             }
         </FunctionContainer>
     );

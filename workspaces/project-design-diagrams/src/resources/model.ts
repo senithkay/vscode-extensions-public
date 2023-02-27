@@ -139,6 +139,7 @@ export interface ConnectorProps {
 export interface ServiceModels {
     levelOne: DiagramModel;
     levelTwo: DiagramModel;
+    cellModel: DiagramModel;
 }
 
 export interface Location {

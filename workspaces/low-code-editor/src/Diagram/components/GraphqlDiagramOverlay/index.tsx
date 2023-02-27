@@ -17,17 +17,19 @@ import React, { useContext, useState } from "react";
 import { GraphqlDesignDiagram } from "@wso2-enterprise/ballerina-graphql-design-diagram";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-    ConfigOverlayFormStatus,
+    ConfigOverlayFormStatus, STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition, STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../Contexts/Diagram";
+import { Context, useDiagramContext } from "../../../Contexts/Diagram";
+import { useHistoryContext } from "../../../DiagramViewManager/context/history";
+import { ComponentViewInfo } from "../../../OverviewDiagram/util";
+import { removeStatement } from "../../utils";
 import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
 
-import { GraphqlServicePanel } from "./GraphqlServicePanel";
 import { graphQLOverlayStyles } from "./style";
 
 export interface GraphqlDesignOverlayProps {
@@ -46,9 +48,13 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     const {
         props: { currentFile, syntaxTree: lowcodeST },
         api: {
+            code: { modifyDiagram },
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
+
+    const { history } = useHistoryContext();
+    const { api: { navigation: { updateSelectedComponent } } } = useDiagramContext();
 
     const [enableFunctionForm, setEnableFunctionForm] = useState(false);
     const [enableServicePanel, setServicePanel] = useState(false);
@@ -90,6 +96,25 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
         }
     }
 
+    const handleDesignOperationClick = (functionPosition: NodePosition) => {
+        const currentElementInfo = history[history.length - 1];
+        const componentViewInfo: ComponentViewInfo = {
+            filePath: currentElementInfo.file.uri.path,
+            position: functionPosition
+        }
+        updateSelectedComponent(componentViewInfo);
+    }
+
+    const handleDeleteBtnClick = (position: NodePosition) => {
+        const modifications: STModification[] = [];
+        const deleteAction: STModification = removeStatement(
+            position
+        );
+        modifications.push(deleteAction);
+        modifyDiagram(modifications);
+    }
+
+
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
             <GraphqlDesignDiagram
@@ -104,6 +129,8 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 syntaxTree={lowcodeST}
                 functionPanel={renderFunctionForm}
                 servicePanel={renderServicePanel}
+                operationDesignView={handleDesignOperationClick}
+                onDelete={handleDeleteBtnClick}
             />
             {enableFunctionForm &&
             <FormGenerator {...formConfig}/>

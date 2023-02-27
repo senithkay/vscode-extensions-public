@@ -102,13 +102,13 @@ function setupWebviewPanel() {
                                 const range: Range = new Range(startPosition, endPosition);
                                 textEditor.revealRange(range, TextEditorRevealType.InCenter);
                                 textEditor.selection = new Selection(range.start, range.start);
-                            })
-                        })
+                            });
+                        });
                     }
                     return;
                 }
                 case "openDesignDiagram": {
-                    commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, message.position, message.filePath);
+                    commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, message.filePath, message.position, true);
                     return;
                 }
             }

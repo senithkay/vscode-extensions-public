@@ -59,26 +59,12 @@ let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
 function getParentNamePlaceholder(parent: STNode): string | undefined {
     if (STKindChecker.isServiceDeclaration(parent)) {
         let servicePath = "";
-        let listeningOnText = "";
 
-        if (STKindChecker.isExplicitNewExpression(parent.expressions[0])) {
-            if (STKindChecker.isQualifiedNameReference(parent.expressions[0].typeDescriptor)) {
-                // serviceType = model.expressions[0].typeDescriptor.modulePrefix.value.toUpperCase();
-                listeningOnText = parent.expressions[0].source;
-            }
-            // } else if (STKindChecker.isSimpleNameReference(model.expressions[0]) && stSymbolInfo) {
-            //     const listenerNode: ListenerDeclaration = stSymbolInfo.listeners.get(
-            //         model.expressions[0].name.value
-            //     ) as ListenerDeclaration;
-            //     if (listenerNode && STKindChecker.isQualifiedNameReference(listenerNode.typeDescriptor)) {
-            //         serviceType = listenerNode.typeDescriptor.modulePrefix.value.toUpperCase();
-            //         listeningOnText = model.expressions[0].source;
-            //     }
-        }
         parent.absoluteResourcePath.forEach(item => {
             servicePath += item.value;
         });
-        return `service ${servicePath}${listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}`;
+
+        return `service ${servicePath.length > 0 ? servicePath : '/'}`;
     }
     return;
 }

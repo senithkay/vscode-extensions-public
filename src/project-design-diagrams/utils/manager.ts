@@ -17,7 +17,7 @@
  *
  */
 
-import { IProjectManager, Project, Component, BallerinaComponentCreationParams } from "@wso2-enterprise/choreo-core";
+import { IProjectManager, Project, Component, BallerinaComponentCreationParams, IsRepoClonedRequestParams } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import { readFile, writeFile } from "fs";
@@ -26,6 +26,12 @@ import { addToWorkspace } from "../../utils/project-utils";
 import { runCommand } from "../../testing/runner";
 
 export class BallerinaProjectManager implements IProjectManager {
+    isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
+    cloneRepo(params: IsRepoClonedRequestParams): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
     createLocalComponent(componentDetails: BallerinaComponentCreationParams): Promise<string> {
         return BallerinaProjectManager._createComponent(componentDetails);
     }
@@ -44,7 +50,7 @@ export class BallerinaProjectManager implements IProjectManager {
                 if (!isSubdir) {
                     const parsedPath = path.parse(workspaceFolder.uri.fsPath);
                     if (parsedPath.dir !== parentCandidate) {
-                        parentCandidate = path.parse(parentCandidate).dir
+                        parentCandidate = path.parse(parentCandidate).dir;
                     }
                 }
             });
@@ -106,6 +112,6 @@ export class BallerinaProjectManager implements IProjectManager {
     }
 
     getLocalComponents(workspaceFilePath: string): Component[] {
-        return []
+        return [];
     }
 }

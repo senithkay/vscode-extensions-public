@@ -15,11 +15,75 @@ import * as os from 'os';
 import path = require('path');
 import { simpleGit } from 'simple-git';
 import { commands, ProgressLocation, Uri, window, workspace } from 'vscode';
-import { Component, Project, Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
+import { Component, Project, RepoCloneRequestParams, Repository, WorkspaceConfig } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
 import { getLogger } from '../logger/logger';
+import { execSync } from 'child_process';
+import { initGit } from '../git/main';
+
+export function checkSSHAccessToGitHub() {
+    try {
+        execSync("ssh -T git@github.com -o \"StrictHostKeyChecking no\"");
+        return true;
+    } catch (error: any) {
+        if (error.message && error.message.includes("You've successfully authenticated")) {
+            return true;
+        }
+        window.showErrorMessage('Cannot access GitHub via SSH. Please check your SSH keys.');
+        getLogger().error("Error while checking SSH access to GitHub: " + error);
+        return false;
+    }
+}
+
+export const cloneRepoToCuurentProjectWorkspace = async (params: RepoCloneRequestParams) => {
+    const { repository, branch, workspaceFilePath } = params;
+    let success = false;
+    await window.withProgress({
+        title: `Cloning ${repository} repository to Choreo project workspace.`,
+        location: ProgressLocation.Notification,
+        cancellable: true
+    }, async (progress, cancellationToken) => {
+        let cancelled: boolean = false;
+        cancellationToken.onCancellationRequested(async () => {
+            getLogger().debug("Cloning cancelled for " + repository);
+            cancelled = true;
+        });
+        if (!ext.api.isChoreoProject()) {
+            getLogger().error("Cannot clone repository to a non-Choreo project");
+            window.showErrorMessage('Current workspace is not a Choreo project. Please open a Choreo project to clone a repository.');
+            return;
+        }
+        const projectDir = path.dirname(workspaceFilePath);
+        const repoPath = path.join(projectDir, 'repos', repository);
+        if (!existsSync(path.dirname(repoPath))) {
+            mkdirSync(path.dirname(repoPath), { recursive: true });
+            getLogger().debug("Created org directory: " + path.dirname(repoPath));
+        }
+        if (existsSync(repoPath)) {
+            getLogger().debug("Repository already exists: " + repoPath);
+            window.showErrorMessage('Repository already exists: ' + repoPath);
+            return;
+        }
+        getLogger().debug("Cloning repository: " + repository + " to " + repoPath);
+        if (cancelled) {
+            return;
+        }
+        const git = await initGit(ext.context);
+        if (git) {
+            await git.clone(`https://github.com/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken);        
+            // const _result = await simpleGit().clone(`git@github.com:${repository}.git`, repoPath, ["--recursive", "--branch", branch]);
+            getLogger().debug("Cloned repository: " + repository + " to " + repoPath);
+            success = true;
+        } else {
+            getLogger().error("Git was not initialized"); 
+        }
+    });
+    return success;
+};
+
+
 
 export const cloneProject = async (project: Project) => {
     getLogger().debug("Cloning project: " + project.name);
@@ -119,9 +183,10 @@ export const cloneProject = async (project: Project) => {
             const folders = userManagedComponents.map(({ name, repository }) => {
                 if (repository) {
                     const { organizationApp, nameApp, appSubPath } = repository;
+                    const rootPath = path.join("repos", organizationApp, nameApp);
                     return {
                         name: name,
-                        path: appSubPath ? path.join("repos", organizationApp, nameApp, appSubPath) : nameApp
+                        path: appSubPath ? path.join(rootPath, appSubPath) : rootPath
                     };
                 } else {
                     // TODO: Make repository mandatory in the interface and get rid of this case
@@ -137,7 +202,7 @@ export const cloneProject = async (project: Project) => {
             const workspaceFileName = `${projectName}.code-workspace`;
             const workspaceFilePath = path.join(workspacePath, workspaceFileName);
 
-            writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile));
+            writeFileSync(workspaceFilePath, JSON.stringify(workspaceFile, null, 4));
             getLogger().info("Workspace file created at " + workspaceFilePath);
             getLogger().debug("Workspace file content: " + JSON.stringify(workspaceFile));
 
@@ -146,8 +211,20 @@ export const cloneProject = async (project: Project) => {
                 const repoOrgPath = path.join(workspacePath, "repos", organizationApp);
                 getLogger().info("Cloning " + organizationApp + "/" + nameApp + " to " + repoOrgPath);
                 mkdirSync(repoOrgPath, { recursive: true });
-                const _result = await simpleGit().clone(`git@github.com:${organizationApp}/${nameApp}.git`, path.join(repoOrgPath, nameApp), ["--recursive", "--branch", branchApp]);
-                getLogger().debug("Cloned " + organizationApp + "/" + nameApp + " to " + repoOrgPath);
+                await window.withProgress({
+                    title: `Cloning ${organizationApp}/${nameApp} repository to Choreo project workspace.`,
+                    location: ProgressLocation.Notification,
+                    cancellable: true
+                }, async (progress, cancellationToken) => {
+                    const git = await initGit(ext.context);
+                    if (git) {
+                        await git.clone(`https://github.com/${organizationApp}/${nameApp}.git`, { recursive: true, ref: branchApp, parentPath: repoOrgPath, progress }, cancellationToken);        
+                        // const _result = await simpleGit().clone(`git@github.com:${repository}.git`, repoPath, ["--recursive", "--branch", branch]);
+                        getLogger().debug("Cloned " + organizationApp + "/" + nameApp + " to " + repoOrgPath);
+                    } else {
+                        getLogger().error("Git was not initialized"); 
+                    }
+                });
                 currentCloneIndex = currentCloneIndex + 1;
             }
 

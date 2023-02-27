@@ -11,7 +11,7 @@
  * associated services.
 */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
 import { ArrowBack } from "@material-ui/icons";
@@ -19,6 +19,7 @@ import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient"
 import { ConfigOverlayFormStatus, SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ComponentExpandButton, LinePrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
+    ModulePart,
     NodePosition,
     ResourceAccessorDefinition,
     ServiceDeclaration,
@@ -27,7 +28,8 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { AddIcon } from "../../../assets/icons";
-import { useDiagramContext } from "../../../Contexts/Diagram";
+import { Context } from "../../../Contexts/Diagram";
+import { RecordEditor } from "../FormComponents/ConfigForms";
 
 import { ResourceBody } from "./Resource";
 import { ServiceHeader } from "./ServiceHeader";
@@ -59,6 +61,10 @@ export function ServiceDesign(props: ServiceDesignProps) {
     const classes = useStyles();
 
     const serviceST = model as ServiceDeclaration;
+
+    const {
+        props: { syntaxTree },
+    } = useContext(Context);
 
     useEffect(() => {
         const cc: JSX.Element[] = [];
@@ -93,9 +99,35 @@ export function ServiceDesign(props: ServiceDesignProps) {
             startColumn: serviceST.closeBraceToken.position.startColumn,
             startLine: serviceST.closeBraceToken.position.startLine
         }
-        handleDiagramEdit(undefined, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false });
+        handleDiagramEdit(undefined, lastMemberPosition, { formType: "ResourceAccessorDefinition", isLoading: false, renderRecordPanel });
     };
 
+    const onSave = () => {
+        // Record Editor Save
+    }
+
+    const renderRecordPanel = (closeRecordEditor: (createdRecord?: string) => void) => {
+        const servicePosition = (syntaxTree as ModulePart);
+        const lastMember: NodePosition = servicePosition.position;
+        const lastMemberPosition: NodePosition = {
+            endColumn: 0,
+            endLine: lastMember.startLine - 1,
+            startColumn: 0,
+            startLine: lastMember.startLine - 1
+        }
+        return (
+            <RecordEditor
+                formType={""}
+                targetPosition={lastMemberPosition}
+                name={"record"}
+                onCancel={closeRecordEditor}
+                onSave={onSave}
+                isTypeDefinition={true}
+                isDataMapper={true}
+                showHeader={true}
+            />
+        );
+    };
 
     let servicePath = "";
     let listeningOnText = "";
@@ -122,14 +154,15 @@ export function ServiceDesign(props: ServiceDesignProps) {
                 <>
                     {/*<ServiceHeader onClose={onClose} model={fnSTZ} />*/}
                     <div className={classes.serviceTitle}>
-                        <div>
+                        <div className={classes.serviceTitleText}>
                             <span className={classes.servicePath}>Service {servicePath}</span>
                             <span className={classes.listenerText}>
                                 {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
                             </span>
                         </div>
-                        <div className={classes.serviceConfigure} >
-                            <SettingsIcon onClick={handleServiceConfigureFormClick} />
+                        <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
+                            <SettingsIcon />
+                            <div>Configure Service</div>
                         </div>
                     </div>
                     <div className={classes.expandAll}>

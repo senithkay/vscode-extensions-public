@@ -18,9 +18,11 @@ import { IconButton, Tooltip } from "@material-ui/core";
 import {
     LabelEditIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../../../../resources/model";
+import { getSTNodeFromRange } from "../../../../utils/common-util";
 
 interface EditFunctionWidgetProps {
     position: Position;
@@ -32,6 +34,19 @@ export function EditFunctionWidget(props: EditFunctionWidgetProps) {
     const { functionPanel, model } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
+
+    const openFunctionPanel = () => {
+        if (STKindChecker.isServiceDeclaration(model)) {
+            const functionPosition: NodePosition = {
+                endColumn: position.endLine.offset,
+                endLine: position.endLine.line,
+                startColumn: position.startLine.offset,
+                startLine: position.startLine.line
+            };
+            // TODO: enable editing for resource forms
+            functionPanel(functionPosition, "ResourceForm", getSTNodeFromRange(functionPosition, model));
+        }
+    };
 
 
     return (
@@ -46,7 +61,7 @@ export function EditFunctionWidget(props: EditFunctionWidgetProps) {
                     placement="right"
                 >
                     <IconButton
-                        // onClick={() => openFunctionPanel()}
+                        onClick={() => openFunctionPanel()}
                         onMouseOver={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         style={{

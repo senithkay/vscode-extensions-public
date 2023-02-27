@@ -50,7 +50,7 @@ export function render(webView: Webview) {
                 })
             }
 
-            function openDesignDiagram(position, filePath) {
+            function openDesignDiagram(filePath, position) {
                 vscode.postMessage({
                     command: 'openDesignDiagram',
                     position: position,

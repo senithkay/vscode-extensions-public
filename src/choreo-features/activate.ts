@@ -60,7 +60,7 @@ export function activateChoreoFeatures(balExt: BallerinaExtension) {
                                 window.showErrorMessage(`Choreo Login Failed: Choreo Extension not found!`);
                             }
                         }).catch(() => {
-                            window.showErrorMessage(`Choreo Login Failed: Choreo Extension activation failed!`)
+                            window.showErrorMessage(`Choreo Login Failed: Choreo Extension activation failed!`);
                         });
                 } else {
                     window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);

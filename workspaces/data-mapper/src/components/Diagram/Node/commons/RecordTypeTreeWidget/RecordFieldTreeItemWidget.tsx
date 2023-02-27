@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React from "react";
+import React, { useState } from "react";
 
 import IconButton from "@material-ui/core/IconButton";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -19,8 +19,9 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import classnames from "classnames";
 
-import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getOptionalRecordField, getTypeName } from "../../../utils/dm-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -31,17 +32,30 @@ const useStyles = makeStyles((theme: Theme) =>
             minWidth: "100px",
             display: "flex",
             minHeight: "24px",
-            background: "#FFF"
+            background: "#FFF",
+            '&:hover': {
+                backgroundColor: '#F0F1FB',
+            }
+        },
+        treeLabelPortSelected: {
+            backgroundColor: '#DFE2FF',
+        },
+        treeLabelParentHovered: {
+            backgroundColor: '#F0F1FB',
         },
         treeLabelOutPort: {
             float: "right",
             width: 'fit-content',
             marginLeft: "auto",
+            display: "flex",
+            alignItems: "center"
         },
         treeLabelInPort: {
             float: "left",
             marginRight: "5px",
             width: 'fit-content',
+            display: "flex",
+            alignItems: "center"
         },
         typeLabel: {
             marginLeft: "3px",
@@ -93,17 +107,20 @@ export interface RecordFieldTreeItemWidgetProps {
     treeDepth?: number;
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
     isOptional?: boolean;
-
+    hasHoveredParent?: boolean;
 }
 
 export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps) {
-    const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0, isOptional } = props;
+    const { parentId, field, getPort, engine, handleCollapse, treeDepth = 0, isOptional, hasHoveredParent } = props;
     const classes = useStyles();
 
     const fieldName = getBalRecFieldName(field.name);
     const fieldId = `${parentId}${isOptional ? `?.${fieldName}` : `.${fieldName}`}`;
     const portIn = getPort(`${fieldId}.IN`);
     const portOut = getPort(`${fieldId}.OUT`);
+    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [isHovered, setIsHovered] = useState(false);
+
     let fields: Type[];
     let optional = false;
 
@@ -142,18 +159,39 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
 
     const handleExpand = () => {
         handleCollapse(fieldId, !expanded);
-    }
+    };
+
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
+
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
 
     return (
         <>
-            <div className={classes.treeLabel}>
+            <div
+                id={"recordfield-" + fieldId}
+                className={classnames(classes.treeLabel,
+                    (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+                    hasHoveredParent ? classes.treeLabelParentHovered : ""
+                )}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
                 <span className={classes.treeLabelInPort}>
                     {portIn &&
-                        <DataMapperPortWidget engine={engine} port={portIn} />
+                        <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
                     }
                 </span>
                 <span className={classes.label}>
                     {fields && <IconButton
+                        id={"button-wrapper-" + fieldId}
                         className={classes.expandIcon}
                         style={{ marginLeft: treeDepth * 16 }}
                         onClick={handleExpand}
@@ -164,15 +202,15 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} />
+                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
             </div>
             {fields && expanded &&
-                fields.map((subField) => {
+                fields.map((subField, index) => {
                     return (
                         <RecordFieldTreeItemWidget
-                            key={fieldId}
+                            key={index}
                             engine={engine}
                             field={subField}
                             getPort={getPort}
@@ -180,6 +218,7 @@ export function RecordFieldTreeItemWidget(props: RecordFieldTreeItemWidgetProps)
                             handleCollapse={handleCollapse}
                             treeDepth={treeDepth + 1}
                             isOptional={isOptional || optional}
+                            hasHoveredParent={isHovered || hasHoveredParent}
                         />
                     );
                 })

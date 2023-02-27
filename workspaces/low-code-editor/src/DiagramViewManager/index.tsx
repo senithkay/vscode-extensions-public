@@ -33,11 +33,12 @@ import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
 
 import { Provider as HistoryProvider } from './context/history';
-import { HistoryEntry, useComponentHistory } from "./hooks/history";
+import { useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
+import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 interface DiagramFocusState {
     filePath: string;
@@ -79,34 +80,35 @@ export function DiagramViewManager(props: EditorProps) {
     } = props;
     const classes = useGeneratorStyles();
 
-    const isWorkspace: boolean = projectPaths.length > 1;
-    const [diagramFocusState, setDiagramFocuState] = useState<DiagramFocusState>();
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
+    const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     // const [folderName, setFolderName] = vte<string>();
     // const [filterMap, setFilterMap] = useState({});
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
     const [focusFile, setFocusFile] = useState<FileListEntry>();
     const [focusUid, setFocusUid] = useState<string>();
-    const [stMemberId, setStMemberId] = useState<string>();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
     const [completeST, setCompleteST] = useState<STNode>();
 
+    useEffect(() => {
+        setUpdatedTimeStamp(lastUpdatedAt);
+    }, [lastUpdatedAt]);
 
     useEffect(() => {
         if (!focusFile || !focusUid) return;
         fetchST(focusFile.uri.path, { uid: focusUid });
-    }, [lastUpdatedAt]);
+    }, [updatedTimeStamp]);
 
     useEffect(() => {
         if (history.length > 0) {
             const { project, file, position } = history[history.length - 1];
             fetchST(file.uri.path, { position });
-            if (currentProject.name !== project.name) setCurrentProject(project);
+            if (!currentProject || currentProject.name !== project.name) setCurrentProject(project);
             setFocusFile(file);
         } else {
             setFocusedST(undefined);
@@ -124,8 +126,6 @@ export function DiagramViewManager(props: EditorProps) {
                     uri: fileUri
                 }));
                 setFileList(projectFiles);
-                setFocusFile(undefined);
-                setFocusedST(undefined);
             })();
         }
     }, [currentProject?.name]);
@@ -282,16 +282,18 @@ export function DiagramViewManager(props: EditorProps) {
 
     const viewComponent: React.ReactElement[] = [];
 
-    if (!focusedST && currentProject) {
+    if (history.length > 0 && !focusedST) {
+        viewComponent.push(<TextPreLoader position={'absolute'} />);
+    } else if (!focusedST && currentProject) {
 
         viewComponent.push((
             <OverviewDiagram
                 currentProject={currentProject}
                 currentFile={focusFile}
-                lastUpdatedAt={lastUpdatedAt}
                 notifyComponentSelection={updateSelectedComponent}
                 updateCurrentFile={setFocusFile}
                 fileList={fileList}
+                lastUpdatedAt={updatedTimeStamp}
             />
         ));
     } else if (focusedST) {
@@ -390,10 +392,9 @@ export function DiagramViewManager(props: EditorProps) {
             return;
         }
 
-        const currentHistoryEntry: ComponentViewInfo = structuredClone(history[history.length - 1]);
-        currentHistoryEntry.uid = undefined;
+        const currentHistoryEntry = structuredClone(history[history.length - 1]);
         currentHistoryEntry.position = position;
-        updateSelectedComponent(currentHistoryEntry);
+        historyPush(currentHistoryEntry);
     }
 
     //
@@ -417,13 +418,33 @@ export function DiagramViewManager(props: EditorProps) {
         fetchST(currentFile.uri.path);
     };
 
+    const diagramProps = getDiagramProviderProps(
+        focusedST,
+        lowCodeEnvInstance,
+        currentFileContent,
+        focusFile,
+        fileList,
+        focusUid,
+        completeST,
+        lowCodeResourcesVersion,
+        balVersion,
+        props,
+        setFocusedST,
+        setCompleteST,
+        setCurrentFileContent,
+        updateActiveFile,
+        updateSelectedComponent,
+        navigateUptoParent,
+        setUpdatedTimeStamp
+    )
+
     return (
         <div>
             <MuiThemeProvider theme={theme}>
                 <div className={classes.lowCodeContainer}>
                     <IntlProvider locale='en' defaultLocale='en' messages={messages}>
                         <ViewManagerProvider
-                            {...getDiagramProviderProps(focusedST, lowCodeEnvInstance, currentFileContent, focusFile, fileList, stMemberId, completeST, lowCodeResourcesVersion, balVersion, props, setFocusedST, setCompleteST, setCurrentFileContent, updateActiveFile, updateSelectedComponent, navigateUptoParent)}
+                            {...diagramProps}
                         >
                             <HistoryProvider
                                 history={history}

@@ -48,6 +48,7 @@ if {{{ CONDITION }}} {
     REMOTE_SERVICE_CALL: '{{{ TYPE }}} {{{ VARIABLE }}} = {{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}->{{{ FUNCTION }}}({{{ PARAMS }}});',
     ACTION_STATEMENT: '{{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
     ACTION_STATEMENT_CHECK: 'check {{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
+    RESOURCE_SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}->/{{#if PATH}}{{{ PATH }}}{{/if}}{{#if FUNCTION}}.{{{ FUNCTION }}}{{/if}}{{#if PARAMS}}({{{ PARAMS }}}){{/if}};',
     RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
     RESOURCE: `
     resource function {{{ METHOD }}} {{{ PATH }}} ({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}} {
@@ -75,14 +76,14 @@ while {{{ VARIABLE }}} is record {|record {} value;|} {
     {{{ VARIABLE }}} = {{{ RETURN_TYPE }}}.next();
 }`,
     SERVICE_AND_LISTENER_DECLARATION: `
-listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
+listener {{{ SERVICE_TYPE }}}:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
 service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     resource function get .() returns error? {
     }
 }`,
     SERVICE_DECLARATION_WITH_NEW_INLINE_LISTENER: `
-service {{{ BASE_PATH }}} on new http:Listener({{{ PORT }}}) {
+service {{{ BASE_PATH }}} on new {{{ SERVICE_TYPE }}}:Listener({{{ PORT }}}) {
     resource function get .() returns error? {
     }
 }`,
@@ -92,7 +93,7 @@ service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}} {
     }
 }`,
     LISTENER_DECLARATION: `
-listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
+listener {{{ SERVICE_TYPE }}}:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 `,
     FUNCTION_DEFINITION: `
 {{{ ACCESS_MODIFIER }}} function {{{ NAME }}} ({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}} {{#if IS_EXPRESSION_BODIED}} => {{{ EXPRESSION_BODY }}}; {{else}} {
@@ -100,11 +101,11 @@ listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 }{{/if}}`,
     FUNCTION_DEFINITION_SIGNATURE: `{{{ NAME }}}({{{ PARAMETERS }}}) {{{ RETURN_TYPE }}}`,
     SERVICE_WITH_LISTENER_DECLARATION_UPDATE: `
-listener http:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
+listener {{{ SERVICE_TYPE }}}:Listener {{{ LISTENER_NAME }}} = new ({{{ PORT }}});
 
 service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     SERVICE_DECLARATION_WITH_INLINE_LISTENER_UPDATE: `
-service {{{ BASE_PATH }}} on new http:Listener({{{ PORT }}})`,
+service {{{ BASE_PATH }}} on new {{{ SERVICE_TYPE }}}:Listener({{{ PORT }}})`,
     SERVICE_DECLARATION_WITH_SHARED_LISTENER_UPDATE: `
 service {{{ BASE_PATH }}} on {{{ LISTENER_NAME }}}`,
     MODULE_VAR_DECL_WITH_INIT: `

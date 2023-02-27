@@ -81,36 +81,36 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	}
 
 	const editor = window.activeTextEditor;
-	// if (isCommand) {
-	// 	if (!editor || !editor.document.fileName.endsWith('.bal')) {
-	// 		const message = 'Current file is not a ballerina file.';
-	// 		sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
-	// 		window.showErrorMessage(message);
-	// 		return;
-	// 	}
-	// }
-	//
-	// if (isCommand) {
-	// 	if (!editor) {
-	// 		window.showErrorMessage(CMP_DIAGRAM_VIEW);
-	// 		return;
-	// 	}
-	//
-	// 	diagramElement = {
-	// 		fileUri: editor!.document.uri,
-	// 		startLine: editor!.selection.active.line,
-	// 		startColumn: editor!.selection.active.character,
-	// 		isDiagram: true,
-	//
-	// 	};
-	// } else {
-	// 	diagramElement = {
-	// 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
-	// 		startLine,
-	// 		startColumn,
-	// 		isDiagram: true,
-	// 	};
-	// }
+	if (isCommand) {
+		if (!editor || !editor.document.fileName.endsWith('.bal')) {
+			const message = 'Current file is not a ballerina file.';
+			sendTelemetryEvent(ballerinaExtension, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, getMessageObject(message));
+			window.showErrorMessage(message);
+			return;
+		}
+	}
+
+	if (isCommand) {
+		if (!editor) {
+			window.showErrorMessage(CMP_DIAGRAM_VIEW);
+			return;
+		}
+
+		diagramElement = {
+			fileUri: editor!.document.uri,
+			startLine: editor!.selection.active.line,
+			startColumn: editor!.selection.active.character,
+			isDiagram: true,
+
+		};
+	} else {
+		diagramElement = {
+			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
+			startLine,
+			startColumn,
+			isDiagram: true,
+		};
+	}
 
 	diagramElement = {
 		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
@@ -122,7 +122,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 		workspaceName: workspace.name
 	};
 
-	DiagramPanel.create(ViewColumn.One);
+	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 
 	// Reset cached connector list
 	langClient.getConnectors({ query: "", limit: 18 }, true).then((response) => {
@@ -200,9 +200,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_CODE_EDITOR, CMP_DIAGRAM_VIEW);
 	});
 
-	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path) => {
+	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path, ignoreFileCheck) => {
 		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
-			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position);
+			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position, ignoreFileCheck);
 		} else {
 			const args = [{
 				filePath: path,
@@ -211,7 +211,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 				openInDiagram: position,
 			}];
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
-			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position);
+			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position, ignoreFileCheck);
 		}
 	});
 
@@ -229,11 +229,17 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 			&& (args[1] as NodePosition).endColumn !== undefined) {
 			nodePosition = args[1];
 		}
+
+		let ignoreFileCheck = false;
+		if (args.length > 2) {
+			ignoreFileCheck = args[2];
+		}
+
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(0, 0, path, true, nodePosition);
+				showDiagramEditor(0, 0, path, !ignoreFileCheck, nodePosition);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();

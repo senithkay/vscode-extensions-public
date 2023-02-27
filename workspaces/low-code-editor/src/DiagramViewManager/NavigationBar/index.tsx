@@ -12,15 +12,15 @@
  */
 import React from "react";
 
-import { ClickAwayListener, FormControl, InputLabel, Popover, Select } from "@material-ui/core";
-import { Apps, ArrowBack, ArrowDropDown, Folder, Home } from "@material-ui/icons";
-import classNames from "classnames";
+import { ClickAwayListener, Popover } from "@material-ui/core";
+import { Apps, ArrowBack, ArrowDropDown,  Home } from "@material-ui/icons";
 
-import { FileListEntry, WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
+import { WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
+import { PackageIcon } from "../../assets/icons";
 
 interface NavigationBarProps {
     workspaceName: string;
@@ -81,7 +81,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
         return (
             <div className="btn-container" ref={popoverRef} onClick={handlePojectSelectorOpen} >
-                <Folder />
+                <PackageIcon className={'icon'}/>
                 <span className="icon-text">{currentProject?.name || ''}</span>
                 <ArrowDropDown />
                 <Popover
@@ -108,7 +108,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
     const renderWorkspaceNameComponent = () => (
         <div className="btn-container" >
-            {isWorkspace ? <Apps /> : <Folder />}
+            {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
             <span className="icon-text">{`${workspaceName}`}</span>
         </div>
     );
@@ -128,7 +128,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
     // {renderWorkspaceNameComponent(isWorkspace)}
     return (
-        <div id="nav-var-main" className="header-bar">
+        <div id="nav-bar-main" className="header-bar">
             {history.length > 0 && renderNavigationButtons()}
             {renderWorkspaceNameComponent()}
             {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}

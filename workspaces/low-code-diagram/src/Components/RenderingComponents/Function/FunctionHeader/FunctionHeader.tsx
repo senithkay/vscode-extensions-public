@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BackArrow, SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     RequiredParam,
     STKindChecker,
@@ -22,6 +22,7 @@ import classNames from "classnames";
 
 import { useDiagramContext } from "../../../../Context/diagram";
 import { useFunctionContext } from "../../../../Context/Function";
+import { FunctionViewState, ViewState } from "../../../../ViewState";
 
 import "./style.scss";
 
@@ -31,8 +32,11 @@ export function FunctionHeader() {
     const diagramContext = useDiagramContext();
     const diagramApi = diagramContext?.api;
     const editApi = diagramApi?.edit;
+    const navigationApi = diagramApi.navigation;
     const renderEditForm = editApi?.renderEditForm;
+    const navigateUptoParent = navigationApi?.navigateUptoParent;
 
+    const functionVS = functionNode.viewState as FunctionViewState;
     const titleComponents: React.ReactElement[] = [];
     const argumentComponents: React.ReactElement[] = [];
 
@@ -43,12 +47,7 @@ export function FunctionHeader() {
     if (STKindChecker.isFunctionDefinition(functionNode)) {
         // TODO: handle general funciton
         titleComponents.push(
-            <>
-                <div>{`Function Design - ${functionNode.functionName.value}`}</div>
-                <div className="config-form-icon">
-                    <SettingsIcon onClick={handleConfigFormClick} />
-                </div>
-            </>
+            <div className="title-components">{`Function Design - ${functionNode.functionName.value}`}</div>
         );
 
         functionNode.functionSignature.parameters
@@ -67,7 +66,8 @@ export function FunctionHeader() {
             });
     } else if (STKindChecker.isResourceAccessorDefinition(functionNode)) {
         // TODO: handle resource function
-        titleComponents.push(
+        const resourceTitleContent: React.ReactElement[] = [];
+        resourceTitleContent.push(
             <span className={classNames("resource-badge", functionNode.functionName.value)}>
                 {functionNode.functionName.value.toUpperCase()}
             </span>
@@ -75,11 +75,11 @@ export function FunctionHeader() {
 
         functionNode.relativeResourcePath.forEach(node => {
             if (STKindChecker.isIdentifierToken(node) || STKindChecker.isSlashToken(node)) {
-                titleComponents.push(
+                resourceTitleContent.push(
                     node.value
                 );
             } else if (STKindChecker.isResourcePathSegmentParam(node) || STKindChecker.isResourcePathRestParam(node)) {
-                titleComponents.push(
+                resourceTitleContent.push(
                     <>
                         [<span className={'type-descriptor'}>
                             {`${(node as any).typeDescriptor?.name?.value} `}
@@ -87,6 +87,8 @@ export function FunctionHeader() {
                         {STKindChecker.isResourcePathRestParam(node) ? '...' : ''}{(node as any).paramName?.value}]
                     </>
                 );
+            } else if (STKindChecker.isDotToken(node)) {
+                resourceTitleContent.push(<>/</>);
             }
         });
 
@@ -110,16 +112,41 @@ export function FunctionHeader() {
             ));
 
         if (queryParamComponents.length > 0) {
-            titleComponents.push(<span>?</span>);
-            titleComponents.push(...queryParamComponents);
+            resourceTitleContent.push(<span>?</span>);
+            resourceTitleContent.push(...queryParamComponents);
         }
+
+        const handleNavigateToParent = () => {
+            navigateUptoParent(functionVS.parentPosition);
+        }
+
+        titleComponents.push(
+            <div className="title-components">
+                <div className="parent-description" onClick={handleNavigateToParent}>
+                    <BackArrow />
+                    {functionVS.parentNamePlaceHolder}
+                </div>
+                <div className="content">
+                    {resourceTitleContent}
+                </div>
+            </div>
+        )
     }
 
-    return (
-        <div id="function-header" className="header-container">
-            <div className="title-container">{titleComponents}</div>
-            <div className="argument-container">{argumentComponents}</div>
+    titleComponents.push(
+        <div className="config-form-icon" onClick={handleConfigFormClick}>
+            <SettingsIcon />
+            <div className="config-form-icon-text">Configure Interface</div>
         </div>
+    );
+
+    return (
+        <>
+            <div className="title-container">
+                {titleComponents}
+            </div>
+            <div className="argument-container">{argumentComponents}</div>
+        </>
     )
 }
 
