@@ -31,6 +31,7 @@ import { EditorProps, FileListEntry, Uri, WorkspaceFolder } from "../DiagramGene
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
+import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Provider as HistoryProvider } from './context/history';
 import { useComponentHistory } from "./hooks/history";
@@ -38,7 +39,6 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
-import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 interface DiagramFocusState {
     filePath: string;
@@ -127,10 +127,8 @@ export function DiagramViewManager(props: EditorProps) {
                 }));
 
                 setFileList(projectFiles);
-                setCompleteST(undefined);
-                setFocusedST(undefined);
                 setFocusFile(undefined);
-                historyClear();
+                setFocusUid(undefined);
             })();
         }
     }, [currentProject?.name]);
@@ -151,9 +149,9 @@ export function DiagramViewManager(props: EditorProps) {
                 if (position) {
                     historyPush({ project: currentProjectPath, file: currentFile, position });
                 }
-                setCurrentProject(currentProjectPath);
-                setFileList(projectFiles);
-                setFocusFile(currentFile);
+                // setCurrentProject(currentProjectPath);
+                // setFileList(projectFiles);
+                // setFocusFile(currentFile);
             })();
 
         }
