@@ -15,12 +15,12 @@ import React from "react";
 import { ClickAwayListener, Popover } from "@material-ui/core";
 import { Apps, ArrowBack, ArrowDropDown,  Home } from "@material-ui/icons";
 
+import { PackageIcon } from "../../assets/icons";
 import { WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
-import { PackageIcon } from "../../assets/icons";
 
 interface NavigationBarProps {
     workspaceName: string;
