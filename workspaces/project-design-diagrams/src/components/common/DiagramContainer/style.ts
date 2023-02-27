@@ -12,11 +12,6 @@
  */
 
 import styled from '@emotion/styled';
-import { Views } from '../../../resources';
-
-interface DiagramContainerStyleProps {
-  currentView: Views;
-}
 
 export const CellContainer = styled.div`
   width: calc(100vw - 100px);
