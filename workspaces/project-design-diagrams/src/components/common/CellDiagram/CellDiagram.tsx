@@ -34,9 +34,9 @@ export function CellDiagram(props: CellDiagramProps) {
     const { currentView, layout, cellModel } = props;
 
     return (
-        <>
+        <div>
             <Gateways/>
-            <CellContainerWrapper>
+            <CellContainerWrapper >
                 <CellContainer>
                     <CanvasWrapper>
                         <DiagramCanvasWidget
@@ -47,6 +47,6 @@ export function CellDiagram(props: CellDiagramProps) {
                     </CanvasWrapper>
                 </CellContainer>
             </CellContainerWrapper>
-        </>
+        </div>
     );
 }
