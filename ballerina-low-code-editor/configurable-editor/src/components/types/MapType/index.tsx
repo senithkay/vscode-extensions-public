@@ -34,6 +34,7 @@ import {
     MenuItem,
     Popover,
     TextField,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -43,7 +44,6 @@ import { SelectIcon } from "../../../assets/icons";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import PopOverComponent, {
     PopOverComponentProps,
 } from "../../elements/PopOverComponent";
@@ -56,6 +56,7 @@ import { useStyles } from "../../style";
 import { getConfigProperties } from "../../utils";
 import { ObjectTypeProps } from "../ObjectType";
 import TextInput from "../../ChoreoSystem/TextInput/TextInput";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 
 /**
  * A high level config property which can contain configurable maps.
@@ -360,16 +361,11 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                                     ":"
                                                 }
                                             />
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
+                                            <Box>
+                                                <Tooltip title={connectionFields.valueType}>
+                                                    <Chip color="default" label={connectionFields.valueType} />
+                                                </Tooltip>
+                                            </Box>
                                         </Box>
                                     </MenuItem>
                                 </List>
@@ -418,13 +414,11 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" alignItems="center">
-                <Box flex="0 0 100px">
-                    <FieldLabel {...fieldLabelProps} />
-                </Box>
+            <Box display="flex" alignItems="center"> 
                 <Box flexGrow={1} display="flex" alignItems="center" gridGap={4}>
                     <Box flexGrow={1}>
                         <TextInput 
+                            label={<FieldLabel {...fieldLabelProps} />}
                             fullWidth={true}
                             margin="none" 
                             placeholder={

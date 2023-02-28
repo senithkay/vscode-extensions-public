@@ -37,11 +37,11 @@ import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
 import { SimpleTypeProps } from "../SimpleType";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 
 /**
  * The leaf level configurable type representing string values.
@@ -210,16 +210,11 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                             >
                                                 {connectionFields.configKey.split(".").pop() + ":"}
                                             </Typography>
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
+                                            <Box>
+                                                <Tooltip title={connectionFields.valueType}>
+                                                    <Chip color="default" label={connectionFields.valueType} />
+                                                </Tooltip>
+                                            </Box>
                                         </Box>
                                         {
                                                 connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />

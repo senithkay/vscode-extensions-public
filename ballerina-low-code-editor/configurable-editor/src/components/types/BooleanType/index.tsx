@@ -37,12 +37,12 @@ import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon, TickIcon } from "../../../assets/icons";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ToggleButtonInput, ToggleButtonInputProps } from "../../elements/ToggleButtonInput";
 import { ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
 import { SimpleTypeProps } from "../SimpleType";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 
 /**
  * The leaf level configurable type representing boolean values.
@@ -172,12 +172,11 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                                                 <Typography className={classes.itemText} key={sIndex}>
                                                     {connectionFields.configKey.split(".").pop() + ":"}
                                                 </Typography>
-                                                <OutlinedLabel
-                                                    type="default"
-                                                    label={connectionFields.valueType}
-                                                    tooltipText={connectionFields.valueType}
-                                                    shape="none"
-                                                />
+                                                <Box>
+                                                    <Tooltip title={connectionFields.valueType}>
+                                                        <Chip color="default" label={connectionFields.valueType} />
+                                                    </Tooltip>
+                                                </Box>
                                             </Box>
                                             {
                                                 connections.name.concat(connectionFields.configKey) === selectedIndex

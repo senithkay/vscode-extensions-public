@@ -125,7 +125,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainLabelText: {
             color: "#1D2028",
             fontSize: theme.spacing(1.6),
-            marginRight: theme.spacing(0.5),
+            marginRight: theme.spacing(1),
         },
         menuItem: {
             "&.Mui-selected": {

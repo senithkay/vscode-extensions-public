@@ -53,7 +53,7 @@ export const useTextFiledStyles = makeStyles((theme) => ({
     display: 'flex',
     width: '100%',
     alignItems: 'center',
-    marginBottom: theme.spacing(0.5),
+    marginBottom: theme.spacing(0.5)
   },
   formLabelAction: {
     marginLeft: 'auto',

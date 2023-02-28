@@ -24,9 +24,9 @@ import { Box, FormLabel, ThemeProvider, Tooltip, Typography } from "@material-ui
 import { InfoIcon } from "../../../assets/icons";
 import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
-import OutlinedLabel from "../OutlinedLabel";
 
 import { theme } from "./style";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 
 export interface FieldLabelProps {
     name: string;
@@ -53,12 +53,11 @@ export function FieldLabel(props: FieldLabelProps) {
                     {fieldLabel}
                 </FormLabel>
                 {getDescription(description, classes)}
-                <OutlinedLabel
-                    type="success"
-                    label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType}
-                    tooltipText={type === ConfigType.NUMBER ? ConfigType.FLOAT : type}
-                    shape="none"
-                />
+                <Box display="flex" alignItems="center">
+                    <Tooltip title={type === ConfigType.NUMBER ? ConfigType.FLOAT : type}>
+                        <Chip size="small" variant="outlined" color="success" label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType} />
+                    </Tooltip>
+                </Box>
             </Box>
         </Box>
     );

@@ -34,6 +34,7 @@ import {
     MenuItem,
     Popover,
     TextField,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -44,7 +45,6 @@ import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import PopOverComponent, {
     PopOverComponentProps,
 } from "../../elements/PopOverComponent";
@@ -55,6 +55,7 @@ import ObjectType, { ObjectTypeProps } from "../ObjectType";
 
 import { ArrayTypeProps } from ".";
 import TextInput from "../../ChoreoSystem/TextInput/TextInput";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 export interface ObjectArrayProps extends ArrayTypeProps {
     values?: any[];
     setArrayElement?: (id: string, objectArrayValue: any) => void;
@@ -339,16 +340,11 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                                                     ":"
                                                 }
                                             />
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
+                                            <Box>
+                                                <Tooltip title={connectionFields.valueType}>
+                                                    <Chip color="default" label={connectionFields.valueType} />
+                                                </Tooltip>
+                                            </Box>
                                         </Box>
                                     </MenuItem>
                                 </List>
@@ -400,11 +396,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" alignItems="center">
-                <Box flex="0 0 150px">
-                    <FieldLabel {...fieldLabelProps} />
-                </Box>
-
+            <Box display="flex" alignItems="center"> 
                 <Box
                     flexGrow={1}
                     display="flex"
@@ -413,6 +405,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                 >
                     <Box flexGrow={1}>
                         <TextInput 
+                            label={<FieldLabel {...fieldLabelProps} />}
                             fullWidth={true}
                             margin="none"
                             placeholder={"Select config or Add values"}

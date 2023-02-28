@@ -47,7 +47,6 @@ import ButtonContainer from "../../elements/ButtonContainer";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import PopOverComponent, {
     PopOverComponentProps,
 } from "../../elements/PopOverComponent";
@@ -61,6 +60,7 @@ import SimpleType, { SimpleTypeProps } from "../SimpleType";
 
 import { ArrayTypeProps } from ".";
 import TextInput from "../../ChoreoSystem/TextInput/TextInput";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 
 /**
  * The leaf level configurable type representing boolean values.
@@ -344,16 +344,11 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                                     {connectionFields.configKey.split(".").pop() +
                                                         ":"}
                                                 </Typography>
-                                                <OutlinedLabel
-                                                    type="default"
-                                                    label={
-                                                        connectionFields.valueType
-                                                    }
-                                                    tooltipText={
-                                                        connectionFields.valueType
-                                                    }
-                                                    shape="none"
-                                                />
+                                                <Box>
+                                                    <Tooltip title={connectionFields.valueType}>
+                                                        <Chip color="default" label={connectionFields.valueType} />
+                                                    </Tooltip>
+                                                </Box>
                                             </Box>
                                             {
                                                 connections.name.concat(connectionFields.configKey) === selectedIndex
@@ -425,10 +420,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" alignItems="center">
-                <Box flex="0 0 150px">
-                    <FieldLabel {...fieldLabelProps} />
-                </Box>
+            <Box display="flex" alignItems="center"> 
                 <Box
                     flexGrow={1}
                     display="flex"
@@ -437,9 +429,9 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                 >
                     <Box flexGrow={1}>
                         <TextInput 
+                            label={ <FieldLabel {...fieldLabelProps} />}
                             fullWidth={true}
-                            margin="none" 
-                            classes={{ root: classes.textInputRoot }}
+                            margin="none"  
                             placeholder={"Select config or Add values"} 
                             data-cyid={name}
                             aria-describedby={textId}
