@@ -406,8 +406,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                     alignItems="center"
                 >
                     <Box flexGrow={1}>
-                        <TextInput 
-                            label={<FieldLabel {...fieldLabelProps} />}
+                        <TextInput  
                             fullWidth={true}
                             margin="none"
                             placeholder={"Select config or Add values"}
