@@ -30,7 +30,6 @@ import { AdvancedSettingsWidget, CreateButton, TextInputWidget } from './compone
 import { OrganizationRegex, PackageNameRegex, VersionRegex } from './resources/constants';
 import { ControlsContainer, Header, PrimaryContainer, TitleText } from './resources/styles';
 import { initBallerinaComponent, transformComponentName } from './resources/utils';
-import { ProjectDesignRPC } from '../../utils/rpc/project-design-rpc';
 
 interface EditFormProps {
     visibility: boolean;
@@ -39,9 +38,8 @@ interface EditFormProps {
 }
 
 export function EditForm(props: EditFormProps) {
-    const rpcInstance = ProjectDesignRPC.getInstance();
     const { visibility, defaultOrg, updateVisibility } = props;
-    const { setNewComponentID } = useContext(DiagramContext);
+    const { rpcInstance, setNewComponentID } = useContext(DiagramContext);
 
     const [component, editComponent] = useState<BallerinaComponentCreationParams>(initBallerinaComponent);
     const [generatingComponent, setGenerationStatus] = useState<boolean>(false);

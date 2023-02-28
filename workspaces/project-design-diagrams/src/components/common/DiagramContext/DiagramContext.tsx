@@ -19,58 +19,63 @@
 
 import React, { createContext, ReactNode, useState } from 'react';
 import { Location, Service, Views } from '../../../resources';
+import { ProjectDesignRPC } from '../../../utils';
 
 interface DiagramContextProps {
     children?: ReactNode;
-    isChoreoProject: boolean;
     getTypeComposition: (entityID: string) => void;
-    go2source: (location: Location) => void;
     currentView: Views;
     editingEnabled: boolean;
-    setTargetService: (service: Service) => void;
+    isChoreoProject: boolean;
+    setConnectorTarget: (service: Service) => void;
     refreshDiagram: () => void;
+    go2source: ((location: Location) => void) | undefined;
+    rpcInstance: ProjectDesignRPC | undefined;
 }
 
+// To Do - Refactor to distinguish read-only and editable contexts
 interface IDiagramContext {
+    editingEnabled: boolean;
     isChoreoProject: boolean;
     getTypeComposition: (entityID: string) => void;
-    go2source: (location: Location) => void;
     currentView: Views;
-    setNewComponentID: (name: string) => void;
-    newComponentID: string;
-    editingEnabled: boolean;
-    newLinkNodes: LinkedNodes;
-    setNewLinkNodes: (nodes: LinkedNodes) => void;
-    setTargetService: (service: Service) => void;
     refreshDiagram: () => void;
+    go2source: ((location: Location) => void) | undefined;
+    rpcInstance: ProjectDesignRPC | undefined;
+    // editable diagram states
+    newComponentID: string;
+    newLinkNodes: LinkedNodes;
+    setNewComponentID: (name: string) => void;
+    setNewLinkNodes: (nodes: LinkedNodes) => void;
+    setConnectorTarget: (service: Service) => void;
 }
 
 interface LinkedNodes {
-    source: Service,
-    target: Service
+    source: Service;
+    target: Service;
 }
 
 const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
+    const { getTypeComposition, currentView, editingEnabled, isChoreoProject, go2source, rpcInstance, children, setConnectorTarget, refreshDiagram } = props;
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
-    const { isChoreoProject, getTypeComposition, currentView, go2source, editingEnabled, children, setTargetService, refreshDiagram } = props;
-
     const Ctx = {
+        currentView,
         isChoreoProject,
         getTypeComposition,
-        go2source,
-        currentView,
-        setNewComponentID,
+        refreshDiagram,
+        rpcInstance,
         newComponentID,
         editingEnabled,
         newLinkNodes,
         setNewLinkNodes,
-        setTargetService,
-        refreshDiagram
+        setConnectorTarget,
+        setNewComponentID,
+        go2source
     }
 
     return (

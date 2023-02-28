@@ -17,12 +17,13 @@
  *
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
 import styled from '@emotion/styled';
-import { Colors } from '../../resources';
 import { SxProps } from '@mui/material';
+import { DiagramContext } from '../../components/common';
+import { Colors } from '../../resources';
 
 const Container = styled.div`
     position: ${(props: { letFloat: boolean }) => props.letFloat ? 'relative' : 'absolute'};
@@ -42,21 +43,32 @@ const ButtonStyles: SxProps = {
 };
 
 interface ControlsProps {
-    onComponentAddClick: () => void;
+    setShowEditForm: (status: boolean) => void;
     float?: boolean;
 }
 
 export function ControlsLayer(props: ControlsProps) {
-    const { onComponentAddClick, float } = props;
+    const { float, setShowEditForm } = props;
+    const { isChoreoProject, rpcInstance } = useContext(DiagramContext);
+
+    const onComponentAdd = () => {
+        if (isChoreoProject && rpcInstance) {
+            rpcInstance.executeCommand('wso2.choreo.component.create').catch((error: Error) => {
+                rpcInstance.showErrorMessage(error.message);
+            })
+        } else {
+            setShowEditForm(true);
+        }
+    }
 
     return (
         <Container letFloat={float}>
             <Fab
-                id={"add-component-btn"}
+                id={'add-component-btn'}
                 aria-label='add'
                 variant='extended'
                 size='small'
-                onClick={onComponentAddClick}
+                onClick={onComponentAdd}
                 sx={ButtonStyles}
             >
                 <AddIcon sx={{ marginRight: '5px' }} />

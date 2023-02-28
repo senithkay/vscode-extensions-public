@@ -21,7 +21,7 @@ import { Messenger } from 'vscode-messenger-webview';
 import { HOST_EXTENSION } from 'vscode-messenger-common';
 import { WebviewApi } from 'vscode-webview';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
-import { ComponentModel, Service } from '../../resources';
+import { Service } from '../../resources';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export class ProjectDesignRPC {
@@ -71,10 +71,6 @@ export class ProjectDesignRPC {
 
     public async pickDirectory(): Promise<string | undefined> {
         return this._messenger.sendRequest({ method: 'pickDirectory' }, HOST_EXTENSION, '');
-    }
-
-    public async fetchComponentModels(): Promise<Map<string, ComponentModel>> {
-        return this._messenger.sendRequest({ method: 'getProjectResources' }, HOST_EXTENSION, '');
     }
 
     public async isChoreoProject(): Promise<boolean> {

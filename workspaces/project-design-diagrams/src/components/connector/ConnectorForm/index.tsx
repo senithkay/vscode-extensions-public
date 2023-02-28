@@ -31,7 +31,6 @@ import {
     LoadingWrapper,
     OrgName,
 } from "./styles";
-import { ProjectDesignRPC } from "../../../utils/rpc/project-design-rpc";
 import { CircularProgress } from "@mui/material";
 import { DiagramContext } from "../../common";
 
@@ -43,6 +42,7 @@ interface ConnectorFormProps {
 
 function ConnectorForm(props: ConnectorFormProps) {
     const { connector, service, onSave } = props;
+    const { rpcInstance } = useContext(DiagramContext);
 
     const [pulling, setPulling] = useState(true);
     const [error, setError] = useState<string>();
@@ -50,7 +50,6 @@ function ConnectorForm(props: ConnectorFormProps) {
 
     const { refreshDiagram } = useContext(DiagramContext);
 
-    const rpcInstance = ProjectDesignRPC.getInstance();
     const moduleName = (connector.displayAnnotation?.label || `${connector.package?.name} / ${connector.name}`).replace(/["']/g, "");
 
     useEffect(() => {

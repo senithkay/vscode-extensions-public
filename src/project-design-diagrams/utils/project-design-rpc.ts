@@ -22,10 +22,9 @@ import { BallerinaComponentCreationParams, ChoreoComponentCreationParams, Projec
 import { Messenger } from "vscode-messenger";
 import { BallerinaProjectManager } from "./manager";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
-import { ComponentModel, Service } from "../resources";
+import { Service } from "../resources";
 import { ExtendedLangClient } from "src/core";
 import { addConnector, linkServices, pullConnector } from "./code-generator";
-import { getProjectResources } from "./utils";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "workspaces/low-code-editor-commons/lib";
 import { getChoreoExtAPI, IChoreoExtensionAPI } from "../../choreo-features/activate";
 
@@ -104,10 +103,6 @@ export class ProjectDesignRPC {
             if (fileUri && fileUri[0]) {
                 return fileUri[0].fsPath;
             }
-        });
-
-        this._messenger.onRequest({ method: 'getProjectResources' }, async (): Promise<Map<string, ComponentModel>> => {
-            return getProjectResources(langClient);
         });
 
         this._messenger.onRequest({ method: 'isChoreoProject' }, async (): Promise<boolean> => {

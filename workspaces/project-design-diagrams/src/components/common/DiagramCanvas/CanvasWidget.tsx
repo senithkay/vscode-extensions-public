@@ -21,17 +21,16 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
+import debounce from 'lodash.debounce';
 import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
+import { GatewayLinkModel } from '../../gateway/GatewayLink/GatewayLinkModel';
+import { GatewayNodeModel } from '../../gateway/GatewayNode/GatewayNodeModel';
 import { DagreLayout, Views } from '../../../resources';
 import {
-    addGWNodesModel, cellDiagramZoomToFit, createEntitiesEngine, createServicesEngine,
-    positionGatewayNodes, ProjectDesignRPC, removeGWLinks
+    addGWNodesModel, cellDiagramZoomToFit, createEntitiesEngine, createServicesEngine, positionGatewayNodes, removeGWLinks
 } from '../../../utils';
 import './styles/styles.css';
-import debounce from "lodash.debounce";
-import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
-import { GatewayNodeModel } from "../../gateway/GatewayNode/GatewayNodeModel";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -187,7 +186,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 link.click();
             })
             .catch((err) => {
-                ProjectDesignRPC.getInstance().showErrorMessage(err.message);
+                console.log(err.message);
             });
     }, [diagramEngine.getCanvas()]);
 

@@ -24,8 +24,7 @@ import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
 import { Colors, ComponentModel, DagreLayout, Location, Service, Views } from './resources';
-import { createRenderPackageObject, generateCompositionModel } from './utils';
-import { ProjectDesignRPC } from './utils/rpc/project-design-rpc';
+import { createRenderPackageObject, generateCompositionModel, ProjectDesignRPC } from './utils';
 import { ControlsLayer, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
@@ -47,33 +46,43 @@ const Container = styled.div`
 `;
 
 interface DiagramProps {
-    editingEnabled?: boolean;
-    go2source: (location: Location) => void;
+    editingEnabled: boolean;
+    getComponentModel(): Promise<Map<string, ComponentModel>>;
+    enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>>;
+    // To Do: Handle go2source as a feature specific to edit mode
+    go2source?: (location: Location) => void;
+    // To Do: Use a common interface for the RPC instance
+    rpcInstance?: ProjectDesignRPC;
+    isChoreoProject?: boolean;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const rpcInstance = ProjectDesignRPC.getInstance();
-    const { go2source, editingEnabled = true } = props;
+    const { getComponentModel, enrichChoreoMetadata, editingEnabled, rpcInstance = undefined, go2source = undefined } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
-    const [showEditForm, setShowEditForm] = useState(false);
-    const [targetService, setTargetService] = useState<Service>(undefined);
-    const [isChoreoProject, setIsChoreoProject] = useState<boolean>(false);
+    const [showEditForm, setShowEditForm] = useState(false); // edit layer
+    const [connectorTarget, setConnectorTarget] = useState<Service>(undefined); // edit layer
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
+    const isChoreoProject = useRef<boolean>(false);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
 
     useEffect(() => {
-        rpcInstance.isChoreoProject().then((response) => {
-            setIsChoreoProject(response);
+        async function setChoreoProjectStatus () {
+            if (props.isChoreoProject === true || await rpcInstance?.isChoreoProject()) {
+                isChoreoProject.current = true;
+            } else {
+                isChoreoProject.current = false;
+            }
+        }
+        setChoreoProjectStatus().then(() => {
+            refreshDiagram();
         });
-
-        refreshDiagramResources();
     }, [props])
 
     const changeDiagramLayout = () => {
@@ -86,39 +95,32 @@ export function DesignDiagram(props: DiagramProps) {
         setCurrentView(Views.TYPE_COMPOSITION);
     }
 
-    const refreshDiagramResources = () => {
-        rpcInstance.fetchComponentModels().then((response) => {
-            const components: Map<string, ComponentModel> = new Map(Object.entries(response));
-            if (components && components.size > 0) {
-                defaultOrg.current = [...components][0][1].packageId.org;
-            }
-            setProjectPkgs(createRenderPackageObject(components.keys()));
-            setProjectComponents(components);
-        })
-    }
-
-    const onComponentAddClick = async () => {
-        if (isChoreoProject) {
-            rpcInstance.executeCommand('wso2.choreo.component.create').catch((error: Error) => {
-                rpcInstance.showErrorMessage(error.message);
-            })
-        } else {
-            setShowEditForm(true);
+    const refreshDiagram = async () => {
+        let componentModel: Map<string, ComponentModel> = await getComponentModel();
+        if (isChoreoProject.current) {
+            componentModel = await enrichChoreoMetadata(componentModel);
         }
+        const components: Map<string, ComponentModel> = new Map(Object.entries(componentModel));
+        if (components && components.size > 0) {
+            defaultOrg.current = [...components][0][1].packageId.org;
+        }
+        setProjectPkgs(createRenderPackageObject(components.keys()));
+        setProjectComponents(components);
     }
 
     const onConnectorWizardClose = () => {
-        setTargetService(undefined);
+        setConnectorTarget(undefined);
     }
 
     const ctx = {
         getTypeComposition,
         currentView,
-        go2source,
-        editingEnabled,
-        setTargetService,
-        isChoreoProject,
-        refreshDiagram: refreshDiagramResources
+        refreshDiagram,
+        editingEnabled: editingEnabled && rpcInstance !== undefined,
+        isChoreoProject: isChoreoProject.current,
+        setConnectorTarget,
+        go2source: editingEnabled ? go2source : undefined,
+        rpcInstance
     }
 
     return (
@@ -126,15 +128,14 @@ export function DesignDiagram(props: DiagramProps) {
             <Container backgroundColor={diagramBGColor}>
                 {showEditForm &&
                     <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
-                {editingEnabled && projectComponents && projectComponents.size < 1 ?
-                    <PromptScreen onComponentAdd={onComponentAddClick} /> :
+                {projectComponents && projectComponents.size < 1 ? <PromptScreen setShowEditForm={setShowEditForm} /> :
                     projectComponents ?
                         <>
-                            {currentView === Views.L1_SERVICES && editingEnabled &&
-                                <ControlsLayer onComponentAddClick={onComponentAddClick} />
+                            {editingEnabled && rpcInstance && currentView === Views.L1_SERVICES &&
+                                <ControlsLayer setShowEditForm={setShowEditForm} />
                             }
-                            {editingEnabled && targetService &&
-                                <ConnectorWizard service={targetService} onClose={onConnectorWizardClose} />}
+                            {editingEnabled && rpcInstance && connectorTarget &&
+                                <ConnectorWizard service={connectorTarget} onClose={onConnectorWizardClose} />}
                             <DiagramHeader
                                 currentView={currentView}
                                 prevView={previousScreen.current}
@@ -143,7 +144,7 @@ export function DesignDiagram(props: DiagramProps) {
                                 projectPackages={projectPkgs}
                                 switchView={setCurrentView}
                                 updateProjectPkgs={setProjectPkgs}
-                                onRefresh={refreshDiagramResources}
+                                onRefresh={refreshDiagram}
                             />
                             <DiagramContainer
                                 currentView={currentView}

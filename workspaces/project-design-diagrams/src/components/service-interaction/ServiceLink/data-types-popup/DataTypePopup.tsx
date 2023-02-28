@@ -31,7 +31,7 @@ interface DataTypeProps {
 
 export function DataTypesPopup(props: DataTypeProps) {
     const { inputParams, location, returnType } = props;
-    const { getTypeComposition } = useContext(DiagramContext);
+    const { getTypeComposition, go2source } = useContext(DiagramContext);
 
     return (
         <Container>
@@ -90,7 +90,7 @@ export function DataTypesPopup(props: DataTypeProps) {
                 </ul>
             </div>
 
-            {location &&
+            {location && go2source &&
                 <MenuButton>
                     <NodeMenuWidget
                         background={Colors.SECONDARY}

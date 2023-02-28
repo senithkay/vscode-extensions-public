@@ -17,14 +17,14 @@
  *
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
 import { ResourceFunction, RemoteFunction, Colors, ServiceTypes } from '../../../../resources';
 import { FunctionContainer } from '../styles/styles';
-import { NodeMenuWidget } from '../../../common';
+import { DiagramContext, NodeMenuWidget } from '../../../common';
 
 interface FunctionCardProps {
     engine: DiagramEngine;
@@ -35,6 +35,7 @@ interface FunctionCardProps {
 
 export function FunctionCard(props: FunctionCardProps) {
     const { engine, node, functionElement, isSelected } = props;
+    const { go2source } = useContext(DiagramContext);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const functionPorts = useRef<PortModel[]>([]);
@@ -71,7 +72,7 @@ export function FunctionCard(props: FunctionCardProps) {
                     remoteFunc={functionElement}
                 />
             }
-            {isHovered && functionElement.elementLocation &&
+            {isHovered && functionElement.elementLocation && go2source &&
                 <NodeMenuWidget
                     background={Colors.SECONDARY}
                     location={functionElement.elementLocation}

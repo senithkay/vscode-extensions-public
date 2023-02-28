@@ -17,16 +17,16 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { TextInputWidget } from '../InputWidget/TextInput';
 import { DirectoryPicker } from './DirectoryPicker';
 import { VisibilityButton } from '../Controls/VisibilityButton';
-import { ProjectDesignRPC } from '../../../../utils/rpc/project-design-rpc';
 import {
     OrganizationRegex, OrganizationRules, PackageNameRegex, PackageNameRules, VersioningRules, VersionRegex
 } from '../../resources/constants';
 import { AdvancedSettings, AdvancedControlsHeader, TitleText } from '../../resources/styles';
+import { DiagramContext } from '../../../../components/common';
 
 interface AdvancedSettingsProps {
     component: BallerinaComponentCreationParams;
@@ -39,10 +39,10 @@ interface AdvancedSettingsProps {
 
 export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
     const [visibility, changeVisibility] = useState<boolean>(false);
+    const { rpcInstance } = useContext(DiagramContext);
     const { component, updatePackage, updateOrganization, updateVersion, setDirectory, selectDirectory } = props;
 
     useEffect(() => {
-        const rpcInstance = new ProjectDesignRPC((window as any).vscode);
         rpcInstance.getProjectRoot().then((response) => {
             setDirectory(response);
         });

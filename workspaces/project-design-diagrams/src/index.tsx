@@ -20,14 +20,23 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { DesignDiagram } from './DesignDiagram';
-import { Location } from './resources';
+import { ComponentModel, Location } from './resources';
+import { ProjectDesignRPC } from './utils';
 
-export function renderDesignDiagrams(
-    go2Source: (location: Location) => void,
+export function renderDesignDiagrams(editingEnabled: boolean,
+    getComponentModel: () => Promise<Map<string, ComponentModel>>,
+    enrichChoreoMetadata: (model: Map<string, ComponentModel>) => Promise<Map<string, ComponentModel>>,
+    go2source: (location: Location) => void,
     target: HTMLElement) {
 
     render(
-        <DesignDiagram go2source={go2Source} />,
+        <DesignDiagram
+            editingEnabled={editingEnabled}
+            getComponentModel={getComponentModel}
+            enrichChoreoMetadata={enrichChoreoMetadata}
+            go2source={go2source}
+            rpcInstance={ProjectDesignRPC.getInstance()}
+        />,
         target
     );
 }

@@ -24,10 +24,11 @@ import { decimal } from "vscode-languageclient";
 import { existsSync } from "fs";
 import { debounce } from "lodash";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
-import { getCommonWebViewOptions } from "../utils/webview-utils";
+import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../utils";
 import { render } from "./renderer";
-import { Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion } from "./resources";
+import { Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
 import { ProjectDesignRPC } from "./utils";
+import { getChoreoMetadata, getProjectResources } from "./utils/utils";
 
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
@@ -118,6 +119,22 @@ function setupWebviewPanel() {
         workspace.onDidChangeTextDocument(refreshDiagram);
         workspace.onDidChangeWorkspaceFolders(refreshDiagram);
 
+        const remoteMethods: WebViewMethod[] = [
+            {
+                methodName: "getComponentModel",
+                handler: (): Promise<Map<string, ComponentModel>> => {
+                    return getProjectResources(langClient);
+                }
+            },
+            {
+                methodName: "enrichChoreoMetadata",
+                handler: (args: any[]): Promise<Map<string, ComponentModel>> => {
+                    return getChoreoMetadata(args[0]);
+                }
+            }
+        ];
+
+        WebViewRPCHandler.create(designDiagramWebview, langClient, remoteMethods);
         ProjectDesignRPC.create(designDiagramWebview, langClient);
 
         designDiagramWebview.onDidDispose(() => {

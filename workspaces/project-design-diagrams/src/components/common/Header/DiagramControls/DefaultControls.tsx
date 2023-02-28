@@ -25,7 +25,6 @@ import ArrowDropdownIcon from '@mui/icons-material/ArrowDropDown';
 import CachedIcon from '@mui/icons-material/Cached';
 import MenuIcon from '@mui/icons-material/Menu';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
-import { ProjectDesignRPC } from '../../../../utils/rpc/project-design-rpc';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { PackagesPopup } from '../PackagesPopup/PackagesPopup';
 import { DiagramLayoutPopup } from '../DiagramLayoutPopup/DiagramLayoutPopup';
@@ -44,7 +43,7 @@ interface DefaultControlProps {
 
 export function DefaultControls(props: DefaultControlProps) {
     const { projectPackages, layout, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
-    const { isChoreoProject } = useContext(DiagramContext);
+    const { isChoreoProject, rpcInstance } = useContext(DiagramContext);
 
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
     const [pkgAnchorElement, setPkgAnchorElement] = useState<HTMLButtonElement>(null);
@@ -59,7 +58,6 @@ export function DefaultControls(props: DefaultControlProps) {
     };
 
     const onClickProjectOverview = () => {
-        const rpcInstance = ProjectDesignRPC.getInstance();
         rpcInstance.showChoreoProjectOverview().catch((error: Error) => {
             rpcInstance.showErrorMessage(error.message);
         });
@@ -81,7 +79,7 @@ export function DefaultControls(props: DefaultControlProps) {
                 >
                     <MenuIcon fontSize='small' />
                 </IconButton>
-                {isChoreoProject &&
+                {isChoreoProject && rpcInstance &&
                     <Button
                         variant='outlined'
                         size='small'

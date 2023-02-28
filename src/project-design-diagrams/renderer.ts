@@ -50,8 +50,32 @@ export function render(webView: Webview) {
                 })
             }
 
+            function getComponentModel() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getComponentModel',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
+            function enrichChoreoMetadata(model) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'enrichChoreoMetadata',
+                        [model],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(go2source, document.getElementById("webview-container"));
+                designDiagram.renderDesignDiagrams(true, getComponentModel, enrichChoreoMetadata, go2source, document.getElementById("webview-container"));
             }
 
             renderDiagrams();
