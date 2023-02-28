@@ -12,13 +12,13 @@
  */
 import { ExpressionRange, IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-	addToTargetPosition,
+    addToTargetPosition,
     CompletionParams,
     PublishDiagnosticsParams,
     ResolvedTypeForExpression
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { Uri }  from "monaco-editor"
+import { Uri } from "monaco-editor"
 import { CodeAction, CompletionItemKind, Diagnostic, WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import { CompletionResponseWithModule } from "../../DataMapper/ConfigPanel/TypeBrowser";
@@ -38,23 +38,23 @@ export async function getDiagnostics(
 }
 
 export const handleDiagnostics = async (fileURI: string,
-                                        langClientPromise: Promise<IBallerinaLangClient>):
+    langClientPromise: Promise<IBallerinaLangClient>):
     Promise<Diagnostic[]> => {
     const diagResp = await getDiagnostics(Uri.file(fileURI).toString(), langClientPromise);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
     return diag;
 }
 
-export const filterDiagnostics = (diagnostics: Diagnostic[], nodePosition: NodePosition) : Diagnostic[] => {
-	return diagnostics.filter((diagnostic) => {
-		const diagPosition: NodePosition = {
-			startLine: diagnostic.range.start.line,
-			startColumn: diagnostic.range.start.character,
-			endLine: diagnostic.range.end.line,
-			endColumn: diagnostic.range.end.character
-		};
-		return isDiagInRange(nodePosition, diagPosition);
-	})
+export const filterDiagnostics = (diagnostics: Diagnostic[], nodePosition: NodePosition): Diagnostic[] => {
+    return diagnostics.filter((diagnostic) => {
+        const diagPosition: NodePosition = {
+            startLine: diagnostic.range.start.line,
+            startColumn: diagnostic.range.start.character,
+            endLine: diagnostic.range.end.line,
+            endColumn: diagnostic.range.end.character
+        };
+        return isDiagInRange(nodePosition, diagPosition);
+    })
 }
 
 export function isDiagInRange(nodePosition: NodePosition, diagPosition: NodePosition): boolean {
@@ -67,74 +67,74 @@ export function isDiagInRange(nodePosition: NodePosition, diagPosition: NodePosi
 
 export async function getCodeAction(filePath: string, diagnostic: Diagnostic, langClient: IBallerinaLangClient): Promise<CodeAction[]> {
     const codeAction = await langClient.codeAction({
-		context: {
-			diagnostics: [{
-				code: diagnostic.code,
-				message: diagnostic.message,
-				range: {
-					end: {
-						line: diagnostic.range.end.line,
-						character: diagnostic.range.end.character
-					},
-					start: {
-						line: diagnostic.range.start.line,
-						character: diagnostic.range.start.character
-					}
-				},
-				severity: 1
-			}],
-			only: ["quickfix"]
-		},
-		range: {
-			end: {
-				line: diagnostic.range.end.line,
-				character: diagnostic.range.end.character
-			},
-			start: {
-				line: diagnostic.range.start.line,
-				character: diagnostic.range.start.character
-			}
-		},
-		textDocument: {
-			uri: filePath
-		}
-	});
+        context: {
+            diagnostics: [{
+                code: diagnostic.code,
+                message: diagnostic.message,
+                range: {
+                    end: {
+                        line: diagnostic.range.end.line,
+                        character: diagnostic.range.end.character
+                    },
+                    start: {
+                        line: diagnostic.range.start.line,
+                        character: diagnostic.range.start.character
+                    }
+                },
+                severity: 1
+            }],
+            only: ["quickfix"]
+        },
+        range: {
+            end: {
+                line: diagnostic.range.end.line,
+                character: diagnostic.range.end.character
+            },
+            start: {
+                line: diagnostic.range.start.line,
+                character: diagnostic.range.start.character
+            }
+        },
+        textDocument: {
+            uri: filePath
+        }
+    });
 
     return codeAction
 }
 
 export async function getRenameEdits(fileURI: string, newName: string, position: NodePosition, langClientPromise: Promise<IBallerinaLangClient>): Promise<WorkspaceEdit> {
-	const langClient = await langClientPromise;
- const renameEdits = await langClient.rename({
-                            textDocument: { uri: Uri.file(fileURI).toString() },
-                            position: {
-                                line: position.startLine,
-                                character: position?.startColumn
-                            },
-                            newName
-                        });
- return renameEdits;
+    const langClient = await langClientPromise;
+    const renameEdits = await langClient.rename({
+        textDocument: { uri: Uri.file(fileURI).toString() },
+        position: {
+            line: position.startLine,
+            character: position?.startColumn
+        },
+        newName
+    });
+    return renameEdits;
 }
 
 export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic[],
-                                        langClientPromise: Promise<IBallerinaLangClient>):
-                                        Promise<CodeAction[]> => {
-	const langClient = await langClientPromise;
-	let codeActions: CodeAction[] = []
+    langClientPromise: Promise<IBallerinaLangClient>):
+    Promise<CodeAction[]> => {
+    const langClient = await langClientPromise;
+    let codeActions: CodeAction[] = []
 
-	for (const diagnostic of diagnostics) {
-		const codeAction = await getCodeAction(Uri.file(fileURI).toString(), diagnostic, langClient)
-		codeActions = [...codeActions, ...codeAction]
-	}
-	return codeActions;
+    for (const diagnostic of diagnostics) {
+        const codeAction = await getCodeAction(Uri.file(fileURI).toString(), diagnostic, langClient)
+        codeActions = [...codeActions, ...codeAction]
+    }
+    return codeActions;
 }
 
 export async function getRecordCompletions(
     currentFileContent: string,
     langClientPromise: Promise<IBallerinaLangClient>,
-	   importStatements: string[],
-	   fnSTPosition: NodePosition,
-	   path: string): Promise<CompletionResponseWithModule[]> {
+    importStatements: string[],
+    fnSTPosition: NodePosition,
+    path: string): Promise<CompletionResponseWithModule[]> {
 
     const langClient = await langClientPromise;
     const typeLabelsToIgnore = ["StrandData"];
@@ -209,9 +209,9 @@ export async function getRecordCompletions(
 }
 
 export async function getTypesForExpressions(fileURI: string,
-                                             langClientPromise: Promise<IBallerinaLangClient>,
-                                             expressionNodesRanges: ExpressionRange[])
-        : Promise<ResolvedTypeForExpression[]> {
+    langClientPromise: Promise<IBallerinaLangClient>,
+    expressionNodesRanges: ExpressionRange[])
+    : Promise<ResolvedTypeForExpression[]> {
     const langClient = await langClientPromise;
     const typesFromExpression = await langClient.getTypeFromExpression({
         documentIdentifier: {
