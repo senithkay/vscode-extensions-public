@@ -52,7 +52,6 @@ export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-construct
 
 export class MappingConstructorNode extends DataMapperNodeModel {
 
-    public typeDef: Type;
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
@@ -64,6 +63,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: ExpressionFunctionBody | SelectClause,
         public typeIdentifier: TypeDescriptor | IdentifierToken,
+        public typeDef: Type,
         public queryExpr?: QueryExpression) {
         super(
             context,
@@ -72,8 +72,6 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
-
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)

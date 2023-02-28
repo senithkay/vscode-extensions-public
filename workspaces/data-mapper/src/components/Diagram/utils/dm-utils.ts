@@ -11,6 +11,7 @@
  * associated services.
  */
 import {
+	AnydataType,
 	keywords,
 	PrimitiveBalType,
 	STModification,
@@ -22,7 +23,6 @@ import {
 	ExpressionFunctionBody,
 	FieldAccess,
 	FromClause,
-	FunctionDefinition,
 	IdentifierToken,
 	JoinClause,
 	LetClause,
@@ -1084,6 +1084,52 @@ export function getExprBodyFromLetExpression(letExpr: LetExpression): STNode {
 		return getExprBodyFromLetExpression(letExpr.expression);
 	}
 	return letExpr.expression;
+}
+
+export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type {
+	let type: Type;
+	if (STKindChecker.isMappingConstructor(node)) {
+		type = {
+			typeName: PrimitiveBalType.Record,
+			name: fieldName ? fieldName : null,
+			fields: (node.fields.filter(field => STKindChecker.isSpecificField(field)) as SpecificField[]).map(field => {
+				return constructTypeFromSTNode(field);
+			})
+		}
+	} else if (STKindChecker.isListConstructor(node)) {
+		type = {
+			typeName: PrimitiveBalType.Array,
+			name: fieldName ? fieldName : null
+		}
+		if (node.expressions.length > 0) {
+			type.memberType = constructTypeFromSTNode(node.expressions[0]);
+		}
+	} else if (STKindChecker.isQueryExpression(node)) {
+		type = {
+			typeName: PrimitiveBalType.Array,
+			name: fieldName ? fieldName : null,
+			memberType: constructTypeFromSTNode(node.selectClause.expression)
+		}
+	} else if (STKindChecker.isSpecificField(node)) {
+		const valueExpr = node.valueExpr;
+		if (!STKindChecker.isMappingConstructor(valueExpr)
+			&& !STKindChecker.isListConstructor(valueExpr)
+			&& !STKindChecker.isQueryExpression(valueExpr))
+		{
+			type = {
+				typeName: AnydataType,
+				name: node.fieldName.value
+			}
+		} else {
+			return constructTypeFromSTNode(node.valueExpr, node.fieldName.value);
+		}
+	} else {
+		type = {
+			typeName: AnydataType
+		}
+	}
+
+	return type;
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],

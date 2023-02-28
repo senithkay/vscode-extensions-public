@@ -53,7 +53,6 @@ export const LIST_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-list-constructor";
 
 export class ListConstructorNode extends DataMapperNodeModel {
 
-    public typeDef: Type;
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
@@ -64,6 +63,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: ExpressionFunctionBody | SelectClause,
         public typeIdentifier: TypeDescriptor | IdentifierToken,
+        public typeDef: Type,
         public queryExpr?: QueryExpression) {
         super(
             context,
@@ -72,8 +72,6 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
-
         if (this.typeDef) {
             const isSelectClause = STKindChecker.isSelectClause(this.value);
             this.rootName = this.typeDef?.name ? getBalRecFieldName(this.typeDef.name) : this.typeDef.typeName;
