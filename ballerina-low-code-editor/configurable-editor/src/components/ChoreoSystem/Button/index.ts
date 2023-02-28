@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,8 +10,4 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export { default as SelectIcon } from "./SelectIcon";
-export { default as InfoIcon } from "./InfoIcon";
-export { default as TickIcon } from "./TickIcon";
-export { default as DeleteIcon } from "./DeleteIcon";
-export { default as QuestionMark } from "./QuestionMark";
+export * from './Button';

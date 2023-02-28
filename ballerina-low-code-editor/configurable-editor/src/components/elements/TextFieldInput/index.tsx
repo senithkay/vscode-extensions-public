@@ -22,6 +22,7 @@ import React, { useEffect, useState } from "react";
 import { TextField } from "@material-ui/core";
 
 import { useStyles } from "../../style";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 
 export interface TextFieldInputProps {
     id?: string;
@@ -71,18 +72,14 @@ export function TextFieldInput(props: TextFieldInputProps) {
         style: { fontSize: 14 },
     };
     return (
-        <TextField
-            required={isRequired}
-            variant="outlined"
+        <TextInput
+            required={isRequired} 
             placeholder={placeholder}
             fullWidth={true}
             value={inputValue}
             type={type}
             margin="none"
             onChange={handleChange}
-            size="small"
-            classes={{ root: classes.textInputRoot }}
-            InputLabelProps={{ shrink: false }}
             inputProps={newInputProps}
             data-cyid={name}
             disabled={disabled}

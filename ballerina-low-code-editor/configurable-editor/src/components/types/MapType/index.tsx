@@ -55,6 +55,7 @@ import { ConfigType, SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
 import { getConfigProperties } from "../../utils";
 import { ObjectTypeProps } from "../ObjectType";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 
 /**
  * A high level config property which can contain configurable maps.
@@ -423,18 +424,12 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                 </Box>
                 <Box flexGrow={1} display="flex" alignItems="center" gridGap={4}>
                     <Box flexGrow={1}>
-                        <TextField
-                            variant="outlined"
+                        <TextInput 
                             fullWidth={true}
-                            margin="none"
-                            size="small"
-                            classes={{
-                                root: classes.textInputRoot,
-                            }}
+                            margin="none" 
                             placeholder={
                                 "Select config or Add values"
-                            }
-                            InputLabelProps={{ shrink: false }}
+                            } 
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}

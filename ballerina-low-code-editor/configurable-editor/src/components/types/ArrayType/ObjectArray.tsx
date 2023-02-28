@@ -54,6 +54,7 @@ import { getConfigProperties, getRecordName } from "../../utils";
 import ObjectType, { ObjectTypeProps } from "../ObjectType";
 
 import { ArrayTypeProps } from ".";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 export interface ObjectArrayProps extends ArrayTypeProps {
     values?: any[];
     setArrayElement?: (id: string, objectArrayValue: any) => void;
@@ -411,16 +412,10 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                     alignItems="center"
                 >
                     <Box flexGrow={1}>
-                        <TextField
-                            variant="outlined"
+                        <TextInput 
                             fullWidth={true}
                             margin="none"
-                            size="small"
-                            classes={{
-                                root: classes.textInputRoot,
-                            }}
                             placeholder={"Select config or Add values"}
-                            InputLabelProps={{ shrink: false }}
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}

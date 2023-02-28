@@ -60,6 +60,7 @@ import { useStyles } from "../../style";
 import SimpleType, { SimpleTypeProps } from "../SimpleType";
 
 import { ArrayTypeProps } from ".";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 
 /**
  * The leaf level configurable type representing boolean values.
@@ -435,14 +436,11 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                     alignItems="center"
                 >
                     <Box flexGrow={1}>
-                        <TextField
-                            variant="outlined"
+                        <TextInput 
                             fullWidth={true}
-                            margin="none"
-                            size="small"
+                            margin="none" 
                             classes={{ root: classes.textInputRoot }}
-                            placeholder={"Select config or Add values"}
-                            InputLabelProps={{ shrink: false }}
+                            placeholder={"Select config or Add values"} 
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}
