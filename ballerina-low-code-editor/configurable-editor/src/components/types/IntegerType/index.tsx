@@ -242,7 +242,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
     });
 
     function iconButtonWithToolTip() {
-        if (connectionConfigs.length === 0) {
+        if (connectionConfigs === undefined || connectionConfigs.length === 0) {
           return (
             <Tooltip title="No global configurations defined. Please contact administrator">
                 <span>
@@ -253,7 +253,6 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                         data-placement="top"
                         onClick={handleClick}
                         color={selectedValueRef ? "primary" : "default"}
-                        disabled={connectionConfigs.length !== 0 ? false : true}
                     >
                         <SelectIcon />
                     </IconButton>

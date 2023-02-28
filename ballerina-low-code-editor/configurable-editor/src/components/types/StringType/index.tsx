@@ -97,7 +97,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
             setTextInputDisabledState(true);
             setSelectedIndex(selectedValue.substring(selectedValue.indexOf(".") + 1).replace("}", ""));
         }
-        if (connectionConfigs.length === 0) {
+        if (connectionConfigs === undefined || connectionConfigs.length === 0) {
             setTextInputDisabledState(false);
         }
     }, []);
@@ -236,7 +236,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
     });
 
     function iconButtonWithToolTip() {
-        if (connectionConfigs.length === 0) {
+        if (connectionConfigs === undefined || connectionConfigs.length === 0) {
           return (
             <Tooltip title="No global configurations defined. Please contact administrator">
                 <span>
@@ -247,7 +247,6 @@ const StringType = (props: StringTypeProps): ReactElement => {
                         data-placement="top"
                         onClick={handleClick}
                         color={selectedValueRef ? "primary" : "default"}
-                        disabled={connectionConfigs.length !== 0 ? false : true}
                     >
                         <SelectIcon />
                     </IconButton>
