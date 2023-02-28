@@ -75,7 +75,7 @@ export function PopOverComponent(props: PopOverComponentProps) {
                         // type="submit"
                         onClick={onValueAdd}
                     >
-                        OK
+                        Save
                     </Button>
                 </ButtonContainer>
             </Box>

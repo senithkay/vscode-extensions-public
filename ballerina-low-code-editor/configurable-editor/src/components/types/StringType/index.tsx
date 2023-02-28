@@ -29,6 +29,7 @@ import {
     ListItemText,
     MenuItem,
     Popover,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -94,7 +95,10 @@ const StringType = (props: StringTypeProps): ReactElement => {
     useEffect(() => {
         if (selectedValueRef !== "") {
             setTextInputDisabledState(true);
-            setSelectedIndex(selectedIndex);
+            setSelectedIndex(selectedValue.substring(selectedValue.indexOf(".") + 1).replace("}", ""));
+        }
+        if (connectionConfigs.length === 0) {
+            setTextInputDisabledState(false);
         }
     }, []);
 
@@ -147,7 +151,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion} key={index} onClick={() => handleOpen(index)}>
-                    {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                    {isOpenCollapse === index ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
                         primary={connections.name}
@@ -194,6 +198,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                             connectionFields.valueType,
                                         )}
                                         selected={connectionFields.configKey === selectedIndex}
+                                        disabled={connectionFields.valueType === "string" ? false : true}
                                     >
                                     <Box display="flex" width={1}>
                                         <Box
@@ -230,8 +235,27 @@ const StringType = (props: StringTypeProps): ReactElement => {
         );
     });
 
-    const iconButton = (
-        <Box>
+    function iconButtonWithToolTip() {
+        if (connectionConfigs.length === 0) {
+          return (
+            <Tooltip title="No global configurations defined. Please contact administrator">
+                <span>
+                    <IconButton
+                        size={"small"}
+                        className={classes.buttonConnections}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        onClick={handleClick}
+                        color={selectedValueRef ? "primary" : "default"}
+                        disabled={connectionConfigs.length !== 0 ? false : true}
+                    >
+                        <SelectIcon />
+                    </IconButton>
+                </span>
+            </Tooltip>
+          );
+        }
+        return (
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
@@ -243,6 +267,12 @@ const StringType = (props: StringTypeProps): ReactElement => {
             >
                 <SelectIcon />
             </IconButton>
+        );
+      }
+
+    const iconButton = (
+        <Box>
+            {iconButtonWithToolTip}
         </Box>
     );
 

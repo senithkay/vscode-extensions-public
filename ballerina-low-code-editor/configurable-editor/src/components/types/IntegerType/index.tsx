@@ -29,6 +29,7 @@ import {
     ListItemText,
     MenuItem,
     Popover,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -102,7 +103,9 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
     useEffect(() => {
         if (selectedValueRef !== "") {
             setTextInputDisabledState(true);
-            setSelectedIndex(selectedIndex);
+            if (typeof selectedValue === "string") {
+                setSelectedIndex(selectedValue.substring(selectedValue.indexOf(".") + 1).replace("}", ""));
+            }
         }
     }, []);
 
@@ -152,7 +155,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion} key={index} onClick={() => handleOpen(index)}>
-                    {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                    {isOpenCollapse === index ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
                         primary={connections.name}
@@ -200,6 +203,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                                             connections.name,
                                         )}
                                         selected={connectionFields.configKey === selectedIndex}
+                                        disabled={connectionFields.valueType === "int" ? false : true}
                                     >
                                         <Box display="flex" width={1}>
                                             <Box
@@ -237,8 +241,27 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
         );
     });
 
-    const iconButton = (
-        <Box>
+    function iconButtonWithToolTip() {
+        if (connectionConfigs.length === 0) {
+          return (
+            <Tooltip title="No global configurations defined. Please contact administrator">
+                <span>
+                    <IconButton
+                        size={"small"}
+                        className={classes.buttonConnections}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        onClick={handleClick}
+                        color={selectedValueRef ? "primary" : "default"}
+                        disabled={connectionConfigs.length !== 0 ? false : true}
+                    >
+                        <SelectIcon />
+                    </IconButton>
+                </span>
+            </Tooltip>
+          );
+        }
+        return (
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
@@ -250,6 +273,12 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
             >
                 <SelectIcon />
             </IconButton>
+        );
+      }
+
+    const iconButton = (
+        <Box>
+            {iconButtonWithToolTip}
         </Box>
     );
 

@@ -34,6 +34,7 @@ import {
     MenuItem,
     Popover,
     TextField,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -125,8 +126,11 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        if (connectionConfigs.length > 0) {
+        if (connectionConfigs.length !== 0) {
+            setIsOpenCollapse(0);
             setConnectionAnchorEl(connectionEvent.currentTarget);
+        } else {
+            setAnchorEl(null);
         }
     };
 
@@ -241,7 +245,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
             ),
         );
     });
-
+    // tslint:disable: jsx-no-lambda jsx-no-multiline-js
     const onSelected = (index: string, mappingName: string, valueReference: string,
                         valueType: string, connectionName: string) => () => {
             setSelectedIndex(connectionName.concat(index));
@@ -258,16 +262,27 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         type: props.arrayType + " [ ]",
     };
 
+    const [isOpenCollapse, setIsOpenCollapse] = useState(null);
+
+    const handleOpen = (clickedIndex: number) => {
+        if (isOpenCollapse === clickedIndex) {
+            setIsOpenCollapse(null);
+        } else {
+            setIsOpenCollapse(clickedIndex);
+        }
+    };
+
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem
                     button={true}
                     className={classes.accordion}
-                    onClick={handleClickOpenConnection}
+                    key={index}
+                    onClick={() => handleOpen(index)}
                     disableGutters={true}
                 >
-                    {openConnection ? (
+                    {isOpenCollapse === index ? (
                         <ExpandLess fontSize="small" />
                     ) : (
                         <ExpandMore fontSize="small" />
@@ -277,7 +292,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                     </Typography>
                 </ListItem>
                 <Collapse
-                    in={openConnection}
+                    in={isOpenCollapse === index}
                     timeout="auto"
                     unmountOnExit={true}
                 >
@@ -354,17 +369,44 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         );
     });
 
-    const iconButton = (
-        <Box>
+    function iconButtonWithToolTip() {
+        if (connectionConfigs.length === 0) {
+          return (
+            <Tooltip title="No global configurations defined. Please contact administrator">
+                <span>
+                    <IconButton
+                        size={"small"}
+                        className={classes.buttonConnections}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        onClick={handleConnectionClick}
+                        color={selectedValueRef ? "primary" : "default"}
+                        disabled={connectionConfigs.length !== 0 ? false : true}
+                    >
+                        <SelectIcon />
+                    </IconButton>
+                </span>
+            </Tooltip>
+          );
+        }
+        return (
             <IconButton
-                size="small"
+                size={"small"}
                 className={classes.buttonConnections}
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleConnectionClick}
+                color={selectedValueRef ? "primary" : "default"}
+                disabled={connectionConfigs.length !== 0 ? false : true}
             >
                 <SelectIcon />
             </IconButton>
+        );
+      }
+
+    const iconButton = (
+        <Box>
+            {iconButtonWithToolTip}
         </Box>
     );
 

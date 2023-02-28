@@ -29,6 +29,7 @@ import {
     ListItemText,
     MenuItem,
     Popover,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -93,12 +94,21 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
     const [openConnection, setOpenConnection] = React.useState(true);
     const [selectedIndex, setSelectedIndex] = React.useState("");
-
+    const [textInputDisabledState, setTextInputDisabledState] = React.useState(false);
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
     };
     const returnElement: ReactElement[] = [];
     const { id, isRequired, value, setBooleanConfig } = props;
+
+    useEffect(() => {
+        if (selectedValueRef !== "") {
+            setTextInputDisabledState(true);
+            if (typeof selectedValue === "string") {
+                setSelectedIndex(selectedValue.substring(selectedValue.indexOf(".") + 1).replace("}", ""));
+            }
+        }
+    }, []);
 
     const setBooleanValue = (propertyId: string, propertyValue: boolean, propertyValueRef: any) => {
         setBooleanConfig(propertyId, propertyValue !== undefined ? Boolean(propertyValue) : undefined,
@@ -131,7 +141,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion} key={index} onClick={() => handleOpen(index)}>
-                    {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                    {isOpenCollapse === index ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
                         primary={connections.name}
@@ -155,6 +165,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                                             "${" + connections.name + "." + connectionFields.configKey + "}",
                                             connectionFields.valueRef, connectionFields.valueType, connections.name)}
                                         selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
+                                        disabled={connectionFields.valueType === "boolean" ? false : true}
                                     >
                                         <Box display="flex" width={1}>
                                             <Box className={classes.connectionField}>
@@ -183,17 +194,44 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
         );
     });
 
-    const iconButton = (
-        <Box>
+    function iconButtonWithToolTip() {
+        if (connectionConfigs.length === 0) {
+          return (
+            <Tooltip title="No global configurations defined. Please contact administrator">
+                <span>
+                    <IconButton
+                        size={"small"}
+                        className={classes.buttonConnections}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        onClick={handleClick}
+                        color={selectedValueRef ? "primary" : "default"}
+                        disabled={connectionConfigs.length !== 0 ? false : true}
+                    >
+                        <SelectIcon />
+                    </IconButton>
+                </span>
+            </Tooltip>
+          );
+        }
+        return (
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleClick}
+                color={selectedValueRef ? "primary" : "default"}
+                disabled={connectionConfigs.length !== 0 ? false : true}
             >
                 <SelectIcon />
             </IconButton>
+        );
+      }
+
+    const iconButton = (
+        <Box>
+            {iconButtonWithToolTip}
         </Box>
     );
 
@@ -213,6 +251,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                             placeholder="Select config or Enter a value"
                             setTextFieldValue={setBooleanValue}
                             type="text"
+                            disabled={textInputDisabledState}
                             value={selectedValue}
                             valueRef={selectedValueRef}
                         />
