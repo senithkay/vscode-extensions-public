@@ -38,7 +38,7 @@ export async function getDiagnostics(
 }
 
 export const handleDiagnostics = async (fileURI: string,
-    langClientPromise: Promise<IBallerinaLangClient>):
+                                        langClientPromise: Promise<IBallerinaLangClient>):
     Promise<Diagnostic[]> => {
     const diagResp = await getDiagnostics(Uri.file(fileURI).toString(), langClientPromise);
     const diag = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
@@ -117,7 +117,7 @@ export async function getRenameEdits(fileURI: string, newName: string, position:
 }
 
 export const handleCodeActions = async (fileURI: string, diagnostics: Diagnostic[],
-    langClientPromise: Promise<IBallerinaLangClient>):
+                                        langClientPromise: Promise<IBallerinaLangClient>):
     Promise<CodeAction[]> => {
     const langClient = await langClientPromise;
     let codeActions: CodeAction[] = []
@@ -209,8 +209,8 @@ export async function getRecordCompletions(
 }
 
 export async function getTypesForExpressions(fileURI: string,
-    langClientPromise: Promise<IBallerinaLangClient>,
-    expressionNodesRanges: ExpressionRange[])
+                                             langClientPromise: Promise<IBallerinaLangClient>,
+                                             expressionNodesRanges: ExpressionRange[])
     : Promise<ResolvedTypeForExpression[]> {
     const langClient = await langClientPromise;
     const typesFromExpression = await langClient.getTypeFromExpression({
