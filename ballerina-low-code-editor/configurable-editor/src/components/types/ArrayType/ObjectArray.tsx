@@ -333,16 +333,18 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                                         <Box
                                             className={classes.connectionField}
                                         >
-                                            <ListItemText
-                                                key={sIndex}
-                                                primary={
-                                                    connectionFields.configKey.split(".").pop() +
-                                                    ":"
-                                                }
-                                            />
                                             <Box>
+                                                <ListItemText
+                                                    key={sIndex}
+                                                    primary={
+                                                        connectionFields.configKey.split(".").pop() +
+                                                        ":"
+                                                    }
+                                                />
+                                            </Box>
+                                            <Box ml={1}>
                                                 <Tooltip title={connectionFields.valueType}>
-                                                    <Chip color="default" label={connectionFields.valueType} />
+                                                    <Chip color="secondary" variant="outlined" label={connectionFields.valueType} />
                                                 </Tooltip>
                                             </Box>
                                         </Box>

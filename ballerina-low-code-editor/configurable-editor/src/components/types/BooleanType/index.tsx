@@ -172,9 +172,9 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                                                 <Typography className={classes.itemText} key={sIndex}>
                                                     {connectionFields.configKey.split(".").pop() + ":"}
                                                 </Typography>
-                                                <Box>
+                                                <Box ml={1}>
                                                     <Tooltip title={connectionFields.valueType}>
-                                                        <Chip color="default" label={connectionFields.valueType} />
+                                                        <Chip color="secondary" variant="outlined" label={connectionFields.valueType} />
                                                     </Tooltip>
                                                 </Box>
                                             </Box>

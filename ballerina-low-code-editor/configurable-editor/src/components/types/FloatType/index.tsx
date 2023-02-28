@@ -208,9 +208,9 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                             >
                                                 {connectionFields.configKey.split(".").pop() + ":"}
                                             </Typography>
-                                             <Box>
+                                             <Box ml={1}>
                                                 <Tooltip title={connectionFields.valueType}>
-                                                    <Chip color="default" label={connectionFields.valueType} />
+                                                    <Chip color="secondary" variant="outlined" label={connectionFields.valueType} />
                                                 </Tooltip>
                                             </Box>
                                             
