@@ -43,6 +43,7 @@ import {
 
 import { useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
+import { DMNode } from "../../DataMapper/DataMapper";
 import { isArraysSupported } from "../../DataMapper/utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
@@ -1130,6 +1131,23 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type 
 	}
 
 	return type;
+}
+
+export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: string): Type {
+	if (prevSTNodes.length === 0) {
+		return undefined;
+	}
+	const prevST = prevSTNodes[prevSTNodes.length - 1].stNode;
+	const prevOutput = STKindChecker.isSpecificField(prevST)
+		? prevST.fieldName as IdentifierToken
+		: STKindChecker.isFunctionDefinition(prevST)
+			? prevST.functionSignature.returnTypeDesc.type
+			: undefined;
+	const prevOutputType = prevOutput && getTypeOfOutput(prevOutput, ballerinaVersion);
+	if (!prevOutputType) {
+		return getPrevOutputType(prevSTNodes.slice(0, -1), ballerinaVersion)
+	}
+	return prevOutputType;
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],

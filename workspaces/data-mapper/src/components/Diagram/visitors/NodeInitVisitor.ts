@@ -58,6 +58,7 @@ import {
     getFilteredUnionOutputTypes,
     getInputNodes,
     getModuleVariables,
+    getPrevOutputType,
     getTypeFromStore,
     getTypeOfOutput,
     isComplexExpression
@@ -85,7 +86,15 @@ export class NodeInitVisitor implements Visitor {
         let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.stSymbolInfo);
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
-            const returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
+            let returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
+
+            const isAnydataTypedField = returnType
+                && (returnType.typeName === AnydataType
+                    || (returnType.typeName === PrimitiveBalType.Array
+                        && returnType?.memberType?.typeName === AnydataType));
+            if (isAnydataTypedField) {
+                returnType = constructTypeFromSTNode(exprFuncBody.expression);
+            }
 
             if (returnType) {
 
@@ -332,12 +341,12 @@ export class NodeInitVisitor implements Visitor {
                         || (exprType.typeName === PrimitiveBalType.Array
                             && exprType?.memberType?.typeName === AnydataType));
                 if (!exprType || isAnydataTypedField) {
-                    const prevST = this.selection.prevST[this.selection.prevST.length - 1].stNode;
-                    const prevSTFieldType = STKindChecker.isSpecificField(prevST)
-                        && getTypeOfOutput(prevST.fieldName as IdentifierToken, this.context.ballerinaVersion);
-                    const isPrevFieldAnydata = prevSTFieldType.typeName === PrimitiveBalType.Array
-                        && prevSTFieldType.memberType.typeName === AnydataType;
-                    if (isPrevFieldAnydata || isAnydataTypedField) {
+                    const prevOutputType = getPrevOutputType(this.selection.prevST, this.context.ballerinaVersion);
+                    const isPrevOutputAnydata = prevOutputType
+                        && (prevOutputType.typeName === AnydataType
+                            || (prevOutputType.typeName === PrimitiveBalType.Array
+                                && prevOutputType.memberType.typeName === AnydataType));
+                    if (isPrevOutputAnydata || isAnydataTypedField) {
                         exprType = constructTypeFromSTNode(node);
                     }
                 }
