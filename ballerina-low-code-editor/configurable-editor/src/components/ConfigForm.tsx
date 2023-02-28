@@ -18,7 +18,7 @@
  */
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { Box, Button, Card, CardActions, CardContent, Collapse, FormLabel } from "@material-ui/core";
+import { Box,  Card, CardActions, CardContent, Collapse, FormLabel } from "@material-ui/core";
 
 import ConfigElement, { ConfigElementProps } from "./ConfigElement";
 import ButtonContainer from "./elements/ButtonContainer";
@@ -36,6 +36,7 @@ import {
     getPackageConfig,
     setExistingValues,
 } from "./utils";
+import Button from "./ChoreoSystem/Button/Button";
 
 export interface ConfigFormProps {
     configSchema: ConfigSchema;
@@ -195,10 +196,10 @@ export const ConfigForm = (props: ConfigFormProps) => {
                 {requiredElements.map(ConfigElement)}
                 {defaultableFields}
                 <CardActions>
-                    <ButtonContainer justifyContent="flex-end">
+                    <ButtonContainer justifyContent="flex-end" size="small">
                         <Button
                             variant="outlined"
-                            color="default"
+                            color="secondary"
                             size="small"
                             onClick={handleDefaultButtonClick}
                         >

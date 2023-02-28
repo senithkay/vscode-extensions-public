@@ -143,6 +143,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             overflow: "auto",
             padding: theme.spacing(2),
             position: "relative",
+            minWidth:theme.spacing(40)
         },
         textInputRoot: {
             "& .MuiInputBase-root": {
