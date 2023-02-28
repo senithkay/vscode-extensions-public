@@ -12,15 +12,15 @@
  */
 import React from "react";
 
-import { ClickAwayListener, Popover } from "@material-ui/core";
+import { ClickAwayListener, IconButton, Popover } from "@material-ui/core";
 import { Apps, ArrowBack, ArrowDropDown,  Home } from "@material-ui/icons";
 
+import { PackageIcon } from "../../assets/icons";
 import { WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
-import { PackageIcon } from "../../assets/icons";
 
 interface NavigationBarProps {
     workspaceName: string;
@@ -116,11 +116,15 @@ export function NavigationBar(props: NavigationBarProps) {
     const renderNavigationButtons = () => {
         return (
             <>
-                <div className="btn-container" onClick={historyPop} >
-                    <ArrowBack />
+                <div className="btn-container">
+                    <IconButton className="nav-bar-icons" disabled={history.length === 0} onClick={historyPop}>
+                        <ArrowBack />
+                    </IconButton>
                 </div>
-                <div className="btn-container" onClick={historyReset} >
-                    <Home />
+                <div className="btn-container">
+                    <IconButton className="nav-bar-icons" disabled={history.length === 0} onClick={historyReset}>
+                        <Home />
+                    </IconButton>
                 </div>
             </>
         );
@@ -129,7 +133,7 @@ export function NavigationBar(props: NavigationBarProps) {
     // {renderWorkspaceNameComponent(isWorkspace)}
     return (
         <div id="nav-bar-main" className="header-bar">
-            {history.length > 0 && renderNavigationButtons()}
+            {renderNavigationButtons()}
             {renderWorkspaceNameComponent()}
             {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
             {isWorkspace && renderProjectSelectorComponent()}
