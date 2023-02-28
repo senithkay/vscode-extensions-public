@@ -414,11 +414,13 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" alignItems="center"> 
-                <Box flexGrow={1} display="flex" alignItems="center" gridGap={4}>
+            <Box display="flex" flexDirection="column"> 
+                <Box mb={0.5}>
+                    <FieldLabel {...fieldLabelProps} />
+                </Box>
+                <Box display="flex" alignItems="center" gridGap={4}>
                     <Box flexGrow={1}>
                         <TextInput 
-                            label={<FieldLabel {...fieldLabelProps} />}
                             fullWidth={true}
                             margin="none" 
                             placeholder={

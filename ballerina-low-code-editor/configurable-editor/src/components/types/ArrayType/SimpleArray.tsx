@@ -420,16 +420,17 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" alignItems="center"> 
-                <Box
-                    flexGrow={1}
+            <Box display="flex" flexDirection="column"> 
+                <Box mb={0.5}>
+                    <FieldLabel {...fieldLabelProps} />
+                </Box>
+                <Box 
                     display="flex"
                     gridGap={4}
                     alignItems="center"
                 >
                     <Box flexGrow={1}>
-                        <TextInput 
-                            label={ <FieldLabel {...fieldLabelProps} />}
+                        <TextInput  
                             fullWidth={true}
                             margin="none"  
                             placeholder={"Select config or Add values"} 

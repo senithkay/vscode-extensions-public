@@ -71,7 +71,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: theme.palette.primary.main,
             display: "flex",
             fontSize: theme.spacing(1.5),
-            marginRight: theme.spacing(0.5),
+            marginLeft: theme.spacing(1),
         },
         divider: {
             border: "1px solid #DEE0E7",
