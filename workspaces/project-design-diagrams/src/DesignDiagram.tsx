@@ -23,8 +23,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
-import { Colors, ComponentModel, DagreLayout, Location, Service, Views } from './resources';
-import { createRenderPackageObject, generateCompositionModel, ProjectDesignRPC } from './utils';
+import { Colors, ComponentModel, DagreLayout, EditLayerAPI, Service, Views } from './resources';
+import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { ControlsLayer, EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
@@ -46,16 +46,15 @@ const Container = styled.div`
 `;
 
 interface DiagramProps {
-    editingEnabled: boolean;
+    isEditable: boolean;
     getComponentModel(): Promise<Map<string, ComponentModel>>;
     enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>>;
-    // To Do: Use a common interface for the RPC instance
-    rpcInstance?: ProjectDesignRPC;
+    rpcInstance?: EditLayerAPI;
     isChoreoProject?: boolean;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { getComponentModel, enrichChoreoMetadata, editingEnabled, rpcInstance = undefined } = props;
+    const { getComponentModel, enrichChoreoMetadata, isEditable, rpcInstance = undefined } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
@@ -110,11 +109,13 @@ export function DesignDiagram(props: DiagramProps) {
         setConnectorTarget(undefined);
     }
 
+    const editingEnabled: boolean = isEditable && rpcInstance !== undefined;
+
     const ctx = {
         getTypeComposition,
         currentView,
         refreshDiagram,
-        editingEnabled: editingEnabled && rpcInstance !== undefined,
+        editingEnabled,
         isChoreoProject: isChoreoProject.current,
         setConnectorTarget,
         rpcInstance
@@ -128,10 +129,10 @@ export function DesignDiagram(props: DiagramProps) {
                 {projectComponents && projectComponents.size < 1 ? <PromptScreen setShowEditForm={setShowEditForm} /> :
                     projectComponents ?
                         <>
-                            {editingEnabled && rpcInstance && currentView === Views.L1_SERVICES &&
+                            {editingEnabled && currentView === Views.L1_SERVICES &&
                                 <ControlsLayer setShowEditForm={setShowEditForm} />
                             }
-                            {editingEnabled && rpcInstance && connectorTarget &&
+                            {editingEnabled && connectorTarget &&
                                 <ConnectorWizard service={connectorTarget} onClose={onConnectorWizardClose} />}
                             <DiagramHeader
                                 currentView={currentView}

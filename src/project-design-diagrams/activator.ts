@@ -24,7 +24,7 @@ import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../utils";
 import { render } from "./renderer";
 import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
-import { getChoreoMetadata, getComponentModel, ProjectDesignRPC } from "./utils";
+import { getChoreoMetadata, getComponentModel, EditLayerRPC } from "./utils";
 
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
@@ -111,7 +111,7 @@ function setupWebviewPanel() {
         ];
 
         WebViewRPCHandler.create(designDiagramWebview, langClient, remoteMethods);
-        ProjectDesignRPC.create(designDiagramWebview, langClient);
+        EditLayerRPC.create(designDiagramWebview, langClient);
 
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;

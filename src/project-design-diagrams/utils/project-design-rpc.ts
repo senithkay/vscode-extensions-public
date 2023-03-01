@@ -36,7 +36,7 @@ const directoryPickOptions: OpenDialogOptions = {
     canSelectFolders: true
 };
 
-export class ProjectDesignRPC {
+export class EditLayerRPC {
     private _messenger: Messenger = new Messenger();
     private _isChoreoProject: boolean;
     private _projectManager: ChoreoProjectManager | BallerinaProjectManager;
@@ -60,20 +60,6 @@ export class ProjectDesignRPC {
         } else {
             this._projectManager = new BallerinaProjectManager();
         }
-
-        this._messenger.onRequest({ method: 'go2source' }, (location: Location): void => {
-            if (location && existsSync(location.filePath)) {
-                workspace.openTextDocument(location.filePath).then((sourceFile) => {
-                    window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
-                        const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
-                        const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
-                        const range: Range = new Range(startPosition, endPosition);
-                        textEditor.revealRange(range, TextEditorRevealType.InCenter);
-                        textEditor.selection = new Selection(range.start, range.start);
-                    });
-                });
-            }
-        });
 
         this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string | boolean> => {
             if (this._projectManager instanceof ChoreoProjectManager && 'repositoryInfo' in args) {
@@ -139,12 +125,26 @@ export class ProjectDesignRPC {
             return false;
         });
 
+        this._messenger.onNotification({ method: 'go2source' }, (location: Location): void => {
+            if (location && existsSync(location.filePath)) {
+                workspace.openTextDocument(location.filePath).then((sourceFile) => {
+                    window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
+                        const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
+                        const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
+                        const range: Range = new Range(startPosition, endPosition);
+                        textEditor.revealRange(range, TextEditorRevealType.InCenter);
+                        textEditor.selection = new Selection(range.start, range.start);
+                    });
+                });
+            }
+        });
+
         this._messenger.onNotification({ method: 'showErrorMsg' }, (msg: string) => {
             window.showErrorMessage(msg);
         });
     }
 
     static create(webview: WebviewPanel, langClient: ExtendedLangClient) {
-        return new ProjectDesignRPC(webview, langClient);
+        return new EditLayerRPC(webview, langClient);
     }
 }

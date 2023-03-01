@@ -21,28 +21,24 @@ import { Messenger } from 'vscode-messenger-webview';
 import { HOST_EXTENSION } from 'vscode-messenger-common';
 import { WebviewApi } from 'vscode-webview';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
-import { Location, Service } from '../../resources';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Location, Service, EditLayerAPI } from '../../resources';
 
-export class ProjectDesignRPC {
+export class WebviewEditLayerAPI implements EditLayerAPI {
     private readonly _messenger: Messenger;
-    private static _instance: ProjectDesignRPC;
+    private static _instance: WebviewEditLayerAPI;
 
     constructor(vscode: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscode);
         this._messenger.start();
     }
 
-    public static getInstance() {
+    public static getInstance(): WebviewEditLayerAPI {
         if (!this._instance) {
             let vscode: WebviewApi<unknown> = (window as any).vscode || acquireVsCodeApi();
-            this._instance = new ProjectDesignRPC(vscode);
+            this._instance = new WebviewEditLayerAPI(vscode);
         }
         return this._instance;
-    }
-
-    public async go2source(location: Location): Promise<void> {
-        return this._messenger.sendRequest({ method: 'go2source' }, HOST_EXTENSION, location);
     }
 
     public async createComponent(addComponentDetails: BallerinaComponentCreationParams): Promise<string> {
@@ -89,7 +85,11 @@ export class ProjectDesignRPC {
         return this._messenger.sendRequest({ method: 'showChoreoProjectOverview' }, HOST_EXTENSION, '');
     }
 
-    public showErrorMessage(msg: string) {
+    public showErrorMessage(msg: string): void {
         this._messenger.sendNotification({ method: 'showErrorMsg' }, HOST_EXTENSION, msg);
+    }
+
+    public go2source(location: Location): void {
+        return this._messenger.sendNotification({ method: 'go2source' }, HOST_EXTENSION, location);
     }
 }

@@ -20,20 +20,20 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { DesignDiagram } from './DesignDiagram';
-import { ComponentModel, Location } from './resources';
-import { ProjectDesignRPC } from './utils';
+import { ComponentModel } from './resources';
+import { WebviewEditLayerAPI } from './editing';
 
-export function renderDesignDiagrams(editingEnabled: boolean,
+export function renderDesignDiagrams(isEditable: boolean,
     getComponentModel: () => Promise<Map<string, ComponentModel>>,
     enrichChoreoMetadata: (model: Map<string, ComponentModel>) => Promise<Map<string, ComponentModel>>,
     target: HTMLElement) {
 
     render(
         <DesignDiagram
-            editingEnabled={editingEnabled}
+            isEditable={isEditable}
             getComponentModel={getComponentModel}
             enrichChoreoMetadata={enrichChoreoMetadata}
-            rpcInstance={ProjectDesignRPC.getInstance()}
+            rpcInstance={WebviewEditLayerAPI.getInstance()}
         />,
         target
     );

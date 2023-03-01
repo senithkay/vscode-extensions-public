@@ -58,7 +58,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE || type === Views.TYPE_COMPOSITION ?
         createEntitiesEngine : createServicesEngine);
-    const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
+    const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
 
     const hideGWLinks = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {

@@ -18,5 +18,5 @@
  */
 
 export { linkServices as addConnector } from './code-generator';
-export { ProjectDesignRPC } from './project-design-rpc';
+export { EditLayerRPC } from './project-design-rpc';
 export { getComponentModel, getChoreoMetadata } from './utils';

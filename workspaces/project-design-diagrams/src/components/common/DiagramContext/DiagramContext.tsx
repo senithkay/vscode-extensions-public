@@ -18,8 +18,7 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { Location, Service, Views } from '../../../resources';
-import { ProjectDesignRPC } from '../../../utils';
+import { EditLayerAPI, Service, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -29,7 +28,7 @@ interface DiagramContextProps {
     isChoreoProject: boolean;
     setConnectorTarget: (service: Service) => void;
     refreshDiagram: () => void;
-    rpcInstance: ProjectDesignRPC | undefined;
+    rpcInstance: EditLayerAPI | undefined;
 }
 
 // To Do - Refactor to distinguish read-only and editable contexts
@@ -39,18 +38,18 @@ interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
     currentView: Views;
     refreshDiagram: () => void;
-    rpcInstance: ProjectDesignRPC | undefined;
+    rpcInstance: EditLayerAPI | undefined;
     // editable diagram states
-    newComponentID: string;
+    newComponentID: string | undefined;
     newLinkNodes: LinkedNodes;
-    setNewComponentID: (name: string) => void;
+    setNewComponentID: (name: string | undefined) => void;
     setNewLinkNodes: (nodes: LinkedNodes) => void;
     setConnectorTarget: (service: Service) => void;
 }
 
 interface LinkedNodes {
-    source: Service;
-    target: Service;
+    source: Service | undefined;
+    target: Service | undefined;
 }
 
 const defaultState: any = {};
@@ -58,7 +57,7 @@ export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
     const { getTypeComposition, currentView, editingEnabled, isChoreoProject, rpcInstance, children, setConnectorTarget, refreshDiagram } = props;
-    const [newComponentID, setNewComponentID] = useState<string>(undefined);
+    const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
     const Ctx = {

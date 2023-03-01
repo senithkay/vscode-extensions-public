@@ -18,6 +18,8 @@
  */
 
 import { DiagramModel, PointModel } from '@projectstorm/react-diagrams';
+import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 
 export interface ComponentModel {
     packageId: PackageID;
@@ -191,3 +193,17 @@ export enum Colors {
 }
 
 export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';
+
+export interface EditLayerAPI {
+    createComponent: (args: BallerinaComponentCreationParams) => Promise<string>;
+    getConnectors: (args: BallerinaConnectorsRequest) => Promise<BallerinaConnectorsResponse>;
+    pullConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
+    addConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
+    addLink: (source: Service, target: Service) => Promise<boolean>;
+    pickDirectory: () => Promise<string | undefined>;
+    isChoreoProject: () => Promise<boolean>;
+    executeCommand: (cmd: string) => Promise<boolean>;
+    showChoreoProjectOverview: () => Promise<boolean>;
+    go2source: (location: Location) => void;
+    showErrorMessage: (message: string) => void;
+}
