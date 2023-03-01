@@ -36,7 +36,7 @@ export function checkSSHAccessToGitHub() {
     }
 }
 
-export const cloneRepoToCuurentProjectWorkspace = async (params: RepoCloneRequestParams) => {
+export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneRequestParams) => {
     const { repository, branch, workspaceFilePath } = params;
     let success = false;
     await window.withProgress({
