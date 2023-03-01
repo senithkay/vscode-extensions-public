@@ -36,13 +36,13 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon, TickIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ToggleButtonInput, ToggleButtonInputProps } from "../../elements/ToggleButtonInput";
 import { ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
 import { SimpleTypeProps } from "../SimpleType";
-import Chip from "../../ChoreoSystem/Chip/Chip";
 
 /**
  * The leaf level configurable type representing boolean values.

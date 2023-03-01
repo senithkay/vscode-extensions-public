@@ -22,11 +22,11 @@ import React from "react";
 import { Box, FormLabel, ThemeProvider, Tooltip, Typography } from "@material-ui/core";
 
 import { InfoIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 import { ConfigType } from "../../model";
 import { useStyles } from "../../style";
 
 import { theme } from "./style";
-import Chip from "../../ChoreoSystem/Chip/Chip";
 
 export interface FieldLabelProps {
     name: string;

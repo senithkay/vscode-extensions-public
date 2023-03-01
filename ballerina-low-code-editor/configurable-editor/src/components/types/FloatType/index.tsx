@@ -36,12 +36,12 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
 import { SimpleTypeProps } from "../SimpleType";
-import Chip from "../../ChoreoSystem/Chip/Chip";
 
 /**
  * The leaf level configurable type representing float values.
@@ -213,7 +213,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                                     <Chip color="secondary" variant="outlined" label={connectionFields.valueType} />
                                                 </Tooltip>
                                             </Box>
-                                            
+
                                         </Box>
                                         {
                                                 connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />

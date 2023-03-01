@@ -11,203 +11,203 @@
  * associated services.
  */
 
-import { alpha, createStyles, makeStyles, Theme } from '@material-ui/core';
+import { alpha, createStyles, makeStyles, Theme } from "@material-ui/core";
 
 export const useButtonStyles = makeStyles((theme: Theme) =>
   createStyles({
     commons: {
-      boxShadow: `0 1px 2px  ${alpha(theme.palette.common.black, 0.15)}`,
-      borderRadius: 5,
-      color: theme.palette.common.white,
-      padding: theme.spacing(0.875, 2),
-      gap: theme.spacing(1),
-      fontWeight: 400,
-      fontSize: theme.spacing(1.625),
-      lineHeight: `${theme.spacing(3)}px`,
-      '&$disabled': {
+      "boxShadow": `0 1px 2px  ${alpha(theme.palette.common.black, 0.15)}`,
+      "borderRadius": 5,
+      "color": theme.palette.common.white,
+      "padding": theme.spacing(0.875, 2),
+      "gap": theme.spacing(1),
+      "fontWeight": 400,
+      "fontSize": theme.spacing(1.625),
+      "lineHeight": `${theme.spacing(3)}px`,
+      "&$disabled": {
         color: theme.palette.common.white,
       },
     },
     contained: {
-      border: `1px solid transparent`,
-      '&:hover': {
+      "border": `1px solid transparent`,
+      "&:hover": {
         boxShadow: `0 2px 4px ${alpha(theme.palette.common.black, 0.18)}`,
       },
-      '&:focus': {
+      "&:focus": {
         boxShadow: `0 1px 6px 2px ${alpha(theme.palette.common.black, 0.1)}`,
       },
     },
     outlined: {
-      boxShadow: `0 1px 2px ${alpha(theme.palette.common.black, 0.05)}`,
-      '&:hover, &:focus': {
-        backgroundColor: 'transparent',
+      "boxShadow": `0 1px 2px ${alpha(theme.palette.common.black, 0.05)}`,
+      "&:hover, &:focus": {
+        backgroundColor: "transparent",
         boxShadow: `0 1px 6px 2px ${alpha(theme.palette.common.black, 0.1)}`,
       },
     },
-    fullWidth: { width: '100%' },
+    fullWidth: { width: "100%" },
     text: {
-      border: 'none',
-      boxShadow: 'none',
+      border: "none",
+      boxShadow: "none",
     },
     subtle: {
-      border: `1px solid ${theme.palette.grey[100]}`,
-      boxShadow: `0 1px 3px ${alpha(theme.palette.common.black, 0.05)}`,
-      '&:hover, &:focus': {
-        backgroundColor: 'transparent',
+      "border": `1px solid ${theme.palette.grey[100]}`,
+      "boxShadow": `0 1px 3px ${alpha(theme.palette.common.black, 0.05)}`,
+      "&:hover, &:focus": {
+        backgroundColor: "transparent",
         boxShadow: `0 1px 6px 2px ${alpha(theme.palette.common.black, 0.1)}`,
       },
     },
     primaryContained: {
-      backgroundColor: theme.palette.primary.main,
-      borderColor: theme.palette.primary.main,
-      '&:hover': {
+      "backgroundColor": theme.palette.primary.main,
+      "borderColor": theme.palette.primary.main,
+      "&:hover": {
         backgroundColor: theme.palette.primary.dark,
         borderColor: theme.palette.primary.dark,
       },
     },
     primaryText: {
-      color: theme.palette.primary.main,
-      '&$disabled': {
+      "color": theme.palette.primary.main,
+      "&$disabled": {
         color: theme.palette.primary.main,
       },
     },
     primaryOutlined: {
-      backgroundColor: theme.palette.common.white,
-      color: theme.palette.primary.main,
-      border: `1px solid ${theme.palette.primary.main}`,
-      boxShadow: `0 1px 2px  ${alpha(theme.palette.common.black, 0.05)}`,
-      '&$disabled': {
+      "backgroundColor": theme.palette.common.white,
+      "color": theme.palette.primary.main,
+      "border": `1px solid ${theme.palette.primary.main}`,
+      "boxShadow": `0 1px 2px  ${alpha(theme.palette.common.black, 0.05)}`,
+      "&$disabled": {
         color: theme.palette.primary.main,
       },
     },
     primarySubtle: {
-      color: theme.palette.primary.main,
-      '&$disabled': {
+      "color": theme.palette.primary.main,
+      "&$disabled": {
         color: theme.palette.primary.main,
       },
     },
     secondaryContained: {
-      backgroundColor: theme.palette.secondary.light,
-      color: theme.palette.common.black,
-      border: `1px solid ${theme.palette.grey[100]}`,
-      boxShadow: `0 1px 2px ${alpha(theme.palette.common.black, 0.05)}`,
-      '&$disabled': {
+      "backgroundColor": theme.palette.secondary.light,
+      "color": theme.palette.common.black,
+      "border": `1px solid ${theme.palette.grey[100]}`,
+      "boxShadow": `0 1px 2px ${alpha(theme.palette.common.black, 0.05)}`,
+      "&$disabled": {
         color: theme.palette.common.black,
       },
     },
     secondaryText: {
-      color: theme.palette.common.black,
-      '&$disabled': {
+      "color": theme.palette.common.black,
+      "&$disabled": {
         color: theme.palette.common.black,
       },
     },
     secondaryOutlined: {
-      backgroundColor: theme.palette.common.white,
-      color: theme.palette.secondary.main,
-      border: `1px solid ${theme.palette.secondary.main}`,
-      '&:hover': {
+      "backgroundColor": theme.palette.common.white,
+      "color": theme.palette.secondary.main,
+      "border": `1px solid ${theme.palette.secondary.main}`,
+      "&:hover": {
         borderColor: theme.palette.secondary.dark,
       },
-      '&$disabled': {
+      "&$disabled": {
         color: theme.palette.secondary.main,
       },
     },
     secondarySubtle: {
-      color: theme.palette.common.black,
-      '&$disabled': {
+      "color": theme.palette.common.black,
+      "&$disabled": {
         color: theme.palette.common.black,
       },
     },
     errorContained: {
-      backgroundColor: theme.palette.error.main,
-      borderColor: theme.palette.error.main,
-      '&:hover': {
+      "backgroundColor": theme.palette.error.main,
+      "borderColor": theme.palette.error.main,
+      "&:hover": {
         backgroundColor: theme.palette.error.dark,
         borderColor: theme.palette.error.dark,
       },
     },
     errorOutlined: {
-      backgroundColor: theme.palette.common.white,
-      color: theme.palette.error.main,
-      border: `1px solid ${theme.palette.error.main}`,
-      '&:hover': {
+      "backgroundColor": theme.palette.common.white,
+      "color": theme.palette.error.main,
+      "border": `1px solid ${theme.palette.error.main}`,
+      "&:hover": {
         borderColor: theme.palette.error.dark,
       },
-      '&$disabled': {
+      "&$disabled": {
         color: theme.palette.error.main,
       },
     },
     errorText: {
-      color: theme.palette.error.main,
-      '&$disabled': {
+      "color": theme.palette.error.main,
+      "&$disabled": {
         color: theme.palette.error.main,
       },
     },
     errorSubtle: {
-      color: theme.palette.error.main,
-      '&$disabled': {
+      "color": theme.palette.error.main,
+      "&$disabled": {
         color: theme.palette.error.main,
       },
     },
     successContained: {
-      backgroundColor: theme.palette.success.main,
-      borderColor: theme.palette.success.main,
-      '&:hover': {
+      "backgroundColor": theme.palette.success.main,
+      "borderColor": theme.palette.success.main,
+      "&:hover": {
         backgroundColor: theme.palette.success.dark,
         borderColor: theme.palette.success.dark,
       },
     },
     successOutlined: {
-      backgroundColor: theme.palette.common.white,
-      color: theme.palette.success.main,
-      border: `1px solid ${theme.palette.success.main}`,
-      '&:hover': {
+      "backgroundColor": theme.palette.common.white,
+      "color": theme.palette.success.main,
+      "border": `1px solid ${theme.palette.success.main}`,
+      "&:hover": {
         borderColor: theme.palette.success.dark,
       },
-      '&$disabled': {
+      "&$disabled": {
         color: theme.palette.success.main,
       },
     },
     successText: {
-      color: theme.palette.success.main,
-      '&$disabled': {
+      "color": theme.palette.success.main,
+      "&$disabled": {
         color: theme.palette.success.main,
       },
     },
     successSubtle: {
-      color: theme.palette.success.main,
-      '&$disabled': {
+      "color": theme.palette.success.main,
+      "&$disabled": {
         color: theme.palette.success.main,
       },
     },
     warningContained: {
-      backgroundColor: theme.palette.warning.main,
-      borderColor: theme.palette.warning.main,
-      '&:hover': {
+      "backgroundColor": theme.palette.warning.main,
+      "borderColor": theme.palette.warning.main,
+      "&:hover": {
         backgroundColor: theme.palette.warning.dark,
         borderColor: theme.palette.warning.dark,
       },
     },
     warningOutlined: {
-      backgroundColor: theme.palette.common.white,
-      color: theme.palette.warning.main,
-      border: `1px solid ${theme.palette.warning.main}`,
-      '&:hover': {
+      "backgroundColor": theme.palette.common.white,
+      "color": theme.palette.warning.main,
+      "border": `1px solid ${theme.palette.warning.main}`,
+      "&:hover": {
         borderColor: theme.palette.warning.dark,
       },
-      '&$disabled': {
+      "&$disabled": {
         color: theme.palette.warning.main,
       },
     },
     warningText: {
-      color: theme.palette.warning.main,
-      '&$disabled': {
+      "color": theme.palette.warning.main,
+      "&$disabled": {
         color: theme.palette.warning.main,
       },
     },
     warningSubtle: {
-      color: theme.palette.warning.main,
-      '&$disabled': {
+      "color": theme.palette.warning.main,
+      "&$disabled": {
         color: theme.palette.warning.main,
       },
     },
@@ -225,45 +225,45 @@ export const useButtonStyles = makeStyles((theme: Theme) =>
     },
     tinyPill: {},
     disabled: {
-      opacity: 0.5,
-      cursor: 'default',
-      pointerEvents: 'none',
-      color: theme.palette.common.white,
-      '&:hover': {
-        textDecoration: 'none',
+      "opacity": 0.5,
+      "cursor": "default",
+      "pointerEvents": "none",
+      "color": theme.palette.common.white,
+      "&:hover": {
+        textDecoration: "none",
       },
     },
     startIcon: {
-      '& *:first-child': {
+      "& *:first-child": {
         fontSize: theme.spacing(2),
       },
     },
     startIconSmall: {
-      '& *:first-child': {
+      "& *:first-child": {
         fontSize: theme.spacing(1.75),
       },
     },
     startIconTiny: {
-      '& *:first-child': {
+      "& *:first-child": {
         fontSize: theme.spacing(1.5),
       },
     },
     endIcon: {
-      '& *:first-child': {
+      "& *:first-child": {
         fontSize: theme.spacing(2),
       },
     },
     endIconSmall: {
-      '& *:first-child': {
+      "& *:first-child": {
         fontSize: theme.spacing(1.75),
       },
     },
     endIconTiny: {
-      '& *:first-child': {
+      "& *:first-child": {
         fontSize: theme.spacing(1.5),
       },
     },
-  })
+  }),
 );
 
 export default useButtonStyles;

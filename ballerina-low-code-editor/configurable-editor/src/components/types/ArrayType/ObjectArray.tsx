@@ -41,6 +41,8 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
@@ -54,8 +56,6 @@ import { getConfigProperties, getRecordName } from "../../utils";
 import ObjectType, { ObjectTypeProps } from "../ObjectType";
 
 import { ArrayTypeProps } from ".";
-import TextInput from "../../ChoreoSystem/TextInput/TextInput";
-import Chip from "../../ChoreoSystem/Chip/Chip";
 export interface ObjectArrayProps extends ArrayTypeProps {
     values?: any[];
     setArrayElement?: (id: string, objectArrayValue: any) => void;
@@ -398,17 +398,17 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" flexDirection="column"> 
+            <Box display="flex" flexDirection="column">
                 <Box mb={0.5}>
                     <FieldLabel {...fieldLabelProps} />
                 </Box>
-                <Box 
+                <Box
                     display="flex"
                     gridGap={4}
                     alignItems="center"
                 >
                     <Box flexGrow={1}>
-                        <TextInput  
+                        <TextInput
                             fullWidth={true}
                             margin="none"
                             placeholder={"Select config or Add values"}

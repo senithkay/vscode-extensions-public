@@ -58,7 +58,7 @@ export function SelectInput(props: SelectInputProps) {
                 required={isRequired}
                 onChange={handleChange}
                 style={{fontSize: 14}}
-                variant="outlined" 
+                variant="outlined"
             >
                 {reactElements}
             </Select>

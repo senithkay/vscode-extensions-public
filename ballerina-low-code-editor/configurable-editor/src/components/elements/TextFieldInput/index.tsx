@@ -21,8 +21,8 @@ import React, { useEffect, useState } from "react";
 
 import { TextField } from "@material-ui/core";
 
-import { useStyles } from "../../style";
 import TextInput from "../../ChoreoSystem/TextInput/TextInput";
+import { useStyles } from "../../style";
 
 export interface TextFieldInputProps {
     id?: string;
@@ -73,7 +73,7 @@ export function TextFieldInput(props: TextFieldInputProps) {
     };
     return (
         <TextInput
-            required={isRequired} 
+            required={isRequired}
             placeholder={placeholder}
             fullWidth={true}
             value={inputValue}

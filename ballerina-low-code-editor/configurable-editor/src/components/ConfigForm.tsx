@@ -20,6 +20,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 
 import { Box,  Card, CardActions, CardContent, Collapse, FormLabel } from "@material-ui/core";
 
+import Button from "./ChoreoSystem/Button/Button";
 import ConfigElement, { ConfigElementProps } from "./ConfigElement";
 import ButtonContainer from "./elements/ButtonContainer";
 import ExpandMore from "./elements/ExpandMore";
@@ -36,7 +37,6 @@ import {
     getPackageConfig,
     setExistingValues,
 } from "./utils";
-import Button from "./ChoreoSystem/Button/Button";
 
 export interface ConfigFormProps {
     configSchema: ConfigSchema;

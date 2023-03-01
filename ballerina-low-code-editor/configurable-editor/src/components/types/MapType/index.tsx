@@ -41,6 +41,8 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
@@ -55,8 +57,6 @@ import { ConfigType, SchemaConstants } from "../../model";
 import { useStyles } from "../../style";
 import { getConfigProperties } from "../../utils";
 import { ObjectTypeProps } from "../ObjectType";
-import TextInput from "../../ChoreoSystem/TextInput/TextInput";
-import Chip from "../../ChoreoSystem/Chip/Chip";
 
 /**
  * A high level config property which can contain configurable maps.
@@ -416,18 +416,18 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" flexDirection="column"> 
+            <Box display="flex" flexDirection="column">
                 <Box mb={0.5}>
                     <FieldLabel {...fieldLabelProps} />
                 </Box>
                 <Box display="flex" alignItems="center" gridGap={4}>
                     <Box flexGrow={1}>
-                        <TextInput 
+                        <TextInput
                             fullWidth={true}
-                            margin="none" 
+                            margin="none"
                             placeholder={
                                 "Select config or Add values"
-                            } 
+                            }
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}

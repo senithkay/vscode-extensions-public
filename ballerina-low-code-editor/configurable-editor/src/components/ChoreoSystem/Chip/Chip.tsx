@@ -10,30 +10,32 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { Chip as MUIChip, ChipProps as MUIChipProps } from '@material-ui/core';
-import clsx from 'clsx';
-import React from 'react';
-import useStyles from './Chip.style';
+import React from "react";
 
-interface ChipProps extends Omit<MUIChipProps, 'color' | 'size' | 'variant'> {
+import { Chip as MUIChip, ChipProps as MUIChipProps } from "@material-ui/core";
+import clsx from "clsx";
+
+import useStyles from "./Chip.style";
+
+interface ChipProps extends Omit<MUIChipProps, "color" | "size" | "variant"> {
   color?:
-    | 'info'
-    | 'primary'
-    | 'secondary'
-    | 'success'
-    | 'default'
-    | 'warning'
-    | 'error';
-  size?: 'small' | 'medium' | 'large';
-  variant?: 'contained' | 'outlined';
+    | "info"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "default"
+    | "warning"
+    | "error";
+  size?: "small" | "medium" | "large";
+  variant?: "contained" | "outlined";
 }
 
 function Chip(props: ChipProps) {
   const {
     label,
-    color = 'default',
-    variant = 'contained',
-    size = 'medium',
+    color = "default",
+    variant = "contained",
+    size = "medium",
   } = props;
 
   const classes = useStyles();
@@ -45,7 +47,7 @@ function Chip(props: ChipProps) {
           classes.root,
           classes[size],
           classes[variant],
-          classes[color]
+          classes[color],
         ),
       }}
       label={label}

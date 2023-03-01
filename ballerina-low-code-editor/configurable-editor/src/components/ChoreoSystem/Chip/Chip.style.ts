@@ -10,12 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { createStyles, makeStyles, Theme, alpha } from '@material-ui/core';
+import { alpha, createStyles, makeStyles, Theme } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      '& .MuiChip-label': {
+      "& .MuiChip-label": {
         paddingLeft: 0,
         paddingRight: 0,
       },
@@ -41,63 +41,63 @@ const useStyles = makeStyles((theme: Theme) =>
       lineHeight: 1.23,
     },
     contained: {
-      '&$info': {
-        backgroundColor: '#0095ff',
+      "&$info": {
+        backgroundColor: "#0095ff",
         color: theme.palette.common.white,
       },
-      '&$primary': {
+      "&$primary": {
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.common.white,
       },
-      '&$secondary': {
+      "&$secondary": {
         background: theme.palette.common.white,
       },
-      '&$success': {
+      "&$success": {
         backgroundColor: theme.palette.success.main,
         color: theme.palette.common.white,
       },
-      '&$default': {
+      "&$default": {
         backgroundColor: theme.palette.grey[200],
       },
-      '&$warning': {
+      "&$warning": {
         backgroundColor: theme.palette.warning.dark,
         color: theme.palette.common.white,
       },
-      '&$error': {
+      "&$error": {
         backgroundColor: theme.palette.error.main,
         color: theme.palette.common.white,
       },
     },
     outlined: {
-      '&$info': {
-        color: '#0095ff',
-        border: '1px solid #0095ff',
-        backgroundColor: alpha('#0095ff', 0.1),
+      "&$info": {
+        color: "#0095ff",
+        border: "1px solid #0095ff",
+        backgroundColor: alpha("#0095ff", 0.1),
       },
-      '&$primary': {
+      "&$primary": {
         border: `1px solid ${theme.palette.primary.main}`,
         color: theme.palette.primary.main,
-        backgroundColor: '#f0f1fb',
+        backgroundColor: "#f0f1fb",
       },
-      '&$secondary': {
+      "&$secondary": {
         backgroundColor: theme.palette.common.white,
         border: `1px solid ${theme.palette.grey[200]}`,
       },
-      '&$success': {
+      "&$success": {
         border: `1px solid ${theme.palette.success.main}`,
         color: theme.palette.success.main,
         backgroundColor: theme.palette.success.light,
       },
-      '&$default': {
+      "&$default": {
         backgroundColor: theme.palette.grey[100],
         border: `1px solid ${theme.palette.grey[200]}`,
       },
-      '&$warning': {
+      "&$warning": {
         border: `1px solid ${theme.palette.warning.dark}`,
         color: theme.palette.warning.dark,
         backgroundColor: theme.palette.warning.light,
       },
-      '&$error': {
+      "&$error": {
         border: `1px solid ${theme.palette.error.main}`,
         color: theme.palette.error.main,
         backgroundColor: theme.palette.error.light,
@@ -110,6 +110,6 @@ const useStyles = makeStyles((theme: Theme) =>
     default: {},
     warning: {},
     error: {},
-  })
+  }),
 );
 export default useStyles;

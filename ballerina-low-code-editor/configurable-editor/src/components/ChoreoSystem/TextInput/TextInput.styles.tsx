@@ -11,20 +11,20 @@
  * associated services.
  */
 
-import { alpha, makeStyles } from '@material-ui/core';
+import { alpha, makeStyles } from "@material-ui/core";
 
 export const useTextFiledStyles = makeStyles((theme) => ({
   root: {
-    padding: theme.spacing(1.25, 1.5),
-    width: '100%',
-    height: theme.spacing(5),
-    background: theme.palette.common.white,
-    border: `1px solid ${theme.palette.grey[100]}`,
-    boxShadow: `inset 0 2px 2px ${alpha(theme.palette.common.black, 0.07)}`,
-    borderRadius: 5,
-    '&$multiline': {
-      height: 'auto',
-      resize: 'auto',
+    "padding": theme.spacing(1.25, 1.5),
+    "width": "100%",
+    "height": theme.spacing(5),
+    "background": theme.palette.common.white,
+    "border": `1px solid ${theme.palette.grey[100]}`,
+    "boxShadow": `inset 0 2px 2px ${alpha(theme.palette.common.black, 0.07)}`,
+    "borderRadius": 5,
+    "&$multiline": {
+      height: "auto",
+      resize: "auto",
     },
   },
   multiline: {},
@@ -39,31 +39,31 @@ export const useTextFiledStyles = makeStyles((theme) => ({
     borderColor: theme.palette.error.main,
     boxShadow: `0 0 0 1px ${theme.palette.error.light}, inset 0 2px 2px ${alpha(
       theme.palette.error.light,
-      0.07
+      0.07,
     )}`,
   },
   readOnly: {
     boxShadow: `0 0 0 1px ${alpha(
       theme.palette.common.black,
-      0.05
+      0.05,
     )}, inset 0 2px 2px ${alpha(theme.palette.common.black, 0.05)}`,
-    border: 'none',
+    border: "none",
   },
   formLabel: {
-    display: 'flex',
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: theme.spacing(0.5)
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    marginBottom: theme.spacing(0.5),
   },
   formLabelAction: {
-    marginLeft: 'auto',
-    display: 'flex',
-    alignItems: 'center',
+    marginLeft: "auto",
+    display: "flex",
+    alignItems: "center",
   },
   formLabelInfo: {
     marginLeft: theme.spacing(1),
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
   },
   formOptional: {
     color: theme.palette.secondary.main,
@@ -73,15 +73,15 @@ export const useTextFiledStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
   },
   inputGroup: {
-    position: 'relative',
+    position: "relative",
   },
   tooltipIcon: {
     color: theme.palette.secondary.main,
-    cursor: 'help',
+    cursor: "help",
     fontSize: theme.spacing(1.75),
   },
   textarea: {
-    resize: 'both',
+    resize: "both",
   },
 }));
 

@@ -11,4 +11,4 @@
  * associated services.
  */
 
-export * from './TextInput';
+export * from "./TextInput";
