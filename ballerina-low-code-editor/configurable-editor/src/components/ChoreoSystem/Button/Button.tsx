@@ -75,6 +75,11 @@ const Button = <C extends React.ElementType = "button">(
   return (
     <MUIButton
       classes={{
+        endIcon: clsx({
+          [classes.endIcon]: true,
+          [classes.endIconSmall]: isSmall,
+          [classes.endIconTiny]: isTiny,
+        }),
         root: clsx({
           [classes.commons]: true,
           [classes.fullWidth]: fullWidth,
@@ -120,11 +125,6 @@ const Button = <C extends React.ElementType = "button">(
           [classes.startIcon]: true,
           [classes.startIconSmall]: isSmall,
           [classes.startIconTiny]: isTiny,
-        }),
-        endIcon: clsx({
-          [classes.endIcon]: true,
-          [classes.endIconSmall]: isSmall,
-          [classes.endIconTiny]: isTiny,
         }),
       }}
       disableFocusRipple={true}

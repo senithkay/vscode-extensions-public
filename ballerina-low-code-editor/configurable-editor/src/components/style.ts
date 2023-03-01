@@ -140,10 +140,10 @@ export const useStyles = makeStyles((theme: Theme) =>
             "paddingRight": theme.spacing(1),
         },
         popOver: {
+            minWidth: theme.spacing(40),
             overflow: "auto",
             padding: theme.spacing(2),
             position: "relative",
-            minWidth: theme.spacing(40),
         },
         textInputRoot: {
             "& .MuiInputBase-root": {

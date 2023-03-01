@@ -210,7 +210,10 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                             </Typography>
                                              <Box ml={1}>
                                                 <Tooltip title={connectionFields.valueType}>
-                                                    <Chip color="secondary" variant="outlined" label={connectionFields.valueType} />
+                                                    <Chip
+                                                        color="secondary"
+                                                        variant="outlined"
+                                                        label={connectionFields.valueType} />
                                                 </Tooltip>
                                             </Box>
 

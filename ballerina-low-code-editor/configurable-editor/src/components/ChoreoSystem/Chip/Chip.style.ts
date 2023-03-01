@@ -14,33 +14,14 @@ import { alpha, createStyles, makeStyles, Theme } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      "& .MuiChip-label": {
-        paddingLeft: 0,
-        paddingRight: 0,
-      },
-    },
-    small: {
-      padding: `${theme.spacing(0)}px ${theme.spacing(0.5)}px`,
-      fontSize: theme.spacing(1.25),
-      borderRadius: theme.spacing(0.375),
-      lineHeight: 1.6,
-      height: theme.spacing(2),
-    },
-    medium: {
-      padding: `${theme.spacing(0.1)}px ${theme.spacing(1)}px`,
-      fontSize: theme.spacing(1.625),
-      borderRadius: theme.spacing(0.625),
-      lineHeight: 1.23,
-      height: theme.spacing(3),
-    },
-    large: {
-      padding: `${theme.spacing(1)}px ${theme.spacing(1.5)}px`,
-      fontSize: theme.spacing(1.625),
-      borderRadius: theme.spacing(0.625),
-      lineHeight: 1.23,
-    },
     contained: {
+      "&$default": {
+        backgroundColor: theme.palette.grey[200],
+      },
+      "&$error": {
+        backgroundColor: theme.palette.error.main,
+        color: theme.palette.common.white,
+      },
       "&$info": {
         backgroundColor: "#0095ff",
         color: theme.palette.common.white,
@@ -56,60 +37,79 @@ const useStyles = makeStyles((theme: Theme) =>
         backgroundColor: theme.palette.success.main,
         color: theme.palette.common.white,
       },
-      "&$default": {
-        backgroundColor: theme.palette.grey[200],
-      },
       "&$warning": {
         backgroundColor: theme.palette.warning.dark,
         color: theme.palette.common.white,
       },
-      "&$error": {
-        backgroundColor: theme.palette.error.main,
-        color: theme.palette.common.white,
-      },
+    },
+    default: {},
+    error: {},
+    info: {},
+    large: {
+      borderRadius: theme.spacing(0.625),
+      fontSize: theme.spacing(1.625),
+      lineHeight: 1.23,
+      padding: `${theme.spacing(1)}px ${theme.spacing(1.5)}px`,
+    },
+    medium: {
+      borderRadius: theme.spacing(0.625),
+      fontSize: theme.spacing(1.625),
+      height: theme.spacing(3),
+      lineHeight: 1.23,
+      padding: `${theme.spacing(0.1)}px ${theme.spacing(1)}px`,
     },
     outlined: {
+      "&$default": {
+        backgroundColor: theme.palette.grey[100],
+        border: `1px solid ${theme.palette.grey[200]}`,
+      },
+      "&$error": {
+        backgroundColor: theme.palette.error.light,
+        border: `1px solid ${theme.palette.error.main}`,
+        color: theme.palette.error.main,
+      },
       "&$info": {
-        color: "#0095ff",
-        border: "1px solid #0095ff",
         backgroundColor: alpha("#0095ff", 0.1),
+        border: "1px solid #0095ff",
+        color: "#0095ff",
       },
       "&$primary": {
+        backgroundColor: "#f0f1fb",
         border: `1px solid ${theme.palette.primary.main}`,
         color: theme.palette.primary.main,
-        backgroundColor: "#f0f1fb",
       },
       "&$secondary": {
         backgroundColor: theme.palette.common.white,
         border: `1px solid ${theme.palette.grey[200]}`,
       },
       "&$success": {
+        backgroundColor: theme.palette.success.light,
         border: `1px solid ${theme.palette.success.main}`,
         color: theme.palette.success.main,
-        backgroundColor: theme.palette.success.light,
-      },
-      "&$default": {
-        backgroundColor: theme.palette.grey[100],
-        border: `1px solid ${theme.palette.grey[200]}`,
       },
       "&$warning": {
+        backgroundColor: theme.palette.warning.light,
         border: `1px solid ${theme.palette.warning.dark}`,
         color: theme.palette.warning.dark,
-        backgroundColor: theme.palette.warning.light,
-      },
-      "&$error": {
-        border: `1px solid ${theme.palette.error.main}`,
-        color: theme.palette.error.main,
-        backgroundColor: theme.palette.error.light,
       },
     },
-    info: {},
     primary: {},
+    root: {
+      "& .MuiChip-label": {
+        paddingLeft: 0,
+        paddingRight: 0,
+      },
+    },
     secondary: {},
+    small: {
+      borderRadius: theme.spacing(0.375),
+      fontSize: theme.spacing(1.25),
+      height: theme.spacing(2),
+      lineHeight: 1.6,
+      padding: `${theme.spacing(0)}px ${theme.spacing(0.5)}px`,
+    },
     success: {},
-    default: {},
     warning: {},
-    error: {},
   }),
 );
 export default useStyles;

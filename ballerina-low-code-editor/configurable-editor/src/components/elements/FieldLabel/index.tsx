@@ -54,7 +54,11 @@ export function FieldLabel(props: FieldLabelProps) {
                 </FormLabel>
                 <Box display="flex" alignItems="center">
                     <Tooltip title={type === ConfigType.NUMBER ? ConfigType.FLOAT : type}>
-                        <Chip size="small" variant="outlined" color="success" label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType} />
+                        <Chip
+                            size="small"
+                            variant="outlined"
+                            color="success"
+                            label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType} />
                     </Tooltip>
                 </Box>
                 {getDescription(description, classes)}

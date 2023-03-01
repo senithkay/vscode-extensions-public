@@ -90,14 +90,14 @@ const TextInput = (props: ITextInputProps) => {
         <Box className={classes.inputGroup}>
           <InputBase
             classes={{
+              error: classes.error,
+              focused: classes.focused,
+              inputMultiline: classes.textarea,
               root: clsx({
                 [classes.root]: true,
                 [classes.readOnly]: readOnly,
                 [classes.multiline]: multiline,
               }),
-              focused: classes.focused,
-              error: classes.error,
-              inputMultiline: classes.textarea,
             }}
             readOnly={readOnly}
             {...rest}
