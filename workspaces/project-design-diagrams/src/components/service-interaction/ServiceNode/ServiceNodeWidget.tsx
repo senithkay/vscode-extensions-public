@@ -68,7 +68,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 
 	const checkLinkStatus = (): boolean => {
 		if (currentView === Views.L1_SERVICES && editingEnabled) {
-			if (newLinkNodes?.source?.serviceId === node.getID() || newLinkNodes?.target?.serviceId === node.getID()) {
+			if (newLinkNodes.source?.serviceId === node.getID() || newLinkNodes.target?.serviceId === node.getID()) {
 				return true;
 			}
 		}
@@ -78,7 +78,8 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	const setLinkStatus = async () => {
 		if (currentView === Views.L1_SERVICES &&
 			editingEnabled &&
-			newLinkNodes?.source?.serviceId !== node.getID() &&
+			newLinkNodes.source &&
+			newLinkNodes.source.serviceId !== node.getID() &&
 			node.serviceType !== ServiceTypes.OTHER
 		) {
 			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
