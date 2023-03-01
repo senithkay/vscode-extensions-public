@@ -127,8 +127,6 @@ export function DiagramViewManager(props: EditorProps) {
                 }));
 
                 setFileList(projectFiles);
-                setFocusFile(undefined);
-                setFocusUid(undefined);
             })();
         }
     }, [currentProject?.name]);
@@ -146,9 +144,7 @@ export function DiagramViewManager(props: EditorProps) {
                     uri: fileUri
                 }));
                 const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
-                if (position) {
-                    historyPush({ project: currentProjectPath, file: currentFile, position });
-                }
+                historyPush({ project: currentProjectPath, file: currentFile, position });
                 // setCurrentProject(currentProjectPath);
                 // setFileList(projectFiles);
                 // setFocusFile(currentFile);
@@ -285,10 +281,9 @@ export function DiagramViewManager(props: EditorProps) {
 
     const viewComponent: React.ReactElement[] = [];
 
-    if (history.length > 0 && !focusedST) {
+    if (history.length > 0 && history[history.length - 1].position && !focusedST) {
         viewComponent.push(<TextPreLoader position={'absolute'} />);
-    } else if (!focusedST && currentProject) {
-
+    } else if (!focusedST) {
         viewComponent.push((
             <OverviewDiagram
                 currentProject={currentProject}
@@ -421,6 +416,15 @@ export function DiagramViewManager(props: EditorProps) {
         fetchST(currentFile.uri.path);
     };
 
+    const handleProjectChange = (project: WorkspaceFolder) => {
+        setCurrentProject(project);
+        setFocusFile(undefined);
+        setFocusUid(undefined);
+        setFocusedST(undefined);
+        historyClear();
+    }
+
+
     const diagramProps = getDiagramProviderProps(
         focusedST,
         lowCodeEnvInstance,
@@ -459,7 +463,7 @@ export function DiagramViewManager(props: EditorProps) {
                                     workspaceName={workspaceName}
                                     projectList={projectPaths}
                                     currentProject={currentProject}
-                                    updateCurrentProject={setCurrentProject}
+                                    updateCurrentProject={handleProjectChange}
                                 />
                                 {viewComponent}
                                 <div id={'canvas-overlay'} className={"overlayContainer"} />
