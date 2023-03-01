@@ -26,7 +26,7 @@ import { terminateActivation } from "../activator";
 import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
 
-export function getProjectResources(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
+export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
     return new Promise((resolve, reject) => {
         let ballerinaFiles: string[] = [];
         let workspaceFolders = workspace.workspaceFolders;

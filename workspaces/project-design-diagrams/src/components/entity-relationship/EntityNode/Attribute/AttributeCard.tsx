@@ -35,7 +35,7 @@ interface AttributeProps {
 
 export function AttributeWidget(props: AttributeProps) {
     const { node, engine, attribute, isSelected } = props;
-    const { go2source } = useContext(DiagramContext);
+    const { editingEnabled } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const attributePorts = useRef<PortModel[]>([]);
@@ -69,7 +69,7 @@ export function AttributeWidget(props: AttributeProps) {
                 >
                     {attributeType}
                 </AttributeType>
-                {isHovered && attribute.elementLocation && go2source &&
+                {isHovered && attribute.elementLocation && editingEnabled &&
                     <NodeMenuWidget
                         background={Colors.SECONDARY}
                         location={attribute.elementLocation}

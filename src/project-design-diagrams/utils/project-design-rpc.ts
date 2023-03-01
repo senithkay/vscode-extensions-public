@@ -20,10 +20,11 @@
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { BallerinaComponentCreationParams, ChoreoComponentCreationParams, Project } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
+import { existsSync } from "fs";
+import { commands, OpenDialogOptions, Position, Range, Selection, TextEditorRevealType, WebviewPanel, window, workspace } from "vscode";
 import { BallerinaProjectManager } from "./manager";
-import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
-import { Service } from "../resources";
-import { ExtendedLangClient } from "src/core";
+import { Location, Service } from "../resources";
+import { ExtendedLangClient } from "../../core";
 import { addConnector, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "workspaces/low-code-editor-commons/lib";
 import { getChoreoExtAPI, IChoreoExtensionAPI } from "../../choreo-features/activate";
@@ -60,7 +61,21 @@ export class ProjectDesignRPC {
             this._projectManager = new BallerinaProjectManager();
         }
 
-        this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string|boolean> => {
+        this._messenger.onRequest({ method: 'go2source' }, (location: Location): void => {
+            if (location && existsSync(location.filePath)) {
+                workspace.openTextDocument(location.filePath).then((sourceFile) => {
+                    window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
+                        const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
+                        const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
+                        const range: Range = new Range(startPosition, endPosition);
+                        textEditor.revealRange(range, TextEditorRevealType.InCenter);
+                        textEditor.selection = new Selection(range.start, range.start);
+                    });
+                });
+            }
+        });
+
+        this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string | boolean> => {
             if (this._projectManager instanceof ChoreoProjectManager && 'repositoryInfo' in args) {
                 return this._projectManager.createLocalComponent(args);
             } else if (this._projectManager instanceof BallerinaProjectManager && 'directory' in args) {
@@ -113,7 +128,7 @@ export class ProjectDesignRPC {
             return commands.executeCommand(cmd);
         });
 
-        this._messenger.onRequest({method: 'showChoreoProjectOverview'}, async (): Promise<boolean> => {
+        this._messenger.onRequest({ method: 'showChoreoProjectOverview' }, async (): Promise<boolean> => {
             if (this._choreoExtApi) {
                 if (!this._activeChoreoProject) {
                     this._activeChoreoProject = await this._choreoExtApi.getChoreoProject();

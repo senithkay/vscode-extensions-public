@@ -35,7 +35,7 @@ const ANON_RECORD_DISPLAY: string = 'record';
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
-    const { getTypeComposition, currentView, go2source } = useContext(DiagramContext);
+    const { getTypeComposition, currentView, editingEnabled } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -71,7 +71,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                 >
                     {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
                 </EntityName>
-                {isHovered && node.entityObject.elementLocation && go2source &&
+                {isHovered && node.entityObject.elementLocation && editingEnabled &&
                     <NodeMenuWidget
                         background={'white'}
                         location={node.entityObject.elementLocation}

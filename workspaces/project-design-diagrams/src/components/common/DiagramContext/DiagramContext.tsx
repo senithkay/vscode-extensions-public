@@ -29,7 +29,6 @@ interface DiagramContextProps {
     isChoreoProject: boolean;
     setConnectorTarget: (service: Service) => void;
     refreshDiagram: () => void;
-    go2source: ((location: Location) => void) | undefined;
     rpcInstance: ProjectDesignRPC | undefined;
 }
 
@@ -40,7 +39,6 @@ interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
     currentView: Views;
     refreshDiagram: () => void;
-    go2source: ((location: Location) => void) | undefined;
     rpcInstance: ProjectDesignRPC | undefined;
     // editable diagram states
     newComponentID: string;
@@ -59,7 +57,7 @@ const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
-    const { getTypeComposition, currentView, editingEnabled, isChoreoProject, go2source, rpcInstance, children, setConnectorTarget, refreshDiagram } = props;
+    const { getTypeComposition, currentView, editingEnabled, isChoreoProject, rpcInstance, children, setConnectorTarget, refreshDiagram } = props;
     const [newComponentID, setNewComponentID] = useState<string>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
@@ -74,8 +72,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         newLinkNodes,
         setNewLinkNodes,
         setConnectorTarget,
-        setNewComponentID,
-        go2source
+        setNewComponentID
     }
 
     return (

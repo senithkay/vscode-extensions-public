@@ -34,7 +34,7 @@ interface ServiceHeadProps {
 
 export function ServiceHeadWidget(props: ServiceHeadProps) {
     const { engine, node, isSelected } = props;
-    const { currentView, editingEnabled, go2source } = useContext(DiagramContext);
+    const { currentView, editingEnabled } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -72,11 +72,11 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 engine={engine}
             />
                 <ServiceName>{displayName}</ServiceName>
-                {isHovered && node.serviceObject.elementLocation && go2source &&
+                {isHovered && node.serviceObject.elementLocation && editingEnabled &&
                     <NodeMenuWidget
                         background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
                         location={node.serviceObject.elementLocation}
-                        linkingEnabled={editingEnabled && currentView === Views.L1_SERVICES}
+                        linkingEnabled={currentView === Views.L1_SERVICES}
                         service={node.serviceObject}
                     />
                 }

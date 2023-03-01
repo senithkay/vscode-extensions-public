@@ -27,10 +27,10 @@ import { useStyles } from "./styles";
 export function Go2SourceButton(props: { location: Location }) {
     const { location } = props;
     const classes = useStyles();
-    const { go2source } = useContext(DiagramContext);
+    const { rpcInstance } = useContext(DiagramContext);
 
     return (
-        <MenuItem onClick={() => go2source(location)}>
+        <MenuItem onClick={() => rpcInstance.go2source(location)}>
             <ListItemIcon>
                 <CodeIcon fontSize="small" />
             </ListItemIcon>

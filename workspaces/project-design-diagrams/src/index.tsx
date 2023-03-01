@@ -26,7 +26,6 @@ import { ProjectDesignRPC } from './utils';
 export function renderDesignDiagrams(editingEnabled: boolean,
     getComponentModel: () => Promise<Map<string, ComponentModel>>,
     enrichChoreoMetadata: (model: Map<string, ComponentModel>) => Promise<Map<string, ComponentModel>>,
-    go2source: (location: Location) => void,
     target: HTMLElement) {
 
     render(
@@ -34,7 +33,6 @@ export function renderDesignDiagrams(editingEnabled: boolean,
             editingEnabled={editingEnabled}
             getComponentModel={getComponentModel}
             enrichChoreoMetadata={enrichChoreoMetadata}
-            go2source={go2source}
             rpcInstance={ProjectDesignRPC.getInstance()}
         />,
         target

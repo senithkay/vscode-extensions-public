@@ -21,9 +21,7 @@ import { Webview } from "vscode";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } from "../utils/webview-utils";
 
 export function render(webView: Webview) {
-    const body = `
-        <div class = "container" id = "webview-container" />
-    `;
+    const body = `<div class = "container" id = "webview-container" />`;
     const bodyCss = ``;
     const styles = `
         .container {
@@ -42,13 +40,6 @@ export function render(webView: Webview) {
                         renderDiagrams();
                 }
             });
-
-            function go2source(location) {
-                vscode.postMessage({
-                    command: 'go2source',
-                    location: location
-                })
-            }
 
             function getComponentModel() {
                 return new Promise((resolve, _reject) => {
@@ -75,7 +66,7 @@ export function render(webView: Webview) {
             }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(true, getComponentModel, enrichChoreoMetadata, go2source, document.getElementById("webview-container"));
+                designDiagram.renderDesignDiagrams(true, getComponentModel, enrichChoreoMetadata, document.getElementById("webview-container"));
             }
 
             renderDiagrams();

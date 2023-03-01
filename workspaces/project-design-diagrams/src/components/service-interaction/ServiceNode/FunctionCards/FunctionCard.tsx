@@ -35,7 +35,7 @@ interface FunctionCardProps {
 
 export function FunctionCard(props: FunctionCardProps) {
     const { engine, node, functionElement, isSelected } = props;
-    const { go2source } = useContext(DiagramContext);
+    const { editingEnabled } = useContext(DiagramContext);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const functionPorts = useRef<PortModel[]>([]);
@@ -72,7 +72,7 @@ export function FunctionCard(props: FunctionCardProps) {
                     remoteFunc={functionElement}
                 />
             }
-            {isHovered && functionElement.elementLocation && go2source &&
+            {isHovered && functionElement.elementLocation && editingEnabled &&
                 <NodeMenuWidget
                     background={Colors.SECONDARY}
                     location={functionElement.elementLocation}

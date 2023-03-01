@@ -21,7 +21,7 @@ import { Messenger } from 'vscode-messenger-webview';
 import { HOST_EXTENSION } from 'vscode-messenger-common';
 import { WebviewApi } from 'vscode-webview';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
-import { Service } from '../../resources';
+import { Location, Service } from '../../resources';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export class ProjectDesignRPC {
@@ -39,6 +39,10 @@ export class ProjectDesignRPC {
             this._instance = new ProjectDesignRPC(vscode);
         }
         return this._instance;
+    }
+
+    public async go2source(location: Location): Promise<void> {
+        return this._messenger.sendRequest({ method: 'go2source' }, HOST_EXTENSION, location);
     }
 
     public async createComponent(addComponentDetails: BallerinaComponentCreationParams): Promise<string> {

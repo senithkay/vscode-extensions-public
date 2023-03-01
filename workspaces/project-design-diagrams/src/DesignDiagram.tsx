@@ -49,15 +49,13 @@ interface DiagramProps {
     editingEnabled: boolean;
     getComponentModel(): Promise<Map<string, ComponentModel>>;
     enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>>;
-    // To Do: Handle go2source as a feature specific to edit mode
-    go2source?: (location: Location) => void;
     // To Do: Use a common interface for the RPC instance
     rpcInstance?: ProjectDesignRPC;
     isChoreoProject?: boolean;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { getComponentModel, enrichChoreoMetadata, editingEnabled, rpcInstance = undefined, go2source = undefined } = props;
+    const { getComponentModel, enrichChoreoMetadata, editingEnabled, rpcInstance = undefined } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
@@ -119,7 +117,6 @@ export function DesignDiagram(props: DiagramProps) {
         editingEnabled: editingEnabled && rpcInstance !== undefined,
         isChoreoProject: isChoreoProject.current,
         setConnectorTarget,
-        go2source: editingEnabled ? go2source : undefined,
         rpcInstance
     }
 
