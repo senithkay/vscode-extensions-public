@@ -45,9 +45,11 @@ export class SharedNodeModel extends NodeModel<NodeModelGenerics> {
     isNodeSelected = (selectedLink: ServiceLinkModel | EntityLinkModel, portIdentifier: string): boolean => {
         if (selectedLink) {
             if (selectedLink.getSourcePort().getNode().getID() === this.getID()) {
-                return selectedLink.getSourcePort().getID().split('-')[1] === portIdentifier;
+                let sourcePortID: string = selectedLink.getSourcePort().getID();
+                return sourcePortID.slice(sourcePortID.indexOf('-') + 1) === portIdentifier;
             } else if (selectedLink.getTargetPort().getNode().getID() === this.getID()) {
-                return selectedLink.getTargetPort().getID().split('-')[1] === portIdentifier;
+                let targetPortID: string = selectedLink.getTargetPort().getID();
+                return targetPortID.slice(targetPortID.indexOf('-') + 1) === portIdentifier;
             }
         }
         return false;
