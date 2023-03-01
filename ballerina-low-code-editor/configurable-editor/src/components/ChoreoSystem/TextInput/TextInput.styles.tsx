@@ -11,77 +11,69 @@
  * associated services.
  */
 
-import { alpha, makeStyles } from '@material-ui/core';
+import { alpha, makeStyles } from "@material-ui/core";
 
 export const useTextFiledStyles = makeStyles((theme) => ({
-  root: {
-    padding: theme.spacing(1.25, 1.5),
-    width: '100%',
-    height: theme.spacing(5),
-    background: theme.palette.common.white,
-    border: `1px solid ${theme.palette.grey[100]}`,
-    boxShadow: `inset 0 2px 2px ${alpha(theme.palette.common.black, 0.07)}`,
-    borderRadius: 5,
-    '&$multiline': {
-      height: 'auto',
-      resize: 'auto',
-    },
-  },
-  multiline: {},
-  focused: {
-    borderColor: theme.palette.primary.light,
-    boxShadow: `0 0 0 1px ${
-      theme.palette.primary.light
-    }, inset 0 2px 2px ${alpha(theme.palette.common.black, 0.07)}`,
-  },
   error: {
     background: theme.palette.error.light,
     borderColor: theme.palette.error.main,
-    boxShadow: `0 0 0 1px ${theme.palette.error.light}, inset 0 2px 2px ${alpha(
-      theme.palette.error.light,
-      0.07
-    )}`,
+    boxShadow: `0 0 0 1px ${theme.palette.error.light}, inset 0 2px 2px ${alpha(theme.palette.error.light, 0.07)}`,
   },
-  readOnly: {
-    boxShadow: `0 0 0 1px ${alpha(
-      theme.palette.common.black,
-      0.05
-    )}, inset 0 2px 2px ${alpha(theme.palette.common.black, 0.05)}`,
-    border: 'none',
+  focused: {
+    borderColor: theme.palette.primary.light,
+    boxShadow: `0 0 0 1px ${theme.palette.primary.light}, inset 0 2px 2px ${alpha(theme.palette.common.black, 0.07)}`,
   },
   formLabel: {
-    display: 'flex',
-    width: '100%',
-    alignItems: 'center',
+    alignItems: "center",
+    display: "flex",
     marginBottom: theme.spacing(0.5),
+    width: "100%",
   },
   formLabelAction: {
-    marginLeft: 'auto',
-    display: 'flex',
-    alignItems: 'center',
+    alignItems: "center",
+    display: "flex",
+    marginLeft: "auto",
   },
   formLabelInfo: {
+    alignItems: "center",
+    display: "flex",
     marginLeft: theme.spacing(1),
-    display: 'flex',
-    alignItems: 'center',
+  },
+  formLabelTooltip: {
+    marginLeft: theme.spacing(1),
   },
   formOptional: {
     color: theme.palette.secondary.main,
     fontSize: theme.spacing(1.4),
   },
-  formLabelTooltip: {
-    marginLeft: theme.spacing(1),
-  },
   inputGroup: {
-    position: 'relative',
+    position: "relative",
+  },
+  multiline: {},
+  readOnly: {
+    border: "none",
+    boxShadow: `0 0 0 1px ${alpha(theme.palette.common.black, 0.05)}, inset 0 2px 2px ${alpha(theme.palette.common.black, 0.05)}`,
+  },
+  root: {
+    "&$multiline": {
+      height: "auto",
+      resize: "auto",
+    },
+    "background": theme.palette.common.white,
+    "border": `1px solid ${theme.palette.grey[100]}`,
+    "borderRadius": 5,
+    "boxShadow": `inset 0 2px 2px ${alpha(theme.palette.common.black, 0.07)}`,
+    "height": theme.spacing(5),
+    "padding": theme.spacing(1.25, 1.5),
+    "width": "100%",
+  },
+  textarea: {
+    resize: "both",
   },
   tooltipIcon: {
     color: theme.palette.secondary.main,
-    cursor: 'help',
+    cursor: "help",
     fontSize: theme.spacing(1.75),
-  },
-  textarea: {
-    resize: 'both',
   },
 }));
 

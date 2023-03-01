@@ -11,68 +11,75 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react'
+import React from "react";
+
 import {
   Button as MUIButton,
   ButtonProps as MUIButtonProps,
-} from '@material-ui/core';
-import clsx from 'clsx';
-import useStyles from './Button.styles';
+} from "@material-ui/core";
+import clsx from "clsx";
 
-type ButtonProps<C extends React.ElementType = 'button'> = Omit<
+import useStyles from "./Button.styles";
+
+type ButtonProps<C extends React.ElementType = "button"> = Omit<
   React.ComponentProps<C>,
-  'variant'
+  "variant"
 > &
   Omit<
     MUIButtonProps,
-    | 'color'
-    | 'disableTouchRipple'
-    | 'focusRipple'
-    | 'centerRipple'
-    | 'disableRipple'
-    | 'variant'
-    | 'size'
+    | "color"
+    | "disableTouchRipple"
+    | "focusRipple"
+    | "centerRipple"
+    | "disableRipple"
+    | "variant"
+    | "size"
   > & {
     pill?: boolean;
-    color?: 'primary' | 'secondary' | 'error' | 'success' | 'warning';
+    color?: "primary" | "secondary" | "error" | "success" | "warning";
     component?: C;
     testId?: string;
-    variant?: 'contained' | 'subtle' | 'outlined' | 'text';
-    size?: 'medium' | 'small' | 'tiny';
+    variant?: "contained" | "subtle" | "outlined" | "text";
+    size?: "medium" | "small" | "tiny";
   };
 
-const Button = <C extends React.ElementType = 'button'>(
-  props: ButtonProps<C>
+const Button = <C extends React.ElementType = "button">(
+  props: ButtonProps<C>,
 ) => {
   const {
     children,
-    color = 'primary',
-    variant = 'contained',
+    color = "primary",
+    variant = "contained",
     pill = false,
     fullWidth = false,
-    size = 'medium',
+    size = "medium",
     disabled = false,
     testId,
     ...rest
   } = props;
   const classes = useStyles();
-  const isPrimary = color === 'primary';
-  const isSecondary = color === 'secondary';
-  const isError = color === 'error';
-  const isSuccess = color === 'success';
-  const isWarning = color === 'warning';
+  const isPrimary = color === "primary";
+  const isSecondary = color === "secondary";
+  const isError = color === "error";
+  const isSuccess = color === "success";
+  const isWarning = color === "warning";
 
-  const isText = variant === 'text';
-  const isOutlined = variant === 'outlined';
-  const isContained = variant === 'contained';
-  const isSubtle = variant === 'subtle';
+  const isText = variant === "text";
+  const isOutlined = variant === "outlined";
+  const isContained = variant === "contained";
+  const isSubtle = variant === "subtle";
 
-  const isSmall = size === 'small';
-  const isTiny = size === 'tiny';
+  const isSmall = size === "small";
+  const isTiny = size === "tiny";
 
   return (
     <MUIButton
       classes={{
+        endIcon: clsx({
+          [classes.endIcon]: true,
+          [classes.endIconSmall]: isSmall,
+          [classes.endIconTiny]: isTiny,
+        }),
         root: clsx({
           [classes.commons]: true,
           [classes.fullWidth]: fullWidth,
@@ -119,14 +126,9 @@ const Button = <C extends React.ElementType = 'button'>(
           [classes.startIconSmall]: isSmall,
           [classes.startIconTiny]: isTiny,
         }),
-        endIcon: clsx({
-          [classes.endIcon]: true,
-          [classes.endIconSmall]: isSmall,
-          [classes.endIconTiny]: isTiny,
-        }),
       }}
-      disableFocusRipple
-      disableRipple
+      disableFocusRipple={true}
+      disableRipple={true}
       centerRipple={false}
       data-cyid={testId}
       disabled={disabled}
