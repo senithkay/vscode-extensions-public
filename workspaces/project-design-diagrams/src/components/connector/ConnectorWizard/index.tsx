@@ -49,7 +49,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     const [selectedCon, setSelectedCon] = useState<Connector>();
 
     const fetchConnectorsList = async (queryParams: SearchQueryParams): Promise<BallerinaModuleResponse> => {
-        const connectorRes = await editLayerAPI.getConnectors(queryParams);
+        const connectorRes = await editLayerAPI?.getConnectors(queryParams);
         return Promise.resolve(connectorRes as BallerinaModuleResponse);
     };
 

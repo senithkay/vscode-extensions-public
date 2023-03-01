@@ -32,7 +32,6 @@ interface DiagramContextProps {
     editLayerAPI: EditLayerAPI | undefined;
 }
 
-// To Do - Refactor to distinguish read-only and editable contexts
 interface IDiagramContext {
     editingEnabled: boolean;
     isChoreoProject: boolean;
@@ -40,13 +39,12 @@ interface IDiagramContext {
     refreshDiagram: () => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
-    editLayerAPI: EditLayerAPI | undefined;
-    // Editable diagram states
-    newComponentID: string | undefined;
-    newLinkNodes: LinkedNodes;
-    setNewComponentID: (name: string | undefined) => void;
-    setNewLinkNodes: (nodes: LinkedNodes) => void;
-    setConnectorTarget: (service: Service) => void;
+    editLayerAPI?: EditLayerAPI;
+    newComponentID?: string;
+    newLinkNodes?: LinkedNodes;
+    setNewComponentID?: (name: string | undefined) => void;
+    setNewLinkNodes?: (nodes: LinkedNodes) => void;
+    setConnectorTarget?: (service: Service) => void;
 }
 
 interface LinkedNodes {
@@ -72,23 +70,29 @@ export function DesignDiagramContext(props: DiagramContextProps) {
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
-    const Ctx = {
+    let context: IDiagramContext = {
         currentView,
         editingEnabled,
         isChoreoProject,
         refreshDiagram,
         getTypeComposition,
-        showChoreoProjectOverview,
-        editLayerAPI,
-        newComponentID,
-        setNewComponentID,
-        newLinkNodes,
-        setNewLinkNodes,
-        setConnectorTarget
+        showChoreoProjectOverview
+    }
+
+    if (editingEnabled) {
+        context = {
+            ...context,
+            editLayerAPI,
+            newComponentID,
+            setNewComponentID,
+            newLinkNodes,
+            setNewLinkNodes,
+            setConnectorTarget
+        }
     }
 
     return (
-        <DiagramContext.Provider value={{ ...Ctx }}>
+        <DiagramContext.Provider value={{ ...context }}>
             {children}
         </DiagramContext.Provider>
     );

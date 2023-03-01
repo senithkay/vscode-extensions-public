@@ -52,7 +52,7 @@ export function EditForm(props: EditFormProps) {
     }, [defaultOrg])
 
     const chooseDirectory = () => {
-        editLayerAPI.pickDirectory().then((directoryPath) => {
+        editLayerAPI?.pickDirectory().then((directoryPath) => {
             if (directoryPath) {
                 setDirectory(directoryPath);
             }
@@ -95,7 +95,7 @@ export function EditForm(props: EditFormProps) {
 
     const onSubmit = () => {
         setGenerationStatus(true);
-        editLayerAPI.createComponent({ ...component, package: component.package || validatedComponentName, org: component.org || defaultOrg })
+        editLayerAPI?.createComponent({ ...component, package: component.package || validatedComponentName, org: component.org || defaultOrg })
             .then((generatedNodeID) => {
                 setNewComponentID(generatedNodeID);
                 setGenerationStatus(false);

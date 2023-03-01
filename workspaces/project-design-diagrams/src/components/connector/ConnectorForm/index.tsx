@@ -53,7 +53,7 @@ function ConnectorForm(props: ConnectorFormProps) {
     const moduleName = (connector.displayAnnotation?.label || `${connector.package?.name} / ${connector.name}`).replace(/["']/g, "");
 
     useEffect(() => {
-        editLayerAPI.pullConnector(connector, service)
+        editLayerAPI?.pullConnector(connector, service)
             .then((pulled) => {
                 console.log('pullConnector', pulled)
                 if (!pulled) {
@@ -67,8 +67,7 @@ function ConnectorForm(props: ConnectorFormProps) {
 
     const handleConnectorSave = () => {
         setShowLoader(true);
-        editLayerAPI
-            .addConnector(connector, service)
+        editLayerAPI?.addConnector(connector, service)
             .then((res) => {
                 console.log('addConnector', res)
                 if (!res) {

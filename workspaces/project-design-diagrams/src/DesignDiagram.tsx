@@ -126,7 +126,7 @@ export function DesignDiagram(props: DiagramProps) {
                             {editingEnabled && currentView === Views.L1_SERVICES &&
                                 <ControlsLayer setShowEditForm={setShowEditForm} />
                             }
-                            {editingEnabled && connectorTarget &&
+                            {connectorTarget &&
                                 <ConnectorWizard service={connectorTarget} onClose={onConnectorWizardClose} />}
                             <DiagramHeader
                                 currentView={currentView}

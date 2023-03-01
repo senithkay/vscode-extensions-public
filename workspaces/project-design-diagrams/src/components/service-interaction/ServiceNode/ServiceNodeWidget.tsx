@@ -49,7 +49,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	const isNewNode = useRef<boolean>(newComponentID === node.getID());
 
 	useEffect(() => {
-		if (isNewNode.current) {
+		if (editingEnabled && isNewNode.current) {
 			setNewComponentID(undefined);
 			setTimeout(() => {
 				isNewNode.current = false;
@@ -68,7 +68,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 
 	const checkLinkStatus = (): boolean => {
 		if (currentView === Views.L1_SERVICES && editingEnabled) {
-			if (newLinkNodes.source?.serviceId === node.getID() || newLinkNodes.target?.serviceId === node.getID()) {
+			if (newLinkNodes?.source?.serviceId === node.getID() || newLinkNodes?.target?.serviceId === node.getID()) {
 				return true;
 			}
 		}
@@ -78,12 +78,11 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	const setLinkStatus = async () => {
 		if (currentView === Views.L1_SERVICES &&
 			editingEnabled &&
-			newLinkNodes.source &&
-			newLinkNodes.source.serviceId !== node.getID() &&
+			newLinkNodes?.source?.serviceId !== node.getID() &&
 			node.serviceType !== ServiceTypes.OTHER
 		) {
 			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
-			await editLayerAPI.addLink(newLinkNodes.source, node.serviceObject);
+			await editLayerAPI?.addLink(newLinkNodes.source, node.serviceObject);
 			setNewLinkNodes({ source: undefined, target: undefined });
 			refreshDiagram();
 		}

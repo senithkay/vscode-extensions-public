@@ -43,8 +43,10 @@ export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
     const { component, updatePackage, updateOrganization, updateVersion, setDirectory, selectDirectory } = props;
 
     useEffect(() => {
-        editLayerAPI.getProjectRoot().then((response) => {
-            setDirectory(response);
+        editLayerAPI?.getProjectRoot().then((response) => {
+            if (response) {
+                setDirectory(response);
+            }
         });
     }, [])
 
