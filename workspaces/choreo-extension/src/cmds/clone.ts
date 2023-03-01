@@ -233,11 +233,23 @@ export const cloneProject = async (project: Project) => {
                 const monoRepoSplit = monoRepo.split("/");
                 if (monoRepoSplit.length === 2 && !existsSync(path.join(workspacePath, "repos", monoRepoSplit[0], monoRepoSplit[1]))) {
                     const repoOrgPath = path.join(workspacePath, "repos", monoRepoSplit[0]);
-                    getLogger().info("Cloning Mono Repo " + monoRepo + " to " + repoOrgPath);
-                    mkdirSync(repoOrgPath, { recursive: true });
-                    const monoRepoURL = `git@github.com:${monoRepo}.git`;
-                    const _result = await simpleGit().clone(monoRepoURL, path.join(repoOrgPath, monoRepoSplit[1]), ["--recursive"]);
-                    getLogger().debug("Cloned Mono Repo " + monoRepo + " to " + repoOrgPath);
+                    if (!existsSync(repoOrgPath)) {
+                        mkdirSync(repoOrgPath, { recursive: true });
+                    }
+                    getLogger().info("Cloning Project Mono Repo " + monoRepo + " to " + repoOrgPath);
+                    await window.withProgress({
+                        title: `Cloning Project repository: ${monoRepo} to Choreo project workspace.`,
+                        location: ProgressLocation.Notification,
+                        cancellable: true
+                    }, async (progress, cancellationToken) => {
+                        const git = await initGit(ext.context);
+                        if (git) {
+                            await git.clone(`https://github.com/${monoRepo}.git`, { recursive: true, parentPath: repoOrgPath, progress }, cancellationToken);        
+                            getLogger().debug("Cloned " + monoRepo + " to " + repoOrgPath);
+                        } else {
+                            getLogger().error("Git was not initialized"); 
+                        }
+                    });
                 }
             }
 
