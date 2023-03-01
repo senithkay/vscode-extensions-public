@@ -41,8 +41,8 @@ import {
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
-    getTypeOfOutput,
-    getTypeOfValue
+    getTypeOfValue,
+    updateType
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
@@ -92,8 +92,14 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             if (!this.rootName && STKindChecker.isAnydataTypeDesc(this.typeIdentifier)) {
                 this.rootName = this.typeDef.typeName;
             }
-            const valueEnrichedType = getEnrichedRecordType(this.typeDef,
+            let valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
+            const [updatedType, isUpdated] = updateType(valueEnrichedType);
+            if (isUpdated) {
+                this.typeDef = updatedType;
+                valueEnrichedType = getEnrichedRecordType(this.typeDef,
+                    this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
+            }
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,

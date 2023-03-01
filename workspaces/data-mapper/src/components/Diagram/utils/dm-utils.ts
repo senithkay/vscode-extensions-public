@@ -1133,6 +1133,31 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type 
 	return type;
 }
 
+export function updateType(field: EditableRecordField): [Type, boolean] {
+	let type = { ...field.type };
+	const value = field.value;
+	let hasTypeUpdated = false;
+
+	if (type.typeName === AnydataType && value) {
+		type = constructTypeFromSTNode(value, type?.name);
+		hasTypeUpdated = true;
+	} else if (type.typeName === PrimitiveBalType.Record) {
+		type.fields = field.childrenTypes.map((child) => {
+			const [updatedType, isUpdated] = updateType(child);
+			hasTypeUpdated = hasTypeUpdated || isUpdated;
+			return updatedType;
+		});
+	} else if (type.typeName === PrimitiveBalType.Array) {
+		if (field?.elements && field.elements.length > 0) {
+			const [updatedType, isUpdated] = updateType(field.elements[0].member);
+			hasTypeUpdated = hasTypeUpdated || isUpdated;
+			type.memberType = updatedType;
+		}
+	}
+
+	return [type, hasTypeUpdated];
+}
+
 export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: string): Type {
 	if (prevSTNodes.length === 0) {
 		return undefined;

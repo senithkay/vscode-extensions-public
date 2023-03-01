@@ -42,8 +42,8 @@ import {
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
-    getTypeOfOutput,
-    getTypeOfValue
+    getTypeOfValue,
+    updateType
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
@@ -85,8 +85,14 @@ export class ListConstructorNode extends DataMapperNodeModel {
                     this.typeDef = acceptedMembers[0];
                 }
             }
-            const valueEnrichedType = getEnrichedRecordType(this.typeDef,
+            let valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
+            const [updatedType, isUpdated] = updateType(valueEnrichedType);
+            if (isUpdated) {
+                this.typeDef = updatedType;
+                valueEnrichedType = getEnrichedRecordType(this.typeDef,
+                    this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
+            }
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (this.typeDef.typeName === PrimitiveBalType.Union) {
