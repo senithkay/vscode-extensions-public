@@ -42,14 +42,14 @@ interface ConnectorWizardProps {
 
 export function ConnectorWizard(props: ConnectorWizardProps) {
     const { service, onClose } = props;
-    const { rpcInstance } = useContext(DiagramContext);
+    const { editLayerAPI } = useContext(DiagramContext);
 
     // const [showLoader, setShowLoader] = useState(false);
     const [showDrawer, setShowDrawer] = useState(true);
     const [selectedCon, setSelectedCon] = useState<Connector>();
 
     const fetchConnectorsList = async (queryParams: SearchQueryParams): Promise<BallerinaModuleResponse> => {
-        const connectorRes = await rpcInstance.getConnectors(queryParams);
+        const connectorRes = await editLayerAPI.getConnectors(queryParams);
         return Promise.resolve(connectorRes as BallerinaModuleResponse);
     };
 

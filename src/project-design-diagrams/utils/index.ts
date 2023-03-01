@@ -18,5 +18,5 @@
  */
 
 export { linkServices as addConnector } from './code-generator';
-export { EditLayerRPC } from './project-design-rpc';
-export { getComponentModel, getChoreoMetadata } from './utils';
+export { EditLayerRPC } from './edit-layer-rpc';
+export { getComponentModel, enrichChoreoMetadata } from './utils';

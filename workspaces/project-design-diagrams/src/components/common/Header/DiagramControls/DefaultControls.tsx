@@ -43,7 +43,7 @@ interface DefaultControlProps {
 
 export function DefaultControls(props: DefaultControlProps) {
     const { projectPackages, layout, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
-    const { isChoreoProject, rpcInstance } = useContext(DiagramContext);
+    const { isChoreoProject, editingEnabled, editLayerAPI } = useContext(DiagramContext);
 
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
     const [pkgAnchorElement, setPkgAnchorElement] = useState<HTMLButtonElement>(null);
@@ -58,8 +58,8 @@ export function DefaultControls(props: DefaultControlProps) {
     };
 
     const onClickProjectOverview = () => {
-        rpcInstance.showChoreoProjectOverview().catch((error: Error) => {
-            rpcInstance.showErrorMessage(error.message);
+        editLayerAPI.showChoreoProjectOverview().catch((error: Error) => {
+            editLayerAPI.showErrorMessage(error.message);
         });
     }
 
@@ -79,7 +79,7 @@ export function DefaultControls(props: DefaultControlProps) {
                 >
                     <MenuIcon fontSize='small' />
                 </IconButton>
-                {isChoreoProject && rpcInstance &&
+                {isChoreoProject && editingEnabled &&
                     <Button
                         variant='outlined'
                         size='small'

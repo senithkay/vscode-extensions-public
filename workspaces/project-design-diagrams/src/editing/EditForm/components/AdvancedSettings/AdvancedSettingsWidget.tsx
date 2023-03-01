@@ -39,11 +39,11 @@ interface AdvancedSettingsProps {
 
 export function AdvancedSettingsWidget(props: AdvancedSettingsProps) {
     const [visibility, changeVisibility] = useState<boolean>(false);
-    const { rpcInstance } = useContext(DiagramContext);
+    const { editLayerAPI } = useContext(DiagramContext);
     const { component, updatePackage, updateOrganization, updateVersion, setDirectory, selectDirectory } = props;
 
     useEffect(() => {
-        rpcInstance.getProjectRoot().then((response) => {
+        editLayerAPI.getProjectRoot().then((response) => {
             setDirectory(response);
         });
     }, [])

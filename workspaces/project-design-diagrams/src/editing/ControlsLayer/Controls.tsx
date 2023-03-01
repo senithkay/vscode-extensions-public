@@ -49,12 +49,12 @@ interface ControlsProps {
 
 export function ControlsLayer(props: ControlsProps) {
     const { float, setShowEditForm } = props;
-    const { isChoreoProject, rpcInstance } = useContext(DiagramContext);
+    const { isChoreoProject, editLayerAPI } = useContext(DiagramContext);
 
     const onComponentAdd = () => {
-        if (isChoreoProject && rpcInstance) {
-            rpcInstance.executeCommand('wso2.choreo.component.create').catch((error: Error) => {
-                rpcInstance.showErrorMessage(error.message);
+        if (isChoreoProject && editLayerAPI) {
+            editLayerAPI.executeCommand('wso2.choreo.component.create').catch((error: Error) => {
+                editLayerAPI.showErrorMessage(error.message);
             })
         } else {
             setShowEditForm(true);

@@ -42,7 +42,7 @@ interface ConnectorFormProps {
 
 function ConnectorForm(props: ConnectorFormProps) {
     const { connector, service, onSave } = props;
-    const { rpcInstance } = useContext(DiagramContext);
+    const { editLayerAPI } = useContext(DiagramContext);
 
     const [pulling, setPulling] = useState(true);
     const [error, setError] = useState<string>();
@@ -53,7 +53,7 @@ function ConnectorForm(props: ConnectorFormProps) {
     const moduleName = (connector.displayAnnotation?.label || `${connector.package?.name} / ${connector.name}`).replace(/["']/g, "");
 
     useEffect(() => {
-        rpcInstance.pullConnector(connector, service)
+        editLayerAPI.pullConnector(connector, service)
             .then((pulled) => {
                 console.log('pullConnector', pulled)
                 if (!pulled) {
@@ -67,7 +67,7 @@ function ConnectorForm(props: ConnectorFormProps) {
 
     const handleConnectorSave = () => {
         setShowLoader(true);
-        rpcInstance
+        editLayerAPI
             .addConnector(connector, service)
             .then((res) => {
                 console.log('addConnector', res)

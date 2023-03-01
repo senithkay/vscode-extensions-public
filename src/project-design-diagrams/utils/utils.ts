@@ -61,7 +61,7 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<s
     });
 }
 
-export async function getChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>> {
+export async function enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>> {
     let packageModels: Map<string, ComponentModel> = new Map(Object.entries(model));
     const choreoExt = await getChoreoExtAPI();
     if (choreoExt) {

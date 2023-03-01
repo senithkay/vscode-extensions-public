@@ -49,19 +49,19 @@ interface DiagramProps {
     isEditable: boolean;
     getComponentModel(): Promise<Map<string, ComponentModel>>;
     enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>>;
-    rpcInstance?: EditLayerAPI;
+    editLayerAPI?: EditLayerAPI;
     isChoreoProject?: boolean;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { getComponentModel, enrichChoreoMetadata, isEditable, rpcInstance = undefined } = props;
+    const { getComponentModel, enrichChoreoMetadata, isEditable, editLayerAPI = undefined } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
-    const [showEditForm, setShowEditForm] = useState(false); // edit layer
-    const [connectorTarget, setConnectorTarget] = useState<Service>(undefined); // edit layer
+    const [showEditForm, setShowEditForm] = useState(false);
+    const [connectorTarget, setConnectorTarget] = useState<Service>(undefined);
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
     const isChoreoProject = useRef<boolean>(false);
@@ -71,7 +71,9 @@ export function DesignDiagram(props: DiagramProps) {
 
     useEffect(() => {
         async function setChoreoProjectStatus () {
-            if (props.isChoreoProject === true || await rpcInstance?.isChoreoProject()) {
+            // when invoked for non-cloned projects, the isChoreoProject flag is a required prop as the editLayerAPI
+            // assesses the project based on the workspace content
+            if (props.isChoreoProject === true || await editLayerAPI?.isChoreoProject()) {
                 isChoreoProject.current = true;
             } else {
                 isChoreoProject.current = false;
@@ -109,7 +111,9 @@ export function DesignDiagram(props: DiagramProps) {
         setConnectorTarget(undefined);
     }
 
-    const editingEnabled: boolean = isEditable && rpcInstance !== undefined;
+    // If the diagram should be rendered on edit mode, the editLayerAPI is a required prop as it contains the
+    // utils required to handle the edit-mode features
+    const editingEnabled: boolean = isEditable && editLayerAPI !== undefined;
 
     const ctx = {
         getTypeComposition,
@@ -118,7 +122,7 @@ export function DesignDiagram(props: DiagramProps) {
         editingEnabled,
         isChoreoProject: isChoreoProject.current,
         setConnectorTarget,
-        rpcInstance
+        editLayerAPI
     }
 
     return (

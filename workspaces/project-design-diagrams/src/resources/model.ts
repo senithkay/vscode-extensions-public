@@ -195,6 +195,7 @@ export enum Colors {
 export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';
 
 export interface EditLayerAPI {
+    getProjectRoot: () => Promise<string | undefined>;
     createComponent: (args: BallerinaComponentCreationParams) => Promise<string>;
     getConnectors: (args: BallerinaConnectorsRequest) => Promise<BallerinaConnectorsResponse>;
     pullConnector: (connector: Connector, targetService: Service) => Promise<boolean>;

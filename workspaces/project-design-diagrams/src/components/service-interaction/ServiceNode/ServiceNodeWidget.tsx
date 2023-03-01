@@ -42,7 +42,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		setNewComponentID,
 		newLinkNodes,
 		setNewLinkNodes,
-		rpcInstance
+		editLayerAPI
 	} = useContext(DiagramContext);
 	const [selectedLinks, setSelectedLinks] = useState<ServiceLinkModel[]>([]);
 	const { refreshDiagram } = useContext(DiagramContext)
@@ -83,7 +83,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			node.serviceType !== ServiceTypes.OTHER
 		) {
 			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
-			await rpcInstance.addLink(newLinkNodes.source, node.serviceObject);
+			await editLayerAPI.addLink(newLinkNodes.source, node.serviceObject);
 			setNewLinkNodes({ source: undefined, target: undefined });
 			refreshDiagram();
 		}

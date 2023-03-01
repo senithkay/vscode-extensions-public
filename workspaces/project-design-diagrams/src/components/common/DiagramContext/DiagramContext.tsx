@@ -28,7 +28,7 @@ interface DiagramContextProps {
     isChoreoProject: boolean;
     setConnectorTarget: (service: Service) => void;
     refreshDiagram: () => void;
-    rpcInstance: EditLayerAPI | undefined;
+    editLayerAPI: EditLayerAPI | undefined;
 }
 
 // To Do - Refactor to distinguish read-only and editable contexts
@@ -38,8 +38,8 @@ interface IDiagramContext {
     getTypeComposition: (entityID: string) => void;
     currentView: Views;
     refreshDiagram: () => void;
-    rpcInstance: EditLayerAPI | undefined;
-    // editable diagram states
+    editLayerAPI: EditLayerAPI | undefined;
+    // Editable diagram states
     newComponentID: string | undefined;
     newLinkNodes: LinkedNodes;
     setNewComponentID: (name: string | undefined) => void;
@@ -56,7 +56,7 @@ const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
-    const { getTypeComposition, currentView, editingEnabled, isChoreoProject, rpcInstance, children, setConnectorTarget, refreshDiagram } = props;
+    const { getTypeComposition, currentView, editingEnabled, editLayerAPI, isChoreoProject, children, setConnectorTarget, refreshDiagram } = props;
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
@@ -65,7 +65,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         isChoreoProject,
         getTypeComposition,
         refreshDiagram,
-        rpcInstance,
+        editLayerAPI,
         newComponentID,
         editingEnabled,
         newLinkNodes,

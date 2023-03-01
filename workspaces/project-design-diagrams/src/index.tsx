@@ -33,7 +33,7 @@ export function renderDesignDiagrams(isEditable: boolean,
             isEditable={isEditable}
             getComponentModel={getComponentModel}
             enrichChoreoMetadata={enrichChoreoMetadata}
-            rpcInstance={WebviewEditLayerAPI.getInstance()}
+            editLayerAPI={WebviewEditLayerAPI.getInstance()}
         />,
         target
     );
