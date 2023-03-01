@@ -89,6 +89,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     this.rootName = acceptedMembers[0]?.name;
                 }
             }
+            if (!this.rootName && STKindChecker.isAnydataTypeDesc(this.typeIdentifier)) {
+                this.rootName = this.typeDef.typeName;
+            }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
