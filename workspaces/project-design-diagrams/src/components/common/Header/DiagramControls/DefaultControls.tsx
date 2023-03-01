@@ -43,7 +43,7 @@ interface DefaultControlProps {
 
 export function DefaultControls(props: DefaultControlProps) {
     const { projectPackages, layout, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
-    const { isChoreoProject, editingEnabled, editLayerAPI } = useContext(DiagramContext);
+    const { isChoreoProject, editLayerAPI, showChoreoProjectOverview } = useContext(DiagramContext);
 
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
     const [pkgAnchorElement, setPkgAnchorElement] = useState<HTMLButtonElement>(null);
@@ -57,10 +57,8 @@ export function DefaultControls(props: DefaultControlProps) {
         setLayoutAnchorElement(event.currentTarget);
     };
 
-    const onClickProjectOverview = () => {
-        editLayerAPI.showChoreoProjectOverview().catch((error: Error) => {
-            editLayerAPI.showErrorMessage(error.message);
-        });
+    const onClickProjectOverview = async () => {
+        await showChoreoProjectOverview();
     }
 
     return (
@@ -79,7 +77,7 @@ export function DefaultControls(props: DefaultControlProps) {
                 >
                     <MenuIcon fontSize='small' />
                 </IconButton>
-                {isChoreoProject && editingEnabled &&
+                {isChoreoProject && showChoreoProjectOverview &&
                     <Button
                         variant='outlined'
                         size='small'

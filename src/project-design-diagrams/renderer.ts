@@ -20,7 +20,7 @@
 import { Webview } from "vscode";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } from "../utils/webview-utils";
 
-export function render(webView: Webview) {
+export function render(webView: Webview, isChoreoProject: boolean) {
     const body = `<div class = "container" id = "webview-container" />`;
     const bodyCss = ``;
     const styles = `
@@ -65,8 +65,27 @@ export function render(webView: Webview) {
                 })
             }
 
+            function showChoreoProjectOverview() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'showChoreoProjectOverview',
+                        [],
+                        () => {
+                            resolve();
+                        }
+                    );
+                })
+            }
+
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(true, getComponentModel, enrichChoreoMetadata, document.getElementById("webview-container"));
+                designDiagram.renderDesignDiagrams(
+                    true,
+                    ${isChoreoProject},
+                    getComponentModel,
+                    enrichChoreoMetadata,
+                    showChoreoProjectOverview,
+                    document.getElementById("webview-container")
+                );
             }
 
             renderDiagrams();

@@ -202,9 +202,7 @@ export interface EditLayerAPI {
     addConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
     addLink: (source: Service, target: Service) => Promise<boolean>;
     pickDirectory: () => Promise<string | undefined>;
-    isChoreoProject: () => Promise<boolean>;
     executeCommand: (cmd: string) => Promise<boolean>;
-    showChoreoProjectOverview: () => Promise<boolean>;
     go2source: (location: Location) => void;
     showErrorMessage: (message: string) => void;
 }

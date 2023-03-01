@@ -73,16 +73,8 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
         return this._messenger.sendRequest({ method: 'pickDirectory' }, HOST_EXTENSION, '');
     }
 
-    public async isChoreoProject(): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'isChoreoProject' }, HOST_EXTENSION, '');
-    }
-
     public async executeCommand(cmd: string): Promise<boolean> {
         return this._messenger.sendRequest({ method: 'executeCommand' }, HOST_EXTENSION, cmd);
-    }
-
-    public async showChoreoProjectOverview(): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'showChoreoProjectOverview' }, HOST_EXTENSION, '');
     }
 
     public showErrorMessage(msg: string): void {

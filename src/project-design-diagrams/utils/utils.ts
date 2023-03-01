@@ -17,10 +17,11 @@
  *
  */
 
-import { window, workspace } from "vscode";
+import { commands, window, workspace } from "vscode";
 import { existsSync } from "fs";
 import { join } from "path";
 import _ from "lodash";
+import { Project } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient } from "../../core";
 import { terminateActivation } from "../activator";
 import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE } from "../resources";
@@ -68,4 +69,27 @@ export async function enrichChoreoMetadata(model: Map<string, ComponentModel>): 
         packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
     }
     return model;
+}
+
+export async function checkIsChoreoProject(): Promise<boolean> {
+    const choreoExt = await getChoreoExtAPI();
+    if (choreoExt) {
+        return await choreoExt.isChoreoProject();
+    }
+    return false;
+}
+
+export async function getActiveChoreoProject(): Promise<Project> {
+    const choreoExt = await getChoreoExtAPI();
+    if (choreoExt) {
+        return await choreoExt.getChoreoProject();
+    }
+    return undefined;
+}
+
+export async function showChoreoProjectOverview(project: Project | undefined): Promise<void> {
+    if (project && await getChoreoExtAPI()) {
+        return commands.executeCommand('wso2.choreo.project.overview', project);
+    }
+    window.showErrorMessage('Error while loading Choreo project overview.');
 }

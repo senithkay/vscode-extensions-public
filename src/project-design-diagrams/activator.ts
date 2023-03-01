@@ -20,16 +20,19 @@
 import { commands, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
 import { debounce } from "lodash";
+import { Project } from "@wso2-enterprise/choreo-core";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../utils";
 import { render } from "./renderer";
 import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
-import { enrichChoreoMetadata, getComponentModel, EditLayerRPC } from "./utils";
+import { enrichChoreoMetadata, getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
 
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
 let designDiagramWebview: WebviewPanel | undefined;
 let balVersion: BallerinaVersion;
+let isChoreoProject: boolean;
+let activeChoreoProject: Project | undefined;
 
 export interface STResponse {
     syntaxTree: any;
@@ -42,9 +45,9 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     langClient = <ExtendedLangClient>extInstance.langClient;
     const designDiagramRenderer = commands.registerCommand("ballerina.view.architectureView", () => {
         ballerinaExtInstance.onReady()
-            .then(() => {
+            .then(async () => {
                 if (isCompatible(2201.2, 2)) {
-                    viewProjectDesignDiagrams();
+                    await viewProjectDesignDiagrams();
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
                     return;
@@ -59,11 +62,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance.context.subscriptions.push(designDiagramRenderer);
 }
 
-function viewProjectDesignDiagrams() {
-    setupWebviewPanel();
+async function viewProjectDesignDiagrams() {
+    await setupWebviewPanel();
 
     if (designDiagramWebview) {
-        const html = render(designDiagramWebview.webview);
+        const html = render(designDiagramWebview.webview, isChoreoProject);
         if (html) {
             designDiagramWebview.webview.html = html;
         }
@@ -75,7 +78,7 @@ function viewProjectDesignDiagrams() {
     }
 }
 
-function setupWebviewPanel() {
+async function setupWebviewPanel() {
     if (designDiagramWebview) {
         designDiagramWebview.reveal();
     } else {
@@ -107,11 +110,21 @@ function setupWebviewPanel() {
                 handler: (args: any[]): Promise<Map<string, ComponentModel>> => {
                     return enrichChoreoMetadata(args[0]);
                 }
+            },
+            {
+                methodName: "showChoreoProjectOverview",
+                handler: async (): Promise<void> => {
+                    if (isChoreoProject && !activeChoreoProject) {
+                        activeChoreoProject = await getActiveChoreoProject();
+                    }
+                    return showChoreoProjectOverview(activeChoreoProject);
+                }
             }
         ];
-
         WebViewRPCHandler.create(designDiagramWebview, langClient, remoteMethods);
-        EditLayerRPC.create(designDiagramWebview, langClient);
+
+        isChoreoProject = await checkIsChoreoProject();
+        EditLayerRPC.create(designDiagramWebview, langClient, isChoreoProject);
 
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;

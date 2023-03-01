@@ -22,12 +22,13 @@ import { EditLayerAPI, Service, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
-    getTypeComposition: (entityID: string) => void;
     currentView: Views;
     editingEnabled: boolean;
     isChoreoProject: boolean;
-    setConnectorTarget: (service: Service) => void;
     refreshDiagram: () => void;
+    showChoreoProjectOverview: (() => Promise<void>) | undefined;
+    getTypeComposition: (entityID: string) => void;
+    setConnectorTarget: (service: Service) => void;
     editLayerAPI: EditLayerAPI | undefined;
 }
 
@@ -35,9 +36,10 @@ interface DiagramContextProps {
 interface IDiagramContext {
     editingEnabled: boolean;
     isChoreoProject: boolean;
-    getTypeComposition: (entityID: string) => void;
     currentView: Views;
     refreshDiagram: () => void;
+    showChoreoProjectOverview: (() => Promise<void>) | undefined;
+    getTypeComposition: (entityID: string) => void;
     editLayerAPI: EditLayerAPI | undefined;
     // Editable diagram states
     newComponentID: string | undefined;
@@ -56,22 +58,33 @@ const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
-    const { getTypeComposition, currentView, editingEnabled, editLayerAPI, isChoreoProject, children, setConnectorTarget, refreshDiagram } = props;
+    const {
+        children,
+        currentView,
+        editingEnabled,
+        isChoreoProject,
+        editLayerAPI,
+        refreshDiagram,
+        getTypeComposition,
+        showChoreoProjectOverview,
+        setConnectorTarget
+    } = props;
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
     const Ctx = {
         currentView,
+        editingEnabled,
         isChoreoProject,
-        getTypeComposition,
         refreshDiagram,
+        getTypeComposition,
+        showChoreoProjectOverview,
         editLayerAPI,
         newComponentID,
-        editingEnabled,
+        setNewComponentID,
         newLinkNodes,
         setNewLinkNodes,
-        setConnectorTarget,
-        setNewComponentID
+        setConnectorTarget
     }
 
     return (

@@ -18,7 +18,7 @@
  */
 
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
-import { BallerinaComponentCreationParams, ChoreoComponentCreationParams, Project } from "@wso2-enterprise/choreo-core";
+import { BallerinaComponentCreationParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { existsSync } from "fs";
 import { commands, OpenDialogOptions, Position, Range, Selection, TextEditorRevealType, WebviewPanel, window, workspace } from "vscode";
@@ -27,7 +27,6 @@ import { Location, Service } from "../resources";
 import { ExtendedLangClient } from "../../core";
 import { addConnector, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "workspaces/low-code-editor-commons/lib";
-import { getChoreoExtAPI, IChoreoExtensionAPI } from "../../choreo-features/activate";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -38,24 +37,11 @@ const directoryPickOptions: OpenDialogOptions = {
 
 export class EditLayerRPC {
     private _messenger: Messenger = new Messenger();
-    private _isChoreoProject: boolean;
     private _projectManager: ChoreoProjectManager | BallerinaProjectManager;
-    private _choreoExtApi: IChoreoExtensionAPI | undefined;
-    private _activeChoreoProject: Project;
 
-    constructor(webview: WebviewPanel, langClient: ExtendedLangClient) {
+    constructor(webview: WebviewPanel, langClient: ExtendedLangClient, isChoreoProject: boolean) {
         this._messenger.registerWebviewPanel(webview);
-
-        getChoreoExtAPI().then(async (extApi) => {
-            if (extApi) {
-                this._choreoExtApi = extApi;
-                this._isChoreoProject = await extApi.isChoreoProject();
-            } else {
-                this._isChoreoProject = false;
-            }
-        });
-
-        if (this._isChoreoProject) {
+        if (isChoreoProject) {
             this._projectManager = new ChoreoProjectManager();
         } else {
             this._projectManager = new BallerinaProjectManager();
@@ -106,23 +92,8 @@ export class EditLayerRPC {
             }
         });
 
-        this._messenger.onRequest({ method: 'isChoreoProject' }, async (): Promise<boolean> => {
-            return this._isChoreoProject;
-        });
-
         this._messenger.onRequest({ method: 'executeCommand' }, async (cmd: string): Promise<boolean> => {
             return commands.executeCommand(cmd);
-        });
-
-        this._messenger.onRequest({ method: 'showChoreoProjectOverview' }, async (): Promise<boolean> => {
-            if (this._choreoExtApi) {
-                if (!this._activeChoreoProject) {
-                    this._activeChoreoProject = await this._choreoExtApi.getChoreoProject();
-                }
-                return commands.executeCommand('wso2.choreo.project.overview', this._activeChoreoProject);
-            }
-            window.showErrorMessage('Error while loading Choreo project overview.');
-            return false;
         });
 
         this._messenger.onNotification({ method: 'go2source' }, (location: Location): void => {
@@ -144,7 +115,7 @@ export class EditLayerRPC {
         });
     }
 
-    static create(webview: WebviewPanel, langClient: ExtendedLangClient) {
-        return new EditLayerRPC(webview, langClient);
+    static create(webview: WebviewPanel, langClient: ExtendedLangClient, isChoreoProject: boolean) {
+        return new EditLayerRPC(webview, langClient, isChoreoProject);
     }
 }

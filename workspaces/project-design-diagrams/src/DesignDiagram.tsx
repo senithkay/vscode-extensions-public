@@ -47,14 +47,15 @@ const Container = styled.div`
 
 interface DiagramProps {
     isEditable: boolean;
+    isChoreoProject: boolean;
     getComponentModel(): Promise<Map<string, ComponentModel>>;
     enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>>;
+    showChoreoProjectOverview?: () => Promise<void>;
     editLayerAPI?: EditLayerAPI;
-    isChoreoProject?: boolean;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { getComponentModel, enrichChoreoMetadata, isEditable, editLayerAPI = undefined } = props;
+    const { isChoreoProject, isEditable, getComponentModel, enrichChoreoMetadata, showChoreoProjectOverview = undefined, editLayerAPI = undefined } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
@@ -64,24 +65,12 @@ export function DesignDiagram(props: DiagramProps) {
     const [connectorTarget, setConnectorTarget] = useState<Service>(undefined);
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
-    const isChoreoProject = useRef<boolean>(false);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
 
     useEffect(() => {
-        async function setChoreoProjectStatus () {
-            // when invoked for non-cloned projects, the isChoreoProject flag is a required prop as the editLayerAPI
-            // assesses the project based on the workspace content
-            if (props.isChoreoProject === true || await editLayerAPI?.isChoreoProject()) {
-                isChoreoProject.current = true;
-            } else {
-                isChoreoProject.current = false;
-            }
-        }
-        setChoreoProjectStatus().then(() => {
-            refreshDiagram();
-        });
+        refreshDiagram();
     }, [props])
 
     const changeDiagramLayout = () => {
@@ -96,7 +85,7 @@ export function DesignDiagram(props: DiagramProps) {
 
     const refreshDiagram = async () => {
         let componentModel: Map<string, ComponentModel> = await getComponentModel();
-        if (isChoreoProject.current) {
+        if (isChoreoProject) {
             componentModel = await enrichChoreoMetadata(componentModel);
         }
         const components: Map<string, ComponentModel> = new Map(Object.entries(componentModel));
@@ -116,12 +105,13 @@ export function DesignDiagram(props: DiagramProps) {
     const editingEnabled: boolean = isEditable && editLayerAPI !== undefined;
 
     const ctx = {
-        getTypeComposition,
+        editingEnabled,
+        isChoreoProject,
         currentView,
         refreshDiagram,
-        editingEnabled,
-        isChoreoProject: isChoreoProject.current,
+        getTypeComposition,
         setConnectorTarget,
+        showChoreoProjectOverview,
         editLayerAPI
     }
 
