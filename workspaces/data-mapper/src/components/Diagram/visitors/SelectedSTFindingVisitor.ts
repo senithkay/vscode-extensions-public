@@ -33,7 +33,10 @@ export class SelectedSTFindingVisitor implements Visitor {
         private prevST: DMNode[],
     ) {
         this.updatedPrevST = [];
-        this.pathSegmentIndex = 1; // Field path always starts with the record root name
+        const fnST = prevST[0].stNode;
+        const isOutputAnydata = fnST && STKindChecker.isFunctionDefinition(fnST)
+            && STKindChecker.isAnydataTypeDesc(fnST.functionSignature.returnTypeDesc.type);
+        this.pathSegmentIndex = isOutputAnydata ? 0 : 1; // If the output type is available, the field path starts with the record root name, hence segmentIndex = 1
     }
 
     beginVisitSTNode(node: FunctionDefinition | SpecificField | LetVarDecl) {
