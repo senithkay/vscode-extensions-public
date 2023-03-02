@@ -16,13 +16,15 @@ import React, { useMemo, useState } from "react";
 import {
     Button,
     CircularProgress,
-    IconButton
+    IconButton,
+    Menu,
+    MenuItem
 } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -34,6 +36,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
+    getDefaultValueFromTypeName,
     getDefaultValue,
     getExprBodyFromLetExpression,
     getFieldName,
@@ -48,6 +51,7 @@ import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
+import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -98,6 +102,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const elements = field.elements;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const diagnostic = (valExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
+    const [addElementAnchorEl, addElementSetAnchorEl] = React.useState<null | HTMLButtonElement>(null);
+    const addMenuOpen = Boolean(addElementAnchorEl);
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
@@ -253,19 +259,22 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 )
             } else {
                 return (
-                    <TreeBody>
-                        <PrimitiveTypedEditableElementWidget
-                            parentId={fieldId}
-                            field={element.member}
-                            engine={engine}
-                            getPort={getPort}
-                            context={context}
-                            fieldIndex={index}
-                            deleteField={deleteField}
-                            isArrayElement={true}
-                            hasHoveredParent={isHovered || hasHoveredParent}
-                        />
-                    </TreeBody>
+                    <>
+                        <TreeBody>
+                            <PrimitiveTypedEditableElementWidget
+                                parentId={fieldId}
+                                field={element.member}
+                                engine={engine}
+                                getPort={getPort}
+                                context={context}
+                                fieldIndex={index}
+                                deleteField={deleteField}
+                                isArrayElement={true}
+                                hasHoveredParent={isHovered || hasHoveredParent}
+                            />
+                        </TreeBody>
+                        <br />
+                    </>
                 );
             }
         })
@@ -304,11 +313,11 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
-    const handleAddArrayElement = async () => {
+    const handleAddArrayElement = async (typeName: string) => {
         setIsAddingElement(true)
         try {
             const fieldsAvailable = !!listConstructor.expressions.length;
-            const defaultValue = field.type?.memberType && getDefaultValue(field.type.memberType);
+            const defaultValue = getDefaultValueFromTypeName(typeName);
             let targetPosition: NodePosition;
             let newElementSource: string;
             if (fieldsAvailable) {
@@ -336,6 +345,29 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const onMouseLeave = () => {
         setIsHovered(false);
     };
+
+    const isAnydataType = field.type?.memberType?.typeName === AnydataType
+        || field.type?.memberType?.originalTypeName === AnydataType
+        || field.type?.originalTypeName === AnydataType;
+
+    const onAddElementClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (isAnydataType) {
+            addElementSetAnchorEl(event.currentTarget)
+        } else {
+            handleAddArrayElement(field?.type?.memberType?.typeName)
+        }
+    }
+
+    const possibleTypeOptions = useMemo(() => {
+        if (isAnydataType) {
+            const anyDateConvertOptions: ValueConfigMenuItem[] = [];
+            anyDateConvertOptions.push({ title: `Initialize as string`, onClick: () => handleAddArrayElement(PrimitiveBalType.String) })
+            anyDateConvertOptions.push({ title: `Initialize as number`, onClick: () => handleAddArrayElement(PrimitiveBalType.Int) })
+            anyDateConvertOptions.push({ title: `Initialize as boolean`, onClick: () => handleAddArrayElement(PrimitiveBalType.Boolean) })
+            anyDateConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAddArrayElement(PrimitiveBalType.Record) })
+            return anyDateConvertOptions;
+        }
+    }, [])
 
     return (
         <div
@@ -414,13 +446,30 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             id={"add-array-element"}
                             aria-label="add"
                             className={classes.addIcon}
-                            onClick={handleAddArrayElement}
+                            onClick={onAddElementClick}
                             startIcon={isAddingElement ? <CircularProgress size={16} /> : <AddIcon />}
                             disabled={isAddingElement}
                             data-testid={`array-widget-${portIn?.getName()}-add-element`}
                         >
                             Add Element
                         </Button>
+                        {isAnydataType && (
+                            <Menu
+                                anchorEl={addElementAnchorEl}
+                                open={addMenuOpen}
+                                onClose={() => addElementSetAnchorEl(null)}
+                                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                                className={classes.valueConfigMenu}
+                            >
+                                {possibleTypeOptions?.map((item) => (
+                                    <>
+                                        <MenuItem key={item.title} onClick={item.onClick}>
+                                            {item.title}
+                                        </MenuItem>
+                                    </>
+                                ))}
+                            </Menu>
+                        )}
                         <span>]</span>
                     </div>
                 </div>

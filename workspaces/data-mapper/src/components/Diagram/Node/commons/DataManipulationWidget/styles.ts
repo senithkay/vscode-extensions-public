@@ -206,6 +206,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginLeft: "auto",
             marginRight: '3px',
             alignSelf: 'center'
+        },
+        valueConfigMenu: {
+            '& .MuiMenuItem-root': {
+                fontSize: '12px',
+                paddingBottom: "1px",
+                paddingTop: "1px"
+            }
         }
     }),
 );

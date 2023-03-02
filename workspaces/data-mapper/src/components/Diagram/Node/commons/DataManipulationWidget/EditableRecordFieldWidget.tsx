@@ -17,8 +17,8 @@ import { CircularProgress, IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -29,7 +29,9 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
+    getDefaultValueFromTypeName,
     getFieldName,
+    getNewFieldAdditionModification,
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
@@ -38,6 +40,7 @@ import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordF
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
+import { AddRecordFieldButton } from "../AddRecordFieldButton";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -243,6 +246,16 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         </span>
     );
 
+    const handleAssignDefaultValue = async (typeName: string) => {
+		setIsLoading(true);
+		try {
+			const defaultValue = getDefaultValueFromTypeName(typeName);
+            await createSourceForUserInput(field, parentMappingConstruct as MappingConstructor, defaultValue, applyModifications);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
         : { title: ValueConfigOption.AddValue, onClick: handleAddValue };
@@ -254,8 +267,24 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
-        (hasValue || isWithinArray) && deleteValueMenuItem
+        (hasValue || isWithinArray) && deleteValueMenuItem,
     ];
+
+    const isAnyDataRecord = field.type?.originalTypeName === AnydataType
+
+    if (field.type?.typeName === AnydataType) {
+        const anyDateConvertOptions: ValueConfigMenuItem[] = []
+        anyDateConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Record)})
+        anyDateConvertOptions.push({ title: `Initialize as array`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Array)})
+        valConfigMenuItems.push(...anyDateConvertOptions)
+    }
+
+    const addNewField = async (newFieldName: string) => {
+        const modification = getNewFieldAdditionModification(field.value, newFieldName);
+        if(modification){
+            await context.applyModifications(modification);
+        }
+    }
 
     return (
         <>
@@ -343,6 +372,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     );
                 })
             }
+            {isAnyDataRecord && <AddRecordFieldButton
+                addNewField={(fieldName) => addNewField(fieldName)}
+                indentation={indentation + 50}
+            />}
         </>
     );
 }

@@ -24,10 +24,12 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
-import { isEmptyValue } from "../../../utils/dm-utils";
+import { getNewFieldAdditionModification, isEmptyValue } from "../../../utils/dm-utils";
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
+import { AnydataType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { AddRecordFieldButton } from '../AddRecordFieldButton';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -100,6 +102,7 @@ export interface EditableMappingConstructorWidgetProps {
 	valueLabel?: string;
 	mappings?: FieldAccessToSpecificFied[];
 	deleteField?: (node: STNode) => Promise<void>;
+	originalTypeName?: string;
 }
 
 
@@ -114,7 +117,8 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
         context,
         mappings,
         valueLabel,
-        deleteField
+        deleteField,
+		originalTypeName
     } = props;
 	const classes = useStyles();
 
@@ -130,6 +134,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
         }
         return true;
     }));
+	const isAnyData = originalTypeName === AnydataType;
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -171,6 +176,14 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const onMouseLeave = () => {
 		setIsHovered(false);
 	};
+
+
+    const addNewField = async (newFieldName: string) => {
+        const modification = getNewFieldAdditionModification(value, newFieldName);
+        if(modification){
+            await context.applyModifications(modification);
+        }
+    }
 
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
@@ -221,6 +234,10 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						);
 					})
 				}
+				{isAnyData && <AddRecordFieldButton
+					addNewField={(fieldName) => addNewField(fieldName)}
+					indentation={0}
+				/>}
 			</TreeBody>
 		</TreeContainer>
 	);
