@@ -361,10 +361,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const possibleTypeOptions = useMemo(() => {
         if (isAnydataType) {
             const anyDateConvertOptions: ValueConfigMenuItem[] = [];
-            anyDateConvertOptions.push({ title: `Initialize as string`, onClick: () => handleAddArrayElement(PrimitiveBalType.String) })
-            anyDateConvertOptions.push({ title: `Initialize as number`, onClick: () => handleAddArrayElement(PrimitiveBalType.Int) })
-            anyDateConvertOptions.push({ title: `Initialize as boolean`, onClick: () => handleAddArrayElement(PrimitiveBalType.Boolean) })
-            anyDateConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAddArrayElement(PrimitiveBalType.Record) })
+            anyDateConvertOptions.push({ title: `Add string element`, onClick: () => handleAddArrayElement(PrimitiveBalType.String) })
+            anyDateConvertOptions.push({ title: `Add number element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Int) })
+            anyDateConvertOptions.push({ title: `Add boolean element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Boolean) })
+            anyDateConvertOptions.push({ title: `Add record element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Record) })
             return anyDateConvertOptions;
         }
     }, [])
