@@ -111,9 +111,9 @@ export function ServiceDesign(props: ServiceDesignProps) {
         const lastMember: NodePosition = servicePosition.position;
         const lastMemberPosition: NodePosition = {
             endColumn: 0,
-            endLine: lastMember.startLine - 1,
+            endLine: lastMember.endLine + 1,
             startColumn: 0,
-            startLine: lastMember.startLine - 1
+            startLine: lastMember.endLine + 1
         }
         return (
             <RecordEditor
@@ -123,7 +123,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                 onCancel={closeRecordEditor}
                 onSave={onSave}
                 isTypeDefinition={true}
-                isDataMapper={true}
+                isDataMapper={false}
                 showHeader={true}
             />
         );

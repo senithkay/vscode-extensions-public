@@ -162,12 +162,12 @@ export function ResourceBody(props: ResourceBodyProps) {
     };
 
     const renderRecordPanel = (closeRecordEditor: (createdRecord?: string) => void) => {
-        const record: NodePosition = (syntaxTree as ModulePart).members[0].position;
+        const record: NodePosition = (syntaxTree as ModulePart).position;
         const lastMemberPosition: NodePosition = {
             endColumn: 0,
-            endLine: record.startLine - 1,
+            endLine: record.endLine + 1,
             startColumn: 0,
-            startLine: record.startLine - 1
+            startLine: record.endLine + 1
         }
         return (
             <RecordEditor
@@ -178,7 +178,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                 // tslint:disable-next-line: no-empty
                 onSave={() => { }}
                 isTypeDefinition={true}
-                isDataMapper={true}
+                isDataMapper={false}
                 showHeader={true}
             />
         );
