@@ -13,11 +13,11 @@
 import React from "react";
 
 import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import classNames from "classnames";
 
 import { ComponentViewInfo } from "../../../util";
 
 import './style.scss';
-import classNames from "classnames";
 
 interface ComponentViewProps {
     type?: string;

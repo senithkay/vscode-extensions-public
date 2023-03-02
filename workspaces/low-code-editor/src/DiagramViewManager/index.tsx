@@ -40,11 +40,6 @@ import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
 
-interface DiagramFocusState {
-    filePath: string;
-    uid: string;
-}
-
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
  */
@@ -153,10 +148,6 @@ export function DiagramViewManager(props: EditorProps) {
         }
     }, [diagramFocus]);
 
-    // useEffect(() => {
-    //     setFocusUid(undefined);
-    //     setFocusedST(undefined);
-    // }, [focusFile]);
 
     React.useEffect(() => {
         (async () => {
@@ -170,47 +161,6 @@ export function DiagramViewManager(props: EditorProps) {
             // }
         })();
     }, []);
-    //
-    // useEffect(() => {
-    //     if (history.length > 0) {
-    //         const {
-    //             filePath, uid
-    //         } = history[history.length - 1];
-    //         // diagramFocusSend({
-    //         //     type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
-    //         //         filePath,
-    //         //         position
-    //         //     }
-    //         // })
-    //         let dirName;
-    //
-    //         projectPaths.forEach(project => {
-    //             if (projectPaths.length > 1 && filePath.includes(project.uri.fsPath)) {
-    //                 dirName = project.name;
-    //             }
-    //         })
-    //
-    //         setFolderName(dirName);
-    //         setDiagramFocuState({
-    //             filePath,
-    //             uid
-    //         });
-    //
-    //     } else {
-    //         // diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
-    //         setDiagramFocuState(undefined);
-    //         setFolderName(undefined);
-    //     }
-    // }, [history[history.length - 1]]);
-    //
-    // useEffect(() => {
-    //     projectPaths.forEach(path => {
-    //         if (!filterMap[path.name]) {
-    //             filterMap[path.name] = true;
-    //         }
-    //     })
-    //     setFilterMap(filterMap);
-    // }, [projectPaths]);
 
     // TODO: move to util file
     const fetchST = (filePath: string, options?: { position?: NodePosition, uid?: string }) => {
@@ -252,18 +202,6 @@ export function DiagramViewManager(props: EditorProps) {
         })();
     }
 
-    //
-    //
-    // useEffect(() => {
-    //     fetchST();
-    // }, [diagramFocusState]);
-    //
-    // useEffect(() => {
-    //     // diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
-    //     if (diagramFocus) {
-    //         updateSelectedComponent({ filePath: diagramFocus.filePath, position: diagramFocus.position })
-    //     }
-    // }, [diagramFocus])
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         const { filePath, position } = componentDetails;
         const fileListEntry = fileList.find(file => file.uri.path === filePath);
@@ -272,7 +210,6 @@ export function DiagramViewManager(props: EditorProps) {
             project: currentProject,
             position,
         });
-        // fetchST(filePath, { position });
     }
 
     const handleNavigationHome = () => {
@@ -334,57 +271,6 @@ export function DiagramViewManager(props: EditorProps) {
             viewComponent.push(<Diagram />);
         }
     }
-    //
-    // if (!diagramFocusState) {
-    //     viewComponent.push((
-    //         <OverviewDiagram
-    //             lastUpdatedAt={lastUpdatedAt}
-    //             projectPaths={projectPaths}
-    //             notifyComponentSelection={updateSelectedComponent}
-    //             filterMap={filterMap}
-    //             updateFilterMap={setFilterMap}
-    //         />
-    //     ));
-    // } else if (!!diagramFocusState && !!focusedST) {
-    //     if (STKindChecker.isServiceDeclaration(focusedST)) {
-    //         if (focusedST.expressions.length > 0) {
-    //             const listenerExpression = focusedST.expressions[0];
-    //             const typeData = listenerExpression.typeData;
-    //             const typeSymbol = typeData?.typeSymbol;
-    //             const signature = typeSymbol?.signature;
-    //             if (signature && signature.includes('http')) {
-    //                 viewComponent.push((
-    //                     <ServiceDesignOverlay
-    //                         model={focusedST}
-    //                         targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-    //                         onCancel={handleNavigationHome}
-    //                     />
-    //                 ));
-    //             } else if (signature && signature.includes('graphql')) {
-    //                 viewComponent.push(
-    //                     <GraphqlDiagramOverlay
-    //                         model={focusedST}
-    //                         targetPosition={focusedST.position}
-    //                         ballerinaVersion={balVersion}
-    //                         onCancel={handleNavigationHome}
-    //                     />
-    //                 );
-    //             }
-    //         }
-    //     } else if (STKindChecker.isFunctionDefinition(focusedST)
-    //         && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
-    //         viewComponent.push((
-    //             <DataMapperOverlay
-    //                 targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-    //                 model={focusedST}
-    //                 ballerinaVersion={balVersion}
-    //                 onCancel={handleNavigationHome}
-    //             />
-    //         ))
-    //     } else {
-    //         viewComponent.push(<Diagram />);
-    //     }
-    // }
     const navigateUptoParent = (position: NodePosition) => {
         if (!position) {
             return;
@@ -395,16 +281,6 @@ export function DiagramViewManager(props: EditorProps) {
         historyPush(currentHistoryEntry);
     }
 
-    //
-    // const handleFolderClick = () => {
-    //     Object.keys(filterMap).forEach((key) => {
-    //         filterMap[key] = key === folderName;
-    //     })
-    //
-    //     setFilterMap(filterMap);
-    //     historyClear();
-    // }
-    //
     const handleFileChange = (entry: FileListEntry) => {
         setFocusFile(entry);
         setFocusUid(undefined);
@@ -474,6 +350,5 @@ export function DiagramViewManager(props: EditorProps) {
             </MuiThemeProvider>
         </div>
     )
-    // {viewComponent}
 }
 
