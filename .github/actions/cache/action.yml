@@ -34,7 +34,9 @@ runs:
 
     - name: Set ENVs
       shell: bash
-      run: echo "ACTIONS_CACHE_URL=$(echo "$ACTIONS_ID_TOKEN_REQUEST_URL" | grep -Po 'https://[^/]+/[^/]+/' | sed  's/pipelines/artifactcache/')" >> $GITHUB_ENV
+      run: |
+        echo "ACTIONS_CACHE_URL=$(echo "$ACTIONS_ID_TOKEN_REQUEST_URL" | grep -Po 'https://[^/]+/[^/]+/' | sed  's/pipelines/artifactcache/')" >> $GITHUB_ENV
+        echo "ACTIONS_RUNTIME_TOKEN=$ACTIONS_ID_TOKEN_REQUEST_TOKEN" >> $GITHUB_ENV
 
     - name: Install node modules
       shell: bash
