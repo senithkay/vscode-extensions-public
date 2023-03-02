@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { ApiVersion, Service } from "@wso2-enterprise/choreo-core";
+import {ApiVersion, ComponentModel, Service} from "@wso2-enterprise/choreo-core";
 
 export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
     isLocal: boolean, accessibility?: string): boolean {
@@ -49,4 +49,34 @@ export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersi
         };
     }
     return componentServices.length > 0;
+}
+
+export function enrichConsoleDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[]): boolean {
+    const modelMap: Map<string, Service> = new Map(Object.entries(pkgServices));
+    const services = [...modelMap.values()];
+    for (const service of services) {
+        let isInternetExposed = false;
+        let isIntranetExposed = false;
+        if (apiVersions.length > 0) {
+            apiVersions.forEach((version: ApiVersion) => {
+                if (version.accessibility === "internal") {
+                    isIntranetExposed = true;
+                }
+                if (version.accessibility === "external") {
+                    isInternetExposed = true;
+                }
+            });
+        }
+        service.deploymentMetadata = {
+            gateways: {
+                internet: {
+                    isExposed: isInternetExposed
+                },
+                intranet: {
+                    isExposed: isIntranetExposed
+                }
+            }
+        };
+    }
+    return services.length > 0;
 }

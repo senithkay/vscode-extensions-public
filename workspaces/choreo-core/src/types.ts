@@ -58,6 +58,14 @@ export interface ApiVersion {
     latest: boolean;
     branch: string;
     accessibility: string;
+    cellDiagram?: CellDiagram;
+}
+
+export interface CellDiagram {
+    data: string;
+    errorName: string;
+    message: string;
+    success: boolean;
 }
 
 export interface Component {
