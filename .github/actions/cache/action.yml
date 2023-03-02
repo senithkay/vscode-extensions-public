@@ -35,7 +35,7 @@ runs:
     - name: Set ENVs
       shell: bash
       run: |
-        echo "::set-env name=ACTIONS_CACHE_URL::https://github.com/${{ github.repository }}/actions/cache"
+        echo "ACTIONS_CACHE_URL=https://github.com/${{ github.repository }}/actions/cache" >> $GITHUB_ENV
 
     - name: Install node modules
       shell: bash
