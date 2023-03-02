@@ -17,10 +17,6 @@ env:
   ballerina_deb_url: https://dist.ballerina.io/downloads/2201.2.3/ballerina-2201.2.3-swan-lake-linux-x64.deb
   vscVersion: 1.68.0
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   Build_Stage:
     name: Build repo
