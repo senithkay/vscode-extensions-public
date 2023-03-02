@@ -33,14 +33,13 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
+    enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
-    getEnrichedRecordType,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
-    getTypeOfOutput,
     getTypeOfValue
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
@@ -51,7 +50,6 @@ export const MAPPING_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-mapping-construct
 
 export class MappingConstructorNode extends DataMapperNodeModel {
 
-    public typeDef: Type;
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
@@ -63,6 +61,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: ExpressionFunctionBody | SelectClause,
         public typeIdentifier: TypeDescriptor | IdentifierToken,
+        public typeDef: Type,
         public queryExpr?: QueryExpression) {
         super(
             context,
@@ -71,8 +70,6 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
-
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)
@@ -82,8 +79,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             {
                 this.rootName = this.typeDef.memberType?.name;
             }
-            const valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
+            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
+                this.context.selection.selectedST.stNode);
+            this.typeDef = type;
             this.typeName = getTypeName(this.typeDef.typeName === PrimitiveBalType.Union ? this.typeDef : valueEnrichedType.type);
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,

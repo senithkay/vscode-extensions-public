@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
     ExpressionFunctionBody,
@@ -18,7 +18,6 @@ import {
     IdentifierToken,
     JoinClause,
     LetClause,
-    LetExpression,
     LetVarDecl,
     ListConstructor,
     MappingConstructor,
@@ -53,10 +52,12 @@ import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
+    constructTypeFromSTNode,
     getExprBodyFromLetExpression,
     getFilteredUnionOutputTypes,
     getInputNodes,
     getModuleVariables,
+    getPrevOutputType,
     getTypeFromStore,
     getTypeOfOutput,
     isComplexExpression
@@ -82,14 +83,23 @@ export class NodeInitVisitor implements Visitor {
         let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.stSymbolInfo);
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
-            const returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
+            let returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
+
+            const isAnydataTypedField = returnType
+                && (returnType.typeName === AnydataType
+                    || (returnType.typeName === PrimitiveBalType.Array
+                        && returnType?.memberType?.typeName === AnydataType));
+            if (isAnydataTypedField) {
+                returnType = constructTypeFromSTNode(exprFuncBody.expression);
+            }
 
             if (returnType) {
                 if (returnType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         exprFuncBody,
-                        typeDesc
+                        typeDesc,
+                        returnType,
                     );
                 } else if (returnType.typeName === PrimitiveBalType.Array) {
                     const bodyExpr = STKindChecker.isLetExpression(exprFuncBody.expression)
@@ -107,6 +117,7 @@ export class NodeInitVisitor implements Visitor {
                                 this.context,
                                 selectClause,
                                 typeDesc,
+                                returnType,
                                 bodyExpr
                             );
                         } else if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Array) {
@@ -114,6 +125,7 @@ export class NodeInitVisitor implements Visitor {
                                 this.context,
                                 selectClause,
                                 typeDesc,
+                                returnType,
                                 bodyExpr
                             );
                         } else {
@@ -121,6 +133,7 @@ export class NodeInitVisitor implements Visitor {
                                 this.context,
                                 selectClause,
                                 typeDesc,
+                                returnType,
                                 bodyExpr
                             );
                         }
@@ -175,7 +188,8 @@ export class NodeInitVisitor implements Visitor {
                         this.outputNode = new ListConstructorNode(
                             this.context,
                             exprFuncBody,
-                            typeDesc
+                            typeDesc,
+                            returnType
                         );
                     }
                 }  else if (returnType.typeName === PrimitiveBalType.Union) {
@@ -187,19 +201,22 @@ export class NodeInitVisitor implements Visitor {
                             this.outputNode = new MappingConstructorNode(
                                 this.context,
                                 exprFuncBody,
-                                typeDesc
+                                typeDesc,
+                                returnType
                             );
                         } else if (unionReturnType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
                                 this.context,
                                 exprFuncBody,
-                                typeDesc
+                                typeDesc,
+                                returnType
                             );
                         } else {
                             this.outputNode = new PrimitiveTypeNode(
                                 this.context,
                                 exprFuncBody,
                                 typeDesc,
+                                returnType
                             );
                         }
                     }
@@ -208,7 +225,8 @@ export class NodeInitVisitor implements Visitor {
                     this.outputNode = new PrimitiveTypeNode(
                         this.context,
                         exprFuncBody,
-                        typeDesc
+                        typeDesc,
+                        returnType
                     );
                 }
                 this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
@@ -280,11 +298,27 @@ export class NodeInitVisitor implements Visitor {
                     exprType = getTypeFromStore(parent.expression.position as NodePosition);
                 }
 
+                const isAnydataTypedField = exprType
+                    && (exprType.typeName === AnydataType
+                        || (exprType.typeName === PrimitiveBalType.Array
+                            && exprType?.memberType?.typeName === AnydataType));
+                if (!exprType || isAnydataTypedField) {
+                    const prevOutputType = getPrevOutputType(this.selection.prevST, this.context.ballerinaVersion);
+                    const isPrevOutputAnydata = prevOutputType
+                        && (prevOutputType.typeName === AnydataType
+                            || (prevOutputType.typeName === PrimitiveBalType.Array
+                                && prevOutputType.memberType.typeName === AnydataType));
+                    if (isPrevOutputAnydata || isAnydataTypedField) {
+                        exprType = constructTypeFromSTNode(node);
+                    }
+                }
+
                 if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         node.selectClause,
                         parentIdentifier,
+                        exprType,
                         node
                     );
                 } else if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Array) {
@@ -292,6 +326,7 @@ export class NodeInitVisitor implements Visitor {
                         this.context,
                         node.selectClause,
                         parentIdentifier,
+                        exprType,
                         node
                     );
                 } else {
@@ -299,6 +334,7 @@ export class NodeInitVisitor implements Visitor {
                         this.context,
                         node.selectClause,
                         parentIdentifier,
+                        exprType,
                         node
                     );
                 }
