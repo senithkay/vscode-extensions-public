@@ -21,7 +21,6 @@ import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
-import classNames from "classnames";
 
 interface NavigationBarProps {
     workspaceName: string;
