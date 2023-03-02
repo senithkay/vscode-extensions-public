@@ -35,12 +35,12 @@ import {
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
+import { AddRecordFieldButton } from "../AddRecordFieldButton";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
 import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
-import { AddRecordFieldButton } from "../AddRecordFieldButton";
 
 export interface EditableRecordFieldWidgetProps {
     parentId: string;
@@ -97,7 +97,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         && specificField.valueExpr
         && STKindChecker.isMappingConstructor(specificField.valueExpr);
     let indentation = treeDepth * 16;
-    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
     useEffect(() => {
         if (fieldToBeEdited === fieldId) {
@@ -246,15 +246,15 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         </span>
     );
 
-    const handleAssignDefaultValue = async (typeName: string) => {
-		setIsLoading(true);
-		try {
-			const defaultValue = getDefaultValueFromTypeName(typeName);
+    const handleAssignDefaultValue = async (typeNameStr: string) => {
+        setIsLoading(true);
+        try {
+            const defaultValue = getDefaultValueFromTypeName(typeNameStr);
             await createSourceForUserInput(field, parentMappingConstruct as MappingConstructor, defaultValue, applyModifications);
-		} finally {
-			setIsLoading(false);
-		}
-	};
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
@@ -274,14 +274,14 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     if (field.type?.typeName === AnydataType) {
         const anyDateConvertOptions: ValueConfigMenuItem[] = []
-        anyDateConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Record)})
-        anyDateConvertOptions.push({ title: `Initialize as array`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Array)})
+        anyDateConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Record) })
+        anyDateConvertOptions.push({ title: `Initialize as array`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Array) })
         valConfigMenuItems.push(...anyDateConvertOptions)
     }
 
-    const addNewField = async (newFieldName: string) => {
-        const modification = getNewFieldAdditionModification(field.value, newFieldName);
-        if(modification){
+    const addNewField = async (newFieldNameStr: string) => {
+        const modification = getNewFieldAdditionModification(field.value, newFieldNameStr);
+        if (modification) {
             await context.applyModifications(modification);
         }
     }
@@ -301,16 +301,16 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     onMouseLeave={onMouseLeave}
                 >
                     <span className={classes.treeLabelInPort}>
-                    {portIn && (
-                        <DataMapperPortWidget
-                            engine={engine}
-                            port={portIn}
-                            disable={isDisabled && expanded}
-                            handlePortState={handlePortState}
-                        />
-                    )}
+                        {portIn && (
+                            <DataMapperPortWidget
+                                engine={engine}
+                                port={portIn}
+                                disable={isDisabled && expanded}
+                                handlePortState={handlePortState}
+                            />
+                        )}
                     </span>
-                        <span className={classes.label}>
+                    <span className={classes.label}>
                         {fields && (
                             <IconButton
                                 id={"button-wrapper-" + fieldId}
@@ -329,7 +329,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                             {(isLoading || fieldId === fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />
                             ) : (
-                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()}/>
+                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
                             )}
                         </>
                     )}
@@ -372,10 +372,12 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     );
                 })
             }
-            {isAnyDataRecord && <AddRecordFieldButton
-                addNewField={(fieldName) => addNewField(fieldName)}
-                indentation={indentation + 50}
-            />}
+            {isAnyDataRecord && (
+                <AddRecordFieldButton
+                    addNewField={addNewField}
+                    indentation={indentation + 50}
+                />
+            )}
         </>
     );
 }

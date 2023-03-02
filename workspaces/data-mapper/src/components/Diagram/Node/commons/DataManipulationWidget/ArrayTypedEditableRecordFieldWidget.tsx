@@ -36,8 +36,8 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
-    getDefaultValueFromTypeName,
     getDefaultValue,
+    getDefaultValueFromTypeName,
     getExprBodyFromLetExpression,
     getFieldName,
     getLinebreak,
@@ -313,11 +313,11 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
-    const handleAddArrayElement = async (typeName: string) => {
+    const handleAddArrayElement = async (typeNameStr: string) => {
         setIsAddingElement(true)
         try {
             const fieldsAvailable = !!listConstructor.expressions.length;
-            const defaultValue = getDefaultValueFromTypeName(typeName);
+            const defaultValue = getDefaultValueFromTypeName(typeNameStr);
             let targetPosition: NodePosition;
             let newElementSource: string;
             if (fieldsAvailable) {
@@ -357,6 +357,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             handleAddArrayElement(field?.type?.memberType?.typeName)
         }
     }
+
+    const onCloseElementSetAnchor = () => addElementSetAnchorEl(null);
 
     const possibleTypeOptions = useMemo(() => {
         if (isAnydataType) {
@@ -457,7 +459,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             <Menu
                                 anchorEl={addElementAnchorEl}
                                 open={addMenuOpen}
-                                onClose={() => addElementSetAnchorEl(null)}
+                                onClose={onCloseElementSetAnchor}
                                 anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                                 className={classes.valueConfigMenu}
                             >

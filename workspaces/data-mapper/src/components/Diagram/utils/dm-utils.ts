@@ -1326,7 +1326,7 @@ export const getNewFieldAdditionModification = (node: STNode, fieldName: string,
 
 	if (STKindChecker.isMappingConstructor(node)) {
 		mappingConstruct = node;
-	} else if (STKindChecker.isSpecificField(node) && STKindChecker.isMappingConstructor(node.valueExpr)) { 
+	} else if (STKindChecker.isSpecificField(node) && STKindChecker.isMappingConstructor(node.valueExpr)) {
 		mappingConstruct = node.valueExpr
 	}
 

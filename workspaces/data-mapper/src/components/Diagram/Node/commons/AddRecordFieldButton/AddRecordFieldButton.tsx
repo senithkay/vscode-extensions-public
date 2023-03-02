@@ -1,7 +1,23 @@
-import { Button, Popover, IconButton } from "@material-ui/core";
-import React, { useState, FC } from "react";
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js
+import React, { FC, useState } from "react";
+
+import { Button, IconButton, Popover } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import CheckIcon from "@material-ui/icons/Check";
+
 import { useStyles } from "./styles";
 
 interface Props {
@@ -72,10 +88,11 @@ export const AddRecordFieldButton: FC<Props> = ({ indentation, addNewField }) =>
                     onChange={(event) => setNewFieldName(event.target.value)}
                     onKeyUp={(event) => onNewFieldNameKeyUp(event.key)}
                 />
-                <IconButton onClick={()=>addNewField(newFieldName)} size="small">
+                <IconButton onClick={() => addNewField(newFieldName)} size="small">
                     <CheckIcon />
                 </IconButton>
             </Popover>
         </div>
     );
 };
+
