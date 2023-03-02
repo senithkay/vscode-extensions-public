@@ -1,17 +1,21 @@
 {
-  "name": "project-design-diagrams",
+  "name": "@wso2-enterprise/project-design-diagrams",
   "version": "1.0.0",
   "description": "Generates the design diagrams for Ballerina projects.",
-  "main": "index.js",
+  "files": [
+    "build"
+  ],
+  "main": "build/DesignDiagram.js",
+  "types": "build/DesignDiagram.d.ts",
   "scripts": {
     "start": "webpack-dev-server --progress --mode=development",
-    "build": "webpack",
+    "build": "tsc --pretty && npm run copy:assets && webpack",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "postbuild": "copyfiles -f build/*.js ../../resources/jslibs"
+    "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" build/",
+    "postbuild": "copyfiles -f build/ArchitectureView.js ../../resources/jslibs"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "@emotion/react": "^11.9.3",
@@ -45,12 +49,12 @@
     "@types/react-lottie": "^1.2.5",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "^3.3.9",
     "@wso2-enterprise/choreo-core": "^1.0.0",
-    "ts-loader": "^9.4.1",
     "babel-loader": "^8.2.5",
     "copyfiles": "^2.4.1",
     "css-loader": "^6.7.1",
     "source-map-loader": "^4.0.0",
     "style-loader": "^3.3.1",
+    "ts-loader": "^9.4.1",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.1"

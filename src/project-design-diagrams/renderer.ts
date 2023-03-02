@@ -78,7 +78,7 @@ export function render(webView: Webview, isChoreoProject: boolean) {
             }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(
+                architectureView.renderDesignDiagrams(
                     true,
                     ${isChoreoProject},
                     getComponentModel,
@@ -93,7 +93,7 @@ export function render(webView: Webview, isChoreoProject: boolean) {
     `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("DesignDiagram", webView),
+        ...getComposerWebViewOptions("ArchitectureView", webView),
         body, scripts, styles, bodyCss
     };
 

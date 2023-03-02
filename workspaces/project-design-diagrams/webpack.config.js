@@ -6,8 +6,8 @@ module.exports = {
   mode: "production",
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "DesignDiagram.js",
-    library: "designDiagram",
+    filename: "ArchitectureView.js",
+    library: "architectureView",
   },
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
