@@ -31,6 +31,7 @@ import { EditorProps, FileListEntry, Uri, WorkspaceFolder } from "../DiagramGene
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
+import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { Provider as HistoryProvider } from './context/history';
 import { useComponentHistory } from "./hooks/history";
@@ -38,7 +39,7 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
-import { TextPreLoader } from "../PreLoader/TextPreLoader";
+import { ServiceUnsupportedOverlay } from "../Diagram/components/serviceUnsupported";
 
 interface DiagramFocusState {
     filePath: string;
@@ -319,6 +320,10 @@ export function DiagramViewManager(props: EditorProps) {
                             ballerinaVersion={balVersion}
                             onCancel={handleNavigationHome}
                         />
+                    );
+                } else if (!experimentalEnabled) {
+                    viewComponent.push(
+                        <ServiceUnsupportedOverlay />
                     );
                 }
             }
