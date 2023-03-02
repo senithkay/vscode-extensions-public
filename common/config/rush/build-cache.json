@@ -17,7 +17,7 @@
    *
    * Possible values: "local-only", "azure-blob-storage", "amazon-s3"
    */
-  "cacheProvider": "local-only",
+  "cacheProvider": "github-action-build-cache",
 
   /**
    * Setting this property overrides the cache entry ID.  If this property is set, it must contain
@@ -30,7 +30,7 @@
    *  - [phaseName:normalize]
    *  - [phaseName:trimPrefix]
    */
-  // "cacheEntryNamePattern": "[projectName:normalize]-[phaseName:normalize]-[hash]"
+  "cacheEntryNamePattern": "build-cache-[projectName:normalize]-[phaseName:normalize]-[hash]",
 
   /**
    * Use this configuration with "cacheProvider"="azure-blob-storage"
