@@ -136,6 +136,7 @@ export class WebViewRpc {
                             const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
                             const model = JSON.parse(decodedString.toString());
                             enrichConsoleDeploymentData(model.services, finalVersion);
+                            console.log("Comp model ", key, "Value", model);
                         }
                     });
                 })

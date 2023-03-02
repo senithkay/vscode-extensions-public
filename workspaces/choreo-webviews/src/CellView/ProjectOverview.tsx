@@ -10,21 +10,33 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
 
-export interface ChoreoWebViewsProps {
-  type: "ProjectOverview" | "ComponentCreateForm" | "ProjectCreateForm" | "CellView";
-  projectId?: string;
-  orgName?: string;
+import styled from "@emotion/styled";
+import { useEffect } from "react";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+
+const WizardContainer = styled.div`
+    width: 100%;
+    display  : flex;
+    flex-direction: column;
+`;
+
+export interface CellViewProps {
+    projectId?: string;
+    orgName?: string;
 }
 
-(window as any).renderChoreoWebViews = (props: ChoreoWebViewsProps) => {
-  ReactDOM.render(
-    <React.StrictMode>
-      <App {...props} />
-    </React.StrictMode>,
-    document.getElementById("root")
-  );
+export function CellView(props: CellViewProps) {
+
+    const projectId = props.projectId ? props.projectId : '';
+    const orgName = props.orgName ? props.orgName : '';
+
+
+    return (
+        <>
+            <WizardContainer>
+<h1>Cell View</h1>
+            </WizardContainer>
+        </>
+    );
 }

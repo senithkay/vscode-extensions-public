@@ -11,11 +11,12 @@
  *  associated services.
  */
 import { commands } from "vscode";
-import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview } from "../constants";
+import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoCellView } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { ProjectOverview } from "../views/webviews/ProjectOverview";
 import { Organization, Project } from "@wso2-enterprise/choreo-core";
+import { CellDiagram } from "../views/webviews/CellDiagram";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
@@ -57,6 +58,27 @@ export function activateWizards() {
         }
     });
 
-
     ext.context.subscriptions.push(projectOverview);
+
+    // Register Cell Diagram Wizard
+    const cellDiagram = commands.registerCommand(choreoCellView, async (project: Project) => {
+        let selectedProjectId = project ? project?.id : undefined;
+        if (!selectedProjectId && await ext.api.isChoreoProject()) {
+            const choreoProject = await ext.api.getChoreoProject();
+            if (choreoProject) {
+                selectedProjectId = choreoProject.id;
+                project = choreoProject;
+            }
+        }
+        if (!selectedProjectId) {
+            return;
+        }
+        ext.api.selectedProjectId = selectedProjectId;
+        const org: Organization | undefined = ext.api.selectedOrg;
+        if (org !== undefined) {
+            ProjectOverview.render(ext.context.extensionUri, project, org);
+        }
+    });
+
+    ext.context.subscriptions.push(cellDiagram);
 }
