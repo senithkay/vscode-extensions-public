@@ -44,23 +44,6 @@ import { getDiagramProviderProps } from "./utils";
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
  */
 export function DiagramViewManager(props: EditorProps) {
-    // ViewManager behavior:
-    //  - should be able to handle switching to lowcode whatever the mode user interacts in
-    //      - user can open a lowcode element by selecting a component from the component overview
-    //      - user can open a lowcode element by clicking on the code lense in the code editor
-    //      - if it's the code lense user will provide object with data specifying which file and which position
-    //        through props(should alter the openInDiagram prop)
-    //          structure:
-    //              - filepath => string
-    //              - position => NodePosition
-    //      - if it is the through the view manager, a callback should be passed to that component notify the view
-    //        manager to fetch the related syntax tree
-    //
-    // ToDo:
-    //  - fetch syntaxtree for particular file
-    //  - Handle switching between views based on type of the syntax tree fetched(datamapper, graphql, service designer)
-    //  - Handle switching to code from standalone code segment
-    //  - Implement top bar to handle navigation
     const {
         lastUpdatedAt,
         langClientPromise,
@@ -78,8 +61,6 @@ export function DiagramViewManager(props: EditorProps) {
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
-    // const [folderName, setFolderName] = vte<string>();
-    // const [filterMap, setFilterMap] = useState({});
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
     const [focusFile, setFocusFile] = useState<FileListEntry>();
@@ -140,9 +121,6 @@ export function DiagramViewManager(props: EditorProps) {
                 }));
                 const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
                 historyPush({ project: currentProjectPath, file: currentFile, position });
-                // setCurrentProject(currentProjectPath);
-                // setFileList(projectFiles);
-                // setFocusFile(currentFile);
             })();
 
         }
@@ -153,12 +131,6 @@ export function DiagramViewManager(props: EditorProps) {
         (async () => {
             const version: string = await getBallerinaVersion();
             setBalVersion(version);
-            // const isCodeServerInstance: string = await getEnv("CODE_SERVER_ENV");
-            // setCodeServer(isCodeServerInstance === "true");
-            // const sentryConfig: SentryConfig = await getSentryConfig();
-            // if (sentryConfig) {
-            //     init(sentryConfig);
-            // }
         })();
     }, []);
 
@@ -279,12 +251,6 @@ export function DiagramViewManager(props: EditorProps) {
         const currentHistoryEntry = structuredClone(history[history.length - 1]);
         currentHistoryEntry.position = position;
         historyPush(currentHistoryEntry);
-    }
-
-    const handleFileChange = (entry: FileListEntry) => {
-        setFocusFile(entry);
-        setFocusUid(undefined);
-        setFocusedST(undefined);
     }
 
     const updateActiveFile = (currentFile: FileListEntry) => {
