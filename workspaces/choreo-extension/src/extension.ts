@@ -17,7 +17,7 @@ import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
 import { activateAuth } from './auth';
 import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, signIn } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
-import { cloneProject, cloneRepoToCuurentProjectWorkspace as cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
+import { cloneProject, cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
 import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId, refreshProjectsTreeViewCmdId, setSelectedOrgCmdId } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
