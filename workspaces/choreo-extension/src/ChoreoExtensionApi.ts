@@ -30,6 +30,7 @@ import { getLogger } from './logger/logger';
 import * as path from "path";
 import { enrichDeploymentData } from "./utils";
 import { AxiosResponse } from 'axios';
+import { SELECTED_ORG_ID_KEY } from './constants';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -75,6 +76,11 @@ export class ChoreoExtensionApi {
 
     public set selectedOrg(selectedOrg: Organization | undefined) {
         this._selectedOrg = selectedOrg;
+        // In case this is a signout, where the selected org is undefined, we don't want to update the global state
+        // If user logs in again, we can use the last selected org from the global state
+        if (selectedOrg) {
+            ext.context.globalState.update(SELECTED_ORG_ID_KEY, selectedOrg?.id);
+        }
         this._onOrganizationChanged.fire(selectedOrg);
     }
 
