@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { Button, ClickAwayListener, IconButton, Popover } from "@material-ui/core";
+import { ClickAwayListener, Popover } from "@material-ui/core";
 import { Apps, ArrowBack, ArrowDropDown,  Home } from "@material-ui/icons";
 
 import { PackageIcon } from "../../assets/icons";
