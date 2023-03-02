@@ -35,6 +35,7 @@ export class SelectedSTFindingVisitor implements Visitor {
         this.updatedPrevST = [];
         const fnST = prevST[0].stNode;
         const isOutputAnydata = fnST && STKindChecker.isFunctionDefinition(fnST)
+            && fnST.functionSignature?.returnTypeDesc
             && STKindChecker.isAnydataTypeDesc(fnST.functionSignature.returnTypeDesc.type);
         this.pathSegmentIndex = isOutputAnydata ? 0 : 1; // If the output type is available, the field path starts with the record root name, hence segmentIndex = 1
     }
