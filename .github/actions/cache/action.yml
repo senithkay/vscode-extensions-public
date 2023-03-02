@@ -32,6 +32,10 @@ runs:
           ~/.cache/Cypress
         key: pnpm-cache-$RUNNER_OS-$(cat **/pnpm-lock.yaml | git hash-object --stdin)
 
+    - name: Set ENVs
+      run: |
+        echo "::set-env name=ACTIONS_CACHE_URL::https://github.com/${{ github.repository }}/actions/cache"
+
     - name: Install node modules
       shell: bash
       run: node common/scripts/install-run-rush.js install        
