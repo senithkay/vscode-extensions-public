@@ -80,22 +80,22 @@ jobs:
         env:
           isPreRelease: ${{ inputs.isPreRelease  }}
 
-      # - name: Compress build
-      #   run: |
-      #     zip -r build.zip ./ -x 'common/temp*' -y
-      #     zip VSIX.zip *.vsix
+      - name: Compress build
+        run: |
+          zip -r build.zip ./ -x 'common/temp*' -y
+          zip VSIX.zip *.vsix
 
-      # - name: Save VSIX
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     path: VSIX.zip
-      #     name: VSIX
+      - name: Save VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          path: VSIX.zip
+          name: VSIX
 
-      # - name: Save build
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     path: build.zip
-      #     name: PluginBuild
+      - name: Save build
+        uses: actions/upload-artifact@v3
+        with:
+          path: build.zip
+          name: PluginBuild
 
   PluginTest_Stage:
     name: Run Plugin test

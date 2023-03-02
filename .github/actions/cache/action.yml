@@ -1,9 +1,5 @@
 name: 'Cache'
 description: 'Cache Rush and pnmp'
-# runs:
-#   using: 'node16'
-#   main: 'dist/restore/index.js'
-#   post: 'dist/save/index.js'
 runs:
   using: "composite"
   steps:
