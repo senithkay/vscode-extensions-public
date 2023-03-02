@@ -174,8 +174,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, []);
 
     const handleOpenCellViewClick = useCallback((e: any) => {
-        ChoreoWebViewAPI.getInstance().openCellView(projectId, orgName);
-    }, []);
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.cell.view", orgName, projectId);
+    }, [orgName, projectId]);
 
     const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
 

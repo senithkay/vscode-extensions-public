@@ -12,8 +12,6 @@
  */
 
 import styled from "@emotion/styled";
-import { useEffect } from "react";
-import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -27,15 +25,12 @@ export interface CellViewProps {
 }
 
 export function CellView(props: CellViewProps) {
-
-    const projectId = props.projectId ? props.projectId : '';
-    const orgName = props.orgName ? props.orgName : '';
-
+    const { orgName, projectId } = props;
 
     return (
         <>
             <WizardContainer>
-<h1>Cell View</h1>
+                <h3>Cell View for orgName ${orgName} projectID ${projectId}</h3>
             </WizardContainer>
         </>
     );

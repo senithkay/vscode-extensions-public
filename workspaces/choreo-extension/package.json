@@ -74,7 +74,8 @@
       },
       {
         "command": "wso2.choreo.cell.view",
-        "title": "Cell View"
+        "title": "View Cell Architecture",
+        "category": "Choreo"
       },
       {
         "command": "wso2.choreo.project.overview",
@@ -128,7 +129,12 @@
           "command": "wso2.choreo.org.setAsSelected",
           "when": "view == choreo-account && viewItem == choreo.org"
         }
-      ]
+      ],
+      "commandPalette": [
+        {
+          "command": "wso2.choreo.cell.view",
+          "when": "false"
+        }]
     },
     "configuration": {
       "type": "object",

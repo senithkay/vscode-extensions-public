@@ -17,7 +17,7 @@ import { ChoreoWebViewContext } from "./context/choreo-web-view-ctx";
 import { usePopulateContext } from "./hooks/context-populate";
 import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
 import { ProjectOverview } from "./ProjectOverview/ProjectOverview";
-import { CellView } from "./CellView/ProjectOverview";
+import { CellView } from "./ChoreoArchitectureView/ArchitectureView";
 
 export const Main = styled.main`
   display: flex;
@@ -37,7 +37,7 @@ function switchViews(props: ChoreoWebViewsProps) {
     case 'ProjectOverview':
       return <ProjectOverview projectId={props.projectId} orgName={props.orgName} />;
     case 'CellView':
-      return <CellView />;
+      return <CellView projectId={props.projectId} orgName={props.orgName} />;
   }
 }
 
