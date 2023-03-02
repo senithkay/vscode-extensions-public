@@ -36,10 +36,6 @@ export class ChoreoProjectManager implements IProjectManager {
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
             const pkgRoot = join(join(join(projectRoot, 'repos'), repositoryInfo.org), repositoryInfo.repo);
 
-            if (!existsSync(pkgRoot)) {
-                mkdirSync(pkgRoot, { recursive: true });
-            }
-
             const resp: CmdResponse = await ChoreoProjectManager._createBallerinaPackage(repositoryInfo.subPath, pkgRoot, displayType);
             if (!resp.error) {
                 const pkgPath = join(pkgRoot, repositoryInfo.subPath);
@@ -62,8 +58,17 @@ export class ChoreoProjectManager implements IProjectManager {
         throw new Error("choreo getProjectRoot method not implemented.");
     }
 
-    private static _createBallerinaPackage(pkgName: string, pkgRoot: string, componentType: ChoreoServiceComponentType)
+    private static _createBallerinaPackage(appSubPath: string, pkgRoot: string, componentType: ChoreoServiceComponentType)
         : Promise<CmdResponse> {
+        let pkgName: string = appSubPath;
+        const pathSeparatorIndex = appSubPath.lastIndexOf(path.sep);
+        if (pathSeparatorIndex !== -1) {
+            pkgName = appSubPath.slice(pathSeparatorIndex + 1);
+            pkgRoot = join(pkgRoot, appSubPath.slice(0, pathSeparatorIndex));
+        }
+        if (!existsSync(pkgRoot)) {
+            mkdirSync(pkgRoot, { recursive: true });
+        }
         const cmd =
             `bal new "${pkgName}" -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(componentType)}:1.1.0`;
         return new Promise(function (resolve) {
