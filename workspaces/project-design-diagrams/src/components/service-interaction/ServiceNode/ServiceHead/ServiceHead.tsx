@@ -72,11 +72,11 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 engine={engine}
             />
                 <ServiceName>{displayName}</ServiceName>
-                {isHovered &&
+                {isHovered && node.serviceObject.elementLocation && editingEnabled &&
                     <NodeMenuWidget
                         background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
                         location={node.serviceObject.elementLocation}
-                        linkingEnabled={editingEnabled && currentView === Views.L1_SERVICES}
+                        linkingEnabled={currentView === Views.L1_SERVICES}
                         service={node.serviceObject}
                     />
                 }

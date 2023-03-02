@@ -20,14 +20,25 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { DesignDiagram } from './DesignDiagram';
-import { Location } from './resources';
+import { ComponentModel } from './resources';
+import { WebviewEditLayerAPI } from './editing';
 
-export function renderDesignDiagrams(
-    go2Source: (location: Location) => void,
+export function renderDesignDiagrams(isEditable: boolean,
+    isChoreoProject: boolean,
+    getComponentModel: () => Promise<Map<string, ComponentModel>>,
+    enrichChoreoMetadata: (model: Map<string, ComponentModel>) => Promise<Map<string, ComponentModel>>,
+    showChoreoProjectOverview: () => Promise<void>,
     target: HTMLElement) {
 
     render(
-        <DesignDiagram go2source={go2Source} />,
+        <DesignDiagram
+            isEditable={isEditable}
+            isChoreoProject={isChoreoProject}
+            getComponentModel={getComponentModel}
+            enrichChoreoMetadata={enrichChoreoMetadata}
+            showChoreoProjectOverview={showChoreoProjectOverview}
+            editLayerAPI={WebviewEditLayerAPI.getInstance()}
+        />,
         target
     );
 }

@@ -20,10 +20,8 @@
 import { Webview } from "vscode";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } from "../utils/webview-utils";
 
-export function render(webView: Webview) {
-    const body = `
-        <div class = "container" id = "webview-container" />
-    `;
+export function render(webView: Webview, isChoreoProject: boolean) {
+    const body = `<div class = "container" id = "webview-container" />`;
     const bodyCss = ``;
     const styles = `
         .container {
@@ -43,15 +41,51 @@ export function render(webView: Webview) {
                 }
             });
 
-            function go2source(location) {
-                vscode.postMessage({
-                    command: 'go2source',
-                    location: location
+            function getComponentModel() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getComponentModel',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
+            function enrichChoreoMetadata(model) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'enrichChoreoMetadata',
+                        [model],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
+            function showChoreoProjectOverview() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'showChoreoProjectOverview',
+                        [],
+                        () => {
+                            resolve();
+                        }
+                    );
                 })
             }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(go2source, document.getElementById("webview-container"));
+                designDiagram.renderDesignDiagrams(
+                    true,
+                    ${isChoreoProject},
+                    getComponentModel,
+                    enrichChoreoMetadata,
+                    showChoreoProjectOverview,
+                    document.getElementById("webview-container")
+                );
             }
 
             renderDiagrams();

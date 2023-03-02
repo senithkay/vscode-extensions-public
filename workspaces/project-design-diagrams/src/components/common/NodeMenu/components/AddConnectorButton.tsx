@@ -28,10 +28,10 @@ export function AddConnectorButton(props: { service: Service }) {
     const { service } = props;
     const classes = useStyles();
 
-    const { setTargetService } = useContext(DiagramContext);
+    const { setConnectorTarget } = useContext(DiagramContext);
 
     return (
-        <MenuItem onClick={() => setTargetService(service)}>
+        <MenuItem onClick={() => setConnectorTarget(service)}>
             <ListItemIcon>
                 <AddLinkIcon fontSize="small" />
             </ListItemIcon>
