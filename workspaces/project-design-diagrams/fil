@@ -1,0 +1,38 @@
+/usr/bin/java
+/Library/Ballerina/dependencies/jdk-11.0.8+10-jre/bin/java
+/System/Volumes/Update/mnt1/usr/bin/java
+/System/Volumes/Data/Library/Ballerina/dependencies/jdk-11.0.8+10-jre/bin/java
+/System/Volumes/Data/Users/tharinduj/Library/Application Support/JetBrains/Toolbox/apps/WebStorm/ch-0/222.3739.57/WebStorm.app/Contents/jbr/Contents/Home/bin/java
+/System/Volumes/Data/Users/tharinduj/Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/222.3739.56/PyCharm.app/Contents/jbr/Contents/Home/bin/java
+/System/Volumes/Data/Users/tharinduj/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/222.3739.54/IntelliJ IDEA.app/Contents/jbr/Contents/Home/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.342-zulu/zulu-8.jdk/Contents/Home/jre/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.342-zulu/zulu-8.jdk/Contents/Home/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.342-librca/jre/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.342-librca/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.292-zulu/zulu-8.jdk/Contents/Home/jre/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.292-zulu/zulu-8.jdk/Contents/Home/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.342.fx-librca/jre/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.342.fx-librca/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.342.fx-zulu/zulu-8.jdk/Contents/Home/jre/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/8.0.342.fx-zulu/zulu-8.jdk/Contents/Home/bin/java
+/System/Volumes/Data/Users/tharinduj/.sdkman/candidates/java/11.0.16-zulu/zulu-11.jdk/Contents/Home/bin/java
+/System/Volumes/Data/Applications/astah professional/astah professional.app/Contents/PlugIns/Java.runtime/Contents/Home/jre/bin/java
+/System/Volumes/Data/Applications/astah UML/astah UML.app/Contents/PlugIns/Java.runtime/Contents/Home/jre/bin/java
+/System/Volumes/Data/opt/homebrew/Cellar/openjdk/18.0.2.1/libexec/openjdk.jdk/Contents/Home/bin/java
+/Users/tharinduj/Library/Application Support/JetBrains/Toolbox/apps/WebStorm/ch-0/222.3739.57/WebStorm.app/Contents/jbr/Contents/Home/bin/java
+/Users/tharinduj/Library/Application Support/JetBrains/Toolbox/apps/PyCharm-P/ch-0/222.3739.56/PyCharm.app/Contents/jbr/Contents/Home/bin/java
+/Users/tharinduj/Library/Application Support/JetBrains/Toolbox/apps/IDEA-U/ch-0/222.3739.54/IntelliJ IDEA.app/Contents/jbr/Contents/Home/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.342-zulu/zulu-8.jdk/Contents/Home/jre/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.342-zulu/zulu-8.jdk/Contents/Home/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.342-librca/jre/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.342-librca/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.292-zulu/zulu-8.jdk/Contents/Home/jre/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.292-zulu/zulu-8.jdk/Contents/Home/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.342.fx-librca/jre/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.342.fx-librca/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.342.fx-zulu/zulu-8.jdk/Contents/Home/jre/bin/java
+/Users/tharinduj/.sdkman/candidates/java/8.0.342.fx-zulu/zulu-8.jdk/Contents/Home/bin/java
+/Users/tharinduj/.sdkman/candidates/java/11.0.16-zulu/zulu-11.jdk/Contents/Home/bin/java
+/Applications/astah professional/astah professional.app/Contents/PlugIns/Java.runtime/Contents/Home/jre/bin/java
+/Applications/astah UML/astah UML.app/Contents/PlugIns/Java.runtime/Contents/Home/jre/bin/java
+/opt/homebrew/Cellar/openjdk/18.0.2.1/libexec/openjdk.jdk/Contents/Home/bin/java

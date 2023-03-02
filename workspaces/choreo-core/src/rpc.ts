@@ -38,6 +38,7 @@ export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> =
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
+export const OpenCellView: RequestType<{ projId: string, orgHandler: string }, void> = { method: 'openCellView' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const HasUnpushedComponents: RequestType<string, boolean> = { method: 'hasUnpushedComponents' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };

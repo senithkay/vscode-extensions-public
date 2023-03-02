@@ -73,6 +73,10 @@
         "icon": "$(add)"
       },
       {
+        "command": "wso2.choreo.cell.view",
+        "title": "Cell View"
+      },
+      {
         "command": "wso2.choreo.project.overview",
         "title": "Project Overview",
         "category": "Choreo"

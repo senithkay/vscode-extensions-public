@@ -173,6 +173,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().openArchitectureView();
     }, []);
 
+    const handleOpenCellViewClick = useCallback((e: any) => {
+        ChoreoWebViewAPI.getInstance().openCellView(projectId, orgName);
+    }, []);
+
     const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
 
     const onOpenConsoleClick = useCallback((e: any) => {
@@ -211,6 +215,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
+                            <VSCodeButton appearance="primary" onClick={handleOpenCellViewClick}>Cell Diagram</VSCodeButton>
                         </ActionContainer>
                     </>
                 }
