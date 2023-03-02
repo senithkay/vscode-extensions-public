@@ -33,17 +33,16 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
+    enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
-    getEnrichedRecordType,
     getExprBodyFromLetExpression,
     getFilteredUnionOutputTypes,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
-    getTypeOfValue,
-    updateType
+    getTypeOfValue
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
@@ -85,14 +84,9 @@ export class ListConstructorNode extends DataMapperNodeModel {
                     this.typeDef = acceptedMembers[0];
                 }
             }
-            let valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
-            const [updatedType, isUpdated] = updateType(valueEnrichedType);
-            if (isUpdated) {
-                this.typeDef = updatedType;
-                valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                    this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
-            }
+            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
+                this.context.selection.selectedST.stNode);
+            this.typeDef = type;
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (this.typeDef.typeName === PrimitiveBalType.Union) {

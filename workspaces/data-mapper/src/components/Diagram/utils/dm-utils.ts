@@ -722,6 +722,18 @@ function getNextField(nextTypeMemberNodes: ArrayElement[],
 	return [undefined, undefined];
 }
 
+export function enrichAndProcessType(typeToBeProcessed: Type, node: STNode,
+                                     selectedST: STNode): [EditableRecordField, Type] {
+	let type = {...typeToBeProcessed};
+	let valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
+	const [updatedType, isUpdated] = addMissingTypes(valueEnrichedType);
+	if (isUpdated) {
+		type = updatedType;
+		valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
+	}
+	return [valueEnrichedType, type];
+}
+
 export function getEnrichedRecordType(type: Type,
                                       node: STNode,
                                       selectedST: STNode,
@@ -1133,7 +1145,7 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type 
 	return type;
 }
 
-export function updateType(field: EditableRecordField): [Type, boolean] {
+export function addMissingTypes(field: EditableRecordField): [Type, boolean] {
 	let type = { ...field.type };
 	const value = field.value;
 	let hasTypeUpdated = false;
@@ -1143,13 +1155,13 @@ export function updateType(field: EditableRecordField): [Type, boolean] {
 		hasTypeUpdated = true;
 	} else if (type.typeName === PrimitiveBalType.Record) {
 		type.fields = field.childrenTypes.map((child) => {
-			const [updatedType, isUpdated] = updateType(child);
+			const [updatedType, isUpdated] = addMissingTypes(child);
 			hasTypeUpdated = hasTypeUpdated || isUpdated;
 			return updatedType;
 		});
 	} else if (type.typeName === PrimitiveBalType.Array) {
 		if (field?.elements && field.elements.length > 0) {
-			const [updatedType, isUpdated] = updateType(field.elements[0].member);
+			const [updatedType, isUpdated] = addMissingTypes(field.elements[0].member);
 			hasTypeUpdated = hasTypeUpdated || isUpdated;
 			type.memberType = updatedType;
 		}
