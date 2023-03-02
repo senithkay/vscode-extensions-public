@@ -26,6 +26,10 @@
             font-weight: 600;
         }
 
+        .is-disabled {
+            pointer-events: none;
+            opacity: 0.2;
+        }
     }
 
     .project-selector-container {
@@ -82,10 +86,5 @@
             font-size: 12px;
             font-weight: 200;
         }
-    }
-
-    .nav-bar-icons {
-        padding: 0px;
-        color: black;
     }
 }

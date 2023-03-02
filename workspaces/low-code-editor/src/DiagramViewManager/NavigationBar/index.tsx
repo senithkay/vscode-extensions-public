@@ -12,7 +12,7 @@
  */
 import React from "react";
 
-import { ClickAwayListener, IconButton, Popover } from "@material-ui/core";
+import { Button, ClickAwayListener, IconButton, Popover } from "@material-ui/core";
 import { Apps, ArrowBack, ArrowDropDown,  Home } from "@material-ui/icons";
 
 import { PackageIcon } from "../../assets/icons";
@@ -21,6 +21,7 @@ import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
+import classNames from "classnames";
 
 interface NavigationBarProps {
     workspaceName: string;
@@ -113,18 +114,16 @@ export function NavigationBar(props: NavigationBarProps) {
         </div>
     );
 
+    const buttonsDisabled = history.length === 0;
+
     const renderNavigationButtons = () => {
         return (
             <>
-                <div className="btn-container">
-                    <IconButton className="nav-bar-icons" disabled={history.length === 0} onClick={historyPop}>
-                        <ArrowBack />
-                    </IconButton>
+                <div className="btn-container" aria-disabled={buttonsDisabled} onClick={historyPop}>
+                    <ArrowBack className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
-                <div className="btn-container">
-                    <IconButton className="nav-bar-icons" disabled={history.length === 0} onClick={historyReset}>
-                        <Home />
-                    </IconButton>
+                <div className="btn-container" aria-disabled={buttonsDisabled} onClick={historyReset}>
+                        <Home className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
             </>
         );
