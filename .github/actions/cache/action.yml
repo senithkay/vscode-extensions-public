@@ -22,7 +22,7 @@ runs:
         path: |
           common/temp/install-run
           ~/.rush
-        key: Rush-cache-$(cat ./rush.json | git hash-object --stdin)
+        key: Rush-cache-${{ hashFiles('rush.json') }}
 
     - name: Cache pnpm
       uses: actions/cache@v3
@@ -30,7 +30,7 @@ runs:
         path: |
           common/temp/pnpm-store
           ~/.cache/Cypress
-        key: pnpm-cache-$RUNNER_OS-$(cat **/pnpm-lock.yaml | git hash-object --stdin)
+        key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
     - name: Set ENVs
       shell: bash
