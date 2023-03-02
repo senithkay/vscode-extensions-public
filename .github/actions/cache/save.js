@@ -4,18 +4,26 @@ const { consts } = require("./constants");
 
 async function run() {
   try {
-    const { pnpmCacheDir, rushCacheDir, rushSysCacheDir } = await consts;
-    const { pnpmCacheKey, rushCacheKey } = process.env;
-    // Save the PNPM cacheÒ
-    await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
-    core.info(`PNPM cache saved with key ${pnpmCacheKey}`);
+    const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = await consts;
+    const pnpmCacheExists = core.getState("pnpmCacheExists");
+    const rushCacheExists = core.getState("rushCacheExists");
 
-    // Save the Rush cacheÒ
-    await cache.saveCache([rushCacheDir, rushSysCacheDir], rushCacheKey);
-    core.info(`Rush cache saved with key ${rushCacheKey}`);
+    // Save the PNPM cache
+    if (pnpmCacheExists == 'false') {
+      const x = await cache.saveCache([pnpmCacheDir], pnpmCacheKey);
+      core.info(`PNPM cache saved with key ${pnpmCacheKey}`);
+    }
+
+    // Save the Rush cache
+    if (rushCacheExists == 'false') {
+      await cache.saveCache([rushCacheDir, rushSysCacheDir], rushCacheKey);
+      core.info(`Rush cache saved with key ${rushCacheKey}`);
+    }
   } catch (error) {
     core.setFailed(error.message);
   }
 }
 
-run();
+if (process.env['STATE'] !== 'failure') {
+  run();
+}

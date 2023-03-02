@@ -5,18 +5,19 @@
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 
+const core = __nccwpck_require__(2619);
 const glob = __nccwpck_require__(4470);
 const path = __nccwpck_require__(1017);
 const projectPath = "./";
 
 module.exports.consts = (async () => {
-    const rushCacheKey = `rush-${process.platform}-` + (await glob.hashFiles("rush.json"));
+    const rushCacheKey = `rush-${process.platform}-` + (await glob.hashFiles(core.getInput("rushKeyFiles")));
     const rushCacheDir = path.join(projectPath, 'common', 'temp', 'install-run');
     const rushBuildCacheDir = path.join(projectPath, 'common', 'temp', 'build-cache');
     const rushSysCacheDir = path.join(process.env.HOME, '.rush');
 
     const pnpmCacheDir = path.join(projectPath, 'common', 'temp', 'pnpm-store');
-    const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles("**/pnpm-lock.yaml"));
+    const pnpmCacheKey = `pnpm-${process.platform}-` + (await glob.hashFiles(core.getInput("pnpmKeyFiles")));
     return { rushCacheKey, rushCacheDir, rushBuildCacheDir, rushSysCacheDir, pnpmCacheDir, pnpmCacheKey };
 })();
 
@@ -62279,18 +62280,23 @@ const { consts } = __nccwpck_require__(7550);
 async function run() {
     try {
         const { pnpmCacheKey, pnpmCacheDir, rushCacheKey, rushCacheDir, rushSysCacheDir } = await consts;
+
         const pnpmCacheHit = await cache.restoreCache([pnpmCacheDir], pnpmCacheKey);
         if (pnpmCacheHit) {
             core.info(`PNPM cache restored from key ${pnpmCacheKey}`);
+            core.saveState("pnpmCacheExists", true);
         } else {
             core.info(`No PNPM cache found for key ${pnpmCacheKey}`);
+            core.saveState("pnpmCacheExists", false);
         }
 
         const rushCacheHit = await cache.restoreCache([rushCacheDir, rushSysCacheDir], rushCacheKey);
         if (rushCacheHit) {
             core.info(`Rush cache restored from key ${rushCacheKey}`);
+            core.saveState("rushCacheExists", true);
         } else {
             core.info(`No Rush cache found for key ${rushCacheKey}`);
+            core.saveState("rushCacheExists", false);
         }
     } catch (error) {
         core.setFailed(error.message);
