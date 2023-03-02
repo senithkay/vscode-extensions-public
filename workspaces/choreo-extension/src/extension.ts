@@ -80,7 +80,13 @@ export async function showChoreoProjectOverview() {
 			try {
 				getLogger().debug("Loading Choreo Project Metadata.	");
 				// first sign in to Choreo
-				await signIn();
+				const isLoggedIn = await ext.api.waitForLogin();
+				if (!isLoggedIn) {
+					//TODO: Prompt to sign in as the opened Choreo project is not accessible
+					return;
+				}
+				// TODO: Check if the Choreo project is accessible by the logged in user using the access token
+				// for current organization, prompt and change the organization if needed
 				if (cancelled) {
 					return;
 				}
