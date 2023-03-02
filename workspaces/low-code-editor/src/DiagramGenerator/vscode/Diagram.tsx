@@ -65,6 +65,7 @@ export interface EditorAPI {
     resolveMissingDependencyByCodeAction: (filePath: string, fileContent: string, diagnostic: any) => Promise<boolean>;
     runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean>;
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
+    openArchitectureView?: () => Promise<boolean>;
     sendTelemetryEvent: (event: LowcodeEvent) => Promise<void>;
     getLibrariesList: (kind?: LibraryKind) => Promise<LibraryDocResponse | undefined>;
     getLibrariesData: () => Promise<LibrarySearchResponse | undefined>;
@@ -96,7 +97,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
     const { getFileContent, updateFileContent, gotoSource, showPerformanceGraph, getPerfDataFromChoreo,
             sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, runBackgroundTerminalCommand, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
+            runCommand, runBackgroundTerminalCommand, openArchitectureView, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -118,6 +119,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     resolveMissingDependencyByCodeAction={resolveMissingDependencyByCodeAction}
                     runCommand={runCommand}
                     runBackgroundTerminalCommand={runBackgroundTerminalCommand}
+                    openArchitectureView={openArchitectureView}
                     sendTelemetryEvent={sendTelemetryEvent}
                     getLibrariesList={getLibrariesList}
                     getLibrariesData={getLibrariesData}

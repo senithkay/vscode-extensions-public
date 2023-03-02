@@ -210,6 +210,17 @@ function renderDiagram(
                     );
                 })
             }
+            function openArchitectureView(command, args) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'openArchitectureView',
+                        [args],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
             function getAllFiles(matchingPattern, ignorePattern) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -285,6 +296,7 @@ function renderDiagram(
                             resolveMissingDependencyByCodeAction,
                             runCommand,
                             runBackgroundTerminalCommand,
+                            openArchitectureView,
                             openExternalUrl,
                             sendTelemetryEvent,
                             getLibrariesList,

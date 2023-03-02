@@ -44,7 +44,7 @@ export interface STResponse {
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance = ballerinaExtInstance;
     langClient = <ExtendedLangClient>extInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand("ballerina.view.architectureView", () => {
+    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, () => {
         ballerinaExtInstance.onReady()
             .then(() => {
                 if (isCompatible(2201.2, 2)) {

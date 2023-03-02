@@ -514,6 +514,13 @@ class DiagramPanel {
 				}
 			},
 			{
+				methodName: "openArchitectureView",
+				handler: async (args: any[]): Promise<boolean> => {
+					commands.executeCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW);
+					return Promise.resolve(true);
+				}
+			},
+			{
 				methodName: "openExternalUrl",
 				handler: async (args: any[]): Promise<boolean> => {
 					openExternalUrl(args[0]);
