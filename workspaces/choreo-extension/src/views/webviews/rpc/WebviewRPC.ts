@@ -130,13 +130,12 @@ export class WebViewRpc {
             ProjectRegistry.getInstance().getDiagramModel(params.projId, params.orgHandler)
                 .then(async (comp) => {
                     comp.forEach((value, key) => {
-                        if (value.apiVersions[0].cellDiagram) {
-                            const finalVersion = value.apiVersions[value.apiVersions.length - 1];
-                            if (finalVersion.cellDiagram) {
-                                const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
-                                const model = JSON.parse(decodedString.toString());
-                                enrichConsoleDeploymentData(model.services, comp[0].apiVersions);
-                            }
+                        // Draw the cell diagram for the last version of the component
+                        const finalVersion = value.apiVersions[value.apiVersions.length - 1];
+                        if (finalVersion.cellDiagram) {
+                            const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
+                            const model = JSON.parse(decodedString.toString());
+                            enrichConsoleDeploymentData(model.services, finalVersion);
                         }
                     });
                 })
