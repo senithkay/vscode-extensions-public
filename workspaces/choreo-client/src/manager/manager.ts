@@ -19,7 +19,7 @@ import { log } from "console";
 import { randomUUID } from "crypto";
 import child_process from "child_process";
 import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync, writeFileSync } from "fs";
-import path, { join } from "path";
+import path, { basename, dirname, join } from "path";
 import { commands, workspace } from "vscode";
 
 interface CmdResponse {
@@ -36,13 +36,9 @@ export class ChoreoProjectManager implements IProjectManager {
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
             const pkgRoot = join(join(join(projectRoot, 'repos'), repositoryInfo.org), repositoryInfo.repo);
 
-            if (!existsSync(pkgRoot)) {
-                mkdirSync(pkgRoot, { recursive: true });
-            }
-
-            const resp: CmdResponse = await ChoreoProjectManager._createBallerinaPackage(repositoryInfo.subPath, pkgRoot, displayType);
+            const pkgPath = join(pkgRoot, repositoryInfo.subPath);
+            const resp: CmdResponse = await ChoreoProjectManager._createBallerinaPackage(pkgPath, displayType);
             if (!resp.error) {
-                const pkgPath = join(pkgRoot, repositoryInfo.subPath);
                 ChoreoProjectManager._processTomlFiles(pkgPath, org.name);
                 ChoreoProjectManager._addDisplayAnnotation(pkgPath, displayType, repositoryInfo);
                 return await ChoreoProjectManager._addToWorkspace(workspaceFilePath, args);
@@ -62,10 +58,14 @@ export class ChoreoProjectManager implements IProjectManager {
         throw new Error("choreo getProjectRoot method not implemented.");
     }
 
-    private static _createBallerinaPackage(pkgName: string, pkgRoot: string, componentType: ChoreoServiceComponentType)
+    private static _createBallerinaPackage(pkgPath: string, componentType: ChoreoServiceComponentType)
         : Promise<CmdResponse> {
+        const pkgRoot = dirname(pkgPath);
+        if (!existsSync(pkgRoot)) {
+            mkdirSync(pkgRoot, { recursive: true });
+        }
         const cmd =
-            `bal new "${pkgName}" -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(componentType)}:1.1.0`;
+            `bal new "${basename(pkgPath)}" -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(componentType)}:1.1.0`;
         return new Promise(function (resolve) {
             child_process.exec(`${cmd}`, { cwd: pkgRoot }, async (err, stdout, stderror) => {
                 if (err) {
