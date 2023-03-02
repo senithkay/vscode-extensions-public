@@ -18,6 +18,8 @@ import { ChoreoAuthConfig } from "./config";
 import { ext } from '../extensionVariables';
 import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
+import { Organization } from '@wso2-enterprise/choreo-core';
+import { SELECTED_ORG_ID_KEY } from '../constants';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -171,9 +173,10 @@ export async function signIn() {
         try {
             const userInfo = await orgClient.getUserInfo();
             getLogger().debug("Successfully retrived user info.");
-            await exchangeApimToken(choreoTokenInfo?.accessToken, userInfo.organizations[0].handle);
             ext.api.userName = userInfo.displayName;
-            ext.api.selectedOrg = userInfo.organizations[0];
+            const selectedOrg = await getDefaultSelectedOrg(userInfo.organizations);
+            await exchangeApimToken(choreoTokenInfo?.accessToken, selectedOrg.handle);  
+            ext.api.selectedOrg = selectedOrg;
             ext.api.status = "LoggedIn";
         } catch (error: any) {
             getLogger().error("Error while signing in! ", error);
@@ -181,6 +184,20 @@ export async function signIn() {
             signOut();
         }
     }
+}
+
+export async function getDefaultSelectedOrg(userOrgs: Organization[])  {
+    if (userOrgs.length === 0) {
+        throw new Error("No organizations found for the user.");
+    }
+    const currentSelectedOrgId = ext.context.globalState.get(SELECTED_ORG_ID_KEY);
+    if (currentSelectedOrgId) {
+        const foundOrg = userOrgs.find(org => org.id === currentSelectedOrgId);
+        if (foundOrg) {
+            return foundOrg;
+        }
+    }
+    return userOrgs[0];
 }
 
 export async function exchangeOrgAccessTokens(orgHandle: string) {

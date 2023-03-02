@@ -18,11 +18,16 @@
  */
 
 export {
+    addGWNodesModel,
+    cellDiagramZoomToFit,
     createEntitiesEngine,
     createServicesEngine,
     createRenderPackageObject,
-    positionGatewayNodes
+    positionGatewayNodes,
+    removeGWLinks
 } from './utils';
+
+export { ProjectDesignRPC } from './rpc/project-design-rpc';
 
 export { entityModeller, generateCompositionModel } from './model-mapper/entityModelMapper';
 export { serviceModeller } from './model-mapper/serviceModelMapper';
