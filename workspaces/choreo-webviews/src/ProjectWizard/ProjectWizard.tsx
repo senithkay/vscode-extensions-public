@@ -93,7 +93,14 @@ export function ProjectWizard() {
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
                     <h2>New Choreo Project</h2>
-                    <OrgSelector />
+                    
+                    <VSCodeTextField
+                        disabled={true}
+                        value={selectedOrg?.name || "loading..."}
+                        title="To change the Organization, Go to `Account` view."
+                    >
+                        Organization 
+                    </VSCodeTextField>
                     <VSCodeTextField
                         autofocus
                         validate={projectName.length > 0}
