@@ -13,7 +13,6 @@
 import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { useContext, useState } from "react";
-import { OrgSelector } from "../OrgSelector/OrgSelector";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -121,8 +120,9 @@ export function ProjectWizard() {
                     <VSCodeCheckbox
                         checked={initMonoRepo}
                         onChange={handleInitiMonoRepoCheckChange}
+                        title="To use as a mono repository for the project components"
                     >
-                        Initialize a mono repo
+                        Assign a github repository
                     </VSCodeCheckbox>
                     {initMonoRepo && <GithubRepoSelector onRepoSelect={handleRepoSelect} />}
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
