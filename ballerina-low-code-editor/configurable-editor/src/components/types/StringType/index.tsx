@@ -213,8 +213,9 @@ const StringType = (props: StringTypeProps): ReactElement => {
                                             <Box ml={1}>
                                                 <Tooltip title={connectionFields.valueType}>
                                                     <Chip
-                                                        color="secondary"
+                                                        color="success"
                                                         variant="outlined"
+                                                        size="small"
                                                         label={connectionFields.valueType} />
                                                 </Tooltip>
                                             </Box>
