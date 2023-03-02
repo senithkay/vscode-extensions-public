@@ -120,9 +120,8 @@ export function ProjectWizard() {
                     <VSCodeCheckbox
                         checked={initMonoRepo}
                         onChange={handleInitiMonoRepoCheckChange}
-                        title="To use as a mono repository for the project components"
                     >
-                        Assign a github repository
+                        Initialize a mono repo
                     </VSCodeCheckbox>
                     {initMonoRepo && <GithubRepoSelector onRepoSelect={handleRepoSelect} />}
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
