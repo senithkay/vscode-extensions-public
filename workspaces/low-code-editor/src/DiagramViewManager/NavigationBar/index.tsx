@@ -107,7 +107,7 @@ export function NavigationBar(props: NavigationBarProps) {
     }
 
     const renderWorkspaceNameComponent = () => (
-        <div className="btn-container" >
+        <div className="btn-container" onClick={historyReset} >
             {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
             <span className="icon-text">{`${workspaceName}`}</span>
         </div>
