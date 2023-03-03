@@ -11,7 +11,7 @@
 * associated services.
 */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -185,6 +185,16 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		}
 	}
 
+	const subFieldNames = useMemo(() => {
+		const fieldNames: string[] = [];
+		editableRecordFields?.forEach(field => {
+			if (STKindChecker.isSpecificField(field.value)) {
+				fieldNames.push(field.value?.fieldName?.value)
+			}
+		})
+		return fieldNames;
+	}, [editableRecordFields])
+
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
 			<TreeHeader
@@ -235,7 +245,11 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					})
 				}
 				{isAnyData && (
-					<AddRecordFieldButton addNewField={addNewField} indentation={0} />
+					<AddRecordFieldButton
+						addNewField={addNewField}
+						indentation={0}
+						existingFieldNames={subFieldNames}
+					/>
 				)}
 			</TreeBody>
 		</TreeContainer>

@@ -273,10 +273,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const isAnyDataRecord = field.type?.originalTypeName === AnydataType
 
     if (field.type?.typeName === AnydataType) {
-        const anyDateConvertOptions: ValueConfigMenuItem[] = []
-        anyDateConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Record) })
-        anyDateConvertOptions.push({ title: `Initialize as array`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Array) })
-        valConfigMenuItems.push(...anyDateConvertOptions)
+        const anyDataConvertOptions: ValueConfigMenuItem[] = []
+        anyDataConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Record) })
+        anyDataConvertOptions.push({ title: `Initialize as array`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Array) })
+        valConfigMenuItems.push(...anyDataConvertOptions)
     }
 
     const addNewField = async (newFieldNameStr: string) => {
@@ -285,6 +285,19 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             await context.applyModifications(modification);
         }
     }
+
+    const subFieldNames = useMemo(() => {
+		const fieldNames: string[] = [];
+  if (expanded && fields){
+            fields?.forEach(fieldItem => {
+                if (STKindChecker.isSpecificField(fieldItem.value)) {
+                    fieldNames.push(fieldItem.value?.fieldName?.value)
+                }
+            })
+        }
+
+		return fieldNames;
+	}, [fields, expanded])
 
     return (
         <>
@@ -376,6 +389,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 <AddRecordFieldButton
                     addNewField={addNewField}
                     indentation={indentation + 50}
+                    existingFieldNames={subFieldNames}
                 />
             )}
         </>

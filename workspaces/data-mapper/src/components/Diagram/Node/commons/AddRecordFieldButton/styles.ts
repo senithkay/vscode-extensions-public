@@ -45,7 +45,28 @@ export const useStyles = makeStyles((theme: Theme) =>
             border: 0,
             '&:hover': { outline: 0 },
             '&:focus': { outline: 0 },
-            background: 'transparent'
+            background: 'transparent',
+            fontSize: 13,
+            "&::placeholder": {
+                opacity: 0.5
+            }
         },
+        popoverRoot: {
+            padding: '5px 10px',
+            display: 'flex',
+            alignItems: 'center'
+        },
+        tooltip: {
+            backgroundColor: theme.palette.common.white,
+            color: theme.palette.error.dark,
+            boxShadow: theme.shadows[1],
+            fontSize: 13,
+        },
+        errorIcon: {
+            color: theme.palette.error.main,
+        },
+        tickIcon: {
+            color: theme.palette.primary.light
+        }
     }),
 );

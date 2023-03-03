@@ -1338,10 +1338,10 @@ export const getNewFieldAdditionModification = (node: STNode, fieldName: string,
 				startLine: lastField.position.endLine,
 				startColumn: lastField.position.endColumn,
 			}
-			modificationStatement = `,${getLinebreak()}${fieldName}:${fieldValue}`
+			modificationStatement = `,${getLinebreak()}\t${fieldName}:${fieldValue}${getLinebreak()}`
 		} else {
 			insertPosition = mappingConstruct.position
-			modificationStatement = `{${getLinebreak()}${fieldName}:${fieldValue}}${getLinebreak()}`
+			modificationStatement = `{${getLinebreak()}\t${fieldName}:${fieldValue}${getLinebreak()}}`
 		}
 	}
 

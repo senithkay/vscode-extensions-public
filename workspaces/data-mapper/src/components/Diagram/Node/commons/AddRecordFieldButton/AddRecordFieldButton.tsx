@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2023, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -11,27 +11,35 @@
  * associated services.
  */
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
-// tslint:disable: jsx-no-multiline-js
 import React, { FC, useState } from "react";
 
-import { Button, IconButton, Popover } from "@material-ui/core";
+import { Button, IconButton, Popover, Tooltip } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import CheckIcon from "@material-ui/icons/Check";
+import CheckIcon from "@material-ui/icons/CheckCircleOutline";
+import ErrorIcon from "@material-ui/icons/ErrorOutline";
+
+import { getBalRecFieldName } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
 
 interface Props {
     indentation: number;
     addNewField: (fieldName: string) => void;
+    existingFieldNames: string[];
 }
 
-export const AddRecordFieldButton: FC<Props> = ({ indentation, addNewField }) => {
-    const [popoverAnchorEl, setPopoverAnchorEl] = React.useState(null);
+export const AddRecordFieldButton: FC<Props> = ({
+    indentation,
+    addNewField,
+    existingFieldNames,
+}) => {
+    const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const [newFieldName, setNewFieldName] = useState("");
     const classes = useStyles();
+    const isError = existingFieldNames.includes(getBalRecFieldName(newFieldName));
 
     const handleClose = () => {
-        setNewFieldName("")
+        setNewFieldName("");
         setPopoverAnchorEl(null);
     };
 
@@ -39,10 +47,16 @@ export const AddRecordFieldButton: FC<Props> = ({ indentation, addNewField }) =>
         if (key === "Escape") {
             handleClose();
         }
-        if (key === "Enter") {
-            addNewField(newFieldName);
-            handleClose();
+        if (key === "Enter" && !isError) {
+            addField(newFieldName);
         }
+    };
+
+    const addField = (fieldName: string) => {
+        if (newFieldName) {
+            addNewField(getBalRecFieldName(fieldName));
+        }
+        handleClose();
     };
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -50,15 +64,12 @@ export const AddRecordFieldButton: FC<Props> = ({ indentation, addNewField }) =>
     };
 
     const open = Boolean(popoverAnchorEl);
-    const id = open ? 'simple-popover' : undefined;
+    const id = open ? "simple-popover" : undefined;
 
     return (
-        <div
-            className={classes.addFieldWrap}
-            style={{ paddingLeft: indentation }}
-        >
+        <div className={classes.addFieldWrap} style={{ paddingLeft: indentation }}>
             <Button
-                id={"add-array-element"}
+                id={"add-new-field"}
                 aria-label="add"
                 className={classes.addIcon}
                 onClick={handleClick}
@@ -72,13 +83,14 @@ export const AddRecordFieldButton: FC<Props> = ({ indentation, addNewField }) =>
                 anchorEl={popoverAnchorEl}
                 onClose={handleClose}
                 anchorOrigin={{
-                    vertical: "top",
+                    vertical: "center",
                     horizontal: "right",
                 }}
                 transformOrigin={{
-                    vertical: "top",
+                    vertical: "center",
                     horizontal: "center",
                 }}
+                classes={{ paper: classes.popoverRoot }}
             >
                 <input
                     spellCheck={false}
@@ -87,12 +99,27 @@ export const AddRecordFieldButton: FC<Props> = ({ indentation, addNewField }) =>
                     value={newFieldName}
                     onChange={(event) => setNewFieldName(event.target.value)}
                     onKeyUp={(event) => onNewFieldNameKeyUp(event.key)}
+                    placeholder="New field name"
                 />
-                <IconButton onClick={() => addNewField(newFieldName)} size="small">
-                    <CheckIcon />
-                </IconButton>
+                {newFieldName && (
+                    <>
+                        {isError && (
+                            <Tooltip
+                                classes={{ tooltip: classes.tooltip }}
+                                title={`Field name ${newFieldName} already exists`}
+                                color=""
+                            >
+                                <ErrorIcon className={classes.errorIcon} />
+                            </Tooltip>
+                        )}
+                        {!isError && (
+                            <IconButton onClick={() => addField(newFieldName)} size="small">
+                                <CheckIcon className={classes.tickIcon} />
+                            </IconButton>
+                        )}
+                    </>
+                )}
             </Popover>
         </div>
     );
 };
-
