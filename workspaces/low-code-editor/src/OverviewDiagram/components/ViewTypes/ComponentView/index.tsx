@@ -13,6 +13,7 @@
 import React from "react";
 
 import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import classNames from "classnames";
 
 import { ComponentViewInfo } from "../../../util";
 
@@ -32,8 +33,26 @@ export function ComponentView(props: ComponentViewProps) {
         updateSelection(info);
     };
 
+    const isComponentAllowed = (type: string) => {
+        switch (type) {
+            case 'classes':
+            case 'objects':
+            case 'types':
+            case 'enums':
+            case 'listeners':
+            case 'constants':
+            case 'moduleVariables':
+                return false;
+            default:
+                return true;
+        }
+    }
+
     return (
-        <div className="component" onClick={handleComponentClick}>
+        <div
+            className={classNames("component", { 'not-allowed': !isComponentAllowed(props.type) })}
+            onClick={isComponentAllowed(props.type) ? handleComponentClick : undefined}
+        >
             <div className="icon">
                 {getConstructIcon(`${iconNameTranslator(props.type)}Icon`)}
             </div>

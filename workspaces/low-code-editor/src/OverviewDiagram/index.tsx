@@ -12,27 +12,17 @@
  */
 import React, { useEffect, useRef, useState } from "react";
 
-import { Popover } from "@material-ui/core";
-import { FilterList } from "@material-ui/icons";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { useDiagramContext } from "../Contexts/Diagram";
 import { FileListEntry, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 
-import { Filter as FilterComponent } from './components/Filter'
 import { TopLevelActionButton } from "./components/TopLevelActionButton";
-import * as Views from './components/ViewTypes';
 import { CategoryView } from "./components/ViewTypes/CategoryView";
 import './style.scss';
 import { ComponentViewInfo } from "./util";
 
 export const DEFAULT_MODULE_NAME = 'default';
-
-enum ViewMode {
-    MODULE = 'Module',
-    FILE = 'File',
-    TYPE = 'Type'
-}
 
 export interface OverviewDiagramProps {
     lastUpdatedAt: string;
@@ -47,8 +37,6 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
     const { currentProject, currentFile, notifyComponentSelection, lastUpdatedAt, updateCurrentFile, fileList } = props;
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
-    const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TYPE);
-    // const [filterMap, setFilterMap] = useState({});
 
     useEffect(() => {
         (async () => {
@@ -68,58 +56,10 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
         })();
     }, [lastUpdatedAt, currentProject]);
 
+    const hasProjectComponents = projectComponents && !!projectComponents.packages;
 
-    // const handleFilterClick = () => {
-    //     setIsFilterOpen(true);
-    // }
-    //
-    // const handleFilterClose = () => {
-    //     setIsFilterOpen(false);
-    // }
-    //
-    // const handleMapChange = (obj: any) => {
-    //     updateFilterMap(obj);
-    // }
-
-    // const viewSelector = (
-    //     <div className="overview-action-bar">
-    //         <div
-    //             style={{ display: 'flex', paddingLeft: 15 }}
-    //             ref={ref}
-    //             onClick={handleFilterClick}
-    //         >
-    //             <span className="label">Filter</span>
-    //             <div>
-    //                 {isProjectWorkspace && <FilterList />}
-    //                 <Popover
-    //                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
-    //                     transformOrigin={{ vertical: 'top', horizontal: 'left', }}
-    //                     title={'Filter'}
-    //                     open={isFilterOpen}
-    //                     anchorEl={ref ? ref.current : undefined}
-    //                     onClose={handleFilterClose}
-    //                 >
-    //                     <FilterComponent
-    //                         filterMap={filterMap}
-    //                         updateFilterMap={handleMapChange}
-    //                         handleFilterClose={handleFilterClose}
-    //                     />
-    //                 </Popover>
-    //             </div>
-    //         </div>
-    //         <div>
-    //             <span className="label">Group By</span>
-    //             <select onChange={handleViewModeChange} value={viewMode}>
-    //                 <option value={ViewMode.MODULE}>{ViewMode.MODULE}</option>
-    //                 <option value={ViewMode.FILE}>{ViewMode.FILE}</option>
-    //                 <option value={ViewMode.TYPE}>{ViewMode.TYPE}</option>
-    //             </select>
-    //         </div >
-    //     </div>
-    // );
-
-    return (
-        <div className="view-container">
+    const renderCategoryView = () => (
+        <>
             <CategoryView
                 projectComponents={projectComponents}
                 currentFile={currentFile}
@@ -128,6 +68,17 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                 fileList={fileList}
             />
             <TopLevelActionButton />
+        </>
+    )
+
+    const renderEmptyProjectMessage = () => (
+        <div className="empty-message" >No ballerina components detected.</div>
+    );
+
+    return (
+        <div className="view-container">
+            {hasProjectComponents && renderCategoryView()}
+            {!hasProjectComponents && renderEmptyProjectMessage()}
         </div>
     )
 }

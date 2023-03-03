@@ -40,32 +40,10 @@ import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
 
-interface DiagramFocusState {
-    filePath: string;
-    uid: string;
-}
-
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
  */
 export function DiagramViewManager(props: EditorProps) {
-    // ViewManager behavior:
-    //  - should be able to handle switching to lowcode whatever the mode user interacts in
-    //      - user can open a lowcode element by selecting a component from the component overview
-    //      - user can open a lowcode element by clicking on the code lense in the code editor
-    //      - if it's the code lense user will provide object with data specifying which file and which position
-    //        through props(should alter the openInDiagram prop)
-    //          structure:
-    //              - filepath => string
-    //              - position => NodePosition
-    //      - if it is the through the view manager, a callback should be passed to that component notify the view
-    //        manager to fetch the related syntax tree
-    //
-    // ToDo:
-    //  - fetch syntaxtree for particular file
-    //  - Handle switching between views based on type of the syntax tree fetched(datamapper, graphql, service designer)
-    //  - Handle switching to code from standalone code segment
-    //  - Implement top bar to handle navigation
     const {
         lastUpdatedAt,
         langClientPromise,
@@ -83,8 +61,6 @@ export function DiagramViewManager(props: EditorProps) {
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [history, historyPush, historyPop, historyClear] = useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
-    // const [folderName, setFolderName] = vte<string>();
-    // const [filterMap, setFilterMap] = useState({});
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
     const [focusFile, setFocusFile] = useState<FileListEntry>();
@@ -125,6 +101,7 @@ export function DiagramViewManager(props: EditorProps) {
                     fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
                     uri: fileUri
                 }));
+
                 setFileList(projectFiles);
             })();
         }
@@ -143,75 +120,19 @@ export function DiagramViewManager(props: EditorProps) {
                     uri: fileUri
                 }));
                 const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
-                if (position) {
-                    historyPush({ project: currentProjectPath, file: currentFile, position });
-                }
-                setCurrentProject(currentProjectPath);
-                setFileList(projectFiles);
-                setFocusFile(currentFile);
+                historyPush({ project: currentProjectPath, file: currentFile, position });
             })();
 
         }
     }, [diagramFocus]);
 
-    // useEffect(() => {
-    //     setFocusUid(undefined);
-    //     setFocusedST(undefined);
-    // }, [focusFile]);
 
     React.useEffect(() => {
         (async () => {
             const version: string = await getBallerinaVersion();
             setBalVersion(version);
-            // const isCodeServerInstance: string = await getEnv("CODE_SERVER_ENV");
-            // setCodeServer(isCodeServerInstance === "true");
-            // const sentryConfig: SentryConfig = await getSentryConfig();
-            // if (sentryConfig) {
-            //     init(sentryConfig);
-            // }
         })();
     }, []);
-    //
-    // useEffect(() => {
-    //     if (history.length > 0) {
-    //         const {
-    //             filePath, uid
-    //         } = history[history.length - 1];
-    //         // diagramFocusSend({
-    //         //     type: DiagramFocusActionTypes.UPDATE_STATE, payload: {
-    //         //         filePath,
-    //         //         position
-    //         //     }
-    //         // })
-    //         let dirName;
-    //
-    //         projectPaths.forEach(project => {
-    //             if (projectPaths.length > 1 && filePath.includes(project.uri.fsPath)) {
-    //                 dirName = project.name;
-    //             }
-    //         })
-    //
-    //         setFolderName(dirName);
-    //         setDiagramFocuState({
-    //             filePath,
-    //             uid
-    //         });
-    //
-    //     } else {
-    //         // diagramFocusSend({ type: DiagramFocusActionTypes.RESET_STATE })
-    //         setDiagramFocuState(undefined);
-    //         setFolderName(undefined);
-    //     }
-    // }, [history[history.length - 1]]);
-    //
-    // useEffect(() => {
-    //     projectPaths.forEach(path => {
-    //         if (!filterMap[path.name]) {
-    //             filterMap[path.name] = true;
-    //         }
-    //     })
-    //     setFilterMap(filterMap);
-    // }, [projectPaths]);
 
     // TODO: move to util file
     const fetchST = (filePath: string, options?: { position?: NodePosition, uid?: string }) => {
@@ -253,18 +174,6 @@ export function DiagramViewManager(props: EditorProps) {
         })();
     }
 
-    //
-    //
-    // useEffect(() => {
-    //     fetchST();
-    // }, [diagramFocusState]);
-    //
-    // useEffect(() => {
-    //     // diagramFocusSend({ type: DiagramFocusActionTypes.UPDATE_STATE, payload: diagramFocus });
-    //     if (diagramFocus) {
-    //         updateSelectedComponent({ filePath: diagramFocus.filePath, position: diagramFocus.position })
-    //     }
-    // }, [diagramFocus])
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         const { filePath, position } = componentDetails;
         const fileListEntry = fileList.find(file => file.uri.path === filePath);
@@ -273,7 +182,6 @@ export function DiagramViewManager(props: EditorProps) {
             project: currentProject,
             position,
         });
-        // fetchST(filePath, { position });
     }
 
     const handleNavigationHome = () => {
@@ -282,10 +190,9 @@ export function DiagramViewManager(props: EditorProps) {
 
     const viewComponent: React.ReactElement[] = [];
 
-    if (history.length > 0 && !focusedST) {
+    if (history.length > 0 && history[history.length - 1].position && !focusedST) {
         viewComponent.push(<TextPreLoader position={'absolute'} />);
-    } else if (!focusedST && currentProject) {
-
+    } else if (!focusedST) {
         viewComponent.push((
             <OverviewDiagram
                 currentProject={currentProject}
@@ -354,57 +261,6 @@ export function DiagramViewManager(props: EditorProps) {
             viewComponent.push(<Diagram />);
         }
     }
-    //
-    // if (!diagramFocusState) {
-    //     viewComponent.push((
-    //         <OverviewDiagram
-    //             lastUpdatedAt={lastUpdatedAt}
-    //             projectPaths={projectPaths}
-    //             notifyComponentSelection={updateSelectedComponent}
-    //             filterMap={filterMap}
-    //             updateFilterMap={setFilterMap}
-    //         />
-    //     ));
-    // } else if (!!diagramFocusState && !!focusedST) {
-    //     if (STKindChecker.isServiceDeclaration(focusedST)) {
-    //         if (focusedST.expressions.length > 0) {
-    //             const listenerExpression = focusedST.expressions[0];
-    //             const typeData = listenerExpression.typeData;
-    //             const typeSymbol = typeData?.typeSymbol;
-    //             const signature = typeSymbol?.signature;
-    //             if (signature && signature.includes('http')) {
-    //                 viewComponent.push((
-    //                     <ServiceDesignOverlay
-    //                         model={focusedST}
-    //                         targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-    //                         onCancel={handleNavigationHome}
-    //                     />
-    //                 ));
-    //             } else if (signature && signature.includes('graphql')) {
-    //                 viewComponent.push(
-    //                     <GraphqlDiagramOverlay
-    //                         model={focusedST}
-    //                         targetPosition={focusedST.position}
-    //                         ballerinaVersion={balVersion}
-    //                         onCancel={handleNavigationHome}
-    //                     />
-    //                 );
-    //             }
-    //         }
-    //     } else if (STKindChecker.isFunctionDefinition(focusedST)
-    //         && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
-    //         viewComponent.push((
-    //             <DataMapperOverlay
-    //                 targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-    //                 model={focusedST}
-    //                 ballerinaVersion={balVersion}
-    //                 onCancel={handleNavigationHome}
-    //             />
-    //         ))
-    //     } else {
-    //         viewComponent.push(<Diagram />);
-    //     }
-    // }
     const navigateUptoParent = (position: NodePosition) => {
         if (!position) {
             return;
@@ -415,26 +271,18 @@ export function DiagramViewManager(props: EditorProps) {
         historyPush(currentHistoryEntry);
     }
 
-    //
-    // const handleFolderClick = () => {
-    //     Object.keys(filterMap).forEach((key) => {
-    //         filterMap[key] = key === folderName;
-    //     })
-    //
-    //     setFilterMap(filterMap);
-    //     historyClear();
-    // }
-    //
-    const handleFileChange = (entry: FileListEntry) => {
-        setFocusFile(entry);
-        setFocusUid(undefined);
-        setFocusedST(undefined);
-    }
-
     const updateActiveFile = (currentFile: FileListEntry) => {
         setFocusFile(currentFile);
         fetchST(currentFile.uri.path);
     };
+
+    const handleProjectChange = (project: WorkspaceFolder) => {
+        setCurrentProject(project);
+        setFocusFile(undefined);
+        setFocusUid(undefined);
+        setFocusedST(undefined);
+        historyClear();
+    }
 
     const diagramProps = getDiagramProviderProps(
         focusedST,
@@ -474,7 +322,7 @@ export function DiagramViewManager(props: EditorProps) {
                                     workspaceName={workspaceName}
                                     projectList={projectPaths}
                                     currentProject={currentProject}
-                                    updateCurrentProject={setCurrentProject}
+                                    updateCurrentProject={handleProjectChange}
                                 />
                                 {viewComponent}
                                 <div id={'canvas-overlay'} className={"overlayContainer"} />
@@ -485,6 +333,5 @@ export function DiagramViewManager(props: EditorProps) {
             </MuiThemeProvider>
         </div>
     )
-    // {viewComponent}
 }
 

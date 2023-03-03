@@ -12,6 +12,8 @@
  */
 import React from "react";
 
+import './style.scss';
+
 export interface CanvasProps {
     children?: React.ReactElement | React.ReactElement[],
     w: number,
