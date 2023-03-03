@@ -18,10 +18,13 @@
  */
 
 export {
+    addGWNodesModel,
+    cellDiagramZoomToFit,
     createEntitiesEngine,
     createServicesEngine,
     createRenderPackageObject,
-    positionGatewayNodes
+    positionGatewayNodes,
+    removeGWLinks
 } from './utils';
 
 export { entityModeller, generateCompositionModel } from './model-mapper/entityModelMapper';

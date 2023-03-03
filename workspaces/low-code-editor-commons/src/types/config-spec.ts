@@ -37,6 +37,8 @@ export enum PrimitiveBalType {
     Decimal = "decimal"
 }
 
+export const AnydataType = "anydata";
+
 export const httpResponse: NonPrimitiveBal = {
     orgName: 'ballerina',
     moduleName: 'http',

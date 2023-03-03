@@ -17,8 +17,9 @@
  *
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from '@emotion/styled';
+import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { ControlsLayer } from '../../../editing';
 
 const background = require('../../../resources/assets/PatternBg.svg') as string;
@@ -43,14 +44,14 @@ const MessageBox = styled.h3`
 
 const NO_COMPONENTS_MSG = 'No components were detected in the project workspace.';
 
-export function PromptScreen(props: { onComponentAdd: () => void }) {
+export function PromptScreen(props: { setShowEditForm: (status: boolean) => void }) {
+    const { setShowEditForm } = props;
+    const { editingEnabled } = useContext(DiagramContext);
+
     return (
         <Container id={"no-components-prompt-screen"}>
             <MessageBox>{NO_COMPONENTS_MSG}</MessageBox>
-            <ControlsLayer
-                onComponentAddClick={props.onComponentAdd}
-                float={true}
-            />
+            {editingEnabled && <ControlsLayer setShowEditForm={setShowEditForm} float={true} />}
         </Container>
     );
 }
