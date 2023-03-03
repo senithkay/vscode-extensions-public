@@ -28,7 +28,7 @@ jobs:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
       - name: Restore cache
-        uses: ./.github/actions/cache
+        uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -116,7 +116,7 @@ jobs:
           rm build.zip
 
       - name: Restore cache
-        uses: ./.github/actions/cache
+        uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -181,7 +181,7 @@ jobs:
           rm build.zip
 
       - name: Restore cache
-        uses: ./.github/actions/cache
+        uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -229,7 +229,7 @@ jobs:
           rm build.zip
 
       - name: Restore cache
-        uses: ./.github/actions/cache
+        uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
           node: 16.x
@@ -301,7 +301,7 @@ jobs:
           rm build.zip
 
       - name: Restore cache
-        uses: ./.github/actions/cache
+        uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
           node: 16.x
