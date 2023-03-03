@@ -188,7 +188,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const subFieldNames = useMemo(() => {
 		const fieldNames: string[] = [];
 		editableRecordFields?.forEach(field => {
-			if (STKindChecker.isSpecificField(field.value)) {
+			if (field.value && STKindChecker.isSpecificField(field.value)) {
 				fieldNames.push(field.value?.fieldName?.value)
 			}
 		})
@@ -249,6 +249,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						addNewField={addNewField}
 						indentation={0}
 						existingFieldNames={subFieldNames}
+						fieldId={id}
 					/>
 				)}
 			</TreeBody>

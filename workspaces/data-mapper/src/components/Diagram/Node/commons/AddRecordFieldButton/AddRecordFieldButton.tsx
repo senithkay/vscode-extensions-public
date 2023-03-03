@@ -26,12 +26,14 @@ interface Props {
     indentation: number;
     addNewField: (fieldName: string) => void;
     existingFieldNames: string[];
+    fieldId?: string;
 }
 
 export const AddRecordFieldButton: FC<Props> = ({
     indentation,
     addNewField,
     existingFieldNames,
+    fieldId
 }) => {
     const [popoverAnchorEl, setPopoverAnchorEl] = useState(null);
     const [newFieldName, setNewFieldName] = useState("");
@@ -69,7 +71,7 @@ export const AddRecordFieldButton: FC<Props> = ({
     return (
         <div className={classes.addFieldWrap} style={{ paddingLeft: indentation }}>
             <Button
-                id={"add-new-field"}
+                data-testid={`add-new-field-${fieldId}`}
                 aria-label="add"
                 className={classes.addIcon}
                 onClick={handleClick}
@@ -100,6 +102,7 @@ export const AddRecordFieldButton: FC<Props> = ({
                     onChange={(event) => setNewFieldName(event.target.value)}
                     onKeyUp={(event) => onNewFieldNameKeyUp(event.key)}
                     placeholder="New field name"
+                    data-testid={`new-field-name`}
                 />
                 {newFieldName && (
                     <>

@@ -157,6 +157,11 @@ export class DataMapper {
         cy.get(`[id='recordfield-expandedQueryExpr.source.${sourceField}']`).click();
         this.getMappingPort(targetPort).click({ force: true });
     }
+    
+    static addNewField = (fieldName: string, fieldParentId: string) => {
+        cy.get(`[data-testid='add-new-field-${fieldParentId}']`).click();
+        cy.get(`[data-testid="new-field-name"]`).clear().type(`${fieldName}{enter}`)
+    }
 
     static createMappingFromQueryExprUsingPortAndField = (sourcePort: string, targetField: string) => {
         cy.get(`[data-name='expandedQueryExpr.source.${sourcePort}.OUT']`).click();

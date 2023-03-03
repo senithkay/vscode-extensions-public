@@ -270,7 +270,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         (hasValue || isWithinArray) && deleteValueMenuItem,
     ];
 
-    const isAnyDataRecord = field.type?.originalTypeName === AnydataType
+    const isAnyDataRecord = field.type?.originalTypeName === AnydataType && field.type?.typeName !== PrimitiveBalType.Array;
 
     if (field.type?.typeName === AnydataType) {
         const anyDataConvertOptions: ValueConfigMenuItem[] = []
@@ -290,7 +290,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 		const fieldNames: string[] = [];
   if (expanded && fields){
             fields?.forEach(fieldItem => {
-                if (STKindChecker.isSpecificField(fieldItem.value)) {
+                if (fieldItem.value && STKindChecker.isSpecificField(fieldItem.value)) {
                     fieldNames.push(fieldItem.value?.fieldName?.value)
                 }
             })
@@ -387,6 +387,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             }
             {isAnyDataRecord && (
                 <AddRecordFieldButton
+                    fieldId={fieldId}
                     addNewField={addNewField}
                     indentation={indentation + 50}
                     existingFieldNames={subFieldNames}
