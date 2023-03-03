@@ -23,7 +23,7 @@ export function ServiceUnsupportedOverlay() {
     return (
         <div className={serviceUnsupportedClasses.overlayWrapper}>
             <ServiceUnsupportedImg />
-            <p className={serviceUnsupportedClasses.title}>Diagram editing for this is unsupported</p>
+            <p className={serviceUnsupportedClasses.title}>Diagram editing for this is not supported</p>
             <p className={serviceUnsupportedClasses.subtitle}>Please move to code</p>
         </div>
     );
