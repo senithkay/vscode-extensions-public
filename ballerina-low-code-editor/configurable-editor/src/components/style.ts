@@ -63,6 +63,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingBottom: theme.spacing(2),
         },
         connectionField: {
+            alignItems: "center",
             display: "flex",
             flexGrow: 1,
             flexWrap: "wrap",
@@ -105,6 +106,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         itemText: {
             fontSize: theme.typography.pxToRem(13),
             fontWeight: 500,
+            color: theme.palette.common.black
         },
         labelCont: {},
         labelTag: {
@@ -128,16 +130,21 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginRight: theme.spacing(1),
         },
         menuItem: {
+            "&.Mui-disabled": {
+                "& $connectionField": {
+                    opacity: 0.5,
+                },
+                "opacity": 1,
+            },
             "&.Mui-selected": {
                 backgroundColor: "#F0F1FB",
             },
             "&:hover": {
                 backgroundColor: "#F0F1FB",
             },
-            "border": "1px solid #d5d5d5",
+            "border": `1px solid ${theme.palette.grey[100]}`,
             "borderTop": 0,
-            "paddingLeft": theme.spacing(1),
-            "paddingRight": theme.spacing(1),
+            "padding": theme.spacing(0.8, 1),
         },
         popOver: {
             minWidth: theme.spacing(40),
