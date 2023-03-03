@@ -364,6 +364,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             const anyDataConvertOptions: ValueConfigMenuItem[] = [];
             anyDataConvertOptions.push({ title: `Add a primitive element`, onClick: () => handleAddArrayElement("()") })
             anyDataConvertOptions.push({ title: `Add a record element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Record) })
+            anyDataConvertOptions.push({ title: `Add an array element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Array) })
             return anyDataConvertOptions;
         }
     }, [])
