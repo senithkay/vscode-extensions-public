@@ -1,37 +1,75 @@
 name: 'Cache'
 description: 'Cache Rush and pnmp'
+inputs:
+  pnpm:
+    description: 'pnpm version'
+    type: string
+    default: ''
+  node:
+    description: 'node version'
+    type: string
+    default: ''
+  cache-rush:
+    description: 'Cache rush directories.'
+    type: boolean
+    default: true
+  cache-rush-dir:
+    description: 'Directories to cache with rush cache key'
+    default: |
+          common/temp/install-run
+          ~/.rush    
+  cache-pnpm:
+    description: 'Cache common/temp/pnpm-store & ~/.cache/Cypress directories.'
+    type: boolean
+    default: true
+  cache-pnpm-dir:
+    description: 'Directories to cache with pnpm cache key'
+    default: |
+          common/temp/pnpm-store
+          ~/.cache/Cypress     
+  set-env:
+    description: 'Set ACTIONS_CACHE_URL & ACTIONS_RUNTIME_TOKEN envs'
+    type: boolean
+    default: false
+  rush-install:
+    description: 'run rush install command'
+    type: boolean
+    default: false
 
 runs:
   using: "composite"
   steps:
-    - uses: pnpm/action-setup@v2
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      if: ${{ inputs.pnpm != '' }}
       with:
-        version: 7.26.3
+        version: ${{ inputs.pnpm }}
 
-    - name: Use Node.js 16.x
+    - name: Setup node
+      if: ${{ inputs.node != '' }}
       uses: actions/setup-node@v3
       with:
-        node-version: 16.x
+        node-version: ${{ inputs.node }}
 
     - name: Cache Rush
+      if: ${{ inputs.cache-rush }}
       uses: actions/cache@v2
       with:
-        path: |
-          common/temp/install-run
-          ~/.rush
+        path: ${{ inputs.cache-rush-dir }}
         key: Rush-cache-${{ hashFiles('rush.json') }}
 
     - name: Cache pnpm
+      if: ${{ inputs.cache-pnpm }}
       uses: actions/cache@v3
       with:
-        path: |
-          common/temp/pnpm-store
-          ~/.cache/Cypress
+        path: ${{ inputs.cache-pnpm-dir }}
         key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-    - name: Restore cache
+    - name: Set envs
+      if: ${{ inputs.set-env }}
       uses: ./.github/actions/env
 
-    - name: Install node modules
+    - name: Rush install
+      if: ${{ inputs.rush-install }}
       shell: bash
       run: node common/scripts/install-run-rush.js install        
