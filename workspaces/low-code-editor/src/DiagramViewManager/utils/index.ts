@@ -47,7 +47,7 @@ export function getDiagramProviderProps(
 
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => Promise<boolean> = props.showMessage;
     const runBackgroundTerminalCommand: (command: string) => Promise<CommandResponse> = props.runBackgroundTerminalCommand;
-    const openArchitectureView: () => Promise<boolean> = props.openArchitectureView;
+    const openArchitectureView: (nodeId: string) => Promise<boolean> = props.openArchitectureView;
 
     const openExternalUrl: (url: string) => Promise<boolean> = props.openExternalUrl;
     return {

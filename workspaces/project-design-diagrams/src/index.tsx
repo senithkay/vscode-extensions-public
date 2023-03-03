@@ -23,12 +23,14 @@ import { DesignDiagram } from './DesignDiagram';
 import { Location } from './resources';
 
 export function renderDesignDiagrams(
+    selectedNodeId: string,
     go2Source: (location: Location) => void,
     goToDesignDiagram: (position: NodePosition, filePath: string) => void,
     target: HTMLElement) {
 
     render(
         <DesignDiagram
+            selectedNodeId={selectedNodeId}
             go2source={go2Source}
             goToDesignDiagram={goToDesignDiagram}
         />,

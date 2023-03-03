@@ -84,7 +84,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
     const defaultPanY = panY ? Number(panY) : 0;
     const runCommand: (command: PALETTE_COMMANDS, args: any[]) => Promise<boolean> = props.runCommand;
     const runBackgroundTerminalCommand: (command: string) => Promise<CommandResponse> = props.runBackgroundTerminalCommand;
-    const openArchitectureView: () => Promise<boolean> = props.openArchitectureView;
+    const openArchitectureView: (nodeId: string) => Promise<boolean> = props.openArchitectureView;
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => Promise<boolean> = props.showMessage;
     const getLibrariesList: (kind?: LibraryKind) => Promise<LibraryDocResponse | undefined> = props.getLibrariesList;
     const getLibrariesData: () => Promise<LibrarySearchResponse | undefined> = props.getLibrariesData;

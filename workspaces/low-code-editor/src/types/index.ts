@@ -118,7 +118,7 @@ export interface LowCodeEditorAPI {
         getLibraryData: (orgName: string, moduleName: string, version: string) => Promise<LibraryDataResponse>;
     };
     runBackgroundTerminalCommand?: (command: string) => Promise<CommandResponse>;
-    openArchitectureView?: () => Promise<boolean>;
+    openArchitectureView?: (nodeId: string) => Promise<boolean>;
     openExternalUrl?: (url: string) => Promise<boolean>;
     navigation: {
         updateActiveFile: (currentFile: FileListEntry) => void;

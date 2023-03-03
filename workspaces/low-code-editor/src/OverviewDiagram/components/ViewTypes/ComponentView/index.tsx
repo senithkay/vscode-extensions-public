@@ -14,8 +14,6 @@ import React from "react";
 
 import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { useDiagramContext } from "../../../../Contexts/Diagram";
-import { getModuleIcon } from "../../../../Diagram/components/Portals/utils";
 import { ComponentViewInfo } from "../../../util";
 
 import './style.scss';
@@ -30,15 +28,7 @@ interface ComponentViewProps {
 export function ComponentView(props: ComponentViewProps) {
     const { info, updateSelection } = props;
 
-    const {
-        api: { openArchitectureView },
-    } = useDiagramContext();
-
     const handleComponentClick = () => {
-        if (props.type === "records") {
-            openArchitectureView();
-            return;
-        }
         updateSelection(info);
     };
 

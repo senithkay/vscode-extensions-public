@@ -516,7 +516,7 @@ class DiagramPanel {
 			{
 				methodName: "openArchitectureView",
 				handler: async (args: any[]): Promise<boolean> => {
-					commands.executeCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW);
+					commands.executeCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, args[0]);
 					return Promise.resolve(true);
 				}
 			},

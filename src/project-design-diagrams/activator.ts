@@ -44,11 +44,11 @@ export interface STResponse {
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance = ballerinaExtInstance;
     langClient = <ExtendedLangClient>extInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, () => {
+    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, (selectedNodeId = "") => {
         ballerinaExtInstance.onReady()
             .then(() => {
                 if (isCompatible(2201.2, 2)) {
-                    viewProjectDesignDiagrams();
+                    viewProjectDesignDiagrams(selectedNodeId);
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
                     return;
@@ -63,11 +63,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance.context.subscriptions.push(designDiagramRenderer);
 }
 
-function viewProjectDesignDiagrams() {
+function viewProjectDesignDiagrams(selectedNodeId: string) {
     setupWebviewPanel();
 
     if (designDiagramWebview) {
-        const html = render(designDiagramWebview.webview);
+        const html = render(designDiagramWebview.webview, selectedNodeId);
         if (html) {
             designDiagramWebview.webview.html = html;
         }

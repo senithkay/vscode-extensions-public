@@ -20,7 +20,7 @@
 import { Webview } from "vscode";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } from "../utils/webview-utils";
 
-export function render(webView: Webview) {
+export function render(webView: Webview, selectedNodeId="") {
     const body = `
         <div class="container" id="webview-container" />
     `;
@@ -60,6 +60,7 @@ export function render(webView: Webview) {
 
             function renderDiagrams() {
                 designDiagram.renderDesignDiagrams(
+                    "${selectedNodeId}",
                     go2source, 
                     openDesignDiagram,
                     document.getElementById("webview-container")

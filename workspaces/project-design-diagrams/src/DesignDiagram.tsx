@@ -49,13 +49,14 @@ const Container = styled.div`
 
 interface DiagramProps {
     editingEnabled?: boolean;
+    selectedNodeId?: string;
     go2source: (location: Location) => void;
     goToDesignDiagram: (position: NodePosition, filePath: string) => void;
 }
 
 export function DesignDiagram(props: DiagramProps) {
     const rpcInstance = ProjectDesignRPC.getInstance();
-    const { go2source, editingEnabled = true, goToDesignDiagram } = props;
+    const { go2source, editingEnabled = true, selectedNodeId, goToDesignDiagram } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
@@ -77,6 +78,13 @@ export function DesignDiagram(props: DiagramProps) {
 
         refreshDiagramResources();
     }, [props])
+
+    useEffect(() => {
+        // Navigate to the type composition view if a type is already selected
+        if (selectedNodeId && selectedNodeId.trim() !== "" && projectComponents && projectComponents.size > 0) {
+            getTypeComposition(selectedNodeId);
+        }
+    }, [projectComponents]);    
 
     const changeDiagramLayout = () => {
         switchLayout(layout === DagreLayout.GRAPH ? DagreLayout.TREE : DagreLayout.GRAPH);

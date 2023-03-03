@@ -210,11 +210,11 @@ function renderDiagram(
                     );
                 })
             }
-            function openArchitectureView(command, args) {
+            function openArchitectureView(nodeId, args) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
                         'openArchitectureView',
-                        [args],
+                        [nodeId, args],
                         (response) => {
                             resolve(response);
                         }
