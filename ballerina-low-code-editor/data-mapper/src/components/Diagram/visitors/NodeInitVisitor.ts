@@ -244,7 +244,8 @@ export class NodeInitVisitor implements Visitor {
                     this.outputNode = new ListConstructorNode(
                         this.context,
                         exprFuncBody,
-                        typeDesc
+                        typeDesc,
+                        returnType
                     );
                 } else {
                     this.outputNode = new PrimitiveTypeNode(
