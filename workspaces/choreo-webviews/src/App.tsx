@@ -23,7 +23,6 @@ export const Main = styled.main`
   display: flex;
   flex-direction: row;
   justify-content: center;
-  padding: 20px;
   height: 100vh;
 `;
 

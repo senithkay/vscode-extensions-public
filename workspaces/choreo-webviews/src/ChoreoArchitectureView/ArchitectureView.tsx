@@ -13,13 +13,12 @@
 
 import styled from "@emotion/styled";
 import { ComponentModel } from "@wso2-enterprise/choreo-core";
-import { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { DesignDiagram } from "@wso2-enterprise/project-design-diagrams";
 
 const WizardContainer = styled.div`
-    width: 100%;
-    display  : flex;
-    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
 `;
 
 export interface CellViewProps {
@@ -27,36 +26,37 @@ export interface CellViewProps {
     orgName?: string;
 }
 
+interface ComponentModelResponse {
+    [key: string]: ComponentModel;
+}
+
 export function CellView(props: CellViewProps) {
     const { orgName, projectId } = props;
-    const [CM, setCM] = useState<Map<string, ComponentModel> | undefined>(undefined);
 
-    const getComponentModel = async (): Promise<Map<string, ComponentModel>> => {
+    const getComponentModel = async (): Promise<any> => {
         if (projectId && orgName) {
-            let componentModels: Map<string, ComponentModel> = new Map<string, ComponentModel>();
+            let componentModels: ComponentModelResponse = {};
             const response: ComponentModel[] = await ChoreoWebViewAPI.getInstance().getDiagramComponentModel(projectId, orgName);
             for (const model of response) {
-                componentModels.set(`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`, model);
+                componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
             }
             return componentModels;
         }
         throw new Error("Error while loading project resources.");
     }
 
-    useEffect(() => {
-        getComponentModel().then((model: any) => {
-            setCM(model);
-        });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    const enrichChoreoMetadata = async (componentModel: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>> => {
+        return componentModel;
+    }
 
     return (
-        <>
-            <WizardContainer>
-                <h3>Cell View for orgName {orgName} projectID {projectId}</h3>
-
-                {CM && JSON.stringify(Array.from(CM.entries()), null, 4)}
-            </WizardContainer>
-        </>
+        <WizardContainer>
+            <DesignDiagram
+                isEditable={false}
+                isChoreoProject={true}
+                getComponentModel={getComponentModel}
+                enrichChoreoMetadata={enrichChoreoMetadata}
+            />
+        </WizardContainer>
     );
 }

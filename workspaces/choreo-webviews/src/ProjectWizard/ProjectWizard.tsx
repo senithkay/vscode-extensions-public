@@ -24,6 +24,7 @@ const WizardContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 20px;
+    padding: 20px;
 `;
 
 const ActionContainer = styled.div`
