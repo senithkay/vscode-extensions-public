@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "outDir": "./build",
+      "outDir": "./lib",
       "rootDir": "./src",
       "lib": [
         "dom",
@@ -10,7 +10,7 @@
       "allowJs": false,
       "allowSyntheticDefaultImports": true,
       "declaration": true,
-      "declarationDir": "./build",
+      "declarationDir": "./lib",
       "skipLibCheck": true,
       "esModuleInterop": true,
       "strict": true,

@@ -3,17 +3,17 @@
   "version": "1.0.0",
   "description": "Generates the design diagrams for Ballerina projects.",
   "files": [
-    "build"
+    "lib"
   ],
-  "main": "build/DesignDiagram.js",
-  "types": "build/DesignDiagram.d.ts",
+  "main": "lib/DesignDiagram.js",
+  "types": "lib/DesignDiagram.d.ts",
   "scripts": {
     "start": "webpack-dev-server --progress --mode=development",
     "build": "tsc --pretty && npm run copy:assets && webpack",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" build/",
-    "postbuild": "copyfiles -f build/ArchitectureView.js ../../resources/jslibs"
+    "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/",
+    "postbuild": "copyfiles -f build/*.js ../../resources/jslibs"
   },
   "keywords": [],
   "license": "ISC",
