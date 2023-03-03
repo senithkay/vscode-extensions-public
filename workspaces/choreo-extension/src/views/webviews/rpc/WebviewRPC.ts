@@ -26,7 +26,8 @@ import {
     HasUnpushedComponents, Component, UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
-    OpenCellView
+    getDiagramComponentModel,
+    ComponentModel
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -126,23 +127,24 @@ export class WebViewRpc {
             commands.executeCommand("ballerina.view.architectureView");
         });
 
-        this._messenger.onRequest(OpenCellView, async (params) => {
-            ProjectRegistry.getInstance().getDiagramModel(params.projId, params.orgHandler)
-                .then(async (comp) => {
-                    comp.forEach((value, key) => {
+        this._messenger.onRequest(getDiagramComponentModel, async (params): Promise<ComponentModel[]> => {
+            let componentModels: ComponentModel[] = [];
+            await ProjectRegistry.getInstance().getDiagramModel(params.projId, params.orgHandler)
+                .then(async (component) => {
+                    component.forEach((value, key) => {
                         // Draw the cell diagram for the last version of the component
                         const finalVersion = value.apiVersions[value.apiVersions.length - 1];
                         if (finalVersion.cellDiagram) {
                             const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
-                            const model = JSON.parse(decodedString.toString());
+                            const model: ComponentModel = JSON.parse(decodedString.toString());
                             enrichConsoleDeploymentData(model.services, finalVersion);
-                            console.log("Comp model ", key, "Value", model);
+                            componentModels.push(model);
                         }
                     });
                 })
                 .catch(serializeError);
-            }
-        );
+            return componentModels;
+        });
 
         this._messenger.onRequest(UpdateProjectOverview, (projectId: string) => {
             ext.api.projectUpdated();

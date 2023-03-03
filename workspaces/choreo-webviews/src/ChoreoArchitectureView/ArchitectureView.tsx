@@ -12,6 +12,9 @@
  */
 
 import styled from "@emotion/styled";
+import { ComponentModel } from "@wso2-enterprise/choreo-core";
+import { useEffect, useState } from "react";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -26,11 +29,33 @@ export interface CellViewProps {
 
 export function CellView(props: CellViewProps) {
     const { orgName, projectId } = props;
+    const [CM, setCM] = useState<Map<string, ComponentModel> | undefined>(undefined);
+
+    const getComponentModel = async (): Promise<Map<string, ComponentModel>> => {
+        if (projectId && orgName) {
+            let componentModels: Map<string, ComponentModel> = new Map<string, ComponentModel>();
+            const response: ComponentModel[] = await ChoreoWebViewAPI.getInstance().getDiagramComponentModel(projectId, orgName);
+            for (const model of response) {
+                componentModels.set(`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`, model);
+            }
+            return componentModels;
+        }
+        throw new Error("Error while loading project resources.");
+    }
+
+    useEffect(() => {
+        getComponentModel().then((model: any) => {
+            setCM(model);
+        });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <>
             <WizardContainer>
-                <h3>Cell View for orgName ${orgName} projectID ${projectId}</h3>
+                <h3>Cell View for orgName {orgName} projectID {projectId}</h3>
+
+                {CM && JSON.stringify(Array.from(CM.entries()), null, 4)}
             </WizardContainer>
         </>
     );

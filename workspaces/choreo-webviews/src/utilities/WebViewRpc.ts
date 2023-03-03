@@ -43,7 +43,8 @@ import {
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
-    OpenCellView
+    ComponentModel,
+    getDiagramComponentModel
 } from "@wso2-enterprise/choreo-core";
 
 import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
@@ -132,8 +133,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
     }
 
-    public async openCellView(projId: string, orgHandler: string): Promise<void> {
-        return this._messenger.sendRequest(OpenCellView, HOST_EXTENSION, { projId, orgHandler } );
+    public async getDiagramComponentModel(projId: string, orgHandler: string): Promise<ComponentModel[]> {
+        return this._messenger.sendRequest(getDiagramComponentModel, HOST_EXTENSION, { projId, orgHandler } );
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
