@@ -1,0 +1,4 @@
+name: 'Get cache env keys'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

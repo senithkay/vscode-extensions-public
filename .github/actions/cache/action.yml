@@ -1,10 +1,6 @@
 name: 'Cache'
 description: 'Cache Rush and pnmp'
 
-permissions:
-  id-token: write
-  contents: read
-
 runs:
   using: "composite"
   steps:
@@ -33,11 +29,8 @@ runs:
           ~/.cache/Cypress
         key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-    - name: Set ENVs
-      shell: bash
-      run: |
-        echo "ACTIONS_CACHE_URL=$(echo "$ACTIONS_ID_TOKEN_REQUEST_URL" | grep -Po 'https://[^/]+/[^/]+/' | sed  's/pipelines/artifactcache/')" >> $GITHUB_ENV
-        echo "ACTIONS_RUNTIME_TOKEN=$ACTIONS_ID_TOKEN_REQUEST_TOKEN" >> $GITHUB_ENV
+    - name: Restore cache
+      uses: ./.github/actions/env
 
     - name: Install node modules
       shell: bash
