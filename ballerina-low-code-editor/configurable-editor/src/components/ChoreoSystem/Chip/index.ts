@@ -10,5 +10,4 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
-export * from "./TextInput";
+export * from "./Chip";

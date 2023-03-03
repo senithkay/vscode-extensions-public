@@ -11,20 +11,23 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from 'react'
+import React from "react";
+
 import {
   Box,
+  CircularProgress,
+  FormHelperText,
   InputBase,
   InputProps,
-  FormHelperText,
-  Typography,
-  CircularProgress,
-  TooltipProps,
   Tooltip,
-} from '@material-ui/core';
-import clsx from 'clsx';
-import useTextFiledStyles from './TextInput.styles';
-import { InfoIcon, QuestionMark } from '../../../assets/icons';
+  TooltipProps,
+  Typography,
+} from "@material-ui/core";
+import clsx from "clsx";
+
+import { InfoIcon, QuestionMark } from "../../../assets/icons";
+
+import useTextFiledStyles from "./TextInput.styles";
 
 interface ITextInputProps extends InputProps {
   width?: string | number;
@@ -34,7 +37,7 @@ interface ITextInputProps extends InputProps {
   loading?: boolean;
   tooltip?: React.ReactNode;
   info?: React.ReactNode;
-  tooltipPlacement?: TooltipProps['placement']; 
+  tooltipPlacement?: TooltipProps["placement"];
 }
 
 const TextInput = (props: ITextInputProps) => {
@@ -50,7 +53,7 @@ const TextInput = (props: ITextInputProps) => {
     optional,
     loading,
     tooltip,
-    tooltipPlacement = 'right', 
+    tooltipPlacement = "right",
     info,
     ...rest
   } = props;
@@ -64,7 +67,7 @@ const TextInput = (props: ITextInputProps) => {
         <QuestionMark />
       </Box>
     </Tooltip>
-  ); 
+  );
   return (
     <Box width={width}>
       {(label || toolTip) && (
@@ -83,18 +86,18 @@ const TextInput = (props: ITextInputProps) => {
           </Box>
         </Box>
       )}
- 
+
         <Box className={classes.inputGroup}>
           <InputBase
             classes={{
+              error: classes.error,
+              focused: classes.focused,
+              inputMultiline: classes.textarea,
               root: clsx({
                 [classes.root]: true,
                 [classes.readOnly]: readOnly,
                 [classes.multiline]: multiline,
               }),
-              focused: classes.focused,
-              error: classes.error,
-              inputMultiline: classes.textarea,
             }}
             readOnly={readOnly}
             {...rest}
@@ -103,7 +106,7 @@ const TextInput = (props: ITextInputProps) => {
             multiline={multiline}
           />
         </Box>
-   
+
       {error && helperText && (
         <FormHelperText error={error}>
           <Box display="flex" alignItems="center">

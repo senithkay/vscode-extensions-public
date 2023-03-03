@@ -41,13 +41,14 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon, TickIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import ButtonContainer from "../../elements/ButtonContainer";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import PopOverComponent, {
     PopOverComponentProps,
 } from "../../elements/PopOverComponent";
@@ -60,7 +61,6 @@ import { useStyles } from "../../style";
 import SimpleType, { SimpleTypeProps } from "../SimpleType";
 
 import { ArrayTypeProps } from ".";
-import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 
 /**
  * The leaf level configurable type representing boolean values.
@@ -344,16 +344,15 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                                     {connectionFields.configKey.split(".").pop() +
                                                         ":"}
                                                 </Typography>
-                                                <OutlinedLabel
-                                                    type="default"
-                                                    label={
-                                                        connectionFields.valueType
-                                                    }
-                                                    tooltipText={
-                                                        connectionFields.valueType
-                                                    }
-                                                    shape="none"
-                                                />
+                                                <Box ml={1}>
+                                                    <Tooltip title={connectionFields.valueType}>
+                                                        <Chip
+                                                            color="success"
+                                                            variant="outlined"
+                                                            size="small"
+                                                            label={connectionFields.valueType} />
+                                                    </Tooltip>
+                                                </Box>
                                             </Box>
                                             {
                                                 connections.name.concat(connectionFields.configKey) === selectedIndex
@@ -425,22 +424,20 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" alignItems="center">
-                <Box flex="0 0 150px">
+            <Box display="flex" flexDirection="column">
+                <Box mb={0.5}>
                     <FieldLabel {...fieldLabelProps} />
                 </Box>
                 <Box
-                    flexGrow={1}
                     display="flex"
                     gridGap={4}
                     alignItems="center"
                 >
                     <Box flexGrow={1}>
-                        <TextInput 
+                        <TextInput
                             fullWidth={true}
-                            margin="none" 
-                            classes={{ root: classes.textInputRoot }}
-                            placeholder={"Select config or Add values"} 
+                            margin="none"
+                            placeholder={"Select config or Add values"}
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}

@@ -36,8 +36,8 @@ import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
@@ -208,16 +208,16 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                             >
                                                 {connectionFields.configKey.split(".").pop() + ":"}
                                             </Typography>
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
+                                             <Box ml={1}>
+                                                <Tooltip title={connectionFields.valueType}>
+                                                    <Chip
+                                                        color="success"
+                                                        variant="outlined"
+                                                        size="small"
+                                                        label={connectionFields.valueType} />
+                                                </Tooltip>
+                                            </Box>
+
                                         </Box>
                                         {
                                                 connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
@@ -234,7 +234,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
     });
 
     function iconButtonWithToolTip() {
-        if (connectionConfigs.length === 0) {
+        if (connectionConfigs === undefined || connectionConfigs.length === 0) {
           return (
             <Tooltip title="No global configurations defined. Please contact administrator">
                 <span>
@@ -245,7 +245,6 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                         data-placement="top"
                         onClick={handleClick}
                         color={selectedValueRef ? "primary" : "default"}
-                        disabled={connectionConfigs.length !== 0 ? false : true}
                     >
                         <SelectIcon />
                     </IconButton>

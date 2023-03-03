@@ -32,7 +32,7 @@ const ButtonContainer = ({
     justifyContent,
     marginTop,
     children,
-    size,
+    size= "small",
 }: ButtonContainerProps) => {
     const classes = useStyles();
     const btnGrid = React.Children.map(children, (element) => (
