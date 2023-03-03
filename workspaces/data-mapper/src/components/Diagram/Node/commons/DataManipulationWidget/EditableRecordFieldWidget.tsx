@@ -29,7 +29,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
-    getDefaultValueFromTypeName,
+    getDefaultValue,
     getFieldName,
     getNewFieldAdditionModification,
     getTypeName,
@@ -249,7 +249,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const handleAssignDefaultValue = async (typeNameStr: string) => {
         setIsLoading(true);
         try {
-            const defaultValue = getDefaultValueFromTypeName(typeNameStr);
+            const defaultValue = getDefaultValue(typeNameStr);
             await createSourceForUserInput(field, parentMappingConstruct as MappingConstructor, defaultValue, applyModifications);
         } finally {
             setIsLoading(false);

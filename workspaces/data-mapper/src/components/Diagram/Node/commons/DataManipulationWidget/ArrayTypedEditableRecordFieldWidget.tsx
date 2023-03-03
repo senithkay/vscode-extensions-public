@@ -37,7 +37,6 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../
 import {
     createSourceForUserInput,
     getDefaultValue,
-    getDefaultValueFromTypeName,
     getExprBodyFromLetExpression,
     getFieldName,
     getLinebreak,
@@ -317,7 +316,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         setIsAddingElement(true)
         try {
             const fieldsAvailable = !!listConstructor.expressions.length;
-            const defaultValue = getDefaultValueFromTypeName(typeNameStr);
+            const defaultValue = getDefaultValue(typeNameStr);
             let targetPosition: NodePosition;
             let newElementSource: string;
             if (fieldsAvailable) {

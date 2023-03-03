@@ -960,11 +960,7 @@ export function getTypeName(field: Type): string {
 	return field.typeName;
 }
 
-export function getDefaultValue(field: Type): string {
-	return getDefaultValueFromTypeName(field?.typeName);
-}
-
-export function getDefaultValueFromTypeName(typeName: string): string {
+export function getDefaultValue(typeName: string): string {
 	let draftParameter = "";
 	switch (typeName) {
 		case PrimitiveBalType.String:

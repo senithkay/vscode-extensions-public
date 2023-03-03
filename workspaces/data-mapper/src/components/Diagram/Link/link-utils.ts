@@ -28,7 +28,7 @@ export function generateQueryExpression(srcExpr: string, targetType: Type, isOpt
             ).join("")}
         }`
     } else {
-        selectExpr = getDefaultValue(targetType);
+        selectExpr = getDefaultValue(targetType?.typeName);
     }
 
     return `from var ${itemName} in ${srcExpr.trim()}${isOptionalSource ? ' ?: []' : ''} select ${selectExpr}`
