@@ -20,6 +20,7 @@
 import { DiagramModel, PointModel } from '@projectstorm/react-diagrams';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 export interface ComponentModel {
     packageId: PackageID;
@@ -204,5 +205,6 @@ export interface EditLayerAPI {
     pickDirectory: () => Promise<string | undefined>;
     executeCommand: (cmd: string) => Promise<boolean>;
     go2source: (location: Location) => void;
+    goToDesign: (filePath: string, position: NodePosition) => void;
     showErrorMessage: (message: string) => void;
 }

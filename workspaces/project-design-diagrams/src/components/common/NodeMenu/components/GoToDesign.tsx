@@ -17,28 +17,27 @@
  *
  */
 
-import React, { useState } from 'react';
-import Tooltip from '@mui/material/Tooltip';
+import React from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import { RemoteFunction, ResourceFunction, Service } from '../../../../resources';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { ListItemIcon, ListItemText, MenuItem } from '@mui/material';
 import { useStyles } from "./styles";
+import { useDiagramContext } from '../../DiagramContext/DiagramContext';
 
 export function GoToDesign(props: { element: Service | ResourceFunction | RemoteFunction }) {
     const classes = useStyles();
     const { element } = props;
-    // const { goToDesignDiagram } = useDiagramContext();
+    const { editLayerAPI } = useDiagramContext();
 
     const handleIconClick = () => {
-        // commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM);
         const position: NodePosition = {
             startLine: element.elementLocation.startPosition.line,
             startColumn: element.elementLocation.startPosition.offset,
             endLine: element.elementLocation.endPosition.line,
             endColumn: element.elementLocation.endPosition.offset,
         }
-        // goToDesignDiagram(position, element.elementLocation.filePath);
+        editLayerAPI.goToDesign(element.elementLocation.filePath, position);
     }
 
     return (
