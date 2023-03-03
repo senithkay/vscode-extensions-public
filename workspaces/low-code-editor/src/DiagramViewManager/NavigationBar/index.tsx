@@ -122,7 +122,7 @@ export function NavigationBar(props: NavigationBarProps) {
                     <ArrowBack className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
                 <div className="btn-container" aria-disabled={buttonsDisabled} onClick={historyReset}>
-                        <Home className={buttonsDisabled ? 'is-disabled' : ''} />
+                    <Home className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
             </>
         );
