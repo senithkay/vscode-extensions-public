@@ -15,7 +15,7 @@ export function canConvertLinkToQueryExpr(link: DataMapperLinkModel): boolean {
     return false;
 }
 
-export function generateQueryExpression(srcExpr: string, targetType: Type) {
+export function generateQueryExpression(srcExpr: string, targetType: Type, isOptionalSource?: boolean) {
 
     const itemName = `${srcExpr.split('.').pop().trim()}Item`;
     let selectExpr = '';
@@ -31,5 +31,5 @@ export function generateQueryExpression(srcExpr: string, targetType: Type) {
         selectExpr = getDefaultValue(targetType);
     }
 
-    return `from var ${itemName} in ${srcExpr} select ${selectExpr}`
+    return `from var ${itemName} in ${srcExpr.trim()}${isOptionalSource ? ' ?: []' : ''} select ${selectExpr}`
 }

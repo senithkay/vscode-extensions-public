@@ -34,7 +34,7 @@ describe("Map to a record which is having anydata fields", () => {
     });
 
     it("Verify direct mappings between two string type fields", () => {
-        DataMapper.createMapping('input.str1', 'Output.str');
+        DataMapper.createMappingUsingFields('input.str1', 'Output.str');
         cy.wait(4000);
         DataMapper.linkExists('input.str1', 'Output.str');
     });
@@ -55,7 +55,7 @@ describe("Map to a record which is having anydata fields", () => {
     });
 
     it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExpression('items2Item.confirmed', 'qualified');
+        DataMapper.createMappingFromQueryExprUsingFields('items2Item.confirmed', 'qualified');
         cy.wait(4000);
         DataMapper.linkExists('expandedQueryExpr.source.items2Item.confirmed', 'qualified');
     });
@@ -69,7 +69,7 @@ describe("Map to a record which is having anydata fields", () => {
     });
 
     it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExpression('items1Item', 'outputField2.newlyAddedField');
+        DataMapper.createMappingFromQueryExprUsingPorts('items1Item', 'outputField2.newlyAddedField');
         cy.wait(4000);
         DataMapper.linkExists('expandedQueryExpr.source.items1Item', 'outputField2.newlyAddedField');
     });
@@ -82,13 +82,13 @@ describe("Map to a record which is having anydata fields", () => {
     });
 
     it("Create link between source node and anydata typed inner field", () => {
-        DataMapper.createMapping('input.dec', 'Output.outputField2.newlyAddedField');
+        DataMapper.createMappingUsingFields('input.dec', 'Output.outputField2.newlyAddedField');
         cy.wait(4000);
         DataMapper.linkExists('input.dec', 'Output.outputField2.newlyAddedField');
     });
 
     it("Create mapping between the anydata array element and source node", () => {
-        DataMapper.createMapping('input.inputField', 'Output.anydataItems2.0.newlyAddedField');
+        DataMapper.createMappingUsingPorts('input.inputField', 'Output.anydataItems2.0.newlyAddedField');
         DataMapper.linkExists('input.inputField', 'Output.anydataItems2.0.newlyAddedField');
     });
 
