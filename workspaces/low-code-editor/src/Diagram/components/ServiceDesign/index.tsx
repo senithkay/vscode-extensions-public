@@ -63,7 +63,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
     const serviceST = model as ServiceDeclaration;
 
     const {
-        props: { syntaxTree },
+        props: { fullST },
     } = useContext(Context);
 
     useEffect(() => {
@@ -107,13 +107,12 @@ export function ServiceDesign(props: ServiceDesignProps) {
     }
 
     const renderRecordPanel = (closeRecordEditor: (createdRecord?: string) => void) => {
-        const servicePosition = (syntaxTree as ModulePart);
-        const lastMember: NodePosition = servicePosition.position;
+        const eofToken: NodePosition = (fullST as ModulePart).eofToken.position;
         const lastMemberPosition: NodePosition = {
-            endColumn: 0,
-            endLine: lastMember.endLine + 1,
-            startColumn: 0,
-            startLine: lastMember.endLine + 1
+            startLine: eofToken.endLine,
+            startColumn: eofToken.endColumn,
+            endLine: eofToken.endLine,
+            endColumn: eofToken.endColumn,
         }
         return (
             <RecordEditor

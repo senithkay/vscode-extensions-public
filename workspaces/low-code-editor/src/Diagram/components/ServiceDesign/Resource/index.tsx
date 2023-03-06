@@ -39,7 +39,7 @@ export interface ResourceBodyProps {
 export function ResourceBody(props: ResourceBodyProps) {
     const { model, handleDiagramEdit, isExpandedAll } = props;
     const {
-        props: { currentFile, syntaxTree },
+        props: { currentFile, fullST },
         api: {
             code: { modifyDiagram },
             ls: { getDiagramEditorLangClient },
@@ -162,12 +162,12 @@ export function ResourceBody(props: ResourceBodyProps) {
     };
 
     const renderRecordPanel = (closeRecordEditor: (createdRecord?: string) => void) => {
-        const record: NodePosition = (syntaxTree as ModulePart).position;
+        const eofToken: NodePosition = (fullST as ModulePart).eofToken.position;
         const lastMemberPosition: NodePosition = {
-            endColumn: 0,
-            endLine: record.endLine + 1,
-            startColumn: 0,
-            startLine: record.endLine + 1
+            startLine: eofToken.endLine,
+            startColumn: eofToken.endColumn,
+            endLine: eofToken.endLine,
+            endColumn: eofToken.endColumn,
         }
         return (
             <RecordEditor
