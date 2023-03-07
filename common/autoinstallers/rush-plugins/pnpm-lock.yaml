@@ -4,9 +4,9 @@ importers:
 
   .:
     specifiers:
-      '@gigara/rush-github-action-build-cache-plugin': ^1.0.0
+      '@gigara/rush-github-action-build-cache-plugin': ^1.0.3
     dependencies:
-      '@gigara/rush-github-action-build-cache-plugin': 1.0.0
+      '@gigara/rush-github-action-build-cache-plugin': 1.0.3
 
 packages:
 
@@ -99,7 +99,7 @@ packages:
       '@types/node-fetch': 2.6.2
       '@types/tunnel': 0.0.3
       form-data: 4.0.0
-      node-fetch: 2.6.7
+      node-fetch: 2.6.9
       process: 0.11.10
       tough-cookie: 4.1.2
       tslib: 2.5.0
@@ -444,8 +444,8 @@ packages:
       fast-json-stringify: 5.6.2
     dev: false
 
-  /@gigara/rush-github-action-build-cache-plugin/1.0.0:
-    resolution: {integrity: sha512-tU6h+GugVWyHcfxN/V4UwSHjnIK4OLs3r0O4wkFucEUcxFuhcQ7NBW7M3Xno48PH2ruUY4xFpiFwge34h9dcxg==}
+  /@gigara/rush-github-action-build-cache-plugin/1.0.3:
+    resolution: {integrity: sha512-INyk4fAD+Z5Mnc91+xcO+T89drrNJSNT6YmkCTgQyzwlE6UrkMaL4dyaMVtLtwj2KMVgpBYhxE9WaqNCpm97HA==}
     dependencies:
       '@actions/cache': 3.1.4
       '@actions/core': 1.10.0
@@ -1245,7 +1245,7 @@ packages:
   /@vue/compiler-sfc/3.2.47:
     resolution: {integrity: sha512-rog05W+2IFfxjMcFw10tM9+f7i/+FFpZJJ5XHX72NP9eC2uRD+42M3pYcQqDXVYoj74kHMSEdQ/WmCjt8JFksQ==}
     dependencies:
-      '@babel/parser': 7.16.4
+      '@babel/parser': 7.21.2
       '@vue/compiler-core': 3.2.47
       '@vue/compiler-dom': 3.2.47
       '@vue/compiler-ssr': 3.2.47
@@ -2030,7 +2030,7 @@ packages:
       cosmiconfig: 7.1.0
       debug: 4.3.4
       deps-regex: 0.1.4
-      ignore: 5.1.9
+      ignore: 5.2.4
       is-core-module: 2.11.0
       js-yaml: 3.14.1
       json5: 2.2.3
