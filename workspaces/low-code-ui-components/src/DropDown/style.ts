@@ -134,7 +134,6 @@ export const useStyles = makeStyles(() =>
         renderValueWrapper: {
             display: "flex",
             top: "calc(50% - 20px)",
-            left: "calc(50% - 75px)",
             position: "absolute"
         },
         paramDropDown: {
