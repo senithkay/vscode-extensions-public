@@ -66,7 +66,7 @@ export { default as ExpandButton } from "./ExpandButton";
 export { default as TopLevelPlusIcon } from "./TopLevelPlusIcon";
 export { default as WarningIcon } from "./Warning";
 export { ServiceIconLight } from "./ServiceIcon";
-export { ServiceUnsupportedImg } from "./ServiceInvalidImg";
+export { ServiceInvalidImg } from "./ServiceInvalidImg";
 export { default as ModuleVariableIcon } from './ModuleVariableIcon';
 export { default as EnumIcon } from './EnumIcon';
 export { default as ErrorCopyIcon } from './ErrorCopyIcon';

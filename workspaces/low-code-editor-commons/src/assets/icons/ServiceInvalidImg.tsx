@@ -12,7 +12,7 @@
  */
 import React from 'react';
 
-export function ServiceUnsupportedImg() {
+export function ServiceInvalidImg() {
     return (
         <svg width="132" height="108" viewBox="0 0 132 108" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M77.0375 50.5372C76.3786 52.9335 77.7871 55.4103 80.1835 56.0692L102.733 62.2693C103.907 62.5922 105.162 62.4253 106.211 61.8068L116.873 55.5207C117.88 54.927 118.617 53.9646 118.927 52.8373L128.766 17.0532C129.425 14.6568 128.016 12.1801 125.62 11.5212L94.765 3.03734C92.3687 2.37844 89.8919 3.78693 89.233 6.18327L77.0375 50.5372Z" stroke="#F7F8FB" stroke-width="3" />
