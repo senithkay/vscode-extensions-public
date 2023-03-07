@@ -93,7 +93,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
     };
 
     useEffect(() => {
-        if (selectedValueRef !== "") {
+        if (selectedValueRef !== "" && selectedValueRef !== undefined) {
             setTextInputDisabledState(true);
             setSelectedIndex(selectedValue.substring(selectedValue.indexOf(".") + 1).replace("}", ""));
         }

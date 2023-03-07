@@ -93,7 +93,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
     const { id, isRequired, value, setFloatConfig, placeholder } = props;
 
     useEffect(() => {
-        if (selectedValueRef !== "") {
+        if (selectedValueRef !== "" && selectedValueRef !== undefined) {
             setTextInputDisabledState(true);
             if (typeof selectedValue === "string") {
                 setSelectedIndex(selectedValue.substring(selectedValue.indexOf(".") + 1).replace("}", ""));

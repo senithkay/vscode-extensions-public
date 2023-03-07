@@ -101,7 +101,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
     };
 
     useEffect(() => {
-        if (selectedValueRef !== "") {
+        if (selectedValueRef !== "" && selectedValueRef !== undefined) {
             setTextInputDisabledState(true);
             if (typeof selectedValue === "string") {
                 setSelectedIndex(selectedValue.substring(selectedValue.indexOf(".") + 1).replace("}", ""));
