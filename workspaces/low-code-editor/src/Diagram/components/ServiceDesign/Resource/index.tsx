@@ -39,7 +39,7 @@ export interface ResourceBodyProps {
 export function ResourceBody(props: ResourceBodyProps) {
     const { model, handleDiagramEdit, isExpandedAll } = props;
     const {
-        props: { currentFile, syntaxTree },
+        props: { currentFile, fullST },
         api: {
             code: { modifyDiagram },
             ls: { getDiagramEditorLangClient },
@@ -162,12 +162,12 @@ export function ResourceBody(props: ResourceBodyProps) {
     };
 
     const renderRecordPanel = (closeRecordEditor: (createdRecord?: string) => void) => {
-        const record: NodePosition = (syntaxTree as ModulePart).members[0].position;
+        const eofToken: NodePosition = (fullST as ModulePart).eofToken.position;
         const lastMemberPosition: NodePosition = {
-            endColumn: 0,
-            endLine: record.startLine - 1,
-            startColumn: 0,
-            startLine: record.startLine - 1
+            startLine: eofToken.endLine,
+            startColumn: eofToken.endColumn,
+            endLine: eofToken.endLine,
+            endColumn: eofToken.endColumn,
         }
         return (
             <RecordEditor
@@ -178,7 +178,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                 // tslint:disable-next-line: no-empty
                 onSave={() => { }}
                 isTypeDefinition={true}
-                isDataMapper={true}
+                isDataMapper={false}
                 showHeader={true}
             />
         );
