@@ -30,12 +30,8 @@ jobs:
       # - name: Set cache env
       #   uses: gigara/rush-cache@v2
 
-      - name: Setup
-        uses: gigara/rush-cache@v1
-        with:
-          pnpm: 7.26.3
-          node: 16.x
-          rush-install: true
+      - name: Rush install
+        run: node common/scripts/install-run-rush.js install   
 
       - name: Install Ballerina
         run: |
