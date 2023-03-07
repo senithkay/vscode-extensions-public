@@ -15,7 +15,6 @@ env:
   ballerina_version: 2201.2.3
   ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.2.3/ballerina-2201.2.3-swan-lake.zip
   ballerina_deb_url: https://dist.ballerina.io/downloads/2201.2.3/ballerina-2201.2.3-swan-lake-linux-x64.deb
-  vscVersion: 1.68.0
 
 jobs:
   Build_Stage:
@@ -35,11 +34,10 @@ jobs:
           set-env: true
           rush-install: true
 
-      - name: Install Ballerina
-        run: |
-          wget ${{ env.ballerina_deb_url }}
-          sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
-          rm ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
 
       - name: Update versions
         if: ${{ inputs.version != 'N/A' }}
@@ -187,10 +185,10 @@ jobs:
           node: 16.x
           rush-install: true
 
-      - name: Install Ballerina
-        run: |
-          wget ${{ env.ballerina_deb_url }}
-          sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
 
       - name: UI Test
         run: |
@@ -238,10 +236,10 @@ jobs:
       - name: Install Cypress Dependencies
         run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
 
-      - name: Install Ballerina
-        run: |
-          wget ${{ env.ballerina_deb_url }}
-          sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
 
       - name: Install Chrome Stable Version
         run: |
