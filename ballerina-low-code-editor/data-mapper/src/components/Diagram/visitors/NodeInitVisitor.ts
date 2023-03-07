@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
     ExpressionFunctionBody,
@@ -18,7 +18,6 @@ import {
     IdentifierToken,
     JoinClause,
     LetClause,
-    LetExpression,
     LetVarDecl,
     ListConstructor,
     MappingConstructor,
@@ -29,6 +28,7 @@ import {
     SpecificField,
     STKindChecker,
     STNode,
+    traversNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
@@ -53,14 +53,18 @@ import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
+    constructTypeFromSTNode,
     getExprBodyFromLetExpression,
     getFilteredUnionOutputTypes,
     getInputNodes,
     getModuleVariables,
+    getPrevOutputType,
     getTypeFromStore,
     getTypeOfOutput,
     isComplexExpression
 } from "../utils/dm-utils";
+
+import { QueryParentFindingVisitor } from "./QueryParentFindingVisitor"
 
 export class NodeInitVisitor implements Visitor {
 
@@ -82,31 +86,41 @@ export class NodeInitVisitor implements Visitor {
         let moduleVariables: Map<string, ModuleVariable> = getModuleVariables(exprFuncBody, this.context.stSymbolInfo);
         let isFnBodyQueryExpr = false;
         if (typeDesc && exprFuncBody) {
-            const returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
+            let returnType = getTypeOfOutput(typeDesc, this.context.ballerinaVersion);
+
+            const isAnydataTypedField = returnType
+                && (returnType.typeName === AnydataType
+                    || (returnType.typeName === PrimitiveBalType.Array
+                        && returnType?.memberType?.typeName === AnydataType));
+            if (isAnydataTypedField) {
+                returnType = constructTypeFromSTNode(exprFuncBody.expression);
+            }
 
             if (returnType) {
-                if (returnType.typeName === PrimitiveBalType.Record) {
-                    this.outputNode = new MappingConstructorNode(
-                        this.context,
-                        exprFuncBody,
-                        typeDesc
-                    );
-                } else if (returnType.typeName === PrimitiveBalType.Array) {
-                    const bodyExpr = STKindChecker.isLetExpression(exprFuncBody.expression)
-                        ? getExprBodyFromLetExpression(exprFuncBody.expression)
-                        : exprFuncBody.expression;
-                    if (STKindChecker.isQueryExpression(bodyExpr)
-                        && this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY)
-                    {
+
+                let bodyExpr: STNode = exprFuncBody.expression;
+                if (STKindChecker.isLetExpression(exprFuncBody.expression)) {
+                    bodyExpr = getExprBodyFromLetExpression(exprFuncBody.expression);
+                } else if (
+                    STKindChecker.isIndexedExpression(exprFuncBody.expression) &&
+                    STKindChecker.isBracedExpression(exprFuncBody.expression.containerExpression) &&
+                    STKindChecker.isQueryExpression(exprFuncBody.expression.containerExpression.expression)
+                ) {
+                    bodyExpr = exprFuncBody.expression.containerExpression.expression;
+                }
+
+                if (STKindChecker.isQueryExpression(bodyExpr)) {
+                    if (this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY) {
                         isFnBodyQueryExpr = true;
                         const selectClause = bodyExpr.selectClause;
                         const intermediateClausesHeight = bodyExpr.queryPipeline.intermediateClauses.length * 80;
                         const yPosition = 50 + intermediateClausesHeight;
-                        if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Record) {
+                        if (returnType?.typeName === PrimitiveBalType.Record || returnType?.memberType?.typeName === PrimitiveBalType.Record) {
                             this.outputNode = new MappingConstructorNode(
                                 this.context,
                                 selectClause,
                                 typeDesc,
+                                returnType,
                                 bodyExpr
                             );
                         } else if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Array) {
@@ -114,6 +128,7 @@ export class NodeInitVisitor implements Visitor {
                                 this.context,
                                 selectClause,
                                 typeDesc,
+                                returnType,
                                 bodyExpr
                             );
                         } else {
@@ -121,6 +136,7 @@ export class NodeInitVisitor implements Visitor {
                                 this.context,
                                 selectClause,
                                 typeDesc,
+                                returnType,
                                 bodyExpr
                             );
                         }
@@ -172,13 +188,30 @@ export class NodeInitVisitor implements Visitor {
                         queryNode.targetPorts = expandedHeaderPorts;
                         moduleVariables = getModuleVariables(bodyExpr.selectClause.expression, this.context.stSymbolInfo);
                     } else {
-                        this.outputNode = new ListConstructorNode(
-                            this.context,
-                            exprFuncBody,
-                            typeDesc
-                        );
+                        if (returnType.typeName === PrimitiveBalType.Array) {
+                            this.outputNode = new ListConstructorNode(
+                                this.context,
+                                exprFuncBody,
+                                typeDesc,
+                                returnType
+                            );
+                        } else {
+                            this.outputNode = new PrimitiveTypeNode(
+                                this.context,
+                                (exprFuncBody.expression as any).containerExpression as any,
+                                typeDesc,
+                                returnType
+                            );
+                        }
                     }
-                }  else if (returnType.typeName === PrimitiveBalType.Union) {
+                } else if (returnType.typeName === PrimitiveBalType.Record) {
+                    this.outputNode = new MappingConstructorNode(
+                        this.context,
+                        exprFuncBody,
+                        typeDesc,
+                        returnType
+                    );
+                } else if (returnType.typeName === PrimitiveBalType.Union) {
                     const acceptedTypes = getFilteredUnionOutputTypes(returnType);
                     // If union type, remove error/nil types and proceed if only one type is remaining
                     if (acceptedTypes.length === 1){
@@ -187,28 +220,39 @@ export class NodeInitVisitor implements Visitor {
                             this.outputNode = new MappingConstructorNode(
                                 this.context,
                                 exprFuncBody,
-                                typeDesc
+                                typeDesc,
+                                returnType
                             );
                         } else if (unionReturnType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
                                 this.context,
                                 exprFuncBody,
-                                typeDesc
+                                typeDesc,
+                                returnType
                             );
                         } else {
                             this.outputNode = new PrimitiveTypeNode(
                                 this.context,
                                 exprFuncBody,
                                 typeDesc,
+                                returnType
                             );
                         }
                     }
 
+                } else if (returnType.typeName === PrimitiveBalType.Array) {
+                    this.outputNode = new ListConstructorNode(
+                        this.context,
+                        exprFuncBody,
+                        typeDesc,
+                        returnType
+                    );
                 } else {
                     this.outputNode = new PrimitiveTypeNode(
                         this.context,
                         exprFuncBody,
-                        typeDesc
+                        typeDesc,
+                        returnType
                     );
                 }
                 this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
@@ -234,16 +278,15 @@ export class NodeInitVisitor implements Visitor {
                 }
             }
         }
-        const hasExpanded = this.selection.prevST.length > 0;
-        if (!hasExpanded) {
-            // create node for configuring local variables
-            const letExprNode = new LetExpressionNode(
-                this.context,
-                exprFuncBody
-            );
-            letExprNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-            this.inputNodes.push(letExprNode);
-        }
+
+        // create node for configuring local variables
+        const letExprNode = new LetExpressionNode(
+            this.context,
+            exprFuncBody
+        );
+        letExprNode.setPosition(OFFSETS.SOURCE_NODE.X + (isFnBodyQueryExpr ? 80 : 0), 0);
+        this.inputNodes.push(letExprNode);
+
         // create node for module variables
         if (moduleVariables.size > 0) {
             const moduleVarNode = new ModuleVariableNode(
@@ -259,39 +302,75 @@ export class NodeInitVisitor implements Visitor {
         // TODO: Implement a way to identify the selected query expr without using the positions since positions might change with imports, etc.
         const selectedSTNode = this.selection.selectedST.stNode;
         const isLetVarDecl = STKindChecker.isLetVarDecl(parent);
-        const isSelectedExpr = parent
-            && (STKindChecker.isSpecificField(selectedSTNode) || STKindChecker.isLetVarDecl(selectedSTNode))
-            && isPositionsEquals(parent.position, selectedSTNode.position);
-        if (isSelectedExpr) {
-            let parentIdentifier: IdentifierToken;
-            if (STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
-                parentIdentifier = parent.fieldName;
-            } else if (STKindChecker.isLetVarDecl(parent)
-                && STKindChecker.isCaptureBindingPattern(parent.typedBindingPattern.bindingPattern)) {
-                parentIdentifier = parent.typedBindingPattern.bindingPattern.variableName;
+        let parentIdentifier: IdentifierToken;
+        let parentNode = parent;
+
+        if (STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
+            parentIdentifier = parent.fieldName;
+        } else if (STKindChecker.isLetVarDecl(parent)
+            && STKindChecker.isCaptureBindingPattern(parent.typedBindingPattern.bindingPattern)) {
+            parentIdentifier = parent.typedBindingPattern.bindingPattern.variableName;
+        } else {
+            // Find specific field node if query is nested within braced or indexed expressions
+            const specificFieldFindingVisitor = new QueryParentFindingVisitor(node.position)
+            traversNode(this.context.selection.selectedST.stNode, specificFieldFindingVisitor);
+            const specificField = specificFieldFindingVisitor.getSpecificField();
+            if (specificField && STKindChecker.isSpecificField(specificField) && STKindChecker.isIdentifierToken(specificField.fieldName)) {
+                parentIdentifier = specificField.fieldName as IdentifierToken
+                parentNode = specificField;
             }
+        }
+
+        const isSelectedExpr = parentNode
+            && (STKindChecker.isSpecificField(selectedSTNode) || STKindChecker.isLetVarDecl(selectedSTNode))
+            && isPositionsEquals(parentNode.position, selectedSTNode.position);
+
+        if (isSelectedExpr) {
             if (parentIdentifier) {
                 const intermediateClausesHeight = node.queryPipeline.intermediateClauses.length * 80;
                 const yPosition = 50 + intermediateClausesHeight;
                 // create output node
                 let exprType = getTypeOfOutput(parentIdentifier, this.context.ballerinaVersion);
                 // Fetch types from let var decl expression to ensure the backward compatibility
-                if (!exprType && STKindChecker.isLetVarDecl(parent)) {
-                    exprType = getTypeFromStore(parent.expression.position as NodePosition);
+                if (!exprType && STKindChecker.isLetVarDecl(parentNode)) {
+                    exprType = getTypeFromStore(parentNode.expression.position as NodePosition);
                 }
 
-                if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Record) {
+                const isAnydataTypedField = exprType
+                    && (exprType.typeName === AnydataType
+                        || (exprType.typeName === PrimitiveBalType.Array
+                            && exprType?.memberType?.typeName === AnydataType));
+                if (!exprType || isAnydataTypedField) {
+                    const prevOutputType = getPrevOutputType(this.selection.prevST, this.context.ballerinaVersion);
+                    const isPrevOutputAnydata = prevOutputType
+                        && (prevOutputType.typeName === AnydataType
+                            || (prevOutputType.typeName === PrimitiveBalType.Array
+                                && prevOutputType.memberType.typeName === AnydataType));
+                    if (isPrevOutputAnydata || isAnydataTypedField) {
+                        exprType = constructTypeFromSTNode(node);
+                    }
+                }
+                if (exprType?.typeName === PrimitiveBalType.Array && exprType?.memberType?.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         node.selectClause,
                         parentIdentifier,
+                        exprType,
                         node
                     );
-                } else if (exprType?.memberType && exprType.memberType.typeName === PrimitiveBalType.Array) {
+                } else if (exprType?.typeName === PrimitiveBalType.Record) {
+                    this.outputNode = new MappingConstructorNode(
+                        this.context,
+                        node.selectClause,
+                        parentIdentifier,
+                        exprType
+                    );
+                } else if (exprType?.memberType && exprType?.memberType?.typeName === PrimitiveBalType.Array) {
                     this.outputNode = new ListConstructorNode(
                         this.context,
                         node.selectClause,
                         parentIdentifier,
+                        exprType,
                         node
                     );
                 } else {
@@ -299,8 +378,22 @@ export class NodeInitVisitor implements Visitor {
                         this.context,
                         node.selectClause,
                         parentIdentifier,
+                        exprType,
                         node
                     );
+
+                    if (isComplexExpression(node.selectClause.expression)){
+                        const inputNodes = getInputNodes(node.selectClause);
+                        const linkConnectorNode = new LinkConnectorNode(
+                            this.context,
+                            node,
+                            "",
+                            parent,
+                            inputNodes,
+                            this.mapIdentifiers.slice(0)
+                        );
+                        this.intermediateNodes.push(linkConnectorNode);
+                    }
                 }
 
                 this.outputNode.setPosition(OFFSETS.TARGET_NODE.X + 80, yPosition + OFFSETS.TARGET_NODE.Y);
@@ -378,8 +471,8 @@ export class NodeInitVisitor implements Visitor {
                     this.inputNodes.push(moduleVarNode);
                 }
             }
-        } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY && !isLetVarDecl) {
-            const queryNode = new QueryExpressionNode(this.context, node, parent);
+        } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY && !isLetVarDecl && parentNode) {
+            const queryNode = new QueryExpressionNode(this.context, node, parentNode);
             if (this.isWithinQuery === 0) {
                 this.intermediateNodes.push(queryNode);
             }
@@ -389,11 +482,15 @@ export class NodeInitVisitor implements Visitor {
                 && STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody)
                 && !isLetVarDecl)
             {
-                const queryExpr = STKindChecker.isLetExpression(selectedSTNode.functionBody.expression)
-                    ? getExprBodyFromLetExpression(selectedSTNode.functionBody.expression)
-                    : selectedSTNode.functionBody.expression;
+                let queryExpr: STNode = selectedSTNode.functionBody.expression;
+                if (STKindChecker.isLetExpression(selectedSTNode.functionBody.expression)) {
+                    getExprBodyFromLetExpression(selectedSTNode.functionBody.expression)
+                } else if (!STKindChecker.isQueryExpression(queryExpr)) {
+                    queryExpr = node;
+                }
+
                 if (!isPositionsEquals(queryExpr.position, node.position) && this.isWithinQuery === 0) {
-                    const queryNode = new QueryExpressionNode(this.context, node, parent);
+                    const queryNode = new QueryExpressionNode(this.context, node, parentNode);
                     this.intermediateNodes.push(queryNode);
                     this.isWithinQuery += 1;
                 }

@@ -15,10 +15,11 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import classnames from "classnames";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
-import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getDefaultValue, getExprBodyFromLetExpression, getFieldLabel, getFieldName } from "../../../utils/dm-utils";
 
 import { useStyles } from "./styles";
@@ -33,10 +34,21 @@ export interface PrimitiveTypedEditableElementWidgetProps {
     fieldIndex?: number;
     deleteField?: (node: STNode) => Promise<void>;
     isArrayElement?: boolean;
+    hasHoveredParent?: boolean;
 }
 
 export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditableElementWidgetProps) {
-    const { parentId, field, getPort, engine, context, fieldIndex, deleteField, isArrayElement } = props;
+    const {
+        parentId,
+        field,
+        getPort,
+        engine,
+        context,
+        fieldIndex,
+        deleteField,
+        isArrayElement,
+        hasHoveredParent
+    } = props;
     const classes = useStyles();
 
     const fieldName = getFieldName(field);
@@ -52,23 +64,30 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
         fieldId = `${parentId}.${typeName}`;
     }
     const portIn = getPort(`${fieldId}.IN`);
-    const body = field?.value && STKindChecker.isLetExpression(field.value)
-        ? getExprBodyFromLetExpression(field.value)
-        : field.value;
+    let body: STNode;
+
+    if (field?.value && STKindChecker.isLetExpression(field.value)) {
+        body = getExprBodyFromLetExpression(field.value)
+    } else if (field?.value && STKindChecker.isQueryExpression(field.value)) {
+        body = field.value.selectClause.expression;
+    } else {
+        body = field.value;
+    }
     const value = body && body.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);
+    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
     useEffect(() => {
         if (editable) {
             context.enableStatementEditor({
-                value: field?.value && field.value.source,
-                valuePosition: field?.value && field.value.position as NodePosition,
+                value: body?.source,
+                valuePosition: body?.position as NodePosition,
                 label: getFieldLabel(fieldId)
             });
             setEditable(false);
         }
-    }, [editable]);
+    }, [editable, body]);
 
     const label = (
         <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn.getName()}`}>
@@ -107,13 +126,23 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
         return items;
     }, [value]);
 
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
+
     return (
         <>
             {value && (
-                <div className={classes.treeLabel}>
+                <div
+                    id={"recordfield-" + fieldId}
+                    className={classnames(classes.treeLabel,
+                        (portState !== PortState.Unselected) ? classes.treeLabelPortSelected : "",
+                        hasHoveredParent ? classes.treeLabelParentHovered : ""
+                    )}
+                >
                     <span className={classes.treeLabelInPort}>
                         {portIn &&
-                            <DataMapperPortWidget engine={engine} port={portIn}/>
+                            <DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
                         }
                     </span>
                     <span>{label}</span>
