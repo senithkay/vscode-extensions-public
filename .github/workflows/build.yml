@@ -29,6 +29,13 @@ jobs:
 
       # - name: Set cache env
       #   uses: gigara/rush-cache@v2
+      - name: Setup pnpm
+        with:
+          version: 7.26.3
+
+      - name: Setup node
+        with:
+          node-version: 16.x
 
       - name: Rush install
         run: node common/scripts/install-run-rush.js install   
