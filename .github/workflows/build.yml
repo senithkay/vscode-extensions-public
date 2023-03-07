@@ -27,7 +27,7 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
-      - name: Restore cache
+      - name: Setup
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
@@ -115,7 +115,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Restore cache
+      - name: Setup
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
@@ -180,7 +180,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Restore cache
+      - name: Setup
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
@@ -228,7 +228,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Restore cache
+      - name: Setup
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
@@ -300,7 +300,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Restore cache
+      - name: Setup
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
