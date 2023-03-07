@@ -34,19 +34,21 @@ import {
     MenuItem,
     Popover,
     TextField,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon, TickIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import ButtonContainer from "../../elements/ButtonContainer";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import PopOverComponent, {
     PopOverComponentProps,
 } from "../../elements/PopOverComponent";
@@ -125,8 +127,11 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        if (connectionConfigs.length > 0) {
+        if (connectionConfigs.length !== 0) {
+            setIsOpenCollapse(0);
             setConnectionAnchorEl(connectionEvent.currentTarget);
+        } else {
+            setAnchorEl(null);
         }
     };
 
@@ -167,16 +172,20 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     }, [selectedValue2]);
 
     useEffect(() => {
-        let fullValue = "[ ";
-        for (const key in arrayValue) {
-            if (arrayValue.hasOwnProperty(key)) {
-                key === "0"
-                    ? (fullValue = fullValue + arrayValue[key])
-                    : (fullValue = fullValue + ", " + arrayValue[key]);
+        if (arrayValue.length !== 0) {
+            let fullValue = "[ ";
+            for (const key in arrayValue) {
+                if (arrayValue.hasOwnProperty(key)) {
+                    key === "0"
+                        ? (fullValue = fullValue + arrayValue[key])
+                        : (fullValue = fullValue + ", " + arrayValue[key]);
+                }
             }
+            fullValue = fullValue + " ]";
+            setSelectedValue2(fullValue);
+        } else {
+            setSelectedValue2("");
         }
-        fullValue = fullValue + " ]";
-        setSelectedValue2(fullValue);
     }, [selectedValue]);
 
     useEffect(() => {
@@ -190,16 +199,20 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     }, [arrayValues]);
 
     useEffect(() => {
-        let fullValue = "[ ";
-        for (const key in arrayValue) {
-            if (arrayValue.hasOwnProperty(key)) {
-                key === "0"
-                    ? (fullValue = fullValue + arrayValue[key])
-                    : (fullValue = fullValue + ", " + arrayValue[key]);
+        if (arrayValue.length !== 0) {
+            let fullValue = "[ ";
+            for (const key in arrayValue) {
+                if (arrayValue.hasOwnProperty(key)) {
+                    key === "0"
+                        ? (fullValue = fullValue + arrayValue[key])
+                        : (fullValue = fullValue + ", " + arrayValue[key]);
+                }
             }
+            fullValue = fullValue + " ]";
+            setSelectedValue(fullValue);
+        } else {
+            setSelectedValue("");
         }
-        fullValue = fullValue + " ]";
-        setSelectedValue(fullValue);
     }, [props.value]);
 
     arrayValues.forEach((arrayElement) => {
@@ -233,7 +246,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
             ),
         );
     });
-
+    // tslint:disable: jsx-no-lambda jsx-no-multiline-js
     const onSelected = (index: string, mappingName: string, valueReference: string,
                         valueType: string, connectionName: string) => () => {
             setSelectedIndex(connectionName.concat(index));
@@ -250,16 +263,27 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         type: props.arrayType + " [ ]",
     };
 
+    const [isOpenCollapse, setIsOpenCollapse] = useState(null);
+
+    const handleOpen = (clickedIndex: number) => {
+        if (isOpenCollapse === clickedIndex) {
+            setIsOpenCollapse(null);
+        } else {
+            setIsOpenCollapse(clickedIndex);
+        }
+    };
+
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem
                     button={true}
                     className={classes.accordion}
-                    onClick={handleClickOpenConnection}
+                    key={index}
+                    onClick={() => handleOpen(index)}
                     disableGutters={true}
                 >
-                    {openConnection ? (
+                    {isOpenCollapse === index ? (
                         <ExpandLess fontSize="small" />
                     ) : (
                         <ExpandMore fontSize="small" />
@@ -269,7 +293,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                     </Typography>
                 </ListItem>
                 <Collapse
-                    in={openConnection}
+                    in={isOpenCollapse === index}
                     timeout="auto"
                     unmountOnExit={true}
                 >
@@ -320,16 +344,16 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                                                     {connectionFields.configKey.split(".").pop() +
                                                         ":"}
                                                 </Typography>
-                                                <OutlinedLabel
-                                                    type="default"
-                                                    label={
-                                                        connectionFields.valueType
-                                                    }
-                                                    tooltipText={
-                                                        connectionFields.valueType
-                                                    }
-                                                    shape="none"
-                                                />
+                                                <Box ml={1}>
+                                                    <Tooltip title={connectionFields.valueType}>
+                                                        <Chip
+                                                            color="success"
+                                                            variant="outlined"
+                                                            size="small"
+                                                            label={connectionFields.valueType}
+                                                        />
+                                                    </Tooltip>
+                                                </Box>
                                             </Box>
                                             {
                                                 connections.name.concat(connectionFields.configKey) === selectedIndex
@@ -346,17 +370,44 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         );
     });
 
-    const iconButton = (
-        <Box>
+    function iconButtonWithToolTip() {
+        if (connectionConfigs.length === 0) {
+          return (
+            <Tooltip title="No global configurations defined. Please contact administrator">
+                <span>
+                    <IconButton
+                        size={"small"}
+                        className={classes.buttonConnections}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        onClick={handleConnectionClick}
+                        color={selectedValueRef ? "primary" : "default"}
+                        disabled={connectionConfigs.length !== 0 ? false : true}
+                    >
+                        <SelectIcon />
+                    </IconButton>
+                </span>
+            </Tooltip>
+          );
+        }
+        return (
             <IconButton
-                size="small"
+                size={"small"}
                 className={classes.buttonConnections}
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleConnectionClick}
+                color={selectedValueRef ? "primary" : "default"}
+                disabled={connectionConfigs.length !== 0 ? false : true}
             >
                 <SelectIcon />
             </IconButton>
+        );
+      }
+
+    const iconButton = (
+        <Box>
+            {iconButtonWithToolTip}
         </Box>
     );
 
@@ -374,25 +425,20 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" alignItems="center">
-                <Box flex="0 0 150px">
+            <Box display="flex" flexDirection="column">
+                <Box mb={0.5}>
                     <FieldLabel {...fieldLabelProps} />
                 </Box>
                 <Box
-                    flexGrow={1}
                     display="flex"
                     gridGap={4}
                     alignItems="center"
                 >
                     <Box flexGrow={1}>
-                        <TextField
-                            variant="outlined"
+                        <TextInput
                             fullWidth={true}
                             margin="none"
-                            size="small"
-                            classes={{ root: classes.textInputRoot }}
                             placeholder={"Select config or Add values"}
-                            InputLabelProps={{ shrink: false }}
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}
