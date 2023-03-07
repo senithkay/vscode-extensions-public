@@ -58,7 +58,8 @@ export function FieldLabel(props: FieldLabelProps) {
                             size="small"
                             variant="outlined"
                             color="success"
-                            label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType} />
+                            label={shortenedType === ConfigType.NUMBER ? ConfigType.FLOAT : shortenedType}
+                        />
                     </Tooltip>
                 </Box>
                 {getDescription(description, classes)}

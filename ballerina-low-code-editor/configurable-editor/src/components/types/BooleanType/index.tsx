@@ -112,7 +112,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
 
     const setBooleanValue = (propertyId: string, propertyValue: boolean, propertyValueRef: any) => {
         setBooleanConfig(propertyId, propertyValue !== undefined ? Boolean(propertyValue) : undefined,
-            propertyValueRef !== undefined ? Boolean(propertyValueRef) : "");
+            propertyValueRef !== undefined ? propertyValueRef : "");
     };
     // tslint:disable: jsx-no-lambda jsx-no-multiline-js
     const onSelected = (index: string, mappingName: string, valueReference: string,

@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-expression-editor",
-  "version": "3.3.12-beta.1",
+  "version": "3.3.12",
   "description": "Ballerina Expression Editor",
   "files": [
     "lib"

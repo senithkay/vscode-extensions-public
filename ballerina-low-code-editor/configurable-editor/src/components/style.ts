@@ -104,9 +104,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: theme.spacing(1.8),
         },
         itemText: {
+            color: theme.palette.common.black,
             fontSize: theme.typography.pxToRem(13),
             fontWeight: 500,
-            color: theme.palette.common.black
         },
         labelCont: {},
         labelTag: {
