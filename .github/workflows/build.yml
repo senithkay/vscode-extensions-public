@@ -27,8 +27,8 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
-      - name: Set cache env
-        uses: gigara/rush-cache@v2
+      # - name: Set cache env
+      #   uses: gigara/rush-cache@v2
 
       - name: Setup
         uses: gigara/rush-cache@v1
