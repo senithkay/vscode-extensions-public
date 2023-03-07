@@ -27,21 +27,13 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
-      - name: Set cache env
-        uses: gigara/rush-cache@v2
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: Restore cache
+        uses: gigara/rush-cache@v1
         with:
-          version: 7.26.3
-
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-
-      - name: Rush install
-        run: node common/scripts/install-run-rush.js install   
+          pnpm: 7.26.3
+          node: 16.x
+          set-env: true
+          rush-install: true
 
       - name: Install Ballerina
         run: |
@@ -123,7 +115,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Setup
+      - name: Restore cache
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
@@ -188,7 +180,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Setup
+      - name: Restore cache
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
@@ -236,7 +228,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Setup
+      - name: Restore cache
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
@@ -308,7 +300,7 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Setup
+      - name: Restore cache
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
