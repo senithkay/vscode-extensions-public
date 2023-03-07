@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { BackArrow, SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     RequiredParam,
     STKindChecker,
@@ -22,7 +22,6 @@ import classNames from "classnames";
 
 import { useDiagramContext } from "../../../../Context/diagram";
 import { useFunctionContext } from "../../../../Context/Function";
-import { FunctionViewState, ViewState } from "../../../../ViewState";
 
 import "./style.scss";
 
@@ -32,11 +31,8 @@ export function FunctionHeader() {
     const diagramContext = useDiagramContext();
     const diagramApi = diagramContext?.api;
     const editApi = diagramApi?.edit;
-    const navigationApi = diagramApi.navigation;
     const renderEditForm = editApi?.renderEditForm;
-    const navigateUptoParent = navigationApi?.navigateUptoParent;
 
-    const functionVS = functionNode.viewState as FunctionViewState;
     const titleComponents: React.ReactElement[] = [];
     const argumentComponents: React.ReactElement[] = [];
 
@@ -116,16 +112,8 @@ export function FunctionHeader() {
             resourceTitleContent.push(...queryParamComponents);
         }
 
-        const handleNavigateToParent = () => {
-            navigateUptoParent(functionVS.parentPosition);
-        }
-
         titleComponents.push(
             <div className="title-components">
-                <div className="parent-description" onClick={handleNavigateToParent}>
-                    <BackArrow />
-                    {functionVS.parentNamePlaceHolder}
-                </div>
                 <div className="content">
                     {resourceTitleContent}
                 </div>

@@ -93,7 +93,7 @@ export function CreateRecord(props: CreateRecordProps) {
                     getAllVariables(stSymbolInfo), true), "record {};", targetPosition, true)),
                 formArgs: {
                     formArgs: {
-                        targetPosition: { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
+                        targetPosition
                     }
                 },
                 config: { type: "RecordEditor" },

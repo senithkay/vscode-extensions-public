@@ -134,7 +134,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                         codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
                         codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
 
-                        if (position.kind == 'source' && position.name != 'main') {
+                        if (position.kind === 'source' && position.name !== 'main') {
                             const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
                             const range: Position = {
                                 startLine: position.range.startLine.line, startColumn: position.range.startLine.offset,
@@ -166,8 +166,13 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
                     syntaxTree.members.forEach((member: STNode) => {
                         if (STKindChecker.isFunctionDefinition(member)) {
-                            const position = member.functionKeyword.position;
-                            const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
+                            const position = member.functionName.position;
+                            const codeLens = new CodeLens(new Range(
+                                position.startLine,
+                                position.startColumn,
+                                position.endLine,
+                                position.endColumn
+                            ));
                             codeLens.command = {
                                 title: "Visualize",
                                 tooltip: "Open this code block in low code view",
@@ -179,8 +184,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                             const position = member.serviceKeyword.position;
                             const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
                             codeLens.command = {
-                                title: "Design",
-                                tooltip: "Open this code block in data mapping view",
+                                title: "Visualize",
+                                tooltip: "Open this code block in low code view",
                                 command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
                                 arguments: [member.position, activeEditorUri.fsPath]
                             };
@@ -220,6 +225,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             });
 
         });
+
         return codeLenses;
     }
 
