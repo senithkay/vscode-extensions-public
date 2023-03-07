@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { ServiceUnsupportedImg } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ServiceInvalidImg } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { ServiceUnsupportedStyles } from "./style";
 
@@ -22,7 +22,7 @@ export function ServiceUnsupportedOverlay() {
 
     return (
         <div className={serviceUnsupportedClasses.overlayWrapper}>
-            <ServiceUnsupportedImg />
+            <ServiceInvalidImg />
             <p className={serviceUnsupportedClasses.title}>Diagram editing for this is not supported</p>
             <p className={serviceUnsupportedClasses.subtitle}>Please move to code</p>
         </div>
