@@ -249,7 +249,7 @@ jobs:
   Publish_Coverage_Resuls_Stage:
     name: Publish code coverage results
     needs: [Build_Stage, PluginTest_Stage, UiTest_Stage, LowCode_Test_Stage]
-    timeout-minutes: 5
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Restore build
