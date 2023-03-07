@@ -348,7 +348,8 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                                                         color="success"
                                                         variant="outlined"
                                                         size="small"
-                                                        label={connectionFields.valueType} />
+                                                        label={connectionFields.valueType}
+                                                    />
                                                 </Tooltip>
                                             </Box>
                                         </Box>

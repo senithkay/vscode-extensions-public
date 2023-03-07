@@ -214,7 +214,8 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                                         color="success"
                                                         variant="outlined"
                                                         size="small"
-                                                        label={connectionFields.valueType} />
+                                                        label={connectionFields.valueType}
+                                                    />
                                                 </Tooltip>
                                             </Box>
 
