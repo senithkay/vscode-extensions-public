@@ -27,12 +27,14 @@ jobs:
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
+      - name: Set cache env
+        uses: gigara/rush-cache@v2
+
       - name: Setup
         uses: gigara/rush-cache@v1
         with:
           pnpm: 7.26.3
           node: 16.x
-          set-env: true
           rush-install: true
 
       - name: Install Ballerina
