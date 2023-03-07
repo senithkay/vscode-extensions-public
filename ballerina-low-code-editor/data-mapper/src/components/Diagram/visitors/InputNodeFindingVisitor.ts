@@ -48,7 +48,8 @@ export class InputNodeFindingVisitor implements Visitor {
             (!parent ||
                 (parent &&
                     !STKindChecker.isFieldAccess(parent) &&
-                    !STKindChecker.isOptionalFieldAccess(parent)
+                    !STKindChecker.isOptionalFieldAccess(parent) &&
+                    !STKindChecker.isFunctionCall(parent)
                 )) &&
             this.queryExpressionDepth === 0
         ) {

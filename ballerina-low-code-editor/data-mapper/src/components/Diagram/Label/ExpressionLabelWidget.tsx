@@ -148,19 +148,27 @@ export const EditableLabelWidget: React.FunctionComponent<FlowAliasLabelWidgetPr
     const applyQueryExpression = (link: DataMapperLinkModel, targetRecord: Type) => {
         if (link.value
             && (STKindChecker.isFieldAccess(link.value) || STKindChecker.isSimpleNameReference(link.value))) {
-            const querySrc = generateQueryExpression(link.value.source, targetRecord);
-            const position = link.value.position as NodePosition;
-            const applyModification = props.model.context.applyModifications;
-            void applyModification([{
-                type: "INSERT",
-                config: {
-                    "STATEMENT": querySrc,
-                },
-                endColumn: position.endColumn,
-                endLine: position.endLine,
-                startColumn: position.startColumn,
-                startLine: position.startLine
-            }]);
+
+                let isOptionalSource = false;
+                const sourcePort = link.getSourcePort();
+
+                if (sourcePort instanceof RecordFieldPortModel && sourcePort.field.optional) {
+                    isOptionalSource = true;
+                }
+
+                const querySrc = generateQueryExpression(link.value.source, targetRecord, isOptionalSource);
+                const position = link.value.position as NodePosition;
+                const applyModification = props.model.context.applyModifications;
+                void applyModification([{
+                    type: "INSERT",
+                    config: {
+                        "STATEMENT": querySrc,
+                    },
+                    endColumn: position.endColumn,
+                    endLine: position.endLine,
+                    startColumn: position.startColumn,
+                    startLine: position.startLine
+                }]);
         }
     };
 

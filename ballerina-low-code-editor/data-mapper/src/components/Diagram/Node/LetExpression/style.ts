@@ -31,6 +31,9 @@ export const useStyles = makeStyles((theme: Theme) =>
                 minWidth: "100px",
                 marginRight: "24px"
             },
+            treeLabelPortSelected: {
+                backgroundColor: '#DFE2FF',
+            },
             valueLabel: {
                 verticalAlign: "middle",
                 padding: "5px",
@@ -39,11 +42,15 @@ export const useStyles = makeStyles((theme: Theme) =>
                 float: "right",
                 width: 'fit-content',
                 marginLeft: "auto",
+                display: "flex",
+                alignItems: "center"
             },
             treeLabelInPort: {
                 float: "left",
                 // marginRight: "5px",
                 width: 'fit-content',
+                display: "flex",
+                alignItems: "center"
             },
             label: {
                 width: "300px",

@@ -108,7 +108,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                     || node instanceof ListConstructorNode)
                 {
                     if (STKindChecker.isFunctionDefinition(this.parentNode)
-                        || STKindChecker.isQueryExpression(this.parentNode))
+                        || STKindChecker.isQueryExpression(this.parentNode)
+                        || STKindChecker.isBracedExpression(this.parentNode))
                     {
                         if (node instanceof PrimitiveTypeNode) {
                             this.targetPort = node.getPort(
@@ -223,7 +224,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
 
     public updatePosition() {
         const position = this.targetMappedPort.getPosition()
-        this.setPosition(this.hasError() ? OFFSETS.LINK_CONNECTOR_NODE_WITH_ERROR.X : OFFSETS.LINK_CONNECTOR_NODE.X, position.y - 2)
+        this.setPosition(this.hasError() ? OFFSETS.LINK_CONNECTOR_NODE_WITH_ERROR.X : OFFSETS.LINK_CONNECTOR_NODE.X, position.y - 5.5)
     }
 
     public hasError(): boolean {
@@ -241,13 +242,17 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             && targetField?.typeName !== PrimitiveBalType.Record)
             || (isPositionsEquals(exprFuncBodyPosition, this.valueNode.position)))
         {
+            let deletePosition = this.valueNode.position;
+            if (STKindChecker.isQueryExpression(this.valueNode)) {
+                deletePosition = this.valueNode.selectClause.expression?.position;
+            }
             // Fallback to the default value if the target is a primitive type element
             modifications = [{
                 type: "INSERT",
                 config: {
                     "STATEMENT": getDefaultValue(targetField)
                 },
-                ...this.valueNode.position
+                ...deletePosition
             }];
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position as NodePosition, this.parentNode);

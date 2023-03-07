@@ -32,11 +32,11 @@ import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getDefaultValue,
     getEnrichedRecordType,
+    getFilteredUnionOutputTypes,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
-    getTypeOfOutput,
     isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
@@ -46,7 +46,6 @@ export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
 
 export class PrimitiveTypeNode extends DataMapperNodeModel {
 
-    public typeDef: Type;
     public recordField: EditableRecordField;
     public typeName: string;
     public x: number;
@@ -56,6 +55,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: SelectClause | ExpressionFunctionBody,
         public typeIdentifier: TypeDescriptor | IdentifierToken,
+        public typeDef: Type,
         public queryExpr?: QueryExpression) {
         super(
             context,
@@ -64,12 +64,17 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
-
         if (this.typeDef) {
+            if (this.typeDef.typeName === PrimitiveBalType.Union) {
+                this.typeName = getTypeName(this.typeDef);
+                const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
+                if (acceptedMembers.length === 1) {
+                    this.typeDef = acceptedMembers[0];
+                }
+            }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
-            this.typeName = getTypeName(valueEnrichedType.type);
+            this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
                 && STKindChecker.isSelectClause(this.value)
@@ -112,9 +117,9 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             } else {
                 [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             }
-            const lm = new DataMapperLinkModel(value,
-                                            filterDiagnostics(this.context.diagnostics, value.position as NodePosition),
-                                            true);
+            const diagnostics = filterDiagnostics(
+                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
+            const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
