@@ -391,6 +391,10 @@ export class Git {
 			this.commandsToLog = config.get<string[]>('commandsToLog', []);
 		};
 
+		this.onOutput.on('log', (output: string) => {
+			getLogger().debug(output);
+		});
+
 		workspace.onDidChangeConfiguration(onConfigurationChanged, this);
 		onConfigurationChanged();
 	}
@@ -466,6 +470,7 @@ export class Git {
 				cancellationToken,
 				env: { 'GIT_HTTP_USER_AGENT': this.userAgent },
 				onSpawn,
+				log: true
 			});
 		} catch (err: any) {
 			if (err.stderr) {

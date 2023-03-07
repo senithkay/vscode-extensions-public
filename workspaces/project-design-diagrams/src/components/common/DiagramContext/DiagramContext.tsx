@@ -17,78 +17,82 @@
  *
  */
 
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import React, { createContext, ReactNode, useState } from 'react';
-import { Location, Service, Views } from '../../../resources';
+import { EditLayerAPI, Service, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
-    isChoreoProject: boolean;
-    getTypeComposition: (entityID: string) => void;
-    go2source: (location: Location) => void;
-    goToDesignDiagram: (position: NodePosition, filePath: string) => void;
     currentView: Views;
     editingEnabled: boolean;
-    setTargetService: (service: Service) => void;
+    isChoreoProject: boolean;
     refreshDiagram: () => void;
+    showChoreoProjectOverview: (() => Promise<void>) | undefined;
+    getTypeComposition: (entityID: string) => void;
+    setConnectorTarget: (service: Service) => void;
+    editLayerAPI: EditLayerAPI | undefined;
 }
 
 interface IDiagramContext {
-    isChoreoProject: boolean;
-    getTypeComposition: (entityID: string) => void;
-    go2source: (location: Location) => void;
-    goToDesignDiagram: (position: NodePosition, filePath: string) => void;
-    currentView: Views;
-    setNewComponentID: (name: string) => void;
-    newComponentID: string;
     editingEnabled: boolean;
-    newLinkNodes: LinkedNodes;
-    setNewLinkNodes: (nodes: LinkedNodes) => void;
-    setTargetService: (service: Service) => void;
+    isChoreoProject: boolean;
+    currentView: Views;
     refreshDiagram: () => void;
+    showChoreoProjectOverview: (() => Promise<void>) | undefined;
+    getTypeComposition: (entityID: string) => void;
+    editLayerAPI?: EditLayerAPI;
+    newComponentID?: string;
+    newLinkNodes?: LinkedNodes;
+    setNewComponentID?: (name: string | undefined) => void;
+    setNewLinkNodes?: (nodes: LinkedNodes) => void;
+    setConnectorTarget?: (service: Service) => void;
 }
 
 interface LinkedNodes {
-    source: Service,
-    target: Service
+    source: Service | undefined;
+    target: Service | undefined;
 }
 
 const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function DesignDiagramContext(props: DiagramContextProps) {
-    const [newComponentID, setNewComponentID] = useState<string>(undefined);
+    const {
+        children,
+        currentView,
+        editingEnabled,
+        isChoreoProject,
+        editLayerAPI,
+        refreshDiagram,
+        getTypeComposition,
+        showChoreoProjectOverview,
+        setConnectorTarget
+    } = props;
+    const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
 
-    const {
-        isChoreoProject,
-        getTypeComposition,
+    let context: IDiagramContext = {
         currentView,
-        go2source,
         editingEnabled,
-        children,
-        setTargetService,
-        goToDesignDiagram,
-        refreshDiagram
-    } = props;
+        isChoreoProject,
+        refreshDiagram,
+        getTypeComposition,
+        showChoreoProjectOverview
+    }
 
-    const Ctx = {
-        isChoreoProject,
-        getTypeComposition,
-        go2source,
-        currentView,
-        setNewComponentID,
-        newComponentID,
-        editingEnabled,
-        newLinkNodes,
-        setNewLinkNodes,
-        setTargetService,
-        goToDesignDiagram,
-        refreshDiagram
+    if (editingEnabled) {
+        context = {
+            ...context,
+            editLayerAPI,
+            newComponentID,
+            setNewComponentID,
+            newLinkNodes,
+            setNewLinkNodes,
+            setConnectorTarget
+        }
     }
 
     return (
-        <DiagramContext.Provider value={{ ...Ctx }}>
+        <DiagramContext.Provider value={{ ...context }}>
             {children}
         </DiagramContext.Provider>
     );
