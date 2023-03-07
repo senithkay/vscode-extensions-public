@@ -6,6 +6,9 @@
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 
+const CopyPlugin = require("copy-webpack-plugin");
+const PermissionsOutputPlugin = require('webpack-permissions-plugin');
+
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
 
@@ -14,10 +17,13 @@ const extensionConfig = {
   target: 'node',
   mode: 'none',
 
-  entry: './src/extension.ts',
+  entry: {
+    extension: './src/extension.ts',
+		['askpass-main']: './src/git/askpass-main.ts'
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'extension.js',
+    filename: '[name].js',
     libraryTarget: 'commonjs2',
     devtoolModuleFilenameTemplate: '../[resource-path]'
   },
@@ -68,5 +74,18 @@ const extensionConfig = {
       })
     ]
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: "src/git/*.sh", to: "[name][ext]" },
+      ],
+    }),
+    new PermissionsOutputPlugin({
+      buildFolders: [
+        path.resolve(__dirname, 'dist/')
+      ]
+    })
+  ],
+
 };
 module.exports = [extensionConfig];

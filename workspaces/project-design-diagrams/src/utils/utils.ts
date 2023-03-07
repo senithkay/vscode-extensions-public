@@ -150,8 +150,8 @@ export function extractGateways(service: Service): GatewayType[] {
     return gatewayTypes;
 }
 
-export function createGWLinks(sourcePort: ServicePortModel, targetPort: ServicePortModel | GatewayPortModel,
-                              link: ServiceLinkModel | GatewayLinkModel): ServiceLinkModel | GatewayLinkModel {
+export function createGWLinks(sourcePort: GatewayPortModel, targetPort: ServicePortModel, link: GatewayLinkModel)
+    : GatewayLinkModel {
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);
@@ -180,31 +180,30 @@ export function addGWNodes(engine: DiagramEngine) {
 
 function addGWLinks(engine: DiagramEngine) {
     const nodes = engine.getModel().getNodes();
-    const links = engine.getModel().getLinks();
     nodes.forEach(node => {
         if (node instanceof ServiceNodeModel) {
             node.getTargetGateways().forEach((gwType: GatewayType) => {
-                mapGWInteraction(gwType, node, nodes, links, engine);
+                mapGWInteraction(gwType, node, nodes, engine);
             });
         }
     });
 }
 
-function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeModel, nodes: NodeModel[],
-                          links: LinkModel[], engine: DiagramEngine) {
-    nodes.forEach(sourceGW => {
-        if ((sourceGW instanceof GatewayNodeModel) && (sourceGW.getID() === sourceGWType)) {
-            const link: GatewayLinkModel = new GatewayLinkModel(targetNode.level);
-            const sourcePort: GatewayPortModel = sourceGW.getPortFromID(`${sourceGWType}-in`);
-            let targetPort;
-            if (sourceGWType === "WEST") {
-                targetPort = targetNode.getPortFromID(`left-gw-${targetNode.serviceObject.serviceId}`);
-            } else {
-                targetPort = targetNode.getPortFromID(`top-${targetNode.serviceObject.serviceId}`);
-            }
+function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeModel, nodes: NodeModel[], engine: DiagramEngine) {
+    const gatewayNode = nodes.find((node) => node instanceof GatewayNodeModel && node.getID() === sourceGWType);
+    if (gatewayNode && targetNode) {
+        const link: GatewayLinkModel = new GatewayLinkModel(targetNode.level);
+        const sourcePort: GatewayPortModel = gatewayNode.getPortFromID(`${sourceGWType}-in`);
+        let targetPort: ServicePortModel;
+        if (sourceGWType === "WEST") {
+            targetPort = targetNode.getPortFromID(`left-gw-${targetNode.serviceObject.serviceId}`);
+        } else if (sourceGWType === "NORTH") {
+            targetPort = targetNode.getPortFromID(`top-${targetNode.serviceObject.serviceId}`);
+        }
+        if (sourcePort && targetPort) {
             engine.getModel().addLink(createGWLinks(sourcePort, targetPort, link));
         }
-    });
+    }
 }
 
 export function addGWNodesModel(engine: DiagramEngine, addNodes: boolean = false) {
