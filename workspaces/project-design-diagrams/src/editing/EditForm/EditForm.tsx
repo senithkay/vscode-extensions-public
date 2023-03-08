@@ -30,7 +30,6 @@ import { AdvancedSettingsWidget, CreateButton, TextInputWidget } from './compone
 import { OrganizationRegex, PackageNameRegex, VersionRegex } from './resources/constants';
 import { ControlsContainer, Header, PrimaryContainer, TitleText } from './resources/styles';
 import { initBallerinaComponent, transformComponentName } from './resources/utils';
-import { ProjectDesignRPC } from '../../utils/rpc/project-design-rpc';
 
 interface EditFormProps {
     visibility: boolean;
@@ -39,9 +38,8 @@ interface EditFormProps {
 }
 
 export function EditForm(props: EditFormProps) {
-    const rpcInstance = ProjectDesignRPC.getInstance();
     const { visibility, defaultOrg, updateVisibility } = props;
-    const { setNewComponentID } = useContext(DiagramContext);
+    const { editLayerAPI, setNewComponentID } = useContext(DiagramContext);
 
     const [component, editComponent] = useState<BallerinaComponentCreationParams>(initBallerinaComponent);
     const [generatingComponent, setGenerationStatus] = useState<boolean>(false);
@@ -54,7 +52,7 @@ export function EditForm(props: EditFormProps) {
     }, [defaultOrg])
 
     const chooseDirectory = () => {
-        rpcInstance.pickDirectory().then((directoryPath) => {
+        editLayerAPI?.pickDirectory().then((directoryPath) => {
             if (directoryPath) {
                 setDirectory(directoryPath);
             }
@@ -97,7 +95,7 @@ export function EditForm(props: EditFormProps) {
 
     const onSubmit = () => {
         setGenerationStatus(true);
-        rpcInstance.createComponent({ ...component, package: component.package || validatedComponentName, org: component.org || defaultOrg })
+        editLayerAPI?.createComponent({ ...component, package: component.package || validatedComponentName, org: component.org || defaultOrg })
             .then((generatedNodeID) => {
                 setNewComponentID(generatedNodeID);
                 setGenerationStatus(false);

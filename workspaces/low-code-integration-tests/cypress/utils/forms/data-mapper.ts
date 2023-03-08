@@ -124,8 +124,8 @@ export class DataMapper {
     static sourcePortNotExists = (sourcePort: string) => this.getSourcePort(sourcePort).should('not.exist')
 
     static createMappingUsingFields = (sourcePort: string, targetPort: string) => {
-        this.getSourcePort(sourcePort).click();
-        this.getMappingPort(targetPort).click({ force: true });
+        this.getSourceField(sourcePort).click();
+        this.getMappingField(targetPort).click({ force: true });
     }
 
     static searchInput = (searchValue) => {

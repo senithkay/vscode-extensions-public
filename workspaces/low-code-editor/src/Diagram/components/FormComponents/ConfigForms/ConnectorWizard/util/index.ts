@@ -17,6 +17,7 @@ import {
     DiagramEditorLangClientInterface,
     FormField,
     FormFieldReturnType,
+    PathParam,
     PrimitiveBalType,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
@@ -98,6 +99,30 @@ export function getMatchingConnector(node: STNode): BallerinaConnectorInfo {
     }
 
     return connector;
+}
+
+export function getPathParams(params: PathParam[]): string[]{
+    if (!params) { return []; }
+    const pathParams: string[] = [];
+    params.forEach((param) => {
+        switch (param.typeName) {
+            case "token":
+                pathParams.push(param.name);
+                break;
+                case PrimitiveBalType.String:
+                    pathParams.push(`["${param.name}"]`);
+                    break;
+                case PrimitiveBalType.Int:
+                    case PrimitiveBalType.Float:
+                        case PrimitiveBalType.Decimal:
+                    pathParams.push(`[0]`);
+                    pathParams.push(`[0]`);
+                    break;
+                default:
+                    // Skip other tokens
+        }
+    });
+    return pathParams;
 }
 
 export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly = false): string[] {
@@ -417,7 +442,7 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
                     type = formField.typeName;
                     response.hasReturn = true;
                 }
-                if (formField.typeName === "parameterized") {
+                if (formField.typeName === "parameterized" || (formField.name === "rowType" && formField.typeInfo.name === "rowType")) {
                     type = "record{}";
                     response.hasReturn = true;
                 }

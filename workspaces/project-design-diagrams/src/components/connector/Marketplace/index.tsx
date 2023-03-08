@@ -14,7 +14,7 @@
 
 // TODO: Move this component to a common repo.
 
-import React, { ReactNode, SyntheticEvent, useContext, useRef, useState } from "react";
+import React, { ReactNode, SyntheticEvent, useRef, useState } from "react";
 
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";

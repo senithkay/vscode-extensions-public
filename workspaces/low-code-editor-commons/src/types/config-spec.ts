@@ -37,6 +37,8 @@ export enum PrimitiveBalType {
     Decimal = "decimal"
 }
 
+export const AnydataType = "anydata";
+
 export const httpResponse: NonPrimitiveBal = {
     orgName: 'ballerina',
     moduleName: 'http',
@@ -67,8 +69,10 @@ export interface FunctionDefinitionInfo {
     name: string;
     documentation: string;
     parameters: FormField[];
+    pathParams?: PathParam[];
     returnType?: FormField;
-    isRemote?: boolean;
+    qualifiers?: string[];
+    isRemote?: boolean; // TODO: remove this
     displayAnnotation?: any;
 }
 
@@ -88,10 +92,15 @@ export interface FormField {
     fields?: FormField[];
     members?: FormField[];
     references?: FormField[];
+    restType?: FormField;
+    constraintType?: FormField;
+    rowType?: FormField;
+    keys?: string[];
     isReturn?: boolean;
     isTypeDef?: boolean;
     isReference?: boolean;
     isStream?: boolean;
+    isErrorUnion?: boolean;
     typeInfo?: NonPrimitiveBal;
     hide?: boolean;
     aiSuggestion?: string;
@@ -101,16 +110,26 @@ export interface FormField {
     tooltipActionLink?: string;
     tooltipActionText?: string;
     isErrorType?: boolean;
-    isRestParam?: boolean;
+    isRestParam?: boolean; // TODO: unified rest params
+    hasRestType?: boolean;
+    isRestType?: boolean;
     customAutoComplete?: string[];
     validationRegex?: any;
     leftTypeParam?: any;
     rightTypeParam?: any;
     initialDiagnostics?: DiagramDiagnostic[];
     documentation?: string;
+    displayAnnotation?: any;
     position?: NodePosition;
     selected?: boolean;
 }
+
+export interface PathParam {
+    name: string;
+    typeName: string;
+    isRestType: boolean;
+}
+
 export interface FormFieldReturnType {
     hasError: boolean;
     hasReturn: boolean;
