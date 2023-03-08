@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/ballerina-low-code-edtior-commons",
-    "version": "3.3.12",
+    "version": "3.3.13",
     "description": "Ballerina Low Code Editor Commons",
     "files": [
         "lib"
