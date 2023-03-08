@@ -26,6 +26,11 @@
             font-size: 14px;
             font-weight: 600;
         }
+
+        .is-disabled {
+            pointer-events: none;
+            opacity: 0.2;
+        }
     }
 
     // .btn-container:after, .arrow_box:before {
