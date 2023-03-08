@@ -23,7 +23,7 @@ import { CMP_STRING_SPLIT, sendTelemetryEvent, TM_EVENT_STRING_SPLIT } from "../
 import { isWindows } from "../utils";
 import { traversNode } from "@wso2-enterprise/syntax-tree";
 import { SplitProviderVisitor } from "./split-provider-visitor";
-import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-low-code-editor-distribution";
+import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-languageclient";
 
 export const newLine: string = isWindows() ? '\r\n' : '\n';
 const STRING_LITERAL: string = 'STRING_LITERAL';
