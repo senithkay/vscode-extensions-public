@@ -252,7 +252,7 @@ export function DiagramViewManager(props: EditorProps) {
                 viewComponent.push((
                     <ServiceInvalidOverlay />
                 ));
-            } else if (!experimentalEnabled) {
+            } else {
                 viewComponent.push(
                     <ServiceUnsupportedOverlay />
                 )
