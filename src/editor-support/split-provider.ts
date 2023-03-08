@@ -21,8 +21,11 @@ import { BallerinaExtension, SyntaxTreeNodeResponse } from "../core";
 import { Disposable, Position, Range, TextDocumentChangeEvent, TextDocumentContentChangeEvent, window, workspace } from "vscode";
 import { CMP_STRING_SPLIT, sendTelemetryEvent, TM_EVENT_STRING_SPLIT } from "../telemetry";
 import { isWindows } from "../utils";
+import { traversNode } from "@wso2-enterprise/syntax-tree";
+import { SplitProviderVisitor } from "./split-provider-visitor";
+import { GetSyntaxTreeResponse } from "@wso2-enterprise/ballerina-low-code-editor-distribution";
 
-const newLine: string = isWindows() ? '\r\n' : '\n';
+export const newLine: string = isWindows() ? '\r\n' : '\n';
 const STRING_LITERAL: string = 'STRING_LITERAL';
 const WHITESPACE: string = 'WHITESPACE_MINUTIAE';
 
@@ -62,26 +65,16 @@ export class StringSplitter {
                 return;
             }
 
-            let stResponse = await this.langClient.getSyntaxTreeNode({
+            let st = await this.langClient.getSyntaxTree({
                 documentIdentifier: {
                     uri: editor.document.uri.toString()
-                },
-                range: {
-                    start: {
-                        line: range.start.line,
-                        character: range.start.character - 1
-                    },
-                    end: {
-                        line: range.end.line,
-                        character: range.end.character - 1
-                    }
                 }
             });
-            const response = stResponse as SyntaxTreeNodeResponse;
-            if (!response.kind) {
-                return;
-            }
-            if (response.kind !== STRING_LITERAL) {
+            const visitor = new SplitProviderVisitor(range);
+
+            traversNode((st as GetSyntaxTreeResponse).syntaxTree, visitor, undefined);
+
+            if (!visitor.isValidSplit()) {
                 return;
             }
 
