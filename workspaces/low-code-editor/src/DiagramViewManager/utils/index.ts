@@ -1,6 +1,6 @@
 import { monaco } from "react-monaco-editor";
 
-import { CommandResponse, DiagramDiagnostic, DIAGRAM_MODIFIED, FunctionDef, getImportStatements, InsertorDelete, LowcodeEvent, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CommandResponse, DiagramDiagnostic, DiagramEditorLangClientInterface, DIAGRAM_MODIFIED, FunctionDef, getImportStatements, InsertorDelete, LowcodeEvent, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
@@ -9,6 +9,26 @@ import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isU
 import { EditorProps, FileListEntry, PALETTE_COMMANDS, Uri } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
+import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
+
+export async function getSTNodeForReference(
+    file: string,
+    position: NodePosition,
+    langClient: DiagramEditorLangClientInterface
+): Promise<STNode> {
+    const request: TextDocumentPositionParams = {
+        textDocument: { uri: monaco.Uri.file(file).toString() },
+        position: { line: position.startLine, character: position.startColumn }
+    };
+    const response = await langClient.getDefinitionPosition(request);
+    return new Promise((resolve, reject) => {
+        if (response.syntaxTree) {
+            resolve(response.syntaxTree);
+        } else {
+            reject();
+        }
+    });
+}
 
 export function getDiagramProviderProps(
     focusedST: STNode,
@@ -30,7 +50,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+        getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
