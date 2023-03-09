@@ -40,13 +40,10 @@ export interface DataMapperProps {
     ballerinaVersion?: string;
     onCancel?: () => void;
     configOverlayFormStatus?: ConfigOverlayFormStatus;
-    handleDiagramEdit?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus,
-                         onClose?: () => void, onSave?: () => void) => void;
-
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
-    const { targetPosition, ballerinaVersion, onCancel: onClose, model, handleDiagramEdit } = props;
+    const { targetPosition, ballerinaVersion, onCancel: onClose, model } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
@@ -56,7 +53,6 @@ export function DataMapperOverlay(props: DataMapperProps) {
             code: { modifyDiagram, updateFileContent },
             ls: { getDiagramEditorLangClient },
             library,
-            updateFilePath,
             navigation: {
                 updateActiveFile,
                 updateSelectedComponent
@@ -149,10 +145,8 @@ export function DataMapperOverlay(props: DataMapperProps) {
                     importStatements={importStatements}
                     recordPanel={renderRecordPanel}
                     syntaxTree={fullST}
-                    handleDiagramEdit={handleDiagramEdit}
                     updateActiveFile={updateActiveFile}
                     updateSelectedComponent={updateSelectedComponent}
-                    updateFilePath={updateFilePath}
                 />
             </div>
         </DiagramOverlayContainer>

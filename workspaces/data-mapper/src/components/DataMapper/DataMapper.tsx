@@ -120,14 +120,8 @@ export interface DataMapperProps {
     importStatements: string[];
     recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element;
     syntaxTree?: STNode;
-    handleDiagramEdit?: (model: STNode,
-                         targetPosition: NodePosition,
-                         configOverlayFormStatus: ConfigOverlayFormStatus,
-                         onClose?: () => void,
-                         onSave?: () => void) => void;
     updateActiveFile?: (currentFile: FileListEntry) => void;
     updateSelectedComponent?: (info: ComponentViewInfo) => void;
-    updateFilePath?: (filePath: string) => void;
 }
 
 export enum ViewOption {
@@ -206,10 +200,8 @@ function DataMapperC(props: DataMapperProps) {
         importStatements,
         recordPanel,
         syntaxTree,
-        handleDiagramEdit,
         updateActiveFile,
-        updateSelectedComponent,
-        updateFilePath
+        updateSelectedComponent
     } = props;
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -341,10 +333,8 @@ function DataMapperC(props: DataMapperProps) {
                         handleOverlay,
                         ballerinaVersion,
                         handleLocalVarConfigPanel,
-                        handleDiagramEdit,
                         updateActiveFile,
-                        updateSelectedComponent,
-                        updateFilePath
+                        updateSelectedComponent
                     );
 
                     const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();

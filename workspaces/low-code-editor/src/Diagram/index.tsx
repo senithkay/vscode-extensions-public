@@ -320,7 +320,7 @@ export function Diagram() {
     // AST node passed in to this is can be a top level node or a compilation unit.
     // const child = getSTComponent(syntaxTree); // TODO: Handle datamapper switching logic
 
-    const dataMapperArgs = { ballerinaVersion, handleDiagramEdit, ...formConfig };
+    const dataMapperArgs = { ballerinaVersion, ...formConfig };
 
     // let hasConfigurable = false;
     // if (originalSyntaxTree) {

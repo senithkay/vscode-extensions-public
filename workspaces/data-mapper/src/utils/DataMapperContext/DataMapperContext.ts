@@ -46,14 +46,8 @@ export interface IDataMapperContext {
     handleOverlay: (showOverlay: boolean) => void;
     ballerinaVersion: string;
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
-    handleDiagramEdit?: (model: STNode,
-                         targetPosition: NodePosition,
-                         configOverlayFormStatus: ConfigOverlayFormStatus,
-                         onClose?: () => void,
-                         onSave?: () => void) => void;
     updateActiveFile?: (currentFile: FileListEntry) => void;
     updateSelectedComponent?: (info: ComponentViewInfo) => void;
-    updateFilePath?: (filePath: string) => void;
 }
 
 export class DataMapperContext implements IDataMapperContext {
@@ -81,10 +75,8 @@ export class DataMapperContext implements IDataMapperContext {
         public handleOverlay: (showOverlay: boolean) => void,
         public ballerinaVersion: string,
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,
-        public handleDiagramEdit?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void,
         public updateActiveFile?: (currentFile: FileListEntry) => void,
-        public updateSelectedComponent?: (info: ComponentViewInfo) => void,
-        public updateFilePath?: (filePath: string) => void
+        public updateSelectedComponent?: (info: ComponentViewInfo) => void
     ){}
 
     public get functionST(): FunctionDefinition {

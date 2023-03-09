@@ -137,8 +137,7 @@ export interface LowCodeEditorAPI {
         updateActiveFile: (currentFile: FileListEntry) => void;
         updateSelectedComponent: (info: ComponentViewInfo) => void;
         navigateUptoParent: (position: NodePosition) => void;
-    };
-    updateFilePath?: (filePath: string) => void;
+    }
 }
 
 // FIXME Some of these props should be moved to low code state
