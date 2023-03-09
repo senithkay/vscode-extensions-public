@@ -14,19 +14,18 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
+import { LiteExpressionEditor, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
 import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { DefaultableParam, IncludedRecordParam, ModulePart, NodePosition, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
-import debounce from "lodash.debounce";
+import { ModulePart, NodePosition } from '@wso2-enterprise/syntax-tree';
+import { Diagnostic } from 'vscode-languageserver-protocol';
 
-import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
+import { SuggestionItem } from '../../../../models/definitions';
 import { FormEditorContext } from '../../../../store/form-editor-context';
 import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
-import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_HEADER_PREFIX, RESOURCE_REQUEST_TYPE } from '../ResourceParamEditor';
 
 import { useStyles } from "./style";
 
@@ -52,7 +51,7 @@ export const responseCodes: ResponseCode[] = [
 
 export interface ParamProps {
     segmentId: number;
-    syntaxDiagnostics: StatementSyntaxDiagnostics[];
+    syntaxDiagnostics: Diagnostic[];
     model: string;
     completions: SuggestionItem[]
     alternativeName?: string;
@@ -78,7 +77,16 @@ export function ResponseEditor(props: ParamProps) {
     } = props;
     const classes = useStyles();
 
-    const { newlyCreatedRecord, handleShowRecordEditor, applyModifications, syntaxTree } = useContext(FormEditorContext);
+    const { applyModifications, syntaxTree, fullST} = useContext(FormEditorContext);
+
+    const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
+
+    // When a type is created and full ST is updated update the onChange to remove diagnostics
+    useEffect(() => {
+        if (newlyCreatedRecord) {
+            handleTypeChange(newlyCreatedRecord);
+        }
+    }, [fullST]);
 
 
     // States related to syntax diagnostics
@@ -126,8 +134,10 @@ export function ResponseEditor(props: ParamProps) {
         // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         // const paramName = model.paramName.value;
         // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        setTypeValue(value);
-
+        if (value) {
+            setTypeValue(value);
+            onChange(segmentId, 'Default', value);
+        }
     }
 
     const handleNameChange = (value: string) => {
@@ -166,7 +176,7 @@ export function ResponseEditor(props: ParamProps) {
     }
 
     function createPropertyStatement(property: string, targetPosition?: NodePosition,
-                                     isLastMember?: boolean): STModification {
+        isLastMember?: boolean): STModification {
         const propertyStatement: STModification = {
             startLine: targetPosition ? targetPosition.startLine : 0,
             startColumn: isLastMember ? targetPosition.endColumn : 0,
@@ -213,13 +223,6 @@ export function ResponseEditor(props: ParamProps) {
         onCancel();
     }
 
-    // When a type is created
-    useEffect(() => {
-        if (newlyCreatedRecord) {
-            handleTypeChange(newlyCreatedRecord);
-        }
-    }, newlyCreatedRecord);
-
     const handleListenerDefModeChange = async (mode: string[]) => {
         setSubType(mode.length > 0);
     }
@@ -236,6 +239,24 @@ export function ResponseEditor(props: ParamProps) {
             />
         </>
     )
+
+    const createRecord = (newRecord: string) => {
+        if (newRecord) {
+            const newResponse = `type ${newRecord} record {};`;
+            const servicePosition = (syntaxTree as ModulePart);
+            const lastMember: NodePosition = servicePosition.position;
+            const lastMemberPosition: NodePosition = {
+                endColumn: 0,
+                endLine: lastMember.endLine + 1,
+                startColumn: 0,
+                startLine: lastMember.endLine + 1
+            }
+            applyModifications([
+                createPropertyStatement(newResponse, lastMemberPosition, false)
+            ]);
+            setNewlyCreatedRecord(newRecord);
+        }
+    }
 
     return (
         <div className={classes.paramContainer}>
@@ -254,14 +275,13 @@ export function ResponseEditor(props: ParamProps) {
 
                 <div className={classes.paramTypeWrapper}>
                     <FieldTitle title='Type' optional={false} />
-                    <LiteExpressionEditor
-                        testId="return-type"
-                        defaultValue={typeValue}
+                    <TypeBrowser
+                        type={typeValue}
                         onChange={handleTypeChange}
-                        disabled={false}
-                        completions={completions}
-                        showRecordEditorButton={true}
-                        handleShowRecordEditor={handleShowRecordEditor}
+                        isLoading={false}
+                        recordCompletions={completions}
+                        createNew={createRecord}
+                        diagnostics={syntaxDiagnostics.filter(diag => diag?.message.includes("unknown type"))}
                     />
                 </div>
 

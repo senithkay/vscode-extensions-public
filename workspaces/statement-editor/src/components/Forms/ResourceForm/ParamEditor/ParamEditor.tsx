@@ -75,9 +75,6 @@ export function ParamEditor(props: ParamProps) {
     } = props;
     const classes = useStyles();
 
-    const { newlyCreatedRecord, handleShowRecordEditor } = useContext(FormEditorContext);
-
-
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
     const [originalSource] = useState<string>(model.source);
@@ -101,13 +98,6 @@ export function ParamEditor(props: ParamProps) {
         onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`, model.typeName, value);
 
     }
-
-    // When a type is created
-    useEffect(() => {
-        if (newlyCreatedRecord) {
-            handleTypeChange(newlyCreatedRecord);
-        }
-      }, newlyCreatedRecord);
 
     const handleNameChange = (value: string) => {
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
@@ -176,8 +166,6 @@ export function ParamEditor(props: ParamProps) {
                                 onFocus={onTypeEditorFocus}
                                 disabled={false}
                                 completions={currentComponentName === ParamEditorInputTypes.TYPE && completions}
-                                showRecordEditorButton={true}
-                                handleShowRecordEditor={handleShowRecordEditor}
                             />
                         </div>
                     )}

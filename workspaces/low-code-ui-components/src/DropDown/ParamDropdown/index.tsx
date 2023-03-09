@@ -45,23 +45,8 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
         items.forEach((value) => {
             const icon = (<ParamIcons type={value}/>);
             menuItems.push(
-                <MenuItem
-                    disabled={!enabled?.includes(value)}
-                    key={value}
-                    value={value}
-                    className={`product-tour-payload-${value.toLowerCase()}`}
-                    data-testid={`connector-payload-${value.toLowerCase()}`}
-                >
-                    <div className="MenuItemWrapper">
-                        <div className={dropDownClasses.itemWrapper}>
-                            <div className={dropDownClasses.iconWrapper}>
-                                {icon}
-                            </div>
-                            <div className={dropDownClasses.iconTextWrapper}>
-                                {value}
-                            </div>
-                        </div>
-                    </div>
+                <MenuItem disabled={!enabled?.includes(value)} key={value} value={value} className={`product-tour-payload-${value.toLowerCase()}`} data-testid={`connector-payload-${value.toLowerCase()}`}>
+                    <span className="TextSpan">{value}</span>
                 </MenuItem>
             );
         });
@@ -136,7 +121,6 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
                     },
                     disableScrollLock: true
                 }}
-                renderValue={renderValue}
                 IconComponent={disabled ? EmptyChevronIcon : undefined}
             >
                 {

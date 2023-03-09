@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
@@ -30,16 +30,19 @@ import {
     SelectDropdownWithButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
+    NodePosition,
     ResourceAccessorDefinition,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
+import { monaco } from 'react-monaco-editor';
+import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
-import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
-import { completionEditorTypeKinds } from '../../InputEditor/constants';
+import { getCompletionsForType, getPartialSTForModuleMembers } from "../../../utils/ls-utils";
+import { completionEditorTypeKinds, EXPR_SCHEME, FILE_SCHEME } from '../../InputEditor/constants';
 import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 
 import { AdvancedParamEditor } from "./AdvancedParamEditor";
@@ -62,10 +65,10 @@ export interface FunctionProps {
 }
 
 export function ResourceForm(props: FunctionProps) {
-    const { model, completions } = props;
+    const { model } = props;
     const {
         targetPosition, isEdit, onChange, onCancel, getLangClient, applyModifications,
-        changeInProgress
+        changeInProgress, currentFile
     } = useContext(FormEditorContext);
 
     const classes = useStyles();
@@ -75,6 +78,7 @@ export function ResourceForm(props: FunctionProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
+    const [syntaxDiag, setSyntaxDiag] = useState<Diagnostic[]>(undefined);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
     const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
     const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
@@ -91,6 +95,24 @@ export function ResourceForm(props: FunctionProps) {
         id: "lowcode.develop.apiConfigWizard.saveButton.text",
         defaultMessage: "Save"
     });
+
+
+    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+    const [completions, setCompletions] = useState([]);
+
+
+    const handleCompletions = async (newValue: string, currentModel: any, completionKinds: number[], newTargetPosition: NodePosition) => {
+        const lsSuggestions = await getCompletionsForType(fileURI, newTargetPosition, null,
+            currentModel, getLangClient, newValue, completionKinds);
+        setCompletions(lsSuggestions);
+    };
+
+
+    useEffect(() => {
+        handleCompletions("", null, [22,25], targetPosition);
+        setSyntaxDiag(model?.viewState.diagnosticsInRange.concat(model?.functionSignature?.returnTypeDesc?.viewState.diagnosticsInRange.concat(model?.functionBody?.viewState.diagnosticsInRange)));
+    }, [model])
+
 
     let pathNameSemDiagnostics = "";
     let pathTypeSemDiagnostics = "";
@@ -225,9 +247,9 @@ export function ResourceForm(props: FunctionProps) {
 
 
     // Return type related functions
-    const onReturnTypeChange = (value: string) => {
+    const onReturnTypeChange = async (value: string) => {
         // setIsEditInProgress(true);
-        handleResourceParamChange(
+        await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
             generateParameterSectionString(model?.functionSignature?.parameters),
@@ -363,7 +385,7 @@ export function ResourceForm(props: FunctionProps) {
                         <FieldTitle title='Responses' optional={false} />
                         <ResourceReturnEditor
                             returnSource={model.functionSignature?.returnTypeDesc?.source}
-                            syntaxDiag={currentComponentSyntaxDiag}
+                            syntaxDiag={syntaxDiag}
                             onChange={onReturnTypeChange}
                             completions={completions}
                             readonly={isEditInProgress} // todo: implement the disable logic

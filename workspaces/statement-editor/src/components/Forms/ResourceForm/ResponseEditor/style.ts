@@ -11,9 +11,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             padding: 5
         },
         paramContent: {
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between'
+            display: 'flex'
         },
         paramTypeWrapper: {
             display: 'block',

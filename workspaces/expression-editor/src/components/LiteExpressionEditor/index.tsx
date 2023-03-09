@@ -14,7 +14,7 @@
 import React, { useEffect, useState } from "react";
 import MonacoEditor, { EditorDidMount } from "react-monaco-editor";
 
-import { Button, FormHelperText, LinearProgress } from "@material-ui/core";
+import { FormHelperText, LinearProgress } from "@material-ui/core";
 import {
     configurableTypes,
     DiagramDiagnostic,
@@ -170,8 +170,6 @@ export interface LiteExpressionEditorProps {
     },
     stModel?: STNode;
     testId?: string;
-    showRecordEditorButton?: boolean;
-    handleShowRecordEditor?: () => void;
 }
 
 export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
@@ -192,9 +190,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         customProps,
         stModel,
         testId,
-        externalChangedValue,
-        showRecordEditorButton,
-        handleShowRecordEditor
+        externalChangedValue
     } = props;
 
     const [expressionEditorState, setExpressionEditorState] = useState<ExpressionEditorState>({
@@ -665,7 +661,6 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                 </>
             ) : null} */
             }
-            {showRecordEditorButton && <Button className={formClasses.recordCreate} onClick={handleShowRecordEditor} >Create Record</Button>}
             {expressionDiagnosticMsg && (
                 <>
                     {<DiagnosticView message={expressionDiagnosticMsg} />}

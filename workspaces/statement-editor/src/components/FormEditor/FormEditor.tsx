@@ -42,13 +42,13 @@ export interface FormEditorProps {
     targetPosition: NodePosition;
     stSymbolInfo?: STSymbolInfo;
     syntaxTree?: STNode;
+    fullST?: STNode;
     isLastMember?: boolean;
     type: string;
     onCancel: () => void;
     applyModifications: (modifications: STModification[]) => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     topLevelComponent?: boolean;
-    renderRecordPanel?: (closeRecordEditor: (createdRecord?: string) => void) => JSX.Element;
 }
 
 export function FormEditor(props: FormEditorProps) {
@@ -56,6 +56,7 @@ export function FormEditor(props: FormEditorProps) {
         initialSource,
         initialModel,
         syntaxTree,
+        fullST,
         isLastMember,
         onCancel,
         getLangClient,
@@ -64,16 +65,12 @@ export function FormEditor(props: FormEditorProps) {
         type,
         targetPosition,
         topLevelComponent,
-        stSymbolInfo,
-        renderRecordPanel
+        stSymbolInfo
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
     const [completions, setCompletions] = useState([]);
     const [changeInProgress, setChangeInProgress] = useState<boolean>(false);
-
-    const [showRecordEditor, setShowRecordEditor] = useState(false);
-    const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
 
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
 
@@ -202,22 +199,6 @@ export function FormEditor(props: FormEditorProps) {
         }
     }, [initialSource]);
 
-    const handleShowRecordEditor = () => {
-        setShowRecordEditor(!showRecordEditor);
-    }
-
-    const closeRecordEditor = (createdRecord?: string) => {
-        if (createdRecord && typeof createdRecord === 'string') {
-            const newRecordType = createdRecord.split(" ");
-            if (newRecordType.length > 1) {
-                setNewlyCreatedRecord(newRecordType[1]);
-            } else {
-                setNewlyCreatedRecord(createdRecord);
-            }
-        }
-        setShowRecordEditor(false);
-    }
-
     return (
         <div>
             <FormEditorContextProvider
@@ -226,6 +207,7 @@ export function FormEditor(props: FormEditorProps) {
                 targetPosition={targetPosition}
                 stSymbolInfo={stSymbolInfo}
                 syntaxTree={syntaxTree}
+                fullST={fullST}
                 onChange={onChange}
                 onCancel={onCancel}
                 onSave={onCancel}
@@ -235,12 +217,9 @@ export function FormEditor(props: FormEditorProps) {
                 isLastMember={isLastMember}
                 applyModifications={applyModifications}
                 changeInProgress={changeInProgress}
-                showRecordEditor={showRecordEditor}
-                handleShowRecordEditor={handleShowRecordEditor}
-                newlyCreatedRecord={newlyCreatedRecord}
             >
                 {
-                    !showRecordEditor && model && (
+                    model && (
                         <FormRenderer
                             type={type}
                             model={model}
@@ -256,13 +235,6 @@ export function FormEditor(props: FormEditorProps) {
                             applyModifications={applyModifications}
                             changeInProgress={changeInProgress}
                         />
-                    )
-                }
-                {showRecordEditor &&
-                    (
-                        <FormControl>
-                            {renderRecordPanel(closeRecordEditor)}
-                        </FormControl>
                     )
                 }
             </FormEditorContextProvider>
