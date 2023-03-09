@@ -16,7 +16,9 @@ import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    ComponentViewInfo,
     ConfigOverlayFormStatus,
+    FileListEntry,
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse,
@@ -123,6 +125,8 @@ export interface DataMapperProps {
                          configOverlayFormStatus: ConfigOverlayFormStatus,
                          onClose?: () => void,
                          onSave?: () => void) => void;
+    updateActiveFile?: (currentFile: FileListEntry) => void;
+    updateSelectedComponent?: (info: ComponentViewInfo) => void;
     updateFilePath?: (filePath: string) => void;
 }
 
@@ -203,6 +207,8 @@ function DataMapperC(props: DataMapperProps) {
         recordPanel,
         syntaxTree,
         handleDiagramEdit,
+        updateActiveFile,
+        updateSelectedComponent,
         updateFilePath
     } = props;
 
@@ -336,6 +342,8 @@ function DataMapperC(props: DataMapperProps) {
                         ballerinaVersion,
                         handleLocalVarConfigPanel,
                         handleDiagramEdit,
+                        updateActiveFile,
+                        updateSelectedComponent,
                         updateFilePath
                     );
 
@@ -451,7 +459,6 @@ function DataMapperC(props: DataMapperProps) {
                                 selection={selection}
                                 dmSupported={dMSupported}
                                 changeSelection={handleSelectedST}
-                                onClose={onClose}
                                 onConfigOpen={onConfigOpen}
                             />
                         )}

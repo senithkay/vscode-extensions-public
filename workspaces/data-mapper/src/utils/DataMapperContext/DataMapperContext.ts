@@ -12,7 +12,9 @@
  */
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    ComponentViewInfo,
     ConfigOverlayFormStatus,
+    FileListEntry,
     STModification,
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -49,6 +51,8 @@ export interface IDataMapperContext {
                          configOverlayFormStatus: ConfigOverlayFormStatus,
                          onClose?: () => void,
                          onSave?: () => void) => void;
+    updateActiveFile?: (currentFile: FileListEntry) => void;
+    updateSelectedComponent?: (info: ComponentViewInfo) => void;
     updateFilePath?: (filePath: string) => void;
 }
 
@@ -78,6 +82,8 @@ export class DataMapperContext implements IDataMapperContext {
         public ballerinaVersion: string,
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,
         public handleDiagramEdit?: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void,
+        public updateActiveFile?: (currentFile: FileListEntry) => void,
+        public updateSelectedComponent?: (info: ComponentViewInfo) => void,
         public updateFilePath?: (filePath: string) => void
     ){}
 

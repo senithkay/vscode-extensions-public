@@ -2,7 +2,6 @@ import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient"
 import { LinePosition } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
-    FunctionDefinition,
     LetExpression,
     ModulePart,
     NodePosition,
@@ -15,6 +14,11 @@ import {
 } from "vscode-languageserver-protocol";
 
 import { FnDefInfo } from "../components/Diagram/utils/fn-definition-store";
+
+export interface FunctionInfo {
+    fnDefInfo: FnDefInfo;
+    fnNamePosition: NodePosition;
+}
 
 export function isObject(item: unknown) {
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
@@ -73,7 +77,7 @@ export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
                                           langClientPromise: Promise<IBallerinaLangClient>): Promise<FnDefInfo[]> {
     const langClient = await langClientPromise;
     const fnDefs: FnDefInfo[] = [];
-    const fnDefinitions: Map<string, FnDefInfo[]> = new Map();
+    const fnInfo: Map<string, FunctionInfo[]> = new Map();
     for (const position of fnCallPositions) {
         const reply = await langClient.definition({
             position: {
@@ -97,29 +101,32 @@ export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
         } else {
             defLoc = reply;
         }
-        const defPosition: NodePosition = {
+        const fnNamePosition: NodePosition = {
             startLine: defLoc.range.start.line,
             startColumn: defLoc.range.start.character,
             endLine: defLoc.range.end.line,
             endColumn: defLoc.range.end.character
         }
 
-        const fnDefInfo: FnDefInfo = {
-            fnCallPosition: position,
-            fnDefPosition: defPosition,
-            fileUri: defLoc.uri,
-            isExprBodiedFn: false
+        const fnEntry: FunctionInfo = {
+            fnDefInfo: {
+                fnCallPosition: position,
+                fnDefPosition: undefined,
+                fileUri: defLoc.uri,
+                isExprBodiedFn: false,
+            },
+            fnNamePosition
         }
-        if (fnDefinitions.has(defLoc.uri)) {
-            const existingDefs = fnDefinitions.get(defLoc.uri);
-            existingDefs.push(fnDefInfo);
-            fnDefinitions.set(defLoc.uri, existingDefs);
+        if (fnInfo.has(defLoc.uri)) {
+            const existingDefs = fnInfo.get(defLoc.uri);
+            existingDefs.push(fnEntry);
+            fnInfo.set(defLoc.uri, existingDefs);
         } else {
-            fnDefinitions.set(defLoc.uri, [fnDefInfo]);
+            fnInfo.set(defLoc.uri, [fnEntry]);
         }
     }
 
-    for (const [key, value] of fnDefinitions) {
+    for (const [key, value] of fnInfo) {
         const stResp = await langClient.getSyntaxTree({
             documentIdentifier: {
                 uri: key
@@ -131,12 +138,13 @@ export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
             modPart.members.forEach((mem) => {
                 if (STKindChecker.isFunctionDefinition(mem)) {
                     const fnNamePosition = mem.functionName.position as NodePosition;
-                    const fnDefInfo = value.find(v => {
-                        return isPositionsEquals(v.fnDefPosition, fnNamePosition)
+                    const filteredFnDef = value.find(v => {
+                        return isPositionsEquals(v.fnNamePosition, fnNamePosition)
                     });
-                    if (fnDefInfo) {
-                        fnDefInfo.isExprBodiedFn = STKindChecker.isExpressionFunctionBody(mem.functionBody);
-                        fnDefs.push(fnDefInfo);
+                    if (filteredFnDef) {
+                        filteredFnDef.fnDefInfo.isExprBodiedFn = STKindChecker.isExpressionFunctionBody(mem.functionBody);
+                        filteredFnDef.fnDefInfo.fnDefPosition = mem.position;
+                        fnDefs.push(filteredFnDef.fnDefInfo);
                     }
                 }
             });
@@ -144,27 +152,6 @@ export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
     }
 
     return fnDefs;
-}
-
-export async function getFunctionDefinitionNode(position: NodePosition,
-                                                fileUri: string,
-                                                langClientPromise: Promise<IBallerinaLangClient>): Promise<FunctionDefinition> {
-    const langClient = await langClientPromise;
-    const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
-        documentIdentifier: {
-            uri: fileUri,
-        },
-    });
-    let fnDef: FunctionDefinition;
-    if (parseSuccess) {
-        const modPart = syntaxTree as ModulePart;
-        modPart.members.forEach((mem) => {
-            if (STKindChecker.isFunctionDefinition(mem) && isPositionsEquals(position, mem.functionName.position)) {
-                fnDef = mem;
-            }
-        });
-    }
-    return fnDef;
 }
 
 function isLocationLink(obj: any): obj is LocationLink {

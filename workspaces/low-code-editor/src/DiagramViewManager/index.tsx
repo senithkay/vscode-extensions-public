@@ -14,6 +14,7 @@ import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 
 import { MuiThemeProvider } from "@material-ui/core";
+import { FileListEntry, Uri } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
@@ -29,7 +30,7 @@ import {
     getLowcodeST,
     getSyntaxTree
 } from "../DiagramGenerator/generatorUtil";
-import { EditorProps, FileListEntry, Uri, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
+import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";

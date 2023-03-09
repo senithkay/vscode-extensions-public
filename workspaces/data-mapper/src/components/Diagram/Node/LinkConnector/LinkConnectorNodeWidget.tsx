@@ -21,10 +21,10 @@ import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import Navigation from "@material-ui/icons/Navigation";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { ComponentViewInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
-import { getFunctionDefinitionNode } from "../../../../utils/st-utils";
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
 import { DataMapperPortWidget } from '../../Port';
 import { getFieldLabel } from '../../utils/dm-utils';
@@ -147,9 +147,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
 
     const {
         enableStatementEditor,
-        langClientPromise,
-        filePath,
-        handleDiagramEdit
+        updateSelectedComponent
     } = node.context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
@@ -185,21 +183,17 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         }
     };
 
-    const onClickOnGoToDef = async () => {
+    const onClickOnGoToDef = (evt: React.MouseEvent) => {
+        evt.stopPropagation();
         const {fnDefPosition, fileUri} = fnDef;
-        const fnST = await getFunctionDefinitionNode(fnDefPosition, fileUri, langClientPromise);
-        if (STKindChecker.isSpecificField(node.valueNode)) {
-            const fnDefFilePath = fileUri.replace(/^file:\/\//, "");
-            if (fnDefFilePath !== filePath) {
-                await openDiagramInNewTab(fnDefFilePath, fnDefPosition);
-            } else {
-                handleDiagramEdit(fnST, fnDefPosition, {
-                    formType: 'DataMapper',
-                    isLoading: false
-                });
-            }
+        const fnDefFilePath = fileUri.replace(/^file:\/\//, "");
+
+        const componentViewInfo: ComponentViewInfo = {
+            filePath: fnDefFilePath,
+            position: fnDefPosition
         }
-    };
+        updateSelectedComponent(componentViewInfo);
+    }
 
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
 
