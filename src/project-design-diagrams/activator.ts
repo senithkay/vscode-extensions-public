@@ -26,7 +26,7 @@ import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../ut
 import { render } from "./renderer";
 import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
 import { enrichChoreoMetadata, getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
-import { PALETTE_COMMANDS } from "src/project/activator";
+import { PALETTE_COMMANDS } from "../project/activator";
 
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;

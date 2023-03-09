@@ -2,6 +2,7 @@ import { monaco } from "react-monaco-editor";
 
 import { CommandResponse, DiagramDiagnostic, DiagramEditorLangClientInterface, DIAGRAM_MODIFIED, FunctionDef, getImportStatements, InsertorDelete, LowcodeEvent, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
@@ -9,7 +10,6 @@ import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isU
 import { EditorProps, FileListEntry, PALETTE_COMMANDS, Uri } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
-import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 export async function getSTNodeForReference(
     file: string,
@@ -50,7 +50,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-        getLibrariesData, getLibrariesList, getLibraryData } = props;
+            getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
