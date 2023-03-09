@@ -200,7 +200,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_CODE_EDITOR, CMP_DIAGRAM_VIEW);
 	});
 
-	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path, ignoreFileCheck) => {
+	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (path, position, ignoreFileCheck) => {
 		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
 			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position, ignoreFileCheck);
 		} else {
@@ -511,6 +511,13 @@ class DiagramPanel {
 				methodName: "runBackgroundTerminalCommand",
 				handler: async (args: any[]): Promise<CommandResponse> => {
 					return await runBackgroundTerminalCommand(args[0]);
+				}
+			},
+			{
+				methodName: "openArchitectureView",
+				handler: async (args: any[]): Promise<boolean> => {
+					commands.executeCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, args[0]);
+					return Promise.resolve(true);
 				}
 			},
 			{

@@ -17,23 +17,23 @@
  *
  */
 
-import {
-    commands, Position, Range, Selection, TextEditorRevealType, ViewColumn, WebviewPanel, window, workspace
-} from "vscode";
+import { commands, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
-import { existsSync } from "fs";
 import { debounce } from "lodash";
+import { Project } from "@wso2-enterprise/choreo-core";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
-import { getCommonWebViewOptions } from "../utils/webview-utils";
+import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../utils";
 import { render } from "./renderer";
-import { Location, ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion } from "./resources";
-import { ProjectDesignRPC } from "./utils";
-import { PALETTE_COMMANDS } from "../project";
+import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
+import { enrichChoreoMetadata, getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
+import { PALETTE_COMMANDS } from "../project/activator";
 
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
 let designDiagramWebview: WebviewPanel | undefined;
 let balVersion: BallerinaVersion;
+let isChoreoProject: boolean;
+let activeChoreoProject: Project | undefined;
 
 export interface STResponse {
     syntaxTree: any;
@@ -44,11 +44,11 @@ export interface STResponse {
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance = ballerinaExtInstance;
     langClient = <ExtendedLangClient>extInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand("ballerina.view.architectureView", () => {
+    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, (selectedNodeId = "") => {
         ballerinaExtInstance.onReady()
-            .then(() => {
+            .then(async () => {
                 if (isCompatible(2201.2, 2)) {
-                    viewProjectDesignDiagrams();
+                    await viewProjectDesignDiagrams(selectedNodeId);
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
                     return;
@@ -63,11 +63,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance.context.subscriptions.push(designDiagramRenderer);
 }
 
-function viewProjectDesignDiagrams() {
-    setupWebviewPanel();
+async function viewProjectDesignDiagrams(selectedNodeId: string) {
+    await setupWebviewPanel();
 
     if (designDiagramWebview) {
-        const html = render(designDiagramWebview.webview);
+        const html = render(designDiagramWebview.webview, isChoreoProject, selectedNodeId);
         if (html) {
             designDiagramWebview.webview.html = html;
         }
@@ -79,7 +79,7 @@ function viewProjectDesignDiagrams() {
     }
 }
 
-function setupWebviewPanel() {
+async function setupWebviewPanel() {
     if (designDiagramWebview) {
         designDiagramWebview.reveal();
     } else {
@@ -90,30 +90,6 @@ function setupWebviewPanel() {
             getCommonWebViewOptions()
         );
 
-        designDiagramWebview.webview.onDidReceiveMessage((message) => {
-            switch (message.command) {
-                case "go2source": {
-                    const location: Location = message.location;
-                    if (location && existsSync(location.filePath)) {
-                        workspace.openTextDocument(location.filePath).then((sourceFile) => {
-                            window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
-                                const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
-                                const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
-                                const range: Range = new Range(startPosition, endPosition);
-                                textEditor.revealRange(range, TextEditorRevealType.InCenter);
-                                textEditor.selection = new Selection(range.start, range.start);
-                            });
-                        });
-                    }
-                    return;
-                }
-                case "openDesignDiagram": {
-                    commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, message.filePath, message.position, true);
-                    return;
-                }
-            }
-        });
-
         const refreshDiagram = debounce(() => {
             if (designDiagramWebview) {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
@@ -123,7 +99,33 @@ function setupWebviewPanel() {
         workspace.onDidChangeTextDocument(refreshDiagram);
         workspace.onDidChangeWorkspaceFolders(refreshDiagram);
 
-        ProjectDesignRPC.create(designDiagramWebview, langClient);
+        const remoteMethods: WebViewMethod[] = [
+            {
+                methodName: "getComponentModel",
+                handler: (): Promise<Map<string, ComponentModel>> => {
+                    return getComponentModel(langClient);
+                }
+            },
+            {
+                methodName: "enrichChoreoMetadata",
+                handler: (args: any[]): Promise<Map<string, ComponentModel>> => {
+                    return enrichChoreoMetadata(args[0]);
+                }
+            },
+            {
+                methodName: "showChoreoProjectOverview",
+                handler: async (): Promise<void> => {
+                    if (isChoreoProject && !activeChoreoProject) {
+                        activeChoreoProject = await getActiveChoreoProject();
+                    }
+                    return showChoreoProjectOverview(activeChoreoProject);
+                }
+            }
+        ];
+        WebViewRPCHandler.create(designDiagramWebview, langClient, remoteMethods);
+
+        isChoreoProject = await checkIsChoreoProject();
+        EditLayerRPC.create(designDiagramWebview, langClient, isChoreoProject);
 
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;

@@ -30,7 +30,7 @@ export function Canvas(props: CanvasProps) {
                 className="diagram-canvas"
                 preserveAspectRatio={"xMinYMin"}
                 width={w}
-                height={'calc(100vh - 98px)'}
+                height={h}
             >
                 <defs>
                     <marker

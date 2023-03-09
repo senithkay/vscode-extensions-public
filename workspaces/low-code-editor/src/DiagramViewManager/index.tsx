@@ -22,6 +22,7 @@ import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
 import { GraphqlDiagramOverlay } from "../Diagram/components/GraphqlDiagramOverlay";
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 import { ServiceInvalidOverlay } from "../Diagram/components/ServiceInvalidOverlay";
+import { ServiceUnsupportedOverlay } from "../Diagram/components/ServiceUnsupported";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
 import {
@@ -39,7 +40,7 @@ import { useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
-import { getDiagramProviderProps } from "./utils";
+import { getDiagramProviderProps, getSTNodeForReference } from "./utils";
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
@@ -71,6 +72,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
     const [completeST, setCompleteST] = useState<STNode>();
+    const [serviceTypeSignature, setServiceTypeSignature] = useState<string>();
 
     useEffect(() => {
         setUpdatedTimeStamp(lastUpdatedAt);
@@ -163,7 +165,26 @@ export function DiagramViewManager(props: EditorProps) {
                     selectedST = nodeFindingVisitor.getNode();
                 }
 
+                // resolve the service type if the ST is a service
+                let listenerSignature: string;
+                if (STKindChecker.isServiceDeclaration(selectedST)) {
+                    const listenerExpression = selectedST.expressions[0];
+                    if (STKindChecker.isExplicitNewExpression(listenerExpression)) {
+                        const typeData = listenerExpression.typeData;
+                        const typeSymbol = typeData?.typeSymbol;
+                        listenerSignature = typeSymbol?.signature;
+                    } else {
+                        const listenerSTDecl = await getSTNodeForReference(filePath, listenerExpression.position, langClient);
+                        if (listenerSTDecl) {
+                            const typeData = listenerExpression.typeData;
+                            const typeSymbol = typeData?.typeSymbol;
+                            listenerSignature = typeSymbol?.signature;
+                        }
+                    }
+                }
+
                 setFocusedST(selectedST);
+                setServiceTypeSignature(listenerSignature);
                 setCompleteST(visitedST);
                 setCurrentFileContent(content);
                 setLowCodeResourcesVersion(resourceVersion);
@@ -206,33 +227,35 @@ export function DiagramViewManager(props: EditorProps) {
         ));
     } else if (focusedST) {
         if (STKindChecker.isServiceDeclaration(focusedST)) {
-            if (focusedST.expressions.length > 0) {
-                const listenerExpression = focusedST.expressions[0];
-                const typeData = listenerExpression.typeData;
-                const typeSymbol = typeData?.typeSymbol;
-                const signature = typeSymbol?.signature;
-                if (signature && signature.includes('http')) {
-                    viewComponent.push((
-                        <ServiceDesignOverlay
-                            model={focusedST}
-                            targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                            onCancel={handleNavigationHome}
-                        />
-                    ));
-                } else if (experimentalEnabled && signature && signature.includes('graphql')) {
-                    viewComponent.push(
-                        <GraphqlDiagramOverlay
-                            model={focusedST}
-                            targetPosition={focusedST.position}
-                            ballerinaVersion={balVersion}
-                            onCancel={handleNavigationHome}
-                        />
-                    );
-                } else if (signature && signature === "$CompilationError$") {
-                    viewComponent.push((
-                        <ServiceInvalidOverlay />
-                    ));
-                }
+            const listenerExpression = focusedST.expressions[0];
+            const typeData = listenerExpression.typeData;
+            const typeSymbol = typeData?.typeSymbol;
+            const signature = typeSymbol?.signature;
+            if (serviceTypeSignature && serviceTypeSignature.includes('http')) {
+                viewComponent.push((
+                    <ServiceDesignOverlay
+                        model={focusedST}
+                        targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                        onCancel={handleNavigationHome}
+                    />
+                ));
+            } else if (experimentalEnabled && serviceTypeSignature && serviceTypeSignature.includes('graphql')) {
+                viewComponent.push(
+                    <GraphqlDiagramOverlay
+                        model={focusedST}
+                        targetPosition={focusedST.position}
+                        ballerinaVersion={balVersion}
+                        onCancel={handleNavigationHome}
+                    />
+                );
+            } else if (signature && signature === "$CompilationError$") {
+                viewComponent.push((
+                    <ServiceInvalidOverlay />
+                ));
+            } else {
+                viewComponent.push(
+                    <ServiceUnsupportedOverlay />
+                )
             }
         } else if (STKindChecker.isFunctionDefinition(focusedST)
             && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
@@ -244,6 +267,24 @@ export function DiagramViewManager(props: EditorProps) {
                     onCancel={handleNavigationHome}
                 />
             ))
+        } else if (STKindChecker.isTypeDefinition(focusedST)
+            && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
+            // Navigate to record composition view
+            const recordST = {...focusedST}; // Clone focusedST
+            const name = recordST.typeName.value;
+            const module = recordST.typeData?.symbol?.moduleID;
+            if (!(name && module)) {
+                // TODO: Handle error properly
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
+            }else{
+                const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
+                props.openArchitectureView(nodeId);
+            }
+            // Show file view, clear focus syntax tree
+            setFocusedST(undefined);
+            setFocusUid(undefined);
+            handleNavigationHome();
         } else {
             viewComponent.push(<Diagram />);
         }
@@ -270,7 +311,6 @@ export function DiagramViewManager(props: EditorProps) {
         setFocusedST(undefined);
         historyClear();
     }
-
 
     const diagramProps = getDiagramProviderProps(
         focusedST,

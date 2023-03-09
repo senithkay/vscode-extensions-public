@@ -21,22 +21,23 @@ import { Messenger } from 'vscode-messenger-webview';
 import { HOST_EXTENSION } from 'vscode-messenger-common';
 import { WebviewApi } from 'vscode-webview';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
-import { ComponentModel, Service } from '../../resources';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { Location, Service, EditLayerAPI } from '../../resources';
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
-export class ProjectDesignRPC {
+export class WebviewEditLayerAPI implements EditLayerAPI {
     private readonly _messenger: Messenger;
-    private static _instance: ProjectDesignRPC;
+    private static _instance: WebviewEditLayerAPI;
 
     constructor(vscode: WebviewApi<unknown>) {
         this._messenger = new Messenger(vscode);
         this._messenger.start();
     }
 
-    public static getInstance() {
+    public static getInstance(): WebviewEditLayerAPI {
         if (!this._instance) {
             let vscode: WebviewApi<unknown> = (window as any).vscode || acquireVsCodeApi();
-            this._instance = new ProjectDesignRPC(vscode);
+            this._instance = new WebviewEditLayerAPI(vscode);
         }
         return this._instance;
     }
@@ -73,23 +74,19 @@ export class ProjectDesignRPC {
         return this._messenger.sendRequest({ method: 'pickDirectory' }, HOST_EXTENSION, '');
     }
 
-    public async fetchComponentModels(): Promise<Map<string, ComponentModel>> {
-        return this._messenger.sendRequest({ method: 'getProjectResources' }, HOST_EXTENSION, '');
-    }
-
-    public async isChoreoProject(): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'isChoreoProject' }, HOST_EXTENSION, '');
-    }
-
     public async executeCommand(cmd: string): Promise<boolean> {
         return this._messenger.sendRequest({ method: 'executeCommand' }, HOST_EXTENSION, cmd);
     }
 
-    public async showChoreoProjectOverview(): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'showChoreoProjectOverview' }, HOST_EXTENSION, '');
+    public showErrorMessage(msg: string): void {
+        this._messenger.sendNotification({ method: 'showErrorMsg' }, HOST_EXTENSION, msg);
     }
 
-    public showErrorMessage(msg: string) {
-        this._messenger.sendNotification({ method: 'showErrorMsg' }, HOST_EXTENSION, msg);
+    public go2source(location: Location): void {
+        return this._messenger.sendNotification({ method: 'go2source' }, HOST_EXTENSION, location);
+    }
+
+    public goToDesign(filePath: string, position: NodePosition): void {
+        return this._messenger.sendNotification({ method: 'goToDesign' }, HOST_EXTENSION, { filePath, position })
     }
 }

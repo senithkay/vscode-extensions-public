@@ -37,7 +37,6 @@ import {
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
-    getTypeOfOutput,
     isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
@@ -47,7 +46,6 @@ export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
 
 export class PrimitiveTypeNode extends DataMapperNodeModel {
 
-    public typeDef: Type;
     public recordField: EditableRecordField;
     public typeName: string;
     public x: number;
@@ -57,6 +55,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: SelectClause | ExpressionFunctionBody,
         public typeIdentifier: TypeDescriptor | IdentifierToken,
+        public typeDef: Type,
         public queryExpr?: QueryExpression) {
         super(
             context,
@@ -65,8 +64,6 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
-
         if (this.typeDef) {
             if (this.typeDef.typeName === PrimitiveBalType.Union) {
                 this.typeName = getTypeName(this.typeDef);
