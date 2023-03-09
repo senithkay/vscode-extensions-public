@@ -40,11 +40,6 @@ import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps } from "./utils";
 
-interface DiagramFocusState {
-    filePath: string;
-    uid: string;
-}
-
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
  */
