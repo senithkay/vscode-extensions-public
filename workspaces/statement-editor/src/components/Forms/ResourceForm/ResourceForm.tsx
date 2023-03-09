@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
+import { monaco } from 'react-monaco-editor';
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
@@ -35,7 +36,6 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import { monaco } from 'react-monaco-editor';
 import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
@@ -109,7 +109,7 @@ export function ResourceForm(props: FunctionProps) {
 
 
     useEffect(() => {
-        handleCompletions("", null, [22,25], targetPosition);
+        handleCompletions("", null, [22, 25], targetPosition);
         setSyntaxDiag(model?.viewState.diagnosticsInRange.concat(model?.functionSignature?.returnTypeDesc?.viewState.diagnosticsInRange.concat(model?.functionBody?.viewState.diagnosticsInRange)));
     }, [model])
 

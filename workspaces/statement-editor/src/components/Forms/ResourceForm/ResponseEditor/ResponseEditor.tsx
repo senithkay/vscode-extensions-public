@@ -175,8 +175,7 @@ export function ResponseEditor(props: ParamProps) {
         onCancel();
     }
 
-    function createPropertyStatement(property: string, targetPosition?: NodePosition,
-        isLastMember?: boolean): STModification {
+    function createPropertyStatement(property: string, targetPosition?: NodePosition, isLastMember?: boolean): STModification {
         const propertyStatement: STModification = {
             startLine: targetPosition ? targetPosition.startLine : 0,
             startColumn: isLastMember ? targetPosition.endColumn : 0,

@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
 import { Button, FormHelperText, LinearProgress, TextField } from "@material-ui/core";
-import { TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import Autocomplete from '@material-ui/lab/Autocomplete'
+import { TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { useStyles as useFormStyles } from "../../themes";
