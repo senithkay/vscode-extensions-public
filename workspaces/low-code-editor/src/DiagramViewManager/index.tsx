@@ -21,6 +21,8 @@ import { Diagram } from "../Diagram";
 import { DataMapperOverlay } from "../Diagram/components/DataMapperOverlay";
 import { GraphqlDiagramOverlay } from "../Diagram/components/GraphqlDiagramOverlay";
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
+import { ServiceInvalidOverlay } from "../Diagram/components/ServiceInvalidOverlay";
+import { ServiceUnsupportedOverlay } from "../Diagram/components/ServiceUnsupported";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
 import {
@@ -227,6 +229,14 @@ export function DiagramViewManager(props: EditorProps) {
                             onCancel={handleNavigationHome}
                         />
                     );
+                } else if (signature && signature === "$CompilationError$") {
+                    viewComponent.push((
+                        <ServiceInvalidOverlay />
+                    ));
+                } else if (!experimentalEnabled) {
+                    viewComponent.push(
+                        <ServiceUnsupportedOverlay />
+                    )
                 }
             }
         } else if (STKindChecker.isFunctionDefinition(focusedST)

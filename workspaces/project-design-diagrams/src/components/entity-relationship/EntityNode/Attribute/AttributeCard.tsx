@@ -17,11 +17,11 @@
  *
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
-import { NodeMenuWidget } from '../../../common';
+import { DiagramContext, NodeMenuWidget } from '../../../common';
 import { Attribute, Colors } from '../../../../resources';
 import { extractAttributeType } from '../entity-util';
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
@@ -35,6 +35,7 @@ interface AttributeProps {
 
 export function AttributeWidget(props: AttributeProps) {
     const { node, engine, attribute, isSelected } = props;
+    const { editingEnabled } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const attributePorts = useRef<PortModel[]>([]);
@@ -68,7 +69,7 @@ export function AttributeWidget(props: AttributeProps) {
                 >
                     {attributeType}
                 </AttributeType>
-                {isHovered && attribute.elementLocation &&
+                {isHovered && attribute.elementLocation && editingEnabled &&
                     <NodeMenuWidget
                         background={Colors.SECONDARY}
                         location={attribute.elementLocation}

@@ -11,6 +11,7 @@
  * associated services.
  */
 import {
+	AnydataType,
 	keywords,
 	PrimitiveBalType,
 	STModification,
@@ -22,7 +23,6 @@ import {
 	ExpressionFunctionBody,
 	FieldAccess,
 	FromClause,
-	FunctionDefinition,
 	IdentifierToken,
 	JoinClause,
 	LetClause,
@@ -43,6 +43,7 @@ import {
 
 import { useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
+import { DMNode } from "../../DataMapper/DataMapper";
 import { isArraysSupported } from "../../DataMapper/utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
@@ -721,6 +722,18 @@ function getNextField(nextTypeMemberNodes: ArrayElement[],
 	return [undefined, undefined];
 }
 
+export function enrichAndProcessType(typeToBeProcessed: Type, node: STNode,
+                                     selectedST: STNode): [EditableRecordField, Type] {
+	let type = {...typeToBeProcessed};
+	let valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
+	const [updatedType, isUpdated] = addMissingTypes(valueEnrichedType);
+	if (isUpdated) {
+		type = updatedType;
+		valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
+	}
+	return [valueEnrichedType, type];
+}
+
 export function getEnrichedRecordType(type: Type,
                                       node: STNode,
                                       selectedST: STNode,
@@ -1084,6 +1097,94 @@ export function getExprBodyFromLetExpression(letExpr: LetExpression): STNode {
 		return getExprBodyFromLetExpression(letExpr.expression);
 	}
 	return letExpr.expression;
+}
+
+export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type {
+	let type: Type;
+	if (STKindChecker.isMappingConstructor(node)) {
+		type = {
+			typeName: PrimitiveBalType.Record,
+			name: fieldName ? fieldName : null,
+			fields: (node.fields.filter(field => STKindChecker.isSpecificField(field)) as SpecificField[]).map(field => {
+				return constructTypeFromSTNode(field);
+			})
+		}
+	} else if (STKindChecker.isListConstructor(node)) {
+		type = {
+			typeName: PrimitiveBalType.Array,
+			name: fieldName ? fieldName : null
+		}
+		if (node.expressions.length > 0) {
+			type.memberType = constructTypeFromSTNode(node.expressions[0]);
+		}
+	} else if (STKindChecker.isQueryExpression(node)) {
+		type = {
+			typeName: PrimitiveBalType.Array,
+			name: fieldName ? fieldName : null,
+			memberType: constructTypeFromSTNode(node.selectClause.expression)
+		}
+	} else if (STKindChecker.isSpecificField(node)) {
+		const valueExpr = node.valueExpr;
+		if (!STKindChecker.isMappingConstructor(valueExpr)
+			&& !STKindChecker.isListConstructor(valueExpr)
+			&& !STKindChecker.isQueryExpression(valueExpr))
+		{
+			type = {
+				typeName: AnydataType,
+				name: node.fieldName.value
+			}
+		} else {
+			return constructTypeFromSTNode(node.valueExpr, node.fieldName.value);
+		}
+	} else {
+		type = {
+			typeName: AnydataType
+		}
+	}
+
+	return type;
+}
+
+export function addMissingTypes(field: EditableRecordField): [Type, boolean] {
+	let type = { ...field.type };
+	const value = field.value;
+	let hasTypeUpdated = false;
+
+	if (type.typeName === AnydataType && value) {
+		type = constructTypeFromSTNode(value, type?.name);
+		hasTypeUpdated = true;
+	} else if (type.typeName === PrimitiveBalType.Record) {
+		type.fields = field.childrenTypes.map((child) => {
+			const [updatedType, isUpdated] = addMissingTypes(child);
+			hasTypeUpdated = hasTypeUpdated || isUpdated;
+			return updatedType;
+		});
+	} else if (type.typeName === PrimitiveBalType.Array) {
+		if (field?.elements && field.elements.length > 0) {
+			const [updatedType, isUpdated] = addMissingTypes(field.elements[0].member);
+			hasTypeUpdated = hasTypeUpdated || isUpdated;
+			type.memberType = updatedType;
+		}
+	}
+
+	return [type, hasTypeUpdated];
+}
+
+export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: string): Type {
+	if (prevSTNodes.length === 0) {
+		return undefined;
+	}
+	const prevST = prevSTNodes[prevSTNodes.length - 1].stNode;
+	const prevOutput = STKindChecker.isSpecificField(prevST)
+		? prevST.fieldName as IdentifierToken
+		: STKindChecker.isFunctionDefinition(prevST)
+			? prevST.functionSignature.returnTypeDesc.type
+			: undefined;
+	const prevOutputType = prevOutput && getTypeOfOutput(prevOutput, ballerinaVersion);
+	if (!prevOutputType) {
+		return getPrevOutputType(prevSTNodes.slice(0, -1), ballerinaVersion)
+	}
+	return prevOutputType;
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],

@@ -27,7 +27,6 @@ export const CellContainer = styled.div`
     content: ''
   }
   overflow: hidden;
-  
 `;
 
 export const CanvasWrapper = styled.div`
@@ -39,14 +38,9 @@ export const CanvasWrapper = styled.div`
   clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
 `;
 
-interface DiagramContainerStyleProps {
-    display?: string;
-}
-
 export const CellContainerWrapper = styled.div`
   position: relative;
   width: calc(100vw - 100px);
-  display: ${(props: DiagramContainerStyleProps) => `${props.display}`};
   flex-direction: column;
   padding-top: 30px;
   padding-bottom: 20px;
@@ -55,9 +49,9 @@ export const CellContainerWrapper = styled.div`
 `;
 
 interface GatewayContainerProps {
-    left?: string;
-    top?: string;
-    rotate?: string;
+  left?: string;
+  top?: string;
+  rotate?: string;
 }
 
 export const GatewayContainer = styled.div`

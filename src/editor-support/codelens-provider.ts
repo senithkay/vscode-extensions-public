@@ -177,7 +177,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                 title: "Visualize",
                                 tooltip: "Open this code block in low code view",
                                 command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                arguments: [member.position, activeEditorUri.fsPath]
+                                arguments: [activeEditorUri.fsPath, member.position]
                             };
                             codeLenses.push(codeLens);
                         } else if (STKindChecker.isServiceDeclaration(member)) {
@@ -187,7 +187,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                 title: "Visualize",
                                 tooltip: "Open this code block in low code view",
                                 command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                arguments: [member.position, activeEditorUri.fsPath]
+                                arguments: [activeEditorUri.fsPath, member.position]
                             };
                             codeLenses.push(codeLens);
 
@@ -201,7 +201,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                         title: "Visualize",
                                         tooltip: "Open this code block in low code view",
                                         command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                        arguments: [serviceMember.position, activeEditorUri.fsPath]
+                                        arguments: [activeEditorUri.fsPath, serviceMember.position]
                                     };
                                     codeLenses.push(codeLens);
                                 } else if (STKindChecker.isResourceAccessorDefinition(serviceMember)) {
@@ -213,7 +213,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                         title: "Visualize",
                                         tooltip: "Open this code block in low code view",
                                         command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                        arguments: [serviceMember.position, activeEditorUri.fsPath]
+                                        arguments: [activeEditorUri.fsPath, serviceMember.position]
                                     };
                                     codeLenses.push(codeLens);
                                 }

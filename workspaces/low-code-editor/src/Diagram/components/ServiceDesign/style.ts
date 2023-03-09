@@ -106,18 +106,6 @@ export const useStyles = makeStyles(() =>
             overflowY: "scroll",
             maxHeight: "80%"
         },
-        expandAll: {
-            textAlign: "right"
-        },
-        collapseBtn: {
-            display: "inline-flex",
-            border: "1px solid #5667d5",
-            borderRadius: 5,
-            paddingLeft: 15,
-            marginTop: 5,
-            marginRight: 20,
-            cursor: "pointer"
-        },
         signature: {
             padding: 8,
             fontWeight: 500,
@@ -165,6 +153,7 @@ export const useStyles = makeStyles(() =>
             boxShadow: "inset 0 -1px 0 0 #E6E7EC",
             backgroundColor: "#F7F8FB",
             alignItems: "center",
+            marginBottom: 15
         },
         serviceTitleText: {
             flexGrow: 1,
