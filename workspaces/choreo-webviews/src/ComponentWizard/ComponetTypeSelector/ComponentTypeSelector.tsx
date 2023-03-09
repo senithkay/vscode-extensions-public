@@ -29,7 +29,7 @@ const typeBtn = css`
 `;
 
 interface SelectorProps {
-    selectedType: ChoreoServiceComponentType;
+    selectedType?: ChoreoServiceComponentType;
     onChange: (type: ChoreoServiceComponentType) => void;
 }
 
