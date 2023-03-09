@@ -164,7 +164,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                             <div>Configure Service</div>
                         </div>
                     </div>
-                    <div className={classes.expandAll}>
+                    {/* <div className={classes.expandAll}>
                         <div className={classes.collapseBtn} onClick={onExpandAllClick}>
                             {isAllExpanded ? 'Collapse All' : 'Expand All'}
                             <ComponentExpandButton
@@ -172,7 +172,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                                 onClick={onExpandAllClick}
                             />
                         </div>
-                    </div>
+                    </div> */}
                     <div className={classes.serviceList}>
                         <>
                             {children}

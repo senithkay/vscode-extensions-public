@@ -44,19 +44,20 @@ interface ResourceQueryParamsProps {
 export function ResourceQueryParams(props: ResourceQueryParamsProps) {
     const { parameters, relativeResourcePath } = props;
 
-    const pathElements = relativeResourcePath.map(relativePath => {
-        switch (relativePath.kind) {
-            case 'ResourcePathSegmentParam':
-                return (
-                    <>
-                        [<span className={'type-descriptor'}>
-                            {`${(relativePath as any).typeDescriptor?.name?.value} `}
-                        </span>
-                        {(relativePath as any).paramName?.value}]
-                    </>
-                );
-            default:
-                return relativePath.value
+    const pathElements = relativeResourcePath.map(node => {
+        if (STKindChecker.isIdentifierToken(node) || STKindChecker.isSlashToken(node)) {
+            return node.value
+        } else if (STKindChecker.isResourcePathSegmentParam(node) || STKindChecker.isResourcePathRestParam(node)) {
+            return (
+                <>
+                    [<span className={'type-descriptor'}>
+                        {`${(node as any).typeDescriptor?.name?.value} `}
+                    </span>
+                    {STKindChecker.isResourcePathRestParam(node) ? '...' : ''}{(node as any).paramName?.value}]
+                </>
+            );
+        } else if (STKindChecker.isDotToken(node)) {
+            return (<>/</>);
         }
     });
 

@@ -28,3 +28,6 @@ export const choreoSignedInCtxKey = 'isSignedInToChoreo';
 export const choreoProjectsTreeId = 'choreo-projects';
 export const choreoAccountTreeId = 'choreo-account';
 
+
+// state keys
+export const SELECTED_ORG_ID_KEY = 'selectedOrgId';

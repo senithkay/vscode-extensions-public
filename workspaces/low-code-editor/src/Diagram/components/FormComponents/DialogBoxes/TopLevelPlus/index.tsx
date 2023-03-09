@@ -41,8 +41,10 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
     useEffect(() => {
         if (fullST) {
             setPosition({
-                startLine: (fullST as ModulePart).eofToken.position.startLine,
-                startColumn: 0,
+                startLine: (fullST as ModulePart).eofToken.position.endLine,
+                startColumn: (fullST as ModulePart).eofToken.position.endColumn,
+                endLine: (fullST as ModulePart).eofToken.position.endLine,
+                endColumn: (fullST as ModulePart).eofToken.position.endColumn,
             });
         }
     }, [fullST]);

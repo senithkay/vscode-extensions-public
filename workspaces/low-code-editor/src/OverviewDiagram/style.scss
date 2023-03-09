@@ -1,5 +1,12 @@
 .view-container {
     padding: 15px;
+
+    .empty-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px
+    }
 }
 
 .overview-action-bar {

@@ -107,20 +107,22 @@ export function NavigationBar(props: NavigationBarProps) {
     }
 
     const renderWorkspaceNameComponent = () => (
-        <div className="btn-container" >
+        <div className="btn-container" onClick={historyReset} >
             {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
             <span className="icon-text">{`${workspaceName}`}</span>
         </div>
     );
 
+    const buttonsDisabled = history.length === 0;
+
     const renderNavigationButtons = () => {
         return (
             <>
-                <div className="btn-container" onClick={historyPop} >
-                    <ArrowBack />
+                <div className="btn-container" aria-disabled={buttonsDisabled} onClick={historyPop}>
+                    <ArrowBack className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
-                <div className="btn-container" onClick={historyReset} >
-                    <Home />
+                <div className="btn-container" aria-disabled={buttonsDisabled} onClick={historyReset}>
+                    <Home className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
             </>
         );
@@ -129,7 +131,7 @@ export function NavigationBar(props: NavigationBarProps) {
     // {renderWorkspaceNameComponent(isWorkspace)}
     return (
         <div id="nav-bar-main" className="header-bar">
-            {history.length > 0 && renderNavigationButtons()}
+            {renderNavigationButtons()}
             {renderWorkspaceNameComponent()}
             {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
             {isWorkspace && renderProjectSelectorComponent()}

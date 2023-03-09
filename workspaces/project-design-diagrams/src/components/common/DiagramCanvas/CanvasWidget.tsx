@@ -21,15 +21,16 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
+import debounce from 'lodash.debounce';
 import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
+import { GatewayLinkModel } from '../../gateway/GatewayLink/GatewayLinkModel';
+import { GatewayNodeModel } from '../../gateway/GatewayNode/GatewayNodeModel';
 import { DagreLayout, Views } from '../../../resources';
-import { createEntitiesEngine, createServicesEngine, positionGatewayNodes } from '../../../utils';
+import {
+    addGWNodesModel, cellDiagramZoomToFit, createEntitiesEngine, createServicesEngine, positionGatewayNodes, removeGWLinks
+} from '../../../utils';
 import './styles/styles.css';
-import debounce from "lodash.debounce";
-import { GatewayLinkModel } from "../../gateway/GatewayLink/GatewayLinkModel";
-import { addGWNodesModel, cellDiagramZoomToFit, removeGWLinks } from "../../../utils/utils";
-import { GatewayNodeModel } from "../../gateway/GatewayNode/GatewayNodeModel";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -55,9 +56,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const { model, currentView, layout, type } = props;
     const { editingEnabled, setNewLinkNodes } = useContext(DiagramContext);
 
-    const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE ||
-        type === Views.TYPE_COMPOSITION ? createEntitiesEngine : createServicesEngine);
-    const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
+    const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE || type === Views.TYPE_COMPOSITION ?
+        createEntitiesEngine : createServicesEngine);
+    const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
 
     const hideGWLinks = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
@@ -90,28 +91,23 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     }, 1500);
 
     const onWindowResize = () => {
-        hideGWLinks();
-        onWindowDragFinished();
-    };
-
-    const onScroll = () => {
-        hideGWLinks();
-        onWindowDragFinished();
+        if (type === Views.CELL_VIEW && diagramEngine.getModel()) {
+            hideGWLinks();
+            onWindowDragFinished();
+        }
     };
 
     useEffect(() => {
-        if (currentView === Views.L1_SERVICES && editingEnabled) {
+        if (type === Views.L1_SERVICES && editingEnabled) {
             // Reset new link nodes on escape
             function handleEscapePress(event: KeyboardEvent) {
-                if (event.key === 'Escape') {
+                if (event.key === 'Escape' && currentView === Views.L1_SERVICES && currentView === type) {
                     setNewLinkNodes({ source: undefined, target: undefined });
                 }
             }
             document.addEventListener('keydown', handleEscapePress);
-        }
-        if (currentView === Views.CELL_VIEW) {
-            document.addEventListener('scroll', onScroll);
-            window.addEventListener("resize", onWindowResize);
+        } else if (type === Views.CELL_VIEW && editingEnabled) {
+            window.addEventListener('resize', onWindowResize);
         }
     }, []);
 
@@ -134,34 +130,30 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
             setDiagramModel(model);
             autoDistribute();
         }
-        if (diagramEngine.getModel()) {
-            removeGWLinks(diagramEngine);
-        }
     }, [currentView]);
 
     const autoDistribute = () => {
-        const hasGwNode = diagramEngine.getModel().getNodes().find(node => (node instanceof GatewayNodeModel));
         setTimeout(() => {
             if (dagreEngine.options.graph.ranker !== layout) {
                 dagreEngine.options.graph.ranker = layout;
             }
-            if (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES
-                || currentView === Views.CELL_VIEW) {
+            if (currentView === Views.CELL_VIEW) {
                 // Removing GW links on refresh
                 removeGWLinks(diagramEngine);
             }
             dagreEngine.redistribute(diagramEngine.getModel());
             if (currentView === Views.CELL_VIEW) {
+                const hasGwNode = diagramEngine.getModel().getNodes().find(node => (node instanceof GatewayNodeModel));
                 // Adding GW links and nodes after dagre distribution
                 addGWNodesModel(diagramEngine, !hasGwNode);
                 positionGatewayNodes(diagramEngine);
             }
-            debouncedZoomToFit();
+            zoomToFit();
         }, 30);
     };
 
     const redrawDiagram = () => {
-        if (currentView === Views.CELL_VIEW) {
+        if (type === Views.CELL_VIEW) {
             positionGatewayNodes(diagramEngine);
         }
         diagramEngine.repaintCanvas();
@@ -175,16 +167,10 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
-        if (currentView === Views.CELL_VIEW) {
+        if (type === Views.CELL_VIEW) {
             cellDiagramZoomToFit(diagramEngine);
         }
     };
-
-    const debouncedZoomToFit = debounce(() => {
-        if (diagramEngine.getModel()?.getNodes().length > 0) {
-            zoomToFit();
-        }
-    }, 50);
 
     const downloadDiagram = useCallback(() => {
         const canvas: HTMLDivElement = diagramEngine.getCanvas();
@@ -200,7 +186,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 link.click();
             })
             .catch((err) => {
-                console.log(err);
+                console.log(err.message);
             });
     }, [diagramEngine.getCanvas()]);
 
@@ -208,15 +194,15 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
         <>
             {diagramEngine && diagramEngine.getModel() &&
                 <div
-                    onMouseDown={currentView === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
-                    onMouseUp={currentView === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
+                    onMouseDown={type === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
+                    onMouseUp={type === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
                 >
-                    <CanvasWidget engine={diagramEngine} className={'diagram-container'}  />
+                    <CanvasWidget engine={diagramEngine} className={'diagram-container'} />
                 </div>
             }
 
             <DiagramControls
-                showDownloadButton={currentView !== Views.CELL_VIEW}
+                showDownloadButton={type !== Views.CELL_VIEW}
                 zoomToFit={zoomToFit}
                 onZoom={onZoom}
                 onDownload={downloadDiagram}

@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { DotToken, FunctionDefinition, IdentifierToken, NodePosition, ResourceAccessorDefinition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { DotToken, FunctionDefinition, IdentifierToken, NodePosition, ResourceAccessorDefinition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
 
 import { generateResourcePathString, isPositionEqual } from "./util";
 
@@ -21,7 +21,8 @@ export const SUB_DELIMETER = '%%';
 export enum ELEMENT_KEYWORDS {
     SERVICE = 'service',
     FUNCTION = 'function',
-    RESOURCE = 'resource'
+    RESOURCE = 'resource',
+    RECORD = 'record'
 }
 
 export class UIDGenerationVisitor implements Visitor {
@@ -30,7 +31,6 @@ export class UIDGenerationVisitor implements Visitor {
     private stack: string[];
     private moduleServiceIndex: number;
     private moduleFunctionIndex: number;
-
 
     constructor(position: NodePosition) {
         this.stack = [];
@@ -51,7 +51,6 @@ export class UIDGenerationVisitor implements Visitor {
     endVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode): void {
         this.stack.pop();
     }
-
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
         if (parent && STKindChecker.isModulePart(parent)) {
@@ -87,11 +86,22 @@ export class UIDGenerationVisitor implements Visitor {
         this.stack.pop();
     }
 
+    beginVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
+        this.stack.push(`${ELEMENT_KEYWORDS.RECORD}${SUB_DELIMETER}${node.typeName?.value}`);
+
+        if (isPositionEqual(node.position, this.position)) {
+            this.setUId();
+        }
+    }
+
+    endVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
+
     private setUId(): void {
         this.uid = this.stack.reduce((prev, current) =>
             prev.length === 0 ? current : `${prev}${MODULE_DELIMETER}${current}`, '');
     }
-
 
     public getUId(): string {
         return this.uid;

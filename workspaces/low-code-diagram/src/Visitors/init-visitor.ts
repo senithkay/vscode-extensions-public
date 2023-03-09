@@ -385,17 +385,25 @@ export class InitVisitor implements Visitor {
 
     public endVisitAssignmentStatement(node: AssignmentStatement, parent?: STNode) {
         this.initStatement(node, parent);
-
         if (node.expression && isSTActionInvocation(node)) {
             const stmtViewState: StatementViewState = node.viewState as StatementViewState;
 
             if (STKindChecker.isCheckAction(node.expression) && STKindChecker.isRemoteMethodCallAction(node.expression.expression)) {
                 const remoteAction: RemoteMethodCallAction = node.expression.expression;
-                const varRef: SimpleNameReference = remoteAction.expression as SimpleNameReference;
-                stmtViewState.action.endpointName = varRef.name.value;
+                let varRef: SimpleNameReference
+                if (STKindChecker.isSimpleNameReference(remoteAction.expression)) {
+                    varRef = remoteAction.expression as SimpleNameReference;
+                } else if (STKindChecker.isFieldAccess(remoteAction.expression)) {
+                    varRef = remoteAction.expression.fieldName as SimpleNameReference;
+                }
+
+                stmtViewState.action.endpointName = varRef?.name?.value;
                 stmtViewState.action.actionName = remoteAction.methodName.name.value;
 
-                if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
+                if (varRef
+                    && currentFnBody
+                    && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                    && currentFnBody.VisibleEndpoints) {
                     const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                     stmtViewState.isCallerAction = callerParam && callerParam.name === varRef.name.value;
                 }

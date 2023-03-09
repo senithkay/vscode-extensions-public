@@ -132,7 +132,7 @@ export class PositioningVisitor implements Visitor {
         viewState.wrapper.cx = viewState.bBox.x;
         viewState.wrapper.cy = viewState.bBox.y;
 
-        const topOffSet = viewState.bBox.offsetFromTop * 10;
+        const topOffSet = viewState.bBox.offsetFromTop * 7;
         viewState.bBox.cx = viewState.bBox.x + viewState.bBox.lw;
         viewState.bBox.cy = viewState.bBox.y + topOffSet;
 
@@ -160,7 +160,7 @@ export class PositioningVisitor implements Visitor {
 
         viewState.bBox.cx = viewState.bBox.x;
         viewState.bBox.cy = viewState.bBox.y;
-        const topOffSet = viewState.bBox.offsetFromTop * 10;
+        const topOffSet = viewState.bBox.offsetFromTop * 7;
         viewState.trigger.cx = viewState.bBox.cx + viewState.bBox.lw;
         viewState.trigger.cy = viewState.bBox.cy + topOffSet;
 
@@ -206,7 +206,7 @@ export class PositioningVisitor implements Visitor {
         viewState.wrapper.cx = viewState.bBox.x;
         viewState.wrapper.cy = viewState.bBox.y;
 
-        const topOffSet = viewState.bBox.offsetFromTop * 10;
+        const topOffSet = viewState.bBox.offsetFromTop * 7;
         viewState.bBox.cx = viewState.bBox.x + viewState.bBox.lw;
         viewState.bBox.cy = viewState.bBox.y + topOffSet;
 
@@ -875,8 +875,7 @@ export class PositioningVisitor implements Visitor {
                     endpoint.actions.push(statementViewState);
                 }
 
-                if (statementViewState.isEndpoint && statementViewState.endpoint.epName &&
-                    !isVarTypeDescriptor(statement)) {
+                if (statementViewState.isEndpoint && statementViewState.endpoint.epName) {
                     const endpointViewState: EndpointViewState = statementViewState.endpoint;
                     // to identify a connector init ( http:Client ep1 = new ("/context") )
                     endpointViewState.lifeLine.cx = blockViewState.bBox.cx +
