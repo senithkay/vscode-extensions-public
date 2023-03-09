@@ -267,6 +267,24 @@ export function DiagramViewManager(props: EditorProps) {
                     onCancel={handleNavigationHome}
                 />
             ))
+        } else if (STKindChecker.isTypeDefinition(focusedST)
+            && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
+            // Navigate to record composition view
+            const recordST = {...focusedST}; // Clone focusedST
+            const name = recordST.typeName.value;
+            const module = recordST.typeData?.symbol?.moduleID;
+            if (!(name && module)) {
+                // TODO: Handle error properly
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
+            }else{
+                const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
+                props.openArchitectureView(nodeId);
+            }
+            // Show file view, clear focus syntax tree
+            setFocusedST(undefined);
+            setFocusUid(undefined);
+            handleNavigationHome();
         } else {
             viewComponent.push(<Diagram />);
         }
@@ -293,7 +311,6 @@ export function DiagramViewManager(props: EditorProps) {
         setFocusedST(undefined);
         historyClear();
     }
-
 
     const diagramProps = getDiagramProviderProps(
         focusedST,

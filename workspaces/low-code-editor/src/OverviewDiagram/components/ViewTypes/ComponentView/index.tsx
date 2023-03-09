@@ -31,11 +31,10 @@ export function ComponentView(props: ComponentViewProps) {
 
     const handleComponentClick = () => {
         updateSelection(info);
-    }
+    };
 
     const isComponentAllowed = (type: string) => {
         switch (type) {
-            case 'records':
             case 'classes':
             case 'objects':
             case 'types':

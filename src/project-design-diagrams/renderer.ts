@@ -20,7 +20,7 @@
 import { Webview } from "vscode";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } from "../utils/webview-utils";
 
-export function render(webView: Webview, isChoreoProject: boolean) {
+export function render(webView: Webview, isChoreoProject: boolean, selectedNodeId: string) {
     const body = `<div class = "container" id = "webview-container" />`;
     const bodyCss = ``;
     const styles = `
@@ -81,6 +81,7 @@ export function render(webView: Webview, isChoreoProject: boolean) {
                 designDiagram.renderDesignDiagrams(
                     true,
                     ${isChoreoProject},
+                    "${selectedNodeId}",
                     getComponentModel,
                     enrichChoreoMetadata,
                     showChoreoProjectOverview,

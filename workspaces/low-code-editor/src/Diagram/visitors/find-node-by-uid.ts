@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { FunctionDefinition, ResourceAccessorDeclaration, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ResourceAccessorDeclaration, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
 
 import { ELEMENT_KEYWORDS, MODULE_DELIMETER, SUB_DELIMETER } from "./uid-generation-visitor";
 import { generateResourcePathString } from "./util";
@@ -42,7 +42,6 @@ export class FindNodeByUidVisitor implements Visitor {
         this.stack.pop();
     }
 
-
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
         if (parent && STKindChecker.isModulePart(parent)) {
             this.moduleFunctionIndex++;
@@ -60,7 +59,6 @@ export class FindNodeByUidVisitor implements Visitor {
         this.stack.pop();
     }
 
-
     beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
         let id: string = `${ELEMENT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${node.functionName.value}`;
 
@@ -76,6 +74,18 @@ export class FindNodeByUidVisitor implements Visitor {
     }
 
     endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
+        this.stack.push(`${ELEMENT_KEYWORDS.RECORD}${SUB_DELIMETER}${node.typeName?.value}`);
+
+        if (this.getCurrentUid() === this.uid) {
+            this.selectedNode = node;
+        }
+    }
+
+    endVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
         this.stack.pop();
     }
 

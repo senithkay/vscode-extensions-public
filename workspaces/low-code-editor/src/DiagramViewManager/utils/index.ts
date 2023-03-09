@@ -67,6 +67,8 @@ export function getDiagramProviderProps(
 
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => Promise<boolean> = props.showMessage;
     const runBackgroundTerminalCommand: (command: string) => Promise<CommandResponse> = props.runBackgroundTerminalCommand;
+    const openArchitectureView: (nodeId: string) => Promise<boolean> = props.openArchitectureView;
+
     const openExternalUrl: (url: string) => Promise<boolean> = props.openExternalUrl;
     return {
         syntaxTree: focusedST,
@@ -236,6 +238,7 @@ export function getDiagramProviderProps(
                 getLibraryData
             },
             runBackgroundTerminalCommand,
+            openArchitectureView,
             openExternalUrl,
             navigation: {
                 updateActiveFile,
