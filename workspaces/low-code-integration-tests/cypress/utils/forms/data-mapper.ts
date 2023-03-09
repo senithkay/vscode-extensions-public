@@ -417,4 +417,12 @@ export class DataMapper {
     static deleteSelectedLocalVariables = () => {
         cy.get(`[data-testid="delete-selected-local-variables"]`).click();
     }
+
+    static resetZoom = () => {
+        cy.get(`[data-testid="reset-zoom"]`).click();
+    }
+
+    static fitToScreen = () => {
+        cy.get(`[data-testid="fit-to-screen"]`).click();
+    }
 }

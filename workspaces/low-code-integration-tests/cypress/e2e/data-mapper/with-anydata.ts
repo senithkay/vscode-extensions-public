@@ -31,6 +31,7 @@ describe("Map to a record which is having anydata fields", () => {
     it("Canvas contains the source and target nodes", () => {
         DataMapper.getSourceNode("input");
         DataMapper.getTargetNode("mappingConstructor", "Output");
+        DataMapper.fitToScreen();
     });
 
     it("Verify direct mappings between two string type fields", () => {
