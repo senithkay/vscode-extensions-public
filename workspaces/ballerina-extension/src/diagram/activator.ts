@@ -118,7 +118,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 		startColumn,
 		isDiagram: true,
 		diagramFocus: filePath && filePath.length !== 0 ?
-			{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined,
+			{ fileUri: Uri.file(filePath).path, position: designPosition } : undefined,
 		workspaceName: workspace.name
 	};
 
@@ -616,7 +616,7 @@ class DiagramPanel {
 					experimentalEnabled,
 					openNodeInDiagram,
 					this.webviewPanel.webview,
-					diagramElement!.diagramFocus
+					DiagramPanel.diagramElement!.diagramFocus
 				);
 			} else {
 				callUpdateDiagramMethod();

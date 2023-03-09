@@ -145,26 +145,32 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const diagnostic = hasError ? node.diagnostics[0] : null;
     const fnDef = node.fnDefForFnCall;
 
+    const {
+        enableStatementEditor,
+        langClientPromise,
+        filePath,
+        handleDiagramEdit
+    } = node.context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickEdit = () => {
         const valueNode = props.node.valueNode;
         if (STKindChecker.isSpecificField(valueNode)) {
-            props.node.context.enableStatementEditor({
+            enableStatementEditor({
                 valuePosition: valueNode.valueExpr.position as NodePosition,
                 value: valueNode.valueExpr.source,
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
                     : props.node.editorLabel)
             });
         } else if (STKindChecker.isBinaryExpression(valueNode)) {
-            props.node.context.enableStatementEditor({
+            enableStatementEditor({
                 valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.portName)
                     : props.node.editorLabel)
             });
         } else {
-            props.node.context.enableStatementEditor({
+            enableStatementEditor({
                 valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
                 label: "Expression"
@@ -181,14 +187,17 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
 
     const onClickOnGoToDef = async () => {
         const {fnDefPosition, fileUri} = fnDef;
-        const fnST = await getFunctionDefinitionNode(fnDefPosition, fileUri, node.context.langClientPromise);
+        const fnST = await getFunctionDefinitionNode(fnDefPosition, fileUri, langClientPromise);
         if (STKindChecker.isSpecificField(node.valueNode)) {
-            const filePath = fileUri.replace(/^file:\/\//, "");
-            node.context.updateFilePath(filePath);
-            node.context.handleDiagramEdit(fnST, fnDefPosition, {
-                formType: 'DataMapper',
-                isLoading: false
-            });
+            const fnDefFilePath = fileUri.replace(/^file:\/\//, "");
+            if (fnDefFilePath !== filePath) {
+                await openDiagramInNewTab(fnDefFilePath, fnDefPosition);
+            } else {
+                handleDiagramEdit(fnST, fnDefPosition, {
+                    formType: 'DataMapper',
+                    isLoading: false
+                });
+            }
         }
     };
 

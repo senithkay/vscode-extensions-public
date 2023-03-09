@@ -70,6 +70,7 @@ export function getDiagramProviderProps(
     const openArchitectureView: (nodeId: string) => Promise<boolean> = props.openArchitectureView;
 
     const openExternalUrl: (url: string) => Promise<boolean> = props.openExternalUrl;
+    const openDiagramInNewTab: (url: string, position: NodePosition) => Promise<boolean> = props.openDiagramInNewTab;
     return {
         syntaxTree: focusedST,
         fullST: completeST,
@@ -244,7 +245,8 @@ export function getDiagramProviderProps(
                 updateActiveFile,
                 updateSelectedComponent,
                 navigateUptoParent
-            }
+            },
+            openDiagramInNewTab
         },
         originalSyntaxTree: undefined,
         langServerURL: "",

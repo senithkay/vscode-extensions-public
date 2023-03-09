@@ -30,7 +30,7 @@ import {
     SentryConfig,
     STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
