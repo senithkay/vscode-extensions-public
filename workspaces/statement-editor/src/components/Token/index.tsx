@@ -17,7 +17,7 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getJSXForMinutiae, isPositionsEquals, isQuestionMarkFromRecordField } from "../../utils";
+import { checkCommentMinutiae, getJSXForMinutiae, isPositionsEquals, isQuestionMarkFromRecordField } from "../../utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { useStatementRendererStyles } from "../styles";
 
@@ -65,6 +65,7 @@ export function TokenComponent(props: TokenComponentProps) {
 
     const leadingMinutiaeJSX = getJSXForMinutiae(model.leadingMinutiae, isFieldWithNewLine);
     const trailingMinutiaeJSX = getJSXForMinutiae(model.trailingMinutiae, isFieldWithNewLine);
+    const filteredLeadingMinutiaeJSX = checkCommentMinutiae(leadingMinutiaeJSX);
 
     const onMouseOver = (e: React.MouseEvent) => {
         setHovered(true);
@@ -100,7 +101,7 @@ export function TokenComponent(props: TokenComponentProps) {
             onClick={onMouseClick}
         >
             {STKindChecker.isCloseBraceToken(model) && newLineRequired && <br/>}
-            {leadingMinutiaeJSX}
+            {filteredLeadingMinutiaeJSX}
             {model.value}
             {onPlusClick && (
                 <span
