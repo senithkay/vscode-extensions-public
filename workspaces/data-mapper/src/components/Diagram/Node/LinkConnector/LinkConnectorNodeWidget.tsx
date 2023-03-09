@@ -16,10 +16,10 @@ import * as React from 'react';
 import { CircularProgress } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
 import TooltipBase from '@material-ui/core/Tooltip';
+import ChevronRight from "@material-ui/icons/ChevronRight";
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
-import Navigation from "@material-ui/icons/Navigation";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ComponentViewInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -146,8 +146,10 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const fnDef = node.fnDefForFnCall;
 
     const {
+        filePath,
         enableStatementEditor,
-        updateSelectedComponent
+        updateSelectedComponent,
+        openDiagramInNewTab
     } = node.context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
@@ -183,16 +185,21 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         }
     };
 
-    const onClickOnGoToDef = (evt: React.MouseEvent) => {
+    const onClickOnGoToDef = async (evt: React.MouseEvent) => {
         evt.stopPropagation();
         const {fnDefPosition, fileUri} = fnDef;
         const fnDefFilePath = fileUri.replace(/^file:\/\//, "");
+        const isSameFile = filePath === fnDefFilePath;
 
-        const componentViewInfo: ComponentViewInfo = {
-            filePath: fnDefFilePath,
-            position: fnDefPosition
+        if (isSameFile) {
+            const componentViewInfo: ComponentViewInfo = {
+                filePath: fnDefFilePath,
+                position: fnDefPosition
+            }
+            updateSelectedComponent(componentViewInfo);
+        } else {
+            await openDiagramInNewTab(fnDefFilePath, fnDefPosition);
         }
-        updateSelectedComponent(componentViewInfo);
     }
 
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
@@ -217,7 +224,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                 {fnDef && fnDef.isExprBodiedFn && (
                     <div className={classes.element} onClick={onClickOnGoToDef} data-testid={`go-to-tnf-fn-${node?.value}`}>
                         <div className={classes.iconWrapper}>
-                            <Navigation className={clsx(classes.editIcon)}/>
+                            <ChevronRight className={clsx(classes.editIcon)}/>
                         </div>
                     </div>
                 )}
