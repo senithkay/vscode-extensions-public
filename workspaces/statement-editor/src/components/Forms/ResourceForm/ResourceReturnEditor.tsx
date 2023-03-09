@@ -79,7 +79,6 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         const newSource = responses.join("|");
         onChange(newSource);
         setEditingSegmentId(segmentId); // this should be segmentID
-        onChangeInProgress(false);
     };
 
 
