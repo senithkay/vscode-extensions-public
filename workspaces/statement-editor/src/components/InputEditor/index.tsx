@@ -72,6 +72,10 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
 
+        if (source.startsWith('//')) {
+                source = source.split('\n').pop();
+        }
+
         inputEditorCtx.onInputChange(source.trim());
         return source.trim();
     }, [model]);
