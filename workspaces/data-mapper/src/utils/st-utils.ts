@@ -112,6 +112,7 @@ export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
             fnDefInfo: {
                 fnCallPosition: position,
                 fnDefPosition: undefined,
+                fnName: "",
                 fileUri: defLoc.uri,
                 isExprBodiedFn: false,
             },
@@ -144,6 +145,7 @@ export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
                     if (filteredFnDef) {
                         filteredFnDef.fnDefInfo.isExprBodiedFn = STKindChecker.isExpressionFunctionBody(mem.functionBody);
                         filteredFnDef.fnDefInfo.fnDefPosition = mem.position;
+                        filteredFnDef.fnDefInfo.fnName = mem.functionName.value;
                         fnDefs.push(filteredFnDef.fnDefInfo);
                     }
                 }

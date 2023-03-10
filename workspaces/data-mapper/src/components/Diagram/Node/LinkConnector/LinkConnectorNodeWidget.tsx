@@ -190,11 +190,12 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
 
     const onClickOnGoToDef = async (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        const {fnDefPosition, fileUri} = fnDef;
+        const {fnDefPosition, fileUri, fnName} = fnDef;
         const fnDefFilePath = fileUri.replace(/^file:\/\//, "");
         const componentViewInfo: ComponentViewInfo = {
             filePath: fnDefFilePath,
-            position: fnDefPosition
+            position: fnDefPosition,
+            name: fnName
         }
         updateSelectedComponent(componentViewInfo);
     }

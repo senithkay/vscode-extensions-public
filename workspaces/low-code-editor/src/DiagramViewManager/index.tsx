@@ -209,10 +209,11 @@ export function DiagramViewManager(props: EditorProps) {
     }
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
-        const { filePath, position } = componentDetails;
+        const { filePath, position, name } = componentDetails;
         historyPush({
             file: filePath,
             position,
+            name
         });
     }
 

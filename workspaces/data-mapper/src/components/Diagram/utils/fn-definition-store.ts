@@ -26,6 +26,7 @@ import { FunctionCallFindingVisitor } from "../visitors/FunctionCallFindingVisit
 export interface FnDefInfo {
     fnCallPosition: LinePosition;
     fnDefPosition: NodePosition;
+    fnName: string;
     fileUri: string,
     isExprBodiedFn?: boolean;
 }

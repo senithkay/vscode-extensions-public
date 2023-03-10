@@ -19,6 +19,7 @@ export interface HistoryEntry {
     file: string;
     position?: NodePosition;
     uid?: string;
+    name?: string;
 }
 
 type historyPushFnType = (info: HistoryEntry) => void;

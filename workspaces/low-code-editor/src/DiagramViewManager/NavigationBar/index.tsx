@@ -10,12 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext } from "react";
 
 import { ClickAwayListener, Popover } from "@material-ui/core";
 import { Apps, ArrowBack, ArrowDropDown,  Home } from "@material-ui/icons";
+import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { PackageIcon } from "../../assets/icons";
+import { Context } from "../../Contexts/Diagram";
 import { WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../context/history";
 
@@ -39,11 +42,15 @@ export function NavigationBar(props: NavigationBarProps) {
     } = props;
     const classes = useStyles();
     const { history, historyPop, historyReset } = useHistoryContext();
+    const { props: { syntaxTree } } = useContext(Context);
 
     const [isProjectSelectorOpen, setIsProjectSelectorOpen] = React.useState(false);
     const popoverRef = React.useRef<HTMLDivElement>(null);
 
     const isWorkspace = projectList.length > 1;
+
+    const isRootDataMapper = syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)
+        && STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody);
 
     const handleProjectChange = (selectedProject: WorkspaceFolder) => {
         updateCurrentProject(selectedProject);
@@ -128,6 +135,16 @@ export function NavigationBar(props: NavigationBarProps) {
         );
     }
 
+    const getBreadcrumb = () => {
+        if (history.length === 1) {
+            history[0].name = (syntaxTree as FunctionDefinition).functionName.value;
+        }
+        const names = history.map(item => item.name).join(' / ');
+        return (
+            <span>{names}</span>
+        );
+    };
+
     // {renderWorkspaceNameComponent(isWorkspace)}
     return (
         <div id="nav-bar-main" className="header-bar">
@@ -135,7 +152,13 @@ export function NavigationBar(props: NavigationBarProps) {
             {renderWorkspaceNameComponent()}
             {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
             {isWorkspace && renderProjectSelectorComponent()}
-            <div className="component-details" />
+            {isRootDataMapper ? (
+                    getBreadcrumb()
+                ) :
+                (
+                    <div className="component-details"/>
+                )
+            }
         </div>
     );
 }
