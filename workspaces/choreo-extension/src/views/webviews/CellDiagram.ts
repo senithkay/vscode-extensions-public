@@ -47,7 +47,7 @@ export class CellDiagram {
 			CellDiagram.currentPanel = new CellDiagram(panel, extensionUri, orgName, projectId);
 			panel.reveal(vscode.ViewColumn.One);
 		} else {
-			const panel = vscode.window.createWebviewPanel("choreo-cell-view", "Cell Architecture View", vscode.ViewColumn.One, {
+			const panel = vscode.window.createWebviewPanel("choreo-cell-view", "Architecture View", vscode.ViewColumn.One, {
 				enableScripts: true, retainContextWhenHidden: true
 			});
 			CellDiagram.currentPanel = new CellDiagram(panel, extensionUri, orgName, projectId);
