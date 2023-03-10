@@ -79,7 +79,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
         ) {
             if (model.initializer.expression.arguments) {
                 changeCurrentModel(model.initializer.expression.arguments);
-            } else if(model.initializer.expression.methodName){
+            } else if (model.initializer.expression.methodName){
                 changeCurrentModel(model.initializer.expression.methodName);
             }else{
                 changeCurrentModel(model.initializer.expression);

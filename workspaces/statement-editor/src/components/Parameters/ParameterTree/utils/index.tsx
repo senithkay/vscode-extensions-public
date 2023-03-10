@@ -419,7 +419,7 @@ export function mapActionToFormField(model: STNode, formFields: FormField[]): Fo
     if (!expression) {
         return formFields;
     }
-    let methodArgs: (CommaToken | NamedArg | PositionalArg | RestArg)[] = undefined;
+    let methodArgs: (CommaToken | NamedArg | PositionalArg | RestArg)[];
     if (STKindChecker.isRemoteMethodCallAction(expression)) {
         methodArgs = expression.arguments;
     } else if (STKindChecker.isClientResourceAccessAction(expression)) {
@@ -451,7 +451,7 @@ function getEndpointExpression(model: STNode): ImplicitNewExpression {
 }
 // Select action expression from statement node
 function getActionExpression(model: STNode): RemoteMethodCallAction | ClientResourceAccessAction {
-    if(!model){
+    if (!model){
         return undefined;
     }
     if (
@@ -497,7 +497,7 @@ function updateFormFieldsFromArgNodes(formFields: FormField[], nodes: (CommaToke
         if (STKindChecker.isNamedArg(arg)) {
             const namedArg = arg as NamedArg;
             const argName = namedArg.argumentName.name.value;
-            let parentInclusionField: FormField = undefined;
+            let parentInclusionField: FormField;
             // Find the form field for the named arg
             let formField = formFields.find((field) => field.name === argName);
             if (!formField) {
@@ -551,7 +551,7 @@ function updateFormFieldFromArgNode(formField: FormField, node: PositionalArg | 
             formField.selected = checkFormFieldValue(formField);
             break;
         case "union":
-            if(node.expression?.source && formField.members){
+            if (node.expression?.source && formField.members){
                 formField.value = node.expression.source;
                 formField.selected = isAnyFieldSelected(formField.members);
             }
@@ -561,7 +561,7 @@ function updateFormFieldFromArgNode(formField: FormField, node: PositionalArg | 
             if (recordExp && formField.fields && formField.fields.length > 0) {
                 mapRecordLiteralToRecordTypeFormField(recordExp.fields as SpecificField[], formField.fields);
                 formField.selected = formField.selected || isAnyFieldSelected(formField.fields);
-            }else if(STKindChecker.isSimpleNameReference(node.expression) && node.expression?.name?.value){
+            }else if (STKindChecker.isSimpleNameReference(node.expression) && node.expression?.name?.value){
                 formField.value = node.expression.name.value;
                 formField.selected = formField.selected || checkFormFieldValue(formField);
             }
@@ -575,7 +575,7 @@ function updateFormFieldFromArgNode(formField: FormField, node: PositionalArg | 
             }
             break;
         default:
-            if(node.expression?.source){
+            if (node.expression?.source){
                 formField.value = node.expression.source;
                 formField.selected = checkFormFieldValue(formField);
             }
