@@ -80,7 +80,7 @@ export function ParamEditor(props: ParamProps) {
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
     const [originalSource] = useState<string>(model.source);
 
-    const { applyModifications, syntaxTree, fullST} = useContext(FormEditorContext);
+    const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
     const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
 
     // When a type is created and full ST is updated update the onChange to remove diagnostics
@@ -175,7 +175,7 @@ export function ParamEditor(props: ParamProps) {
                     || model.source.includes(RESOURCE_HEADER_MAP_TYPE)) && (
                         <div className={classes.paramDataTypeWrapper}>
                             <FieldTitle title='Type' optional={false} />
-                             <TypeBrowser
+                            <TypeBrowser
                                 type={model?.typeName?.source.trim()}
                                 onChange={handleTypeChange}
                                 isLoading={false}

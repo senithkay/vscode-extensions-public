@@ -114,7 +114,7 @@ export function ResourceForm(props: FunctionProps) {
         const componentDiag = currentComponentSyntaxDiag || [];
         typeRelated.forEach(diag => {
             const newDiag: StatementSyntaxDiagnostics = {
-                message:diag.message,
+                message: diag.message,
             };
             componentDiag.push(newDiag);
         })
