@@ -15,7 +15,7 @@ import React, { useContext } from "react";
 
 import { ActionStatement, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { ACTION } from "../../../constants";
+import { ACTION, HTTP_ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { ExpressionComponent } from "../../Expression";
 import { TokenComponent } from "../../Token";
@@ -34,7 +34,7 @@ export function ActionStatementC(props: ReturnStatementProps) {
 
     if (!currentModel.model) {
         if (
-            config.type === ACTION &&
+            (config.type === ACTION || config.type === HTTP_ACTION) &&
             model &&
             STKindChecker.isCheckAction(model.expression) &&
             STKindChecker.isRemoteMethodCallAction(model.expression.expression)
