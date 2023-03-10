@@ -17,6 +17,8 @@ export interface GraphqlDesignModel {
     serviceClasses: Map<string, ServiceClassComponent>;
     enums: Map<string, EnumComponent>;
     unions: Map<string, UnionComponent>;
+    interfaces: Map<string, InterfaceComponent>;
+    hierarchicalResources : Map<string, HierarchicalResourceComponent>;
 }
 
 export interface Service {
@@ -54,6 +56,19 @@ export interface UnionComponent {
     position: Position;
     description: string;
     possibleTypes: Interaction[];
+}
+
+export interface InterfaceComponent {
+    name: string;
+    position: Position;
+    description: string;
+    possibleTypes: Interaction[];
+    resourceFunctions: ResourceFunction[];
+}
+
+export interface HierarchicalResourceComponent {
+    name: string;
+    hierarchicalResources: ResourceFunction[];
 }
 
 export interface Position {
