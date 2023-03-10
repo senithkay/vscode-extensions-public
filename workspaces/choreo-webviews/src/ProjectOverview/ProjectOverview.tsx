@@ -13,7 +13,7 @@
 
 import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
@@ -81,7 +81,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const [components, setComponents] = useState<Component[] | undefined>(undefined);
     const [location, setLocation] = useState<string | undefined>(undefined);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
+    const [, setProjectRepo] = useState<string | undefined>(undefined);
     const [isActive, setActive] = useState<boolean>(false);
     const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
     const [componentAction, setComponentAction] = useState<ComponentAction>(ComponentAction.NOTHING);
@@ -151,15 +151,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
     });
 
-    const handleCloneProjectClick = useCallback((e: any) => {
+    const handleCloneProjectClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : '');
     }, [project]);
 
-    const handleOpenProjectClick = useCallback((e: any) => {
+    const handleOpenProjectClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
     }, [project]);
 
-    const handlePushToChoreoClick = useCallback(async (e: any) => {
+    const handlePushToChoreoClick = useCallback(async () => {
         setCreatingComponents(true);
         await ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').catch(((error) => {
             ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
@@ -170,29 +170,29 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
     }, [project]);
 
-    const handleOpenArchitectureViewClick = useCallback((e: any) => {
+    const handleOpenArchitectureViewClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openArchitectureView();
     }, []);
 
-    const handleOpenCellViewClick = useCallback((e: any) => {
+    const handleOpenCellViewClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.cell.view", orgName, projectId);
     }, [orgName, projectId]);
 
     const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
 
-    const onOpenConsoleClick = useCallback((e: any) => {
+    const onOpenConsoleClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openExternal(consoleLink);
     }, [consoleLink]);
 
-    const handleCreateComponentClick = useCallback((e: any) => {
+    const handleCreateComponentClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.component.create');
     }, []);
 
-    const handleOpenSourceControlClick = useCallback((e: any) => {
+    const handleOpenSourceControlClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().triggerCmd('workbench.scm.focus');
     }, []);
 
-    const handleRefreshComponentsClick = useCallback((e: any) => {
+    const handleRefreshComponentsClick = useCallback(() => {
         setComponentAction(ComponentAction.LOADING);
         ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.projects.registry.refresh').then(() => {
             ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then((components) => {
@@ -215,8 +215,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <ActionContainer>
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
-                            <VSCodeButton appearance="primary" onClick={handleOpenCellViewClick}>Cell Diagram</VSCodeButton>
+                            <VSCodeButton appearance="secondary" onClick={handleOpenCellViewClick}>Architecture View</VSCodeButton>
                         </ActionContainer>
                     </>
                 }

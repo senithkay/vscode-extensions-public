@@ -47,6 +47,7 @@
     "@types/react": "^17.0.26",
     "@types/react-dom": "^17.0.9",
     "@types/react-lottie": "^1.2.5",
+    "@types/vscode-webview": "^1.57.1",
     "@wso2-enterprise/ballerina-low-code-edtior-commons": "^3.3.9",
     "@wso2-enterprise/choreo-core": "^1.0.0",
     "babel-loader": "^8.2.5",

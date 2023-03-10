@@ -78,11 +78,9 @@ export class CellDiagram {
                 </body>
                 <script>
                     function render() {
-                        window.renderChoreoWebViews({ type: "CellView", projectId: "${projectId}", orgName: "${orgName}" });
+                        choreoWebviews.renderChoreoWebViews({ type: "CellView", projectId: "${projectId}", orgName: "${orgName}" }, document.getElementById("root"));
                     }
-                    window.onload = () => {
-                        render();
-                    }
+                    render();
                 </script>
             </html>
           `;

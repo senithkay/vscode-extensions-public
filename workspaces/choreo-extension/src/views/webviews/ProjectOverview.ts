@@ -80,11 +80,9 @@ export class ProjectOverview {
             </body>
             <script>
               function render() {
-                window.renderChoreoWebViews({ type: "ProjectOverview", projectId: "${projectId}", orgName: "${orgName}" });
+                choreoWebviews.renderChoreoWebViews({ type: "ProjectOverview", projectId: "${projectId}", orgName: "${orgName}" }, document.getElementById("root"));
               }
-              window.onload = () => {
-                render();
-              }
+              render();
             </script>
           </html>
         `;

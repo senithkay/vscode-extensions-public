@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -15,6 +15,7 @@ import styled from "@emotion/styled";
 import { ComponentModel } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { DesignDiagram } from "@wso2-enterprise/project-design-diagrams";
+import React from "react";
 
 const WizardContainer = styled.div`
     width: 100vw;

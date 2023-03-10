@@ -47,7 +47,8 @@ import {
     getDiagramComponentModel
 } from "@wso2-enterprise/choreo-core";
 
-import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
+import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
+import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
 import { ChoreoProjectManagerRPCWebview } from "@wso2-enterprise/choreo-client/lib/manager/rpc/manager-client-rpc-webview";
 

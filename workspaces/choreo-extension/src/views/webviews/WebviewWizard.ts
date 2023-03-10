@@ -73,11 +73,9 @@ export class WebviewWizard {
             </body>
             <script>
               function render() {
-                window.renderChoreoWebViews({ type: "${wizardType.toString()}" });
+                choreoWebviews.renderChoreoWebViews({ type: "${wizardType.toString()}" }, document.getElementById("root"));
               }
-              window.onload = () => {
-                render();
-              }
+              render();
             </script>
           </html>
         `;
