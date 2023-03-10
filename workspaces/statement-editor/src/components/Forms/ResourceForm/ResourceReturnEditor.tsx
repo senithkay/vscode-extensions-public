@@ -31,7 +31,7 @@ export interface QueryParamEditorProps {
     returnSource: string;
     completions: SuggestionItem[];
     onChange: (paramString: string, model?: STNode, currentValue?: string, avoidValueCommit?: boolean) => void,
-    syntaxDiag?: Diagnostic[];
+    syntaxDiag?: StatementSyntaxDiagnostics[];
     readonly?: boolean;
     onChangeInProgress?: (isInProgress: boolean) => void;
 }

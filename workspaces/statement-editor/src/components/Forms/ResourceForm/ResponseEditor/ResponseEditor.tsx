@@ -15,17 +15,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 
 import { LiteExpressionEditor, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
-import { STModification } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ModulePart, NodePosition } from '@wso2-enterprise/syntax-tree';
-import { Diagnostic } from 'vscode-languageserver-protocol';
 
-import { SuggestionItem } from '../../../../models/definitions';
+import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
 import { FormEditorContext } from '../../../../store/form-editor-context';
 import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
+import { createNewRecord, createPropertyStatement } from '../util';
 
 import { useStyles } from "./style";
 
@@ -51,7 +50,7 @@ export const responseCodes: ResponseCode[] = [
 
 export interface ParamProps {
     segmentId: number;
-    syntaxDiagnostics: Diagnostic[];
+    syntaxDiagnostics: StatementSyntaxDiagnostics[];
     model: string;
     completions: SuggestionItem[]
     alternativeName?: string;
@@ -175,21 +174,6 @@ export function ResponseEditor(props: ParamProps) {
         onCancel();
     }
 
-    function createPropertyStatement(property: string, targetPosition?: NodePosition, isLastMember?: boolean): STModification {
-        const propertyStatement: STModification = {
-            startLine: targetPosition ? targetPosition.startLine : 0,
-            startColumn: isLastMember ? targetPosition.endColumn : 0,
-            endLine: targetPosition ? targetPosition.startLine : 0,
-            endColumn: isLastMember ? targetPosition.endColumn : 0,
-            type: "PROPERTY_STATEMENT",
-            config: {
-                "PROPERTY": property,
-            }
-        };
-
-        return propertyStatement;
-    }
-
     const handleOnSave = () => {
         if (typeValue) {
             if (response === 'Default') {
@@ -241,18 +225,7 @@ export function ResponseEditor(props: ParamProps) {
 
     const createRecord = (newRecord: string) => {
         if (newRecord) {
-            const newResponse = `type ${newRecord} record {};`;
-            const servicePosition = (syntaxTree as ModulePart);
-            const lastMember: NodePosition = servicePosition.position;
-            const lastMemberPosition: NodePosition = {
-                endColumn: 0,
-                endLine: lastMember.endLine + 1,
-                startColumn: 0,
-                startLine: lastMember.endLine + 1
-            }
-            applyModifications([
-                createPropertyStatement(newResponse, lastMemberPosition, false)
-            ]);
+            createNewRecord(newRecord, syntaxTree, applyModifications)
             setNewlyCreatedRecord(newRecord);
         }
     }
@@ -280,7 +253,7 @@ export function ResponseEditor(props: ParamProps) {
                         isLoading={false}
                         recordCompletions={completions}
                         createNew={createRecord}
-                        diagnostics={syntaxDiagnostics.filter(diag => diag?.message.includes("unknown type"))}
+                        diagnostics={syntaxDiagnostics?.filter(diag => diag?.message.includes("unknown type"))}
                     />
                 </div>
 

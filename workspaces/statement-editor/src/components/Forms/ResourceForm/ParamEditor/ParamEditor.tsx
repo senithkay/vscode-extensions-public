@@ -14,7 +14,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
+import { LiteExpressionEditor, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
 import {
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
@@ -25,6 +25,7 @@ import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/d
 import { FormEditorContext } from '../../../../store/form-editor-context';
 import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
 import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_HEADER_PREFIX, RESOURCE_REQUEST_TYPE } from '../ResourceParamEditor';
+import { createNewRecord } from '../util';
 
 import { useStyles } from "./style";
 
@@ -79,6 +80,16 @@ export function ParamEditor(props: ParamProps) {
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
     const [originalSource] = useState<string>(model.source);
 
+    const { applyModifications, syntaxTree, fullST} = useContext(FormEditorContext);
+    const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
+
+    // When a type is created and full ST is updated update the onChange to remove diagnostics
+    useEffect(() => {
+        if (newlyCreatedRecord) {
+            handleTypeChange(newlyCreatedRecord);
+        }
+    }, [fullST]);
+
     const onTypeEditorFocus = () => {
         setCurrentComponentName(ParamEditorInputTypes.TYPE)
     }
@@ -92,10 +103,12 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleTypeChange = (value: string) => {
-        const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-        const paramName = model.paramName.value;
-        const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`, model.typeName, value);
+        if (value) {
+            const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
+            const paramName = model.paramName.value;
+            const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
+            onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`, model.typeName, value);
+        }
 
     }
 
@@ -134,6 +147,13 @@ export function ParamEditor(props: ParamProps) {
         onCancel();
     }
 
+    const createRecord = (newRecord: string) => {
+        if (newRecord) {
+            createNewRecord(newRecord, syntaxTree, applyModifications)
+            setNewlyCreatedRecord(newRecord);
+        }
+    }
+
     return (
         <div className={classes.paramContainer}>
             {optionList && option !== "Payload" && (
@@ -148,24 +168,20 @@ export function ParamEditor(props: ParamProps) {
                     />
                 </div>
             )}
-            {option === "Payload" && <h4>Payload</h4>}
+            {option === "Payload" && <div className={classes.payload}>Payload </div>}
             <div className={classes.paramContent}>
                 {!(model.source.includes(RESOURCE_CALLER_TYPE)
                     || model.source.includes(RESOURCE_REQUEST_TYPE)
                     || model.source.includes(RESOURCE_HEADER_MAP_TYPE)) && (
                         <div className={classes.paramDataTypeWrapper}>
                             <FieldTitle title='Type' optional={false} />
-                            <LiteExpressionEditor
-                                testId="param-type"
-                                diagnostics={
-                                    (currentComponentName === ParamEditorInputTypes.TYPE && syntaxDiagnostics) ||
-                                    model.typeName?.viewState?.diagnosticsInRange
-                                }
-                                defaultValue={model?.typeName?.source.trim()}
+                             <TypeBrowser
+                                type={model?.typeName?.source.trim()}
                                 onChange={handleTypeChange}
-                                onFocus={onTypeEditorFocus}
-                                disabled={false}
-                                completions={currentComponentName === ParamEditorInputTypes.TYPE && completions}
+                                isLoading={false}
+                                recordCompletions={completions}
+                                createNew={createRecord}
+                                diagnostics={syntaxDiagnostics?.filter(diag => diag?.message.includes("unknown type"))}
                             />
                         </div>
                     )}

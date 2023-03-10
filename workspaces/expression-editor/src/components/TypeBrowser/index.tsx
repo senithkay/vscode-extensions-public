@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
 import { Button, FormHelperText, LinearProgress, TextField } from "@material-ui/core";
-import Autocomplete from '@material-ui/lab/Autocomplete'
+import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete'
 import { TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { Diagnostic } from "vscode-languageserver-protocol";
+import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import { useStyles as useFormStyles } from "../../themes";
 import { DIAGNOSTIC_MAX_LENGTH } from "../ExpressionEditor/constants";
@@ -13,13 +13,20 @@ import { truncateDiagnosticMsg } from "../ExpressionEditor/utils";
 import { SuggestionItem } from "../LiteExpressionEditor";
 
 
+interface StatementSyntaxDiagnostics {
+    message: string;
+    isPlaceHolderDiag?: boolean;
+    diagnostic?: Diagnostic;
+    codeActions?: CodeAction[];
+}
+
 export interface TypeBrowserProps {
     type?: string;
     onChange: (newType: string) => void;
     isLoading: boolean;
     recordCompletions: CompletionResponseWithModule[];
     createNew: (newType: string) => void;
-    diagnostics: Diagnostic[]
+    diagnostics: StatementSyntaxDiagnostics[]
 }
 
 export interface CompletionResponseWithModule extends SuggestionItem {
@@ -67,6 +74,11 @@ function TypeBrowserC(props: TypeBrowserProps) {
         }
     }, [diagnostics]);
 
+    const filterOptions = createFilterOptions({
+        matchFrom: 'start',
+        stringify: (option: any) => option.insertText,
+    });
+
     return (
         <>
             <Autocomplete
@@ -95,6 +107,7 @@ function TypeBrowserC(props: TypeBrowserProps) {
                 )
                 }
                 blurOnSelect={true}
+                filterOptions={filterOptions}
             />
             {isLoading && <LinearProgress />}
             {selectedTypeStr && expressionDiagnosticMsg && (

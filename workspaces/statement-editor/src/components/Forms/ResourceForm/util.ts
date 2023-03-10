@@ -10,11 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     CommaToken, DefaultableParam,
     DotToken,
     FunctionSignature, IdentifierToken, IncludedRecordParam,
+    ModulePart,
     NodePosition, RequiredParam, ResourcePathRestParam, ResourcePathSegmentParam, RestParam,
     ReturnTypeDescriptor,
     SlashToken,
@@ -681,4 +683,34 @@ export function getParameterTypeFromModel(param: (CommaToken | RequiredParam | R
     }
 
     return '';
+}
+
+export function createNewRecord(newRecord: string, stNode: STNode, applyModifications: (modifications: STModification[]) => void) {
+    const newResponse = `type ${newRecord} record {};`;
+    const servicePosition = (stNode as ModulePart);
+    const lastMember: NodePosition = servicePosition.position;
+    const lastMemberPosition: NodePosition = {
+        endColumn: 0,
+        endLine: lastMember.endLine + 1,
+        startColumn: 0,
+        startLine: lastMember.endLine + 1
+    }
+    applyModifications([
+        createPropertyStatement(newResponse, lastMemberPosition, false)
+    ]);
+}
+
+export function createPropertyStatement(property: string, targetPosition?: NodePosition, isLastMember?: boolean): STModification {
+    const propertyStatement: STModification = {
+        startLine: targetPosition ? targetPosition.startLine : 0,
+        startColumn: isLastMember ? targetPosition.endColumn : 0,
+        endLine: targetPosition ? targetPosition.startLine : 0,
+        endColumn: isLastMember ? targetPosition.endColumn : 0,
+        type: "PROPERTY_STATEMENT",
+        config: {
+            "PROPERTY": property,
+        }
+    };
+
+    return propertyStatement;
 }

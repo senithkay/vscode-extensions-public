@@ -129,6 +129,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: 6,
             textTransform: 'initial',
             marginLeft: -200
+        },
+        payload: {
+            fontSize: '13px',
+            fontWeight: 500,
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
         }
     }),
 );

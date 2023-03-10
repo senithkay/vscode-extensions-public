@@ -77,8 +77,7 @@ export function ResourceForm(props: FunctionProps) {
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
-    const [syntaxDiag, setSyntaxDiag] = useState<Diagnostic[]>(undefined);
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>([]);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
     const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
     const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
@@ -110,7 +109,16 @@ export function ResourceForm(props: FunctionProps) {
 
     useEffect(() => {
         handleCompletions("", null, [22, 25], targetPosition);
-        setSyntaxDiag(model?.viewState.diagnosticsInRange.concat(model?.functionSignature?.returnTypeDesc?.viewState.diagnosticsInRange.concat(model?.functionBody?.viewState.diagnosticsInRange)));
+        const updatedDiagnostics = (model?.viewState.diagnosticsInRange.concat(model?.functionSignature?.returnTypeDesc?.viewState.diagnosticsInRange.concat(model?.functionBody?.viewState.diagnosticsInRange)));
+        const typeRelated: Diagnostic[] = updatedDiagnostics?.filter((diag: any) => diag?.message.includes("unknown type"));
+        const componentDiag = currentComponentSyntaxDiag || [];
+        typeRelated.forEach(diag => {
+            const newDiag: StatementSyntaxDiagnostics = {
+                message:diag.message,
+            };
+            componentDiag.push(newDiag);
+        })
+        setCurrentComponentSyntaxDiag(componentDiag);
     }, [model])
 
 
@@ -385,7 +393,7 @@ export function ResourceForm(props: FunctionProps) {
                         <FieldTitle title='Responses' optional={false} />
                         <ResourceReturnEditor
                             returnSource={model.functionSignature?.returnTypeDesc?.source}
-                            syntaxDiag={syntaxDiag}
+                            syntaxDiag={currentComponentSyntaxDiag}
                             onChange={onReturnTypeChange}
                             completions={completions}
                             readonly={isEditInProgress} // todo: implement the disable logic
