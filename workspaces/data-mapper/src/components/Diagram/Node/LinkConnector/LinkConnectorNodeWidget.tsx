@@ -151,10 +151,8 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const isTnfFunctionCall = fnDef && fnDef.isExprBodiedFn;
 
     const {
-        filePath,
         enableStatementEditor,
-        updateSelectedComponent,
-        openDiagramInNewTab
+        updateSelectedComponent
     } = node.context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
@@ -194,17 +192,11 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         evt.stopPropagation();
         const {fnDefPosition, fileUri} = fnDef;
         const fnDefFilePath = fileUri.replace(/^file:\/\//, "");
-        const isSameFile = filePath === fnDefFilePath;
-
-        if (isSameFile) {
-            const componentViewInfo: ComponentViewInfo = {
-                filePath: fnDefFilePath,
-                position: fnDefPosition
-            }
-            updateSelectedComponent(componentViewInfo);
-        } else {
-            await openDiagramInNewTab(fnDefFilePath, fnDefPosition);
+        const componentViewInfo: ComponentViewInfo = {
+            filePath: fnDefFilePath,
+            position: fnDefPosition
         }
+        updateSelectedComponent(componentViewInfo);
     }
 
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
