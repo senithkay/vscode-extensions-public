@@ -25,6 +25,7 @@ import { ComponentViewInfo } from "@wso2-enterprise/ballerina-low-code-edtior-co
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
+import FunctionIcon from "../../../../assets/icons/FuctionIcon";
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
 import { DataMapperPortWidget } from '../../Port';
 import { getFieldLabel } from '../../utils/dm-utils';
@@ -121,6 +122,9 @@ const styles = makeStyles((theme: Theme) => createStyles({
         height: "32px",
         width: "32px"
     },
+    functionIcon: {
+        padding: "3px"
+    },
     deleteIcon: {
         color: theme.palette.error.main
     },
@@ -144,6 +148,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const hasError = node.hasError();
     const diagnostic = hasError ? node.diagnostics[0] : null;
     const fnDef = node.fnDefForFnCall;
+    const isTnfFunctionCall = fnDef && fnDef.isExprBodiedFn;
 
     const {
         filePath,
@@ -216,12 +221,20 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} dataTestId={`link-connector-node-${node?.value}-input`}/>
-                <TooltipComponent interactive={false} arrow={true} title={"Multi-Input Expression"}>
+                <TooltipComponent
+                    interactive={false}
+                    arrow={true}
+                    title={isTnfFunctionCall ? "Transformation Function Call" : "Multi-Input Expression"}
+                >
                     <span className={classes.editIcon} >
-                        <ExpressionIcon  />
+                        {isTnfFunctionCall ? (
+                            <div className={classes.functionIcon} >
+                                <FunctionIcon />
+                            </div>
+                        ) : <ExpressionIcon/>}
                     </span>
                 </TooltipComponent>
-                {fnDef && fnDef.isExprBodiedFn && (
+                {isTnfFunctionCall && (
                     <div className={classes.element} onClick={onClickOnGoToDef} data-testid={`go-to-tnf-fn-${node?.value}`}>
                         <div className={classes.iconWrapper}>
                             <ChevronRight className={clsx(classes.editIcon)}/>
