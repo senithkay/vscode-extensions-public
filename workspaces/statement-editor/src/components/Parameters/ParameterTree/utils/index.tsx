@@ -399,111 +399,241 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
     return response;
 }
 
+// export function mapEndpointToFormFieldOld(model: STNode, formFields: FormField[]): FormField[] {
+//     let expression: ImplicitNewExpression;
+//     if (
+//         model &&
+//         (STKindChecker.isLocalVarDecl(model) || STKindChecker.isModuleVarDecl(model)) &&
+//         STKindChecker.isCheckExpression(model.initializer) &&
+//         STKindChecker.isImplicitNewExpression(model.initializer.expression)
+//     ) {
+//         expression = model.initializer.expression;
+//     } else if (
+//         model &&
+//         STKindChecker.isCheckExpression(model) &&
+//         STKindChecker.isImplicitNewExpression(model.expression)
+//     ) {
+//         expression = model.expression;
+//     } else if (model && STKindChecker.isImplicitNewExpression(model)) {
+//         expression = model;
+//     } else {
+//         return;
+//     }
+
+//     const parenthesizedArgs = expression.parenthesizedArgList as ParenthesizedArgList;
+//     let nextValueIndex = 0;
+//     for (const arg of parenthesizedArgs.arguments) {
+//         if (parenthesizedArgs.arguments === undefined || formFields.length <= nextValueIndex) {
+//             break;
+//         }
+//         // if (STKindChecker.isCommaToken(arg) || formFields.length <= nextValueIndex) {
+//         //     break;
+//         // }
+//         let parentFormField: FormField = undefined; // parent form field of a named arg
+//         let formField = formFields[nextValueIndex];
+//         if (STKindChecker.isNamedArg(arg)) {
+//             const argName = arg.argumentName.name.value;
+//             formFields.forEach((field) => {
+//                 if (field.name === argName) {
+//                     formField = field;
+//                     return;
+//                 }
+//                 if (field.typeName === "inclusion") {
+//                     field.inclusionType?.fields?.forEach((subField: FormField) => {
+//                         if (subField.name === argName) {
+//                             formField = subField;
+//                             parentFormField = field;
+//                             return;
+//                         }
+//                     });
+//                 }
+//             });
+//         }
+//         if (STKindChecker.isPositionalArg(arg) || STKindChecker.isNamedArg(arg)) {
+//             if (
+//                 formField.typeName === "string" ||
+//                 formField.typeName === "int" ||
+//                 formField.typeName === "boolean" ||
+//                 formField.typeName === "float" ||
+//                 formField.typeName === "decimal" ||
+//                 formField.typeName === "json" ||
+//                 formField.typeName === "xml"
+//             ) {
+//                 if (STKindChecker.isStringLiteral(arg.expression)) {
+//                     const stringLiteral: StringLiteral = arg.expression as StringLiteral;
+//                     formField.value = stringLiteral.literalToken.value;
+//                 } else if (STKindChecker.isNumericLiteral(arg.expression)) {
+//                     const numericLiteral: NumericLiteral = arg.expression as NumericLiteral;
+//                     formField.value = numericLiteral.literalToken.value;
+//                 } else if (STKindChecker.isBooleanLiteral(arg.expression)) {
+//                     const booleanLiteral: NumericLiteral = arg.expression as NumericLiteral;
+//                     formField.value = booleanLiteral.literalToken.value;
+//                 } else {
+//                     formField.value = arg.expression.source;
+//                 }
+//                 formField.selected = checkFormFieldValue(formField);
+//                 formField.initialDiagnostics = arg?.typeData?.diagnostics;
+//                 nextValueIndex++;
+//             } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
+//                 const mappingConstructor: MappingConstructor = arg.expression as MappingConstructor;
+//                 if (mappingConstructor) {
+//                     mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.fields);
+//                     formField.selected = formField.selected || isAnyFieldSelected(formField.fields);
+//                     nextValueIndex++;
+//                 }
+//             } else if (formField.typeName === "inclusion" && formField.inclusionType && formField.inclusionType.fields) {
+//                 const mappingConstructor: MappingConstructor = arg.expression as MappingConstructor;
+//                 if (mappingConstructor) {
+//                     mapRecordLiteralToRecordTypeFormField(mappingConstructor.fields as SpecificField[], formField.inclusionType?.fields);
+//                     nextValueIndex++;
+//                 }
+//                 formField.inclusionType.selected = formField.inclusionType.selected || isAnyFieldSelected(formField.inclusionType?.fields);
+//                 formField.selected = formField.inclusionType.selected;
+//             } else if (formField.typeName === "union") {
+//                 formField.value = arg.expression?.source;
+//                 formField.initialDiagnostics = arg?.typeData?.diagnostics;
+//                 formField.selected = isAnyFieldSelected(formField.members);
+//                 nextValueIndex++;
+//             } else if (formField.typeName === "enum") {
+//                 formField.value = arg.expression?.source;
+//                 formField.selected = checkFormFieldValue(formField);
+//                 // Update parent formField selected attribute if the enum is a member of a inclusion type
+//                 if (parentFormField && parentFormField.typeName === "inclusion") {
+//                     parentFormField.inclusionType.selected = parentFormField.inclusionType.selected 
+//                         || isAnyFieldSelected(parentFormField.inclusionType?.fields);
+//                     parentFormField.selected = parentFormField.inclusionType.selected;
+//                 }
+//                 nextValueIndex++;
+//             }
+//         }
+//     }
+//     return formFields;
+// }
+
 export function mapEndpointToFormField(model: STNode, formFields: FormField[]): FormField[] {
-    let expression: ImplicitNewExpression;
+    const expression = getEndpointExpression(model);
+    if (!expression) {
+        return [];
+    }
+    const parenthesizedArgs = expression.parenthesizedArgList as ParenthesizedArgList;
+    if (parenthesizedArgs?.arguments?.length === 0) {
+        return [];
+    }
+    let argIndex = 0;
+
+    for (const arg of parenthesizedArgs.arguments) {
+        // Skip not supported arg types
+        if (STKindChecker.isRestArg(arg) || STKindChecker.isCommaToken(arg)) {
+            continue; // TODO: Handle rest args
+        }
+        if (formFields.length <= argIndex) {
+            break;
+        }
+        // Handle positional args
+        if (STKindChecker.isPositionalArg(arg)) {
+            const formField = formFields[argIndex];
+            updateFormFieldValueFromNode(formField, arg as PositionalArg);
+            argIndex++;
+        }
+        // Handle named args
+        if (STKindChecker.isNamedArg(arg)) {
+            const namedArg = arg as NamedArg;
+            const argName = namedArg.argumentName.name.value;
+            let parentInclusionField: FormField = undefined;
+            // Find the form field for the named arg
+            let formField = formFields.find((field) => field.name === argName);
+            if (!formField) {
+                // Find the form field for the named arg in an inclusion type
+                formFields.forEach((field) => {
+                    if (field.typeName === "inclusion") {
+                        field.inclusionType?.fields?.forEach((subField: FormField) => {
+                            if (subField.name === argName) {
+                                formField = subField;
+                                parentInclusionField = field;
+                                return;
+                            }
+                        });
+                    }
+                });
+            }
+            if (formField) {
+                updateFormFieldValueFromNode(formField, namedArg);
+                if (parentInclusionField) {
+                    parentInclusionField.inclusionType.selected =
+                        parentInclusionField.inclusionType.selected || isAnyFieldSelected(parentInclusionField.inclusionType?.fields);
+                    parentInclusionField.selected = parentInclusionField.inclusionType.selected;
+                }
+            }
+        }
+    }
+
+    return formFields;
+}
+
+function getEndpointExpression(model: STNode): ImplicitNewExpression {
     if (
         model &&
         (STKindChecker.isLocalVarDecl(model) || STKindChecker.isModuleVarDecl(model)) &&
         STKindChecker.isCheckExpression(model.initializer) &&
         STKindChecker.isImplicitNewExpression(model.initializer.expression)
     ) {
-        expression = model.initializer.expression;
-    } else if (
-        model &&
-        STKindChecker.isCheckExpression(model) &&
-        STKindChecker.isImplicitNewExpression(model.expression)
-    ) {
-        expression = model.expression;
+        return model.initializer.expression;
+    } else if (model && STKindChecker.isCheckExpression(model) && STKindChecker.isImplicitNewExpression(model.expression)) {
+        return model.expression;
     } else if (model && STKindChecker.isImplicitNewExpression(model)) {
-        expression = model;
-    } else {
-        return;
+        return model;
     }
+    return undefined;
+}
 
-    const parenthesizedArgs = expression.parenthesizedArgList as ParenthesizedArgList;
-    let nextValueIndex = 0;
-    for (const arg of parenthesizedArgs.arguments) {
-        if (parenthesizedArgs.arguments === undefined || formFields.length <= nextValueIndex) {
-            break;
-        }
-        const positionalArg = arg as PositionalArg;
-        let formField = formFields[nextValueIndex];
-        if (STKindChecker.isNamedArg(positionalArg)) {
-            const argName = positionalArg.argumentName.name.value;
-            formFields.forEach((field) => {
-                if (field.name === argName) {
-                    formField = field;
-                    return;
-                }
-                if (field.typeName === "inclusion") {
-                    field.inclusionType?.fields?.forEach((subField) => {
-                        if (subField.name === argName) {
-                            formField = subField;
-                            return;
-                        }
-                    });
-                }
-            });
-        }
-        if (positionalArg.kind === "PositionalArg" || positionalArg.kind === "NamedArg") {
-            if (
-                formField.typeName === "string" ||
-                formField.typeName === "int" ||
-                formField.typeName === "boolean" ||
-                formField.typeName === "float" ||
-                formField.typeName === "decimal" ||
-                formField.typeName === "json" ||
-                formField.typeName === "xml"
-            ) {
-                if (STKindChecker.isStringLiteral(positionalArg.expression)) {
-                    const stringLiteral: StringLiteral = positionalArg.expression as StringLiteral;
-                    formField.value = stringLiteral.literalToken.value;
-                } else if (STKindChecker.isNumericLiteral(positionalArg.expression)) {
-                    const numericLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                    formField.value = numericLiteral.literalToken.value;
-                } else if (STKindChecker.isBooleanLiteral(positionalArg.expression)) {
-                    const booleanLiteral: NumericLiteral = positionalArg.expression as NumericLiteral;
-                    formField.value = booleanLiteral.literalToken.value;
-                } else {
-                    formField.value = positionalArg.expression.source;
-                }
-                formField.selected = checkFormFieldValue(formField);
-                formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
-                nextValueIndex++;
-            } else if (formField.typeName === "record" && formField.fields && formField.fields.length > 0) {
-                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
-                if (mappingConstructor) {
-                    mapRecordLiteralToRecordTypeFormField(
-                        mappingConstructor.fields as SpecificField[],
-                        formField.fields
-                    );
-                    formField.selected = formField.selected || isAnyFieldSelected(formField.fields);
-                    nextValueIndex++;
-                }
-            } else if (
-                formField.typeName === "inclusion" &&
-                formField.inclusionType &&
-                formField.inclusionType.fields
-            ) {
-                const mappingConstructor: MappingConstructor = positionalArg.expression as MappingConstructor;
-                if (mappingConstructor) {
-                    mapRecordLiteralToRecordTypeFormField(
-                        mappingConstructor.fields as SpecificField[],
-                        formField.inclusionType?.fields
-                    );
-                    nextValueIndex++;
-                }
-                formField.inclusionType.selected =
-                    formField.inclusionType.selected || isAnyFieldSelected(formField.inclusionType?.fields);
-                formField.selected = formField.inclusionType.selected;
-            } else if (formField.typeName === "union") {
-                formField.value = positionalArg.expression?.source;
-                formField.initialDiagnostics = positionalArg?.typeData?.diagnostics;
-                formField.selected = isAnyFieldSelected(formField.members);
+function updateFormFieldValueFromNode(formField: FormField, node: PositionalArg | NamedArg) {
+    switch (formField.typeName) {
+        case "string":
+        case "int":
+        case "boolean":
+        case "float":
+        case "decimal":
+        case "json":
+        case "xml":
+        case "enum": // TODO: Enrich enum metadata with the enum labels
+            if (STKindChecker.isStringLiteral(node.expression)) {
+                const stringLiteral: StringLiteral = node.expression as StringLiteral;
+                formField.value = stringLiteral.literalToken.value;
+            } else if (STKindChecker.isNumericLiteral(node.expression)) {
+                const numericLiteral: NumericLiteral = node.expression as NumericLiteral;
+                formField.value = numericLiteral.literalToken.value;
+            } else if (STKindChecker.isBooleanLiteral(node.expression)) {
+                const booleanLiteral: NumericLiteral = node.expression as NumericLiteral;
+                formField.value = booleanLiteral.literalToken.value;
+            } else {
+                formField.value = node.expression.source;
             }
-        }
+            formField.selected = checkFormFieldValue(formField);
+            break;
+        case "union":
+            formField.value = node.expression?.source;
+            formField.selected = isAnyFieldSelected(formField.members);
+            break;
+        case "record":
+            const recordExp: MappingConstructor = node.expression as MappingConstructor;
+            if (recordExp) {
+                mapRecordLiteralToRecordTypeFormField(recordExp.fields as SpecificField[], formField.fields);
+                formField.selected = formField.selected || isAnyFieldSelected(formField.fields);
+            }
+            break;
+        case "inclusion":
+            const inclusionExp: MappingConstructor = node.expression as MappingConstructor;
+            if (inclusionExp) {
+                mapRecordLiteralToRecordTypeFormField(inclusionExp.fields as SpecificField[], formField.inclusionType?.fields);
+                formField.inclusionType.selected = formField.inclusionType.selected || isAnyFieldSelected(formField.inclusionType?.fields);
+                formField.selected = formField.inclusionType.selected;
+            }
+            break;
+        default:
+            break;
     }
-    return formFields;
+    // Add node diagnostics to the formField
+    formField.initialDiagnostics = node?.typeData?.diagnostics;
 }
 
 export function mapActionToFormField(model: STNode, formFields: FormField[]) {
