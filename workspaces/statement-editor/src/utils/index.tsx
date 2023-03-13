@@ -62,6 +62,7 @@ import {
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
+    HTTP_ACTION,
     IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
@@ -692,7 +693,7 @@ export function isInsideConnectorParams(currentModel: STNode, editorConfigType: 
     const paramPosition = (currentModel.viewState as StatementEditorViewState)?.parentFunctionPos;
     const modelPosition = currentModel.position as NodePosition;
     return (
-        (editorConfigType === CONNECTOR || editorConfigType === ACTION) &&
+        (editorConfigType === CONNECTOR || editorConfigType === ACTION || editorConfigType === HTTP_ACTION) &&
         paramPosition &&
         (paramPosition.startLine < modelPosition.startLine ||
             (getNumericPosition(paramPosition.startLine) === getNumericPosition(modelPosition.startLine) &&
@@ -965,17 +966,29 @@ function getModelParamSourceList(currentModel: STNode): string[] {
 
 export function getParamUpdateModelPosition(model: STNode) {
     let position: NodePosition;
-    if (
-        STKindChecker.isFunctionCall(model) ||
-        STKindChecker.isMethodCall(model) ||
-        STKindChecker.isRemoteMethodCallAction(model)
-    ) {
+    if (STKindChecker.isFunctionCall(model) || STKindChecker.isMethodCall(model) || STKindChecker.isRemoteMethodCallAction(model)) {
         position = {
             startLine: model.openParenToken.position.startLine,
             startColumn: model.openParenToken.position.startColumn,
             endLine: model.closeParenToken.position.endLine,
             endColumn: model.closeParenToken.position.endColumn,
         };
+    } else if (STKindChecker.isClientResourceAccessAction(model)) {
+        if (model.arguments) { // With method name and query params
+            position = {
+                startLine: model.arguments.openParenToken.position.startLine,
+                startColumn: model.arguments.openParenToken.position.startColumn,
+                endLine: model.arguments.closeParenToken.position.endLine,
+                endColumn: model.arguments.closeParenToken.position.endColumn,
+            };
+        } else { // Without method name
+            position = {
+                startLine: model.position.endLine,
+                startColumn: model.position.endColumn,
+                endLine: model.position.endLine,
+                endColumn: model.position.endColumn,
+            };
+        }
     } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)) {
         position = {
             startLine: model.parenthesizedArgList.openParenToken.position.startLine,
