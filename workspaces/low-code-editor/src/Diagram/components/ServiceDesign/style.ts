@@ -104,7 +104,7 @@ export const useStyles = makeStyles(() =>
         },
         serviceList: {
             overflowY: "scroll",
-            maxHeight: "80%"
+            maxHeight: "90%"
         },
         signature: {
             padding: 8,
