@@ -161,6 +161,15 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
                     // Handle custom return type
                     draftParameter = getFieldValuePair(parameter, EXPR_PLACEHOLDER, depth);
                 }
+                if (
+                    parameter.name === "targetType" &&
+                    parameter.typeInfo?.name === "TargetType" &&
+                    parameter.typeInfo?.moduleName === "http" &&
+                    parameter.typeInfo?.orgName === "ballerina"
+                ) {
+                    // Handle http client response target type
+                    draftParameter = getFieldValuePair(parameter, EXPR_PLACEHOLDER, depth, false);
+                }
                 break;
         }
         if (draftParameter !== "") {

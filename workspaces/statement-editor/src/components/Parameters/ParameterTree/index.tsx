@@ -76,7 +76,7 @@ export function ParameterTree(props: ParameterTreeProps) {
         let updatingPosition: NodePosition;
         if (model.viewState?.parentFunctionPos) {
             const parentFunctionModel = getParentFunctionModel((model.viewState as StatementEditorViewState).parentFunctionPos, statementModel);
-            if (STKindChecker.isClientResourceAccessAction(parentFunctionModel) && !parentFunctionModel.arguments && modelParams.length > 0) {
+            if (STKindChecker.isClientResourceAccessAction(parentFunctionModel) && !parentFunctionModel.methodName && modelParams.length > 0) {
                 content = ".get" + content; // Update the default GET action with method name
             }
             updatingPosition = getParamUpdateModelPosition(parentFunctionModel);
