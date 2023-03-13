@@ -687,13 +687,13 @@ export function getParameterTypeFromModel(param: (CommaToken | RequiredParam | R
 
 export function createNewRecord(newRecord: string, stNode: STNode, applyModifications: (modifications: STModification[]) => void) {
     const newResponse = `type ${newRecord} record {};`;
-    const servicePosition = (stNode as ModulePart);
-    const lastMember: NodePosition = servicePosition.position;
+    const stNodeValue = (stNode as ModulePart);
+    const nodePosition: NodePosition = stNodeValue.position;
     const lastMemberPosition: NodePosition = {
         endColumn: 0,
-        endLine: lastMember.endLine + 1,
+        endLine: nodePosition.endLine + 1,
         startColumn: 0,
-        startLine: lastMember.endLine + 1
+        startLine: nodePosition.endLine + 1
     }
     applyModifications([
         createPropertyStatement(newResponse, lastMemberPosition, false)

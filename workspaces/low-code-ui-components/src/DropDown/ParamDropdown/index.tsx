@@ -43,9 +43,13 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
     if (values) {
         const items: string[] = values;
         items.forEach((value) => {
-            const icon = (<ParamIcons type={value}/>);
             menuItems.push(
-                <MenuItem disabled={!enabled?.includes(value)} key={value} value={value} className={`product-tour-payload-${value.toLowerCase()}`} data-testid={`connector-payload-${value.toLowerCase()}`}>
+                <MenuItem
+                    disabled={!enabled?.includes(value)}
+                    key={value} value={value}
+                    className={`product-tour-payload-${value.toLowerCase()}`}
+                    data-testid={`connector-payload-${value.toLowerCase()}`}
+                >
                     <span className="TextSpan">{value}</span>
                 </MenuItem>
             );
@@ -61,7 +65,7 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
     }
 
     const renderValue = (value: any) => {
-        const icon = (<ParamIcons type={value}/>);
+        const icon = (<ParamIcons type={value} />);
         return (
             <div className={dropDownClasses.renderValueWrapper}>
                 <div className={dropDownClasses.itemWrapper}>
@@ -76,7 +80,7 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
         );
     }
 
-    const EmptyChevronIcon = () => <span/>;
+    const EmptyChevronIcon = () => <span />;
 
     return (
         <div data-testid="select-drop-down" data-field-name={label}>
