@@ -61,7 +61,7 @@ export function DiagramViewManager(props: EditorProps) {
     const classes = useGeneratorStyles();
 
     const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [history, historyPush, historyPop, historyClear] = useComponentHistory();
+    const [history, historyPush, historyPop, historyClear, updateCurrentEntry] = useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
@@ -85,11 +85,17 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         if (history.length > 0) {
-            const { file, position } = history[history.length - 1];
-            const currentProjectPath = projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
-            fetchST(file, { position });
-            if (!currentProject || currentProject.name !== currentProjectPath.name) setCurrentProject(currentProjectPath);
-            if (!focusFile || focusFile !== file) setFocusFile(file);
+            const { file, position, uid } = history[history.length - 1];
+            if (!uid) {
+                fetchST(file, uid ? { uid } : { position });
+
+                const currentProjectPath = projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
+
+                if (!currentProject || currentProject.name !== currentProjectPath.name) {
+                    setCurrentProject(currentProjectPath);
+                }
+                if (!focusFile || focusFile !== file) setFocusFile(file);
+            }
         } else {
             setFocusedST(undefined);
             setFocusUid(undefined);
@@ -164,6 +170,7 @@ export function DiagramViewManager(props: EditorProps) {
                     traversNode(visitedST, nodeFindingVisitor);
                     selectedST = nodeFindingVisitor.getNode();
                     setFocusUid(generatedUid);
+                    updateCurrentEntry({ ...history[history.length - 1], uid: generatedUid });
                 }
 
                 if (options && options.uid) {

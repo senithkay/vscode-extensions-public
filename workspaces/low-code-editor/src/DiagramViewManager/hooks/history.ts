@@ -21,8 +21,13 @@ export interface HistoryEntry {
     uid?: string;
 }
 
+type historyPushFnType = (info: HistoryEntry) => void;
+type historyPopFnType = () => void;
+type historyClearFnType = () => void;
+type updateCurrentEntryFnType = (info: HistoryEntry) => void;
+
 export function useComponentHistory():
-    [HistoryEntry[], (info: HistoryEntry) => void, () => void, () => void] {
+    [HistoryEntry[], historyPushFnType, historyPopFnType, historyClearFnType, updateCurrentEntryFnType] {
     const [history, updateHistory] = useState<HistoryEntry[]>([]);
 
     const historyPush = (historyEntry: HistoryEntry) => {
@@ -38,6 +43,13 @@ export function useComponentHistory():
         updateHistory([]);
     }
 
-    return [history, historyPush, historyPop, historyClear];
+    const updateCurrentEntry = (historyEntry: HistoryEntry) => {
+        if (history.length === 0) return;
+        const newHistory = [...history];
+        newHistory[newHistory.length - 1] = historyEntry;
+        updateHistory(newHistory);
+    }
+
+    return [history, historyPush, historyPop, historyClear, updateCurrentEntry];
 }
 
