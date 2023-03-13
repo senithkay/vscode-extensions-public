@@ -97,9 +97,9 @@ By cloning projects, you can directly access the complete Choreo project and sta
 
 ### Visualizing the architecture of Ballerina components inside Choreo projects
 
-The Choreo extension allows you to visualize the architecture of the Ballerina components inside Choreo projects. To access this feature, you also need to install the [Ballerina Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) for the VS Code editor.
+The Choreo extension allows you to visualize the architecture of the Ballerina components inside Choreo projects. For uncloned projects, you can visualize a read-only view of this architecture using the **View Architecture** option in the **Project Overview** panel. Through this, you can access a high-level view of the components in the project, their interactions, and their exposure via the service diagrams and cell diagram.
 
-Once the Ballerina extension is installed, you can visualize the architecture of Ballerina components by selecting **View Architecture** in the **Project Overview** panel. This opens up a view through which you can access a high-level view of the components in the project, their interactions, and their exposure via the service diagrams and cell diagrams.
+However, to access this feature for cloned projects, you also need to install the [Ballerina Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) for the VS Code editor. This is because the Ballerina extension enables an editable diagram alongside other accessory features such as go-to source. To access this diagram via the Ballerina extension, you can use the same option in the **Project Overview** panel or execute the `Ballerina: Architecture View` command in the VS Code command palette.
 
 ![View Architecture](docs/choreo-extension/images/architecture-view.gif)
 
