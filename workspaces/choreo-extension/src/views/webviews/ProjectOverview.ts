@@ -80,7 +80,7 @@ export class ProjectOverview {
             </body>
             <script>
               function render() {
-                choreoWebviews.renderChoreoWebViews({ type: "ProjectOverview", projectId: "${projectId}", orgName: "${orgName}" }, document.getElementById("root"));
+                choreoWebviews.renderChoreoWebViews(document.getElementById("root"), "ProjectOverview", "${projectId}", "${orgName}");
               }
               render();
             </script>

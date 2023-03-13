@@ -21,7 +21,7 @@ export const cloneRepoToCurrentProjectWorkspaceCmdId = 'wso2.choreo.project.repo
 export const createNewProjectCmdId = 'wso2.choreo.project.create';
 export const createNewComponentCmdId = 'wso2.choreo.component.create';
 export const choreoProjectOverview = 'wso2.choreo.project.overview';
-export const choreoCellView = 'wso2.choreo.cell.view';
+export const choreoArchitectureViewCmdId = 'wso2.choreo.architecture.view';
 export const choreoProjectRegistryRefreshCmdId = 'wso2.choreo.projects.registry.refresh';
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
 

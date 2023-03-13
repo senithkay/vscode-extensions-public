@@ -174,8 +174,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().openArchitectureView();
     }, []);
 
-    const handleOpenCellViewClick = useCallback(() => {
-        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.cell.view", orgName, projectId);
+    const handleOpenChoreoArchitectureViewClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.architecture.view", orgName, projectId);
     }, [orgName, projectId]);
 
     const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
@@ -215,7 +215,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <ActionContainer>
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" onClick={handleOpenCellViewClick}>Architecture View</VSCodeButton>
+                            <VSCodeButton appearance="secondary" onClick={handleOpenChoreoArchitectureViewClick}>Architecture View</VSCodeButton>
                         </ActionContainer>
                     </>
                 }
