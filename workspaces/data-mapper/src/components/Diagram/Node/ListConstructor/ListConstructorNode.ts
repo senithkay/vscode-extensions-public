@@ -33,15 +33,15 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
+    enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
-    getEnrichedRecordType,
     getExprBodyFromLetExpression,
+    getFilteredUnionOutputTypes,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
     getTypeName,
-    getTypeOfOutput,
     getTypeOfValue
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
@@ -52,7 +52,6 @@ export const LIST_CONSTRUCTOR_NODE_TYPE = "data-mapper-node-list-constructor";
 
 export class ListConstructorNode extends DataMapperNodeModel {
 
-    public typeDef: Type;
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
@@ -63,6 +62,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public value: ExpressionFunctionBody | SelectClause,
         public typeIdentifier: TypeDescriptor | IdentifierToken,
+        public typeDef: Type,
         public queryExpr?: QueryExpression) {
         super(
             context,
@@ -71,17 +71,23 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getTypeOfOutput(this.typeIdentifier, this.context.ballerinaVersion);
-
         if (this.typeDef) {
             const isSelectClause = STKindChecker.isSelectClause(this.value);
             this.rootName = this.typeDef?.name ? getBalRecFieldName(this.typeDef.name) : this.typeDef.typeName;
             if (isSelectClause){
                 this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
             }
-            const valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
-            this.typeName = getTypeName(valueEnrichedType.type);
+            if (this.typeDef.typeName === PrimitiveBalType.Union) {
+                this.typeName = getTypeName(this.typeDef);
+                const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
+                if (acceptedMembers.length === 1) {
+                    this.typeDef = acceptedMembers[0];
+                }
+            }
+            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
+                this.context.selection.selectedST.stNode);
+            this.typeDef = type;
+            this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (this.typeDef.typeName === PrimitiveBalType.Union) {
                 this.rootName = valueEnrichedType?.type?.typeName;

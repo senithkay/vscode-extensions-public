@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import * as React from 'react';
+import React, { useState } from "react";
 
 import { IconButton } from '@material-ui/core';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -24,7 +24,7 @@ import { LetVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ViewOption } from "../../../DataMapper/DataMapper";
 import { isGoToQueryWithinLetExprSupported } from "../../../DataMapper/utils";
-import { DataMapperPortWidget, RecordFieldPortModel } from '../../Port';
+import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";
 import { RecordFieldTreeItemWidget } from "../commons/RecordTypeTreeWidget/RecordFieldTreeItemWidget";
 import { TreeBody, TreeHeader } from '../commons/Tree/Tree';
@@ -45,6 +45,9 @@ export interface LetVarDeclItemProps {
 export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
     const { engine, typeDesc, id, declaration, context, getPort, handleCollapse, valueLabel } = props;
     const classes = useStyles();
+
+    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [isHovered, setIsHovered] = useState(false);
 
     const typeName = getTypeName(typeDesc);
     const portOut = getPort(`${id}.OUT`);
@@ -69,7 +72,15 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
 
     const handleExpand = () => {
         handleCollapse(id, !expanded);
-    }
+    };
+
+    const onMouseEnter = () => {
+        setIsHovered(true);
+    };
+
+    const onMouseLeave = () => {
+        setIsHovered(false);
+    };
 
     const onClickOnExpand = () => {
         context.changeSelection(ViewOption.EXPAND,
@@ -80,11 +91,20 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                     fieldPath: `LetExpr.${valueLabel ? valueLabel : id}`
                 }
             });
-    }
+    };
+
+    const handlePortState = (state: PortState) => {
+        setPortState(state)
+    };
 
     return (
         <>
-            <TreeHeader>
+            <TreeHeader
+                id={"recordfield-" + id}
+                isSelected={portState !== PortState.Unselected}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
                 <span className={classes.label}>
                     {isRecord && (
                         <IconButton
@@ -104,23 +124,24 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                 </span>
                 <span className={classes.treeLabelOutPort}>
                     {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} />
+                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
                     }
                 </span>
             </TreeHeader>
             {
                 expanded && isRecord && (
                     <TreeBody>
-                        {typeDesc.fields.map((field) => {
+                        {typeDesc.fields.map((field, index) => {
                             return (
                                 <RecordFieldTreeItemWidget
-                                    key={id}
+                                    key={index}
                                     engine={engine}
                                     field={field}
                                     getPort={getPort}
                                     parentId={id}
                                     handleCollapse={handleCollapse}
                                     treeDepth={0}
+                                    hasHoveredParent={isHovered}
                                 />
                             );
                         })}

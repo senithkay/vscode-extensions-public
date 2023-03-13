@@ -11,6 +11,7 @@
  * associated services.
  */
 import {
+    ClientResourceAccessAction,
     ExplicitNewExpression,
     FunctionCall,
     ImplicitNewExpression,
@@ -47,6 +48,10 @@ class ParentFunctionSetupVisitor implements Visitor {
     }
 
     public beginVisitRemoteMethodCallAction(node: RemoteMethodCallAction): void {
+        (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
+    }
+
+    public beginVisitClientResourceAccessAction(node: ClientResourceAccessAction): void {
         (node.viewState as StatementEditorViewState).parentFunctionPos = node.position;
     }
 }

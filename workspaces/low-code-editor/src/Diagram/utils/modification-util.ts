@@ -543,6 +543,36 @@ export function createCheckedRemoteServiceCall(
     return checkedRemoteServiceCall;
 }
 
+export function createCheckedResourceServiceCall(
+    type: string,
+    variable: string,
+    callerName: string,
+    path: string[],
+    functionName: string,
+    params: string[],
+    targetPosition: NodePosition,
+    withSelf?: boolean
+): STModification {
+    const checkedResourceServiceCall: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "RESOURCE_SERVICE_CALL_CHECK",
+        config: {
+            TYPE: type,
+            VARIABLE: variable,
+            CALLER: callerName,
+            PATH: path.length > 0 ? path.join("/") : undefined,
+            FUNCTION: functionName || undefined,
+            PARAMS: params?.length > 0 ? params.join() : undefined,
+            WITH_SELF: withSelf
+        },
+    };
+
+    return checkedResourceServiceCall;
+}
+
 export function createActionStatement(
     callerName: string,
     functionName: string,
