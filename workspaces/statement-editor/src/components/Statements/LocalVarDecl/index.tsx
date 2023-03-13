@@ -16,7 +16,7 @@ import React, { ReactNode, useContext } from "react";
 import { LocalVarDecl, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 
-import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE } from "../../../constants";
+import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, HTTP_ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { isPositionsEquals } from "../../../utils";
 import { ExpressionComponent } from "../../Expression";
@@ -61,7 +61,7 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
                 changeCurrentModel(model.initializer.expression.parenthesizedArgList);
             }
         } else if (
-            config.type === ACTION &&
+            (config.type === ACTION || config.type === HTTP_ACTION) &&
             model &&
             STKindChecker.isCheckAction(model.initializer) &&
             STKindChecker.isRemoteMethodCallAction(model.initializer.expression)
@@ -69,6 +69,19 @@ export function LocalVarDeclC(props: LocalVarDeclProps) {
             if (model.initializer.expression.arguments?.length > 0) {
                 changeCurrentModel(model.initializer.expression.arguments[0]);
             } else {
+                changeCurrentModel(model.initializer.expression);
+            }
+        } else if (
+            (config.type === ACTION || config.type === HTTP_ACTION) &&
+            model &&
+            STKindChecker.isCheckAction(model.initializer) &&
+            STKindChecker.isClientResourceAccessAction(model.initializer.expression)
+        ) {
+            if (model.initializer.expression.arguments) {
+                changeCurrentModel(model.initializer.expression.arguments);
+            } else if (model.initializer.expression.methodName){
+                changeCurrentModel(model.initializer.expression.methodName);
+            }else{
                 changeCurrentModel(model.initializer.expression);
             }
         } else if (model.initializer && STKindChecker.isReceiveAction(model.initializer)) {

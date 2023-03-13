@@ -154,7 +154,7 @@ export function ActionForm(props: FormGeneratorProps) {
                     label: formTitle,
                     initialSource,
                     formArgs: { formArgs },
-                    config: { type: "Action" },
+                    config: { type: isHttp ? "HttpAction" : "Action"},
                     onWizardClose: onSave,
                     onCancel,
                     currentFile,
