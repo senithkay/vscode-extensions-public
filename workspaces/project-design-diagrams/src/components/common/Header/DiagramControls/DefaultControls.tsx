@@ -23,6 +23,7 @@ import IconButton from '@mui/material/IconButton';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import ArrowDropdownIcon from '@mui/icons-material/ArrowDropDown';
 import CachedIcon from '@mui/icons-material/Cached';
+import Chip from '@mui/material/Chip';
 import MenuIcon from '@mui/icons-material/Menu';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
@@ -43,7 +44,7 @@ interface DefaultControlProps {
 
 export function DefaultControls(props: DefaultControlProps) {
     const { projectPackages, layout, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
-    const { isChoreoProject, showChoreoProjectOverview } = useContext(DiagramContext);
+    const { isChoreoProject, editingEnabled, showChoreoProjectOverview } = useContext(DiagramContext);
 
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
     const [pkgAnchorElement, setPkgAnchorElement] = useState<HTMLButtonElement>(null);
@@ -87,6 +88,9 @@ export function DefaultControls(props: DefaultControlProps) {
                     >
                         Project Overview
                     </Button>
+                }
+                {!editingEnabled &&
+                    <Chip label={'Read-Only Mode'} sx={{ fontSize: '11px', fontFamily: 'GilmerRegular', marginLeft: '5px' }} />
                 }
             </div>
 

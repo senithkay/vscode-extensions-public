@@ -17,9 +17,11 @@
  *
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
+import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import ReplyAllIcon from '@mui/icons-material/ReplyAll';
+import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { Views } from '../../../../resources';
 import '../styles/styles.css';
 
@@ -30,6 +32,7 @@ interface RestrictedControlsProps {
 
 export function RestrictedControls(props: RestrictedControlsProps) {
     const { previousScreen, switchView } = props;
+    const { editingEnabled } = useContext(DiagramContext);
 
     const goBack = () => {
         switchView(previousScreen);
@@ -44,6 +47,10 @@ export function RestrictedControls(props: RestrictedControlsProps) {
             >
                 <ReplyAllIcon fontSize='small' />
             </IconButton>
+
+            {!editingEnabled &&
+                <Chip label={'Read-Only Mode'} sx={{ fontSize: '11px', fontFamily: 'GilmerRegular', marginLeft: '5px' }} />
+            }
         </div>
     );
 }
