@@ -10,10 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import styled from "@emotion/styled";
+
 import React from "react";
 import { render } from "react-dom";
-import App from "./App";
+import styled from "@emotion/styled";
+import ChoreoWebview from "./ChoreoWebview";
 
 export const Main = styled.main`
   display: flex;
@@ -22,12 +23,16 @@ export const Main = styled.main`
   height: 100vh;
 `;
 
-
-export function renderChoreoWebViews(props: any, target: any) {
-  render(
-      <React.StrictMode>
-        <App {...props} />
-      </React.StrictMode>,
-      target
-  );
+export function renderChoreoWebViews(
+	target: HTMLDivElement,
+	type: string,
+	projectId?: string,
+	orgName?: string
+) {
+	render(
+		<React.StrictMode>
+			<ChoreoWebview {...{ type, projectId, orgName }} />
+		</React.StrictMode>,
+		target
+	);
 }

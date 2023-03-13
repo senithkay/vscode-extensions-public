@@ -73,8 +73,8 @@
         "icon": "$(add)"
       },
       {
-        "command": "wso2.choreo.cell.view",
-        "title": "View Cell Architecture",
+        "command": "wso2.choreo.architecture.view",
+        "title": "View Choreo Project Architecture",
         "category": "Choreo"
       },
       {
@@ -132,7 +132,7 @@
       ],
       "commandPalette": [
         {
-          "command": "wso2.choreo.cell.view",
+          "command": "wso2.choreo.architecture.view",
           "when": "false"
         }]
     },

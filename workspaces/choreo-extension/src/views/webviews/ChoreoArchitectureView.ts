@@ -17,8 +17,8 @@ import { WebViewRpc } from "./rpc/WebviewRPC";
 import { ext } from "../../extensionVariables";
 import { getUri } from "./utils";
 
-export class CellDiagram {
-	public static currentPanel: CellDiagram | undefined;
+export class ChoreoArchitectureView {
+	public static currentPanel: ChoreoArchitectureView | undefined;
 	private static _rpcHandler: WebViewRpc;
 	public static project: Project | undefined;
 	private readonly _panel: vscode.WebviewPanel;
@@ -29,10 +29,10 @@ export class CellDiagram {
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
 		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, orgName, projectId);
-		if (!CellDiagram._rpcHandler) {
-			CellDiagram._rpcHandler = new WebViewRpc(this._panel);
-		} else if (CellDiagram._rpcHandler.panel !== panel) {
-			CellDiagram._rpcHandler = new WebViewRpc(this._panel);
+		if (!ChoreoArchitectureView._rpcHandler) {
+			ChoreoArchitectureView._rpcHandler = new WebViewRpc(this._panel);
+		} else if (ChoreoArchitectureView._rpcHandler.panel !== panel) {
+			ChoreoArchitectureView._rpcHandler = new WebViewRpc(this._panel);
 		}
 		this._panel.onDidChangeViewState(e => {
 			if (e.webviewPanel.visible) {
@@ -42,15 +42,15 @@ export class CellDiagram {
 	}
 
 	public static render(extensionUri: vscode.Uri, orgName: string, projectId: string) {
-		if (CellDiagram.currentPanel) {
-			const panel = CellDiagram.currentPanel._panel;
-			CellDiagram.currentPanel = new CellDiagram(panel, extensionUri, orgName, projectId);
+		if (ChoreoArchitectureView.currentPanel) {
+			const panel = ChoreoArchitectureView.currentPanel._panel;
+			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
 			panel.reveal(vscode.ViewColumn.One);
 		} else {
-			const panel = vscode.window.createWebviewPanel("choreo-cell-view", "Architecture View", vscode.ViewColumn.One, {
+			const panel = vscode.window.createWebviewPanel("choreo-archi-view", "Choreo Architecture View", vscode.ViewColumn.One, {
 				enableScripts: true, retainContextWhenHidden: true
 			});
-			CellDiagram.currentPanel = new CellDiagram(panel, extensionUri, orgName, projectId);
+			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
 		}
 	}
 
@@ -69,7 +69,7 @@ export class CellDiagram {
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
                     <meta name="theme-color" content="#000000">
-                    <title>Cell View</title>
+                    <title>Choreo Architecture View</title>
                     <script src="${scriptUri}"></script>
                 </head>
                 <body>
@@ -78,7 +78,7 @@ export class CellDiagram {
                 </body>
                 <script>
                     function render() {
-                        choreoWebviews.renderChoreoWebViews({ type: "CellView", projectId: "${projectId}", orgName: "${orgName}" }, document.getElementById("root"));
+                        choreoWebviews.renderChoreoWebViews(document.getElementById("root"), "ChoreoArchitectureView", "${projectId}", "${orgName}");
                     }
                     render();
                 </script>
@@ -87,7 +87,7 @@ export class CellDiagram {
 	}
 
 	public dispose() {
-		CellDiagram.currentPanel = undefined;
+		ChoreoArchitectureView.currentPanel = undefined;
 
 		this._panel.dispose();
 

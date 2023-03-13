@@ -11,18 +11,18 @@
  *  associated services.
  */
 
+import React from "react";
 import styled from "@emotion/styled";
 import { ComponentModel } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { DesignDiagram } from "@wso2-enterprise/project-design-diagrams";
-import React from "react";
 
 const WizardContainer = styled.div`
     width: 100vw;
     height: 100vh;
 `;
 
-export interface CellViewProps {
+export interface ArchitectureViewProps {
     projectId?: string;
     orgName?: string;
 }
@@ -31,7 +31,7 @@ interface ComponentModelResponse {
     [key: string]: ComponentModel;
 }
 
-export function CellView(props: CellViewProps) {
+export function ChoreoArchitectureView(props: ArchitectureViewProps) {
     const { orgName, projectId } = props;
 
     const getComponentModel = async (): Promise<any> => {

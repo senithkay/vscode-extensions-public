@@ -10,14 +10,15 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+
+import React from "react";
 import styled from "@emotion/styled";
 import { ComponentWizard } from "./ComponentWizard/ComponentWizard";
 import { ChoreoWebViewContext } from "./context/choreo-web-view-ctx";
 import { usePopulateContext } from "./hooks/context-populate";
 import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
 import { ProjectOverview } from "./ProjectOverview/ProjectOverview";
-import { CellView } from "./ChoreoArchitectureView/ArchitectureView";
-import React from "react";
+import { ChoreoArchitectureView } from "./ChoreoArchitectureView/ArchitectureView";
 
 export const Main = styled.main`
   display: flex;
@@ -26,8 +27,13 @@ export const Main = styled.main`
   height: 100vh;
 `;
 
-// switch between
-function switchViews(props: any) {
+interface ChoreoWebviewProps {
+    type: string;
+    projectId?: string;
+    orgName?: string;
+}
+
+function switchViews(props: ChoreoWebviewProps) {
     switch (props.type) {
         case 'ProjectCreateForm':
             return <ProjectWizard />;
@@ -35,13 +41,12 @@ function switchViews(props: any) {
             return <ComponentWizard />;
         case 'ProjectOverview':
             return <ProjectOverview projectId={props.projectId} orgName={props.orgName} />;
-        case 'CellView':
-            return <CellView projectId={props.projectId} orgName={props.orgName} />;
+        case 'ChoreoArchitectureView':
+            return <ChoreoArchitectureView projectId={props.projectId} orgName={props.orgName} />;
     }
 }
 
-function App(props: any) {
-
+function ChoreoWebview(props: ChoreoWebviewProps) {
     const contextVal = usePopulateContext();
 
     return (
@@ -53,4 +58,4 @@ function App(props: any) {
     );
 }
 
-export default App;
+export default ChoreoWebview;
