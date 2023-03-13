@@ -10,37 +10,48 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { ChoreoServiceComponentType, Component } from "@wso2-enterprise/choreo-core";
-import { useCallback, useEffect } from "react";
+import styled from "@emotion/styled";
+import { VSCodeDropdown, VSCodeOption, VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
+import { Component, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { useCallback } from "react";
 import { ErrorBanner, ErrorIcon } from "../Commons/ErrorBanner";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { RequiredFormInput } from "../Commons/RequiredInput";
-import { ComponentTypeSelector } from "../ComponentWizard/ComponetTypeSelector/ComponentTypeSelector";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentWizardState } from "./types";
 
+const StepContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-content: center;
+    gap: 20px;
+    width: 100%;
+`;
+
+const DropDownContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
 
 export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange, stepValidationErrors } = props;
-
-    const setSelectedType = useCallback((type: ChoreoServiceComponentType) => {
-        onFormDataChange({ type });
-    }, [onFormDataChange]);
 
     const setComponentName = useCallback((name: string) => {
         onFormDataChange({ name });
     }, [onFormDataChange]);
 
-    useEffect(() => {
-        if (!formData?.type) {   
-            setSelectedType(ChoreoServiceComponentType.REST_API);
-        }
-    }, [formData?.type, setSelectedType]);
+    const setDescription = useCallback((description: string) => {
+        onFormDataChange({ description });
+    }, [onFormDataChange]);
+
+    const setAccessibility = useCallback((accessibility: ComponentAccessibility) => {
+        onFormDataChange({ accessibility });
+    }, [onFormDataChange]);
+
 
     return (
-        <div>
-            <ComponentTypeSelector selectedType={formData?.type} onChange={setSelectedType} />
+        <StepContainer>
             <VSCodeTextField
                 autofocus
                 placeholder="Name"
@@ -51,7 +62,22 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                 {stepValidationErrors["name"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}
             </VSCodeTextField>
             {stepValidationErrors["name"] && <ErrorBanner errorMsg={stepValidationErrors["name"]} />}
-        </div>
+            <VSCodeTextArea
+                autofocus
+                placeholder="Description"
+                onInput={(e: any) => setDescription(e.target.value)}
+                value={formData?.description || ''}
+            >
+                Description
+            </VSCodeTextArea>
+            <DropDownContainer>
+                <label htmlFor="access-mode">Access Mode</label>
+                <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
+                    <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
+                    <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
+                </VSCodeDropdown>
+            </DropDownContainer>
+        </StepContainer>
     );
 };
 

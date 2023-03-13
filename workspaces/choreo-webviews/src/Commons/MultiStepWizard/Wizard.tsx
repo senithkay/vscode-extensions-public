@@ -37,6 +37,8 @@ const WizardActionsContainer = styled.div`
 `;
 
 const StepContainer = styled.div`
+    width: 100%;
+    height: 60%;
     padding: 15px;
 `;
 

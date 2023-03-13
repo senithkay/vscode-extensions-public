@@ -11,17 +11,20 @@
  *  associated services.
  */
 
-import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
+import { ChoreoServiceComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 
+export type ComponentType = "Service" | "Scheduled Trigger" | "Manual Trigger" | "REST API Proxy";
 export interface ComponentWizardState {
     name: string;
     description: string;
-    type: ChoreoServiceComponentType;
+    type: ComponentType;
+    subType: ChoreoServiceComponentType;
+    accessibility: ComponentAccessibility;
     repository: {
-        org: string;
-        repo: string;
-        branch: string;
-        subPath: string;
+        org?: string;
+        repo?: string;
+        branch?: string;
+        subPath?: string;
     };
     version: string;
 }

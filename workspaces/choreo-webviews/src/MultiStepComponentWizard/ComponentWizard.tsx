@@ -16,11 +16,16 @@ import { Wizard } from "../Commons/MultiStepWizard/Wizard";
 import { ConfigureRepoStep } from "./ConfigureRepoStep";
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
+import { ComponentTypeStep } from "./ComponentTypeStep";
+import { ServiceComponentTypeStep } from "./ServiceTypeStep";
 
 export const ComponentWizard: React.FC = () => {
     const initialState: WizardState<Partial<ComponentWizardState>> = {
         currentStep: 0,
-        formData: {},
+        formData: {
+            name: '',
+            accessibility: "external",
+        },
         isFormValid: false,
         isStepValid: false,
         validationErrors: {} as Record<keyof ComponentWizardState, string>,
@@ -30,7 +35,7 @@ export const ComponentWizard: React.FC = () => {
     return (
         <Wizard 
             title="Create New Choreo Component"
-            steps={[ComponentDetailsStep, ConfigureRepoStep]}
+            steps={[ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep, ServiceComponentTypeStep]}
             initialState={initialState}
             validationRules={[]}
             onSave={() => {}}

@@ -24,7 +24,9 @@ const Container = styled.div`
 `;
 
 const typeBtn = css`
-    min-width: 100px;
+    min-width: 200px;
+    min-height: 70px;
+    margin: 20px;
     padding: 10px 0px;
 `;
 
@@ -38,7 +40,7 @@ export function ComponentTypeSelector(props: SelectorProps) {
 
     return (
         <>
-            <label htmlFor="type-selector">Select Service Type</label>
+            <label htmlFor="type-selector"></label>
             <Container>
                 <VSCodeButton
                     appearance={selectedType === ChoreoServiceComponentType.REST_API ? "primary" : "secondary"}
@@ -54,6 +56,8 @@ export function ComponentTypeSelector(props: SelectorProps) {
                 >
                     GraphQL
                 </VSCodeButton>
+            </Container>
+            <Container>
                 <VSCodeButton
                     appearance={selectedType === ChoreoServiceComponentType.GRPC_API ? "primary" : "secondary"}
                     onClick={() => {onChange(ChoreoServiceComponentType.GRPC_API)}}
