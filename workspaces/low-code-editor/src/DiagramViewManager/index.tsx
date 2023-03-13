@@ -154,7 +154,6 @@ export function DiagramViewManager(props: EditorProps) {
         (async () => {
             try {
                 const langClient = await langClientPromise;
-                console.log('filePath >>>', filePath);
                 const generatedST = await getSyntaxTree(filePath, langClient);
                 const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
                 const content = await getFileContent(filePath);

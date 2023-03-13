@@ -111,7 +111,6 @@ export function CategoryView(props: CategoryViewProps) {
                 )
             ])
         }
-        console.log('currentFile >>>', currentFile);
         return (
             <div className="title-bar">
                 <FormControl variant="outlined" className={classes.selectorComponent} >
