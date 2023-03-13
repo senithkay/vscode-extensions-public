@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, {useContext, useMemo} from "react";
+import React, { useContext, useMemo } from "react";
 
 import { ClickAwayListener, Popover } from "@material-ui/core";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
@@ -177,7 +177,7 @@ export function NavigationBar(props: NavigationBarProps) {
             return [selectedLink, restLinks];
         }
         return [undefined, undefined];
-    }, [history, isRootDataMapper]);
+    }, [history, syntaxTree, isRootDataMapper]);
 
     // {renderWorkspaceNameComponent(isWorkspace)}
     return (

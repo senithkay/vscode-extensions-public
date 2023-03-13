@@ -24,6 +24,7 @@ export interface HistoryEntry {
 
 type historyPushFnType = (info: HistoryEntry) => void;
 type historyPopFnType = () => void;
+type historyReplaceFnType = (info: HistoryEntry) => void;
 type historySelectFnType = (index: number) => void;
 type historyClearFnType = () => void;
 type updateCurrentEntryFnType = (info: HistoryEntry) => void;
@@ -32,6 +33,7 @@ export function useComponentHistory():
         [HistoryEntry[],
         historyPushFnType,
         historyPopFnType,
+        historyReplaceFnType,
         historySelectFnType,
         historyClearFnType,
         updateCurrentEntryFnType] {
@@ -44,6 +46,10 @@ export function useComponentHistory():
     const historyPop = () => {
         if (history.length === 0) return;
         updateHistory(history.slice(0, history.length - 1));
+    }
+
+    const historyReplace = (historyEntry: HistoryEntry) => {
+        updateHistory([historyEntry]);
     }
 
     const historySelect = (index: number) => {
@@ -61,6 +67,5 @@ export function useComponentHistory():
         updateHistory(newHistory);
     }
 
-    return [history, historyPush, historyPop, historySelect, historyClear, updateCurrentEntry];
+    return [history, historyPush, historyPop, historyReplace, historySelect, historyClear, updateCurrentEntry];
 }
-

@@ -19,6 +19,7 @@ export interface HistoryProviderState {
     history: HistoryEntry[],
     historyPush: (info: HistoryEntry) => void;
     historyPop: () => void;
+    historyReplace: (info: HistoryEntry) => void;
     historySelect: (index: number) => void;
     historyReset: () => void;
 }
@@ -30,6 +31,9 @@ export const Context = React.createContext<HistoryProviderState>({
     },
     historyPop(): void {
         throw new Error('Function not implemented.');
+    },
+    historyReplace(info: HistoryEntry): void {
+        throw new Error("Function not implemented.");
     },
     historySelect(index: number): void {
         throw new Error('Function not implemented.');
