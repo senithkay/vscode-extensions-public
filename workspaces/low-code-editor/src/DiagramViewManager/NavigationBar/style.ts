@@ -17,6 +17,23 @@ const useStyles = makeStyles(() =>
             "& .MuiOutlinedInput-input": {
                 padding: "5px 30px 5px 5px"
             }
+        },
+        active: {
+            cursor: "default",
+            color: "textPrimary"
+        },
+        link: {
+            cursor: "pointer"
+        },
+        breadcrumb: {
+            "& .MuiBreadcrumbs-separator": {
+                margin: "2px"
+            },
+            padding: "0 5px",
+            height: "50px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
         }
     })
 )
