@@ -187,6 +187,9 @@ export const useStyles = makeStyles(() =>
         listenerText: {
             fontSize: 15,
             fontWeight: 200
+        },
+        addResource: {
+            height: '30px !important',
         }
     }),
 );

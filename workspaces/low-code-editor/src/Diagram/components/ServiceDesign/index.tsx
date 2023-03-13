@@ -165,6 +165,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                                 onClick={handlePlusClick}
                                 dataTestId="add-new-btn"
                                 startIcon={<AddIcon />}
+                                className={classes.addResource}
                             />
                         </div>
                         <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
