@@ -10,12 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 import { monaco } from 'react-monaco-editor';
 
-import { Button, Divider, FormControl } from "@material-ui/core";
+import { Button, Divider, FormControl, TextField } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
@@ -318,31 +318,30 @@ export function ResourceForm(props: FunctionProps) {
                             </div>
                             <div className={connectorClasses.resourcePathWrapper}>
                                 <FieldTitle title='Resource Path' optional={true} />
-                                <LiteExpressionEditor
-                                    testId="resource-path"
-                                    diagnostics={
-                                        (currentComponentName === "Path" && currentComponentSyntaxDiag)
-                                        || getResourcePathDiagnostics()
-                                    }
-                                    defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
-                                    externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}
-                                    onChange={handlePathChange}
-                                    completions={completions}
-                                    onFocus={onPathFocus}
+                                <TextField
+                                    variant="outlined"
+                                    fullWidth={true}
+                                    value={resourcePath}
+                                    margin="none"
+                                    size="small"
+                                    onChange={(e) => { handlePathChange(e.target.value) }}
+                                    InputLabelProps={{ shrink: false }}
                                     disabled={currentComponentName !== "Path" && isEditInProgress}
+                                    onFocus={onPathFocus}
                                 />
                             </div>
-                            <div className={connectorClasses.advancedToggleWrapper}>
-                                <div className={classes.plusIconWrapper}>
-                                    <Button
-                                        data-test-id="request-add-button"
-                                        onClick={handlePathAddClick}
-                                        startIcon={<AddIcon />}
-                                        color="primary"
-                                        disabled={false}
-                                    />
-                                </div>
-                            </div>
+                        </div>
+                        <div className={connectorClasses.queryParam}>
+                            <Button
+                                data-test-id="query-param-add-button"
+                                onClick={handlePathAddClick}
+                                className={connectorClasses.addParameterBtn}
+                                startIcon={<AddIcon />}
+                                color="primary"
+                                disabled={false}
+                            >
+                                Add Path Param
+                            </Button>
                         </div>
                     </div>
                     <div className={connectorClasses.resourceParamWrapper}>

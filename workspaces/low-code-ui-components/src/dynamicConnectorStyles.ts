@@ -875,13 +875,13 @@ export const dynamicConnectorStyles = makeStyles((theme: Theme) =>
             marginRight: 5,
         },
         resourcePathWrapper: {
-            width: '65%',
+            width: '70%',
             marginLeft: theme.spacing(1.25),
             marginTop: -6
         },
         methodTypeContainer: {
             display: 'block',
-            width: '38%',
+            width: '30%',
         },
         advancedToggleWrapper: {
             width: '10%',
@@ -923,6 +923,10 @@ export const dynamicConnectorStyles = makeStyles((theme: Theme) =>
         },
         docButton : {
             marginLeft: theme.spacing(15.75)
+        },
+        queryParam: {
+            textAlign: 'end',
+            marginTop: theme.spacing(-2)
         }
     }),
     { index: 1 }
