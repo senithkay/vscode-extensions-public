@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project, Component } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component, ComponentModel } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -38,6 +38,7 @@ export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> =
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
+export const getDiagramComponentModel: RequestType<{ projId: string, orgHandler: string }, ComponentModel[]> = { method: 'getDiagramComponentModel' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const HasUnpushedComponents: RequestType<string, boolean> = { method: 'hasUnpushedComponents' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };

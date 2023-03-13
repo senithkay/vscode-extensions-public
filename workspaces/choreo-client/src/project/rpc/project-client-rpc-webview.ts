@@ -36,4 +36,7 @@ export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
     linkRepo(params: LinkRepoMutationParams): Promise<Repository> {
         return this._messenger.sendRequest(LinkRepoRequest, HOST_EXTENSION, params);
     }
+    getDiagramModel(params: GetComponentsParams): Promise<Component[]> {
+        return this._messenger.sendRequest(GetComponentsRequest, HOST_EXTENSION, params);
+    }
 }

@@ -23,8 +23,7 @@ import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
-import CircularProgress from "@mui/material/CircularProgress";
-import { Service, Colors } from "../../../resources";
+import { Service } from "../../../resources";
 import { Header, Container, TitleText } from "../../../editing/EditForm/resources/styles";
 import {
     BallerinaConstruct,

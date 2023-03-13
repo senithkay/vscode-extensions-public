@@ -11,6 +11,8 @@
  *  associated services.
  */
 
+import React from "react";
+
 export interface CodiconProps {
     name: string;
 }

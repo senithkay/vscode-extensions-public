@@ -12,7 +12,6 @@
  */
 
 import styled from '@emotion/styled';
-import { Colors } from "../../../resources";
 
 interface StyleProps {
     rotate?: string;

@@ -69,6 +69,7 @@ export interface IChoreoProjectClient {
     // queries
     getProjects(params: GetProjectsParams): Promise<Project[]>;
     getComponents(params: GetComponentsParams): Promise<Component[]>;
+    getDiagramModel(params: GetComponentsParams): Promise<Component[]>;
 
     // mutations
     createProject(params: CreateProjectParams): Promise<Project>;
