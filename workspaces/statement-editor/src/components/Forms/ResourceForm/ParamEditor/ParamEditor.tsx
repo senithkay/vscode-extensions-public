@@ -205,7 +205,7 @@ export function ParamEditor(props: ParamProps) {
                         || model.source.includes(RESOURCE_REQUEST_TYPE)
                         || model.source.includes(RESOURCE_HEADER_MAP_TYPE)) && (
                         <div className={classes.paramNameWrapper}>
-                            <FieldTitle title='Default Value' optional={false} />
+                            <FieldTitle title='Default Value' optional={true} />
                             <LiteExpressionEditor
                                 testId="param-default-val"
                                 diagnostics={

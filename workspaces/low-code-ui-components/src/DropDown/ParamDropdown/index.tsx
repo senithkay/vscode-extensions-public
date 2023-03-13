@@ -46,7 +46,8 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
             menuItems.push(
                 <MenuItem
                     disabled={!enabled?.includes(value)}
-                    key={value} value={value}
+                    key={value}
+                    value={value}
                     className={`product-tour-payload-${value.toLowerCase()}`}
                     data-testid={`connector-payload-${value.toLowerCase()}`}
                 >
