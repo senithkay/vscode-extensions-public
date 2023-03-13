@@ -13,7 +13,7 @@
 import React from "react";
 
 import { FormControl, InputLabel, Select } from "@material-ui/core";
-import { BallerinaProjectComponents, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { FileListEntry } from "../../../../DiagramGenerator/vscode/Diagram";
 import useStyles from "../../../../DiagramViewManager/NavigationBar/style";
@@ -25,15 +25,16 @@ import './style.scss'
 interface CategoryViewProps {
     projectComponents: BallerinaProjectComponents;
     updateSelection: (info: ComponentViewInfo) => void;
-    currentFile: FileListEntry;
+    currentFile: string;
+    currentFileName: string;
     fileList: FileListEntry[];
-    updateCurrentFile: (file: FileListEntry) => void;
+    updateCurrentFile: (filePath: string) => void;
 }
 
 const ALL_FILES: string = 'All';
 
 export function CategoryView(props: CategoryViewProps) {
-    const { projectComponents, updateSelection, currentFile, fileList, updateCurrentFile } = props;
+    const { projectComponents, updateSelection, currentFile, fileList, updateCurrentFile, currentFileName } = props;
     const classes = useStyles();
     const currentComponents: ComponentCollection = {
         functions: [],
@@ -56,7 +57,7 @@ export function CategoryView(props: CategoryViewProps) {
                     if (key !== 'name') {
                         module[key].forEach((element: any) => {
                             const filePath = genFilePath(packageInfo, module, element);
-                            if (currentFile && currentFile.uri.path !== filePath) return;
+                            if (currentFile && currentFile !== filePath) return;
                             currentComponents[key].push({
                                 filePath,
                                 position: {
@@ -94,7 +95,7 @@ export function CategoryView(props: CategoryViewProps) {
                 updateCurrentFile(undefined);
             } else {
                 const selectedFile = fileList.find(file => file.fileName === evt.target.value);
-                updateCurrentFile(selectedFile);
+                updateCurrentFile(selectedFile.uri.path);
             }
         }
 
@@ -110,13 +111,14 @@ export function CategoryView(props: CategoryViewProps) {
                 )
             ])
         }
+        console.log('currentFile >>>', currentFile);
         return (
             <div className="title-bar">
                 <FormControl variant="outlined" className={classes.selectorComponent} >
                     <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
                     <Select
                         native={true}
-                        value={currentFile ? currentFile.fileName : ALL_FILES}
+                        value={currentFileName ? currentFileName : ALL_FILES}
                         label="File"
                         inputProps={{ name: 'age', id: 'outlined-age-native-simple', }}
                         onChange={handleFileChange}

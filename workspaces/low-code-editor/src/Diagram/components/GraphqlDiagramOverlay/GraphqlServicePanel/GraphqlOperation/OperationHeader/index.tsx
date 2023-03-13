@@ -49,7 +49,7 @@ export function OperationHeader(props: OperationHeaderProps) {
         evt.stopPropagation();
         const currentElementInfo = history[history.length - 1];
         const componentViewInfo: ComponentViewInfo = {
-            filePath: currentElementInfo.file.uri.path,
+            filePath: currentElementInfo.file,
             position: model.position
         };
         updateSelectedComponent(componentViewInfo);

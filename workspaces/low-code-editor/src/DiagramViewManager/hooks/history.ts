@@ -11,16 +11,12 @@
  * associated services.
  */
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { FileListEntry, WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
-
-
 export interface HistoryEntry {
-    project: WorkspaceFolder;
-    file: FileListEntry;
+    file: string;
     position?: NodePosition;
     uid?: string;
 }

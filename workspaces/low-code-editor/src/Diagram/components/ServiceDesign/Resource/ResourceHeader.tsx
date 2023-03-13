@@ -44,7 +44,7 @@ export function ResourceHeader(props: ResourceHeaderProps) {
         evt.stopPropagation();
         const currentElementInfo = history[history.length - 1];
         const componentViewInfo: ComponentViewInfo = {
-            filePath: currentElementInfo.file.uri.path,
+            filePath: currentElementInfo.file,
             position: model.position
         }
         updateSelectedComponent(componentViewInfo);

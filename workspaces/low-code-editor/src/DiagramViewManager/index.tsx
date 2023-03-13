@@ -65,7 +65,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
-    const [focusFile, setFocusFile] = useState<FileListEntry>();
+    const [focusFile, setFocusFile] = useState<string>();
     const [focusUid, setFocusUid] = useState<string>();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
@@ -80,15 +80,16 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         if (!focusFile || !focusUid) return;
-        fetchST(focusFile.uri.path, { uid: focusUid });
+        fetchST(focusFile, { uid: focusUid });
     }, [updatedTimeStamp]);
 
     useEffect(() => {
         if (history.length > 0) {
-            const { project, file, position } = history[history.length - 1];
-            fetchST(file.uri.path, { position });
-            if (!currentProject || currentProject.name !== project.name) setCurrentProject(project);
-            setFocusFile(file);
+            const { file, position } = history[history.length - 1];
+            const currentProjectPath = projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
+            fetchST(file, { position });
+            if (!currentProject || currentProject.name !== currentProjectPath.name) setCurrentProject(currentProjectPath);
+            if (!focusFile || focusFile !== file) setFocusFile(file);
         } else {
             setFocusedST(undefined);
             setFocusUid(undefined);
@@ -116,14 +117,19 @@ export function DiagramViewManager(props: EditorProps) {
             const currentProjectPath = projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
 
             (async () => {
-                const response = await getAllFiles('**/*.bal');
-                const filteredFileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProjectPath.uri.fsPath));
-                const projectFiles: FileListEntry[] = filteredFileList.map(fileUri => ({
-                    fileName: fileUri.path.replace(`${currentProjectPath.uri.fsPath}/`, ''),
-                    uri: fileUri
-                }));
-                const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
-                historyPush({ project: currentProjectPath, file: currentFile, position });
+                if (!position) {
+                    const response = await getAllFiles('**/*.bal');
+                    const filteredFileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProjectPath.uri.fsPath));
+                    const projectFiles: FileListEntry[] = filteredFileList.map(fileUri => ({
+                        fileName: fileUri.path.replace(`${currentProjectPath.uri.fsPath}/`, ''),
+                        uri: fileUri
+                    }));
+                    const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
+                    setCurrentProject(currentProjectPath);
+                    setFocusFile(currentFile.uri.path);
+                } else {
+                    historyPush({ file: filePath, position });
+                }
             })();
 
         }
@@ -142,6 +148,7 @@ export function DiagramViewManager(props: EditorProps) {
         (async () => {
             try {
                 const langClient = await langClientPromise;
+                console.log('filePath >>>', filePath);
                 const generatedST = await getSyntaxTree(filePath, langClient);
                 const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
                 const content = await getFileContent(filePath);
@@ -198,10 +205,8 @@ export function DiagramViewManager(props: EditorProps) {
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         const { filePath, position } = componentDetails;
-        const fileListEntry = fileList.find(file => file.uri.path === filePath);
         historyPush({
-            file: fileListEntry,
-            project: currentProject,
+            file: filePath,
             position,
         });
     }
@@ -214,11 +219,13 @@ export function DiagramViewManager(props: EditorProps) {
 
     if (history.length > 0 && history[history.length - 1].position && !focusedST) {
         viewComponent.push(<TextPreLoader position={'absolute'} />);
-    } else if (!focusedST) {
+    } else if (!focusedST && fileList) {
+        const currentFileName = fileList.find(file => file.uri.path === focusFile)?.fileName;
         viewComponent.push((
             <OverviewDiagram
                 currentProject={currentProject}
                 currentFile={focusFile}
+                currentFileName={currentFileName}
                 notifyComponentSelection={updateSelectedComponent}
                 updateCurrentFile={setFocusFile}
                 fileList={fileList}
@@ -270,14 +277,14 @@ export function DiagramViewManager(props: EditorProps) {
         } else if (STKindChecker.isTypeDefinition(focusedST)
             && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
             // Navigate to record composition view
-            const recordST = {...focusedST}; // Clone focusedST
+            const recordST = { ...focusedST }; // Clone focusedST
             const name = recordST.typeName.value;
             const module = recordST.typeData?.symbol?.moduleID;
             if (!(name && module)) {
                 // TODO: Handle error properly
                 // tslint:disable-next-line
                 console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
-            }else{
+            } else {
                 const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
                 props.openArchitectureView(nodeId);
             }
@@ -300,7 +307,7 @@ export function DiagramViewManager(props: EditorProps) {
     }
 
     const updateActiveFile = (currentFile: FileListEntry) => {
-        setFocusFile(currentFile);
+        setFocusFile(currentFile.uri.path);
         fetchST(currentFile.uri.path);
     };
 
