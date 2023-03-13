@@ -903,7 +903,8 @@ export const useStyles = makeStyles((theme: Theme) =>
                 textTransform: 'none',
                 minWidth: '32px',
                 color: theme.palette.primary.main,
-                float: 'right'
+                marginLeft: theme.spacing(0.5),
+                cursor: 'pointer',
             }
         }),
     { index: 1 }

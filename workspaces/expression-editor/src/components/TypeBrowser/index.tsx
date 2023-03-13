@@ -45,18 +45,19 @@ function TypeBrowserC(props: TypeBrowserProps) {
 
     // Create new record and add it to the list
     const handleCreateNew = () => {
+        const validName = selectedTypeStr.replace(/[\])}[{(]/g, '');
         const completion: CompletionResponseWithModule = {
             detail: "Record",
-            insertText: selectedTypeStr,
+            insertText: validName,
             insertTextFormat: 2,
             kind: "Record",
-            label: selectedTypeStr,
+            label: validName,
             sortText: "CA",
             suggestionType: 22,
-            value: selectedTypeStr,
+            value: validName,
         }
         recordCompletions.push(completion);
-        createNew(selectedTypeStr);
+        createNew(validName);
         setSelectedTypeStr(selectedTypeStr);
         setExpressionDiagnosticMsg("");
     }
@@ -128,7 +129,7 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string })
         <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
             <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
                 {truncateDiagnosticMsg(message)}
-                <Button className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</Button>
+                <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>
             </FormHelperText>
         </TooltipCodeSnippet>
     );
