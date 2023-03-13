@@ -310,7 +310,7 @@ export function DataProcessor(props: ProcessorProps) {
         )
     }
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    // TODO: ReEnable function expand 
+    // TODO: ReEnable function expand
     // const haveFunctionExpand = (haveFunction && !!functionName);
     const haveFunctionExpand = false;
     const assignmentTextYPosition = haveFunctionExpand ?
