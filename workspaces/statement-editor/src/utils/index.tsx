@@ -57,6 +57,7 @@ import {
     ACTION,
     BAL_SOURCE,
     CALL_CONFIG_TYPE,
+    COMMENT_MINUTIAE,
     CONNECTOR,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
@@ -410,7 +411,7 @@ export function addImportStatements(
 
 export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     return {
-        leadingMinutiaeJSX: getJSXForMinutiae(model?.leadingMinutiae),
+        leadingMinutiaeJSX: checkCommentMinutiae(getJSXForMinutiae(model?.leadingMinutiae)),
         trailingMinutiaeJSX: getJSXForMinutiae(model?.trailingMinutiae)
     };
 }
@@ -421,8 +422,28 @@ export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX
             return Array.from({ length: element.minutiae.length }, () => <>&nbsp;</>);
         } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
             return <br />;
+        } else if (element.kind === COMMENT_MINUTIAE) {
+            return Array.from("/");
         }
     });
+}
+
+export function checkCommentMinutiae(minutiae: ReactNode[]): ReactNode[] {
+    const checkedMinutiae = minutiae;
+    const commentList: number[] = [];
+    minutiae?.map((element, index) => {
+        if (element && element[0] === "/") {
+            commentList.push(index);
+        }
+    });
+
+    if (commentList.length) {
+        const commentHasLeadingMin = commentList[0] > 0;
+        checkedMinutiae.splice(commentHasLeadingMin ? commentList[0] - 1 : commentList[0],
+            commentList[commentList.length - 1] - commentList[0] + (commentHasLeadingMin ? 3 : 2))
+    }
+
+    return checkedMinutiae;
 }
 
 export function getClassNameForToken(model: STNode): string {

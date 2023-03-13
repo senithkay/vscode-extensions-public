@@ -72,6 +72,10 @@ export function InputEditor(props: InputEditorProps) {
             source = model.source;
         }
 
+        // Remove comments in statements
+        const lines = source.split('\n');
+        source = lines.filter((line) => !line.trim().startsWith('//')).join('\n');
+
         inputEditorCtx.onInputChange(source.trim());
         return source.trim();
     }, [model]);

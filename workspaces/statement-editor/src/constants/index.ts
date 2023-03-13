@@ -68,6 +68,7 @@ export const TABLE_CONSTRUCTOR = "TableConstructor";
 export const OBJECT_CONSTRUCTOR = "ObjectConstructor";
 export const WHITESPACE_MINUTIAE = "WHITESPACE_MINUTIAE";
 export const END_OF_LINE_MINUTIAE = "END_OF_LINE_MINUTIAE";
+export const COMMENT_MINUTIAE = "COMMENT_MINUTIAE";
 export const CONFIGURABLE_TYPE_STRING = "string";
 export const CONFIGURABLE_TYPE_BOOLEAN = "boolean";
 export const ADD_CONFIGURABLE_LABEL = "Add Configurable";

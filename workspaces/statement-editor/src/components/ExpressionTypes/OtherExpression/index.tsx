@@ -14,7 +14,7 @@ import React from "react";
 
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { getJSXForMinutiae, getMinutiaeJSX } from "../../../utils";
+import { checkCommentMinutiae, getJSXForMinutiae, getMinutiaeJSX } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { InputEditor, InputEditorProps } from "../../InputEditor";
 import { useStatementRendererStyles } from "../../styles";
@@ -38,9 +38,11 @@ export function OtherExpressionComponent(props: OtherExpressionProps) {
     const leadingMinutiaeJSX = getJSXForMinutiae(model?.leadingMinutiae, isFieldWithNewLine);
     const trailingMinutiaeJSX = getJSXForMinutiae(model?.trailingMinutiae, isFieldWithNewLine);
 
+    const filteredLeadingMinutiaeJSX = checkCommentMinutiae(leadingMinutiaeJSX);
+
     return (
         <>
-            {leadingMinutiaeJSX}
+            {filteredLeadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
             {trailingMinutiaeJSX}
         </>
