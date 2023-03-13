@@ -46,17 +46,12 @@ export function ChoreoArchitectureView(props: ArchitectureViewProps) {
         throw new Error("Error while loading project resources.");
     }
 
-    const enrichChoreoMetadata = async (componentModel: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>> => {
-        return componentModel;
-    }
-
     return (
         <WizardContainer>
             <DesignDiagram
                 isEditable={false}
                 isChoreoProject={true}
                 getComponentModel={getComponentModel}
-                enrichChoreoMetadata={enrichChoreoMetadata}
             />
         </WizardContainer>
     );

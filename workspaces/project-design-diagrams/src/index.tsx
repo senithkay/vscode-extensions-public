@@ -26,7 +26,6 @@ import { WebviewEditLayerAPI } from './editing';
 export function renderDesignDiagrams(isEditable: boolean,
     isChoreoProject: boolean,
     getComponentModel: () => Promise<Map<string, ComponentModel>>,
-    enrichChoreoMetadata: (model: Map<string, ComponentModel>) => Promise<Map<string, ComponentModel>>,
     showChoreoProjectOverview: () => Promise<void>,
     target: HTMLElement) {
 
@@ -35,7 +34,6 @@ export function renderDesignDiagrams(isEditable: boolean,
             isEditable={isEditable}
             isChoreoProject={isChoreoProject}
             getComponentModel={getComponentModel}
-            enrichChoreoMetadata={enrichChoreoMetadata}
             showChoreoProjectOverview={showChoreoProjectOverview}
             editLayerAPI={WebviewEditLayerAPI.getInstance()}
         />,

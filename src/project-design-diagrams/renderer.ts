@@ -53,18 +53,6 @@ export function render(webView: Webview, isChoreoProject: boolean) {
                 })
             }
 
-            function enrichChoreoMetadata(model) {
-                return new Promise((resolve, _reject) => {
-                    webViewRPCHandler.invokeRemoteMethod(
-                        'enrichChoreoMetadata',
-                        [model],
-                        (response) => {
-                            resolve(response);
-                        }
-                    );
-                })
-            }
-
             function showChoreoProjectOverview() {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -82,7 +70,6 @@ export function render(webView: Webview, isChoreoProject: boolean) {
                     true,
                     ${isChoreoProject},
                     getComponentModel,
-                    enrichChoreoMetadata,
                     showChoreoProjectOverview,
                     document.getElementById("webview-container")
                 );
