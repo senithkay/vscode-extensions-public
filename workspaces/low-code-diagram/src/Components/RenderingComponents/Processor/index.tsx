@@ -39,6 +39,7 @@ import { getDiagnosticInfo, getMethodCallFunctionName, getOverlayFormConfig, get
 import { BlockViewState, StatementViewState } from "../../../ViewState";
 import { DraftStatementViewState } from "../../../ViewState/draft";
 import { DefaultConfig } from "../../../Visitors/default";
+import { ShowFunctionBtn } from "../../DiagramActions/ShowFunctionBtn";
 import { Assignment } from "../Assignment";
 import { FunctionExpand } from "../FunctionExpand";
 import { MethodCall } from "../MethodCall";
@@ -309,7 +310,10 @@ export function DataProcessor(props: ProcessorProps) {
         )
     }
     const processWrapper = isDraftStatement ? cn("main-process-wrapper active-data-processor") : cn("main-process-wrapper data-processor");
-    const assignmentTextYPosition = (prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3));
+    const haveFunctionExpand = (haveFunction && !!functionName);
+    const assignmentTextYPosition = haveFunctionExpand ?
+        (cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2)
+        : (prosessTypes ? (cy + PROCESS_SVG_HEIGHT / 2) : (cy + PROCESS_SVG_HEIGHT / 3));
 
     const component: React.ReactNode = (!viewState.collapsed &&
         (
@@ -390,6 +394,20 @@ export function DataProcessor(props: ProcessorProps) {
                                     </>
                                 )}
                             </g>
+                        }
+                        {haveFunctionExpand ?
+                            <g>
+                                <ShowFunctionBtn
+                                    model={model}
+                                    functionName={functionName}
+                                    x={cx + PROCESS_SVG_WIDTH_WITH_HOVER_SHADOW / 2 + (DefaultConfig.dotGap / 2) + 3}
+                                    y={(cy + PROCESS_SVG_HEIGHT / 4) - (DefaultConfig.dotGap / 2) + 5}
+                                    setConfirmDialogActive={setConfirmDialogActive}
+                                    isConfirmDialogActive={isConfirmDialogActive}
+                                    setFunctionBlock={setFunctionBlock}
+                                />
+                            </g>
+                            : ''
                         }
                     </React.Fragment>
                 </g>
