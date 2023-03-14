@@ -6,8 +6,8 @@ module.exports = {
   mode: "production",
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "DesignDiagram.js",
-    library: "designDiagram",
+    filename: "ArchitectureView.js",
+    library: "architectureView",
   },
   resolve: {
     extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
@@ -17,11 +17,12 @@ module.exports = {
       {
         test: /\.(ts|tsx)$/,
         loader: "ts-loader",
+        exclude: '/node_modules/'
       },
       {
         enforce: "pre",
         test: /\.js$/,
-        loader: "source-map-loader",
+        loader: "source-map-loader"
       },
       {
         test: /\.css$/,

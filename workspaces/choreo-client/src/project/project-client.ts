@@ -13,7 +13,12 @@
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository } from "@wso2-enterprise/choreo-core";
 import { CreateComponentParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams } from "./types";
-import { getComponentsByProjectIdQuery, getProjectsByOrgIdQuery, getRepoMetadataQuery } from './project-queries';
+import {
+    getComponentsByProjectIdQuery,
+    getComponentsWithCellDiagramQuery,
+    getProjectsByOrgIdQuery,
+    getRepoMetadataQuery
+} from './project-queries';
 import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
@@ -140,6 +145,18 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             return data.repoMetadata.isSubPathValid;
         } catch (error) {
             throw new Error("Error while executing " + query, { cause: error, });
+        }
+    }
+
+    async getDiagramModel(params: GetComponentsParams): Promise<Component[]> {
+        const { orgHandle, projId } = params;
+        const query = getComponentsWithCellDiagramQuery(orgHandle, projId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.components;
+        } catch (error) {
+            throw new Error("Error while fetching components.", { cause: error });
         }
     }
 

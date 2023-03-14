@@ -52,7 +52,8 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
             srcGitRepoUrl: "${srcGitRepoUrl}" 
             repositorySubPath: "${repositorySubPath}", 
             repositoryType: "UserManagedNonEmpty",
-            repositoryBranch: "${repositoryBranch}",})
+            repositoryBranch: "${repositoryBranch}",
+            enableCellDiagram: true,})
             {  id, orgId, projectId, handler }
         }
     `;

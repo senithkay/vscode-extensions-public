@@ -15,6 +15,7 @@ import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRi
 import { Component, Repository } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
+import React from "react";
 
 export interface ComponentListProps {
     components: Component[] | undefined;

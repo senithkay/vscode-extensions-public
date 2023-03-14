@@ -13,7 +13,7 @@
 
 import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
@@ -23,6 +23,7 @@ const WizardContainer = styled.div`
     width: 100%;
     display  : flex;
     flex-direction: column;
+    padding: 20px;
 `;
 
 const HeaderContainer = styled.div`
@@ -80,7 +81,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const [components, setComponents] = useState<Component[] | undefined>(undefined);
     const [location, setLocation] = useState<string | undefined>(undefined);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [projectRepo, setProjectRepo] = useState<string | undefined>(undefined);
+    const [, setProjectRepo] = useState<string | undefined>(undefined);
     const [isActive, setActive] = useState<boolean>(false);
     const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
     const [componentAction, setComponentAction] = useState<ComponentAction>(ComponentAction.NOTHING);
@@ -169,9 +170,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
     }, [project]);
 
-    const handleOpenArchitectureViewClick = useCallback( () => {
+    const handleOpenArchitectureViewClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openArchitectureView();
     }, []);
+
+    const handleOpenChoreoArchitectureViewClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.architecture.view", orgName, projectId);
+    }, [orgName, projectId]);
 
     const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
 
@@ -210,7 +215,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <ActionContainer>
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={(components?.length <= 0)} onClick={handleOpenChoreoArchitectureViewClick}>Architecture View</VSCodeButton>
                         </ActionContainer>
                     </>
                 }

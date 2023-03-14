@@ -101,6 +101,9 @@ export class MockProjectClient implements IChoreoProjectClient {
     linkRepo(params: LinkRepoMutationParams): Promise<Repository> {
         throw new Error("Method not implemented.");
     }
+    getDiagramModel(params: GetComponentsParams): Promise<Component[]> {
+        throw new Error("Method not implemented.");
+    }
 }
 
 function setProjectLocation() {
