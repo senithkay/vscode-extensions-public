@@ -215,7 +215,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <ActionContainer>
                             <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
                             <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" onClick={handleOpenChoreoArchitectureViewClick}>Architecture View</VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={(components?.length <= 0)} onClick={handleOpenChoreoArchitectureViewClick}>Architecture View</VSCodeButton>
                         </ActionContainer>
                     </>
                 }
