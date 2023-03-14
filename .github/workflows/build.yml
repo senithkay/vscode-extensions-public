@@ -13,7 +13,7 @@ on:
 
 env:
   ballerina_version: 2201.3.1
-  ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.2.3/ballerina-2201.3.1-swan-lake.zip
+  ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.3.1/ballerina-2201.3.1-swan-lake.zip
   ballerina_deb_url: https://dist.ballerina.io/downloads/2201.3.1/ballerina-2201.3.1-swan-lake-linux-x64.deb
   vscVersion: 1.68.0
 
