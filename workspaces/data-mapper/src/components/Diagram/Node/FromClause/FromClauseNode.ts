@@ -52,7 +52,7 @@ export class FromClauseNode extends DataMapperNodeModel {
             if (this.typeDef){
                 const parentPort = this.addPortsForHeaderField(this.typeDef, name, "OUT", EXPANDED_QUERY_SOURCE_PORT_PREFIX, this.context.collapsedFields);
 
-                if (this.typeDef && this.typeDef.typeName === PrimitiveBalType.Record) {
+                if (this.typeDef.typeName === PrimitiveBalType.Record) {
                     const fields = this.typeDef.fields;
                     fields.forEach((subField) => {
                         this.numberOfFields += this.addPortsForInputRecordField(subField, "OUT", this.sourceBindingPattern.variableName.value,

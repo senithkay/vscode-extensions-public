@@ -47,8 +47,7 @@ export class SearchNodeFactory extends AbstractReactFactory<SearchNode, DiagramE
                     searchType={SearchType.Input}
                 />
              );
-        }
-        else if (event.model.type === SearchType.Output){
+        } else if (event.model.type === SearchType.Output){
             return (
                 <SearchNodeWidget
                     searchText={dmStore.outputSearch}
