@@ -25,7 +25,9 @@ import {
     OpenArchitectureView,
     HasUnpushedComponents, Component, UpdateProjectOverview,
     isSubpathAvailable,
-    SubpathAvailableRequest
+    SubpathAvailableRequest,
+    getDiagramComponentModel,
+    ComponentModel
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -36,7 +38,7 @@ import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
-import { existsSync } from "fs";
+import { enrichConsoleDeploymentData} from "../../../utils";
 
 export class WebViewRpc {
 
@@ -113,7 +115,7 @@ export class WebViewRpc {
             return ext.api.isChoreoProject();
         });
 
-        this._messenger.onRequest(isSubpathAvailable, (params: SubpathAvailableRequest) => {   
+        this._messenger.onRequest(isSubpathAvailable, (params: SubpathAvailableRequest) => {
             return ProjectRegistry.getInstance().isSubpathAvailable(params.projectID, params.orgName, params.repoName, params.subpath);
         });
 
@@ -123,6 +125,25 @@ export class WebViewRpc {
 
         this._messenger.onRequest(OpenArchitectureView, () => {
             commands.executeCommand("ballerina.view.architectureView");
+        });
+
+        this._messenger.onRequest(getDiagramComponentModel, async (params): Promise<ComponentModel[]> => {
+            let componentModels: ComponentModel[] = [];
+            await ProjectRegistry.getInstance().getDiagramModel(params.projId, params.orgHandler)
+                .then(async (component) => {
+                    component.forEach((value, key) => {
+                        // Draw the cell diagram for the last version of the component
+                        const finalVersion = value.apiVersions[value.apiVersions.length - 1];
+                        if (finalVersion.cellDiagram) {
+                            const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
+                            const model: ComponentModel = JSON.parse(decodedString.toString());
+                            enrichConsoleDeploymentData(model.services, finalVersion);
+                            componentModels.push(model);
+                        }
+                    });
+                })
+                .catch(serializeError);
+            return componentModels;
         });
 
         this._messenger.onRequest(UpdateProjectOverview, (projectId: string) => {

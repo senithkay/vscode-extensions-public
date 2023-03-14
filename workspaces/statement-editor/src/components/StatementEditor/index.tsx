@@ -18,7 +18,7 @@ import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree"
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
+import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE, HTTP_ACTION } from "../../constants";
 import {
     CurrentModel,
     DocumentationInfo,
@@ -420,7 +420,7 @@ export function StatementEditor(props: StatementEditorProps) {
         if (config.type === CONNECTOR){
             pullUnresolvedModules(diag).then();
         }
-        if (config.type !== CONNECTOR && config.type !== ACTION){
+        if (config.type !== CONNECTOR && config.type !== ACTION && config.type !== HTTP_ACTION){
             removeUnusedModules(diag);
         }
         const filteredDiagnostics = getFilteredDiagnosticMessages(statement, (targetedPosition || draftPosition), diag);
@@ -444,7 +444,7 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (config.type === CONNECTOR || config.type === ACTION){
+        if (config.type === CONNECTOR || config.type === ACTION || config.type === HTTP_ACTION){
             return setDocumentation(initSymbolInfo);
         }
         if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){

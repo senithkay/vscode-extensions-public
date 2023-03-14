@@ -78,7 +78,7 @@ jobs:
 
       - name: Publish low code diagram
         run: |
-          workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree")
+          workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree" "project-design-diagrams")
           for workspace in "${workspaces[@]}"; do
             npm version ${{ steps.vsix.outputs.version }} --no-git-tag-version --workspace=workspaces/$workspace
             npm publish --tag latest --workspace=workspaces/$workspace

@@ -21,6 +21,7 @@ export const cloneRepoToCurrentProjectWorkspaceCmdId = 'wso2.choreo.project.repo
 export const createNewProjectCmdId = 'wso2.choreo.project.create';
 export const createNewComponentCmdId = 'wso2.choreo.component.create';
 export const choreoProjectOverview = 'wso2.choreo.project.overview';
+export const choreoArchitectureViewCmdId = 'wso2.choreo.architecture.view';
 export const choreoProjectRegistryRefreshCmdId = 'wso2.choreo.projects.registry.refresh';
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
 
@@ -28,3 +29,6 @@ export const choreoSignedInCtxKey = 'isSignedInToChoreo';
 export const choreoProjectsTreeId = 'choreo-projects';
 export const choreoAccountTreeId = 'choreo-account';
 
+
+// state keys
+export const SELECTED_ORG_ID_KEY = 'selectedOrgId';

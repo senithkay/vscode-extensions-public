@@ -64,6 +64,7 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     resolveMissingDependencyByCodeAction: () => Promise.resolve(false),
     runCommand: () => Promise.resolve(false),
     runBackgroundTerminalCommand: () => Promise.resolve({ error: false, message: "" }),
+    openArchitectureView: () => Promise.resolve(false),
     sendTelemetryEvent: () => Promise.resolve(undefined),
     showMessage: () => Promise.resolve(false),
     showPerformanceGraph: () => Promise.resolve(false),

@@ -25,6 +25,7 @@ export type {
     ComponentModel,
     ConnectorProps,
     Dependency,
+    EditLayerAPI,
     Entity,
     Interaction,
     Location,

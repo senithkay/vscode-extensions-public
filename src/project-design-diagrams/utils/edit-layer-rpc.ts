@@ -18,16 +18,17 @@
  */
 
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
-import { BallerinaComponentCreationParams, ChoreoComponentCreationParams, Project } from "@wso2-enterprise/choreo-core";
+import { BallerinaComponentCreationParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
+import { existsSync } from "fs";
+import { commands, OpenDialogOptions, Position, Range, Selection, TextEditorRevealType, WebviewPanel, window, workspace } from "vscode";
 import { BallerinaProjectManager } from "./manager";
-import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
-import { ComponentModel, Service } from "../resources";
-import { ExtendedLangClient } from "src/core";
+import { Location, Service } from "../resources";
+import { ExtendedLangClient } from "../../core";
 import { addConnector, linkServices, pullConnector } from "./code-generator";
-import { getProjectResources } from "./utils";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "workspaces/low-code-editor-commons/lib";
-import { getChoreoExtAPI, IChoreoExtensionAPI } from "../../choreo-features/activate";
+import { PALETTE_COMMANDS } from "../../project/cmds/cmd-runner";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -36,32 +37,19 @@ const directoryPickOptions: OpenDialogOptions = {
     canSelectFolders: true
 };
 
-export class ProjectDesignRPC {
+export class EditLayerRPC {
     private _messenger: Messenger = new Messenger();
-    private _isChoreoProject: boolean;
     private _projectManager: ChoreoProjectManager | BallerinaProjectManager;
-    private _choreoExtApi: IChoreoExtensionAPI | undefined;
-    private _activeChoreoProject: Project;
 
-    constructor(webview: WebviewPanel, langClient: ExtendedLangClient) {
+    constructor(webview: WebviewPanel, langClient: ExtendedLangClient, isChoreoProject: boolean) {
         this._messenger.registerWebviewPanel(webview);
-
-        getChoreoExtAPI().then(async (extApi) => {
-            if (extApi) {
-                this._choreoExtApi = extApi;
-                this._isChoreoProject = await extApi.isChoreoProject();
-            } else {
-                this._isChoreoProject = false;
-            }
-        });
-
-        if (this._isChoreoProject) {
+        if (isChoreoProject) {
             this._projectManager = new ChoreoProjectManager();
         } else {
             this._projectManager = new BallerinaProjectManager();
         }
 
-        this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string|boolean> => {
+        this._messenger.onRequest({ method: 'createComponent' }, (args: BallerinaComponentCreationParams | ChoreoComponentCreationParams): Promise<string | boolean> => {
             if (this._projectManager instanceof ChoreoProjectManager && 'repositoryInfo' in args) {
                 return this._projectManager.createLocalComponent(args);
             } else if (this._projectManager instanceof BallerinaProjectManager && 'directory' in args) {
@@ -106,27 +94,35 @@ export class ProjectDesignRPC {
             }
         });
 
-        this._messenger.onRequest({ method: 'getProjectResources' }, async (): Promise<Map<string, ComponentModel>> => {
-            return getProjectResources(langClient);
-        });
-
-        this._messenger.onRequest({ method: 'isChoreoProject' }, async (): Promise<boolean> => {
-            return this._isChoreoProject;
-        });
-
         this._messenger.onRequest({ method: 'executeCommand' }, async (cmd: string): Promise<boolean> => {
             return commands.executeCommand(cmd);
         });
 
-        this._messenger.onRequest({method: 'showChoreoProjectOverview'}, async (): Promise<boolean> => {
-            if (this._choreoExtApi) {
-                if (!this._activeChoreoProject) {
-                    this._activeChoreoProject = await this._choreoExtApi.getChoreoProject();
-                }
-                return commands.executeCommand('wso2.choreo.project.overview', this._activeChoreoProject);
+        this._messenger.onNotification({ method: 'go2source' }, (location: Location): void => {
+            if (location && existsSync(location.filePath)) {
+                workspace.openTextDocument(location.filePath).then((sourceFile) => {
+                    window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
+                        const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
+                        const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
+                        const range: Range = new Range(startPosition, endPosition);
+                        textEditor.revealRange(range, TextEditorRevealType.InCenter);
+                        textEditor.selection = new Selection(range.start, range.start);
+                    });
+                });
             }
-            window.showErrorMessage('Error while loading Choreo project overview.');
-            return false;
+        });
+
+        this._messenger.onNotification({ method: 'goToDesign' }, (args: { filePath: string, position: NodePosition }): void => {
+            // workspace.openTextDocument(location.filePath).then((sourceFile) => {
+            //     window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
+            //         const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
+            //         const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
+            //         const range: Range = new Range(startPosition, endPosition);
+            //         textEditor.revealRange(range, TextEditorRevealType.InCenter);
+            //         textEditor.selection = new Selection(range.start, range.start);
+            //     });
+            // });
+            commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, args.filePath, args.position, true);
         });
 
         this._messenger.onNotification({ method: 'showErrorMsg' }, (msg: string) => {
@@ -134,7 +130,7 @@ export class ProjectDesignRPC {
         });
     }
 
-    static create(webview: WebviewPanel, langClient: ExtendedLangClient) {
-        return new ProjectDesignRPC(webview, langClient);
+    static create(webview: WebviewPanel, langClient: ExtendedLangClient, isChoreoProject: boolean) {
+        return new EditLayerRPC(webview, langClient, isChoreoProject);
     }
 }

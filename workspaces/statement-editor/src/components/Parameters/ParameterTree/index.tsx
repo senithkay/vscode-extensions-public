@@ -16,9 +16,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { ListItemText, ListSubheader } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { FormField } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { ACTION, CONNECTOR } from "../../../constants";
+import { ACTION, CONNECTOR, HTTP_ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import { getParamUpdateModelPosition, getParentFunctionModel } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
@@ -54,9 +54,16 @@ export function ParameterTree(props: ParameterTreeProps) {
 
     useEffect(() => {
         setUpdatingParams(true);
-        if (config.type === CONNECTOR){
+        if (config.type === CONNECTOR) {
             mapEndpointToFormField(statementModel, parameters);
-        }else if (config.type === ACTION){
+        } else if (config.type === ACTION) {
+            mapActionToFormField(statementModel, parameters);
+        } else if (config.type === HTTP_ACTION) {
+            // Remove path parameter from the parameters list
+            const pathIndex = parameters.findIndex((param) => param.name === "path");
+            if (pathIndex > -1) {
+                parameters.splice(pathIndex, 1);
+            }
             mapActionToFormField(statementModel, parameters);
         }
         setUpdatingParams(false);
@@ -64,14 +71,14 @@ export function ParameterTree(props: ParameterTreeProps) {
 
     const handleOnChange = () => {
         const modelParams = getDefaultParams(parameters);
-        const content = "(" + modelParams.join(",") + ")";
+        let content = "(" + modelParams.join(",") + ")";
 
         let updatingPosition: NodePosition;
         if (model.viewState?.parentFunctionPos) {
-            const parentFunctionModel = getParentFunctionModel(
-                (model.viewState as StatementEditorViewState).parentFunctionPos,
-                statementModel
-            );
+            const parentFunctionModel = getParentFunctionModel((model.viewState as StatementEditorViewState).parentFunctionPos, statementModel);
+            if (STKindChecker.isClientResourceAccessAction(parentFunctionModel) && !parentFunctionModel.methodName && modelParams.length > 0) {
+                content = ".get" + content; // Update the default GET action with method name
+            }
             updatingPosition = getParamUpdateModelPosition(parentFunctionModel);
         } else {
             updatingPosition = getParamUpdateModelPosition(model);

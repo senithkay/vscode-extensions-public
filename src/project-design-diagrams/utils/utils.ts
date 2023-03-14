@@ -17,16 +17,17 @@
  *
  */
 
-import { window, workspace } from "vscode";
+import { commands, window, workspace } from "vscode";
 import { existsSync } from "fs";
 import { join } from "path";
-import { ExtendedLangClient } from "src/core";
-import { terminateActivation } from "../activator";
-import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, Service } from "../resources";
-import { getChoreoExtAPI } from "../../choreo-features/activate";
 import _ from "lodash";
+import { Project } from "@wso2-enterprise/choreo-core";
+import { ExtendedLangClient } from "../../core";
+import { terminateActivation } from "../activator";
+import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE } from "../resources";
+import { getChoreoExtAPI } from "../../choreo-features/activate";
 
-export function getProjectResources(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
+export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
     return new Promise((resolve, reject) => {
         let ballerinaFiles: string[] = [];
         let workspaceFolders = workspace.workspaceFolders;
@@ -46,22 +47,45 @@ export function getProjectResources(langClient: ExtendedLangClient): Promise<Map
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
         }).then(async (response) => {
-            const clonedComponentModels = _.cloneDeep(response.componentModels);
-            let packageModels: Map<string, ComponentModel> = new Map(Object.entries(clonedComponentModels));
+            let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
             for (let [_key, packageModel] of packageModels) {
                 if (packageModel.hasCompilationErrors) {
                     window.showInformationMessage(DIAGNOSTICS_WARNING);
                     break;
                 }
             }
+
             const choreoExt = await getChoreoExtAPI();
             if (choreoExt) {
                 packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
             }
-            resolve(clonedComponentModels);
+            resolve(response.componentModels);
         }).catch((error) => {
             reject(error);
             terminateActivation(ERROR_MESSAGE);
         });
     });
+}
+
+export async function checkIsChoreoProject(): Promise<boolean> {
+    const choreoExt = await getChoreoExtAPI();
+    if (choreoExt) {
+        return await choreoExt.isChoreoProject();
+    }
+    return false;
+}
+
+export async function getActiveChoreoProject(): Promise<Project> {
+    const choreoExt = await getChoreoExtAPI();
+    if (choreoExt) {
+        return await choreoExt.getChoreoProject();
+    }
+    return undefined;
+}
+
+export async function showChoreoProjectOverview(project: Project | undefined): Promise<void> {
+    if (project && await getChoreoExtAPI()) {
+        return commands.executeCommand('wso2.choreo.project.overview', project);
+    }
+    window.showErrorMessage('Error while loading Choreo project overview.');
 }

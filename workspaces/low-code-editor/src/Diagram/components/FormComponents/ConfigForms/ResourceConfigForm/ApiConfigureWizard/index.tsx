@@ -95,11 +95,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             isLoadingSuccess: isFileSaved,
             currentFile,
             ballerinaVersion,
-            syntaxTree
+            syntaxTree,
+            fullST
         }
     } = useContext(Context);
 
-    const { model, targetPosition, onSave, onCancel, formType, configOverlayFormStatus: { renderRecordPanel } } = props;
+    const { model, targetPosition, onSave, onCancel, formType } = props;
 
     const classes = useStyles();
     const formClasses = useFormStyles();
@@ -710,8 +711,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     getLangClient={getExpressionEditorLangClient}
                     applyModifications={modifyDiagram}
                     topLevelComponent={true} // todo: Remove this
-                    renderRecordPanel={renderRecordPanel}
                     syntaxTree={syntaxTree}
+                    fullST={fullST}
                 />
             ) : (
                 <FormControl data-testid="resource-form" className={formClasses.wizardFormControlExtended}>

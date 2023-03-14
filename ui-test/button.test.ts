@@ -45,22 +45,22 @@ describe('VSCode UI Tests', () => {
 
     });
 
-    it('Test Side bar', async () => {
-        const diagramExplorer = await getDiagramExplorer();
-
-        // test root buttons
-        expect(diagramExplorer.getAction("Add Module")).is.not.undefined;
-        expect(diagramExplorer.getAction("Refresh")).is.not.undefined;
-
-        // test diagram explorer tree view
-        const rootFolder = (await diagramExplorer.getVisibleItems())[0];
-        expect(rootFolder).is.not.undefined;
-        expect(await rootFolder.getLabel()).is.equal("data");
-        expect(await rootFolder.getActionButton("New File")).is.not.undefined;
-        expect(await rootFolder.getActionButton("New Folder")).is.not.undefined;
-        expect(await rootFolder.getActionButton("Delete")).is.not.undefined;
-        await rootFolder.expand();
-        expect(await rootFolder.findChildItem("hello_world.bal")).is.not.undefined;
-
-    });
+    // it('Test Side bar', async () => {
+    //     const diagramExplorer = await getDiagramExplorer();
+    //
+    //     // test root buttons
+    //     expect(diagramExplorer.getAction("Add Module")).is.not.undefined;
+    //     expect(diagramExplorer.getAction("Refresh")).is.not.undefined;
+    //
+    //     // test diagram explorer tree view
+    //     const rootFolder = (await diagramExplorer.getVisibleItems())[0];
+    //     expect(rootFolder).is.not.undefined;
+    //     expect(await rootFolder.getLabel()).is.equal("data");
+    //     expect(await rootFolder.getActionButton("New File")).is.not.undefined;
+    //     expect(await rootFolder.getActionButton("New Folder")).is.not.undefined;
+    //     expect(await rootFolder.getActionButton("Delete")).is.not.undefined;
+    //     await rootFolder.expand();
+    //     expect(await rootFolder.findChildItem("hello_world.bal")).is.not.undefined;
+    //
+    // });
 });

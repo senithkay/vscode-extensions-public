@@ -17,12 +17,11 @@
  *
  */
 
-import createEngine, {DiagramEngine, LinkModel, NodeModel} from '@projectstorm/react-diagrams';
+import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import {
     ExtServiceNodeFactory,
     ServiceLinkFactory,
-    ServiceLinkModel,
     ServiceNodeFactory,
     ServiceNodeModel,
     ServicePortFactory,
@@ -65,8 +64,10 @@ export function createRenderPackageObject(projectPackages: IterableIterator<stri
 }
 
 export function createServicesEngine(): DiagramEngine {
-    const diagramEngine: DiagramEngine = createEngine({registerDefaultPanAndZoomCanvasAction: true,
-        registerDefaultZoomCanvasAction: false});
+    const diagramEngine: DiagramEngine = createEngine({
+        registerDefaultPanAndZoomCanvasAction: true,
+        registerDefaultZoomCanvasAction: false
+    });
     diagramEngine.getLinkFactories().registerFactory(new GatewayLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new GatewayPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new GatewayNodeFactory());
@@ -78,15 +79,17 @@ export function createServicesEngine(): DiagramEngine {
 }
 
 export function createEntitiesEngine(): DiagramEngine {
-    const diagramEngine: DiagramEngine = createEngine({registerDefaultPanAndZoomCanvasAction: true,
-        registerDefaultZoomCanvasAction: false});
+    const diagramEngine: DiagramEngine = createEngine({
+        registerDefaultPanAndZoomCanvasAction: true,
+        registerDefaultZoomCanvasAction: false
+    });
     diagramEngine.getLinkFactories().registerFactory(new EntityLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntityFactory());
     return diagramEngine;
 }
 
-export function getZoomOffSet(engine: DiagramEngine) : ZoomOffset {
+export function getZoomOffSet(engine: DiagramEngine): ZoomOffset {
     const model = engine.getModel();
     const canvas = engine.getCanvas();
     const zoomDiff = model.getZoomLevel() - defaultZoomLevel;
@@ -150,8 +153,8 @@ export function extractGateways(service: Service): GatewayType[] {
     return gatewayTypes;
 }
 
-export function createGWLinks(sourcePort: ServicePortModel, targetPort: ServicePortModel | GatewayPortModel,
-                              link: ServiceLinkModel | GatewayLinkModel): ServiceLinkModel | GatewayLinkModel {
+export function createGWLinks(sourcePort: GatewayPortModel, targetPort: ServicePortModel, link: GatewayLinkModel)
+    : GatewayLinkModel {
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);
@@ -180,31 +183,30 @@ export function addGWNodes(engine: DiagramEngine) {
 
 function addGWLinks(engine: DiagramEngine) {
     const nodes = engine.getModel().getNodes();
-    const links = engine.getModel().getLinks();
     nodes.forEach(node => {
         if (node instanceof ServiceNodeModel) {
             node.getTargetGateways().forEach((gwType: GatewayType) => {
-                mapGWInteraction(gwType, node, nodes, links, engine);
+                mapGWInteraction(gwType, node, nodes, engine);
             });
         }
     });
 }
 
-function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeModel, nodes: NodeModel[],
-                          links: LinkModel[], engine: DiagramEngine) {
-    nodes.forEach(sourceGW => {
-        if ((sourceGW instanceof GatewayNodeModel) && (sourceGW.getID() === sourceGWType)) {
-            const link: GatewayLinkModel = new GatewayLinkModel(targetNode.level);
-            const sourcePort: GatewayPortModel = sourceGW.getPortFromID(`${sourceGWType}-in`);
-            let targetPort;
-            if (sourceGWType === "WEST") {
-                targetPort = targetNode.getPortFromID(`left-gw-${targetNode.serviceObject.serviceId}`);
-            } else {
-                targetPort = targetNode.getPortFromID(`top-${targetNode.serviceObject.serviceId}`);
-            }
+function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeModel, nodes: NodeModel[], engine: DiagramEngine) {
+    const gatewayNode = nodes.find((node) => node instanceof GatewayNodeModel && node.getID() === sourceGWType);
+    if (gatewayNode && targetNode) {
+        const link: GatewayLinkModel = new GatewayLinkModel(targetNode.level);
+        const sourcePort: GatewayPortModel = gatewayNode.getPortFromID(`${sourceGWType}-in`);
+        let targetPort: ServicePortModel;
+        if (sourceGWType === "WEST") {
+            targetPort = targetNode.getPortFromID(`left-gw-${targetNode.serviceObject.serviceId}`);
+        } else if (sourceGWType === "NORTH") {
+            targetPort = targetNode.getPortFromID(`top-${targetNode.serviceObject.serviceId}`);
+        }
+        if (sourcePort && targetPort) {
             engine.getModel().addLink(createGWLinks(sourcePort, targetPort, link));
         }
-    });
+    }
 }
 
 export function addGWNodesModel(engine: DiagramEngine, addNodes: boolean = false) {
@@ -252,11 +254,11 @@ export function getWestGWArrowHeadSlope(slope: number) {
     return newSlope;
 }
 
-export function getAngleFromRadians (value: number): number {
+export function getAngleFromRadians(value: number): number {
     return value * 180 / Math.PI;
 }
 
-export function getRadiansFormAngle (value: number): number {
+export function getRadiansFormAngle(value: number): number {
     return value * Math.PI / 180;
 }
 
@@ -276,7 +278,7 @@ export function getWestArrowHeadPoints(targetPort: Point, directLineSlope: numbe
             .sin(getRadiansFormAngle(30 + newSlope)));
     } else {
         newSlope = getWestGWArrowHeadSlope(directLineSlope);
-        baseTopX = targetPort.x - (widthOfTriangle * Math.sin(getRadiansFormAngle( 60 - newSlope)));
+        baseTopX = targetPort.x - (widthOfTriangle * Math.sin(getRadiansFormAngle(60 - newSlope)));
         baseTopY = targetPort.y - (widthOfTriangle * Math.cos(getRadiansFormAngle(60 - newSlope)));
         baseBottomX = targetPort.x - (widthOfTriangle * Math
             .cos(getRadiansFormAngle(newSlope - 30)));

@@ -22,6 +22,7 @@ import {
     ACTION,
     FUNCTION_COMPLETION_KIND,
     FUNCTION_TYPE_DESCRIPTER,
+    HTTP_ACTION,
     MAPPING_TYPE_DESCRIPTER,
     METHOD_COMPLETION_KIND,
     OBJECT_TYPE_DESCRIPTER,
@@ -155,7 +156,7 @@ export function LSSuggestions() {
         let value = completionKind === PROPERTY_COMPLETION_KIND ? suggestion.insertText : suggestion.value;
         const prefix = (inputEditorCtx.userInput.includes('.') && resourceAccessRegex.exec(inputEditorCtx.userInput)[0])
             || suggestion.prefix;
-        if (config.type === ACTION && completionKind === FUNCTION_COMPLETION_KIND) {
+        if ((config.type === ACTION || config.type === HTTP_ACTION) && completionKind === FUNCTION_COMPLETION_KIND) {
             value = getActionExprWithArgs(value, connector);
         } else if (completionKind === METHOD_COMPLETION_KIND || completionKind === FUNCTION_COMPLETION_KIND) {
             value = getExprWithArgs(value, prefix);

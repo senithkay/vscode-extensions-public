@@ -159,12 +159,16 @@ export function ServiceDesign(props: ServiceDesignProps) {
                                 {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
                             </span>
                         </div>
+                        <div className={classes.serviceConfigure} onClick={handlePlusClick} >
+                            <AddIcon />
+                            <div>Add Resource</div>
+                        </div>
                         <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
                             <SettingsIcon />
                             <div>Configure Service</div>
                         </div>
                     </div>
-                    {/* <div className={classes.expandAll}>
+                    <div className={classes.expandAll}>
                         <div className={classes.collapseBtn} onClick={onExpandAllClick}>
                             {isAllExpanded ? 'Collapse All' : 'Expand All'}
                             <ComponentExpandButton
@@ -172,21 +176,13 @@ export function ServiceDesign(props: ServiceDesignProps) {
                                 onClick={onExpandAllClick}
                             />
                         </div>
-                    </div> */}
+                    </div>
                     <div className={classes.serviceList}>
                         <>
                             {children}
                         </>
                     </div>
 
-                    <div className={classes.plusButton}>
-                        <LinePrimaryButton
-                            text={"Add Resource"}
-                            onClick={handlePlusClick}
-                            dataTestId="add-new-btn"
-                            startIcon={<AddIcon />}
-                        />
-                    </div>
                 </>
             )}
 

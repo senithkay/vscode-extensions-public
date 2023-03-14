@@ -117,10 +117,14 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     model.functionSignature?.parameters?.forEach((param, i) => {
         if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
+            const paramDetails = param.source.split(" ");
             paramArgs.push(
                 <tr key={i} className={classes.signature}>
                     <td>
-                        {param.source}
+                        {paramDetails.length > 0 && param.source.split(" ")[0]}
+                    </td>
+                    <td>
+                        {paramDetails.length > 0 && param.source.split(" ")[1]}
                     </td>
                 </tr>
             )
@@ -154,11 +158,13 @@ export function ResourceBody(props: ResourceBodyProps) {
         langClient: DiagramEditorLangClientInterface,
     ): Promise<BallerinaSTModifyResponse> => {
         const record: STNode = records.get(recordName);
-        const request: TextDocumentPositionParams = {
-            textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
-            position: { line: record.position.startLine, character: record.position.startColumn }
-        };
-        return langClient.getDefinitionPosition(request);
+        if (record) {
+            const request: TextDocumentPositionParams = {
+                textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
+                position: { line: record.position.startLine, character: record.position.startColumn }
+            };
+            return langClient.getDefinitionPosition(request);
+        }
     };
 
     const renderRecordPanel = (closeRecordEditor: (createdRecord?: string) => void) => {
@@ -184,7 +190,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         );
     };
 
-    getReturnTypesArray().forEach((value, i) => {
+    getReturnTypesArray()?.forEach((value, i) => {
         let code = "500";
         responseCodes.forEach(item => {
             if (value.includes(item.source)) {
@@ -213,10 +219,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                 </tr>
             )
         } else {
+            const record: STNode = records.get(value.trim());
             responseArgs.push(
                 <tr key={i} className={classes.signature}>
                     <td>
-                        {code}
+                        {record ? "200" : code}
                     </td>
                     <td onClick={() => recordEditor(recordName)}>
                         {value}
@@ -229,9 +236,9 @@ export function ResourceBody(props: ResourceBodyProps) {
     const recordEditor = async (record: any, key?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
-        const recordInfo = await getRecord(record, langClient);
+        const recordInfo = await getRecord(record.trim(), langClient);
 
-        if (recordInfo.parseSuccess) {
+        if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
             setSchema({ ...schema, [key]: [ST.source] })
         }
@@ -242,7 +249,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         const langClient = await getDiagramEditorLangClient();
         const recordInfo = await getRecord(record, langClient);
 
-        if (recordInfo.parseSuccess) {
+        if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
             handleDiagramEdit(ST, ST.position, { formType: "RecordEditor", isLoading: false });
         }
@@ -253,6 +260,7 @@ export function ResourceBody(props: ResourceBodyProps) {
             <ConfigPanelSection title={"Parameters"}>
                 <table className={classes.responseTable}>
                     <thead>
+                        <td>Type</td>
                         <td>Description</td>
                     </thead>
                     <tbody>

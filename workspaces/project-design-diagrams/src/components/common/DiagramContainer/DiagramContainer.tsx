@@ -102,6 +102,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                     {...{currentView, layout}}
                                 />
                             </div>
+
                             {currentView === Views.CELL_VIEW &&
                                 <CellDiagram
                                     currentView={currentView}

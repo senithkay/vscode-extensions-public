@@ -12,7 +12,7 @@
  */
 
 import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ErrorBanner } from "../Commons/ErrorBanner";

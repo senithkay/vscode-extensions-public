@@ -12,8 +12,7 @@
  */
 import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import { useContext, useState } from "react";
-import { OrgSelector } from "../OrgSelector/OrgSelector";
+import React, { useContext, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -25,6 +24,7 @@ const WizardContainer = styled.div`
     display  : flex;
     flex-direction: column;
     gap: 20px;
+    padding: 20px;
 `;
 
 const ActionContainer = styled.div`
@@ -93,7 +93,14 @@ export function ProjectWizard() {
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
                     <h2>New Choreo Project</h2>
-                    <OrgSelector />
+                    
+                    <VSCodeTextField
+                        disabled={true}
+                        value={selectedOrg?.name || "loading..."}
+                        title="To change the Organization, Go to `Account` view."
+                    >
+                        Organization 
+                    </VSCodeTextField>
                     <VSCodeTextField
                         autofocus
                         validate={projectName.length > 0}

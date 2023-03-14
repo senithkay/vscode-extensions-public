@@ -104,7 +104,19 @@ export const useStyles = makeStyles(() =>
         },
         serviceList: {
             overflowY: "scroll",
-            maxHeight: "80%"
+            maxHeight: "90%"
+        },
+        expandAll: {
+            textAlign: "right"
+        },
+        collapseBtn: {
+            display: "inline-flex",
+            border: "1px solid #5667d5",
+            borderRadius: 5,
+            paddingLeft: 15,
+            marginTop: 5,
+            marginRight: 20,
+            cursor: "pointer"
         },
         signature: {
             padding: 8,
@@ -152,8 +164,7 @@ export const useStyles = makeStyles(() =>
             width: "100%",
             boxShadow: "inset 0 -1px 0 0 #E6E7EC",
             backgroundColor: "#F7F8FB",
-            alignItems: "center",
-            marginBottom: 15
+            alignItems: "center"
         },
         serviceTitleText: {
             flexGrow: 1,
@@ -187,6 +198,9 @@ export const useStyles = makeStyles(() =>
         listenerText: {
             fontSize: 15,
             fontWeight: 200
+        },
+        addResource: {
+            height: '30px !important',
         }
     }),
 );

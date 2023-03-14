@@ -18,4 +18,10 @@
  */
 
 export { linkServices as addConnector } from './code-generator';
-export { ProjectDesignRPC } from './project-design-rpc';
+export { EditLayerRPC } from './edit-layer-rpc';
+export {
+    checkIsChoreoProject,
+    getActiveChoreoProject,
+    getComponentModel,
+    showChoreoProjectOverview
+} from './utils';

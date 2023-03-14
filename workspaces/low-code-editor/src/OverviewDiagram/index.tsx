@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
@@ -27,15 +27,19 @@ export const DEFAULT_MODULE_NAME = 'default';
 export interface OverviewDiagramProps {
     lastUpdatedAt: string;
     currentProject: WorkspaceFolder;
-    currentFile: FileListEntry;
+    currentFile: string;
+    currentFileName: string;
     notifyComponentSelection: (info: ComponentViewInfo) => void;
-    updateCurrentFile: (file: FileListEntry) => void;
+    updateCurrentFile: (filePath: string) => void;
     fileList: FileListEntry[];
 }
 
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
-    const { currentProject, currentFile, notifyComponentSelection, lastUpdatedAt, updateCurrentFile, fileList } = props;
+    const {
+        currentProject, currentFile, notifyComponentSelection, lastUpdatedAt, updateCurrentFile, fileList,
+        currentFileName
+    } = props;
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
 
     useEffect(() => {
@@ -63,6 +67,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
             <CategoryView
                 projectComponents={projectComponents}
                 currentFile={currentFile}
+                currentFileName={currentFileName}
                 updateSelection={notifyComponentSelection}
                 updateCurrentFile={updateCurrentFile}
                 fileList={fileList}

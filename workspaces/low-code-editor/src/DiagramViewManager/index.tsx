@@ -40,7 +40,7 @@ import { useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
-import { getDiagramProviderProps } from "./utils";
+import { getDiagramProviderProps, getSTNodeForReference } from "./utils";
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
@@ -61,17 +61,18 @@ export function DiagramViewManager(props: EditorProps) {
     const classes = useGeneratorStyles();
 
     const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [history, historyPush, historyPop, historyClear] = useComponentHistory();
+    const [history, historyPush, historyPop, historyClear, updateCurrentEntry] = useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
-    const [focusFile, setFocusFile] = useState<FileListEntry>();
+    const [focusFile, setFocusFile] = useState<string>();
     const [focusUid, setFocusUid] = useState<string>();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
     const [completeST, setCompleteST] = useState<STNode>();
+    const [serviceTypeSignature, setServiceTypeSignature] = useState<string>();
 
     useEffect(() => {
         setUpdatedTimeStamp(lastUpdatedAt);
@@ -79,15 +80,20 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         if (!focusFile || !focusUid) return;
-        fetchST(focusFile.uri.path, { uid: focusUid });
+        fetchST(focusFile, { uid: focusUid });
     }, [updatedTimeStamp]);
 
     useEffect(() => {
         if (history.length > 0) {
-            const { project, file, position } = history[history.length - 1];
-            fetchST(file.uri.path, { position });
-            if (!currentProject || currentProject.name !== project.name) setCurrentProject(project);
-            setFocusFile(file);
+            const { file, position, uid } = history[history.length - 1];
+            fetchST(file, uid ? { uid } : { position });
+
+            const currentProjectPath = projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
+
+            if (!currentProject || currentProject.name !== currentProjectPath.name) {
+                setCurrentProject(currentProjectPath);
+            }
+            if (!focusFile || focusFile !== file) setFocusFile(file);
         } else {
             setFocusedST(undefined);
             setFocusUid(undefined);
@@ -115,14 +121,19 @@ export function DiagramViewManager(props: EditorProps) {
             const currentProjectPath = projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
 
             (async () => {
-                const response = await getAllFiles('**/*.bal');
-                const filteredFileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProjectPath.uri.fsPath));
-                const projectFiles: FileListEntry[] = filteredFileList.map(fileUri => ({
-                    fileName: fileUri.path.replace(`${currentProjectPath.uri.fsPath}/`, ''),
-                    uri: fileUri
-                }));
-                const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
-                historyPush({ project: currentProjectPath, file: currentFile, position });
+                if (!position) {
+                    const response = await getAllFiles('**/*.bal');
+                    const filteredFileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProjectPath.uri.fsPath));
+                    const projectFiles: FileListEntry[] = filteredFileList.map(fileUri => ({
+                        fileName: fileUri.path.replace(`${currentProjectPath.uri.fsPath}/`, ''),
+                        uri: fileUri
+                    }));
+                    const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
+                    setCurrentProject(currentProjectPath);
+                    setFocusFile(currentFile.uri.path);
+                } else {
+                    historyPush({ file: filePath, position });
+                }
             })();
 
         }
@@ -156,6 +167,7 @@ export function DiagramViewManager(props: EditorProps) {
                     traversNode(visitedST, nodeFindingVisitor);
                     selectedST = nodeFindingVisitor.getNode();
                     setFocusUid(generatedUid);
+                    updateCurrentEntry({ ...history[history.length - 1], uid: generatedUid });
                 }
 
                 if (options && options.uid) {
@@ -164,7 +176,26 @@ export function DiagramViewManager(props: EditorProps) {
                     selectedST = nodeFindingVisitor.getNode();
                 }
 
+                // resolve the service type if the ST is a service
+                let listenerSignature: string;
+                if (STKindChecker.isServiceDeclaration(selectedST)) {
+                    const listenerExpression = selectedST.expressions[0];
+                    if (STKindChecker.isExplicitNewExpression(listenerExpression)) {
+                        const typeData = listenerExpression.typeData;
+                        const typeSymbol = typeData?.typeSymbol;
+                        listenerSignature = typeSymbol?.signature;
+                    } else {
+                        const listenerSTDecl = await getSTNodeForReference(filePath, listenerExpression.position, langClient);
+                        if (listenerSTDecl) {
+                            const typeData = listenerExpression.typeData;
+                            const typeSymbol = typeData?.typeSymbol;
+                            listenerSignature = typeSymbol?.signature;
+                        }
+                    }
+                }
+
                 setFocusedST(selectedST);
+                setServiceTypeSignature(listenerSignature);
                 setCompleteST(visitedST);
                 setCurrentFileContent(content);
                 setLowCodeResourcesVersion(resourceVersion);
@@ -178,10 +209,8 @@ export function DiagramViewManager(props: EditorProps) {
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
         const { filePath, position } = componentDetails;
-        const fileListEntry = fileList.find(file => file.uri.path === filePath);
         historyPush({
-            file: fileListEntry,
-            project: currentProject,
+            file: filePath,
             position,
         });
     }
@@ -194,11 +223,13 @@ export function DiagramViewManager(props: EditorProps) {
 
     if (history.length > 0 && history[history.length - 1].position && !focusedST) {
         viewComponent.push(<TextPreLoader position={'absolute'} />);
-    } else if (!focusedST) {
+    } else if (!focusedST && fileList) {
+        const currentFileName = fileList.find(file => file.uri.path === focusFile)?.fileName;
         viewComponent.push((
             <OverviewDiagram
                 currentProject={currentProject}
                 currentFile={focusFile}
+                currentFileName={currentFileName}
                 notifyComponentSelection={updateSelectedComponent}
                 updateCurrentFile={setFocusFile}
                 fileList={fileList}
@@ -207,37 +238,35 @@ export function DiagramViewManager(props: EditorProps) {
         ));
     } else if (focusedST) {
         if (STKindChecker.isServiceDeclaration(focusedST)) {
-            if (focusedST.expressions.length > 0) {
-                const listenerExpression = focusedST.expressions[0];
-                const typeData = listenerExpression.typeData;
-                const typeSymbol = typeData?.typeSymbol;
-                const signature = typeSymbol?.signature;
-                if (signature && signature.includes('http')) {
-                    viewComponent.push((
-                        <ServiceDesignOverlay
-                            model={focusedST}
-                            targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                            onCancel={handleNavigationHome}
-                        />
-                    ));
-                } else if (experimentalEnabled && signature && signature.includes('graphql')) {
-                    viewComponent.push(
-                        <GraphqlDiagramOverlay
-                            model={focusedST}
-                            targetPosition={focusedST.position}
-                            ballerinaVersion={balVersion}
-                            onCancel={handleNavigationHome}
-                        />
-                    );
-                } else if (signature && signature === "$CompilationError$") {
-                    viewComponent.push((
-                        <ServiceInvalidOverlay />
-                    ));
-                } else if (!experimentalEnabled) {
-                    viewComponent.push(
-                        <ServiceUnsupportedOverlay />
-                    )
-                }
+            const listenerExpression = focusedST.expressions[0];
+            const typeData = listenerExpression.typeData;
+            const typeSymbol = typeData?.typeSymbol;
+            const signature = typeSymbol?.signature;
+            if (serviceTypeSignature && serviceTypeSignature.includes('http')) {
+                viewComponent.push((
+                    <ServiceDesignOverlay
+                        model={focusedST}
+                        targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                        onCancel={handleNavigationHome}
+                    />
+                ));
+            } else if (experimentalEnabled && serviceTypeSignature && serviceTypeSignature.includes('graphql')) {
+                viewComponent.push(
+                    <GraphqlDiagramOverlay
+                        model={focusedST}
+                        targetPosition={focusedST.position}
+                        ballerinaVersion={balVersion}
+                        onCancel={handleNavigationHome}
+                    />
+                );
+            } else if (signature && signature === "$CompilationError$") {
+                viewComponent.push((
+                    <ServiceInvalidOverlay />
+                ));
+            } else {
+                viewComponent.push(
+                    <ServiceUnsupportedOverlay />
+                )
             }
         } else if (STKindChecker.isFunctionDefinition(focusedST)
             && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
@@ -249,6 +278,24 @@ export function DiagramViewManager(props: EditorProps) {
                     onCancel={handleNavigationHome}
                 />
             ))
+        } else if (STKindChecker.isTypeDefinition(focusedST)
+            && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
+            // Navigate to record composition view
+            const recordST = { ...focusedST }; // Clone focusedST
+            const name = recordST.typeName.value;
+            const module = recordST.typeData?.symbol?.moduleID;
+            if (!(name && module)) {
+                // TODO: Handle error properly
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
+            } else {
+                const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
+                props.openArchitectureView(nodeId);
+            }
+            // Show file view, clear focus syntax tree
+            setFocusedST(undefined);
+            setFocusUid(undefined);
+            handleNavigationHome();
         } else {
             viewComponent.push(<Diagram />);
         }
@@ -260,11 +307,12 @@ export function DiagramViewManager(props: EditorProps) {
 
         const currentHistoryEntry = structuredClone(history[history.length - 1]);
         currentHistoryEntry.position = position;
+        currentHistoryEntry.uid = undefined;
         historyPush(currentHistoryEntry);
     }
 
     const updateActiveFile = (currentFile: FileListEntry) => {
-        setFocusFile(currentFile);
+        setFocusFile(currentFile.uri.path);
         fetchST(currentFile.uri.path);
     };
 
@@ -275,7 +323,6 @@ export function DiagramViewManager(props: EditorProps) {
         setFocusedST(undefined);
         historyClear();
     }
-
 
     const diagramProps = getDiagramProviderProps(
         focusedST,

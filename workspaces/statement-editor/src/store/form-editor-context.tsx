@@ -35,6 +35,7 @@ export const FormEditorContext = React.createContext({
         size: 0
     },
     syntaxTree: null,
+    fullST: null,
     stSymbolInfo: null,
     onCancel: () => undefined,
     onSave: () => undefined,
@@ -43,10 +44,7 @@ export const FormEditorContext = React.createContext({
                diagnosticOffSet?: NodePosition) => undefined,
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[]) => undefined,
-    changeInProgress: false,
-    showRecordEditor: false,
-    handleShowRecordEditor: () => undefined,
-    newlyCreatedRecord: undefined
+    changeInProgress: false
 });
 
 export interface FormEditorProps {
@@ -59,6 +57,7 @@ export interface FormEditorProps {
     isLastMember?: boolean;
     stSymbolInfo?: STSymbolInfo;
     syntaxTree?: STNode;
+    fullST?: STNode;
     isEdit?: boolean;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     onChange: (code: string, partialST: STNode, moduleList?: Set<string>, currentModel?: CurrentModel,
@@ -71,9 +70,6 @@ export interface FormEditorProps {
     };
     applyModifications: (modifications: STModification[]) => void;
     changeInProgress: boolean;
-    showRecordEditor?: boolean;
-    handleShowRecordEditor?: () => void;
-    newlyCreatedRecord?: string;
 }
 
 export const FormEditorContextProvider = (props: FormEditorProps) => {
@@ -85,6 +81,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
         stSymbolInfo,
         isLastMember,
         syntaxTree,
+        fullST,
         currentFile,
         targetPosition,
         applyModifications,
@@ -92,10 +89,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
         onSave,
         onChange,
         getLangClient,
-        changeInProgress,
-        showRecordEditor,
-        handleShowRecordEditor,
-        newlyCreatedRecord
+        changeInProgress
     } = props;
 
     return (
@@ -107,6 +101,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
                 stSymbolInfo,
                 isLastMember,
                 syntaxTree,
+                fullST,
                 currentFile,
                 targetPosition,
                 applyModifications,
@@ -114,10 +109,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
                 onSave,
                 onChange,
                 getLangClient,
-                changeInProgress,
-                showRecordEditor,
-                handleShowRecordEditor,
-                newlyCreatedRecord
+                changeInProgress
             }}
         >
             {children}

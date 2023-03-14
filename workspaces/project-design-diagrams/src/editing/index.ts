@@ -19,3 +19,5 @@
 
 export { ControlsLayer } from './ControlsLayer/Controls';
 export { EditForm } from './EditForm/EditForm';
+
+export { WebviewEditLayerAPI } from './edit-layer-api/webview-edit-api';

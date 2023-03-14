@@ -17,14 +17,13 @@
  *
  */
 
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import ReactDOM from "react-dom";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
-import CircularProgress from "@mui/material/CircularProgress";
-import { Service, Colors } from "../../../resources";
+import { Service } from "../../../resources";
 import { Header, Container, TitleText } from "../../../editing/EditForm/resources/styles";
 import {
     BallerinaConstruct,
@@ -32,7 +31,7 @@ import {
     Connector,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaModuleType, Marketplace, SearchQueryParams } from "../Marketplace";
-import { ProjectDesignRPC } from "../../../utils/rpc/project-design-rpc";
+import { DiagramContext } from "../../common";
 import ConnectorForm from "../ConnectorForm";
 
 interface ConnectorWizardProps {
@@ -42,15 +41,14 @@ interface ConnectorWizardProps {
 
 export function ConnectorWizard(props: ConnectorWizardProps) {
     const { service, onClose } = props;
+    const { editLayerAPI } = useContext(DiagramContext);
 
     // const [showLoader, setShowLoader] = useState(false);
     const [showDrawer, setShowDrawer] = useState(true);
     const [selectedCon, setSelectedCon] = useState<Connector>();
 
-    const rpcInstance = ProjectDesignRPC.getInstance();
-
     const fetchConnectorsList = async (queryParams: SearchQueryParams): Promise<BallerinaModuleResponse> => {
-        const connectorRes = await rpcInstance.getConnectors(queryParams);
+        const connectorRes = await editLayerAPI?.getConnectors(queryParams);
         return Promise.resolve(connectorRes as BallerinaModuleResponse);
     };
 

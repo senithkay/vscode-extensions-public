@@ -20,10 +20,8 @@
 import { Webview } from "vscode";
 import { getComposerWebViewOptions, getLibraryWebViewContent, WebViewOptions } from "../utils/webview-utils";
 
-export function render(webView: Webview) {
-    const body = `
-        <div class="container" id="webview-container" />
-    `;
+export function render(webView: Webview, isChoreoProject: boolean, selectedNodeId: string) {
+    const body = `<div class = "container" id = "webview-container" />`;
     const bodyCss = ``;
     const styles = `
         .container {
@@ -43,25 +41,37 @@ export function render(webView: Webview) {
                 }
             });
 
-            function go2source(location) {
-                vscode.postMessage({
-                    command: 'go2source',
-                    location: location
+            function getComponentModel() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'getComponentModel',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
                 })
             }
 
-            function openDesignDiagram(filePath, position) {
-                vscode.postMessage({
-                    command: 'openDesignDiagram',
-                    position: position,
-                    filePath: filePath
-                });
+            function showChoreoProjectOverview() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'showChoreoProjectOverview',
+                        [],
+                        () => {
+                            resolve();
+                        }
+                    );
+                })
             }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(
-                    go2source, 
-                    openDesignDiagram,
+                architectureView.renderDesignDiagrams(
+                    true,
+                    ${isChoreoProject},
+                    "${selectedNodeId}",
+                    getComponentModel,
+                    showChoreoProjectOverview,
                     document.getElementById("webview-container")
                 );
             }
@@ -71,7 +81,7 @@ export function render(webView: Webview) {
     `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("DesignDiagram", webView),
+        ...getComposerWebViewOptions("ArchitectureView", webView),
         body, scripts, styles, bodyCss
     };
 

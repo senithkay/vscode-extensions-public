@@ -17,7 +17,7 @@ import { withStyles } from "@material-ui/core/styles";
 import { BallerinaConnectorInfo, FunctionDefinitionInfo, SymbolDocumentation } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { ACTION, CONNECTOR } from "../../../constants";
+import { ACTION, CONNECTOR, HTTP_ACTION } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
 import {
     getCurrentModelParams,
@@ -74,7 +74,7 @@ export function ParameterSuggestions() {
 
     const isConfigurable = isConfigurableEditor(editors, activeEditorId);
     const isConnectorFlow =
-        (config.type === CONNECTOR || config.type === ACTION) &&
+        (config.type === CONNECTOR || config.type === ACTION || config.type === HTTP_ACTION) &&
         (connectorInfo || actionInfo) &&
         activeMethod &&
         !isConfigurable;
@@ -97,7 +97,7 @@ export function ParameterSuggestions() {
     }, [documentation]);
 
     useEffect(() => {
-        if (config.type === ACTION && activeMethod && statementModel && connectorInfo?.functions.length > 0) {
+        if ((config.type === ACTION || config.type === HTTP_ACTION) && activeMethod && statementModel && connectorInfo?.functions.length > 0) {
             const statementMethod = retrieveUsedAction(statementModel, connectorInfo);
             if (activeMethod?.name !== statementMethod?.name){
                 setActiveMethod(statementMethod);

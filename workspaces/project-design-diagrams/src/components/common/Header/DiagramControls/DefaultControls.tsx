@@ -23,9 +23,9 @@ import IconButton from '@mui/material/IconButton';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import ArrowDropdownIcon from '@mui/icons-material/ArrowDropDown';
 import CachedIcon from '@mui/icons-material/Cached';
+import Chip from '@mui/material/Chip';
 import MenuIcon from '@mui/icons-material/Menu';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
-import { ProjectDesignRPC } from '../../../../utils/rpc/project-design-rpc';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { PackagesPopup } from '../PackagesPopup/PackagesPopup';
 import { DiagramLayoutPopup } from '../DiagramLayoutPopup/DiagramLayoutPopup';
@@ -44,7 +44,7 @@ interface DefaultControlProps {
 
 export function DefaultControls(props: DefaultControlProps) {
     const { projectPackages, layout, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
-    const { isChoreoProject } = useContext(DiagramContext);
+    const { isChoreoProject, editingEnabled, showChoreoProjectOverview } = useContext(DiagramContext);
 
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
     const [pkgAnchorElement, setPkgAnchorElement] = useState<HTMLButtonElement>(null);
@@ -58,11 +58,8 @@ export function DefaultControls(props: DefaultControlProps) {
         setLayoutAnchorElement(event.currentTarget);
     };
 
-    const onClickProjectOverview = () => {
-        const rpcInstance = ProjectDesignRPC.getInstance();
-        rpcInstance.showChoreoProjectOverview().catch((error: Error) => {
-            rpcInstance.showErrorMessage(error.message);
-        });
+    const onClickProjectOverview = async () => {
+        await showChoreoProjectOverview();
     }
 
     return (
@@ -81,7 +78,7 @@ export function DefaultControls(props: DefaultControlProps) {
                 >
                     <MenuIcon fontSize='small' />
                 </IconButton>
-                {isChoreoProject &&
+                {isChoreoProject && showChoreoProjectOverview &&
                     <Button
                         variant='outlined'
                         size='small'
@@ -91,6 +88,9 @@ export function DefaultControls(props: DefaultControlProps) {
                     >
                         Project Overview
                     </Button>
+                }
+                {!editingEnabled &&
+                    <Chip label={'Read-Only Mode'} sx={{ fontSize: '11px', fontFamily: 'GilmerRegular', marginLeft: '5px' }} />
                 }
             </div>
 

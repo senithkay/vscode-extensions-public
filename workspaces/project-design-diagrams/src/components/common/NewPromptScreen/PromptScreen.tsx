@@ -17,40 +17,21 @@
  *
  */
 
-import React from 'react';
-import styled from '@emotion/styled';
+import React, { useContext } from 'react';
+import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { ControlsLayer } from '../../../editing';
-
-const background = require('../../../resources/assets/PatternBg.svg') as string;
-
-const Container = styled.div`
-    align-items: center;
-    background-image: url('${background}');
-	background-repeat: repeat;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 100vh;
-    min-width: 100vw;
-`;
-
-const MessageBox = styled.h3`
-    color: #6b6b6b;
-    font-family: GilmerRegular;
-    font-size: 16px;
-    padding: 10px;
-`;
+import './styles.css';
 
 const NO_COMPONENTS_MSG = 'No components were detected in the project workspace.';
 
-export function PromptScreen(props: { onComponentAdd: () => void }) {
+export function PromptScreen(props: { setShowEditForm: (status: boolean) => void }) {
+    const { setShowEditForm } = props;
+    const { editingEnabled } = useContext(DiagramContext);
+
     return (
-        <Container id={"no-components-prompt-screen"}>
-            <MessageBox>{NO_COMPONENTS_MSG}</MessageBox>
-            <ControlsLayer
-                onComponentAddClick={props.onComponentAdd}
-                float={true}
-            />
-        </Container>
+        <div id={"no-components-prompt-screen"} className={'container'}>
+            <h3 className={'message-box'}>{NO_COMPONENTS_MSG}</h3>
+            {editingEnabled && <ControlsLayer setShowEditForm={setShowEditForm} float={true} />}
+        </div>
     );
 }

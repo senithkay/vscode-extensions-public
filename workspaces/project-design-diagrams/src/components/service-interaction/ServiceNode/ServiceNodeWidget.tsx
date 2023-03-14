@@ -23,7 +23,6 @@ import { ServiceNodeModel } from './ServiceNodeModel';
 import { ServiceLinkModel } from '../ServiceLink/ServiceLinkModel';
 import { ServiceHeadWidget } from './ServiceHead/ServiceHead';
 import { FunctionCard } from './FunctionCards/FunctionCard';
-import { ProjectDesignRPC } from '../../../utils/rpc/project-design-rpc';
 import { Level, ServiceTypes, Views } from '../../../resources';
 import { DiagramContext } from '../../common';
 import { ServiceNode } from './styles/styles';
@@ -38,17 +37,19 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	const { node, engine } = props;
 	const {
 		currentView,
+		editingEnabled,
 		newComponentID,
 		setNewComponentID,
 		newLinkNodes,
-		setNewLinkNodes
+		setNewLinkNodes,
+		editLayerAPI
 	} = useContext(DiagramContext);
 	const [selectedLinks, setSelectedLinks] = useState<ServiceLinkModel[]>([]);
 	const { refreshDiagram } = useContext(DiagramContext)
 	const isNewNode = useRef<boolean>(newComponentID === node.getID());
 
 	useEffect(() => {
-		if (isNewNode.current) {
+		if (editingEnabled && isNewNode.current) {
 			setNewComponentID(undefined);
 			setTimeout(() => {
 				isNewNode.current = false;
@@ -66,7 +67,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	}, [node])
 
 	const checkLinkStatus = (): boolean => {
-		if (currentView === Views.L1_SERVICES) {
+		if (currentView === Views.L1_SERVICES && editingEnabled) {
 			if (newLinkNodes.source?.serviceId === node.getID() || newLinkNodes.target?.serviceId === node.getID()) {
 				return true;
 			}
@@ -76,14 +77,13 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 
 	const setLinkStatus = async () => {
 		if (currentView === Views.L1_SERVICES &&
+			editingEnabled &&
 			newLinkNodes.source &&
 			newLinkNodes.source.serviceId !== node.getID() &&
 			node.serviceType !== ServiceTypes.OTHER
 		) {
 			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
-
-			const rpcInstance = ProjectDesignRPC.getInstance();
-			await rpcInstance.addLink(newLinkNodes.source, node.serviceObject);
+			await editLayerAPI?.addLink(newLinkNodes.source, node.serviceObject);
 			setNewLinkNodes({ source: undefined, target: undefined });
 			refreshDiagram();
 		}
@@ -97,6 +97,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			isNew={isNewNode.current}
 			isSelected={node.checkSelectedList(selectedLinks, node.getID())}
 			level={node.level}
+			isEditMode={editingEnabled}
 		>
 			<ServiceHeadWidget
 				engine={engine}

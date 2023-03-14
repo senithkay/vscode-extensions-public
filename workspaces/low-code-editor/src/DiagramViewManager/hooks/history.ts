@@ -11,22 +11,23 @@
  * associated services.
  */
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { FileListEntry, WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
-
-
 export interface HistoryEntry {
-    project: WorkspaceFolder;
-    file: FileListEntry;
+    file: string;
     position?: NodePosition;
     uid?: string;
 }
 
+type historyPushFnType = (info: HistoryEntry) => void;
+type historyPopFnType = () => void;
+type historyClearFnType = () => void;
+type updateCurrentEntryFnType = (info: HistoryEntry) => void;
+
 export function useComponentHistory():
-    [HistoryEntry[], (info: HistoryEntry) => void, () => void, () => void] {
+    [HistoryEntry[], historyPushFnType, historyPopFnType, historyClearFnType, updateCurrentEntryFnType] {
     const [history, updateHistory] = useState<HistoryEntry[]>([]);
 
     const historyPush = (historyEntry: HistoryEntry) => {
@@ -42,6 +43,13 @@ export function useComponentHistory():
         updateHistory([]);
     }
 
-    return [history, historyPush, historyPop, historyClear];
+    const updateCurrentEntry = (historyEntry: HistoryEntry) => {
+        if (history.length === 0) return;
+        const newHistory = [...history];
+        newHistory[newHistory.length - 1] = historyEntry;
+        updateHistory(newHistory);
+    }
+
+    return [history, historyPush, historyPop, historyClear, updateCurrentEntry];
 }
 

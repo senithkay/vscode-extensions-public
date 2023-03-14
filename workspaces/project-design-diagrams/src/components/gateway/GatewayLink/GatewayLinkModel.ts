@@ -23,12 +23,7 @@ import { debounce } from 'lodash';
 import { getOpposingPort } from "../../common/shared-link/utils";
 import { Level } from "../../../resources";
 import { GATEWAY_LINK_TYPE } from "../types";
-import {
-	getAngleFromRadians, getNorthArrowHeadPoints,
-	getNorthGWArrowHeadSlope,
-	getWestArrowHeadPoints,
-	getWestGWArrowHeadSlope
-} from "../../../utils/utils";
+import { getAngleFromRadians, getNorthArrowHeadPoints, getWestArrowHeadPoints } from "../../../utils/utils";
 
 export class GatewayLinkModel extends DefaultLinkModel {
 	diagramEngine: DiagramEngine | undefined;

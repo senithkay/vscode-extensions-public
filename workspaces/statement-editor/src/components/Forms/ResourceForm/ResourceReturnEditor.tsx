@@ -12,14 +12,13 @@
  */
 // tslint:disable: jsx-no-multiline-js
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { Button } from '@material-ui/core';
 import AddIcon from "@material-ui/icons/Add";
-import { connectorStyles, TextPreloaderVertical } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import {
-    CommaToken, DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode
-} from '@wso2-enterprise/syntax-tree';
+import { connectorStyles } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
+import { STNode } from '@wso2-enterprise/syntax-tree';
+import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 
@@ -79,14 +78,13 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         }
         const newSource = responses.join("|");
         onChange(newSource);
-        setEditingSegmentId(-1); // this should be segmentID
-        onChangeInProgress(false);
+        setEditingSegmentId(segmentId); // this should be segmentID
     };
 
 
 
     const addReturn = () => {
-        setEditingSegmentId(-1);
+        setEditingSegmentId(responses.length);
         setIsNew(true);
         onChangeInProgress(true);
     };
@@ -123,7 +121,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                     onEditClick={onEdit}
                 />
             );
-        } else if (editingSegmentId === index) {
+        } else if (editingSegmentId === index && !isNew) {
             paramComponents.push(
                 <ResponseEditor
                     segmentId={editingSegmentId}

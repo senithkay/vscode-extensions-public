@@ -27,6 +27,7 @@ const PRIMARY_HOVER: string = '#2c09ed';
 
 interface StyleProps {
     isAnonymous: boolean;
+    isEditMode?: boolean;
     isSelected?: boolean;
     isClickable?: boolean;
     shouldShade?: boolean;
@@ -39,7 +40,7 @@ export const EntityNode = styled.div`
         props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY}`};
     border-radius: 2px !important;
     color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY};
-    cursor: pointer;
+    cursor: ${(props: StyleProps) => props.isEditMode ? `pointer` : `auto`};
     display: flex;
     flex-direction: column;
     min-height: 32px;

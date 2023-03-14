@@ -14,6 +14,7 @@ import { css, cx } from "@emotion/css";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
+import React from "react";
 
 const Container = styled.div`
     display: flex;

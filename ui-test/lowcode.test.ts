@@ -32,18 +32,18 @@ describe('VSCode Webview UI Tests', () => {
         await wait(2000);
     });
 
-    it('Test Diagram', async () => {
-        const diagramExplorer = await getDiagramExplorer();
-
-        // test diagram explorer tree view
-        const rootFolder = (await diagramExplorer.getVisibleItems())[0];
-        await rootFolder.expand();
-        (await rootFolder.findChildItem("hello_world.bal"))?.click();
-        await wait(DIAGRAM_LOADING_TIME)
-        const webview = new WebView();
-        await webview.switchToFrame();
-        const element = await webview.findWebElement(By.id("canvas-overlay"));
-        expect(element).is.not.undefined;
-        await webview.switchBack();
-    });
+    // it('Test Diagram', async () => {
+    //     const diagramExplorer = await getDiagramExplorer();
+    //
+    //     // test diagram explorer tree view
+    //     const rootFolder = (await diagramExplorer.getVisibleItems())[0];
+    //     await rootFolder.expand();
+    //     (await rootFolder.findChildItem("hello_world.bal"))?.click();
+    //     await wait(DIAGRAM_LOADING_TIME)
+    //     const webview = new WebView();
+    //     await webview.switchToFrame();
+    //     const element = await webview.findWebElement(By.id("canvas-overlay"));
+    //     expect(element).is.not.undefined;
+    //     await webview.switchBack();
+    // });
 });

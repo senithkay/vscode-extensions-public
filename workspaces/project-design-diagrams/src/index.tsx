@@ -16,21 +16,29 @@
  * under the License.
  *
  */
-import React from 'react';
-import { NodePosition } from '@wso2-enterprise/syntax-tree';
-import { render } from 'react-dom';
-import { DesignDiagram } from './DesignDiagram';
-import { Location } from './resources';
+
+import React from "react";
+import { render } from "react-dom";
+import { DesignDiagram } from "./DesignDiagram";
+import { ComponentModel } from "./resources";
+import { WebviewEditLayerAPI } from "./editing";
 
 export function renderDesignDiagrams(
-    go2Source: (location: Location) => void,
-    goToDesignDiagram: (position: NodePosition, filePath: string) => void,
-    target: HTMLElement) {
-
+    isEditable: boolean,
+    isChoreoProject: boolean,
+    selectedNodeId: string,
+    getComponentModel: () => Promise<Map<string, ComponentModel>>,
+    showChoreoProjectOverview: () => Promise<void>,
+    target: HTMLElement
+) {
     render(
         <DesignDiagram
-            go2source={go2Source}
-            goToDesignDiagram={goToDesignDiagram}
+            isEditable={isEditable}
+            isChoreoProject={isChoreoProject}
+            selectedNodeId={selectedNodeId}
+            getComponentModel={getComponentModel}
+            showChoreoProjectOverview={showChoreoProjectOverview}
+            editLayerAPI={WebviewEditLayerAPI.getInstance()}
         />,
         target
     );

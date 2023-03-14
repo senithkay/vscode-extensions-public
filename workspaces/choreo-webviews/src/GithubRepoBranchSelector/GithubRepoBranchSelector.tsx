@@ -13,7 +13,7 @@
 
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const GhRepoBranhSelectorContainer = styled.div`

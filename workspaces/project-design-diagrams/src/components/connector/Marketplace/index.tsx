@@ -14,7 +14,7 @@
 
 // TODO: Move this component to a common repo.
 
-import React, { ReactNode, SyntheticEvent, useContext, useRef, useState } from "react";
+import React, { ReactNode, SyntheticEvent, useRef, useState } from "react";
 
 import { Box, CircularProgress, FormControl, Grid, Typography } from "@material-ui/core";
 import { CloseRounded } from "@material-ui/icons";
@@ -56,7 +56,7 @@ export enum BallerinaModuleType {
 
 export function Marketplace(props: MarketplaceProps) {
     const classes = useStyles();
-    const { onSelect, onCancel, title } = props;
+    const { onSelect, title } = props;
 
     const [isSearchResultsFetching, setIsSearchResultsFetching] = useState(true);
     const [isNextPageFetching, setIsNextPageFetching] = useState(false);
@@ -226,7 +226,7 @@ export function Marketplace(props: MarketplaceProps) {
         localModuleComponents = getModuleComponents(localModules.current);
     }
 
-    const renderModulesList = (modulesListTitle: string, modules: ReactNode[]): ReactNode => {
+    const renderModulesList = (modules: ReactNode[]): ReactNode => {
         return (
             <>
                 {/* {shortName !== "Triggers" ? (
@@ -276,8 +276,8 @@ export function Marketplace(props: MarketplaceProps) {
             className={classes.balModuleListWrap}
             onScroll={handleModulesListScroll}
         >
-            {localModules.current.size > 0 && renderModulesList("Local " + shortName, localModuleComponents)}
-            {centralModules.current.size > 0 && renderModulesList("Public " + shortName, centralModuleComponents)}
+            {localModules.current.size > 0 && renderModulesList(localModuleComponents)}
+            {centralModules.current.size > 0 && renderModulesList(centralModuleComponents)}
             {isNextPageFetching && (
                 <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
                     <Box display="flex" justifyContent="center" alignItems="center">

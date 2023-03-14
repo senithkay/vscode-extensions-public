@@ -1,20 +1,40 @@
 import { monaco } from "react-monaco-editor";
 
-import { CommandResponse, DiagramDiagnostic, DIAGRAM_MODIFIED, FunctionDef, getImportStatements, InsertorDelete, LowcodeEvent, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CommandResponse, DiagramDiagnostic, DiagramEditorLangClientInterface, DIAGRAM_MODIFIED, FunctionDef, getImportStatements, InsertorDelete, LowcodeEvent, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
 import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isUnresolvedModulesAvailable } from "../../DiagramGenerator/generatorUtil";
-import { EditorProps, FileListEntry, PALETTE_COMMANDS, Uri } from "../../DiagramGenerator/vscode/Diagram";
+import { EditorProps, FileListEntry, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
+
+export async function getSTNodeForReference(
+    file: string,
+    position: NodePosition,
+    langClient: DiagramEditorLangClientInterface
+): Promise<STNode> {
+    const request: TextDocumentPositionParams = {
+        textDocument: { uri: monaco.Uri.file(file).toString() },
+        position: { line: position.startLine, character: position.startColumn }
+    };
+    const response = await langClient.getDefinitionPosition(request);
+    return new Promise((resolve, reject) => {
+        if (response.syntaxTree) {
+            resolve(response.syntaxTree);
+        } else {
+            reject();
+        }
+    });
+}
 
 export function getDiagramProviderProps(
     focusedST: STNode,
     lowCodeEnvInstance: string,
     currentFileContent: string,
-    focusFile: FileListEntry,
+    focusFile: string,
     fileList: FileListEntry[],
     stMemberId: string,
     completeST: STNode,
@@ -34,7 +54,7 @@ export function getDiagramProviderProps(
 
 
     async function showTryitView(serviceName: string) {
-        runCommand(PALETTE_COMMANDS.TRY_IT, [focusFile?.uri.path, serviceName]);
+        runCommand(PALETTE_COMMANDS.TRY_IT, [focusFile, serviceName]);
     }
 
     async function showDocumentationView(url: string) {
@@ -47,6 +67,8 @@ export function getDiagramProviderProps(
 
     const showMessage: (message: string, type: MESSAGE_TYPE, isIgnorable: boolean, filePath?: string, fileContent?: string, bypassChecks?: boolean) => Promise<boolean> = props.showMessage;
     const runBackgroundTerminalCommand: (command: string) => Promise<CommandResponse> = props.runBackgroundTerminalCommand;
+    const openArchitectureView: (nodeId: string) => Promise<boolean> = props.openArchitectureView;
+
     const openExternalUrl: (url: string) => Promise<boolean> = props.openExternalUrl;
     return {
         syntaxTree: focusedST,
@@ -55,7 +77,7 @@ export function getDiagramProviderProps(
         stSymbolInfo: getSymbolInfo(),
         currentFile: {
             content: currentFileContent,
-            path: focusFile?.uri.path,
+            path: focusFile,
             size: 1,
         },
         fileList,
@@ -80,7 +102,7 @@ export function getDiagramProviderProps(
             code: {
                 modifyDiagram: async (mutations: STModification[]) => {
                     const langClient = await langClientPromise;
-                    const uri = monaco.Uri.file(focusFile?.uri.path).toString();
+                    const uri = monaco.Uri.file(focusFile).toString();
                     const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                         astModifications: await InsertorDelete(mutations),
                         documentIdentifier: {
@@ -92,8 +114,8 @@ export function getDiagramProviderProps(
                         // undoRedo.addModification(source);
                         setUpdateTimestamp(new Date().getTime().toString());
                         setFileContent(source);
-                        props.updateFileContent(focusFile?.uri.path, source);
-                        visitedST = await getLowcodeST(newST, focusFile?.uri.path, langClient, experimentalEnabled, showMessage);
+                        props.updateFileContent(focusFile, source);
+                        visitedST = await getLowcodeST(newST, focusFile, langClient, experimentalEnabled, showMessage);
                         if (stMemberId && stMemberId.length > 0) {
                             const stFindingVisitor = new FindNodeByUidVisitor(stMemberId);
                             traversNode(visitedST, stFindingVisitor);
@@ -116,7 +138,7 @@ export function getDiagramProviderProps(
                                 // setLoaderText('Pulling packages...');
                                 const {
                                     parseSuccess: pullSuccess,
-                                } = await resolveMissingDependency(focusFile?.uri.path, source);
+                                } = await resolveMissingDependency(focusFile, source);
                                 if (pullSuccess) {
                                     // Rebuild the file At backend
                                     langClient.didChange({
@@ -132,7 +154,7 @@ export function getDiagramProviderProps(
                                     } = await langClient.getSyntaxTree({ documentIdentifier: { uri } });
                                     visitedST = await getLowcodeST(
                                         stWithoutDiagnostics,
-                                        focusFile?.uri.path,
+                                        focusFile,
                                         langClient,
                                         experimentalEnabled,
                                         showMessage);
@@ -172,14 +194,14 @@ export function getDiagramProviderProps(
                     // await addPerfData(visitedST);
                 },
                 gotoSource: (position: { startLine: number; startColumn: number; }) => {
-                    props.gotoSource(focusFile?.uri.path, position);
+                    props.gotoSource(focusFile, position);
                 },
                 getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
                     const langClient = await langClientPromise;
                     // setMutationInProgress(true);
                     // setLoaderText('Fetching...');
                     const res: FunctionDef = await getFunctionSyntaxTree(
-                        defFilePath ? defFilePath : monaco.Uri.file(focusFile?.uri.path).toString(),
+                        defFilePath ? defFilePath : monaco.Uri.file(focusFile).toString(),
                         lineRange,
                         langClient
                     );
@@ -187,7 +209,7 @@ export function getDiagramProviderProps(
                     return res;
                 },
                 updateFileContent: (content: string, skipForceSave?: boolean) => {
-                    return props.updateFileContent(focusFile?.uri.path, content, skipForceSave);
+                    return props.updateFileContent(focusFile, content, skipForceSave);
                 },
                 // undo,
                 // isMutationInProgress,
@@ -216,6 +238,7 @@ export function getDiagramProviderProps(
                 getLibraryData
             },
             runBackgroundTerminalCommand,
+            openArchitectureView,
             openExternalUrl,
             navigation: {
                 updateActiveFile,

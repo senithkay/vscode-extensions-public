@@ -18,6 +18,9 @@
  */
 
 import { DiagramModel, PointModel } from '@projectstorm/react-diagrams';
+import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 export interface ComponentModel {
     packageId: PackageID;
@@ -181,7 +184,7 @@ export enum ServiceTypes {
 
 export enum Colors {
     DIAGRAM_BACKGROUND = '#FFF',
-    CELL_DIAGRAM_BACKGROUND = 'rgba(85, 103, 213, 0.1)',
+    CELL_DIAGRAM_BACKGROUND = '#eeeffb',
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
@@ -191,3 +194,17 @@ export enum Colors {
 }
 
 export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';
+
+export interface EditLayerAPI {
+    getProjectRoot: () => Promise<string | undefined>;
+    createComponent: (args: BallerinaComponentCreationParams) => Promise<string>;
+    getConnectors: (args: BallerinaConnectorsRequest) => Promise<BallerinaConnectorsResponse>;
+    pullConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
+    addConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
+    addLink: (source: Service, target: Service) => Promise<boolean>;
+    pickDirectory: () => Promise<string | undefined>;
+    executeCommand: (cmd: string) => Promise<boolean>;
+    go2source: (location: Location) => void;
+    goToDesign: (filePath: string, position: NodePosition) => void;
+    showErrorMessage: (message: string) => void;
+}

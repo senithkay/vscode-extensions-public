@@ -14,7 +14,7 @@
 import { VSCodeTextField, VSCodeTextArea, VSCodeButton, VSCodeDropdown, VSCodeOption, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import { css, cx } from "@emotion/css";
-import { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ComponentTypeSelector } from "./ComponetTypeSelector/ComponentTypeSelector";
@@ -31,6 +31,7 @@ const WizardContainer = styled.div`
     display: flex;
     flex-direction: column;
     gap: 20px;
+    padding: 20px;
 `;
 
 const ActionContainer = styled.div`

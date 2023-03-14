@@ -14,17 +14,41 @@ import { Messenger } from "vscode-messenger-webview";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 
 import {
-    GetAllOrgsRequest, GetAllProjectsRequest, GetCurrentOrgRequest,
-    GetLoginStatusRequest, ExecuteCommandRequest, GetComponents,
-    LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    ChoreoLoginStatus, SelectedProjectChangedNotification,
-    Organization, Project, CloseWebViewNotification,
-    ShowErrorMessage, Component, GetProjectLocation, OpenExternal,
-    OpenChoreoProject, CloneChoreoProject, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
-    PushLocalComponentsToChoreo, OpenArchitectureView, HasUnpushedComponents, UpdateProjectOverview, isSubpathAvailable, SubpathAvailableRequest
+    GetAllOrgsRequest,
+    GetAllProjectsRequest,
+    GetCurrentOrgRequest,
+    GetLoginStatusRequest,
+    ExecuteCommandRequest,
+    GetComponents,
+    LoginStatusChangedNotification,
+    SelectedOrgChangedNotification,
+    ChoreoLoginStatus,
+    SelectedProjectChangedNotification,
+    Organization,
+    Project,
+    CloseWebViewNotification,
+    ShowErrorMessage,
+    Component,
+    GetProjectLocation,
+    OpenExternal,
+    OpenChoreoProject,
+    CloneChoreoProject,
+    setProjectRepository,
+    getProjectRepository,
+    isChoreoProject,
+    getChoreoProject,
+    PushLocalComponentsToChoreo,
+    OpenArchitectureView,
+    HasUnpushedComponents,
+    UpdateProjectOverview,
+    isSubpathAvailable,
+    SubpathAvailableRequest,
+    ComponentModel,
+    getDiagramComponentModel
 } from "@wso2-enterprise/choreo-core";
 
-import { ChoreoProjectClientRPCWebView, IChoreoProjectClient } from "@wso2-enterprise/choreo-client";
+import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
+import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
 import { ChoreoProjectManagerRPCWebview } from "@wso2-enterprise/choreo-client/lib/manager/rpc/manager-client-rpc-webview";
 
@@ -108,6 +132,10 @@ export class ChoreoWebViewAPI {
 
     public async openArchitectureView(): Promise<void> {
         return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
+    }
+
+    public async getDiagramComponentModel(projId: string, orgHandler: string): Promise<ComponentModel[]> {
+        return this._messenger.sendRequest(getDiagramComponentModel, HOST_EXTENSION, { projId, orgHandler } );
     }
 
     public onLoginStatusChanged(callback: (newStatus: ChoreoLoginStatus) => void) {
