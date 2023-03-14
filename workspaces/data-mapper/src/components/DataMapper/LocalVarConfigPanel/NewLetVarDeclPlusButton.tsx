@@ -42,7 +42,10 @@ export function NewLetVarDeclPlusButton(props: NewLetVarDeclPlusButtonProps) {
                 arrow={true}
                 title={"Add new let variable here"}
             >
-                <IconButton onClick={handleOnClick}>
+                <IconButton
+                    onClick={handleOnClick}
+                    data-testid={`add-local-variable-btn-${index}`}
+                >
                     <TopLevelPlusIcon selected={undefined}/>
                 </IconButton>
             </TooltipComponent>

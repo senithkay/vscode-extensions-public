@@ -49,13 +49,12 @@ interface DiagramProps {
     isEditable: boolean;
     isChoreoProject: boolean;
     getComponentModel(): Promise<Map<string, ComponentModel>>;
-    enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>>;
     showChoreoProjectOverview?: () => Promise<void>;
     editLayerAPI?: EditLayerAPI;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { isChoreoProject, isEditable, getComponentModel, enrichChoreoMetadata, showChoreoProjectOverview = undefined, editLayerAPI = undefined } = props;
+    const { isChoreoProject, isEditable, getComponentModel, showChoreoProjectOverview = undefined, editLayerAPI = undefined } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
@@ -71,7 +70,7 @@ export function DesignDiagram(props: DiagramProps) {
 
     useEffect(() => {
         refreshDiagram();
-    }, [props])
+    }, [props]);
 
     const changeDiagramLayout = () => {
         switchLayout(layout === DagreLayout.GRAPH ? DagreLayout.TREE : DagreLayout.GRAPH);
@@ -84,16 +83,14 @@ export function DesignDiagram(props: DiagramProps) {
     }
 
     const refreshDiagram = async () => {
-        let componentModel: Map<string, ComponentModel> = await getComponentModel();
-        if (isChoreoProject) {
-            componentModel = await enrichChoreoMetadata(componentModel);
-        }
-        const components: Map<string, ComponentModel> = new Map(Object.entries(componentModel));
-        if (components && components.size > 0) {
-            defaultOrg.current = [...components][0][1].packageId.org;
-        }
-        setProjectPkgs(createRenderPackageObject(components.keys()));
-        setProjectComponents(components);
+        await getComponentModel().then((response) => {
+            const components: Map<string, ComponentModel> = new Map(Object.entries(response));
+            if (components && components.size > 0) {
+                defaultOrg.current = [...components][0][1].packageId.org;
+            }
+            setProjectPkgs(createRenderPackageObject(components.keys()));
+            setProjectComponents(components);
+        });
     }
 
     const onConnectorWizardClose = () => {

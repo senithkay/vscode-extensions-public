@@ -244,10 +244,18 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 						<DataMapperCanvasWidget engine={engine} />
 					</DataMapperCanvasContainerWidget>
 					<div className={classes.buttonWrap}>
-						<div className={classes.iconWrap} onClick={resetZoomAndOffset}>
+						<div
+							className={classes.iconWrap}
+							onClick={resetZoomAndOffset}
+							data-testid={"reset-zoom"}
+						>
 							<CachedIcon className={classes.icon} />
 						</div>
-						<div className={classes.iconWrap} onClick={() => void engine.zoomToFitNodes({ margin: 20 })}>
+						<div
+							className={classes.iconWrap}
+							onClick={() => void engine.zoomToFitNodes({ margin: 20 })}
+							data-testid={"fit-to-screen"}
+						>
 							<FitToScreenIcon />
 						</div>
 					</div>

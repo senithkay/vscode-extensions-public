@@ -17,12 +17,11 @@
  *
  */
 
-import createEngine, {DiagramEngine, LinkModel, NodeModel} from '@projectstorm/react-diagrams';
+import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import {
     ExtServiceNodeFactory,
     ServiceLinkFactory,
-    ServiceLinkModel,
     ServiceNodeFactory,
     ServiceNodeModel,
     ServicePortFactory,
@@ -65,8 +64,10 @@ export function createRenderPackageObject(projectPackages: IterableIterator<stri
 }
 
 export function createServicesEngine(): DiagramEngine {
-    const diagramEngine: DiagramEngine = createEngine({registerDefaultPanAndZoomCanvasAction: true,
-        registerDefaultZoomCanvasAction: false});
+    const diagramEngine: DiagramEngine = createEngine({
+        registerDefaultPanAndZoomCanvasAction: true,
+        registerDefaultZoomCanvasAction: false
+    });
     diagramEngine.getLinkFactories().registerFactory(new GatewayLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new GatewayPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new GatewayNodeFactory());
@@ -78,15 +79,17 @@ export function createServicesEngine(): DiagramEngine {
 }
 
 export function createEntitiesEngine(): DiagramEngine {
-    const diagramEngine: DiagramEngine = createEngine({registerDefaultPanAndZoomCanvasAction: true,
-        registerDefaultZoomCanvasAction: false});
+    const diagramEngine: DiagramEngine = createEngine({
+        registerDefaultPanAndZoomCanvasAction: true,
+        registerDefaultZoomCanvasAction: false
+    });
     diagramEngine.getLinkFactories().registerFactory(new EntityLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntityFactory());
     return diagramEngine;
 }
 
-export function getZoomOffSet(engine: DiagramEngine) : ZoomOffset {
+export function getZoomOffSet(engine: DiagramEngine): ZoomOffset {
     const model = engine.getModel();
     const canvas = engine.getCanvas();
     const zoomDiff = model.getZoomLevel() - defaultZoomLevel;
@@ -251,11 +254,11 @@ export function getWestGWArrowHeadSlope(slope: number) {
     return newSlope;
 }
 
-export function getAngleFromRadians (value: number): number {
+export function getAngleFromRadians(value: number): number {
     return value * 180 / Math.PI;
 }
 
-export function getRadiansFormAngle (value: number): number {
+export function getRadiansFormAngle(value: number): number {
     return value * Math.PI / 180;
 }
 
@@ -275,7 +278,7 @@ export function getWestArrowHeadPoints(targetPort: Point, directLineSlope: numbe
             .sin(getRadiansFormAngle(30 + newSlope)));
     } else {
         newSlope = getWestGWArrowHeadSlope(directLineSlope);
-        baseTopX = targetPort.x - (widthOfTriangle * Math.sin(getRadiansFormAngle( 60 - newSlope)));
+        baseTopX = targetPort.x - (widthOfTriangle * Math.sin(getRadiansFormAngle(60 - newSlope)));
         baseTopY = targetPort.y - (widthOfTriangle * Math.cos(getRadiansFormAngle(60 - newSlope)));
         baseBottomX = targetPort.x - (widthOfTriangle * Math
             .cos(getRadiansFormAngle(newSlope - 30)));

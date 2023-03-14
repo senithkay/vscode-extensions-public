@@ -19,30 +19,13 @@
 
 import { commands, Position, Uri, window } from "vscode";
 import { join } from "path";
-import { getServerOptions } from "../../src/server/server";
-import { getBallerinaCmd } from "../test-util";
-import {
-    ExtendedLangClient
-} from "../../src/core/extended-language-client";
 import { assert } from "chai";
-import { PublishDiagnosticsParams } from "vscode-languageclient";
 
 const PROJECT_ROOT = join(__dirname, '..', '..', '..', 'test', 'data');
 
 suite("Editor Tests", function () {
-    this.timeout(30000);
-    let langClient: ExtendedLangClient;
-
-    suiteSetup((done): any => {
-        langClient = new ExtendedLangClient(
-            'ballerina-vscode',
-            'Ballerina LS Client',
-            getServerOptions(getBallerinaCmd()),
-            { documentSelector: [{ scheme: 'file', language: 'ballerina' }] },
-            undefined,
-            false
-        );
-        langClient.start();
+    suiteTeardown((done) => {
+        commands.executeCommand('ballerina.stopLangServer');
         done();
     });
 
@@ -57,22 +40,9 @@ suite("Editor Tests", function () {
                 editBuilder.insert(startPosition, "\n");
 
             });
-            await langClient.onReady().then(async () => {
-                await langClient.registerExtendedAPICapabilities();
-                await wait(5000);
-                langClient.getDiagnostics({
-                    documentIdentifier: {
-                        uri: uri.toString()
-                    }
-                }).then(async (res) => {
-                    const response = res as PublishDiagnosticsParams[];
-                    assert.strictEqual(response.length, 0, "Invalid string splitter");
-                    done();
-                }, error => {
-                    done(error);
-                });
-
-            });
+            await wait(5000);
+            assert.strictEqual(editor.document.getText(), 'string st = "sample " +\n"giga string";\n', "Invalid string splitter");
+            done();
         });
     });
 

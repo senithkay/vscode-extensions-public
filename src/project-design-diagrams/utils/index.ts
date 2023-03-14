@@ -21,7 +21,6 @@ export { linkServices as addConnector } from './code-generator';
 export { EditLayerRPC } from './edit-layer-rpc';
 export {
     checkIsChoreoProject,
-    enrichChoreoMetadata,
     getActiveChoreoProject,
     getComponentModel,
     showChoreoProjectOverview

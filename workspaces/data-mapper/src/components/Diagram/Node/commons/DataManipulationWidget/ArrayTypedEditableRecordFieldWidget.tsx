@@ -146,7 +146,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     isDisabled ? classes.valueLabelDisabled : "")}

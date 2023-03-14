@@ -13,7 +13,7 @@
 
 import {
     ChoreoComponentCreationParams, ChoreoServiceComponentType, Component, IProjectManager,
-    Project, RepositoryDetails, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams
+    Project, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams
 } from "@wso2-enterprise/choreo-core";
 import { log } from "console";
 import { randomUUID } from "crypto";
@@ -30,7 +30,7 @@ interface CmdResponse {
 export class ChoreoProjectManager implements IProjectManager {
 
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
-        const { displayType, org, repositoryInfo } = args;
+        const { displayType, name, org, repositoryInfo } = args;
         if (workspace.workspaceFile) {
             const workspaceFilePath = workspace.workspaceFile.fsPath;
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
@@ -40,7 +40,7 @@ export class ChoreoProjectManager implements IProjectManager {
             const resp: CmdResponse = await ChoreoProjectManager._createBallerinaPackage(pkgPath, displayType);
             if (!resp.error) {
                 ChoreoProjectManager._processTomlFiles(pkgPath, org.name);
-                ChoreoProjectManager._addDisplayAnnotation(pkgPath, displayType, repositoryInfo);
+                ChoreoProjectManager._addDisplayAnnotation(pkgPath, displayType, name);
                 return await ChoreoProjectManager._addToWorkspace(workspaceFilePath, args);
             } else {
                 throw new Error(resp.message);
@@ -124,15 +124,15 @@ export class ChoreoProjectManager implements IProjectManager {
         });
     }
 
-    private static _addDisplayAnnotation(pkgPath: string, type: ChoreoServiceComponentType, repositoryInfo: RepositoryDetails) {
-        const serviceId = `${repositoryInfo.subPath}-${randomUUID()}`;
+    private static _addDisplayAnnotation(pkgPath: string, type: ChoreoServiceComponentType, name: string) {
+        const serviceId = `${name}-${randomUUID()}`;
         const serviceFilePath = join(pkgPath, 'service.bal');
         readFile(serviceFilePath, 'utf-8', (err, contents) => {
             if (err) {
                 log("Error: Could not read service.bal file.");
                 return;
             }
-            const replaced = ChoreoProjectManager._getAnnotatedContent(contents, repositoryInfo.subPath, serviceId, type);
+            const replaced = ChoreoProjectManager._getAnnotatedContent(contents, name, serviceId, type);
             writeFile(serviceFilePath, replaced, 'utf-8', function (err) {
                 if (err) {
                     log("Error: Could not annotate component.");
@@ -232,7 +232,7 @@ export class ChoreoProjectManager implements IProjectManager {
        return commands.executeCommand('wso2.choreo.project.repo.clone', params);
     }
 
-    private static _getAnnotatedContent(content: string, packageName: string, serviceId: string, type: ChoreoServiceComponentType)
+    private static _getAnnotatedContent(content: string, name: string, serviceId: string, type: ChoreoServiceComponentType)
         : string {
         let preText: string;
         if (type !== ChoreoServiceComponentType.GRPC_API) {
@@ -241,7 +241,7 @@ export class ChoreoProjectManager implements IProjectManager {
             preText = 'service "HelloWorld" on new';
         }
 
-        const processedText = `@display {\n\tlabel: "${packageName}",\n\tid: "${serviceId}"\n}\n${preText}`;
+        const processedText = `@display {\n\tlabel: "${name}",\n\tid: "${serviceId}"\n}\n${preText}`;
         return content.replace(preText, processedText);
     }
 
