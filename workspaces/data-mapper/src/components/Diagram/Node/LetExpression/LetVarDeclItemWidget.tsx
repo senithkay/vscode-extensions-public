@@ -56,7 +56,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
     const isQueryExpr = STKindChecker.isQueryExpression(declaration.expression);
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto" }} data-testid={`local-var-widget-label-${id}`}>
             <span className={classes.valueLabel}>
                 {valueLabel ? valueLabel : id}
                 {typeName && ":"}
@@ -110,7 +110,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                         <IconButton
                             className={classes.expandIcon}
                             onClick={handleExpand}
-                            data-testid={`${id}-expand-icon-record-source-node`}
+                            data-testid={`${id}-expand-icon-local-var-node`}
                         >
                             {expanded ? <ExpandMoreIcon/> : <ChevronRightIcon/>}
                         </IconButton>
@@ -123,9 +123,13 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                     )}
                 </span>
                 <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
-                    }
+                    {portOut && (
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portOut}
+                            dataTestId={`local-variable-port-${portOut.getName()}`}
+                        />
+                    )}
                 </span>
             </TreeHeader>
             {

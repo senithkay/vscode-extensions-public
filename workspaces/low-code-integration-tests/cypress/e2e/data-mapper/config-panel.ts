@@ -18,6 +18,12 @@ import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { DataMapper } from "../../utils/forms/data-mapper";
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
 
+const CONFIG_PANEL_BAL_FILES_DIR = "expectedBalFiles/config-panel";
+const EXISTING_RECORDS_BAL_FILE = `${CONFIG_PANEL_BAL_FILES_DIR}/transform-from-existing-records.bal`;
+const EXISTING_RECORDS_ARRAY_BAL_FILE = `${CONFIG_PANEL_BAL_FILES_DIR}/transform-from-existing-records-array-io.bal`;
+const JSON_IMPORTS_BAL_FILE = `${CONFIG_PANEL_BAL_FILES_DIR}/transform-from-json-imports.bal`;
+const JSON_IMPORTS_ARRAY_BAL_FILE = `${CONFIG_PANEL_BAL_FILES_DIR}/transform-from-json-imports-array-io.bal`;
+const UPDATED_CONFIG_BAL_FILE = `${CONFIG_PANEL_BAL_FILES_DIR}/transform-from-updated-config.bal`;
 const EMPTY_BAL_FILE_PATH = "default/empty-file.bal";
 const BAL_FILE_WITH_RECORDS = "data-mapper/with-records.bal";
 const BAL_FILE_WITH_BASIC_TRANSFORM = "data-mapper/with-basic-transform.bal";
@@ -33,9 +39,9 @@ describe("Create new data mapper with new record from json imports", () => {
     });
 
     it("Add new input from json import (separate records)", () => {
-        DataMapper.addNewInputRecord(INPUT_JSON_FOR_RECORD, "Input", true)
+        DataMapper.addNewInputRecord(INPUT_JSON_FOR_RECORD, "Input", true);
         DataMapper.editInputRecord(0);
-        DataMapper.selectInputRecord("Input", "Items");
+        DataMapper.selectInputRecord("Input");
     });
 
     it("Add new output record from json import", () => DataMapper.addNewOutputRecord(OUTPUT_JSON_FOR_RECORD, "Output"));
@@ -44,11 +50,39 @@ describe("Create new data mapper with new record from json imports", () => {
 
     it("Canvas contains source and target nodes", () => {
         DataMapper.getSourceNode("input");
-        DataMapper.getTargetNode("Output");
+        DataMapper.getTargetNode("mappingConstructor", "Output");
     });
 
     it("Generated source code is valid", () => {
-        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-from-json-imports.bal");
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + JSON_IMPORTS_BAL_FILE);
+    });
+});
+
+describe("Create new data mapper with array typed i/o from new record by json imports", () => {
+    before(() => cy.visit(getIntegrationTestPageURL(EMPTY_BAL_FILE_PATH)));
+
+    it("Open Data mapper with plus button", () => {
+        Canvas.welcomeMessageShouldBeVisible().clickTopLevelPlusButton();
+        TopLevelPlusWidget.clickOption("Data Mapper");
+    });
+
+    it("Add new input from json import (separate records)", () => {
+        DataMapper.addNewInputRecord(INPUT_JSON_FOR_RECORD, "Input", true);
+        DataMapper.editInputRecord(0);
+        DataMapper.selectInputRecord("Input", true);
+    });
+
+    it("Add new output record from json import", () => DataMapper.addNewOutputRecord(OUTPUT_JSON_FOR_RECORD, "Output"));
+
+    it("Save data mapper config", () => DataMapper.saveConfig());
+
+    it("Canvas contains source and target nodes", () => {
+        DataMapper.getSourceNode("input");
+        DataMapper.getTargetNode("mappingConstructor", "Output");
+    });
+
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + JSON_IMPORTS_ARRAY_BAL_FILE);
     });
 });
 
@@ -56,7 +90,7 @@ describe("Create new data mapper with existing record types", () => {
     before(() => cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_RECORDS)));
 
     it("Open Data mapper with plus button", () => {
-        Canvas.clickTopLevelPlusButton(24);
+        Canvas.clickTopLevelPlusButton(26);
         TopLevelPlusWidget.clickOption("Data Mapper");
     });
 
@@ -76,11 +110,43 @@ describe("Create new data mapper with existing record types", () => {
     it("Canvas contains source and target nodes", () => {
         DataMapper.getSourceNode("input");
         DataMapper.getSourceNode("credentialsConfig");
-        DataMapper.getTargetNode("Output");
+        DataMapper.getTargetNode("mappingConstructor", "Output");
     });
 
     it("Generated source code is valid", () => {
-        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-from-existing-records.bal");
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + EXISTING_RECORDS_BAL_FILE);
+    });
+});
+
+describe("Create new data mapper with array typed i/o from existing records", () => {
+    before(() => cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_RECORDS)));
+
+    it("Open Data mapper with plus button", () => {
+        Canvas.clickTopLevelPlusButton(26);
+        TopLevelPlusWidget.clickOption("Data Mapper");
+    });
+
+    it("Have a valid function name generated", () => DataMapper.checkFnName('transform2'));
+
+    it("Add new input record from existing records", () => DataMapper.addExitingInputRecord("Input", true));
+
+    it("Add new input record from imported http package", () => DataMapper.addExitingInputRecord("CredentialsConfig"));
+
+    it("Add new output record from existing records", () => {
+        DataMapper.addExitingOutputRecord("Output", true);
+        DataMapper.clickConfigUpdateBtn();
+    });
+
+    it("Save data mapper config", () => DataMapper.saveConfig());
+
+    it("Canvas contains source and target nodes", () => {
+        DataMapper.getSourceNode("input");
+        DataMapper.getSourceNode("credentialsConfig");
+        DataMapper.getTargetNode("listConstructor", "array");
+    });
+
+    it("Generated source code is valid", () => {
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + EXISTING_RECORDS_ARRAY_BAL_FILE);
     });
 });
 
@@ -93,39 +159,39 @@ describe("Edit existing data mapper record types", () => {
 
     it("Shows diagnostics for invalid function name", () => {
         DataMapper.clearFunctionName();
-        DataMapper.containsInvalidFnName()
+        DataMapper.containsInvalidFnName();
     });
 
     it("Update with a valid function name", () => {
         DataMapper.updateFunctionName("updatedFunctionName");
-        DataMapper.containsValidFnName()
+        DataMapper.containsValidFnName();
     });
 
     it("Update first input record", () => {
         DataMapper.editInputRecord(0);
-        DataMapper.selectInputRecord("UpdatedInput", "Input");
+        DataMapper.selectInputRecord("UpdatedInput");
     });
 
     it("Delete second input record", () => DataMapper.deleteInputRecord(1));
 
     it("Delete output record and select new output record", () => {
-        DataMapper.deleteOutputRecord()
+        DataMapper.deleteOutputRecord();
         DataMapper.addExitingOutputRecord("UpdatedOutput");
         DataMapper.clickConfigUpdateBtn();
     });
 
     it("Save data mapper config", () => {
-        DataMapper.saveConfig()
-        DataMapper.confirmSaveConfig()
+        DataMapper.saveConfig();
+        DataMapper.confirmSaveConfig();
     });
 
     it("Canvas contains the updated source and target nodes", () => {
         DataMapper.getSourceNode("updatedInput");
-        DataMapper.getTargetNode("UpdatedOutput");
+        DataMapper.getTargetNode("mappingConstructor", "UpdatedOutput");
     });
 
     it("Generated source code is valid", () => {
-        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-from-updated-config.bal");
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + UPDATED_CONFIG_BAL_FILE);
     });
 });
 

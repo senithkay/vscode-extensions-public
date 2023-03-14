@@ -24,3 +24,5 @@ type Output record {
 };
 
 function transform() => {};
+
+function transform2(Input[] input, http:CredentialsConfig credentialsConfig) returns Output[] => [];

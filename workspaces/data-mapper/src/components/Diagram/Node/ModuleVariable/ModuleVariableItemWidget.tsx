@@ -48,7 +48,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
     const isRecord = typeDesc.typeName === PrimitiveBalType.Record;
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto" }} data-testid={`module-var-widget-label-${id}`}>
             <span className={classes.valueLabel}>
                 {valueLabel ? valueLabel : id}
                 {typeName && ":"}
@@ -91,7 +91,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                     <IconButton
                         className={classes.expandIcon}
                         onClick={handleExpand}
-                        data-testid={`${id}-expand-icon-record-source-node`}
+                        data-testid={`${id}-expand-icon-module-var-node`}
                     >
                         {expanded ? <ExpandMoreIcon/> : <ChevronRightIcon/>}
                     </IconButton>
@@ -99,9 +99,13 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                     {label}
                 </span>
                 <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
-                    }
+                    {portOut && (
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portOut}
+                            dataTestId={`module-variable-port-${portOut.getName()}`}
+                        />
+                    )}
                 </span>
             </TreeHeader>
             {

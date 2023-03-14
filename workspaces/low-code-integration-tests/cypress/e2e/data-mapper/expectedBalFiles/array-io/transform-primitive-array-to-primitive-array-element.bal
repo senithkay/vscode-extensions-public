@@ -48,7 +48,10 @@ function inlineRecord2InlineRecord(record {int[] x;} input) returns record {int 
 
 function primitive2Primitive(string name) returns string => "";
 
-function primitiveArray2PrimitiveArray(string[] names) returns string[] => [];
+function primitiveArray2PrimitiveArray(string[] names) returns string[] => [
+    names.pop(),
+    ""
+];
 
 function record2PrimitiveArray(Input input) returns int[] => [];
 

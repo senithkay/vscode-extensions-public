@@ -56,7 +56,17 @@ function record2RecordArray(Input input) returns Output[] => [];
 
 function recordArray2RecordArray(Input[] input) returns Output[] => [];
 
-function record2Record2DArray(Input input) returns Output[][] => [];
+function record2Record2DArray(Input input) returns Output[][] => [
+    [
+        {
+            Items: from var ItemsItem in input.Items
+                select {
+                    Id: ItemsItem.Id,
+                    Confirmed:
+                }
+        }
+    ]
+];
 
 function localVar2Record(Input input) returns Output => let string strValue1 = "sampleText", SecondInput secondInput = {
         st1: "sampleText"
