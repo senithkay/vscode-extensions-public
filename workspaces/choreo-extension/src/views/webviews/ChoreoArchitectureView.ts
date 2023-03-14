@@ -12,15 +12,12 @@
  */
 
 import * as vscode from "vscode";
-import { Project } from "@wso2-enterprise/choreo-core";
 import { WebViewRpc } from "./rpc/WebviewRPC";
-import { ext } from "../../extensionVariables";
 import { getUri } from "./utils";
 
 export class ChoreoArchitectureView {
 	public static currentPanel: ChoreoArchitectureView | undefined;
 	private static _rpcHandler: WebViewRpc;
-	public static project: Project | undefined;
 	private readonly _panel: vscode.WebviewPanel;
 	private _disposables: vscode.Disposable[] = [];
 
@@ -29,16 +26,9 @@ export class ChoreoArchitectureView {
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
 		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, orgName, projectId);
-		if (!ChoreoArchitectureView._rpcHandler) {
-			ChoreoArchitectureView._rpcHandler = new WebViewRpc(this._panel);
-		} else if (ChoreoArchitectureView._rpcHandler.panel !== panel) {
+		if (!ChoreoArchitectureView._rpcHandler || ChoreoArchitectureView._rpcHandler.panel !== panel) {
 			ChoreoArchitectureView._rpcHandler = new WebViewRpc(this._panel);
 		}
-		this._panel.onDidChangeViewState(e => {
-			if (e.webviewPanel.visible) {
-				ext.api.projectUpdated();
-			}
-		});
 	}
 
 	public static render(extensionUri: vscode.Uri, orgName: string, projectId: string) {
@@ -47,9 +37,12 @@ export class ChoreoArchitectureView {
 			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
 			panel.reveal(vscode.ViewColumn.One);
 		} else {
-			const panel = vscode.window.createWebviewPanel("choreo-archi-view", "Choreo Architecture View", vscode.ViewColumn.One, {
-				enableScripts: true, retainContextWhenHidden: true
-			});
+			const panel = vscode.window.createWebviewPanel(
+				"choreo-archi-view",
+				"Choreo Architecture View",
+				vscode.ViewColumn.One,
+				{ enableScripts: true, retainContextWhenHidden: true }
+			);
 			ChoreoArchitectureView.currentPanel = new ChoreoArchitectureView(panel, extensionUri, orgName, projectId);
 		}
 	}

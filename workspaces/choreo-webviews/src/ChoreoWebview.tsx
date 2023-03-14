@@ -33,27 +33,28 @@ interface ChoreoWebviewProps {
     orgName?: string;
 }
 
-function switchViews(props: ChoreoWebviewProps) {
-    switch (props.type) {
-        case 'ProjectCreateForm':
-            return <ProjectWizard />;
-        case 'ComponentCreateForm':
-            return <ComponentWizard />;
-        case 'ProjectOverview':
-            return <ProjectOverview projectId={props.projectId} orgName={props.orgName} />;
-        case 'ChoreoArchitectureView':
-            return <ChoreoArchitectureView projectId={props.projectId} orgName={props.orgName} />;
-    }
-}
-
 function ChoreoWebview(props: ChoreoWebviewProps) {
-    const contextVal = usePopulateContext();
+    const { type, orgName, projectId } = props;
+
+    const switchViews = () => {
+        switch (type) {
+            case 'ProjectCreateForm':
+                return <ProjectWizard />;
+            case 'ComponentCreateForm':
+                return <ComponentWizard />;
+            case 'ProjectOverview':
+                return <ProjectOverview projectId={projectId} orgName={orgName} />;
+        }
+    }
 
     return (
         <Main>
-            <ChoreoWebViewContext.Provider value={contextVal}>
-                {switchViews(props)}
-            </ChoreoWebViewContext.Provider>
+            {type === 'ChoreoArchitectureView' ?
+                <ChoreoArchitectureView projectId={projectId} orgName={orgName} /> :
+                <ChoreoWebViewContext.Provider value={usePopulateContext()}>
+                    {switchViews()}
+                </ChoreoWebViewContext.Provider>
+            }
         </Main>
     );
 }
