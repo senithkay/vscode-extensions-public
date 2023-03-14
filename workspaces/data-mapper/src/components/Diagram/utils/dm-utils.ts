@@ -1312,7 +1312,7 @@ export const getOptionalArrayField = (field: Type): Type | undefined => {
 /** Filter out error and nill types and return only the types that can be displayed as mapping as target nodes */
 export const getFilteredUnionOutputTypes = (type: Type) => type.members?.filter(member => member && !["error", "()"].includes(member.typeName));
 
-export const getSearchFilteredType = (typeDef: Type, varName?: string) => {
+export const getSearchFilteredInput = (typeDef: Type, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;
 	if (!searchValue) {
 		return typeDef;

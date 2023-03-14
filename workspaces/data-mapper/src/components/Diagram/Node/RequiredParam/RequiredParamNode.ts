@@ -16,7 +16,7 @@ import { NodePosition, RequiredParam } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
-import { getSearchFilteredType, getTypeOfInputParam } from "../../utils/dm-utils";
+import { getSearchFilteredInput, getTypeOfInputParam } from "../../utils/dm-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const REQ_PARAM_NODE_TYPE = "datamapper-node-required-param";
@@ -60,7 +60,7 @@ export class RequiredParamNode extends DataMapperNodeModel {
         const typeDef = getTypeOfInputParam(this.value, this.context.ballerinaVersion);
 
         const matchesParamName = this.value?.paramName?.value?.toLowerCase()?.includes(searchValue?.toLowerCase());
-        this.typeDef = matchesParamName ? typeDef : getSearchFilteredType(typeDef,  this.value?.paramName?.value);
+        this.typeDef = matchesParamName ? typeDef : getSearchFilteredInput(typeDef,  this.value?.paramName?.value);
 
         return this.typeDef
     }

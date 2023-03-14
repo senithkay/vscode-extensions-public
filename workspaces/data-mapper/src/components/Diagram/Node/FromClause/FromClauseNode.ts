@@ -22,7 +22,7 @@ import {
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getOptionalArrayField, getSearchFilteredType, getTypeFromStore } from "../../utils/dm-utils";
+import { getOptionalArrayField, getSearchFilteredInput, getTypeFromStore } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc";
@@ -83,7 +83,7 @@ export class FromClauseNode extends DataMapperNodeModel {
         }
 
         if (type && type?.memberType && type.typeName === PrimitiveBalType.Array) {
-            this.typeDef = getSearchFilteredType(type.memberType, this.sourceBindingPattern?.variableName?.value);
+            this.typeDef = getSearchFilteredInput(type.memberType, this.sourceBindingPattern?.variableName?.value);
         }
         return this.typeDef;
     }

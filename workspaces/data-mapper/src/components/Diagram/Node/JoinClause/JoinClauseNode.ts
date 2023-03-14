@@ -26,7 +26,7 @@ import {
 import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getFilteredSubFields, getOptionalRecordField, getSearchFilteredType } from "../../utils/dm-utils";
+import { getFilteredSubFields, getOptionalRecordField, getSearchFilteredInput } from "../../utils/dm-utils";
 import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
@@ -114,13 +114,13 @@ export class JoinClauseNode extends DataMapperNodeModel {
                 const optionalRecordField = getOptionalRecordField(type);
                 const name = this.sourceBindingPattern.variableName.value;
                 if (optionalRecordField) {
-                    this.typeDef = getSearchFilteredType({ ...optionalRecordField, optional: true }, name);
+                    this.typeDef = getSearchFilteredInput({ ...optionalRecordField, optional: true }, name);
                 }else if (type && type.typeName === PrimitiveBalType.Record) {
-                    this.typeDef = getSearchFilteredType(type, name);
+                    this.typeDef = getSearchFilteredInput(type, name);
                 } else if (type && type.typeName === PrimitiveBalType.Array) {
-                    this.typeDef = getSearchFilteredType(type.memberType, name);
+                    this.typeDef = getSearchFilteredInput(type.memberType, name);
                 } else {
-                    this.typeDef = getSearchFilteredType({ ...type, name: (expr as SimpleNameReference)?.name?.value }, name)
+                    this.typeDef = getSearchFilteredInput({ ...type, name: (expr as SimpleNameReference)?.name?.value }, name)
                 }
             }
         }

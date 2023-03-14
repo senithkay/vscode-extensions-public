@@ -25,7 +25,7 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { getLetExpressions } from "../../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isGoToQueryWithinLetExprSupported } from "../../../DataMapper/utils";
 import { LET_EXPRESSION_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getFilteredSubFields, getSearchFilteredType, getTypeFromStore, getTypeOfOutput } from "../../utils/dm-utils";
+import { getFilteredSubFields, getSearchFilteredInput, getTypeFromStore, getTypeOfOutput } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const LET_EXPR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-let-expression";
@@ -76,7 +76,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
                             ? getTypeOfOutput(varName, this.context.ballerinaVersion)
                             : getTypeFromStore(exprPosition);
 
-                        const type = getSearchFilteredType(typeWithoutFilter, varName.value);
+                        const type = getSearchFilteredInput(typeWithoutFilter, varName.value);
 
                         if (type) {
                             const parentPort = this.addPortsForHeaderField(type, varName.value, "OUT",
