@@ -489,6 +489,7 @@ importers:
       react-scripts: ^5.0.1
       rewire: ^5.0.0
       sass-loader: ^13.2.0
+      source-map-loader: ^4.0.1
       style-loader: ^3.3.1
       ts-loader: ^9.4.2
       typescript: ^4.9.4
@@ -523,6 +524,7 @@ importers:
       react-scripts: 5.0.1_n6jbt2ct7axfvzaf5e45ccvcqu
       rewire: 5.0.0
       sass-loader: 13.2.0_yxtresk4kz6s25y7yae2fy36vu
+      source-map-loader: 4.0.1_webpack@5.76.1
       style-loader: 3.3.2_webpack@5.76.1
       ts-loader: 9.4.2_cbz6r35m2it77sxuzifyafc6zi
       typescript: 4.9.5
