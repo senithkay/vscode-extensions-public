@@ -50,7 +50,8 @@ function primitive2Primitive(string name) returns string => "";
 
 function primitiveArray2PrimitiveArray(string[] names) returns string[] => [];
 
-function record2PrimitiveArray(Input input) returns int[] => [];
+function record2PrimitiveArray(Input input) returns int[] => from var ItemsItem in input.Items
+    select ItemsItem.count;
 
 function record2RecordArray(Input input) returns Output[] => [];
 

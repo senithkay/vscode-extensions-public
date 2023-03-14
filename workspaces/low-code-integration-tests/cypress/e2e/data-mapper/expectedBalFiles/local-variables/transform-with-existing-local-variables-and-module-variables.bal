@@ -61,4 +61,11 @@ function record2Record2DArray(Input input) returns Output[][] => [];
 function localVar2Record(Input input) returns Output => let string strValue1 = "sampleText", SecondInput secondInput = {
         st1: "sampleText"
     }
-    in {};
+    in {
+        st1: NAME + strValue1,
+        Items: from var ItemsItem in input.Items
+            select {
+                Id: moduleLevelRecord.st1 + secondInput.st1,
+                Confirmed:
+            }
+    };

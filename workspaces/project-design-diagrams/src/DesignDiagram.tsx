@@ -78,7 +78,7 @@ export function DesignDiagram(props: DiagramProps) {
 
     useEffect(() => {
         refreshDiagram();
-    }, []);
+    }, [props]);
 
     useEffect(() => {
         // Navigate to the type composition view if a type is already selected

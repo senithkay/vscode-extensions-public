@@ -58,7 +58,9 @@ function recordArray2RecordArray(Input[] input) returns Output[] => [];
 
 function record2Record2DArray(Input input) returns Output[][] => [];
 
-function localVar2Record(Input input) returns Output => let string strValue1 = "sampleText", SecondInput secondInput = {
+function localVar2Record(Input input) returns Output => let string strValue1Renamed = "sampleTextNew", var strValue2 = strValue1Renamed, SecondInput secondInput = {
         st1: "sampleText"
     }
-    in {};
+    in {
+        st1: secondInput.st1 + strValue1Renamed + input.st3
+    };
