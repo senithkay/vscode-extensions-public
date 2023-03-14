@@ -25,7 +25,7 @@ import { SxProps } from '@mui/material';
 import { DiagramContext } from '../../components/common';
 import { Colors } from '../../resources';
 
-const Container = styled.div`
+const Container: React.FC<any> = styled.div`
     position: ${(props: { letFloat: boolean }) => props.letFloat ? 'relative' : 'absolute'};
     bottom: 15px;
     left: 15px;

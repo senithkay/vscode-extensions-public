@@ -500,7 +500,7 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
-      "packageName": "project-design-diagrams",
+      "packageName": "@wso2-enterprise/project-design-diagrams",
       "projectFolder": "workspaces/project-design-diagrams",
       "versionPolicyName": "ballerina-extension"
     },

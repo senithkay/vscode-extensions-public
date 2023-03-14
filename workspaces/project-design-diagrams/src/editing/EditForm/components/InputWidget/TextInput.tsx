@@ -59,7 +59,7 @@ export function TextInputWidget(props: TextFieldProps) {
                 value={value}
                 error={displayError}
                 required={required}
-                onChange={(e) => onChangeText(e)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChangeText(e)}
                 sx={TextFieldStyles}
                 inputProps={{ style: DefaultTextProps }}
             />
