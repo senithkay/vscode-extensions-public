@@ -19,6 +19,8 @@ import { GraphqlServiceLinkModel } from "../../Link/GraphqlServiceLink/GraphqlSe
 import { GraphqlDesignNode } from "../../Nodes/BaseNode/GraphqlDesignNode";
 import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
 import { GraphqlServiceNodeModel } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
+import { HierarchicalNodeModel } from "../../Nodes/HierarchicalResourceNode/HierarchicalNodeModel";
+import { InterfaceNodeModel } from "../../Nodes/InterfaceNode/InterfaceNodeModel";
 import { RecordNodeModel } from "../../Nodes/RecordNode/RecordNodeModel";
 import { ServiceClassNodeModel } from "../../Nodes/ServiceClassNode/ServiceClassNodeModel";
 import { UnionNodeModel } from "../../Nodes/UnionNode/UnionNodeModel";
@@ -27,7 +29,9 @@ import {
     EnumComponent,
     FunctionType,
     GraphqlDesignModel,
+    HierarchicalResourceComponent,
     Interaction,
+    InterfaceComponent,
     RecordComponent,
     RemoteFunction,
     ResourceFunction,
@@ -65,9 +69,15 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel): Diagram
         const unions: Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
         unionModelMapper(unions);
     }
-    // TODO: generate nodes for service-classes/ unions
+    if (graphqlModel.interfaces) {  
+        const interfaces: Map<string, InterfaceComponent> = new Map(Object.entries(graphqlModel.interfaces));
+        interfaceModelMapper(interfaces);
+    }
+    if(graphqlModel.hierarchicalResources){
+        const hierarchicalResources: Map<string, HierarchicalResourceComponent> = new Map(Object.entries(graphqlModel.hierarchicalResources));
+        hierarchicalResourceModelMapper(hierarchicalResources);
+    }
 
-    // TODO:  generate secondary links for - service/records/enums
     generateLinks(graphqlModel);
 
 
@@ -109,6 +119,20 @@ function unionModelMapper(unions: Map<string, UnionComponent>) {
     });
 }
 
+function interfaceModelMapper(interfaces: Map<string, InterfaceComponent>) {
+    interfaces.forEach((interfaceObj, key) => {
+        const interfaceType = new InterfaceNodeModel(interfaceObj);
+        diagramNodes.set(key, interfaceType);
+    });
+}
+
+function hierarchicalResourceModelMapper(hierarchicalResources: Map<string, HierarchicalResourceComponent>) {
+    hierarchicalResources.forEach((hierarchicalResourceObj, key) => {
+        const hierarchicalResource = new HierarchicalNodeModel(hierarchicalResourceObj);
+        diagramNodes.set(key, hierarchicalResource);
+    });
+}
+
 function generateLinks(graphqlModel: GraphqlDesignModel) {
     // create links for graphqlService
     generateLinksForGraphqlService(graphqlModel.graphqlService);
@@ -117,9 +141,22 @@ function generateLinks(graphqlModel: GraphqlDesignModel) {
         const unions: Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
         generateLinksForUnions(unions);
     }
-
-    // TODO: create links for records, service-class
-
+    if (graphqlModel.interfaces){
+        const interfaces: Map<string, InterfaceComponent> = new Map(Object.entries(graphqlModel.interfaces));
+        generateLinksForInterfaces(interfaces);
+    }
+    if (graphqlModel.records){
+        const records: Map<string, RecordComponent> = new Map(Object.entries(graphqlModel.records));
+        generateLinksForRecords(records);
+    }
+    if (graphqlModel.serviceClasses) {
+        const serviceClasses: Map<string, ServiceClassComponent> = new Map(Object.entries(graphqlModel.serviceClasses));
+        generateLinksForServiceClasses(serviceClasses);
+    }
+    if (graphqlModel.hierarchicalResources) {
+        const hierarchicalResources: Map<string, HierarchicalResourceComponent> = new Map(Object.entries(graphqlModel.hierarchicalResources));
+        generateLinksForHierarchicalResources(hierarchicalResources);
+    }
 }
 
 function generateLinksForGraphqlService(service: Service) {
@@ -143,7 +180,7 @@ function generateLinksForUnions(unions: Map<string, UnionComponent>) {
                 const targetNode: GraphqlDesignNode = diagramNodes.get(interaction.componentName);
                 if (targetNode) {
                     const sourceNode: GraphqlDesignNode = diagramNodes.get(union.name);
-                    const link: GraphqlBaseLinkModel = setUnionLinks(sourceNode, targetNode, interaction);
+                    const link: GraphqlBaseLinkModel = setPossibleTypeLinks(sourceNode, targetNode, interaction);
                     nodeLinks.push(link);
                 }
             }
@@ -151,7 +188,87 @@ function generateLinksForUnions(unions: Map<string, UnionComponent>) {
     })
 }
 
-function setUnionLinks(sourceNode: GraphqlDesignNode, targetNode: GraphqlDesignNode, interaction: Interaction){
+function generateLinksForInterfaces(interfaces: Map<string, InterfaceComponent>) {
+    interfaces.forEach(interfaceObj => {
+        interfaceObj.possibleTypes.forEach(interaction => {
+            if (diagramNodes.has(interaction.componentName)) {
+                const targetNode: GraphqlDesignNode = diagramNodes.get(interaction.componentName);
+                if (targetNode) {
+                    const sourceNode: GraphqlDesignNode = diagramNodes.get(interfaceObj.name);
+                    const link: GraphqlBaseLinkModel = setPossibleTypeLinks(sourceNode, targetNode, interaction);
+                    nodeLinks.push(link);
+                }
+            }
+        })
+    })
+}
+
+function generateLinksForRecords(records: Map<string, RecordComponent>) {
+    records.forEach(record => {
+        record.recordFields.forEach(field => {
+            field.interactions.forEach(interaction => {
+                if (diagramNodes.has(interaction.componentName)) {
+                    const targetNode: GraphqlDesignNode = diagramNodes.get(interaction.componentName);
+                    if (targetNode) {
+                        const sourceNode: GraphqlDesignNode = diagramNodes.get(record.name);
+                        const sourcePortId = field.name;
+                        const link: GraphqlBaseLinkModel = setInteractionLinks(sourceNode, sourcePortId, targetNode, interaction);
+                    nodeLinks.push(link);
+                    }
+                }
+            })
+        })
+    })
+}
+
+function generateLinksForServiceClasses(serviceClasses: Map<string, ServiceClassComponent>) {
+    serviceClasses.forEach(serviceClass => {
+        serviceClass.functions.forEach(func => {
+            func.interactions.forEach(interaction => {
+                if (diagramNodes.has(interaction.componentName)) {
+                    const targetNode: GraphqlDesignNode = diagramNodes.get(interaction.componentName);
+                    if (targetNode) {
+                        const sourceNode: GraphqlDesignNode = diagramNodes.get(serviceClass.serviceName);
+                        const sourcePortId = func.identifier;
+                        const link: GraphqlBaseLinkModel = setInteractionLinks(sourceNode, sourcePortId, targetNode, interaction);
+                        nodeLinks.push(link);
+                    }
+                }
+            })
+        })
+    })
+}
+
+function generateLinksForHierarchicalResources(hierarchicalResources: Map<string, HierarchicalResourceComponent>) {
+    hierarchicalResources.forEach(resource => {
+        resource.hierarchicalResources.forEach(hierrarchicalResource => {
+            hierrarchicalResource.interactions.forEach(interaction => {
+                if (diagramNodes.has(interaction.componentName)) {
+                    const targetNode: GraphqlDesignNode = diagramNodes.get(interaction.componentName);
+                    if (targetNode) {
+                        const sourceNode: GraphqlDesignNode = diagramNodes.get(resource.name);
+                        const sourcePortId = hierrarchicalResource.identifier;
+                        const link: GraphqlBaseLinkModel = setInteractionLinks(sourceNode, sourcePortId, targetNode, interaction);
+                        nodeLinks.push(link);
+                    }
+                }
+            })
+        })
+    })
+}
+
+function setInteractionLinks(sourceNode: GraphqlDesignNode, sourcePortId: string, targetNode: GraphqlDesignNode, interaction: Interaction){
+    const sourcePort = sourceNode.getPortFromID(`right-${sourcePortId}`);
+    const targetPort = targetNode.getPortFromID(`left-${interaction.componentName}`);
+    if (sourcePort && targetPort) {
+        const link: DefaultLinkModel = new DefaultLinkModel();
+        return createLink(sourcePort, targetPort, link);
+    }
+}
+
+
+
+function setPossibleTypeLinks(sourceNode: GraphqlDesignNode, targetNode: GraphqlDesignNode, interaction: Interaction){
     const unionComponent = interaction.componentName;
     const sourcePort = sourceNode.getPortFromID(`right-${unionComponent}`);
     const targetPort = targetNode.getPortFromID(`left-${unionComponent}`);

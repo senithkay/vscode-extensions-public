@@ -17,6 +17,8 @@ import { GraphqlDefaultLinkFactory } from "../Link/DefaultLink/GraphqlDefaultLin
 import { GraphqlServiceLinkFactory } from "../Link/GraphqlServiceLink/GraphqlServiceLinkFactory";
 import { EnumNodeFactory } from "../Nodes/EnumNode/EnumNodeFactory";
 import { GraphqlServiceNodeFactory } from "../Nodes/GraphqlServiceNode/GraphqlServiceNodeFactory";
+import { HierarchicalNodeFactory } from "../Nodes/HierarchicalResourceNode/HierarchicalNodeFactory";
+import { InterfaceNodeFactory } from "../Nodes/InterfaceNode/InterfaceNodeFactory";
 import { RecordNodeFactory } from "../Nodes/RecordNode/RecordNodeFactory";
 import { ServiceClassNodeFactory } from "../Nodes/ServiceClassNode/ServiceClassNodeFactory";
 import { UnionNodeFactory } from "../Nodes/UnionNode/UnionNodeFactory";
@@ -36,5 +38,7 @@ export function createGraphqlDiagramEngine(): DiagramEngine {
     diagramEngine.getNodeFactories().registerFactory(new RecordNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new ServiceClassNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new UnionNodeFactory());
+    diagramEngine.getNodeFactories().registerFactory(new InterfaceNodeFactory());
+    diagramEngine.getNodeFactories().registerFactory(new HierarchicalNodeFactory());
     return diagramEngine;
 }
