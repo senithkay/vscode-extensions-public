@@ -69,11 +69,11 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel): Diagram
         const unions: Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
         unionModelMapper(unions);
     }
-    if (graphqlModel.interfaces) {  
+    if (graphqlModel.interfaces) {
         const interfaces: Map<string, InterfaceComponent> = new Map(Object.entries(graphqlModel.interfaces));
         interfaceModelMapper(interfaces);
     }
-    if(graphqlModel.hierarchicalResources){
+    if (graphqlModel.hierarchicalResources) {
         const hierarchicalResources: Map<string, HierarchicalResourceComponent> = new Map(Object.entries(graphqlModel.hierarchicalResources));
         hierarchicalResourceModelMapper(hierarchicalResources);
     }
@@ -137,15 +137,15 @@ function generateLinks(graphqlModel: GraphqlDesignModel) {
     // create links for graphqlService
     generateLinksForGraphqlService(graphqlModel.graphqlService);
 
-    if (graphqlModel.unions){
+    if (graphqlModel.unions) {
         const unions: Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
         generateLinksForUnions(unions);
     }
-    if (graphqlModel.interfaces){
+    if (graphqlModel.interfaces) {
         const interfaces: Map<string, InterfaceComponent> = new Map(Object.entries(graphqlModel.interfaces));
         generateLinksForInterfaces(interfaces);
     }
-    if (graphqlModel.records){
+    if (graphqlModel.records) {
         const records: Map<string, RecordComponent> = new Map(Object.entries(graphqlModel.records));
         generateLinksForRecords(records);
     }
@@ -213,7 +213,7 @@ function generateLinksForRecords(records: Map<string, RecordComponent>) {
                         const sourceNode: GraphqlDesignNode = diagramNodes.get(record.name);
                         const sourcePortId = field.name;
                         const link: GraphqlBaseLinkModel = setInteractionLinks(sourceNode, sourcePortId, targetNode, interaction);
-                    nodeLinks.push(link);
+                        nodeLinks.push(link);
                     }
                 }
             })
@@ -257,7 +257,7 @@ function generateLinksForHierarchicalResources(hierarchicalResources: Map<string
     })
 }
 
-function setInteractionLinks(sourceNode: GraphqlDesignNode, sourcePortId: string, targetNode: GraphqlDesignNode, interaction: Interaction){
+function setInteractionLinks(sourceNode: GraphqlDesignNode, sourcePortId: string, targetNode: GraphqlDesignNode, interaction: Interaction) {
     const sourcePort = sourceNode.getPortFromID(`right-${sourcePortId}`);
     const targetPort = targetNode.getPortFromID(`left-${interaction.componentName}`);
     if (sourcePort && targetPort) {
@@ -266,9 +266,7 @@ function setInteractionLinks(sourceNode: GraphqlDesignNode, sourcePortId: string
     }
 }
 
-
-
-function setPossibleTypeLinks(sourceNode: GraphqlDesignNode, targetNode: GraphqlDesignNode, interaction: Interaction){
+function setPossibleTypeLinks(sourceNode: GraphqlDesignNode, targetNode: GraphqlDesignNode, interaction: Interaction) {
     const unionComponent = interaction.componentName;
     const sourcePort = sourceNode.getPortFromID(`right-${unionComponent}`);
     const targetPort = targetNode.getPortFromID(`left-${unionComponent}`);
@@ -291,7 +289,7 @@ function mapFunctionInteraction(sourceNode: GraphqlDesignNode, func: ResourceFun
 }
 
 function setGraphqlServiceLinks(sourceNode: GraphqlDesignNode, targetNode: GraphqlDesignNode,
-                                func: ResourceFunction | RemoteFunction, functionType: FunctionType, interaction?: Interaction) {
+    func: ResourceFunction | RemoteFunction, functionType: FunctionType, interaction?: Interaction) {
     let sourcePort: GraphqlNodeBasePort;
     let targetPort: GraphqlNodeBasePort;
 
