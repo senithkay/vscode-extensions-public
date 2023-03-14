@@ -24,7 +24,7 @@ import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -36,6 +36,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
+    getDefaultRecordValue,
     getDefaultValue,
     getExprBodyFromLetExpression,
     getFieldName,
@@ -97,6 +98,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const valExpr = body && STKindChecker.isSpecificField(body) ? body.valueExpr : body;
     const hasValue = valExpr && !!valExpr.source;
     const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);
+    const isUnion = field.type?.memberType?.typeName === PrimitiveBalType.Union || field.type.typeName === PrimitiveBalType.Union;
     const typeName = getTypeName(field.type);
     const elements = field.elements;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
@@ -123,8 +125,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         indentation += 24;
     }
 
-    let isDisabled = portIn.descendantHasValue;
-    if (!isDisabled) {
+    let isDisabled = !!portIn?.descendantHasValue;
+    if (!isDisabled && portIn) {
         if (listConstructor && expanded && portIn.parentModel) {
             portIn.setDescendantHasValue();
             isDisabled = true;
@@ -312,11 +314,11 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
-    const handleAddArrayElement = async (typeNameStr: string) => {
+    const handleAddArrayElement = async (type: Type) => {
         setIsAddingElement(true)
         try {
             const fieldsAvailable = !!listConstructor.expressions.length;
-            const defaultValue = getDefaultValue(typeNameStr);
+            const defaultValue = isUnion ? getDefaultRecordValue(type) : getDefaultValue(type?.typeName);
             let targetPosition: NodePosition;
             let newElementSource: string;
             if (fieldsAvailable) {
@@ -350,10 +352,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         || field.type?.originalTypeName === AnydataType;
 
     const onAddElementClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (isAnydataType) {
+        if (isAnydataType || isUnion) {
             addElementSetAnchorEl(event.currentTarget)
         } else {
-            handleAddArrayElement(field?.type?.memberType?.typeName)
+            handleAddArrayElement(field?.type?.memberType)
         }
     }
 
@@ -362,10 +364,21 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const possibleTypeOptions = useMemo(() => {
         if (isAnydataType) {
             const anyDataConvertOptions: ValueConfigMenuItem[] = [];
-            anyDataConvertOptions.push({ title: `Add a primitive element`, onClick: () => handleAddArrayElement("()") })
-            anyDataConvertOptions.push({ title: `Add a record element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Record) })
-            anyDataConvertOptions.push({ title: `Add an array element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Array) })
+            anyDataConvertOptions.push({ title: `Add a primitive element`, onClick: () => handleAddArrayElement({ typeName: "()" }) })
+            anyDataConvertOptions.push({ title: `Add a record element`, onClick: () => handleAddArrayElement({ typeName: PrimitiveBalType.Record }) })
+            anyDataConvertOptions.push({ title: `Add an array element`, onClick: () => handleAddArrayElement({ typeName: PrimitiveBalType.Array }) })
             return anyDataConvertOptions;
+        } else if (isUnion) {
+            const memberTypeDescriptorName = field.value?.typeData?.typeSymbol?.memberTypeDescriptor?.name;
+            if (memberTypeDescriptorName) {
+                const matchingMember = field.type?.members?.find(member => member?.memberType?.name === memberTypeDescriptorName);
+                if (matchingMember && matchingMember?.memberType?.typeName === PrimitiveBalType.Union) {
+                    return matchingMember?.memberType?.members?.map(member => ({ title: `Add a ${member.name || member.typeName} element`, onClick: () => handleAddArrayElement(member) }));
+                } else if (matchingMember?.memberType?.typeName === PrimitiveBalType.Array) {
+                    return [{ title: `Add a ${matchingMember.memberType.name} element`, onClick: () => handleAddArrayElement(matchingMember.memberType) }]
+                }
+            }
+            return field.type?.memberType?.members?.map(member => ({ title: `Add a ${member.name || member.typeName} element`, onClick: () => handleAddArrayElement(member) }));
         }
     }, [])
 
@@ -453,7 +466,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         >
                             Add Element
                         </Button>
-                        {isAnydataType && (
+                        {possibleTypeOptions?.length > 0 && (
                             <Menu
                                 anchorEl={addElementAnchorEl}
                                 open={addMenuOpen}

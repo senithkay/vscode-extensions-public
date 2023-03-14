@@ -54,6 +54,7 @@ import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel"
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
     constructTypeFromSTNode,
+    getAssignedUnionType,
     getExprBodyFromLetExpression,
     getFilteredUnionOutputTypes,
     getInputNodes,
@@ -107,6 +108,14 @@ export class NodeInitVisitor implements Visitor {
                     STKindChecker.isQueryExpression(exprFuncBody.expression.containerExpression.expression)
                 ) {
                     bodyExpr = exprFuncBody.expression.containerExpression.expression;
+                }
+
+                if (returnType?.typeName === PrimitiveBalType.Union) {
+                    const matchingType = getAssignedUnionType(returnType, bodyExpr)
+                    if (matchingType){
+                        returnType = matchingType;
+                        returnType.originalTypeName = PrimitiveBalType.Union;
+                    }
                 }
 
                 if (STKindChecker.isQueryExpression(bodyExpr)) {
@@ -204,43 +213,14 @@ export class NodeInitVisitor implements Visitor {
                             );
                         }
                     }
-                } else if (returnType.typeName === PrimitiveBalType.Record) {
+                } else if (STKindChecker.isMappingConstructor(bodyExpr)) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         exprFuncBody,
                         typeDesc,
                         returnType
                     );
-                } else if (returnType.typeName === PrimitiveBalType.Union) {
-                    const acceptedTypes = getFilteredUnionOutputTypes(returnType);
-                    // If union type, remove error/nil types and proceed if only one type is remaining
-                    if (acceptedTypes.length === 1){
-                        const unionReturnType = acceptedTypes[0];
-                        if (unionReturnType.typeName === PrimitiveBalType.Record){
-                            this.outputNode = new MappingConstructorNode(
-                                this.context,
-                                exprFuncBody,
-                                typeDesc,
-                                returnType
-                            );
-                        } else if (unionReturnType.typeName === PrimitiveBalType.Array) {
-                            this.outputNode = new ListConstructorNode(
-                                this.context,
-                                exprFuncBody,
-                                typeDesc,
-                                returnType
-                            );
-                        } else {
-                            this.outputNode = new PrimitiveTypeNode(
-                                this.context,
-                                exprFuncBody,
-                                typeDesc,
-                                returnType
-                            );
-                        }
-                    }
-
-                } else if (returnType.typeName === PrimitiveBalType.Array) {
+                } else if (STKindChecker.isListConstructor(bodyExpr)) {
                     this.outputNode = new ListConstructorNode(
                         this.context,
                         exprFuncBody,

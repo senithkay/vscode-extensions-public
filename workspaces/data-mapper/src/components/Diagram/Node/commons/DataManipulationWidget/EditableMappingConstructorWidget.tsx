@@ -13,23 +13,26 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from 'react';
 
+import { CircularProgress } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { AnydataType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { AnydataType, PrimitiveBalType, Type } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
-import { getNewFieldAdditionModification, isEmptyValue } from "../../../utils/dm-utils";
+import { getDefaultRecordValue, getNewFieldAdditionModification, isEmptyValue } from "../../../utils/dm-utils";
+import { getModification } from '../../../utils/modifications';
 import { AddRecordFieldButton } from '../AddRecordFieldButton';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
+import { ValueConfigMenu } from './ValueConfigButton';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -87,7 +90,13 @@ const useStyles = makeStyles((theme: Theme) =>
 			height: "25px",
 			width: "25px",
 			marginLeft: "auto"
-		}
+		},
+		loader: {
+			float: "right",
+			marginLeft: "auto",
+			marginRight: '3px',
+			alignSelf: 'center'
+		},
 	}),
 );
 
@@ -103,6 +112,7 @@ export interface EditableMappingConstructorWidgetProps {
 	mappings?: FieldAccessToSpecificFied[];
 	deleteField?: (node: STNode) => Promise<void>;
 	originalTypeName?: string;
+	type: Type;
 }
 
 
@@ -118,9 +128,11 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		mappings,
 		valueLabel,
 		deleteField,
-		originalTypeName
+		originalTypeName,
+		type
 	} = props;
 	const classes = useStyles();
+	const [isLoading, setIsLoading] = useState(false);
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
@@ -128,6 +140,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
 	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
 	const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
+	const isUnion = type?.typeName === PrimitiveBalType.Union || originalTypeName === PrimitiveBalType.Union;
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
 		if (mapping.value) {
 			return !isEmptyValue(mapping.value.position);
@@ -193,7 +206,18 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 			}
 		})
 		return fieldNames;
-	}, [editableRecordFields])
+	}, [editableRecordFields]);
+
+	const handleChangeUnionType = async (unionTypeMember: Type) => {
+		setIsLoading(true);
+		try {
+			const defaultValue = getDefaultRecordValue(unionTypeMember);
+			const modification = [getModification(defaultValue, value?.position)];
+			await context.applyModifications(modification);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
@@ -224,6 +248,16 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					</IconButton>
 					{label}
 				</span>
+				{isLoading && <CircularProgress size={18} className={classes.loader} />}
+				{!isLoading && isUnion && (
+					<ValueConfigMenu
+						menuItems={type?.members?.map((member) => ({
+							title: `Reinitialize as ${member.name || member.typeName}`,
+							onClick: () => handleChangeUnionType(member),
+						}))}
+						portName={portIn?.getName()}
+					/>
+				)}
 			</TreeHeader>
 			<TreeBody>
 				{expanded && editableRecordFields &&

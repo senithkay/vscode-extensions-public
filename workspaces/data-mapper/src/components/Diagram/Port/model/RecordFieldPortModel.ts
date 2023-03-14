@@ -12,10 +12,11 @@
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { SpecificField } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
-import { createSourceForMapping, modifySpecificFieldSource } from "../../utils/dm-utils";
+import { createSourceForMapping, isDefaultValue, modifySpecificFieldSource, replaceSpecificFieldValue } from "../../utils/dm-utils";
 import { IntermediatePortModel } from "../IntermediatePort";
 
 export interface RecordFieldNodeModelGenerics {
@@ -52,14 +53,19 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
-			sourcePortChanged: () => {
-				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
-			},
 			targetPortChanged: (async () => {
-				if (Object.keys(lm.getTargetPort().links).length === 1){
-					lm.addLabel(await createSourceForMapping(lm));
-				} else {
+				const targetPortHasLinks = Object.values(lm.getTargetPort().links)?.some(link => (link as DataMapperLinkModel)?.isActualLink);
+				const editableRecordField = (lm.getTargetPort() as RecordFieldPortModel).editableRecordField
+				const targetPortValue = (editableRecordField?.value as SpecificField)?.valueExpr?.source;
+				const hasDefaultAssignment = isDefaultValue(editableRecordField.type, targetPortValue);
+				if (hasDefaultAssignment) {
+					// Replace existing default value with new field
+					replaceSpecificFieldValue(lm)
+				} else if (targetPortHasLinks) {
+					// Append to existing value if there is already a value via link or a non default value
 					modifySpecificFieldSource(lm);
+				} else {
+					lm.addLabel(await createSourceForMapping(lm));
 				}
 			})
 		});
