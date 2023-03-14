@@ -104,7 +104,7 @@ export const useStyles = makeStyles(() =>
         },
         serviceList: {
             overflowY: "scroll",
-            maxHeight: "80%"
+            maxHeight: "90%"
         },
         expandAll: {
             textAlign: "right"
@@ -198,6 +198,9 @@ export const useStyles = makeStyles(() =>
         listenerText: {
             fontSize: 15,
             fontWeight: 200
+        },
+        addResource: {
+            height: '30px !important',
         }
     }),
 );

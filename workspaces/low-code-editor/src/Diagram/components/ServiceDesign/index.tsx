@@ -159,6 +159,10 @@ export function ServiceDesign(props: ServiceDesignProps) {
                                 {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
                             </span>
                         </div>
+                        <div className={classes.serviceConfigure} onClick={handlePlusClick} >
+                            <AddIcon />
+                            <div>Add Resource</div>
+                        </div>
                         <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
                             <SettingsIcon />
                             <div>Configure Service</div>
@@ -179,14 +183,6 @@ export function ServiceDesign(props: ServiceDesignProps) {
                         </>
                     </div>
 
-                    <div className={classes.plusButton}>
-                        <LinePrimaryButton
-                            text={"Add Resource"}
-                            onClick={handlePlusClick}
-                            dataTestId="add-new-btn"
-                            startIcon={<AddIcon />}
-                        />
-                    </div>
                 </>
             )}
 
