@@ -1,0 +1,95 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Ballerina Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/ballerina-extension"
+            ],
+            "env": {
+                "LS_EXTENSIONS_PATH": "",
+                "LSDEBUG": "false",
+                "WEB_VIEW_WATCH_MODE": "false",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000",
+                "BALLERINA_STAGE_CENTRAL": "false"
+            },
+            "outFiles": [
+                "${workspaceFolder}/workspaces/ballerina-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch"
+        },
+        {
+            "name": "Ballerina Extension Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "env": {
+                "LS_EXTENSIONS_PATH": "",
+                "LSDEBUG": "false",
+                "WEB_VIEW_WATCH_MODE": "false"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/ballerina-extension",
+                "--extensionTestsPath=${workspaceFolder}/workspaces/ballerina-extension/out/test"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/ballerina-extension/out/test/**/*.js"
+            ]
+        },
+        {
+            "name": "Choreo Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_DEV_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/choreo-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/choreo-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-choreo"
+        },
+        {
+            "name": "Choreo Extension Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_DEV_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/choreo-extension",
+                "--extensionTestsPath=${workspaceFolder}/workspaces/choreo-extension/dist/test/suite/index"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/choreo-extension/out/**/*.js",
+                "${workspaceFolder}/workspaces/choreo-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "tasks: watch-tests"
+        },
+        {
+            "name": "Debug Ballerina UI Tests",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/workspaces/ballerina-extension/node_modules/.bin/extest",
+            "args": [
+                "run-tests",
+                "${workspaceFolder}/workspaces/ballerina-extension/out/ui-test/*.js",
+                "--mocha_config",
+                "${workspaceFolder}/workspaces/ballerina-extension/ui-test/.mocharc.js"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "preLaunchTask": "npm: test-compile"
+        }
+    ]
+}
