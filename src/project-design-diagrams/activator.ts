@@ -25,7 +25,7 @@ import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../utils";
 import { render } from "./renderer";
 import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
-import { enrichChoreoMetadata, getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
+import { getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
 import { PALETTE_COMMANDS } from "../project/activator";
 
 let extInstance: BallerinaExtension;
@@ -104,12 +104,6 @@ async function setupWebviewPanel() {
                 methodName: "getComponentModel",
                 handler: (): Promise<Map<string, ComponentModel>> => {
                     return getComponentModel(langClient);
-                }
-            },
-            {
-                methodName: "enrichChoreoMetadata",
-                handler: (args: any[]): Promise<Map<string, ComponentModel>> => {
-                    return enrichChoreoMetadata(args[0]);
                 }
             },
             {

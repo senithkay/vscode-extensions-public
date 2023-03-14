@@ -11,11 +11,12 @@
  *  associated services.
  */
 import { commands } from "vscode";
-import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview } from "../constants";
+import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { ProjectOverview } from "../views/webviews/ProjectOverview";
 import { Organization, Project } from "@wso2-enterprise/choreo-core";
+import { ChoreoArchitectureView } from "../views/webviews/ChoreoArchitectureView";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
@@ -57,6 +58,12 @@ export function activateWizards() {
         }
     });
 
-
     ext.context.subscriptions.push(projectOverview);
+
+    // Register Cell Diagram Wizard
+    const choreoArchitectureView = commands.registerCommand(choreoArchitectureViewCmdId, (orgName: string, projectId: string) => {
+        ChoreoArchitectureView.render(ext.context.extensionUri, orgName, projectId);
+    });
+
+    ext.context.subscriptions.push(choreoArchitectureView);
 }

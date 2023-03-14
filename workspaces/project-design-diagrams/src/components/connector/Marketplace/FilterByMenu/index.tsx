@@ -12,7 +12,7 @@
  */
 // tslint:disable: jsx-no-multiline-js
 // tslint:disable: jsx-no-lambda
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 
 import { Divider, FormControlLabel, Typography } from "@material-ui/core";
 import { ChevronRight, ExpandMore } from "@material-ui/icons";
@@ -25,7 +25,7 @@ import menuItems from "./menuItems.json";
 import useStyles, { CustomCheckbox } from "./style";
 
 // Sample data for filter by menu items
-const { mainFilters, pricingCategories, connectorCategories } = menuItems;
+const { pricingCategories, connectorCategories } = menuItems;
 
 export interface FilterByMenuProps {
     filterValues: string[];

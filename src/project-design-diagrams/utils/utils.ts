@@ -54,21 +54,17 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<s
                     break;
                 }
             }
+
+            const choreoExt = await getChoreoExtAPI();
+            if (choreoExt) {
+                packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
+            }
             resolve(response.componentModels);
         }).catch((error) => {
             reject(error);
             terminateActivation(ERROR_MESSAGE);
         });
     });
-}
-
-export async function enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel>> {
-    let packageModels: Map<string, ComponentModel> = new Map(Object.entries(model));
-    const choreoExt = await getChoreoExtAPI();
-    if (choreoExt) {
-        packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
-    }
-    return model;
 }
 
 export async function checkIsChoreoProject(): Promise<boolean> {

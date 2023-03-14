@@ -123,6 +123,10 @@ export class ProjectRegistry {
         }
     }
 
+    async getDiagramModel(projectId: string, orgHandle: string): Promise<Component[]> {
+        return projectClient.getDiagramModel({ projId: projectId, orgHandle: orgHandle });
+    }
+
     async getPerformanceForecast(data: string): Promise<AxiosResponse> {
         return projectClient.getPerformanceForecastData(data)
             .then((result: any) => {

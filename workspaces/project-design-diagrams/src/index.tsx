@@ -28,7 +28,6 @@ export function renderDesignDiagrams(
     isChoreoProject: boolean,
     selectedNodeId: string,
     getComponentModel: () => Promise<Map<string, ComponentModel>>,
-    enrichChoreoMetadata: (model: Map<string, ComponentModel>) => Promise<Map<string, ComponentModel>>,
     showChoreoProjectOverview: () => Promise<void>,
     target: HTMLElement
 ) {
@@ -38,7 +37,6 @@ export function renderDesignDiagrams(
             isChoreoProject={isChoreoProject}
             selectedNodeId={selectedNodeId}
             getComponentModel={getComponentModel}
-            enrichChoreoMetadata={enrichChoreoMetadata}
             showChoreoProjectOverview={showChoreoProjectOverview}
             editLayerAPI={WebviewEditLayerAPI.getInstance()}
         />,
