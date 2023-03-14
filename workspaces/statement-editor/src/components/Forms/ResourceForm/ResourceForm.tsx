@@ -68,7 +68,7 @@ export function ResourceForm(props: FunctionProps) {
     const { model } = props;
     const {
         targetPosition, isEdit, onChange, onCancel, getLangClient, applyModifications,
-        changeInProgress, currentFile
+        changeInProgress, currentFile, fullST
     } = useContext(FormEditorContext);
 
     const classes = useStyles();
@@ -107,11 +107,10 @@ export function ResourceForm(props: FunctionProps) {
     };
 
 
-    useEffect(() => {
-        handleCompletions("", null, [22, 25], targetPosition);
+    const updateDiag = () => {
         const updatedDiagnostics = (model?.viewState.diagnosticsInRange.concat(model?.functionSignature?.returnTypeDesc?.viewState.diagnosticsInRange.concat(model?.functionBody?.viewState.diagnosticsInRange)));
         const typeRelated: Diagnostic[] = updatedDiagnostics?.filter((diag: any) => diag?.message.includes("unknown type"));
-        const componentDiag = currentComponentSyntaxDiag || [];
+        const componentDiag: StatementSyntaxDiagnostics[] = [];
         typeRelated.forEach(diag => {
             const newDiag: StatementSyntaxDiagnostics = {
                 message: diag.message,
@@ -119,8 +118,17 @@ export function ResourceForm(props: FunctionProps) {
             componentDiag.push(newDiag);
         })
         setCurrentComponentSyntaxDiag(componentDiag);
+    }
+    useEffect(() => {
+        handleCompletions("", null, [22, 25], targetPosition);
+        updateDiag();
     }, [model])
 
+
+    // When a type is created and full ST is updated trigger the onChange to remove diagnostics // TODO: Find a better fix
+    useEffect(() => {
+        handlePathChange(resourcePath);
+    }, [fullST]);
 
     let pathNameSemDiagnostics = "";
     let pathTypeSemDiagnostics = "";

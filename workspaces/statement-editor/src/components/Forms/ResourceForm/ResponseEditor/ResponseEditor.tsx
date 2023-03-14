@@ -218,7 +218,7 @@ export function ResponseEditor(props: ParamProps) {
                 defaultValue={anonymousValue}
                 onChange={handleNameChange}
                 disabled={false}
-                completions={completions}
+                completions={[]}
             />
         </>
     )
