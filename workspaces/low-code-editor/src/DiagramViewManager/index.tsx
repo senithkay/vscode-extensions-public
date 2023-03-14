@@ -86,16 +86,14 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (history.length > 0) {
             const { file, position, uid } = history[history.length - 1];
-            if (!uid) {
-                fetchST(file, uid ? { uid } : { position });
+            fetchST(file, uid ? { uid } : { position });
 
-                const currentProjectPath = projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
+            const currentProjectPath = projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
 
-                if (!currentProject || currentProject.name !== currentProjectPath.name) {
-                    setCurrentProject(currentProjectPath);
-                }
-                if (!focusFile || focusFile !== file) setFocusFile(file);
+            if (!currentProject || currentProject.name !== currentProjectPath.name) {
+                setCurrentProject(currentProjectPath);
             }
+            if (!focusFile || focusFile !== file) setFocusFile(file);
         } else {
             setFocusedST(undefined);
             setFocusUid(undefined);
@@ -309,6 +307,7 @@ export function DiagramViewManager(props: EditorProps) {
 
         const currentHistoryEntry = structuredClone(history[history.length - 1]);
         currentHistoryEntry.position = position;
+        currentHistoryEntry.uid = undefined;
         historyPush(currentHistoryEntry);
     }
 
