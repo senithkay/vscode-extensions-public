@@ -73,6 +73,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     const isInsideArray = props.isInsideArray;
     const isFeaturePreview = props.isFeaturePreview;
     const connectionConfigs = props.connectionConfig;
+    const isRequired = props.isRequired;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const [connectionAnchorEl, setConnectionAnchorEl] =
         React.useState<HTMLButtonElement | null>(null);
@@ -384,17 +385,44 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         );
     });
 
-    const iconButton = (
-        <Box>
+    function iconButtonWithToolTip() {
+        if (connectionConfigs === undefined || connectionConfigs.length === 0) {
+          return (
+            <Tooltip title="No global configurations defined. Please contact administrator">
+                <span>
+                    <IconButton
+                        size={"small"}
+                        className={classes.buttonConnections}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        onClick={handleConnectionClick}
+                        color={selectedValueRef ? "primary" : "default"}
+                        disabled={connectionConfigs ===  undefined || connectionConfigs.length === 0 ? true : false}
+                    >
+                        <SelectIcon />
+                    </IconButton>
+                </span>
+            </Tooltip>
+          );
+        }
+        return (
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleConnectionClick}
+                color={selectedValueRef ? "primary" : "default"}
+                disabled={connectionConfigs ===  undefined || connectionConfigs.length === 0 ? true : false}
             >
-               <SelectIcon />
+                <SelectIcon />
             </IconButton>
+        );
+      }
+
+    const iconButton = (
+        <Box>
+            {iconButtonWithToolTip}
         </Box>
     );
 
@@ -429,6 +457,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                     <Box flexGrow={1}>
                         <TextInput
                             fullWidth={true}
+                            required={isRequired}
                             margin="none"
                             placeholder={
                                 "Select config or Add values"

@@ -253,6 +253,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                         data-placement="top"
                         onClick={handleClick}
                         color={selectedValueRef ? "primary" : "default"}
+                        disabled={connectionConfigs ===  undefined || connectionConfigs.length === 0 ? true : false}
                     >
                         <SelectIcon />
                     </IconButton>
