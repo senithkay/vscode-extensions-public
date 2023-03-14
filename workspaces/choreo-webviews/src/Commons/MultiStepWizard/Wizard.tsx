@@ -22,7 +22,6 @@ const WizardContainer = styled.div`
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    height: 100%;
     width: 100%;
 `;
 
@@ -37,8 +36,7 @@ const WizardActionsContainer = styled.div`
 `;
 
 const StepContainer = styled.div`
-    width: 100%;
-    height: 60%;
+    min-height: 40%;
     padding: 15px;
 `;
 
