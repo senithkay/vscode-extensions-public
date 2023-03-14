@@ -17,13 +17,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
-
-import { ResourceFunction } from "../../resources/model";
-import { HierarchicalNodeModel } from "./HierarchicalNodeModel";
 import { ParametersPopup } from "../../Popup/ParametersPopup";
 import { popOverStyle } from "../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../Port/GraphqlBasePortWidget";
-import { NodeFieldContainer, FieldName, FieldType } from "../../resources/styles/styles";
+import { ResourceFunction } from "../../resources/model";
+import { FieldName, FieldType, NodeFieldContainer } from "../../resources/styles/styles";
+
+import { HierarchicalNodeModel } from "./HierarchicalNodeModel";
 
 interface ResourceFieldProps {
     engine: DiagramEngine;

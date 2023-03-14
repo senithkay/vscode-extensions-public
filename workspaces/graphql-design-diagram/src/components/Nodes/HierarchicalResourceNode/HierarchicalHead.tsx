@@ -14,11 +14,12 @@
 import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { GraphqlQueryIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
+import { GraphqlBasePortWidget } from "../../Port/GraphqlBasePortWidget";
+import { HeaderName, NodeHeader } from "../../resources/styles/styles";
 
 import { HierarchicalNodeModel } from "./HierarchicalNodeModel";
-import { GraphqlBasePortWidget } from "../../Port/GraphqlBasePortWidget";
-import { NodeHeader, HeaderName } from "../../resources/styles/styles";
-import { GraphqlQueryIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface HierarchicalHeadProps {
     engine: DiagramEngine;

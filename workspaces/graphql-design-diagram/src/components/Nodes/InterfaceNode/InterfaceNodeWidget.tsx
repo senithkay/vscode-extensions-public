@@ -16,13 +16,13 @@ import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
+import { NodeFieldContainer } from "../../resources/styles/styles";
 import { ServiceNode } from "../GraphqlServiceNode/styles/styles";
 
-import { InterfaceNodeModel } from "./InterfaceNodeModel";
 import { InterfaceHeadWidget } from "./InterfaceHead/InterfaceHead";
-import { ResourceFunctionCard } from "./ResourceFunctionCard/ResourceFunctionCard";
-import { NodeFieldContainer } from "../../resources/styles/styles";
 import { InterfaceImplWidget } from "./InterfaceImplementation/InterfaceImplementation";
+import { InterfaceNodeModel } from "./InterfaceNodeModel";
+import { ResourceFunctionCard } from "./ResourceFunctionCard/ResourceFunctionCard";
 
 interface InterfaceNodeWidgetProps {
     node: InterfaceNodeModel;
@@ -43,9 +43,9 @@ export function InterfaceNodeWidget(props: InterfaceNodeWidgetProps) {
             {node.interfaceObject.possibleTypes.length > 0 && (
                 <NodeFieldContainer>
                     <div>Implementations</div>
-                </NodeFieldContainer>  
+                </NodeFieldContainer>
             )}
-            {node.interfaceObject.possibleTypes.map((possibleType, index) => {  
+            {node.interfaceObject.possibleTypes.map((possibleType, index) => {
                 return (
                     <InterfaceImplWidget key={index} node={node} engine={engine} field={possibleType}/>
                 );

@@ -289,7 +289,7 @@ function mapFunctionInteraction(sourceNode: GraphqlDesignNode, func: ResourceFun
 }
 
 function setGraphqlServiceLinks(sourceNode: GraphqlDesignNode, targetNode: GraphqlDesignNode,
-    func: ResourceFunction | RemoteFunction, functionType: FunctionType, interaction?: Interaction) {
+                                func: ResourceFunction | RemoteFunction, functionType: FunctionType, interaction?: Interaction) {
     let sourcePort: GraphqlNodeBasePort;
     let targetPort: GraphqlNodeBasePort;
 

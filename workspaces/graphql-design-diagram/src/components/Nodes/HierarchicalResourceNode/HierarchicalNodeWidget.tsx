@@ -19,8 +19,8 @@ import { DiagramEngine } from "@projectstorm/react-diagrams";
 import { ServiceNode } from "../GraphqlServiceNode/styles/styles";
 
 
-import { HierarchicalNodeModel } from "./HierarchicalNodeModel";
 import { HierarchicalHeadWidget } from "./HierarchicalHead";
+import { HierarchicalNodeModel } from "./HierarchicalNodeModel";
 import { ResourceField } from "./ResourceField";
 
 interface HierarchicalNodeWidgetProps {
