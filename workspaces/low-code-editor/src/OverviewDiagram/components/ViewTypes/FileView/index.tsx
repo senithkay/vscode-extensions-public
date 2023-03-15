@@ -91,9 +91,8 @@ export function FileView(props: FileViewProps) {
         const categories: React.ReactElement[] = [];
 
         Object.keys(info.components).filter(key => info.components[key].length).forEach(key => {
-            const components = info.components[key].map((comp: ComponentViewInfo) => (
-                // tslint:disable-next-line: jsx-key
-                <ComponentView info={comp} updateSelection={updateSelection} />
+            const components = info.components[key].map((comp: ComponentViewInfo, index: number) => (
+                <ComponentView key={key + index} info={comp} updateSelection={updateSelection} />
             ))
             categories.push(
                 <>

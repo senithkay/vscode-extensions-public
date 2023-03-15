@@ -102,12 +102,12 @@ export function CategoryView(props: CategoryViewProps) {
         const fileSelectorOptions: React.ReactElement[] = [];
 
         fileSelectorOptions.push(
-            <option value={ALL_FILES}>{ALL_FILES}</option>
+            <option key={"all"} value={ALL_FILES}>{ALL_FILES}</option>
         );
         if (fileList && fileList.length > 0) {
-            fileList.forEach(fileEntry => [
+            fileList.forEach((fileEntry, optionIndex) => [
                 fileSelectorOptions.push(
-                    <option value={fileEntry.fileName}>{fileEntry.fileName}</option>
+                    <option key={optionIndex} value={fileEntry.fileName}>{fileEntry.fileName}</option>
                 )
             ])
         }
@@ -131,18 +131,17 @@ export function CategoryView(props: CategoryViewProps) {
 
     const categories: React.ReactElement[] = [];
 
-    Object.keys(currentComponents).filter(key => currentComponents[key].length).forEach(key => {
-        const components = currentComponents[key].map((comp: ComponentViewInfo) => (
-            // tslint:disable-next-line: jsx-key
-            <ComponentView key={comp.uid} info={comp} updateSelection={updateSelection} type={key} />
+    Object.keys(currentComponents).filter(key => currentComponents[key].length).forEach((key, categoryIndex) => {
+        const components = currentComponents[key].map((comp: ComponentViewInfo, compIndex: number) => (
+            <ComponentView key={key + compIndex} info={comp} updateSelection={updateSelection} type={key} />
         ))
         categories.push(
-            <>
+            <div className="category-container" key={key + categoryIndex}>
                 <h3>{key}</h3>
                 <div className="component-container">
                     {components}
                 </div>
-            </>
+            </div>
         )
     })
 
