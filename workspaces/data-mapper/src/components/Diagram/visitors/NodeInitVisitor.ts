@@ -116,8 +116,15 @@ export class NodeInitVisitor implements Visitor {
                     const matchingType = getAssignedUnionType(returnType, bodyExpr)
                     if (matchingType){
                         returnType = matchingType;
-                        returnType.originalTypeName = PrimitiveBalType.Union;
+                    } else if (STKindChecker.isMappingConstructor(bodyExpr)) {
+                        returnType = { 
+                            typeName: PrimitiveBalType.Record, 
+                            name: null,
+                            fields: [],
+                            members: returnType.members
+                        };
                     }
+                    returnType.originalTypeName = PrimitiveBalType.Union;
                 }
 
                 if (STKindChecker.isQueryExpression(bodyExpr)) {
