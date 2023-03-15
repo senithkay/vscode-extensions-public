@@ -202,6 +202,7 @@ jobs:
   LowCode_Test_Stage:
     name: Run low code tests
     needs: Build_Stage
+    if: ${{ !inputs.isPreRelease }}
     strategy:
       fail-fast: false
       matrix:
