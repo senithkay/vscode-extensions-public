@@ -12,7 +12,7 @@
  */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { SpecificField } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
@@ -56,9 +56,12 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 			targetPortChanged: (async () => {
 				const targetPortHasLinks = Object.values(lm.getTargetPort().links)?.some(link => (link as DataMapperLinkModel)?.isActualLink);
 				const editableRecordField = (lm.getTargetPort() as RecordFieldPortModel).editableRecordField
-				const targetPortValue = (editableRecordField?.value as SpecificField)?.valueExpr?.source;
-				const hasDefaultAssignment = isDefaultValue(editableRecordField.type, targetPortValue);
-				if (hasDefaultAssignment) {
+				let isSpecificFieldWithDefaultVal = false;
+				if (editableRecordField.value && STKindChecker.isSpecificField(editableRecordField.value)) {
+					const targetPortValue = editableRecordField?.value?.valueExpr?.source;
+					isSpecificFieldWithDefaultVal = isDefaultValue(editableRecordField.type, targetPortValue)
+				}
+				if (isSpecificFieldWithDefaultVal) {
 					// Replace existing default value with new field
 					replaceSpecificFieldValue(lm)
 				} else if (targetPortHasLinks) {

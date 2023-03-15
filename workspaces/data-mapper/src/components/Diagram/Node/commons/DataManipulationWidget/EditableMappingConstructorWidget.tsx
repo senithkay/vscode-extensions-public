@@ -115,7 +115,6 @@ export interface EditableMappingConstructorWidgetProps {
 	valueLabel?: string;
 	mappings?: FieldAccessToSpecificFied[];
 	deleteField?: (node: STNode) => Promise<void>;
-	originalTypeName?: string;
 	type: Type;
 }
 
@@ -132,7 +131,6 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		mappings,
 		valueLabel,
 		deleteField,
-		originalTypeName,
 		type
 	} = props;
 	const classes = useStyles();
@@ -145,14 +143,14 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
 	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
 	const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
-	const isUnion = type?.typeName === PrimitiveBalType.Union || originalTypeName === PrimitiveBalType.Union;
+	const isUnion = type?.typeName === PrimitiveBalType.Union || type?.originalTypeName === PrimitiveBalType.Union;
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
 		if (mapping.value) {
 			return !isEmptyValue(mapping.value.position);
 		}
 		return true;
 	}));
-	const isAnyData = originalTypeName === AnydataType;
+	const isAnyData = type?.originalTypeName === AnydataType;
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -262,6 +260,16 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						</IconButton>
 						{label}
 					</span>
+					{isLoading && <CircularProgress size={18} className={classes.loader} />}
+					{!isLoading && isUnion && (
+						<ValueConfigMenu
+							menuItems={type?.members?.map((member) => ({
+								title: `Reinitialize as ${member.name || member.typeName}`,
+								onClick: () => handleChangeUnionType(member),
+							}))}
+							portName={portIn?.getName()}
+						/>
+					)}
 				</TreeHeader>
 				<TreeBody>
 					{expanded && editableRecordFields &&
