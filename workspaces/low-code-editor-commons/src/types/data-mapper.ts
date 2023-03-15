@@ -52,4 +52,5 @@ export interface Type {
     documentation?: string;
     position?: NodePosition;
     selected?: boolean;
+    originalTypeName?: string;
 }
