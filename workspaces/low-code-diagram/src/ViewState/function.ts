@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { OnFailClause } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, OnFailClause } from "@wso2-enterprise/syntax-tree";
 
 import { STOP_SVG_HEIGHT } from "../Components/RenderingComponents/End/StopSVG";
 import { START_SVG_HEIGHT } from "../Components/RenderingComponents/Start/StartSVG";
@@ -41,6 +41,8 @@ export class FunctionViewState extends ViewState {
     public functionNodeSource?: string = undefined;
     public parentBlock?: any = undefined;
     public parentConnectors?: any = undefined;
+    public parentNamePlaceHolder?: string = undefined;
+    public parentPosition?: NodePosition = undefined;
     constructor() {
         super();
     }

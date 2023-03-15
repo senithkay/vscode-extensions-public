@@ -50,7 +50,7 @@ export function ActionForm(props: FormGeneratorProps) {
     const { action, endpointName, isClassField, functionNode, isHttp } = formArgs as ActionFormProps;
 
     const {
-        props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled, ballerinaVersion },
+        props: { currentFile, stSymbolInfo, fullST, experimentalEnabled, ballerinaVersion },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram, updateFileContent },
@@ -154,7 +154,7 @@ export function ActionForm(props: FormGeneratorProps) {
                     label: formTitle,
                     initialSource,
                     formArgs: { formArgs },
-                    config: { type: "Action" },
+                    config: { type: isHttp ? "HttpAction" : "Action"},
                     onWizardClose: onSave,
                     onCancel,
                     currentFile,
@@ -162,7 +162,7 @@ export function ActionForm(props: FormGeneratorProps) {
                     applyModifications: modifyDiagram,
                     updateFileContent,
                     library,
-                    syntaxTree,
+                    syntaxTree: fullST,
                     stSymbolInfo,
                     extraModules: imports,
                     experimentalEnabled,

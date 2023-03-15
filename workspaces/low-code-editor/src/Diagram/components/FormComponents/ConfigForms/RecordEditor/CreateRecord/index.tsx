@@ -39,16 +39,17 @@ export interface CreateRecordProps {
     undoRedoManager?: UndoRedoManager;
     onCancel: (createdNewRecord?: string) => void;
     onSave: (recordString: string, modifiedPosition: NodePosition) => void;
+    showHeader?: boolean;
 }
 
 export function CreateRecord(props: CreateRecordProps) {
-    const { targetPosition, isDataMapper, undoRedoManager, onSave, onCancel } = props;
+    const { targetPosition, isDataMapper, undoRedoManager, showHeader, onSave, onCancel } = props;
 
     const {
         props: {
             stSymbolInfo,
             currentFile,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled
         },
@@ -92,7 +93,7 @@ export function CreateRecord(props: CreateRecordProps) {
                     getAllVariables(stSymbolInfo), true), "record {};", targetPosition, true)),
                 formArgs: {
                     formArgs: {
-                        targetPosition: { startLine: targetPosition.startLine, startColumn: targetPosition.startColumn }
+                        targetPosition
                     }
                 },
                 config: { type: "RecordEditor" },
@@ -103,7 +104,7 @@ export function CreateRecord(props: CreateRecordProps) {
                 applyModifications: handleModifyDiagram,
                 updateFileContent,
                 library,
-                syntaxTree,
+                syntaxTree: fullST,
                 stSymbolInfo,
                 importStatements,
                 experimentalEnabled,
@@ -130,7 +131,7 @@ export function CreateRecord(props: CreateRecordProps) {
                         targetPosition={targetPosition}
                         onCancel={onCancel}
                         onSave={handleImportJsonSave}
-                        isHeaderHidden={isDataMapper}
+                        isHeaderHidden={showHeader ? false : isDataMapper}
                     />
                 )}
                 {(editorState === ConfigState.CREATE_FROM_SCRATCH) && (

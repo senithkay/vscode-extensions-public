@@ -36,6 +36,17 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                 });
             });
         }
+    },{
+        methodName: 'getBallerinaProjectComponents',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.onReady().then(() => {
+                return langClient.getBallerinaProjectComponents(args[0]).then(result => {
+                    consoleLog(start, 'getBallerinaProjectComponents');
+                    return Promise.resolve(result);
+                });
+            });
+        }
     },
     {
         methodName: 'getCompletion',
@@ -291,6 +302,15 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
             });
         }
     }, {
+        methodName: 'getDefinitionPosition',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.getDefinitionPosition(args[0]).then(result => {
+                consoleLog(start, 'getDefinitionPosition');
+                return result;
+            });
+        }
+    }, {
         methodName: 'getExecutorPositions',
         handler: (args: any[]) => {
             const start = new Date().getTime();
@@ -374,7 +394,18 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
                 });
             });
         }
-    }
+    }, {
+        methodName: 'getGraphqlModel',
+        handler: (args: any[]) => {
+            const start = new Date().getTime();
+            return langClient.onReady().then(() => {
+                return langClient.getGraphqlModel(args[0]).then(result => {
+                    consoleLog(start, 'getGraphqlModel');
+                    return Promise.resolve(result);
+                });
+            });
+        }
+        }
     ];
 };
 

@@ -11,12 +11,11 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React from "react";
 
 import { ConfigOverlayFormStatus, FlushStatementConfig, ProcessConfig, ReceivestatementConfig, SendStatementConfig, WaitStatementConfig, WizardType, WorkerConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { LocalVarDecl, NamedWorkerDeclaration } from "@wso2-enterprise/syntax-tree";
 
-import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 
 import { AddAssignmentConfig } from "./AddAssignmentConfig";
@@ -41,14 +40,6 @@ interface ProcessFormProps {
 export function ProcessForm(props: ProcessFormProps) {
     const { config, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
     const { isLoading, error, formType: type, formArgs } = configOverlayFormStatus;
-    const {
-        api: {
-            panNZoom: {
-                pan,
-                fitToScreen
-            }
-        }
-    } = useContext(Context);
 
     let formType: string = type;
     if (formType === "Variable") {

@@ -55,7 +55,7 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
             ballerinaVersion,
             stSymbolInfo,
             currentFile,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled,
             isCodeServerInstance
@@ -194,7 +194,7 @@ export function ConstantConfigForm(props: ConstantConfigFormProps) {
                         applyModifications: modifyDiagram,
                         updateFileContent,
                         library,
-                        syntaxTree,
+                        syntaxTree: fullST,
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,

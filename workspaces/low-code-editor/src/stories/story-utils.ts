@@ -64,6 +64,7 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     resolveMissingDependencyByCodeAction: () => Promise.resolve(false),
     runCommand: () => Promise.resolve(false),
     runBackgroundTerminalCommand: () => Promise.resolve({ error: false, message: "" }),
+    openArchitectureView: () => Promise.resolve(false),
     sendTelemetryEvent: () => Promise.resolve(undefined),
     showMessage: () => Promise.resolve(false),
     showPerformanceGraph: () => Promise.resolve(false),
@@ -75,7 +76,11 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getBallerinaVersion: () => Promise.resolve("2201.3.1 (swan lake update 3)"), // Test will check only latest forms
     getEnv: (name: string) => Promise.resolve(undefined),
     experimentalEnabled: true,
-    openExternalUrl: (url: string) => Promise.resolve(undefined)
+    openExternalUrl: () => Promise.resolve(undefined),
+    projectPaths: undefined,
+    openInDiagram: undefined,
+    diagramFocus: undefined,
+    workspaceName: ''
   }
 }
 

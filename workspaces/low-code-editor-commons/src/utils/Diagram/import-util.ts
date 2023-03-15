@@ -16,7 +16,7 @@ export function getImportStatements(syntaxTree: STNode): string[] {
     const importStatements: string[] = [];
     const st = syntaxTree as ModulePart;
 
-    st.imports.map((importDeclaration: ImportDeclaration) => (
+    st?.imports.map((importDeclaration: ImportDeclaration) => (
         importStatements.push(importDeclaration.source.trim())
     ));
 

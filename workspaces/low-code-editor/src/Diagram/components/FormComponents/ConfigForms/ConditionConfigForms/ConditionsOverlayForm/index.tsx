@@ -11,11 +11,10 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext } from "react";
+import React from "react";
 
 import { ConditionConfig, ConfigOverlayFormStatus, ElseIfConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { Context } from "../../../../../../Contexts/Diagram";
 import { TextPreloaderVertical } from "../../../../../../PreLoader/TextPreloaderVertical";
 
 import { AddForeachForm } from "./AddForeachForm";
@@ -34,14 +33,6 @@ interface ConditionsWizardProps {
 export function ConditionsOverlayForm(props: ConditionsWizardProps) {
     const { condition, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
     const { isLoading, error, formType, formArgs} = configOverlayFormStatus;
-    const {
-        api: {
-            panNZoom: {
-                pan,
-                fitToScreen
-            }
-        }
-    } = useContext(Context);
 
     if (formType === "While") {
         if (!condition.conditionExpression) {

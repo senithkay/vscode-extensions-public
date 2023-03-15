@@ -43,7 +43,7 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             currentFile,
             isMutationProgress: isMutationInProgress,
             stSymbolInfo,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled,
             isCodeServerInstance
@@ -95,7 +95,7 @@ export function AddReceiveStatement(props: AddReceiveStatementProps) {
             applyModifications: modifyDiagram,
             updateFileContent,
             library,
-            syntaxTree,
+            syntaxTree: fullST,
             stSymbolInfo,
             importStatements,
             experimentalEnabled,

@@ -34,12 +34,13 @@ export interface RecordEditorProps {
     isDataMapper?: boolean;
     onCancel: (createdNewRecord?: string) => void;
     onSave: (typeDesc: string, recModel: RecordModel) => void;
+    showHeader?: boolean;
 }
 
 const undoRedoManager = new UndoRedoManager();
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { onCancel, model, targetPosition, formType, isDataMapper } = props;
+    const { onCancel, model, targetPosition, formType, isDataMapper, showHeader } = props;
 
     const overlayClasses = wizardStyles();
 
@@ -47,7 +48,7 @@ export function RecordEditor(props: RecordEditorProps) {
         props: {
             stSymbolInfo,
             currentFile,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled
         },
@@ -78,7 +79,7 @@ export function RecordEditor(props: RecordEditorProps) {
                 applyModifications: modifyDiagram,
                 updateFileContent,
                 library,
-                syntaxTree,
+                syntaxTree: fullST,
                 stSymbolInfo,
                 importStatements,
                 experimentalEnabled,
@@ -113,6 +114,7 @@ export function RecordEditor(props: RecordEditorProps) {
                     targetPosition={targetPosition}
                     isDataMapper={isDataMapper}
                     undoRedoManager={undoRedoManager}
+                    showHeader={showHeader}
                 />
             )}
         </>

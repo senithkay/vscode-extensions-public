@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useContext, useReducer } from "react";
 
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -91,3 +91,6 @@ export const Provider: React.FC<LowCodeDiagramProps> = (props) => {
         </Context.Provider>
     );
 }
+
+
+export const useDiagramContext = () => useContext(Context);

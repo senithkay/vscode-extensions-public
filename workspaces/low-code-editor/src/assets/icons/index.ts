@@ -33,6 +33,7 @@ export { default as AsyncSend } from './AsyncSend';
 export { default as AsyncReceive } from './AsyncReceive';
 export { default as AsyncWait } from './AsyncWait';
 export { default as Flush } from './Flush';
+export { default as PackageIcon } from './Package';
 
 // Module level icons
 export { default as ServiceIcon } from './ServiceIcon';
@@ -44,8 +45,10 @@ export { default as ConstDeclaration } from './ConstantIcon';
 export { default as ModuleConnectorDecl } from './ModuleConnectorIcon';
 export { default as TypeDefinitionIcon } from './RecordIcon';
 export { default as TypeDefinition } from './RecordIcon';
+export { default as TypeIcon } from './RecordIcon';
 export { default as RecordEditor } from './RecordIcon';
 export { default as EnumDeclaration } from './EnumIcon';
+export { default as EnumIcon } from './EnumIcon';
 export { default as ListenerIcon } from './ListenerIcon';
 export { default as ListenerDeclaration } from './ListenerIcon';
 export { default as ListenerFormIcon } from './ListenerFormIcon';

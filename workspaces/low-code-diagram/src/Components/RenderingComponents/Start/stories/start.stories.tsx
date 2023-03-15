@@ -31,12 +31,13 @@ export default {
 const componentName = "Start";
 const samplefile1 = "sample1.bal";
 
-const Template: Story<{ f1: string }> = (args: {f1: string }) => {
+const Template: Story<{ f1: string }> = (args: { f1: string }) => {
 
     const [st, setSt] = useState<ModulePart>(undefined);
 
     const providerProps: LowCodeDiagramProps = {
         syntaxTree: st,
+        fullST: st,
         isReadOnly: true,
         selectedPosition: {
             startColumn: 0,
@@ -63,12 +64,12 @@ const Template: Story<{ f1: string }> = (args: {f1: string }) => {
     const visitedST: FunctionDefinition = (functionST && sizingAndPositioning(functionST)) as FunctionDefinition;
 
     return st &&
-    // tslint:disable-next-line: jsx-wrap-multiline
-    <>
-        <Provider {...providerProps}>
-            <StartButton model={visitedST} />
-        </Provider>
-    </>;
+        // tslint:disable-next-line: jsx-wrap-multiline
+        <>
+            <Provider {...providerProps}>
+                <StartButton model={visitedST} />
+            </Provider>
+        </>;
 }
 
 export const StartComponent = Template.bind({});

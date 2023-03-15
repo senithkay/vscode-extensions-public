@@ -33,43 +33,37 @@ export function EndOverlayForm(props: EndOverlayFormProps) {
     const { config, onCancel, onSave, onWizardClose, configOverlayFormStatus } = props;
     const { isLoading, error, formType, formArgs } = configOverlayFormStatus;
     const isExpressionFunctionBody: boolean = config.model ?
-    STKindChecker.isExpressionFunctionBody(config.model) : false;
+        STKindChecker.isExpressionFunctionBody(config.model) : false;
     const targetPosition = formArgs.targetPosition;
     const {
         props: { syntaxTree },
-        api: {
-            panNZoom: {
-                pan,
-                fitToScreen
-            }
-        }
     } = useContext(Context);
 
     if (formType === "Return") {
         config.expression = "";
-    } else if (formType === "Respond") {
-        let callerName = "";
-        const caller = STKindChecker.isModulePart(syntaxTree) && syntaxTree.members
-                        .filter((service => STKindChecker.isServiceDeclaration(service)
-                            && service.position.startLine < targetPosition.startLine
-                            && service.position.endLine > targetPosition.startLine
-                            && service.members
-                        .forEach(resource => {
-                            if (resource.position.startLine < targetPosition.startLine
-                                && resource.position.endLine >= targetPosition.startLine) {
-                                    callerName = STKindChecker.isResourceAccessorDefinition(resource)
-                                                 && STKindChecker.isRequiredParam(resource.functionSignature.parameters[0])
-                                                 && resource.functionSignature.parameters[0].paramName.value;
-                            }
-                        })));
-
-        config.expression = {
-            respondExpression: "",
-            variable: "",
-            caller: callerName,
-            genType: ""
-        };
-    }
+    } // else if (formType === "Respond") {
+        // let callerName = "";
+        // const caller = STKindChecker.isModulePart(syntaxTree) && syntaxTree ?
+        //     .members?.filter((service => STKindChecker.isServiceDeclaration(service)
+        //     && service.position.startLine < targetPosition.startLine
+        //     && service.position.endLine > targetPosition.startLine
+        //     && service.members
+        //         .forEach(resource => {
+        //             if (resource.position.startLine < targetPosition.startLine
+        //                 && resource.position.endLine >= targetPosition.startLine) {
+        //                 callerName = STKindChecker.isResourceAccessorDefinition(resource)
+        //                     && STKindChecker.isRequiredParam(resource.functionSignature.parameters[0])
+        //                     && resource.functionSignature.parameters[0].paramName.value;
+        //             }
+        //         })));
+        //
+        // config.expression = {
+        //     respondExpression: "",
+        //     variable: "",
+        //     caller: callerName,
+        //     genType: ""
+        // };
+    // }
 
     if (config.model && formType === "Respond") {
         const respondModel: ActionStatement = config.model as ActionStatement;
