@@ -35,7 +35,7 @@ interface EntityWidgetProps {
 
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { currentView } = useContext(DiagramContext);
+    const { currentView, editingEnabled } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
 
     useEffect(() => {
@@ -50,6 +50,7 @@ export function EntityWidget(props: EntityWidgetProps) {
     return (
         <EntityNode
             isAnonymous={node.entityObject.isAnonymous}
+            isEditMode={editingEnabled}
             isSelected={node.isNodeSelected(selectedLink, node.getID())}
             shouldShade={currentView === Views.TYPE_COMPOSITION ? (node.isRootEntity ? false : true) : false}
         >

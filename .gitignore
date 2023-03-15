@@ -47,6 +47,9 @@ hs_err_pid*
 *.iws
 *.ipr
 
+# MacOS
+*.DS_Store
+
 node_modules/
 *.tsbuildinfo
 

@@ -41,7 +41,7 @@ import {
 	traversNode
 } from "@wso2-enterprise/syntax-tree";
 
-import { useDMStore } from "../../../store/store";
+import { useDMSearchStore, useDMStore } from "../../../store/store";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { DMNode } from "../../DataMapper/DataMapper";
 import { isArraysSupported } from "../../DataMapper/utils";
@@ -598,7 +598,7 @@ export function getInputPortsForExpr(node: RequiredParamNode
 		portIdBuffer = EXPANDED_QUERY_SOURCE_PORT_PREFIX + "."
 			+ (node as FromClauseNode).sourceBindingPattern.variableName.value
 	}
-	if (typeDesc.typeName === PrimitiveBalType.Record) {
+	if (typeDesc && typeDesc.typeName === PrimitiveBalType.Record) {
 		if (STKindChecker.isFieldAccess(expr) || STKindChecker.isOptionalFieldAccess(expr)) {
 			const fieldNames = getFieldNames(expr);
 			let nextTypeNode: Type = typeDesc;
@@ -1344,4 +1344,110 @@ export const getNewFieldAdditionModification = (node: STNode, fieldName: string,
 	if (insertPosition && modificationStatement) {
 		return [getModification(modificationStatement, insertPosition)];
 	}
+}
+
+export const getSearchFilteredInput = (typeDef: Type, varName?: string) => {
+	const searchValue = useDMSearchStore.getState().inputSearch;
+	if (!searchValue) {
+		return typeDef;
+	}
+
+	if (varName?.toLowerCase()?.includes(searchValue.toLowerCase())) {
+		return typeDef
+	} else if (typeDef?.typeName === PrimitiveBalType.Record || typeDef?.typeName === PrimitiveBalType.Array) {
+		const filteredRecordType = getFilteredSubFields(typeDef, searchValue);
+		if (filteredRecordType) {
+			return filteredRecordType
+		}
+	}
+}
+
+export const getFilteredSubFields = (type: Type, searchValue: string) => {
+	if (!type) {
+		return null;
+	}
+
+	if (!searchValue) {
+		return type;
+	}
+
+	const optionalRecordField = getOptionalRecordField(type);
+	if (optionalRecordField && type?.typeName === PrimitiveBalType.Union) {
+		const matchedSubFields: Type[] = optionalRecordField?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
+		const matchingName = type?.name?.toLowerCase().includes(searchValue.toLowerCase());
+		if (matchingName || matchedSubFields?.length > 0) {
+			return {
+				...type,
+				members: [
+					{ ...optionalRecordField, fields: matchingName ? optionalRecordField?.fields : matchedSubFields },
+					...type?.members?.filter(member => member.typeName !== PrimitiveBalType.Record)
+				]
+			};
+		}
+	} else if (type?.typeName === PrimitiveBalType.Record) {
+		const matchedSubFields: Type[] = type?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
+		const matchingName = type?.name?.toLowerCase().includes(searchValue.toLowerCase());
+		if (matchingName || matchedSubFields?.length > 0) {
+			return {
+				...type,
+				fields: matchingName ? type?.fields : matchedSubFields
+			}
+		}
+	} else if (type?.typeName === PrimitiveBalType.Array) {
+		const matchedSubFields: Type[] = type?.memberType?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
+		const matchingName = type?.name?.toLowerCase().includes(searchValue.toLowerCase());
+		if (matchingName || matchedSubFields?.length > 0) {
+			return {
+				...type,
+				memberType: {
+					...type?.memberType,
+					fields: matchingName ? type?.memberType?.fields : matchedSubFields
+				}
+			}
+		}
+	} else {
+		return type?.name?.toLowerCase()?.includes(searchValue.toLowerCase()) ? type : null
+	}
+
+	return null;
+}
+
+export const getSearchFilteredOutput = (type: Type) => {
+	const searchValue = useDMSearchStore.getState().outputSearch;
+	if (!type) {
+		return null
+	}
+	if (!searchValue) {
+		return type;
+	}
+
+	const optionalRecordField = getOptionalRecordField(type);
+	if (optionalRecordField && type?.typeName === PrimitiveBalType.Union) {
+		const matchedSubFields: Type[] = optionalRecordField?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
+		return {
+			...type,
+			members: [
+				{ ...optionalRecordField, fields: matchedSubFields },
+				...type?.members?.filter(member => member.typeName !== PrimitiveBalType.Record)
+			]
+		};
+	} else if (type.typeName === PrimitiveBalType.Array) {
+		const subFields = type.memberType?.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+
+		return {
+			...type,
+			memberType: {
+				...type.memberType,
+				fields: subFields || []
+			}
+		}
+	} else if (type.typeName === PrimitiveBalType.Record) {
+		const subFields = type.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+
+		return {
+			...type,
+			fields: subFields || []
+		}
+	}
+	return  null;
 }

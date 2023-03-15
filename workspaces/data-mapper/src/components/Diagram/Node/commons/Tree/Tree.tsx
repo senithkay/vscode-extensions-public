@@ -17,6 +17,10 @@ export const TreeContainer = styled.div`
     line-height: 24px;
 `;
 
+export const TreeContainerWithTopMargin = styled(TreeContainer)`
+    margin-top: 40px;
+`;
+
 export const TreeHeader = styled.div((
     { isSelected, isDisabled }: { isSelected?: boolean, isDisabled?: boolean }
 ) => ({

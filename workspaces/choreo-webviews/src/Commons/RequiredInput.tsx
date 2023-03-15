@@ -12,6 +12,7 @@
  */
 
 import styled from "@emotion/styled";
+import React from "react";
 
 const RequiredElement = styled.span`
     color: var(--vscode-errorForeground);

@@ -53,18 +53,6 @@ export function render(webView: Webview, isChoreoProject: boolean) {
                 })
             }
 
-            function enrichChoreoMetadata(model) {
-                return new Promise((resolve, _reject) => {
-                    webViewRPCHandler.invokeRemoteMethod(
-                        'enrichChoreoMetadata',
-                        [model],
-                        (response) => {
-                            resolve(response);
-                        }
-                    );
-                })
-            }
-
             function showChoreoProjectOverview() {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -78,11 +66,10 @@ export function render(webView: Webview, isChoreoProject: boolean) {
             }
 
             function renderDiagrams() {
-                designDiagram.renderDesignDiagrams(
+                architectureView.renderDesignDiagrams(
                     true,
                     ${isChoreoProject},
                     getComponentModel,
-                    enrichChoreoMetadata,
                     showChoreoProjectOverview,
                     document.getElementById("webview-container")
                 );
@@ -93,7 +80,7 @@ export function render(webView: Webview, isChoreoProject: boolean) {
     `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("DesignDiagram", webView),
+        ...getComposerWebViewOptions("ArchitectureView", webView),
         body, scripts, styles, bodyCss
     };
 

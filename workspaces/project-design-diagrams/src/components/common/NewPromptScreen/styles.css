@@ -1,0 +1,17 @@
+.container {
+    align-items: center;
+    background-image: url('../../../resources/assets/PatternBg.svg');
+    background-repeat: repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    min-width: 100vw;
+}
+
+.message-box {
+    color: #6b6b6b;
+    font-family: GilmerRegular;
+    font-size: 16px;
+    padding: 10px;
+}

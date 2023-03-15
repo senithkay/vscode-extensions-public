@@ -92,3 +92,59 @@ export function getRepoMetadataQuery(organizationName: string, repoName: string,
             }
         }`;
 }
+
+export function getComponentsWithCellDiagramQuery(orgHandle: string, projectId: string) {
+    return gql`   
+        query { 
+            components(orgHandler: "${orgHandle}", projectId: "${projectId}") {
+                projectId, 
+                id, 
+                description, 
+                name, 
+                handler, 
+                displayName, 
+                displayType, 
+                version, 
+                createdAt, 
+                orgHandler,
+                repository {
+                    nameApp,
+                    nameConfig,
+                    branch,
+                    branchApp,
+                    organizationApp,
+                    organizationConfig,
+                    isUserManage,
+                    appSubPath,
+                    byocBuildConfig {
+                        id,
+                        isMainContainer,
+                        containerId,
+                        componentId,
+                        repositoryId,
+                        dockerContext,
+                        dockerfilePath,
+                        oasFilePath,
+                    }
+                }, 
+                apiVersions { 
+                    apiVersion,
+                    proxyName,
+                    proxyUrl,
+                    proxyId,
+                    id,
+                    state,
+                    latest,
+                    branch,
+                    accessibility,
+                    cellDiagram {
+                        data,
+                        message,
+                        errorName,
+                        success
+                    }
+                }
+            } 
+        }
+    `;
+}

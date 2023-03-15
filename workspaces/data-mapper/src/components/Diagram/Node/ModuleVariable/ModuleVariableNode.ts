@@ -18,9 +18,11 @@ import {
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../../utils/st-utils";
 import { MODULE_VARIABLE_SOURCE_PORT_PREFIX } from "../../utils/constants";
+import { getFilteredSubFields } from "../../utils/dm-utils";
 import { getTypesForExpressions } from "../../utils/ls-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
@@ -85,7 +87,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
             };
         });
         const types = await getTypesForExpressions(this.context.filePath, this.context.langClientPromise, exprRanges);
-        this.moduleVarDecls = [...this.value].map(([varName, item]) => {
+        const allModuleVarDecls = [...this.value].map(([varName, item]) => {
             return {
                 varName,
                 kind: item.kind,
@@ -98,6 +100,7 @@ export class ModuleVariableNode extends DataMapperNodeModel {
                 })).type
             }
         });
+        this.moduleVarDecls = this.getSearchFilteredVariables(allModuleVarDecls)
 
         this.moduleVarDecls.forEach(moduleVar => {
             const { varName, type } = moduleVar;
@@ -133,5 +136,26 @@ export class ModuleVariableNode extends DataMapperNodeModel {
             }
             super.setPosition(this.x, y);
         }
+    }
+
+    private getSearchFilteredVariables(items: DMModuleVarDecl[]) {
+        const searchValue = useDMSearchStore.getState().inputSearch;
+        if (!searchValue) {
+            return items;
+        }
+        const filteredVariables: DMModuleVarDecl[] = [];
+
+        for (const item of items) {
+            if (item.varName?.toLowerCase()?.includes(searchValue.toLowerCase())) {
+                filteredVariables.push(item)
+            } else if (item.type.typeName === PrimitiveBalType.Record) {
+                const filteredRecordType = getFilteredSubFields(item.type, searchValue);
+                if (filteredRecordType) {
+                    filteredVariables.push({ ...item, type: filteredRecordType })
+                }
+            }
+        }
+
+        return filteredVariables;
     }
 }

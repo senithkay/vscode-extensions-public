@@ -12,7 +12,7 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 

@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
 
-import { Box, Grid, InputBase } from "@material-ui/core";
+import { Grid, InputBase } from "@material-ui/core";
 import debounce from "lodash.debounce";
 
 import useStyles from "./style";
