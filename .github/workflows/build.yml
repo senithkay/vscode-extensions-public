@@ -108,6 +108,7 @@ jobs:
           done
           testArray=${testArray:0: -1}
           testArray+="]"
+          echo $testArray
           echo "testArray=$testArray" >> $GITHUB_OUTPUT
 
       - name: Compress build
