@@ -117,8 +117,8 @@ export class NodeInitVisitor implements Visitor {
                     if (matchingType){
                         returnType = matchingType;
                     } else if (STKindChecker.isMappingConstructor(bodyExpr)) {
-                        returnType = { 
-                            typeName: PrimitiveBalType.Record, 
+                        returnType = {
+                            typeName: PrimitiveBalType.Record,
                             name: null,
                             fields: [],
                             members: returnType.members
