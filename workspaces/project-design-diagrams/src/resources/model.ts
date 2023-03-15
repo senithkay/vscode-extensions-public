@@ -183,7 +183,7 @@ export enum ServiceTypes {
 
 export enum Colors {
     DIAGRAM_BACKGROUND = '#FFF',
-    CELL_DIAGRAM_BACKGROUND = 'rgba(85, 103, 213, 0.1)',
+    CELL_DIAGRAM_BACKGROUND = '#eeeffb',
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',

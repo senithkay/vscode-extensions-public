@@ -20,6 +20,9 @@ import { getCurrentSpecFolder } from "../../utils/file-utils";
 import { DataMapper } from "../../utils/forms/data-mapper";
 import { getIntegrationTestPageURL } from "../../utils/story-url-utils";
 
+const QUERY_VIEW_BAL_FILES_DIR = "expectedBalFiles/query-view";
+const DEFINED_RECORD_BAL_FILE = `${QUERY_VIEW_BAL_FILES_DIR}/transform-with-expanded-query-view-for-defined-record.bal`;
+const INLINE_RECORD_BAL_FILE = `${QUERY_VIEW_BAL_FILES_DIR}/transform-with-expanded-query-view-for-inline-record.bal`;
 const INITIAL_BAL_FILE = "data-mapper/query-view.bal";
 
 describe("Expanded query view for inline record within mapping constructor", () => {
@@ -29,18 +32,18 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Create mapping between two record array element", () => {
-        DataMapper.createMappingUsingFields("input.Items", "Output.Items");
-        DataMapper.linkExists("input.Items", "Output.Items");
+        DataMapper.createMappingUsingFields("input.Items", "Output.Items", 'mappingConstructor');
+        DataMapper.linkExists("input.Items", "Output.Items", 'mappingConstructor');
     });
 
     it("Convert link into query using code action", () => {
-        DataMapper.clickLinkCodeAction("input.Items", "Output.Items");
+        DataMapper.clickLinkCodeAction("input.Items", "Output.Items", 'mappingConstructor');
     });
 
     it("Navigate into expanded query view", () => {
         DataMapper.clickExpandQueryView("Output.Items");
         DataMapper.getQueryExprNode("source.ItemsItem");
-        DataMapper.getTargetNode();
+        DataMapper.getTargetNode("mappingConstructor");
     });
 
     it("Add an intermediary where clause", () => {
@@ -65,9 +68,9 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExprUsingFields("ItemsItem.Id", "Id");
+        DataMapper.createMappingFromQueryExprUsingFields("ItemsItem.Id", "Id", 'mappingConstructor');
         cy.wait(4000);
-        DataMapper.createMappingFromQueryExprUsingPorts("variable", "Id");
+        DataMapper.createMappingFromQueryExprUsingPorts("variable", "Id", 'mappingConstructor');
         DataMapper.checkIntermediateLinks(
             ["expandedQueryExpr.source.ItemsItem.Id", "expandedQueryExpr.source.variable"],
             "Id"
@@ -132,7 +135,7 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Create links between join clause node and target node", () => {
-        DataMapper.createMappingFromQueryExprUsingFieldAndPort("variable.id", "Id");
+        DataMapper.createMappingFromQueryExprUsingFieldAndPort("variable.id", "Id", 'mappingConstructor');
         cy.wait(4000);
         DataMapper.checkIntermediateLinks(
             [
@@ -145,7 +148,7 @@ describe("Expanded query view for inline record within mapping constructor", () 
     });
 
     it("Generated source code is valid", () => {
-        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-with-expanded-query-view-for-inline-record.bal");
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + INLINE_RECORD_BAL_FILE);
     });
 
     it("Delete intermediate clauses", () => {
@@ -157,27 +160,27 @@ describe("Expanded query view for inline record within mapping constructor", () 
     it("Navigate out of expanded query view", () => DataMapper.clickHeaderBreadcrumb(0));
 
     it("Delete query link", () => DataMapper.deleteQueryLink('input.Items', 'Output.Items'));
-})
+});
 
 describe("Expanded query view for defined record within mapping constructor", () => {
     before(() => {
-        cy.visit(getIntegrationTestPageURL(INITIAL_BAL_FILE))
+        cy.visit(getIntegrationTestPageURL(INITIAL_BAL_FILE));
         Canvas.getDataMapper("transform").clickEdit();
     });
 
     it("Create mapping between two record array element", () => {
-        DataMapper.createMappingUsingFields('input.Items', 'Output.innerOutput');
-        DataMapper.linkExists('input.Items', 'Output.innerOutput');
+        DataMapper.createMappingUsingFields('input.Items', 'Output.innerOutput', 'mappingConstructor');
+        DataMapper.linkExists('input.Items', 'Output.innerOutput', 'mappingConstructor');
     });
 
     it("Convert link into query using code action", () => {
-        DataMapper.clickLinkCodeAction('input.Items', 'Output.innerOutput');
+        DataMapper.clickLinkCodeAction('input.Items', 'Output.innerOutput', 'mappingConstructor');
     });
 
     it("Navigate into expanded query view", () => {
         DataMapper.clickExpandQueryView('Output.innerOutput');
         DataMapper.getQueryExprNode("source.ItemsItem");
-        DataMapper.getTargetNode("InnerOutput");
+        DataMapper.getTargetNode("mappingConstructor", "InnerOutput");
     });
 
     it("Add an intermediary where clause", () => {
@@ -186,7 +189,7 @@ describe("Expanded query view for defined record within mapping constructor", ()
         StatementEditor.shouldBeVisible().getEditorPane();
         EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
         InputEditor.typeInput(`true`);
-        EditorPane.reTriggerDiagnostics("TrueKeyword", `true`)
+        EditorPane.reTriggerDiagnostics("TrueKeyword", `true`);
         StatementEditor.save();
     });
 
@@ -196,16 +199,16 @@ describe("Expanded query view for defined record within mapping constructor", ()
         StatementEditor.shouldBeVisible().getEditorPane();
         EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
         InputEditor.typeInput(`"strValue"`);
-        EditorPane.reTriggerDiagnostics("StringLiteralToken", `"strValue"`)
+        EditorPane.reTriggerDiagnostics("StringLiteralToken", `"strValue"`);
         StatementEditor.save();
         DataMapper.getQueryExprNode("source.variable");
     });
 
     it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExprUsingPortAndField('ItemsItem.Id', 'InnerOutput.st1');
+        DataMapper.createMappingFromQueryExprUsingPortAndField('ItemsItem.Id', 'InnerOutput.st1', 'mappingConstructor');
         cy.wait(4000);
-        DataMapper.createMappingFromQueryExprUsingFields('variable', 'InnerOutput.st1');
-        DataMapper.checkIntermediateLinks(['expandedQueryExpr.source.ItemsItem.Id', 'expandedQueryExpr.source.variable'], 'InnerOutput.st1')
+        DataMapper.createMappingFromQueryExprUsingFields('variable', 'InnerOutput.st1', 'mappingConstructor');
+        DataMapper.checkIntermediateLinks(['expandedQueryExpr.source.ItemsItem.Id', 'expandedQueryExpr.source.variable'], 'InnerOutput.st1');
     });
 
     it("Rename let clause variable name", () => {
@@ -214,7 +217,7 @@ describe("Expanded query view for defined record within mapping constructor", ()
     });
 
     it("Generated source code is valid", () => {
-        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + "expectedBalFiles/transform-with-expanded-query-view-for-defined-record.bal");
+        SourceCode.shouldBeEqualTo(getCurrentSpecFolder() + DEFINED_RECORD_BAL_FILE);
     });
 
     it("Delete intermediate clauses", () => {
@@ -226,4 +229,39 @@ describe("Expanded query view for defined record within mapping constructor", ()
     it("Navigate out of expanded query view", () =>  DataMapper.clickHeaderBreadcrumb(0));
 
     it("Delete query link", () => DataMapper.deleteQueryLink('input.Items', 'Output.innerOutput'));
+})
+
+
+describe.only("Verify input & output search", () => {
+    before(() => {
+        cy.visit(getIntegrationTestPageURL(INITIAL_BAL_FILE));
+        Canvas.getDataMapper("transform").clickEdit();
+    });
+
+    it("Create mapping between two record array element", () => {
+        DataMapper.createMappingUsingFields("input.Items", "Output.Items", "mappingConstructor");
+        DataMapper.linkExists("input.Items", "Output.Items", "mappingConstructor");
+    });
+
+    it("Convert link into query using code action", () => {
+        DataMapper.clickLinkCodeAction("input.Items", "Output.Items", "mappingConstructor");
+    });
+
+    it("Navigate into expanded query view", () => {
+        DataMapper.clickExpandQueryView("Output.Items");
+        DataMapper.getQueryExprNode("source.ItemsItem");
+        DataMapper.getTargetNode("mappingConstructor");
+    });
+
+    it("Verify input search", () => {
+        DataMapper.searchInput('id');
+        DataMapper.sourcePortExists('expandedQueryExpr.source.ItemsItem.Id');
+        DataMapper.sourcePortNotExists('expandedQueryExpr.source.Confirmed');
+    });
+
+    it("Verify output search", () => {
+        DataMapper.searchOutput('id');
+        DataMapper.mappingPortExists("mappingConstructor", 'Id');
+        DataMapper.mappingPortNotExists("mappingConstructor", 'Confirmed');
+    });
 })

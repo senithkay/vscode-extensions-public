@@ -39,6 +39,7 @@ import {
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
+import { OutputSearchHighlight } from "../SearchHighlight";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
@@ -225,7 +226,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 )}
                 style={{ marginLeft: fields ? 0 : indentation + 24 }}
             >
-                {fieldName}
+                <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {typeName && ":"}
             </span>

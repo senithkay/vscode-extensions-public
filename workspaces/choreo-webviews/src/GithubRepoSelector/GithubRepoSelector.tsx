@@ -13,7 +13,7 @@
 import styled from "@emotion/styled";
 import { VSCodeProgressRing, VSCodeLink, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
 import { GithubOrgnization, GHAppAuthStatus, GithubRepository } from "@wso2-enterprise/choreo-client/lib/github/types";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const GhRepoSelectorContainer = styled.div`

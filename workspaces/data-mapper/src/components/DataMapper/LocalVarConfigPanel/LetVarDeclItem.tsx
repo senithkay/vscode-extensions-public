@@ -24,6 +24,7 @@ import { LetVarDeclModel } from "./LocalVarConfigPanel";
 import { useStyles } from "./style";
 
 interface LetVarDeclItemProps {
+    index: number;
     letVarDeclModel: LetVarDeclModel;
     handleOnCheck: () => void;
     onEditClick: (letVarDecl: LetVarDecl) => void;
@@ -33,7 +34,7 @@ interface LetVarDeclItemProps {
 }
 
 export function LetVarDeclItem(props: LetVarDeclItemProps) {
-    const {letVarDeclModel, handleOnCheck, onEditClick, applyModifications, langClientPromise, filePath} = props;
+    const {index, letVarDeclModel, handleOnCheck, onEditClick, applyModifications, langClientPromise, filePath} = props;
     const overlayClasses = useStyles();
     const varNameNode = (letVarDeclModel.letVarDecl.typedBindingPattern.bindingPattern as CaptureBindingPattern)
         .variableName;
@@ -120,9 +121,15 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
                                 setNameEditable(false);
                                 setUpdatedName(varName);
                             }}
+                            data-testid={`local-variable-name-input-${index}`}
                         />
                     ) : (
-                        <span onClick={() => setNameEditable(true)}>{updatedName}</span>
+                        <span
+                            onClick={() => setNameEditable(true)}
+                            data-testid={`local-variable-name-${index}`}
+                        >
+                            {updatedName}
+                        </span>
                     )}
                 </span>
                 <span>{letVarDeclModel.letVarDecl.equalsToken.value}</span>
@@ -133,6 +140,7 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
                             isExprPlaceholder && overlayClasses.exprPlaceholder
                         )}
                         onClick={(event) => handleEdit(event)}
+                        data-testid={`local-variable-value-${index}`}
                     >
                         {isExprPlaceholder ? `<add-expression>` : exprSource}
                     </span>
@@ -149,6 +157,7 @@ export function LetVarDeclItem(props: LetVarDeclItemProps) {
                     defaultValues={letVarDeclModel.checked ? [`${type} ${varName}`] : []}
                     onChange={handleCheckboxClick}
                     checkBoxLabel={expression}
+                    checkBoxTestId={`select-local-variable-${index}`}
                 />
             </div>
         </div>

@@ -14,14 +14,13 @@
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 
-import { IconButton, Link } from "@material-ui/core";
+import { Link } from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl/FormControl";
 import AddIcon from "@material-ui/icons/Add";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DeleteButton,
-    STModification,
-    UndoIcon
+    STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FormHeaderSection,
@@ -153,6 +152,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                             <>
                                 <NewLetVarDeclPlusButton index={index} onAddNewVar={onAddNewVar}/>
                                 <LetVarDeclItem
+                                    index={index}
                                     key={decl.letVarDecl.source}
                                     letVarDeclModel={decl}
                                     handleOnCheck={handleOnCheck}
@@ -173,13 +173,13 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
         <Panel onClose={onCancel}>
             <FormControl
                 variant="outlined"
-                data-testid="data-mapper-form"
+                data-testid="data-mapper-local-variables-form"
                 className={formClasses.wizardFormControlExtended}
             >
                 <FormHeaderSection
                     onCancel={onCancel}
                     formTitle={"lowcode.develop.configForms.DataMapper.localVarConfigTitle"}
-                    defaultMessage={"Data Mapper"}
+                    defaultMessage={"Local Variables"}
                 />
                 <div className={overlayClasses.localVarFormWrapper}>
                     {letVarList}
@@ -188,7 +188,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                             text={"Add New"}
                             fullWidth={true}
                             onClick={onAddNewVar}
-                            dataTestId="create-new-btn"
+                            dataTestId="create-new-local-variable-btn"
                             startIcon={<AddIcon />}
                         />
                     </div>
@@ -197,6 +197,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                             key={'select-all'}
                             onClick={onSelectAll}
                             className={overlayClasses.marginSpace}
+                            data-testid={'select-all-local-variables'}
                         >
                             {overviewSelectAll}
                         </Link>
@@ -208,6 +209,7 @@ export function LocalVarConfigPanel(props: LocalVarConfigPanelProps) {
                                 hasSelectedLetVarDecl && overlayClasses.deleteLetVarDeclEnabled
                             )}
                             onClick={hasSelectedLetVarDecl ? onDeleteSelected : undefined}
+                            data-testid={'delete-selected-local-variables'}
                         >
                             <DeleteButton /> {deleteSelected}
                         </div>

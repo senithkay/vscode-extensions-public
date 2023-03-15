@@ -40,6 +40,7 @@ import {
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
+    getSearchFilteredOutput,
     getTypeName,
     getTypeOfValue
 } from "../../utils/dm-utils";
@@ -71,13 +72,14 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.typeDef = getSearchFilteredOutput(this.typeDef);
+
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)
                 && this.typeDef.typeName === PrimitiveBalType.Array
                 && this.typeDef?.memberType
-                && this.typeDef.memberType.typeName === PrimitiveBalType.Record)
-            {
+                && this.typeDef.memberType.typeName === PrimitiveBalType.Record) {
                 this.rootName = this.typeDef.memberType?.name;
             }
             const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
@@ -139,7 +141,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 const keepDefault = ((mappedField && !mappedField?.name
                     && mappedField.typeName !== PrimitiveBalType.Array
                     && mappedField.typeName !== PrimitiveBalType.Record)
-                        || !STKindChecker.isMappingConstructor(this.value.expression)
+                    || !STKindChecker.isMappingConstructor(this.value.expression)
                 );
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,

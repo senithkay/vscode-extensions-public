@@ -26,6 +26,7 @@ interface StyleProps {
     alignStart?: boolean;
     isSelected?: boolean;
     awaitLinking?: boolean;
+    isEditMode?: boolean;
 }
 
 export const ServiceNode = styled.div`
@@ -39,7 +40,7 @@ export const ServiceNode = styled.div`
     border-bottom-left-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
     border-bottom-right-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
     color: ${Colors.PRIMARY};
-    cursor: pointer;
+    cursor: ${(props: StyleProps) => props.isEditMode ? `cursor` : `auto`};
     display: flex;
     flex-direction: column;
     min-height: 32px;

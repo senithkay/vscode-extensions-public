@@ -45,6 +45,7 @@ import {
     isConnectedViaLink,
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
+import { OutputSearchHighlight } from "../SearchHighlight";
 import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
@@ -152,13 +153,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     isDisabled ? classes.valueLabelDisabled : "")}
                 style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
             >
-                {fieldName}
+                <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {fieldName && typeName && ":"}
             </span>

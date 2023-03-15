@@ -35,6 +35,7 @@ import { DataMapperLinkModel } from './Link/model/DataMapperLink';
 import { DefaultState as LinkState } from './LinkState/DefaultState';
 import * as Nodes from "./Node";
 import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
+import { ExpandedMappingHeaderNode } from './Node/ExpandedMappingHeader';
 import { FromClauseNode } from './Node/FromClause';
 import { JoinClauseNode } from './Node/JoinClause';
 import { LetClauseNode } from './Node/LetClause';
@@ -188,14 +189,13 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			nodes.forEach((node) => {
 				if (node instanceof MappingConstructorNode
 					|| node instanceof ListConstructorNode
-					|| node instanceof PrimitiveTypeNode)
-				{
-					if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
-						node.setPosition(OFFSETS.TARGET_NODE.X, 0);
-					} else {
-						// Bring mapping constructor node close to input node, if it doesn't have any links
-						node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
-					}
+					|| node instanceof PrimitiveTypeNode) {
+						if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
+							node.setPosition(OFFSETS.TARGET_NODE.X, 0);
+						} else {
+							// Bring mapping constructor node close to input node, if it doesn't have any links
+							node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
+						}
 				}
 				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
 					node.updatePosition();
@@ -215,10 +215,12 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 					additionalSpace += isLetExprNode && !hasLetVarDecls ? 10 : 0;
 				}
 				if (node instanceof FromClauseNode) {
-					node.setPosition(OFFSETS.SOURCE_NODE.X, additionalSpace + (requiredParamFields * 40) + OFFSETS.SOURCE_NODE.Y * (numberOfRequiredParamNodes + 1) + node.initialYPosition);
 					requiredParamFields = requiredParamFields + node.numberOfFields;
 					numberOfRequiredParamNodes = numberOfRequiredParamNodes + 1;
-					additionalSpace += node.initialYPosition
+				}
+				if (node instanceof ExpandedMappingHeaderNode) {
+					additionalSpace += node.height + OFFSETS.QUERY_MAPPING_HEADER_NODE.MARGIN_BOTTOM;
+					node.setPosition(OFFSETS.QUERY_MAPPING_HEADER_NODE.X, OFFSETS.QUERY_MAPPING_HEADER_NODE.Y);
 				}
 			});
 			newModel.addLayer(new OverlayLayerModel());
@@ -242,10 +244,18 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 						<DataMapperCanvasWidget engine={engine} />
 					</DataMapperCanvasContainerWidget>
 					<div className={classes.buttonWrap}>
-						<div className={classes.iconWrap} onClick={resetZoomAndOffset}>
+						<div
+							className={classes.iconWrap}
+							onClick={resetZoomAndOffset}
+							data-testid={"reset-zoom"}
+						>
 							<CachedIcon className={classes.icon} />
 						</div>
-						<div className={classes.iconWrap} onClick={() => void engine.zoomToFitNodes({ margin: 20 })}>
+						<div
+							className={classes.iconWrap}
+							onClick={() => void engine.zoomToFitNodes({ margin: 20 })}
+							data-testid={"fit-to-screen"}
+						>
 							<FitToScreenIcon />
 						</div>
 					</div>
