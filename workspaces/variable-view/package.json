@@ -5,10 +5,11 @@
     "main": "index.js",
     "scripts": {
         "start": "webpack-dev-server --open",
-        "build": "webpack && pnpm run postbuild",
+        "build": "webpack && pnpm run postbuild && pnpm run setGITOut",
         "storybook": "start-storybook -p 6006",
         "build-storybook": "build-storybook",
-        "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs"
+        "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs",
+        "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
     },
     "keywords": [],
     "author": "",

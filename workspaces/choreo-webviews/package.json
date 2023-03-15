@@ -6,7 +6,8 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "start": "webpack serve --mode development",
-    "build": "tsc --pretty && webpack"
+    "build": "tsc --pretty && webpack && pnpm run setGITOut",
+    "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
   },
   "keywords": [],
   "author": "",

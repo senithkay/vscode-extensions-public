@@ -11,11 +11,12 @@
     "prebuild": "pnpm run clean && pnpm run lint",
     "clean": "rimraf lib && rimraf coverage && rimraf build",
     "lint": "tslint -t stylish --project .",
-    "build": "tsc --pretty",
+    "build": "tsc --pretty && pnpm run setGITOut",
     "test": "jest --colors",
     "coverage": "jest --coverage",
     "watch:test": "jest --watch",
-    "watch": "tsc --pretty --watch"
+    "watch": "tsc --pretty --watch",
+    "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
   },
   "dependencies": {
     "fs-extra": "^7.0.1",

@@ -9,12 +9,13 @@
   },
   "scripts": {
     "clean": "rimraf lib && rimraf coverage && rimraf build",
-    "build": "tsc --pretty",
+    "build": "tsc --pretty && pnpm run setGITOut",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -t stylish --project .",
     "coverage": "jest --coverage",
     "test": "jest --runInBand --config jestconfig.json",
-    "watch": "tsc --pretty --watch"
+    "watch": "tsc --pretty --watch",
+    "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
   },
   "keywords": [],
   "files": [

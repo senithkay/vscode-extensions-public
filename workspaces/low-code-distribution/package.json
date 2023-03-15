@@ -9,10 +9,11 @@
   "types": "build/index.d.ts",
   "typings": "build/index",
   "scripts": {
-    "build": "pnpm run build:webpack && pnpm run postbuild",
+    "build": "pnpm run build:webpack && pnpm run postbuild && pnpm run setGITOut",
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "build:webpack": "node --max-old-space-size=4096 ./node_modules/webpack/bin/webpack.js --config webpack.config.js --mode=production",
-    "postbuild": "copyfiles -f build/BLCEditor.js ../ballerina-extension/resources/jslibs"
+    "postbuild": "copyfiles -f build/BLCEditor.js ../ballerina-extension/resources/jslibs",
+    "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
   },
   "dependencies": {
     "@wso2-enterprise/ballerina-low-code-editor": "workspace:*",

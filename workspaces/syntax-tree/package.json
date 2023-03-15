@@ -11,9 +11,10 @@
     "prebuild": "pnpm run clean",
     "clean": "rimraf lib && rimraf coverage && rimraf build",
     "lint": "tslint -t stylish --project .",
-    "build": "tsc --pretty",
+    "build": "tsc --pretty && pnpm run setGITOut",
     "watch": "tsc --pretty --watch",
-    "format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+    "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
   },
   "lint-staged": {
     "src/**/*.ts": [

@@ -5,9 +5,10 @@
   "main": "lib/index.js",
   "scripts": {
     "lint": "eslint .",
-    "build": "pnpm run lint && tsc --pretty",
+    "build": "pnpm run lint && tsc --pretty && pnpm run setGITOut",
     "watch": "tsc --pretty --watch",
-    "test": "jest"
+    "test": "jest",
+    "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
   },
   "author": "WSO2",
   "devDependencies": {

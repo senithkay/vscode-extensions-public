@@ -10,7 +10,7 @@
     "typings": "lib/index",
     "scripts": {
         "prebuild": "pnpm run lint",
-        "build": "pnpm run clean && tsc --pretty && pnpm run copy:assets",
+        "build": "pnpm run clean && tsc --pretty && pnpm run copy:assets && pnpm run setGITOut",
         "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\" \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" lib/",
         "watch": "tsc --pretty --watch",
         "clean": "rimraf build/ && rimraf lib/",
@@ -18,7 +18,8 @@
         "lint": "tslint --project .",
         "lint:fix": "tslint --fix --project .",
         "storybook": "pnpm run storybook:setup",
-        "storybook:setup": "node tools/setup-storybook.js"
+        "storybook:setup": "node tools/setup-storybook.js",
+        "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
     },
     "dependencies": {
         "@wso2-enterprise/ballerina-languageclient": "workspace:*",

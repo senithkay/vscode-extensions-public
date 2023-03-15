@@ -21,6 +21,9 @@ jobs:
     name: Build repo
     timeout-minutes: 45
     runs-on: ubuntu-latest
+    outputs:
+      runBalPluginTests: ${{ steps.build.outputs.built-ballerina }}
+      testArray: ${{ steps.testMatrix.outputs.testArray }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -74,10 +77,38 @@ jobs:
           npm version $newVersion --preid beta --no-git-tag-version
 
       - name: Build repo
+        id: build
         run: |
           node common/scripts/install-run-rush.js build --verbose
         env:
           isPreRelease: ${{ inputs.isPreRelease  }}
+
+      - name: Set text matrix
+        id: testMatrix
+        run: |
+          tests=()
+
+          if [ {{ steps.build.outputs.built-low-code-diagram }} = 'true' ] || \
+          [ {{ steps.build.outputs.built-low-code-editor }} = 'true' ]; || \
+          then tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points"); fi 
+
+          if [ {{ steps.build.outputs.built-ballerina-languageclient }} = 'true' ] || \
+          [ {{ steps.build.outputs.built-expression-editor }} = 'true' ] || \
+          [ {{ steps.build.outputs.built-lang-service }} = 'true' ] || \
+          [ {{ steps.build.outputs.built-low-code-editor-commons }} = 'true' ] || \
+          [ {{ steps.build.outputs.built-low-code-ui-components }} = 'true' ] || \
+          [ {{ steps.build.outputs.built-statement-editor }} = 'true' ] || \
+          [ {{ steps.build.outputs.built-syntax-tree }} = 'true' ] ;\
+          then tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points" "test-se" "test-se-tools" "test-dm"); fi 
+
+          tests=$("${tests[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          testArray="["
+          for test in "${tests[@]}"; do
+            testArray+="'$test',"
+          done
+          testArray=${testArray:0: -1}
+          testArray+="]"
+          echo "testArray=$testArray" >> $GITHUB_OUTPUT
 
       - name: Compress build
         run: |
@@ -99,6 +130,7 @@ jobs:
   PluginTest_Stage:
     name: Run Plugin test
     needs: Build_Stage
+    if: ${{ needs.Build_Stage.outputs.runBalPluginTests }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -164,6 +196,7 @@ jobs:
   UiTest_Stage:
     name: Run UI tests
     needs: Build_Stage
+    if: ${{ needs.Build_Stage.outputs.runBalPluginTests }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -211,7 +244,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        testStage: [test-connectors, test-block-level, test-module-level, test-entry-points, test-se, test-se-tools, test-dm]
+        testStage: ${{ fromJSON(needs.Build_Stage.outputs.testArray) }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
