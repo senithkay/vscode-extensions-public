@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 45
     runs-on: ubuntu-latest
     outputs:
-      runBalPluginTests: ${{ steps.build.outputs.built-ballerina }}
+      runBalPluginTests: ${{ steps.build.outputs.built-ballerina-extension }}
       testArray: ${{ steps.testMatrix.outputs.testArray }}
     steps:
       - uses: actions/checkout@v2
