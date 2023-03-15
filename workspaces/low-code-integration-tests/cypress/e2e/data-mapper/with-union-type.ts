@@ -27,30 +27,30 @@ describe("Map to a record construct with union type output", () => {
 
     it("Canvas contains the source and target nodes", () => {
         DataMapper.getSourceNode("input");
-        DataMapper.getTargetNode("UnionOutput");
+        DataMapper.getTargetNode('mappingConstructor');
     });
 
     it("Initialize output as outputType1", () => {
-        DataMapper.targetNodeFieldMenuClick('UnionOutput','Reinitialize as OutputType1')
+        DataMapper.targetNodeRootMenuClick('Reinitialize as OutputType1', 'mappingConstructor')
     });
 
     it("Create mapping to union field (string type) within union type", () => {
-        DataMapper.createMappingUsingFields('input.str1', 'OutputType1.unionVal1');
-        DataMapper.linkExists('input.str1', 'OutputType1.unionVal1');
+        DataMapper.createMappingUsingFields('input.str1', 'OutputType1.unionVal1', 'mappingConstructor');
+        DataMapper.linkExists('input.str1', 'OutputType1.unionVal1', 'mappingConstructor');
         cy.wait(3000);
-        DataMapper.deleteLink('input.str1', 'OutputType1.unionVal1');
+        DataMapper.deleteLink('input.str1', 'OutputType1.unionVal1', 'mappingConstructor');
 
-        DataMapper.createMappingUsingFields('input.str1', 'OutputType1.unionVal1');
-        DataMapper.linkExists('input.str1', 'OutputType1.unionVal1');
+        DataMapper.createMappingUsingFields('input.str1', 'OutputType1.unionVal1', 'mappingConstructor');
+        DataMapper.linkExists('input.str1', 'OutputType1.unionVal1', 'mappingConstructor');
         cy.wait(3000);
-        DataMapper.createMappingUsingFields('input.str2', 'OutputType1.unionVal1');
-        DataMapper.linkExists('input.str2', 'OutputType1.unionVal1');
+        DataMapper.createMappingUsingFields('input.str2', 'OutputType1.unionVal1', 'mappingConstructor');
+        DataMapper.linkExists('input.str2', 'OutputType1.unionVal1', 'mappingConstructor');
     });
 
     it("Create mapping to union field (record type) within union type", () => {
-        DataMapper.targetNodeFieldMenuClick('OutputType1.unionVal2','Reinitialize as OutputType2')
-        DataMapper.createMappingUsingFields('input.dec1', 'OutputType1.unionVal2.dec1');
-        DataMapper.linkExists('input.dec1', 'OutputType1.unionVal2.dec1');
+        DataMapper.targetNodeFieldMenuClick('OutputType1.unionVal2','Reinitialize as OutputType2', 'mappingConstructor')
+        DataMapper.createMappingUsingFields('input.dec1', 'OutputType1.unionVal2.dec1', 'mappingConstructor');
+        DataMapper.linkExists('input.dec1', 'OutputType1.unionVal2.dec1', 'mappingConstructor');
     });
 
     it("Generated source code is valid", () => {
