@@ -232,7 +232,7 @@ describe("Expanded query view for defined record within mapping constructor", ()
 })
 
 
-describe.only("Verify input & output search", () => {
+describe("Verify input & output search", () => {
     before(() => {
         cy.visit(getIntegrationTestPageURL(INITIAL_BAL_FILE));
         Canvas.getDataMapper("transform").clickEdit();

@@ -251,7 +251,7 @@ describe("Verify that asterisk mark is shown appropriately", () => {
     it("Asterisk mark is not shown for an optional field", () => DataMapper.outputLabelNotContain('Output.d1', "*"));
 });
 
-describe.only("Verify input & output search", () => {
+describe("Verify input & output search", () => {
     before(() => {
         cy.visit(getIntegrationTestPageURL(BAL_FILE_WITH_BASIC_TRANSFORM))
         Canvas.getDataMapper("transform").clickEdit();
