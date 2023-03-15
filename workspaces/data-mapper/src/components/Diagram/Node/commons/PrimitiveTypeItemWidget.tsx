@@ -22,6 +22,7 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Por
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
 import { getTypeName } from "../../utils/dm-utils";
 
+import { InputSearchHighlight } from './SearchHighlight';
 import { TreeContainer, TreeHeader } from './Tree/Tree';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -98,7 +99,7 @@ export function PrimitiveTypeItemWidget(props: RecordTypeTreeWidgetProps) {
     const label = (
         <span style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel}>
-                {valueLabel ? valueLabel : id}
+                <InputSearchHighlight>{valueLabel ? valueLabel : id}</InputSearchHighlight>
                 {typeName && ":"}
             </span>
             {typeName && (

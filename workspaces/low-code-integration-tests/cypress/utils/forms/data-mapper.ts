@@ -136,6 +136,33 @@ export class DataMapper {
 
     static sourcePortNotExists = (sourcePort: string) => this.getSourcePort(sourcePort).should('not.exist');
 
+    // static createMappingUsingFields = (sourcePort: string, targetPort: string) => {
+    //     this.getSourceField(sourcePort).click();
+    //     this.getMappingField(targetPort).click({ force: true });
+    // }
+
+    static searchInput = (searchValue) => {
+        cy.get(`[id="search-0"]`).clear().type(`${searchValue}{enter}`)
+    }
+
+    static clearSearchInput = () => {
+        cy.get(`[data-testid='search-clear-0']`).click();
+    }
+
+    static searchOutput = (searchValue) => {
+        cy.get(`[id="search-1"]`).clear().type(`${searchValue}{enter}`)
+    }
+
+    static clearSearchOutput = () => {
+        cy.get(`[data-testid='search-clear-1']`).click();
+    }
+
+    // static createMappingUsingPorts = (sourcePort: string, targetPort: string) => {
+    //     this.getSourcePort(sourcePort).click();
+    //     this.getMappingPort(targetPort).click({ force: true });
+    // }
+
+    // static createMappingUsingFieldAndPort = (sourceField: string, targetPort: string) => {
     static createMappingUsingFields = (sourceField: string, targetField: string, targetNodeType: string) => {
         this.getSourceField(sourceField).click();
         this.getMappingField(targetNodeType, targetField).click({ force: true });

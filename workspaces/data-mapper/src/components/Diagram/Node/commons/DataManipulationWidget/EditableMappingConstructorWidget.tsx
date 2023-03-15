@@ -20,12 +20,16 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
+import { useDMSearchStore } from '../../../../../store/store';
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { isEmptyValue } from "../../../utils/dm-utils";
-import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
+import { SearchType } from '../../Search';
+import { SearchNodeWidget } from '../../Search/SearchNodeWidget';
+import { OutputSearchHighlight } from '../SearchHighlight';
+import { TreeBody, TreeContainerWithTopMargin, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 
@@ -105,18 +109,19 @@ export interface EditableMappingConstructorWidgetProps {
 
 export function EditableMappingConstructorWidget(props: EditableMappingConstructorWidgetProps) {
 	const {
-        id,
-        editableRecordFields,
-        typeName,
-        value,
-        engine,
-        getPort,
-        context,
-        mappings,
-        valueLabel,
-        deleteField
-    } = props;
+		id,
+		editableRecordFields,
+		typeName,
+		value,
+		engine,
+		getPort,
+		context,
+		mappings,
+		valueLabel,
+		deleteField
+	} = props;
 	const classes = useStyles();
+	const dmStore = useDMSearchStore();
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 	const [isHovered, setIsHovered] = useState(false);
@@ -143,7 +148,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
-					{valueLabel}
+					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
 					{typeName && ":"}
 				</span>
 			)}
@@ -173,55 +178,65 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	};
 
 	return (
-		<TreeContainer data-testid={`${id}-node`}>
-			<TreeHeader
-				isSelected={portState !== PortState.Unselected}
-				id={"recordfield-" + id}
-				onMouseEnter={onMouseEnter}
-				onMouseLeave={onMouseLeave}
-			>
-				<span className={classes.treeLabelInPort}>
-					{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
-							|| !expanded
-							|| !isBodyMappingConstructor
-							|| hasEmptyFields
-						) &&
-						<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
+		<>
+			<SearchNodeWidget
+				searchText={dmStore.outputSearch}
+				onSearchTextChange={dmStore.setOutputSearch}
+				focused={dmStore.outputSearchFocused}
+				setFocused={dmStore.setOutputSearchFocused}
+				searchType={SearchType.Output}
+				width='100%'
+			/>
+			<TreeContainerWithTopMargin data-testid={`${id}-node`}>
+				<TreeHeader
+					isSelected={portState !== PortState.Unselected}
+					id={"recordfield-" + id}
+					onMouseEnter={onMouseEnter}
+					onMouseLeave={onMouseLeave}
+				>
+					<span className={classes.treeLabelInPort}>
+						{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
+								|| !expanded
+								|| !isBodyMappingConstructor
+								|| hasEmptyFields
+							) &&
+							<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
+						}
+					</span>
+					<span className={classes.label}>
+						<IconButton
+							id={"button-wrapper-" + id}
+							className={classes.expandIcon}
+							style={{ marginLeft: indentation }}
+							onClick={handleExpand}
+							data-testid={`${id}-expand-icon-mapping-target-node`}
+						>
+							{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+						</IconButton>
+						{label}
+					</span>
+				</TreeHeader>
+				<TreeBody>
+					{expanded && editableRecordFields &&
+						editableRecordFields.map((item, index) => {
+							return (
+								<EditableRecordFieldWidget
+									key={index}
+									engine={engine}
+									field={item}
+									getPort={getPort}
+									parentId={id}
+									parentMappingConstruct={value}
+									context={context}
+									treeDepth={0}
+									deleteField={deleteField}
+									hasHoveredParent={isHovered}
+								/>
+							);
+						})
 					}
-				</span>
-				<span className={classes.label}>
-					<IconButton
-						id={"button-wrapper-" + id}
-						className={classes.expandIcon}
-						style={{ marginLeft: indentation }}
-						onClick={handleExpand}
-						data-testid={`${id}-expand-icon-mapping-target-node`}
-					>
-						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-					</IconButton>
-					{label}
-				</span>
-			</TreeHeader>
-			<TreeBody>
-				{expanded && editableRecordFields &&
-					editableRecordFields.map((item, index) => {
-						return (
-							<EditableRecordFieldWidget
-								key={index}
-								engine={engine}
-								field={item}
-								getPort={getPort}
-								parentId={id}
-								parentMappingConstruct={value}
-								context={context}
-								treeDepth={0}
-								deleteField={deleteField}
-								hasHoveredParent={isHovered}
-							/>
-						);
-					})
-				}
-			</TreeBody>
-		</TreeContainer>
+				</TreeBody>
+			</TreeContainerWithTopMargin>
+		</>
 	);
 }
