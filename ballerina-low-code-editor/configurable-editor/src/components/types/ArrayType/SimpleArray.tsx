@@ -77,10 +77,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     );
     const [counter, setCounter] = useState(arrayValues.length + 1);
     const isLowCode = props.isLowCode;
-    const isInsideArray = props.isInsideArray;
-    const isFeaturePreview = props.isFeaturePreview;
-    const connectionConfigs = props.connectionConfig;
-    const isRequired = props.isRequired;
+    const { isLowCode, isInsideArray, isFeaturePreview, connectionConfigs, isRequired } = props;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const [connectionAnchorEl, setConnectionAnchorEl] =
         React.useState<HTMLButtonElement | null>(null);

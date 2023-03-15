@@ -68,10 +68,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const [arrayValues, setArrayValues] = useState<ConfigElementProps[]>([]);
     const [counter, setCounter] = useState(arrayValues.length + 1);
     const isLowCode = props.isLowCode;
-    const isInsideArray = props.isInsideArray;
-    const isFeaturePreview = props.isFeaturePreview;
-    const connectionConfigs = props.connectionConfig;
-    const isRequired = props.isRequired;
+    const { isLowCode, isInsideArray, isFeaturePreview, connectionConfigs, isRequired } = props;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const [connectionAnchorEl, setConnectionAnchorEl] =
         React.useState<HTMLButtonElement | null>(null);
@@ -393,7 +390,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     });
 
     function iconButtonWithToolTip() {
-        if (connectionConfigs === undefined || connectionConfigs.length === 0) {
+        if (!connectionConfigs || !connectionConfigs.length) {
           return (
             <Tooltip title="No global configurations defined. Please contact administrator">
                 <span>
@@ -404,7 +401,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                         data-placement="top"
                         onClick={handleConnectionClick}
                         color={selectedValueRef ? "primary" : "default"}
-                        disabled={connectionConfigs ===  undefined || connectionConfigs.length === 0 ? true : false}
+                        disabled={!connectionConfigs || !connectionConfigs.length}
                     >
                         <SelectIcon />
                     </IconButton>
@@ -420,7 +417,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                 data-placement="top"
                 onClick={handleConnectionClick}
                 color={selectedValueRef ? "primary" : "default"}
-                disabled={connectionConfigs ===  undefined || connectionConfigs.length === 0 ? true : false}
+                disabled={!connectionConfigs || !connectionConfigs.length}
             >
                 <SelectIcon />
             </IconButton>
