@@ -108,6 +108,7 @@ jobs:
           done
           testArray=${testArray:0: -1}
           testArray+="]"
+          if [ ${#tests[@]} > 0 ]; then testArray='false'; fi
           echo $testArray
           echo "testArray=$testArray" >> $GITHUB_OUTPUT
 
@@ -242,6 +243,7 @@ jobs:
   LowCode_Test_Stage:
     name: Run low code tests
     needs: Build_Stage
+    if: ${{ needs.Build_Stage.outputs.testArray != 'false' }}
     strategy:
       fail-fast: false
       matrix:
