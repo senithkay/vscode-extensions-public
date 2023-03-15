@@ -83,7 +83,7 @@ jobs:
         env:
           isPreRelease: ${{ inputs.isPreRelease  }}
 
-      - name: Set text matrix
+      - name: Set test matrix
         id: testMatrix
         run: |
           tests=()
@@ -108,7 +108,7 @@ jobs:
           done
           testArray=${testArray:0: -1}
           testArray+="]"
-          if [ ${#tests[@]} > 0 ]; then testArray='false'; fi
+          if [ ${#tests[@]} = 0 ]; then testArray='false'; fi
           echo $testArray
           echo "testArray=$testArray" >> $GITHUB_OUTPUT
 
