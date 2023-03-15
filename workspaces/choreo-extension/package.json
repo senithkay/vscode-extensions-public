@@ -181,7 +181,7 @@
     "test": "rm -rf .vscode-test/extensions && node ./dist/test/runTest.js && nyc report && nyc report --reporter=html",
     "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
     "copyVSIX": "copyfiles *.vsix ./vsix",
-    "copyVSIXToRoot": "copyfiles *.vsix ../..",
+    "copyVSIXToRoot": "copyfiles -f ./vsix/* ../..",
     "postbuild": "pnpm run copyVSIX",
     "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
   },
