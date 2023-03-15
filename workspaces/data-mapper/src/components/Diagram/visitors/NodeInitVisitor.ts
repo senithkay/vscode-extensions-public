@@ -227,14 +227,14 @@ export class NodeInitVisitor implements Visitor {
                             );
                         }
                     }
-                } else if (STKindChecker.isMappingConstructor(bodyExpr)) {
+                } else if (returnType.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,
                         exprFuncBody,
                         typeDesc,
                         returnType
                     );
-                } else if (STKindChecker.isListConstructor(bodyExpr)) {
+                } else if (returnType.typeName === PrimitiveBalType.Array) {
                     this.outputNode = new ListConstructorNode(
                         this.context,
                         exprFuncBody,
