@@ -160,7 +160,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         const modifications: STModification[] = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(typeOfValue)
+                    "STATEMENT": getDefaultValue(typeOfValue?.typeName)
                 },
                 ...field.position
             }];

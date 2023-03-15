@@ -190,7 +190,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             modifications = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(typeOfValue)
+                    "STATEMENT": getDefaultValue(typeOfValue?.typeName)
                 },
                 ...field.position
             }];

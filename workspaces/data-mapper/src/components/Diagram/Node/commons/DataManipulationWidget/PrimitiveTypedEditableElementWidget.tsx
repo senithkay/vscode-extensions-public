@@ -118,7 +118,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
                 title: ValueConfigOption.DeleteElement,
                 onClick: handleDelete
             });
-        } else if (value !== getDefaultValue(field.type)) {
+        } else if (value !== getDefaultValue(field.type?.typeName)) {
             items.push({
                 title: ValueConfigOption.DeleteValue,
                 onClick: handleDelete

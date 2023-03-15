@@ -960,9 +960,9 @@ export function getTypeName(field: Type): string {
 	return field.typeName;
 }
 
-export function getDefaultValue(field: Type): string {
+export function getDefaultValue(typeName: string): string {
 	let draftParameter = "";
-	switch (field.typeName) {
+	switch (typeName) {
 		case PrimitiveBalType.String:
 			draftParameter = `""`;
 			break;
@@ -1107,12 +1107,14 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type 
 			name: fieldName ? fieldName : null,
 			fields: (node.fields.filter(field => STKindChecker.isSpecificField(field)) as SpecificField[]).map(field => {
 				return constructTypeFromSTNode(field);
-			})
+			}),
+			originalTypeName: AnydataType
 		}
 	} else if (STKindChecker.isListConstructor(node)) {
 		type = {
 			typeName: PrimitiveBalType.Array,
-			name: fieldName ? fieldName : null
+			name: fieldName ? fieldName : null,
+			originalTypeName: AnydataType
 		}
 		if (node.expressions.length > 0) {
 			type.memberType = constructTypeFromSTNode(node.expressions[0]);
@@ -1311,6 +1313,38 @@ export const getOptionalArrayField = (field: Type): Type | undefined => {
 
 /** Filter out error and nill types and return only the types that can be displayed as mapping as target nodes */
 export const getFilteredUnionOutputTypes = (type: Type) => type.members?.filter(member => member && !["error", "()"].includes(member.typeName));
+
+
+export const getNewFieldAdditionModification = (node: STNode, fieldName: string, fieldValue = '') => {
+	let insertPosition: NodePosition;
+	let modificationStatement = "";
+	let mappingConstruct: MappingConstructor;
+
+	if (STKindChecker.isMappingConstructor(node)) {
+		mappingConstruct = node;
+	} else if (STKindChecker.isSpecificField(node) && STKindChecker.isMappingConstructor(node.valueExpr)) {
+		mappingConstruct = node.valueExpr
+	}
+
+	if (mappingConstruct) {
+		if (mappingConstruct.fields?.length) {
+			const lastField = mappingConstruct.fields[mappingConstruct.fields?.length - 1]
+			insertPosition = {
+				...lastField.position,
+				startLine: lastField.position.endLine,
+				startColumn: lastField.position.endColumn,
+			}
+			modificationStatement = `,${getLinebreak()}\t${fieldName}:${fieldValue}${getLinebreak()}`
+		} else {
+			insertPosition = mappingConstruct.position
+			modificationStatement = `{${getLinebreak()}\t${fieldName}:${fieldValue}${getLinebreak()}}`
+		}
+	}
+
+	if (insertPosition && modificationStatement) {
+		return [getModification(modificationStatement, insertPosition)];
+	}
+}
 
 export const getSearchFilteredInput = (typeDef: Type, varName?: string) => {
 	const searchValue = useDMSearchStore.getState().inputSearch;

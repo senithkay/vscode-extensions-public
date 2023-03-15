@@ -38,13 +38,9 @@ function transform(Input input) returns Output => {
         select {
             id: "i1",
             confirmed: false,
-            outputField2: {
-                newlyAddedField: 
-            }
+            outputField2: {}
         },
-    outputField2: {
-        newlyAddedField: 
-    },
+    outputField2: ,
     anydataItems2: [
         {
             newlyAddedField: 

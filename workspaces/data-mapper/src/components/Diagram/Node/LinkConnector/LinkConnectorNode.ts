@@ -252,7 +252,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             modifications = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(targetField)
+                    "STATEMENT": getDefaultValue(targetField?.typeName)
                 },
                 ...deletePosition
             }];
