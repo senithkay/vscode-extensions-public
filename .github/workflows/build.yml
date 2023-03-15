@@ -101,9 +101,9 @@ jobs:
           [ ${{ steps.build.outputs.built-syntax-tree }} = 'true' ];
           then tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points" "test-se" "test-se-tools" "test-dm"); fi 
 
-          tests=$("${tests[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          sortedTests=$("${tests[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
           testArray="["
-          for test in "${tests[@]}"; do
+          for test in "${sortedTests[@]}"; do
             testArray+="'$test',"
           done
           testArray=${testArray:0: -1}
