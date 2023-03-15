@@ -440,7 +440,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}
-                            value={selectedValue2}
+                            value={selectedValue2 !== "[ undefined ]" ? selectedValue2 : undefined}
                         />
                     </Box>
                     {!isInsideArray &&

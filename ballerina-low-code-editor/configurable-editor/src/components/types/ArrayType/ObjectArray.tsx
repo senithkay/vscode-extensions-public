@@ -82,8 +82,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const [selectedValue, setSelectedValue] = useState(props.value);
     const [arrayValue, setArrayValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
-    const [openConnection, setOpenConnection] = React.useState(true);
-    const [isOpenCollapse, setIsOpenCollapse] = useState(null);
+    const [isOpenCollapse, setIsOpenCollapse] = useState<number | null>(null);
 
     const handleOpen = (clickedIndex: number) => {
         if (isOpenCollapse === clickedIndex) {
@@ -91,10 +90,6 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
         } else {
             setIsOpenCollapse(clickedIndex);
         }
-    };
-
-    const handleClickOpenConnection = () => {
-        setOpenConnection(!openConnection);
     };
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -113,7 +108,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        if (connectionConfig !==  undefined || connectionConfig.length !== 0) {
+        if (!!connectionConfig || connectionConfig.length) {
             setIsOpenCollapse(0);
             setConnectionAnchorEl(connectionEvent.currentTarget);
         } else {
@@ -473,7 +468,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}
-                            value={selectedValue}
+                            value={selectedValue !== "[ undefined ]" ? selectedValue : undefined}
                         />
                     </Box>
                     {!isInsideArray &&
