@@ -67,8 +67,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const returnElement: ReactElement[] = [];
     const [arrayValues, setArrayValues] = useState<ConfigElementProps[]>([]);
     const [counter, setCounter] = useState(arrayValues.length + 1);
-    const isLowCode = props.isLowCode;
-    const { isLowCode, isInsideArray, isFeaturePreview, connectionConfigs, isRequired } = props;
+    const { isLowCode, isInsideArray, isFeaturePreview, connectionConfig, isRequired } = props;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const [connectionAnchorEl, setConnectionAnchorEl] =
         React.useState<HTMLButtonElement | null>(null);
@@ -114,7 +113,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        if (connectionConfigs !==  undefined || connectionConfigs.length !== 0) {
+        if (connectionConfig !==  undefined || connectionConfig.length !== 0) {
             setIsOpenCollapse(0);
             setConnectionAnchorEl(connectionEvent.currentTarget);
         } else {
@@ -292,7 +291,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
             setConnectionAnchorEl(null);
         };
 
-    const getConnection = connectionConfigs?.map((connections, index) => {
+    const getConnection = connectionConfig?.map((connections, index) => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem
@@ -390,7 +389,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     });
 
     function iconButtonWithToolTip() {
-        if (!connectionConfigs || !connectionConfigs.length) {
+        if (!connectionConfig || !connectionConfig.length) {
           return (
             <Tooltip title="No global configurations defined. Please contact administrator">
                 <span>
@@ -401,7 +400,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                         data-placement="top"
                         onClick={handleConnectionClick}
                         color={selectedValueRef ? "primary" : "default"}
-                        disabled={!connectionConfigs || !connectionConfigs.length}
+                        disabled={!connectionConfig || !connectionConfig.length}
                     >
                         <SelectIcon />
                     </IconButton>
@@ -417,7 +416,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                 data-placement="top"
                 onClick={handleConnectionClick}
                 color={selectedValueRef ? "primary" : "default"}
-                disabled={!connectionConfigs || !connectionConfigs.length}
+                disabled={!connectionConfig || !connectionConfig.length}
             >
                 <SelectIcon />
             </IconButton>
