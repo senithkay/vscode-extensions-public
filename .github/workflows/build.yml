@@ -89,7 +89,7 @@ jobs:
           tests=()
 
           if [ {{ steps.build.outputs.built-low-code-diagram }} = 'true' ] ||
-          [ {{ steps.build.outputs.built-low-code-editor }} = 'true' ]; ||
+          [ {{ steps.build.outputs.built-low-code-editor }} = 'true' ];
           then tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points"); fi 
 
           if [ {{ steps.build.outputs.built-ballerina-languageclient }} = 'true' ] ||
@@ -98,7 +98,7 @@ jobs:
           [ {{ steps.build.outputs.built-low-code-editor-commons }} = 'true' ] ||
           [ {{ steps.build.outputs.built-low-code-ui-components }} = 'true' ] ||
           [ {{ steps.build.outputs.built-statement-editor }} = 'true' ] ||
-          [ {{ steps.build.outputs.built-syntax-tree }} = 'true' ] ;
+          [ {{ steps.build.outputs.built-syntax-tree }} = 'true' ];
           then tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points" "test-se" "test-se-tools" "test-dm"); fi 
 
           tests=$("${tests[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
