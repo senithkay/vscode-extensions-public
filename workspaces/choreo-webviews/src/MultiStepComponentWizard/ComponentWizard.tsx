@@ -17,7 +17,6 @@ import { ConfigureRepoStep } from "./ConfigureRepoStep";
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
-import { ServiceComponentTypeStep } from "./ServiceTypeStep";
 
 export const ComponentWizard: React.FC = () => {
     const initialState: WizardState<Partial<ComponentWizardState>> = {
@@ -35,7 +34,7 @@ export const ComponentWizard: React.FC = () => {
     return (
         <Wizard 
             title="Create New Choreo Component"
-            steps={[ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep, ServiceComponentTypeStep]}
+            steps={[ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep, ]}
             initialState={initialState}
             validationRules={[]}
             onSave={() => {}}
