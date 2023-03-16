@@ -26,6 +26,8 @@ import {
 import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
 import { extractGateways } from "../utils";
 
+type ServiceNodeModels = ServiceNodeModel | EntryNodeModel;
+
 let l1Nodes: Map<string, ServiceNodeModel>;
 let l2Nodes: Map<string, ServiceNodeModel>;
 let cellNodes: Map<string, ServiceNodeModel>;
@@ -269,8 +271,8 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
     }
 }
 
-function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, cellSource: ServiceNodeModel, connectorType: string, location: Location,
-    callingFunction?: ResourceFunction | RemoteFunction) {
+function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels, cellSource: ServiceNodeModels,
+    connectorType: string, location: Location, callingFunction?: ResourceFunction | RemoteFunction) {
     // create L1 external service node if not available
     let l1ExtService: ExtServiceNodeModel;
     if (l1ExtNodes.has(connectorType)) {
@@ -318,8 +320,8 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
     }
 }
 
-function mapExtLinks(source: ServiceNodeModel, target: ExtServiceNodeModel, location: Location,
-    sourcePortID?: string): ServiceLinkModel {
+function mapExtLinks(source: ServiceNodeModels, target: ExtServiceNodeModel, location: Location, sourcePortID?: string)
+    : ServiceLinkModel {
     let sourcePort: ServicePortModel;
     let targetPort: ServicePortModel = target.getPortFromID(`left-${target.getID()}`);
 
@@ -327,7 +329,7 @@ function mapExtLinks(source: ServiceNodeModel, target: ExtServiceNodeModel, loca
         sourcePort = source.getPortFromID(sourcePortID);
     }
     if (!sourcePort) {
-        sourcePort = source.getPortFromID(`right-${source.serviceObject.serviceId}`);
+        sourcePort = source.getPortFromID(`right-${source.getID()}`);
     }
 
     if (sourcePort && targetPort) {
@@ -353,6 +355,8 @@ function mapEntryPointInteractions(l1Source: EntryNodeModel, l2Source: EntryNode
             const l2Target: ServiceNodeModel = l2Nodes.get(interaction.resourceId.serviceId);
             const l2Link: ServiceLinkModel = generateEntryPointLinks(l2Source, l2Target, interaction, Level.TWO);
             l2Links.push(l2Link);
+        } else if (interaction.connectorType) {
+            mapExtServices(l1Source, l2Source, cellSource, interaction.connectorType, interaction.elementLocation);
         }
     });
 }
