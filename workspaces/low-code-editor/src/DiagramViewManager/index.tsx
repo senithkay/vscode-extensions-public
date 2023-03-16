@@ -178,7 +178,7 @@ export function DiagramViewManager(props: EditorProps) {
 
                 // resolve the service type if the ST is a service
                 let listenerSignature: string;
-                if (STKindChecker.isServiceDeclaration(selectedST)) {
+                if (selectedST && STKindChecker.isServiceDeclaration(selectedST)) {
                     const listenerExpression = selectedST.expressions[0];
                     if (STKindChecker.isExplicitNewExpression(listenerExpression)) {
                         const typeData = listenerExpression.typeData;
