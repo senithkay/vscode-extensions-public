@@ -31,7 +31,7 @@ export const DO_STATEMENT_SVG_HEIGHT = 52.845;
 export const DO_STATEMENT_SHADOW_OFFSET = DO_STATEMENT_SVG_HEIGHT_WITH_SHADOW - DO_STATEMENT_SVG_HEIGHT;
 
 export function DoStatementSVG(props: { x: number, y: number, text: string, openInCodeView?: () => void, codeSnippet?: string, diagnostics?: ErrorSnippet, componentSTNode?: STNode }) {
-    const { text, openInCodeView, diagnostics, componentSTNode, ...xyProps } = props;
+    const { text, openInCodeView, diagnostics, componentSTNode, codeSnippet, ...xyProps } = props;
 
     return (
         <svg {...xyProps} width={DO_STATEMENT_SVG_WIDTH_WITH_SHADOW} height={DO_STATEMENT_SVG_HEIGHT_WITH_SHADOW}>
@@ -56,13 +56,13 @@ export function DoStatementSVG(props: { x: number, y: number, text: string, open
                 </filter>
             </defs>
             <g>
-                (
                 <DoStatementRectSVG
                     onClick={openInCodeView}
                     model={componentSTNode}
                     diagnostic={diagnostics}
+                    type={text}
+                    text={{ code: codeSnippet }}
                 />
-                )
             </g>
         </svg>
     )
