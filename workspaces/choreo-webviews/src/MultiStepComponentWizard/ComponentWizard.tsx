@@ -22,8 +22,10 @@ export const ComponentWizard: React.FC = () => {
     const initialState: WizardState<Partial<ComponentWizardState>> = {
         currentStep: 0,
         formData: {
+            mode: "fromScratch",
             name: '',
-            accessibility: "external"
+            accessibility: "external",
+            choreoType: "Service",
         },
         isFormValid: false,
         isStepValid: false,

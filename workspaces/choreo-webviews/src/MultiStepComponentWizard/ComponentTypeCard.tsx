@@ -13,7 +13,7 @@
 import cn from "classnames";
 
 import styled from "@emotion/styled";
-import { ComponentType  } from "./types";
+import { ChoreoComponentType, ComponentType  } from "./types";
 import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
 
 
@@ -43,17 +43,18 @@ const TypeCardContainer = styled.div`
 export interface ComponentTypeCardProps {
     type: ComponentType;
     subType?: ChoreoServiceComponentType;
+    choreoComponentType: ChoreoComponentType;
     label: string;
     description: string;
     isSelected: boolean;
-    onSelect: (type: ComponentType, subType?: ChoreoServiceComponentType) => void;
+    onSelect: (type: ComponentType, choreoType: ChoreoComponentType, subType?: ChoreoServiceComponentType) => void;
 }
 
 export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = (props) => {
-    const { type, subType, label, description, isSelected, onSelect } = props;
+    const { type, subType, choreoComponentType, label, description, isSelected, onSelect } = props;
 
     const onSelection = () => {
-        onSelect(type, subType);
+        onSelect(type, choreoComponentType, subType);
     };
 
     return (

@@ -70,13 +70,15 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
             >
                 Description
             </VSCodeTextArea>
-            <DropDownContainer>
-                <label htmlFor="access-mode">Access Mode</label>
-                <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
-                    <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
-                    <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
-                </VSCodeDropdown>
-            </DropDownContainer>
+            {formData?.choreoType === "Service" && (
+                <DropDownContainer>
+                    <label htmlFor="access-mode">Access Mode</label>
+                    <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>
+                        <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
+                        <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
+                    </VSCodeDropdown>
+                </DropDownContainer>    
+            )}
         </StepContainer>
     );
 };

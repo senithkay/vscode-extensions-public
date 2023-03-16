@@ -16,7 +16,7 @@ import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
 import { useCallback, useEffect, useState } from "react";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ComponentTypeCard } from "./ComponentTypeCard";
-import { ChoreoComponentType, ComponentType, ComponentWizardState } from "./types";
+import { ChoreoComponentType, ComponentType, ComponentWizardState, ExistingChoreoComponentType } from "./types";
 
 const StepContainer = styled.div`
     display: flex;
@@ -42,59 +42,61 @@ const SubContainer = styled.div`
     gap: 20px;
 `;
 
-
 export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange } = props;
 
-    const [mode, setMode] = useState<"fromScratch" | "fromExisting">("fromScratch");
-
-    const setSelectedType = useCallback((type: ComponentType, subType?: ChoreoServiceComponentType) => {
-        const choreoType = (["Service", "Scheduled Trigger", "Manual Trigger", "REST API Proxy"].includes(type) ? type : undefined) as ChoreoComponentType | undefined ;
+    const setSelectedType = useCallback((type: ComponentType, choreoType: ChoreoComponentType, subType?: ChoreoServiceComponentType) => {
         onFormDataChange({ type, subType, choreoType });
     }, [onFormDataChange]);
 
    
     useEffect(() => {
         if (!formData?.type) {   
-            setSelectedType("Service", ChoreoServiceComponentType.REST_API);
+            setSelectedType("Service", "Service", ChoreoServiceComponentType.REST_API);
         }
     }, [formData?.type, setSelectedType]);
 
     useEffect(() => {
-        if (mode === "fromScratch") {
-            setSelectedType("Service", ChoreoServiceComponentType.REST_API);
-        } else {
-            setSelectedType("Ballerina Package", undefined);
+        // Make sure we select appropriate choreo type when we switch the mode
+        if (formData?.mode === "fromScratch"
+            && ["Dockerfile", "Ballerina Package" ].includes(formData?.type as ComponentType)) {
+            setSelectedType("Service", "Service", ChoreoServiceComponentType.REST_API);
+        } else if (formData?.mode === "fromExisting" 
+            && !["Dockerfile", "Ballerina Package" ].includes(formData?.type as ComponentType)){
+            setSelectedType("Ballerina Package", "Service");
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mode]);
+    }, [formData?.mode]);
 
     const handleFromScrachCheckChange = (e: any) => {
-        setMode(e.target.checked ? "fromScratch" : "fromExisting");
+       const mode = e.target.checked ? "fromScratch" : "fromExisting";
+       onFormDataChange({ mode });
     };
 
     const handleFromExistingCheckChange = (e: any) => {
-        setMode(e.target.checked ? "fromExisting" : "fromScratch");
+        const mode = e.target.checked ? "fromExisting" : "fromScratch";
+        onFormDataChange({ mode });
     };
 
     const handleOnChoreoTypeChange = (e: any) => {
-        const choreoType = e.target.value as ChoreoComponentType;
+        const choreoType = e.target.value as ExistingChoreoComponentType;
         onFormDataChange({ choreoType });
     };
 
     return (
         <StepContainer>
             <VSCodeRadio
-                checked={mode === "fromScratch"}
+                checked={formData?.mode === "fromScratch"}
                 onChange={handleFromScrachCheckChange}
             >
                 Create from scratch (Recommended)
             </VSCodeRadio>
-            {mode === "fromScratch" && (
+            {formData?.mode  === "fromScratch" && (
                 <SubContainer>
                     <CardContainer>
                         <ComponentTypeCard
                             type="Service"
+                            choreoComponentType="Service"
                             subType={ChoreoServiceComponentType.REST_API}
                             label="REST API"
                             description="Design, develop, test, and deploy your microservices"
@@ -104,6 +106,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         />
                         <ComponentTypeCard
                             type="Service"
+                            choreoComponentType="Service"
                             subType={ChoreoServiceComponentType.GQL_API}
                             label="GraphQL API"
                             description="Design, develop, test, and deploy your microservices"
@@ -113,6 +116,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         />
                         <ComponentTypeCard
                             type="Service"
+                            choreoComponentType="Service"
                             subType={ChoreoServiceComponentType.GRPC_API}
                             label="GRPC API"
                             description="Design, develop, test, and deploy your microservices"
@@ -122,6 +126,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         />
                         <ComponentTypeCard
                             type="Service"
+                            choreoComponentType="Service"
                             subType={ChoreoServiceComponentType.WEBSOCKET_API}
                             label="Webscoket API"
                             description="Design, develop, test, and deploy your microservices"
@@ -131,6 +136,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         />
                         <ComponentTypeCard
                             type="Scheduled Trigger"
+                            choreoComponentType="Scheduled Trigger"
                             label="Scheduled Trigger"
                             description="Create programs that can execute on a schedule. E.g., Recurring integration tasks."
                             isSelected={formData?.type === "Scheduled Trigger"}
@@ -139,6 +145,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         />
                         <ComponentTypeCard
                             type="Manual Trigger"
+                            choreoComponentType="Manual Trigger"
                             label="Manual Trigger"
                             description="Create programs that you can execute manually. E.g., One-time integration tasks."
                             isSelected={formData?.type === "Manual Trigger"}
@@ -147,6 +154,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         />
                         <ComponentTypeCard
                             type="REST API Proxy"
+                            choreoComponentType="REST API Proxy"
                             label="REST API Proxy"
                             description="Provide API management capabilities for existing APIs."
                             onSelect={setSelectedType}
@@ -157,17 +165,18 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                 </SubContainer>
             )}
             <VSCodeRadio
-                checked={mode === "fromExisting"}
+                checked={formData?.mode === "fromExisting"}
                 onChange={handleFromExistingCheckChange}
             >
                 Create from exisiting
             </VSCodeRadio>
-            {mode === "fromExisting" && (
+            {formData?.mode === "fromExisting" && (
                 <SubContainer>
                     <label>Existing source</label>
                     <CardContainer>
                         <ComponentTypeCard
                             type="Ballerina Package"
+                            choreoComponentType={formData?.choreoType as ChoreoComponentType}
                             label="Ballerina"
                             description="Create a component from an existing Ballerina package."
                             isSelected={formData?.type === "Ballerina Package"}
@@ -176,6 +185,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         />
                         <ComponentTypeCard
                             type="Dockerfile"
+                            choreoComponentType={formData?.choreoType as ChoreoComponentType}
                             label="Dockerfile"
                             description="Create a component from an existing Dockerfile."
                             isSelected={formData?.type === "Dockerfile"}
@@ -184,8 +194,8 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         />
                     </CardContainer>
                     <label>Component type to create</label>
-                    <VSCodeDropdown id="existing-import-type-dropdown" onChange={handleOnChoreoTypeChange}>
-                        {["Service", "Scheduled Trigger", "Manual Trigger"].map((type) => (<VSCodeOption>{type}</VSCodeOption>))}
+                    <VSCodeDropdown id="existing-import-type-dropdown" value={formData?.choreoType} onChange={handleOnChoreoTypeChange}>
+                        {["Service", "Scheduled Trigger", "Manual Trigger"].map((type) => (<VSCodeOption selected={formData?.choreoType === type} value={type} key={type}>{type}</VSCodeOption>))}
                     </VSCodeDropdown>
                 </SubContainer>
             )}
