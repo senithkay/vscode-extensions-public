@@ -17,12 +17,13 @@
  *
  */
 
-import React from "react";
+import React, { useContext } from "react";
 
 import { DoStatement, STNode } from "@wso2-enterprise/syntax-tree";
+import { Context } from "../../../Context/diagram";
 
 import { DefaultConfig } from "../../..";
-import { getSTComponents } from "../../../Utils";
+import { getDraftComponent, getSTComponents } from "../../../Utils";
 import { DoStatementViewState } from "../../../ViewState/do-statement";
 
 import { DoStatementSVG, DO_STATEMENT_SHADOW_OFFSET, DO_STATEMENT_SVG_HEIGHT_WITH_SHADOW, DO_STATEMENT_SVG_WIDTH, DO_STATEMENT_SVG_WIDTH_WITH_SHADOW } from "./DoStatementSVG";
@@ -36,8 +37,11 @@ interface DoStatementProps {
 
 export function DoStatement(props: DoStatementProps) {
     const { model } = props;
+    const diagramContext = useContext(Context);
     const viewState: DoStatementViewState = model.viewState as DoStatementViewState;
     const onFailVS: OnFailClauseViewState = viewState.onFailBodyVS as OnFailClauseViewState;
+    const state = diagramContext?.state;
+    const { insertComponentStart } = diagramContext.actions;
     const x: number = viewState.doHeadVS.cx;
     const y: number = viewState.doHeadVS.cy - (viewState.doHeadVS.h / 2) - (DO_STATEMENT_SHADOW_OFFSET / 2);
     const doBodyChildren = getSTComponents((model as DoStatement).blockStatement.statements);
@@ -95,6 +99,15 @@ export function DoStatement(props: DoStatementProps) {
     });
 
 
+    let drafts: React.ReactNode[] = [];
+    if (viewState.doBodyVS.draft) {
+        drafts = getDraftComponent(viewState.doBodyVS, state, insertComponentStart);
+    }
+
+    if (viewState.onFailBodyVS.onFailBodyVS.draft) {
+        drafts = getDraftComponent(viewState.onFailBodyVS.onFailBodyVS, state, insertComponentStart);
+    }
+
     return (
         <g className="main-do-statement-wrapper">
             <g className={'do-statement-block'}>
@@ -116,6 +129,7 @@ export function DoStatement(props: DoStatementProps) {
                     componentSTNode={model}
                 />
                 {onFailBodyChildren}
+                {drafts}
                 {plusButtons}
             </g>
         </g>
