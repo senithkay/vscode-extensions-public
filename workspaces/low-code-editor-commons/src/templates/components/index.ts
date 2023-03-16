@@ -49,12 +49,18 @@ if {{{ CONDITION }}} {
     ACTION_STATEMENT: '{{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
     ACTION_STATEMENT_CHECK: 'check {{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}-> {{{ FUNCTION }}}({{{ PARAMS }}});',
     RESOURCE_SERVICE_CALL_CHECK: '{{{ TYPE }}} {{{ VARIABLE }}} = check {{#if WITH_SELF}}self.{{/if}}{{{ CALLER }}}->/{{#if PATH}}{{{ PATH }}}{{/if}}{{#if FUNCTION}}.{{{ FUNCTION }}}{{/if}}{{#if PARAMS}}({{{ PARAMS }}}){{/if}};',
-    RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}}',
+    RESOURCE_SIGNATURE: '{{{ METHOD }}} {{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}{{/if}}',
     RESOURCE: `
-    resource function {{{ METHOD }}} {{{ PATH }}} ({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{ADD_RETURN}}{{/if}} {
+    resource function {{{ METHOD }}} {{{ PATH }}} ({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}{{/if}} {
 
     }
     `,
+    REMOTE_FUNCTION: `
+    remote function {{{ PATH }}} ({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}{{/if}} {
+
+    }
+    `,
+    REMOTE_FUNCTION_SIGNATURE: '{{{ PATH }}}({{{ PARAMETERS }}}) {{#if ADD_RETURN}}returns {{{ADD_RETURN}}}{{/if}}',
     RESPOND_WITH_CHECK: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
     RESPOND: 'check {{{ CALLER }}}->respond({{{ EXPRESSION }}});',
     RETURN_STATEMENT: 'return {{{ RETURN_EXPR }}};',

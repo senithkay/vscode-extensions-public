@@ -11,7 +11,22 @@
  * associated services.
  */
 
-import { DotToken, FunctionDefinition, IdentifierToken, NodePosition, ResourceAccessorDefinition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
+import {
+    DotToken,
+    FunctionDefinition,
+    IdentifierToken,
+    NodePosition,
+    ObjectMethodDefinition,
+    ResourceAccessorDefinition,
+    ResourcePathRestParam,
+    ResourcePathSegmentParam,
+    ServiceDeclaration,
+    SlashToken,
+    STKindChecker,
+    STNode,
+    TypeDefinition,
+    Visitor
+} from "@wso2-enterprise/syntax-tree";
 
 import { generateResourcePathString, isPositionEqual } from "./util";
 
@@ -22,7 +37,8 @@ export enum ELEMENT_KEYWORDS {
     SERVICE = 'service',
     FUNCTION = 'function',
     RESOURCE = 'resource',
-    RECORD = 'record'
+    RECORD = 'record',
+    REMOTE = 'remote',
 }
 
 export class UIDGenerationVisitor implements Visitor {
@@ -83,6 +99,18 @@ export class UIDGenerationVisitor implements Visitor {
     }
 
     endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
+        this.stack.push(`${ELEMENT_KEYWORDS.REMOTE}${SUB_DELIMETER}${node.functionName.value}`);
+
+        if (isPositionEqual(node.position, this.position)) {
+            this.setUId();
+        }
+    }
+
+    endVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
         this.stack.pop();
     }
 
