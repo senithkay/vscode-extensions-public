@@ -120,7 +120,7 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             const simpleTypeProp: SimpleTypeProps = {
                 ...props,
                 setSimpleConfig: props.setConfigElement,
-                value: props.value !== undefined ? props.value : "",
+                value: props.value,
             };
 
             returnElement.push(

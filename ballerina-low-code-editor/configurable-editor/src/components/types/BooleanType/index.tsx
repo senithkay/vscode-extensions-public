@@ -110,8 +110,16 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
         }
     }, []);
 
+    function parseBoolean(inputValue: string | boolean) {
+        if (inputValue === "true" || inputValue === true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     const setBooleanValue = (propertyId: string, propertyValue: boolean, propertyValueRef: any) => {
-        setBooleanConfig(propertyId, propertyValue !== undefined ? Boolean(propertyValue) : undefined,
+        setBooleanConfig(propertyId, propertyValue !== undefined ? parseBoolean(propertyValue) : undefined,
             propertyValueRef !== undefined ? propertyValueRef : "");
     };
     // tslint:disable: jsx-no-lambda jsx-no-multiline-js
