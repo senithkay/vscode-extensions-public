@@ -18,9 +18,8 @@ import { Button, Divider, FormControl } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
 import {
-    createResource,
-    getSource,
-    updateResourceSignature
+    createRemoteFunction,
+    getSource, updateRemoteFunctionSignature,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ConfigPanelSection,
@@ -29,8 +28,8 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     DefaultableParam,
-    IncludedRecordParam, RequiredParam,
-    ResourceAccessorDefinition, RestParam,
+    IncludedRecordParam, ObjectMethodDefinition, RequiredParam,
+    RestParam,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
@@ -43,15 +42,14 @@ import { completionEditorTypeKinds } from "../../InputEditor/constants";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
 import { FunctionParam, FunctionParamItem } from "../FunctionForm/FunctionParamEditor/FunctionParamItem";
 import { FunctionParamSegmentEditor } from "../FunctionForm/FunctionParamEditor/FunctionSegmentEditor";
-import { generateParameterSectionString, getParamString, getResourcePath } from "../ResourceForm/util";
+import { generateParameterSectionString } from "../ResourceForm/util";
 
 export interface FunctionProps {
-    model: ResourceAccessorDefinition;
+    model: ObjectMethodDefinition;
     completions: SuggestionItem[];
 }
 
-// TODO : refactor resource form functionality
-export function GraphqlResourceForm(props: FunctionProps) {
+export function GraphqlMutationForm(props: FunctionProps) {
     const { model, completions } = props;
 
     const {
@@ -66,8 +64,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
     const connectorClasses = connectorStyles();
 
     // States related to component model
+    const [functionName, setFunctionName] = useState<string>(model ? model.functionName.value : "");
     const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
-    const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
 
     // States related to syntax diagnostics
@@ -84,12 +82,10 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     // Return type related functions
     const onReturnTypeChange = (value: string) => {
-        handleResourceParamChange(
+        const parametersStr = parameters.map((item) => `${item.type} ${item.name}`).join(", ");
+        handleRemoteMethodDataChange(
             model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
-            generateParameterSectionString(model?.functionSignature?.parameters),
-            value,
-            model.functionSignature?.returnTypeDesc?.type,
+            parametersStr,
             value
         );
     };
@@ -108,23 +104,21 @@ export function GraphqlResourceForm(props: FunctionProps) {
         const parametersStr = newParams
             .map((item) => `${item.type} ${item.name}`)
             .join(", ");
-        await handleResourceParamChange(
+        await handleRemoteMethodDataChange(
             model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
             parametersStr,
             model.functionSignature?.returnTypeDesc?.type?.source
         );
     };
 
-    const onParamChange = async (param: FunctionParam) => {
+    const onNewParamChange = async (param: FunctionParam) => {
         setCurrentComponentName("Param");
         const newParams = [...parameters, param];
         const parametersStr = newParams
             .map((item) => `${item.type} ${item.name}`)
             .join(", ");
-        await handleResourceParamChange(
+        await handleRemoteMethodDataChange(
             model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
             parametersStr,
             model.functionSignature?.returnTypeDesc?.type?.source
         );
@@ -137,31 +131,29 @@ export function GraphqlResourceForm(props: FunctionProps) {
         const parametersStr = newParams
             .map((item) => `${item.type} ${item.name}`)
             .join(", ");
-        await handleResourceParamChange(
+        await handleRemoteMethodDataChange(
             model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
             parametersStr,
             model.functionSignature?.returnTypeDesc?.type?.source
         );
     };
 
     const handleOnSave = () => {
+        const parametersStr = parameters ? parameters.map((item) => `${item.type} ${item.name}`).join(", ") : "";
         if (isEdit) {
             applyModifications([
-                updateResourceSignature(
-                    model.functionName.value,
-                    getResourcePath(model.relativeResourcePath),
-                    getParamString(model.functionSignature.parameters),
-                    model.functionSignature?.returnTypeDesc?.type?.source,
+                updateRemoteFunctionSignature(
+                    functionName,
+                    parametersStr,
+                    returnType,
                     targetPosition)
             ]);
         } else {
             applyModifications([
-                createResource(
-                    model.functionName.value,
-                    getResourcePath(model.relativeResourcePath),
-                    getParamString(model.functionSignature.parameters),
-                    model.functionSignature?.returnTypeDesc?.type?.source,
+                createRemoteFunction(
+                    functionName,
+                    parametersStr,
+                    returnType,
                     targetPosition
                 )
             ]);
@@ -170,7 +162,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
         onCancel();
     };
 
-    const closeNewParamView = () => {
+    const closeParamView = () => {
         setAddingNewParam(false);
         setIsEditInProgress(false);
         setEditingSegmentId(-1);
@@ -229,7 +221,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
                             RestParam)}
                         id={editingSegmentId}
                         syntaxDiag={currentComponentSyntaxDiag}
-                        onCancel={closeNewParamView}
+                        onCancel={closeParamView}
                         onUpdate={handleOnUpdateParam}
                         onChange={onUpdateParamChange}
                         isEdit={true}
@@ -241,10 +233,10 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     useEffect(() => {
         setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
+        setFunctionName(model ? model.functionName.value : "");
 
         if (currentComponentName === "") {
             const editParams: FunctionParam[] = model?.functionSignature.parameters
-                .filter((param) => STKindChecker.isRequiredParam(param))
                 .map((param: any, index) => ({
                     id: index,
                     name: param.paramName.value,
@@ -258,47 +250,26 @@ export function GraphqlResourceForm(props: FunctionProps) {
         }
     }, [model, completions]);
 
-    const getResourcePathDiagnostics = () => {
-        const diagPath = model.relativeResourcePath?.find(
-            resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
 
-        let resourcePathDiagnostics = [];
-
-        if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
-            resourcePathDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.viewState?.diagnosticsInRange || [];
-            resourcePathDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.typeDescriptor?.viewState?.diagnosticsInRange || [];
-        } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
-            resourcePathDiagnostics = diagPath?.viewState?.diagnostics || [];
-        }
-
-        return resourcePathDiagnostics;
-    };
-
-    const handlePathChange = async (value: string) => {
-        setShouldUpdatePath(false);
-        // setResourcePath(value);
-        await handleResourceParamChange(
-            model.functionName.value,
+    const handleNameChange = async (value: string) => {
+        setFunctionName(value);
+        await handleRemoteMethodDataChange(
             value,
             generateParameterSectionString(model?.functionSignature?.parameters),
             model.functionSignature?.returnTypeDesc?.type?.source,
         );
     };
 
-    const onPathFocus = () => {
-        setCurrentComponentName("Path");
+    const onNameFocus = () => {
+        setCurrentComponentCompletions([]);
+        setCurrentComponentName("MethodName");
     };
 
-    const handleResourceParamChange = async (
-        resMethod: string,
-        pathStr: string,
-        paramStr: string,
-        returnStr: string,
-        stModel?: STNode,
-        currentValue?: string) => {
-        const pathString = pathStr ? pathStr : ".";
+    const handleRemoteMethodDataChange = async (funcName: string, paramStr: string, returnStr: string,
+                                                stModel?: STNode, currentValue?: string) => {
+
         const codeSnippet = getSource(
-            updateResourceSignature(resMethod, pathString, paramStr, returnStr, targetPosition));
+            updateRemoteFunctionSignature(funcName, paramStr, returnStr, targetPosition));
         const position = model ? ({
             startLine: model.functionName.position.startLine - 1,
             startColumn: model.functionName.position.startColumn,
@@ -307,9 +278,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
         }) : targetPosition;
         const updatedContent = getUpdatedSource(codeSnippet, model?.source, position, undefined,
             true);
-        const partialST = await getPartialSTForModuleMembers(
-            { codeSnippet: updatedContent.trim() }, getLangClient, true
-        );
+        const partialST = await getPartialSTForModuleMembers({ codeSnippet: updatedContent.trim() },
+            getLangClient, true);
 
         if (!partialST.syntaxDiagnostics.length) {
             onChange(updatedContent, partialST, undefined, { model: stModel }, currentValue, completionEditorTypeKinds, 0,
@@ -319,7 +289,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
-
     };
 
     const formContent = () => {
@@ -327,19 +296,17 @@ export function GraphqlResourceForm(props: FunctionProps) {
             <>
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
-                        <FieldTitle title="Path" optional={false}/>
+                        <FieldTitle title="Name" optional={false}/>
                         <LiteExpressionEditor
-                            testId="resource-path"
+                            testId="method-name"
                             diagnostics={
-                                (currentComponentName === "Path" && currentComponentSyntaxDiag)
-                                || getResourcePathDiagnostics()
+                                (currentComponentName === "MethodName" && currentComponentSyntaxDiag)
+                                || model?.functionName?.viewState?.diagnosticsInRange
                             }
-                            defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
-                            externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}
-                            onChange={handlePathChange}
-                            completions={completions}
-                            onFocus={onPathFocus}
-                            disabled={currentComponentName !== "Path" && isEditInProgress}
+                            defaultValue={functionName}
+                            onChange={handleNameChange}
+                            onFocus={onNameFocus}
+                            disabled={currentComponentName !== "MethodName" && isEditInProgress}
                         />
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <ConfigPanelSection title={"Parameters"}>
@@ -350,8 +317,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
                                         RequiredParam | RestParam)}
                                     id={parameters.length}
                                     syntaxDiag={currentComponentSyntaxDiag}
-                                    onCancel={closeNewParamView}
-                                    onChange={onParamChange}
+                                    onCancel={closeParamView}
+                                    onChange={onNewParamChange}
                                     onSave={onSaveNewParam}
                                     isEdit={false}
                                     completions={completions}
@@ -405,8 +372,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
         <FormControl data-testid="graphql-resource-form" className={connectorClasses.wizardFormControlExtended}>
             <FormHeaderSection
                 onCancel={onCancel}
-                formTitle={"Configure GraphQL Query"}
-                defaultMessage={"Configure GraphQL Query"}
+                formTitle={"Configure GraphQL Mutation"}
+                defaultMessage={"Configure GraphQL Mutation"}
             />
             {formContent()}
         </FormControl>

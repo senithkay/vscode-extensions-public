@@ -50,8 +50,7 @@ export interface FunctionProps {
     completions: SuggestionItem[];
 }
 
-// TODO : refactor resource form functionality
-export function GraphqlResourceForm(props: FunctionProps) {
+export function GraphqlSubscriptionForm(props: FunctionProps) {
     const { model, completions } = props;
 
     const {
@@ -402,11 +401,11 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
 
     return (
-        <FormControl data-testid="graphql-resource-form" className={connectorClasses.wizardFormControlExtended}>
+        <FormControl data-testid="graphql-subscription-form" className={connectorClasses.wizardFormControlExtended}>
             <FormHeaderSection
                 onCancel={onCancel}
-                formTitle={"Configure GraphQL Query"}
-                defaultMessage={"Configure GraphQL Query"}
+                formTitle={"Configure GraphQL Subscription"}
+                defaultMessage={"Configure GraphQL Subscription"}
             />
             {formContent()}
         </FormControl>

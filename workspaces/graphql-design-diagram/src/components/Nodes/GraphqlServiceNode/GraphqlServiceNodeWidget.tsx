@@ -44,6 +44,7 @@ export function GraphqlServiceNodeWidget(props: ServiceNodeWidgetProps) {
                             node={node}
                             functionElement={resource}
                             isResourceFunction={true}
+                            isSubscription={resource.subscription}
                         />
                     );
                 })

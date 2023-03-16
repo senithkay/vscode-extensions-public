@@ -43,8 +43,13 @@ export function EditFunctionWidget(props: EditFunctionWidgetProps) {
                 startColumn: position.startLine.offset,
                 startLine: position.startLine.line
             };
-            // TODO: enable editing for resource forms
-            functionPanel(functionPosition, "ResourceForm", getSTNodeFromRange(functionPosition, model));
+            if (functionType === FunctionType.QUERY) {
+                functionPanel(functionPosition, "GraphqlResource", getSTNodeFromRange(functionPosition, model));
+            } else if (functionType === FunctionType.MUTATION) {
+                functionPanel(functionPosition, "GraphqlMutation", getSTNodeFromRange(functionPosition, model));
+            } else if (functionType === FunctionType.SUBSCRIPTION) {
+                functionPanel(functionPosition, "GraphqlSubscription", getSTNodeFromRange(functionPosition, model));
+            }
         }
     };
 

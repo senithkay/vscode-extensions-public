@@ -11,6 +11,8 @@
  * associated services.
  */
 import { FunctionForm } from "./FunctionForm/FunctionForm";
+import { GraphqlMutationForm } from "./GraphqlForms/GraphqlMutationForm";
+import { GraphqlSubscriptionForm } from "./GraphqlForms/GraphqlSubscriptionForm";
 import { GraphqlResourceForm } from "./GraphqlResourceForm/GraphqlResourceForm";
 import { ListenerForm } from "./ListenerForm/ListenerForm";
 import { ResourceForm } from "./ResourceForm/ResourceForm";
@@ -23,3 +25,5 @@ export { ListenerForm as GraphqlListener };
 export { FunctionForm as Main };
 export { ResourceForm as Resource };
 export { GraphqlResourceForm as GraphqlResource };
+export { GraphqlMutationForm as GraphqlMutation };
+export { GraphqlSubscriptionForm as GraphqlSubscription };

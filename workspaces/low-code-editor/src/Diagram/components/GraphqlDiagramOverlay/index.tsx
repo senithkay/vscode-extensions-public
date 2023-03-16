@@ -62,15 +62,9 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
 
     const renderFunctionForm = (position: NodePosition, functionType: string, functionModel?: STNode) => {
         if (STKindChecker.isServiceDeclaration(model)) {
-            const lastMemberPosition: NodePosition = {
-                endColumn: model.closeBraceToken.position.endColumn,
-                endLine: model.closeBraceToken.position.endLine,
-                startColumn: model.closeBraceToken.position.startColumn,
-                startLine: model.closeBraceToken.position.startLine
-            };
             setFormConfig({
                 model: functionModel,
-                configOverlayFormStatus: { formType: "GraphqlConfigForm", isLoading: false },
+                configOverlayFormStatus: { formType: "GraphqlConfigForm", formName: functionType, isLoading: false },
                 targetPosition: position,
                 onCancel: () => {
                     setEnableFunctionForm(false);

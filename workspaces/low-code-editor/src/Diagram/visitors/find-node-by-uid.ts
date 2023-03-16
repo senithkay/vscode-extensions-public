@@ -11,7 +11,17 @@
  * associated services.
  */
 
-import { FunctionDefinition, ResourceAccessorDeclaration, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
+import {
+    FunctionDefinition,
+    ObjectMethodDefinition,
+    ResourceAccessorDeclaration,
+    ResourceAccessorDefinition,
+    ServiceDeclaration,
+    STKindChecker,
+    STNode,
+    TypeDefinition,
+    Visitor
+} from "@wso2-enterprise/syntax-tree";
 
 import { ELEMENT_KEYWORDS, MODULE_DELIMETER, SUB_DELIMETER } from "./uid-generation-visitor";
 import { generateResourcePathString } from "./util";
@@ -74,6 +84,18 @@ export class FindNodeByUidVisitor implements Visitor {
     }
 
     endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
+        this.stack.push(`${ELEMENT_KEYWORDS.REMOTE}${SUB_DELIMETER}${node.functionName.value}`);
+
+        if (this.getCurrentUid() === this.uid) {
+            this.selectedNode = node;
+        }
+    }
+
+    endVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
         this.stack.pop();
     }
 
