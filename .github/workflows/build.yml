@@ -105,11 +105,11 @@ jobs:
           tests=()
 
           echo "Changed workspaces: $FOLDERS"
-          if [[ "${FOLDERS[@]}" =~ "ballerina-extension" ]]; then;
+          if [[ "${FOLDERS[@]}" =~ "ballerina-extension" ]]; then
             echo "runBalPluginTests=true" >> $GITHUB_OUTPUT
           fi 
 
-          if [[ "${FOLDERS[@]}" =~ "low-code-diagram" ]] || [[ "${FOLDERS[@]}" =~ "low-code-editor" ]]; then;
+          if [[ "${FOLDERS[@]}" =~ "low-code-diagram" ]] || [[ "${FOLDERS[@]}" =~ "low-code-editor" ]]; then
             tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points");
           fi 
 
