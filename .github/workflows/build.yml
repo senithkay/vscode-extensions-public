@@ -113,13 +113,13 @@ jobs:
             tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points");
           fi 
 
-          if [[ ${FOLDERS[@]}" =~ "ballerina-languageclient" ]] || 
-          [[ ${FOLDERS[@]}" =~ "expression-editor" ]] || 
-          [[ ${FOLDERS[@]}" =~ "lang-service" ]] || 
-          [[ ${FOLDERS[@]}" =~ "low-code-editor-commons" ]] || 
-          [[ ${FOLDERS[@]}" =~ "low-code-ui-components" ]] || 
-          [[ ${FOLDERS[@]}" =~ "statement-editor" ]] || 
-          [[ ${FOLDERS[@]}" =~ "syntax-tree" ]]; then
+          if [[ "${FOLDERS[@]}" =~ "ballerina-languageclient" ]] || 
+          [[ "${FOLDERS[@]}" =~ "expression-editor" ]] || 
+          [[ "${FOLDERS[@]}" =~ "lang-service" ]] || 
+          [[ "${FOLDERS[@]}" =~ "low-code-editor-commons" ]] || 
+          [[ "${FOLDERS[@]}" =~ "low-code-ui-components" ]] || 
+          [[ "${FOLDERS[@]}" =~ "statement-editor" ]] || 
+          [[ "${FOLDERS[@]}" =~ "syntax-tree" ]]; then
             tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points" "test-se" "test-se-tools" "test-dm");
           fi 
 
