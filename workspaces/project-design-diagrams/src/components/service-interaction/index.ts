@@ -18,16 +18,15 @@
 
 export { ServiceLinkFactory } from './ServiceLink/ServiceLinkFactory';
 export { ServiceLinkModel } from './ServiceLink/ServiceLinkModel';
-export { ServiceLinkWidget } from './ServiceLink/ServiceLinkWidget';
 
 export { ServiceNodeFactory } from './ServiceNode/ServiceNodeFactory';
 export { ServiceNodeModel } from './ServiceNode/ServiceNodeModel';
-export { ServiceNodeWidget } from './ServiceNode/ServiceNodeWidget';
 
 export { ServicePortFactory } from './ServicePort/ServicePortFactory';
 export { ServicePortModel } from './ServicePort/ServicePortModel';
-export { ServicePortWidget } from './ServicePort/ServicePortWidget';
 
 export { ExtServiceNodeFactory } from './ExtServiceNode/ExtServiceNodeFactory';
 export { ExtServiceNodeModel } from './ExtServiceNode/ExtServiceNodeModel';
-export { ExtServiceNodeWidget } from './ExtServiceNode/ExtServiceNodeWidget';
+
+export { EntryNodeFactory } from './EntryPointNode/EntryNodeFactory';
+export { EntryNodeModel } from './EntryPointNode/EntryNodeModel';

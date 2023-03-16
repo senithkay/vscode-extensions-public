@@ -19,14 +19,19 @@
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { uniqueId } from 'lodash';
-import { ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels,
-    ServiceTypes } from '../../resources';
-import { ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
+import {
+    ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels,
+    ServiceTypes
+} from '../../resources';
+import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
 import { extractGateways } from "../utils";
 
 let l1Nodes: Map<string, ServiceNodeModel>;
 let l2Nodes: Map<string, ServiceNodeModel>;
 let cellNodes: Map<string, ServiceNodeModel>;
+let l1EntryNodes: Map<string, EntryNodeModel>;
+let l2EntryNodes: Map<string, EntryNodeModel>;
+let cellEntryNodes: Map<string, EntryNodeModel>;
 let l1ExtNodes: Map<string, ExtServiceNodeModel>;
 let l2ExtNodes: Map<string, ExtServiceNodeModel>;
 let cellExtNodes: Map<string, ExtServiceNodeModel>;
@@ -37,8 +42,11 @@ let cellLinks: Map<string, ServiceLinkModel>;
 export function serviceModeller(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>): ServiceModels {
     // convert services to nodes
     l1Nodes = new Map<string, ServiceNodeModel>();
-    cellNodes = new Map<string, ServiceNodeModel>();
     l2Nodes = new Map<string, ServiceNodeModel>();
+    cellNodes = new Map<string, ServiceNodeModel>();
+    l1EntryNodes = new Map<string, EntryNodeModel>();
+    l2EntryNodes = new Map<string, EntryNodeModel>();
+    cellEntryNodes = new Map<string, EntryNodeModel>();
     generateNodes(projectComponents, projectPackages);
 
     // convert interactions to links and detect external services
@@ -52,30 +60,36 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
 
     // setup L1 model
     let l1Model = new DiagramModel();
-    l1Model.addAll(...Array.from(l1Nodes.values()),
-        ...Array.from(l1ExtNodes.values()), ...Array.from(l1Links.values()));
+    l1Model.addAll(
+        ...Array.from(l1Nodes.values()),
+        ...Array.from(l1EntryNodes.values()),
+        ...Array.from(l1ExtNodes.values()),
+        ...Array.from(l1Links.values()));
 
     // set L2 model
     let l2Model = new DiagramModel();
-    l2Model.addAll(...Array.from(l2Nodes.values()),
-        ...Array.from(l2ExtNodes.values()), ...l2Links);
+    l2Model.addAll(
+        ...Array.from(l2Nodes.values()),
+        ...Array.from(l2EntryNodes.values()),
+        ...Array.from(l2ExtNodes.values()),
+        ...l2Links);
 
     // set cell model
     let cellModel = new DiagramModel();
-    cellModel.addAll(...Array.from(cellNodes.values()),
-        ...Array.from(cellExtNodes.values()), ...Array.from(cellLinks.values()))
+    cellModel.addAll(
+        ...Array.from(cellNodes.values()),
+        ...Array.from(cellEntryNodes.values()),
+        ...Array.from(cellExtNodes.values()),
+        ...Array.from(cellLinks.values()))
 
-    return {
-        levelOne: l1Model,
-        levelTwo: l2Model,
-        cellModel: cellModel
-    };
+    return { levelOne: l1Model, levelTwo: l2Model, cellModel: cellModel };
 }
 
 function generateNodes(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>) {
     projectPackages.forEach((shouldRender, packageName) => {
         if (shouldRender && projectComponents.has(packageName)) {
-            const services: Map<string, Service> = new Map(Object.entries(projectComponents.get(packageName).services));
+            const packageModel: ComponentModel = projectComponents.get(packageName);
+            const services: Map<string, Service> = new Map(Object.entries(packageModel.services));
             services.forEach((service) => {
                 if (service.serviceId === '') {
                     service.serviceId = uniqueId(`${packageName}/${service.path}`);
@@ -92,6 +106,19 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
                 const l2Node = new ServiceNodeModel(service, Level.TWO);
                 l2Nodes.set(service.serviceId, l2Node);
             });
+
+            if (packageModel.entryPoint) {
+                const l1EntryNode = new EntryNodeModel(packageName, Level.ONE);
+                l1EntryNodes.set(packageName, l1EntryNode);
+
+                const cellEntryNode = new EntryNodeModel(packageName, Level.ONE);
+                cellEntryNodes.set(packageName, cellEntryNode);
+
+                const l2EntryNode = new EntryNodeModel(packageName, Level.TWO);
+                l2EntryNodes.set(packageName, l2EntryNode);
+
+                mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, packageModel.entryPoint.interactions);
+            }
         }
     });
 }
@@ -292,7 +319,7 @@ function mapExtServices(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, 
 }
 
 function mapExtLinks(source: ServiceNodeModel, target: ExtServiceNodeModel, location: Location,
-                     sourcePortID?: string): ServiceLinkModel {
+    sourcePortID?: string): ServiceLinkModel {
     let sourcePort: ServicePortModel;
     let targetPort: ServicePortModel = target.getPortFromID(`left-${target.getID()}`);
 
@@ -305,6 +332,50 @@ function mapExtLinks(source: ServiceNodeModel, target: ExtServiceNodeModel, loca
 
     if (sourcePort && targetPort) {
         let link: ServiceLinkModel = new ServiceLinkModel(sourcePortID ? Level.TWO : Level.ONE, location);
+        return createLinks(sourcePort, targetPort, link);
+    }
+}
+
+function mapEntryPointInteractions(l1Source: EntryNodeModel, l2Source: EntryNodeModel, cellSource: EntryNodeModel, interactions: Interaction[]) {
+    interactions.forEach((interaction) => {
+        if (l1Nodes.has(interaction.resourceId.serviceId) && l2Nodes.has(interaction.resourceId.serviceId)) {
+            const linkID: string = `${l1Source.getID()}-${interaction.resourceId.serviceId}`;
+            if (!l1Links.has(linkID) && !cellLinks.has(linkID)) {
+                const l1Target: ServiceNodeModel = l1Nodes.get(interaction.resourceId.serviceId);
+                const l1Link: ServiceLinkModel = generateEntryPointLinks(l1Source, l1Target, interaction, Level.ONE);
+                l1Links.set(linkID, l1Link);
+
+                const cellTarget: ServiceNodeModel = cellNodes.get(interaction.resourceId.serviceId);
+                const cellLink: ServiceLinkModel = generateEntryPointLinks(cellSource, cellTarget, interaction, Level.ONE);
+                cellLinks.set(linkID, cellLink);
+            }
+
+            const l2Target: ServiceNodeModel = l2Nodes.get(interaction.resourceId.serviceId);
+            const l2Link: ServiceLinkModel = generateEntryPointLinks(l2Source, l2Target, interaction, Level.TWO);
+            l2Links.push(l2Link);
+        }
+    });
+}
+
+function generateEntryPointLinks(source: EntryNodeModel, target: ServiceNodeModel, interaction: Interaction, level: Level): ServiceLinkModel {
+    let targetPort: ServicePortModel;
+    if (level === Level.TWO && interaction) {
+        // since HTTP and GraphQL can both have either resource or remote functions
+        if (target.serviceType !== ServiceTypes.GRPC && target.serviceObject.resources.length > 0) {
+            targetPort = target.getPortFromID(`left-${interaction.resourceId.action}/${interaction.resourceId.path}`);
+        }
+        if (!targetPort && target.serviceObject.remoteFunctions.length > 0) {
+            targetPort = target.getPortFromID(`left-${interaction.resourceId.action}`);
+        }
+    }
+
+    const sourcePort: ServicePortModel = source.getPortFromID(`right-${source.getID()}`);
+    if (!targetPort) {
+        targetPort = target.getPortFromID(`left-${target.serviceObject.serviceId}`);
+    }
+
+    if (sourcePort && targetPort) {
+        let link: ServiceLinkModel = new ServiceLinkModel(level, interaction.elementLocation);
         return createLinks(sourcePort, targetPort, link);
     }
 }
