@@ -18,7 +18,7 @@ import cn from "classnames";
 import SyntaxErrorWarning from "../../../assets/icons/SyntaxErrorWarning";
 import { OtherStatementNodeTypes } from "../../../constants";
 import { StatementEditorContext } from "../../../store/statement-editor-context";
-import { getJSXForMinutiae } from "../../../utils";
+import { checkCommentMinutiae, getJSXForMinutiae } from "../../../utils";
 import { StatementEditorViewState } from "../../../utils/statement-editor-viewstate";
 import { InputEditor } from "../../InputEditor";
 import { useStatementRendererStyles } from "../../styles";
@@ -42,6 +42,7 @@ export function OtherStatementTypes(props: OtherStatementProps) {
 
     const leadingMinutiaeJSX = getJSXForMinutiae(model?.leadingMinutiae, isFieldWithNewLine);
     const trailingMinutiaeJSX = getJSXForMinutiae(model?.trailingMinutiae, isFieldWithNewLine);
+    const filteredLeadingMinutiaeJSX = checkCommentMinutiae(leadingMinutiaeJSX);
 
     const styleClassNames = cn(statementRendererClasses.expressionElement,
         hasSyntaxDiagnostics ? statementRendererClasses.syntaxErrorElementSelected :
@@ -55,7 +56,7 @@ export function OtherStatementTypes(props: OtherStatementProps) {
                     <SyntaxErrorWarning />
                 </span>
             )}
-            {leadingMinutiaeJSX}
+            {filteredLeadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
             {trailingMinutiaeJSX}
         </span>

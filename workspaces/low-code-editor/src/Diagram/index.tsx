@@ -20,17 +20,18 @@ import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterpri
 
 import { Context as DiagramContext } from "../Contexts/Diagram";
 import { addAdvancedLabels } from "../DiagramGenerator/performanceUtil";
-import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { DataMapperOverlay } from "./components/DataMapperOverlay";
 import { ConnectorWizard } from "./components/FormComponents/ConfigForms/ConnectorWizard";
-import { ConnectorConfigWizard } from "./components/FormComponents/ConnectorConfigWizard";
 import * as DialogBoxes from "./components/FormComponents/DialogBoxes";
 import { FormGenerator, FormGeneratorProps } from "./components/FormComponents/FormGenerator";
+import { GraphqlDiagramOverlay } from "./components/GraphqlDiagramOverlay";
+import { ServiceDesignOverlay } from "./components/ServiceDesignOverlay";
 import "./style.scss";
 import { useStyles } from "./styles";
 import { removeStatement } from "./utils/modification-util";
 import { visitor as STFindingVisitor } from "./visitors/st-finder-visitor";
+
 
 export function Diagram() {
     const {
@@ -38,9 +39,6 @@ export function Diagram() {
             code: {
                 modifyDiagram,
                 gotoSource,
-                isMutationInProgress,
-                isModulePullInProgress,
-                loaderText,
                 getFunctionDef
             },
             webView: {
@@ -52,12 +50,12 @@ export function Diagram() {
             },
             insights: {
                 onEvent
-            }
+            },
+            navigation
         },
         props: {
-            diagnostics,
-            warnings,
             syntaxTree,
+            fullST,
             isLoadingAST,
             isReadOnly,
             stSymbolInfo,
@@ -71,28 +69,16 @@ export function Diagram() {
     } = useContext(DiagramContext);
 
     const classes = useStyles();
-    const diagnosticInDiagram = diagnostics && diagnostics.length > 0;
-    const numberOfErrors = diagnostics && diagnostics.length;
-    const numberOfWarnings = (warnings && warnings.length);
-    // const diagramErrors = diagnostics && diagnostics.length > 0;
-    // const diagramWarnings = warnings && warnings.length > 0;
-    const warningsInDiagram = warnings && warnings.length > 0;
-    // const [isErrorStateDialogOpen, setIsErrorStateDialogOpen] = useState(diagramErrors);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
     const [isConnectorConfigWizardOpen, setIsConnectorConfigWizardOpen] = useState(false);
     const [connectorWizardProps, setConnectorWizardProps] = useState<ConnectorWizardProps>(undefined);
     const [isDialogActive, setIsDialogActive] = useState(false);
     const [activeDialog, setActiveDialog] = useState(undefined);
-    const [activePlusWidget, setActivePlusWidget] = useState(undefined);
-    const [isPlusWidgetActive, setIsPlusWidgetActive] = useState(false);
 
     let isDataMapperOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "DataMapper";
-
-    // React.useEffect(() => {
-    //     setIsErrorStateDialogOpen(diagramErrors);
-    //     setIsErrorDetailsOpen(diagramErrors);
-    // }, [diagramErrors, diagramWarnings])
+    const isServiceDesignOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "ServiceDesign";
+    let isGraphQLViewOpen = isFormOpen && formConfig.configOverlayFormStatus.formType === "GraphQL";
 
     React.useEffect(() => {
         // Identify low-code open event
@@ -118,6 +104,9 @@ export function Diagram() {
                     && STKindChecker.isRecordTypeDesc(stNode.typeDescriptor)
                 ) {
                     formType = 'RecordEditor'
+                } else if (STKindChecker.isServiceDeclaration(stNode)) { // TODO: check for graphql
+                    formType = 'GraphQL'
+                    isGraphQLViewOpen = true;
                 }
                 handleDiagramEdit(stNode, openInDiagram, {
                     formType,
@@ -127,13 +116,7 @@ export function Diagram() {
         }
     }, [openInDiagram]);
 
-    const openErrorDialog = () => {
-        // setIsErrorStateDialogOpen(true);
-    }
 
-    const closeErrorDialog = () => {
-        // setIsErrorStateDialogOpen(false);
-    }
 
     const handleDiagramAdd = (targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => {
         setFormConfig({
@@ -202,7 +185,7 @@ export function Diagram() {
         const modifications: STModification[] = [];
 
         // delete action
-        if (STKindChecker.isIfElseStatement(model) && !model.viewState.isMainIfBody){
+        if (STKindChecker.isIfElseStatement(model) && !model.viewState.isMainIfBody) {
             const ifElseRemovePosition = model.position;
             ifElseRemovePosition.endLine = model.elseBody.elseBody.position.startLine;
             ifElseRemovePosition.endColumn = model.elseBody.elseBody.position.startColumn;
@@ -255,17 +238,12 @@ export function Diagram() {
     };
 
     const handleRenderPlusWidget = (dialogType: string, plusWidgetProps: PlusWidgetProps, plusViewState?: PlusViewState): any => {
-        // const ChildComp = (DialogBoxes as any)[dialogType];
-        // if (!ChildComp) {
-        //     return;
-        // }
-        // return (<ChildComp {...plusWidgetProps} viewState={plusViewState} />);
         const configOverlayFormStatus: ConfigOverlayFormStatus = {
             isLoading: false,
             formType: dialogType,
             formArgs: {
-               ...plusWidgetProps,
-               viewState: plusViewState
+                ...plusWidgetProps,
+                viewState: plusViewState
             }
         };
         setFormConfig({
@@ -288,8 +266,7 @@ export function Diagram() {
         component: any,
         content?: string,
         onClick?: () => void,
-        model?: STNode,
-        additionalParams?: any): any => {
+        model?: STNode): any => {
         return (
             <DiagramTooltipCodeSnippet content={content} componentModel={model} onClick={onClick}  >
                 {component}
@@ -303,25 +280,10 @@ export function Diagram() {
 
     const textLoader = (
         <div className={classes.progressContainer}>
-            <TextPreLoader position="absolute" text={loaderText} />
+            {/* <TextPreLoader position="absolute" text={loaderText} /> */}
+            loading
         </div>
     );
-
-    // const diagramErrorMessage = (
-    //     <div className={classes.diagramErrorStateWrapper}>
-    //         <DiagramErrorState
-    //             x={5}
-    //             y={-100}
-    //             errorCount={numberOfErrors}
-    //             warningCount={numberOfWarnings}
-    //             onClose={closeErrorDialog}
-    //             onOpen={openErrorDialog}
-    //             isErrorMsgVisible={isErrorStateDialogOpen}
-    //         />
-    //     </div>
-    // );
-
-    // const diagramStatus = (diagnosticInDiagram || warningsInDiagram) ? diagramErrorMessage : null;
 
     if (!syntaxTree) {
         if (isLoadingAST) {
@@ -334,18 +296,11 @@ export function Diagram() {
     // TODO: This flag corresponds to diagram is invalid and code is being updated.
     const codeTriggerredUpdateInProgress = syntaxTree && isLoadingAST;
 
-    // todo: need to handle this when file is empty
+    // TODO: need to handle this when file is empty
     // AST node passed in to this is can be a top level node or a compilation unit.
     // const child = getSTComponent(syntaxTree); // TODO: Handle datamapper switching logic
-    const viewState = syntaxTree.viewState as ViewState;
-    let h = viewState.bBox.h ? (viewState.bBox.h + DefaultConfig.canvas.childPaddingY) : DefaultConfig.canvas.height;
-    const w = viewState.bBox.w ? (viewState.bBox.w + DefaultConfig.canvas.childPaddingX) : DefaultConfig.canvas.width;
 
-    if (h < window.innerHeight) {
-        h = h + (window.innerHeight - h);
-    }
-
-    const dataMapperArgs = {ballerinaVersion, ...formConfig};
+    const dataMapperArgs = { ballerinaVersion, ...formConfig };
 
     // let hasConfigurable = false;
     // if (originalSyntaxTree) {
@@ -354,11 +309,12 @@ export function Diagram() {
 
     return (
         <div id="canvas">
-            {(codeTriggerredUpdateInProgress || isMutationInProgress || isModulePullInProgress) && textLoader}
+            {/* {(codeTriggerredUpdateInProgress || isMutationInProgress || isModulePullInProgress) && textLoader} */}
             <div className='container'>
                 <div className={classes.DesignContainer}>
                     <LowCodeDiagram
                         syntaxTree={syntaxTree}
+                        fullST={fullST}
                         isReadOnly={isReadOnly}
                         selectedPosition={selectedPosition}
                         zoomStatus={zoomStatus}
@@ -390,14 +346,25 @@ export function Diagram() {
                             },
                             insights: {
                                 onEvent
-                            }
+                            },
+                            navigation
                         }}
                     />
-                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && (
+                    {isFormOpen && !isDataMapperOpen && !isConnectorConfigWizardOpen && !isServiceDesignOpen && !isGraphQLViewOpen && (
                         <FormGenerator {...formConfig} />
                     )}
-                    {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && (
+                    {isFormOpen && isDataMapperOpen && !isConnectorConfigWizardOpen && !isGraphQLViewOpen && (
                         <DataMapperOverlay
+                            {...dataMapperArgs}
+                        />
+                    )}
+                    {isFormOpen && isServiceDesignOpen && !isConnectorConfigWizardOpen && (
+                        <ServiceDesignOverlay
+                            {...formConfig}
+                        />
+                    )}
+                    {experimentalEnabled && isGraphQLViewOpen && (
+                        <GraphqlDiagramOverlay
                             {...dataMapperArgs}
                         />
                     )}

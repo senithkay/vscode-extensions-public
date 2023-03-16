@@ -25,13 +25,14 @@ import "./style.scss";
 interface PlusOptionRendererProps {
     entries: PlusMenuEntry[];
     onClose: () => void;
+    goBack: () => void;
     onOptionSelect: (entry: PlusMenuEntry) => void;
     targetPosition: NodePosition;
     showCategorized?: boolean;
 }
 
 export function PlusOptionRenderer(props: PlusOptionRendererProps) {
-    const { entries, onClose, onOptionSelect, showCategorized } = props;
+    const { entries, onClose, goBack, onOptionSelect, showCategorized } = props;
 
 
     const simpleMenu = () => {
@@ -61,6 +62,7 @@ export function PlusOptionRenderer(props: PlusOptionRendererProps) {
         <>
             <FormHeaderSection
                 onCancel={onClose}
+                onBack={goBack}
                 formTitle={"lowcode.develop.configForms.plusholder.title"}
                 defaultMessage={"Add Constructs"}
             />

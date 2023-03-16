@@ -101,7 +101,7 @@ export function RecordOverview(overviewProps: RecordOverviewProps) {
     }, [recordNames]);
 
     useEffect(() => {
-        if (syntaxTree.source !== originalSource.source) {
+        if (syntaxTree && syntaxTree.source !== originalSource.source) {
             const createdRecords = getAvailableCreatedRecords(createdDefinitions, syntaxTree);
             setRecordNames(getAvailableCreatedRecords(createdDefinitions, syntaxTree));
             if (createdRecords.length === 0) {

@@ -46,6 +46,7 @@
     "@wso2-enterprise/ballerina-low-code-edtior-ui-components": "^3.3.9",
     "@wso2-enterprise/ballerina-statement-editor": "^3.3.9",
     "@wso2-enterprise/ballerina-data-mapper": "^3.3.9",
+    "@wso2-enterprise/ballerina-graphql-design-diagram": "^1.1.0",
     "@wso2-enterprise/lang-service": "^3.3.9",
     "@wso2-enterprise/syntax-tree": "^3.3.9",
     "classnames": "^2.2.6",

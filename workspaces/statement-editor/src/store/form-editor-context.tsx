@@ -35,6 +35,7 @@ export const FormEditorContext = React.createContext({
         size: 0
     },
     syntaxTree: null,
+    fullST: null,
     stSymbolInfo: null,
     onCancel: () => undefined,
     onSave: () => undefined,
@@ -56,6 +57,7 @@ export interface FormEditorProps {
     isLastMember?: boolean;
     stSymbolInfo?: STSymbolInfo;
     syntaxTree?: STNode;
+    fullST?: STNode;
     isEdit?: boolean;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     onChange: (code: string, partialST: STNode, moduleList?: Set<string>, currentModel?: CurrentModel,
@@ -79,6 +81,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
         stSymbolInfo,
         isLastMember,
         syntaxTree,
+        fullST,
         currentFile,
         targetPosition,
         applyModifications,
@@ -98,6 +101,7 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
                 stSymbolInfo,
                 isLastMember,
                 syntaxTree,
+                fullST,
                 currentFile,
                 targetPosition,
                 applyModifications,

@@ -84,7 +84,7 @@ export function ServiceHeader(props: ServiceHeaderProps) {
         }
     }
 
-    const unSupportedTypes = ["GRAPHQL", "GRPC", "NATS", "WEBSOCKET", "WEBSUB"];
+    const unSupportedTypes = ["GRPC", "NATS", "WEBSOCKET", "WEBSUB"];
     (unSupportedTypes.includes(serviceType)) ? isUnsupportedType = true : isUnsupportedType = false;
 
     const handleDeleteConfirm = () => {

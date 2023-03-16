@@ -48,13 +48,21 @@ const Container = styled.div`
 interface DiagramProps {
     isEditable: boolean;
     isChoreoProject: boolean;
+    selectedNodeId?: string;
+    editLayerAPI?: EditLayerAPI;
     getComponentModel(): Promise<Map<string, ComponentModel>>;
     showChoreoProjectOverview?: () => Promise<void>;
-    editLayerAPI?: EditLayerAPI;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { isChoreoProject, isEditable, getComponentModel, showChoreoProjectOverview = undefined, editLayerAPI = undefined } = props;
+    const {
+        isChoreoProject,
+        isEditable,
+        selectedNodeId,
+        getComponentModel,
+        showChoreoProjectOverview = undefined,
+        editLayerAPI = undefined
+    } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
@@ -71,6 +79,13 @@ export function DesignDiagram(props: DiagramProps) {
     useEffect(() => {
         refreshDiagram();
     }, [props]);
+
+    useEffect(() => {
+        // Navigate to the type composition view if a type is already selected
+        if (selectedNodeId && selectedNodeId.trim() !== "" && projectComponents && projectComponents.size > 0) {
+            getTypeComposition(selectedNodeId);
+        }
+    }, [projectComponents]);
 
     const changeDiagramLayout = () => {
         switchLayout(layout === DagreLayout.GRAPH ? DagreLayout.TREE : DagreLayout.GRAPH);

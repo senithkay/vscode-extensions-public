@@ -52,7 +52,7 @@ export function ExpressionConfigurable(props: ExpressionConfigurableProps) {
         setShowConfigurableView,
     } = props;
     const {
-        props: { syntaxTree, stSymbolInfo },
+        props: { fullST, stSymbolInfo },
     } = useDiagramContext();
 
     const configInsertPosition: NodePosition = {
@@ -61,9 +61,9 @@ export function ExpressionConfigurable(props: ExpressionConfigurableProps) {
         endLine: 0,
         endColumn: 0,
     };
-    if (STKindChecker.isModulePart(syntaxTree) && syntaxTree.imports.length > 0) {
+    if (STKindChecker.isModulePart(fullST) && fullST.imports.length > 0) {
         const lastImportPosition =
-            syntaxTree.imports[syntaxTree.imports.length - 1].position;
+        fullST.imports[fullST.imports.length - 1].position;
         configInsertPosition.startLine = lastImportPosition?.endLine + 1;
         configInsertPosition.endLine = lastImportPosition?.endLine + 1;
         configInsertPosition.startColumn = lastImportPosition?.endColumn; // 0

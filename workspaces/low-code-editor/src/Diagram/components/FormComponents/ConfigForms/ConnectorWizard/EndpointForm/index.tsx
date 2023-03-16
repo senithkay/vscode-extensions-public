@@ -46,7 +46,7 @@ export function EndpointForm(props: FormGeneratorProps) {
     const { connector, functionNode, isModuleType } = formArgs as EndpointFormProps;
 
     const {
-        props: { currentFile, stSymbolInfo, syntaxTree, experimentalEnabled, ballerinaVersion },
+        props: { currentFile, stSymbolInfo, fullST, experimentalEnabled, ballerinaVersion },
         api: {
             ls: { getExpressionEditorLangClient },
             code: { modifyDiagram, updateFileContent },
@@ -60,7 +60,7 @@ export function EndpointForm(props: FormGeneratorProps) {
         defaultMessage: "Endpoint",
     });
 
-    const imports = getConnectorImports(syntaxTree, connector.package.organization, connector.moduleName);
+    const imports = getConnectorImports(fullST, connector.package.organization, connector.moduleName);
     const moduleName = getFormattedModuleName(connector.moduleName);
     const parentWithError = isParentNodeWithErrorReturn(functionNode);
     const isModuleVar = (!functionNode || isModuleType);
@@ -129,7 +129,7 @@ export function EndpointForm(props: FormGeneratorProps) {
                     applyModifications: modifyDiagram,
                     updateFileContent,
                     library,
-                    syntaxTree,
+                    syntaxTree: fullST,
                     stSymbolInfo,
                     extraModules: imports,
                     experimentalEnabled,

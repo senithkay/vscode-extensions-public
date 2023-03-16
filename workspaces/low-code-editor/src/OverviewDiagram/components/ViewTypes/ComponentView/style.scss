@@ -1,0 +1,47 @@
+.component {
+    height: 100%;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    justify-content: left;
+    width: 200px;
+    // font-size: 16px;
+    color: #494949;box-shadow: 0 4px 8px 0 rgba($color: #000000, $alpha: 0.2);
+    margin: 0 10px;
+
+    &.not-allowed {
+        cursor: not-allowed;
+    }
+
+    &:hover {
+        box-shadow: 0 4px 16px 0 rgba($color: #000000, $alpha: 0.2);
+    }
+
+    .icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 10px;
+    }
+
+    .label {
+        padding: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .break {
+        flex: 1;
+    }
+
+    .title {
+        font-size: 16px;
+    }
+
+    .file {
+        display: flex;
+        flex-direction: row-reverse;
+    }
+}
