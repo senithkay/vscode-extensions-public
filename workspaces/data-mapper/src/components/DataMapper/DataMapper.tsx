@@ -355,30 +355,27 @@ function DataMapperC(props: DataMapperProps) {
     useEffect(() => {
         if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
             if (fnST) {
-                const hasSwitchFunction = fnName !== getFnNameFromST(fnST);
-                if (hasSwitchFunction) {
-                    if (nodes.length > 0) {
-                        // When open the DM of an existing function using code lens
-                        const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
-                            || [];
-                        setInputs(inputParams);
-                        const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
-                            || { type: undefined, isUnsupported: true };
-                        setOutput(outputType);
+                if (nodes.length > 0) {
+                    // When open the DM of an existing function using code lens
+                    const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
+                        || [];
+                    setInputs(inputParams);
+                    const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
+                        || { type: undefined, isUnsupported: true };
+                    setOutput(outputType);
+                    setFnName(getFnNameFromST(fnST));
+                } else {
+                    // When open the DM of an existing incomplete function using code lens
+                    const hasNoParameter = fnST.functionSignature.parameters.length === 0;
+                    const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
+                    if (hasNoParameter) {
+                        setInputs([]);
+                    }
+                    if (hasNoReturnType) {
+                        setOutput({ type: undefined, isUnsupported: true });
+                    }
+                    if (hasNoParameter || hasNoReturnType) {
                         setFnName(getFnNameFromST(fnST));
-                    } else {
-                        // When open the DM of an existing incomplete function using code lens
-                        const hasNoParameter = fnST.functionSignature.parameters.length === 0;
-                        const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
-                        if (hasNoParameter) {
-                            setInputs([]);
-                        }
-                        if (hasNoReturnType) {
-                            setOutput({ type: undefined, isUnsupported: true });
-                        }
-                        if (hasNoParameter || hasNoReturnType) {
-                            setFnName(getFnNameFromST(fnST));
-                        }
                     }
                 }
             } else {
