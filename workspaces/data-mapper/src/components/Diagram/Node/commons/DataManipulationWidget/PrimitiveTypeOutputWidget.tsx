@@ -18,17 +18,17 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { OutputUnionTypeChangeMenu } from '../OutputUnionTypeChangeMenu';
 import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
-import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { OutputUnionTypeChangeMenu } from '../OutputUnionTypeChangeMenu';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

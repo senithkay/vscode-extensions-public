@@ -14,13 +14,14 @@
 import React, { FC, useMemo, useState } from "react";
 
 import { CircularProgress, createStyles, makeStyles, Theme } from "@material-ui/core";
-import { getDefaultRecordValue } from "../../../utils/dm-utils";
-import { getModification } from "../../../utils/modifications";
 import { Type } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ValueConfigMenu } from "../DataManipulationWidget/ValueConfigButton";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
+import { getDefaultRecordValue } from "../../../utils/dm-utils";
+import { getModification } from "../../../utils/modifications";
+import { ValueConfigMenu } from "../DataManipulationWidget/ValueConfigButton";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -53,7 +54,7 @@ export const OutputUnionTypeChangeMenu: FC<Props> = ({
         setIsLoading(true);
         try {
             let position: NodePosition = value?.position;
-            if(value && STKindChecker.isQueryExpression(value)){
+            if (value && STKindChecker.isQueryExpression(value)){
                 position = value.selectClause?.expression?.position;
             }
             const defaultValue = getDefaultRecordValue(unionTypeMember);
@@ -65,13 +66,7 @@ export const OutputUnionTypeChangeMenu: FC<Props> = ({
     };
 
     const menuItems = useMemo(() => {
-        let typeMembers: Type[] = [];
-
-        if (type.typeName === PrimitiveBalType.Array) {
-            typeMembers = type.memberType?.members
-        } else {
-            typeMembers = type?.members
-        }
+        let typeMembers: Type[] = type.typeName === PrimitiveBalType.Array ? type.memberType?.members : type?.members;
         typeMembers = typeMembers?.filter(member => member && !["error", "()"].includes(member.typeName));
         return typeMembers?.map((member) => ({
             title: `Reinitialize as ${member.name || member.typeName}`,

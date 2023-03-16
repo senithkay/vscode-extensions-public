@@ -32,12 +32,12 @@ import { getModification } from '../../../utils/modifications';
 import { SearchType } from '../../Search';
 import { SearchNodeWidget } from '../../Search/SearchNodeWidget';
 import { AddRecordFieldButton } from '../AddRecordFieldButton';
+import { OutputUnionTypeChangeMenu } from '../OutputUnionTypeChangeMenu';
 import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainer, TreeContainerWithTopMargin, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { ValueConfigMenu } from './ValueConfigButton';
-import { OutputUnionTypeChangeMenu } from '../OutputUnionTypeChangeMenu';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

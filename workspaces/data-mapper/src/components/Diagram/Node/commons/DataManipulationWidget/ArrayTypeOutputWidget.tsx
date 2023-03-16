@@ -18,6 +18,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 
@@ -28,12 +29,11 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../
 import { getExprBodyFromLetExpression, isConnectedViaLink } from "../../../utils/dm-utils";
 import { SearchType } from "../../Search";
 import { SearchNodeWidget } from "../../Search/SearchNodeWidget";
+import { OutputUnionTypeChangeMenu } from "../OutputUnionTypeChangeMenu";
 import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainerWithTopMargin, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
-import { OutputUnionTypeChangeMenu } from "../OutputUnionTypeChangeMenu";
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
