@@ -42,7 +42,6 @@ let l2Links: ServiceLinkModel[];
 let cellLinks: Map<string, ServiceLinkModel>;
 
 export function serviceModeller(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>): ServiceModels {
-    // convert services to nodes
     l1Nodes = new Map<string, ServiceNodeModel>();
     l2Nodes = new Map<string, ServiceNodeModel>();
     cellNodes = new Map<string, ServiceNodeModel>();
@@ -50,7 +49,6 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l2EntryNodes = new Map<string, EntryNodeModel>();
     cellEntryNodes = new Map<string, EntryNodeModel>();
 
-    // convert interactions to links and detect external services
     l1ExtNodes = new Map<string, ExtServiceNodeModel>();
     l2ExtNodes = new Map<string, ExtServiceNodeModel>();
     cellExtNodes = new Map<string, ExtServiceNodeModel>();
@@ -58,7 +56,9 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     cellLinks = new Map<string, ServiceLinkModel>();
     l2Links = []
 
+    // convert services to nodes
     generateNodes(projectComponents, projectPackages);
+    // convert interactions to links and detect external services
     generateLinks(projectComponents, projectPackages);
 
     // setup L1 model

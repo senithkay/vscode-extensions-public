@@ -52,7 +52,7 @@ export function EntryNodeWidget(props: EntryNodeProps) {
         setIsHovered(task === 'SELECT' ? true : false);
     }
 
-    const packageNameWithVersion: string = node.getID().slice(node.getID().lastIndexOf('/'));
+    const packageNameWithVersion: string = node.getID().slice(node.getID().lastIndexOf('/') + 1);
     const displayName = packageNameWithVersion.slice(0, packageNameWithVersion.lastIndexOf(':'));
 
     return (
