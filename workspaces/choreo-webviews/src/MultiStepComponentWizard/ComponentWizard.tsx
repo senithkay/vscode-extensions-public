@@ -24,7 +24,7 @@ export const ComponentWizard: React.FC = () => {
         currentStep: 0,
         formData: {
             name: '',
-            accessibility: "external",
+            accessibility: "external"
         },
         isFormValid: false,
         isStepValid: false,

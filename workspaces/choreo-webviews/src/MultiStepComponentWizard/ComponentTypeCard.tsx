@@ -13,7 +13,8 @@
 import cn from "classnames";
 
 import styled from "@emotion/styled";
-import { ComponentType } from "./types";
+import { ComponentType  } from "./types";
+import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
 
 
 const TypeCardContainer = styled.div`
@@ -25,11 +26,11 @@ const TypeCardContainer = styled.div`
     gap: 10px;
     // End Flex Props
     // Sizing Props
-    width: 200px;
-    height: 150px;
-    padding: 10px;
+    width: 120px;
+    padding: 5px;
     // End Sizing Props
     // Border Props
+    border-radius: 3px;
     border-style: solid;
     border-width: 1px;
     border-color: var(--vscode-panel-border);
@@ -41,22 +42,23 @@ const TypeCardContainer = styled.div`
 
 export interface ComponentTypeCardProps {
     type: ComponentType;
+    subType?: ChoreoServiceComponentType;
+    label: string;
     description: string;
     isSelected: boolean;
-    onSelect: (type: ComponentType) => void;
+    onSelect: (type: ComponentType, subType?: ChoreoServiceComponentType) => void;
 }
 
 export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = (props) => {
-    const { type, description, isSelected, onSelect } = props;
+    const { type, subType, label, description, isSelected, onSelect } = props;
 
     const onSelection = () => {
-        onSelect(type);
+        onSelect(type, subType);
     };
 
     return (
-        <TypeCardContainer className={cn({ "active": isSelected})} onClick={onSelection}>
-            <h2>{type}</h2>
-            <p style={{ textAlign: "center"}}>{description}</p>
+        <TypeCardContainer className={cn({ "active": isSelected})} onClick={onSelection} title={description}>
+            <h4>{label}</h4>
         </TypeCardContainer>
     );
 };

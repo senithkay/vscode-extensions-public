@@ -13,12 +13,16 @@
 
 import { ChoreoServiceComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 
-export type ComponentType = "Service" | "Scheduled Trigger" | "Manual Trigger" | "REST API Proxy";
+export type ChoreoComponentType = "Service" | "Scheduled Trigger" | "Manual Trigger" | "REST API Proxy";
+
+export type ComponentType =  ChoreoComponentType | "Dockerfile" | "Ballerina Package";
+
 export interface ComponentWizardState {
     name: string;
     description: string;
     type: ComponentType;
-    subType: ChoreoServiceComponentType;
+    subType?: ChoreoServiceComponentType;
+    choreoType?: ChoreoComponentType;
     accessibility: ComponentAccessibility;
     repository: {
         org?: string;
