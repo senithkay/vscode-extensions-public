@@ -12,6 +12,7 @@
  */
 import {
     BlockStatement,
+    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -55,6 +56,7 @@ import {
     StatementViewState,
     WhileViewState
 } from "../ViewState";
+import { DoStatementViewState } from "../ViewState/do-statement";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
@@ -958,6 +960,12 @@ export class PositioningVisitor implements Visitor {
             const endLine = controlFlowLines[controlFlowLines.length - 1];
             endLine.h = lifeLine.cy + lifeLine.h - endLine.y
         }
+    }
+
+    public beginVisitDoStatement(node: DoStatement, parent?: STNode): void {
+        const viewState: DoStatementViewState = node.viewState as DoStatementViewState;
+        viewState.headDo.cx = viewState.bBox.cx;
+        viewState.headDo.cy = viewState.bBox.cy + (viewState.headDo.h / 2);
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {

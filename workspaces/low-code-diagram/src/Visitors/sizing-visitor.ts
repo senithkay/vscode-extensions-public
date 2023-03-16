@@ -15,6 +15,7 @@ import {
     AssignmentStatement,
     BlockStatement,
     CallStatement,
+    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -61,6 +62,7 @@ import {
     BlockViewState, CollapseViewState, CompilationUnitViewState, ElseViewState, EndViewState,
     ForEachViewState, FunctionViewState, IfViewState, PlusViewState, SimpleBBox, StatementViewState, ViewState
 } from "../ViewState";
+import { DoStatementViewState } from "../ViewState/do-statement";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
 import { ServiceViewState } from "../ViewState/service";
@@ -1058,6 +1060,24 @@ export class SizingVisitor implements Visitor {
         viewState.bBox.lw = viewState.whileBodyRect.lw;
         viewState.bBox.rw = viewState.whileBodyRect.rw;
         viewState.bBox.w = viewState.whileBodyRect.w;
+    }
+
+    public beginVisitDoStatement(node: DoStatement, parent?: STNode): void {
+        const viewState: DoStatementViewState = node.viewState as DoStatementViewState;
+        viewState.headDo.h = IFELSE_SVG_HEIGHT;
+        viewState.headDo.lw = IFELSE_SVG_WIDTH / 2;
+        viewState.headDo.rw = IFELSE_SVG_WIDTH / 2;
+        viewState.headDo.w = IFELSE_SVG_WIDTH;
+    }
+
+    public endVisitDoStatement(node: DoStatement, parent?: STNode): void {
+        const viewState: DoStatementViewState = node.viewState as DoStatementViewState;
+        const doBlockVS: BlockViewState = node.blockStatement.viewState as BlockViewState;
+        const onFailBlockVS: BlockViewState = node.onFailClause?.viewState as BlockViewState;
+        viewState.bBox.h = doBlockVS.bBox.h + onFailBlockVS.bBox.h;
+        viewState.bBox.lw = doBlockVS.bBox.lw > onFailBlockVS.bBox.lw ? doBlockVS.bBox.lw : onFailBlockVS.bBox.lw;
+        viewState.bBox.rw = doBlockVS.bBox.rw > onFailBlockVS.bBox.rw ? doBlockVS.bBox.rw : onFailBlockVS.bBox.rw;
+        viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {
