@@ -27,6 +27,7 @@ import {
     ModuleVarDecl,
     NamedWorkerDeclaration,
     ObjectMethodDefinition,
+    OnFailClause,
     ResourceAccessorDefinition,
     ServiceDeclaration,
     STKindChecker,
@@ -1074,10 +1075,21 @@ export class SizingVisitor implements Visitor {
         const viewState: DoStatementViewState = node.viewState as DoStatementViewState;
         const doBlockVS: BlockViewState = node.blockStatement.viewState as BlockViewState;
         const onFailBlockVS: BlockViewState = node.onFailClause?.viewState as BlockViewState;
-        viewState.bBox.h = doBlockVS.bBox.h + onFailBlockVS.bBox.h;
+        console.log('onFailBlockVS >>>', onFailBlockVS);
+        viewState.bBox.h = IFELSE_SVG_HEIGHT + doBlockVS.bBox.h + onFailBlockVS.bBox.h;
         viewState.bBox.lw = doBlockVS.bBox.lw > onFailBlockVS.bBox.lw ? doBlockVS.bBox.lw : onFailBlockVS.bBox.lw;
         viewState.bBox.rw = doBlockVS.bBox.rw > onFailBlockVS.bBox.rw ? doBlockVS.bBox.rw : onFailBlockVS.bBox.rw;
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
+    }
+
+
+    public endVisitOnFailClause(node: OnFailClause, parent?: STNode) {
+        const viewState: BlockViewState = node.viewState as BlockViewState;
+        const statementBlockVS: BlockViewState = node.blockStatement.viewState as BlockViewState;
+        viewState.bBox.h = statementBlockVS.bBox.h;
+        viewState.bBox.lw = statementBlockVS.bBox.lw;
+        viewState.bBox.rw = statementBlockVS.bBox.rw;
+        viewState.bBox.w = statementBlockVS.bBox.w;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {
@@ -1452,7 +1464,7 @@ export class SizingVisitor implements Visitor {
     }
 
     private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0,
-                           index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
+        index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }
@@ -1648,8 +1660,8 @@ export class SizingVisitor implements Visitor {
     }
 
     private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState,
-                                     height: number, width: number, lastStatementIndex: any, leftWidth: number,
-                                     rightWidth: number) {
+        height: number, width: number, lastStatementIndex: any, leftWidth: number,
+        rightWidth: number) {
         const startIndex = index;
 
         blockViewState.collapsedViewStates.forEach(collapsedVS => {

@@ -19,6 +19,7 @@ import {
     NamedWorkerDeclaration,
     ObjectField,
     ObjectMethodDefinition,
+    OnFailClause,
     RemoteMethodCallAction,
     RequiredParam,
     ResourceAccessorDefinition,
@@ -387,6 +388,10 @@ export class InitVisitor implements Visitor {
 
     public beginVisitDoStatement(node: DoStatement, parent?: STNode) {
         node.viewState = new DoStatementViewState();
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
+        node.viewState = new BlockViewState();
     }
 
     public endVisitAssignmentStatement(node: AssignmentStatement, parent?: STNode) {

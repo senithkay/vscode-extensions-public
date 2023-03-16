@@ -21,6 +21,7 @@ import {
     ModulePart,
     NamedWorkerDeclaration,
     ObjectMethodDefinition,
+    OnFailClause,
     RemoteMethodCallAction,
     ResourceAccessorDefinition,
     STKindChecker,
@@ -964,8 +965,21 @@ export class PositioningVisitor implements Visitor {
 
     public beginVisitDoStatement(node: DoStatement, parent?: STNode): void {
         const viewState: DoStatementViewState = node.viewState as DoStatementViewState;
+        const doBodyVS: BlockViewState = node.blockStatement.viewState as BlockViewState;
+        const onFailBodyVS: BlockViewState = node.onFailClause.viewState as BlockViewState;
         viewState.headDo.cx = viewState.bBox.cx;
         viewState.headDo.cy = viewState.bBox.cy + (viewState.headDo.h / 2);
+        doBodyVS.bBox.cx = viewState.bBox.cx;
+        doBodyVS.bBox.cy = viewState.headDo.cy + (viewState.headDo.h / 2) + viewState.headDo.offsetFromBottom;
+        onFailBodyVS.bBox.cx = viewState.bBox.cx;
+        onFailBodyVS.bBox.cy = doBodyVS.bBox.cy + doBodyVS.bBox.h;
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
+        const viewState: BlockViewState = node.viewState as BlockViewState;
+        const statementsBlockVS: BlockViewState = node.blockStatement.viewState as BlockViewState;
+        statementsBlockVS.bBox.cx = viewState.bBox.cx;
+        statementsBlockVS.bBox.cy = viewState.bBox.cy;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {
