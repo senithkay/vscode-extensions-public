@@ -76,10 +76,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         getInitialValues(props.value, props.id),
     );
     const [counter, setCounter] = useState(arrayValues.length + 1);
-    const isLowCode = props.isLowCode;
-    const isInsideArray = props.isInsideArray;
-    const isFeaturePreview = props.isFeaturePreview;
-    const connectionConfigs = props.connectionConfig;
+    const { isLowCode, isInsideArray, isFeaturePreview, connectionConfig, isRequired } = props;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const [connectionAnchorEl, setConnectionAnchorEl] =
         React.useState<HTMLButtonElement | null>(null);
@@ -127,7 +124,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        if (connectionConfigs.length !== 0) {
+        if (connectionConfig !==  undefined || connectionConfig.length !== 0) {
             setIsOpenCollapse(0);
             setConnectionAnchorEl(connectionEvent.currentTarget);
         } else {
@@ -273,7 +270,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
         }
     };
 
-    const getConnection = connectionConfigs?.map((connections, index) => {
+    const getConnection = connectionConfig?.map((connections, index) => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem
@@ -371,7 +368,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
     });
 
     function iconButtonWithToolTip() {
-        if (connectionConfigs.length === 0) {
+        if (connectionConfig === undefined || connectionConfig.length === 0) {
           return (
             <Tooltip title="No global configurations defined. Please contact administrator">
                 <span>
@@ -382,7 +379,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                         data-placement="top"
                         onClick={handleConnectionClick}
                         color={selectedValueRef ? "primary" : "default"}
-                        disabled={connectionConfigs.length !== 0 ? false : true}
+                        disabled={connectionConfig ===  undefined || connectionConfig.length === 0 ? true : false}
                     >
                         <SelectIcon />
                     </IconButton>
@@ -398,7 +395,7 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                 data-placement="top"
                 onClick={handleConnectionClick}
                 color={selectedValueRef ? "primary" : "default"}
-                disabled={connectionConfigs.length !== 0 ? false : true}
+                disabled={connectionConfig ===  undefined || connectionConfig.length === 0 ? true : false}
             >
                 <SelectIcon />
             </IconButton>
@@ -437,12 +434,13 @@ const SimpleArray = (props: SimpleArrayProps): ReactElement => {
                     <Box flexGrow={1}>
                         <TextInput
                             fullWidth={true}
+                            required={isRequired}
                             margin="none"
                             placeholder={"Select config or Add values"}
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}
-                            value={selectedValue2}
+                            value={selectedValue2 !== "[ undefined ]" ? selectedValue2 : undefined}
                         />
                     </Box>
                     {!isInsideArray &&
