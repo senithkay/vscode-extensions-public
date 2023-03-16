@@ -23,10 +23,11 @@ import { ComponentWizardState } from "./types";
 const StepContainer = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     align-content: center;
     gap: 20px;
     width: 100%;
+    min-width: 400px;
 `;
 
 const DropDownContainer = styled.div`

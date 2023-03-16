@@ -13,7 +13,7 @@
 
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
-import { ConfigureRepoStep } from "./ConfigureRepoStep";
+import { ConfigureRepoStep } from "./ConfigureRepoStep/ConfigureRepoStep";
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";

@@ -39,6 +39,7 @@ const SubContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    align-content: space-between;
     gap: 20px;
 `;
 
@@ -62,8 +63,8 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
             && ["Dockerfile", "Ballerina Package" ].includes(formData?.type as ComponentType)) {
             setSelectedType("Service", "Service", ChoreoServiceComponentType.REST_API);
         } else if (formData?.mode === "fromExisting" 
-            && !["Dockerfile", "Ballerina Package" ].includes(formData?.type as ComponentType)){
-            setSelectedType("Ballerina Package", "Service");
+            && !["Dockerfile", "Ballerina Package" ].includes(formData?.type as ComponentType)) {
+            setSelectedType("Ballerina Package", (formData?.choreoType === undefined || formData?.choreoType === "REST API Proxy") ? "Service" : formData?.choreoType);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formData?.mode]);
