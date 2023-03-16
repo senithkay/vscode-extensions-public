@@ -24,6 +24,7 @@ import { ModulePart, NodePosition } from '@wso2-enterprise/syntax-tree';
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
 import { FormEditorContext } from '../../../../store/form-editor-context';
 import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
+import { ResponseCode } from '../types';
 import { createNewRecord, createPropertyStatement } from '../util';
 
 import { useStyles } from "./style";
@@ -36,18 +37,6 @@ export interface Param {
     headerName?: string;
 }
 
-export interface ResponseCode {
-    code: string;
-    source: string;
-}
-export const responseCodes: ResponseCode[] = [
-    { code: "100", source: "Default" },
-    { code: "200 - OK", source: "http:Ok" },
-    { code: "201 - Created", source: "http:Created" },
-    { code: "404 - NotFound", source: "http:NotFound" },
-    { code: "500 - InternalServerError", source: "http:InternalServerError" }
-];
-
 export interface ParamProps {
     segmentId: number;
     syntaxDiagnostics: StatementSyntaxDiagnostics[];
@@ -58,7 +47,7 @@ export interface ParamProps {
     optionList?: ResponseCode[];
     option?: string;
     isTypeReadOnly?: boolean;
-    onChange: (segmentId: number, paramString: string, withType?: string) => void;
+    onChange: (segmentId: number, responseCode: number, withType?: string) => void;
     onCancel?: () => void;
 }
 
@@ -76,7 +65,7 @@ export function ResponseEditor(props: ParamProps) {
     } = props;
     const classes = useStyles();
 
-    const { applyModifications, syntaxTree, fullST} = useContext(FormEditorContext);
+    const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
 
     const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
 
@@ -91,7 +80,7 @@ export function ResponseEditor(props: ParamProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
 
-    const optionsListString = optionList.map(item => item.code === "100" ? `${item.source}` : `${item.code}`);
+    const optionsListString = optionList.map(item => `${item.title}`);
 
     // record {|*http:Created; PersonAccount body;|}
     const withType = model.includes("body;") ? model.split(";")[1] : "";
@@ -108,7 +97,7 @@ export function ResponseEditor(props: ParamProps) {
 
     // const [originalSource] = useState<string>(defaultValue ? `${defaultValue.code}-${defaultValue.source}` : "");
 
-    const [response, setResponse] = useState<string>(defaultValue ? `${defaultValue.code}` : optionsListString[0]);
+    const [response, setResponse] = useState<string>(defaultValue ? `${defaultValue.title}` : optionsListString[0]);
 
 
     const [typeValue, setTypeValue] = useState<string>(withTypeValue ? withTypeValue : (model.includes("http") ? "" : model));
@@ -135,7 +124,7 @@ export function ResponseEditor(props: ParamProps) {
         // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
         if (value) {
             setTypeValue(value);
-            onChange(segmentId, 'Default', value);
+            onChange(segmentId, 200, value);
         }
     }
 
@@ -176,32 +165,30 @@ export function ResponseEditor(props: ParamProps) {
 
     const handleOnSave = () => {
         if (typeValue) {
-            if (response === 'Default') {
-                onChange(segmentId, response, typeValue);
-            } else {
-                if (anonymousValue) {
-                    const responseCode = optionList.find(item => item.code.toString() === response);
-                    const newResponse = `type ${anonymousValue} record {|*${responseCode.source}; ${typeValue} body;|};`;
-                    const servicePosition = (syntaxTree as ModulePart);
-                    const lastMember: NodePosition = servicePosition.position;
-                    const lastMemberPosition: NodePosition = {
-                        endColumn: 0,
-                        endLine: lastMember.endLine + 1,
-                        startColumn: 0,
-                        startLine: lastMember.endLine + 1
-                    }
-                    applyModifications([
-                        createPropertyStatement(newResponse, lastMemberPosition, false)
-                    ]);
-                    onChange(segmentId, 'Default', anonymousValue);
-                } else {
-                    const responseCode = optionList.find(item => item.code.toString() === response);
-                    const newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
-                    onChange(segmentId, response, newResponse);
+            if (anonymousValue) {
+                const responseCode = optionList.find(item => item.title === response);
+                const newResponse = `type ${anonymousValue} record {|*${responseCode.source}; ${typeValue} body;|};`;
+                const servicePosition = (syntaxTree as ModulePart);
+                const lastMember: NodePosition = servicePosition.position;
+                const lastMemberPosition: NodePosition = {
+                    endColumn: 0,
+                    endLine: lastMember.endLine + 1,
+                    startColumn: 0,
+                    startLine: lastMember.endLine + 1
                 }
+                applyModifications([
+                    createPropertyStatement(newResponse, lastMemberPosition, false)
+                ]);
+                onChange(segmentId, 200, anonymousValue);
+            } else {
+                const responseCode = optionList.find(item => item.title === response);
+                const newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
+                const typeResponse = responseCode.code === 200 || responseCode.code === 201 ? typeValue : newResponse;
+                onChange(segmentId, responseCode.code, typeResponse);
             }
         } else {
-            onChange(segmentId, response);
+            const responseCode = optionList.find(item => item.title === response);
+            onChange(segmentId, responseCode.code);
         }
         onCancel();
     }

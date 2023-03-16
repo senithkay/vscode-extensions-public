@@ -24,8 +24,9 @@ import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/defi
 
 import { Param } from './ParamEditor/ParamEditor';
 import { ParameterConfig } from './ParamEditor/ParamItem';
-import { responseCodes, ResponseEditor } from './ResponseEditor/ResponseEditor';
+import { ResponseEditor } from './ResponseEditor/ResponseEditor';
 import { ResponseItem } from './ResponseEditor/ResponseItem';
+import { responseCodes } from './types';
 
 export interface QueryParamEditorProps {
     returnSource: string;
@@ -68,8 +69,8 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         setIsNew(false);
     };
 
-    const onParamChange = (segmentId: number, responseCode: string, withType?: string) => {
-        const responseData = responseCodes.find(item => item.code.toString() === responseCode);
+    const onParamChange = (segmentId: number, responseCode: number, withType?: string) => {
+        const responseData = responseCodes.find(item => item.code === responseCode);
         const newReturn = withType ? withType : (responseData ? responseData.source : "");
         if (segmentId === -1) {
             responses.push(newReturn);
