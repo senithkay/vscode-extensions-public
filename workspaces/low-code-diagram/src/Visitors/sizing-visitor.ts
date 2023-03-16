@@ -1075,7 +1075,6 @@ export class SizingVisitor implements Visitor {
         const viewState: DoStatementViewState = node.viewState as DoStatementViewState;
         const doBlockVS: BlockViewState = node.blockStatement.viewState as BlockViewState;
         const onFailBlockVS: BlockViewState = node.onFailClause?.viewState as BlockViewState;
-        console.log('onFailBlockVS >>>', onFailBlockVS);
         viewState.bBox.h = IFELSE_SVG_HEIGHT + doBlockVS.bBox.h + onFailBlockVS.bBox.h;
         viewState.bBox.lw = doBlockVS.bBox.lw > onFailBlockVS.bBox.lw ? doBlockVS.bBox.lw : onFailBlockVS.bBox.lw;
         viewState.bBox.rw = doBlockVS.bBox.rw > onFailBlockVS.bBox.rw ? doBlockVS.bBox.rw : onFailBlockVS.bBox.rw;
@@ -1464,7 +1463,7 @@ export class SizingVisitor implements Visitor {
     }
 
     private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0,
-        index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
+                           index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }
@@ -1660,8 +1659,8 @@ export class SizingVisitor implements Visitor {
     }
 
     private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState,
-        height: number, width: number, lastStatementIndex: any, leftWidth: number,
-        rightWidth: number) {
+                                     height: number, width: number, lastStatementIndex: any, leftWidth: number,
+                                     rightWidth: number) {
         const startIndex = index;
 
         blockViewState.collapsedViewStates.forEach(collapsedVS => {

@@ -69,7 +69,7 @@ $active_error_color : #e09f9667;
             }
         }
     
-        .for-each-rect {
+        .do-statement-rect {
             stroke-width: 1;
             stroke: $default_color;
             fill: #f7f8fb;
@@ -160,10 +160,10 @@ $active_error_color : #e09f9667;
         }
 
         .do-statement-icon {
-            .for-each-rect-icon-shape-1{
+            .do-statement-rect-icon-shape-1{
                 fill:$default_color;
             }
-            .for-each-rect-icon-shape-2{
+            .do-statement-rect-icon-shape-2{
                 fill: #ccd1f2;
             }
         }
@@ -194,7 +194,7 @@ $active_error_color : #e09f9667;
                 }
             }
         
-            .for-each-rect {
+            .do-statement-rect {
                 stroke-width: 1px;
                 stroke:$error_color;
                 fill: #f7f8fb;
@@ -311,15 +311,15 @@ $active_error_color : #e09f9667;
             }
 
             .do-statement-icon {
-                .for-each-rect-icon-shape-1{
+                .do-statement-rect-icon-shape-1{
                     fill:$warning_color;
                 }
-                .for-each-rect-icon-shape-2{
+                .do-statement-rect-icon-shape-2{
                     fill:$warning_color;
                 }
             }
         
-            .for-each-rect {
+            .do-statement-rect {
                 stroke-width: 1;
                 stroke:$warning_color;
                 fill: #f7f8fb;
