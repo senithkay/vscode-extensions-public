@@ -19,15 +19,18 @@
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { ServicePortModel } from '../ServicePort/ServicePortModel';
-import { Level } from '../../../resources';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
+import { Level, Location } from '../../../resources';
 
 export class EntryNodeModel extends SharedNodeModel {
     level: Level;
+    elementLocation: Location;
 
-    constructor(packageName: string, level: Level) {
+    constructor(packageName: string, level: Level, location: Location) {
         super('entryPointNode', packageName);
+
         this.level = level;
+        this.elementLocation = location;
 
         this.addPort(new ServicePortModel(packageName, PortModelAlignment.LEFT));
         this.addPort(new ServicePortModel(packageName, PortModelAlignment.RIGHT));

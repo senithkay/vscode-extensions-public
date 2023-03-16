@@ -17,11 +17,13 @@
  *
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { EntryNodeModel } from './EntryNodeModel';
 import { Container, DisplayName } from './styles';
-import { EntryPointIcon } from '../../../resources';
+import { Colors, EntryPointIcon, Level } from '../../../resources';
+import { ServicePortWidget } from '../ServicePort/ServicePortWidget';
+import { DiagramContext, NodeMenuWidget } from '../../common';
 
 interface EntryNodeProps {
     engine: DiagramEngine;
@@ -29,21 +31,25 @@ interface EntryNodeProps {
 }
 
 export function EntryNodeWidget(props: EntryNodeProps) {
-    const { node } = props;
+    const { engine, node } = props;
+    const { editingEnabled } = useContext(DiagramContext);
+
     const headPorts = useRef<PortModel[]>([]);
     const [isSelected, setIsSelected] = useState<boolean>(false);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     useEffect(() => {
-		node.registerListener({
-			'SELECT': () => { setIsSelected(true) },
-			'UNSELECT': () => { setIsSelected(false) }
-		});
+        node.registerListener({
+            'SELECT': () => { setIsSelected(true) },
+            'UNSELECT': () => { setIsSelected(false) }
+        });
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
-	}, [node])
+    }, [node])
 
     const handleOnHover = (task: string) => {
         node.handleHover(headPorts.current, task);
+        setIsHovered(task === 'SELECT' ? true : false);
     }
 
     const packageNameWithVersion: string = node.getID().slice(node.getID().lastIndexOf('/'));
@@ -56,8 +62,22 @@ export function EntryNodeWidget(props: EntryNodeProps) {
             onMouseOver={() => { handleOnHover('SELECT') }}
             onMouseLeave={() => { handleOnHover('UNSELECT') }}
         >
-            <EntryPointIcon />
-            <DisplayName>{displayName}</DisplayName>
+            <ServicePortWidget
+                port={node.getPort(`left-${node.getID()}`)}
+                engine={engine}
+            />
+                <EntryPointIcon />
+                <DisplayName>{displayName}</DisplayName>
+                {isHovered && node.elementLocation && editingEnabled &&
+                    <NodeMenuWidget
+                        background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
+                        location={node.elementLocation}
+                    />
+                }
+            <ServicePortWidget
+                port={node.getPort(`right-${node.getID()}`)}
+                engine={engine}
+            />
         </Container>
     );
 }

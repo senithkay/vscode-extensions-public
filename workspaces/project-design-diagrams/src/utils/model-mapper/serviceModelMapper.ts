@@ -49,7 +49,6 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l1EntryNodes = new Map<string, EntryNodeModel>();
     l2EntryNodes = new Map<string, EntryNodeModel>();
     cellEntryNodes = new Map<string, EntryNodeModel>();
-    generateNodes(projectComponents, projectPackages);
 
     // convert interactions to links and detect external services
     l1ExtNodes = new Map<string, ExtServiceNodeModel>();
@@ -58,6 +57,8 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l1Links = new Map<string, ServiceLinkModel>();
     cellLinks = new Map<string, ServiceLinkModel>();
     l2Links = []
+
+    generateNodes(projectComponents, projectPackages);
     generateLinks(projectComponents, projectPackages);
 
     // setup L1 model
@@ -110,16 +111,17 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
             });
 
             if (packageModel.entryPoint) {
-                const l1EntryNode = new EntryNodeModel(packageName, Level.ONE);
+                const { interactions, elementLocation } = packageModel.entryPoint;
+                const l1EntryNode = new EntryNodeModel(packageName, Level.ONE, elementLocation);
                 l1EntryNodes.set(packageName, l1EntryNode);
 
-                const cellEntryNode = new EntryNodeModel(packageName, Level.ONE);
+                const cellEntryNode = new EntryNodeModel(packageName, Level.ONE, elementLocation);
                 cellEntryNodes.set(packageName, cellEntryNode);
 
-                const l2EntryNode = new EntryNodeModel(packageName, Level.TWO);
+                const l2EntryNode = new EntryNodeModel(packageName, Level.TWO, elementLocation);
                 l2EntryNodes.set(packageName, l2EntryNode);
 
-                mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, packageModel.entryPoint.interactions);
+                mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, interactions);
             }
         }
     });

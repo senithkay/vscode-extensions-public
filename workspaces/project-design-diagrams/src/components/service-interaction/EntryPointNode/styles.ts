@@ -21,20 +21,25 @@ import styled from '@emotion/styled';
 import { Colors, Level } from '../../../resources';
 
 interface StyleProps {
-    level: Level;
     isSelected: boolean;
+    level: Level;
 }
 
 export const Container = styled.div`
-    background-color: ${(props: StyleProps) => props.level === Level.ONE ? `#FFFFFF` :
-        props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
+    align-items: center;
+    background-color: ${(props: StyleProps) => props.level === Level.ONE ? '#FFFFFF' : props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
     border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
     border-radius: 2px;
     color: ${Colors.PRIMARY};
     cursor: pointer;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
+    font-size: 13px;
+    justify-content: center;
+    line-height: 24px;
     min-height: 32px;
+    padding-inline: 8px;
 `;
 
 export const DisplayName = styled.span`
