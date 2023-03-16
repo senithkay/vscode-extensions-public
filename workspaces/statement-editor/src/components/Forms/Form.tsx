@@ -12,8 +12,8 @@
  */
 import { FunctionForm } from "./FunctionForm/FunctionForm";
 import { GraphqlMutationForm } from "./GraphqlForms/GraphqlMutationForm";
+import { GraphqlResourceForm } from "./GraphqlForms/GraphqlResourceForm";
 import { GraphqlSubscriptionForm } from "./GraphqlForms/GraphqlSubscriptionForm";
-import { GraphqlResourceForm } from "./GraphqlResourceForm/GraphqlResourceForm";
 import { ListenerForm } from "./ListenerForm/ListenerForm";
 import { ResourceForm } from "./ResourceForm/ResourceForm";
 import { ServiceConfigForm } from "./ServiceForm/SeviceForm";
