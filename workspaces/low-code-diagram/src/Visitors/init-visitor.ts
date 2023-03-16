@@ -52,6 +52,7 @@ import {
 } from "../ViewState";
 import { DoStatementViewState } from "../ViewState/do-statement";
 import { DraftStatementViewState } from "../ViewState/draft";
+import { OnFailClauseViewState } from "../ViewState/on-fail-clause";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
@@ -391,7 +392,7 @@ export class InitVisitor implements Visitor {
     }
 
     public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
-        node.viewState = new BlockViewState();
+        node.viewState = new OnFailClauseViewState();
     }
 
     public endVisitAssignmentStatement(node: AssignmentStatement, parent?: STNode) {

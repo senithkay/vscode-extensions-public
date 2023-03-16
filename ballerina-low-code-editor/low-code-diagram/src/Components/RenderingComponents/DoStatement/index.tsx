@@ -25,8 +25,9 @@ import { DefaultConfig } from "../../..";
 import { getSTComponents } from "../../../Utils";
 import { DoStatementViewState } from "../../../ViewState/do-statement";
 
-import { DoStatementSVG, DO_STATEMENT_SHADOW_OFFSET, DO_STATEMENT_SVG_WIDTH, DO_STATEMENT_SVG_WIDTH_WITH_SHADOW } from "./DoStatementSVG";
+import { DoStatementSVG, DO_STATEMENT_SHADOW_OFFSET, DO_STATEMENT_SVG_HEIGHT_WITH_SHADOW, DO_STATEMENT_SVG_WIDTH, DO_STATEMENT_SVG_WIDTH_WITH_SHADOW } from "./DoStatementSVG";
 import "./style.scss";
+import { OnFailClauseViewState } from "../../../ViewState/on-fail-clause";
 
 interface DoStatementProps {
     model: STNode;
@@ -35,8 +36,9 @@ interface DoStatementProps {
 export function DoStatement(props: DoStatementProps) {
     const { model } = props;
     const viewState: DoStatementViewState = model.viewState as DoStatementViewState;
-    const x: number = viewState.headDo.cx;
-    const y: number = viewState.headDo.cy - (viewState.headDo.h / 2) - (DO_STATEMENT_SHADOW_OFFSET / 2);
+    const onFailVS: OnFailClauseViewState = viewState.onFailBodyVS as OnFailClauseViewState;
+    const x: number = viewState.doHeadVS.cx;
+    const y: number = viewState.doHeadVS.cy - (viewState.doHeadVS.h / 2) - (DO_STATEMENT_SHADOW_OFFSET / 2);
     const doBodyChildren = getSTComponents((model as DoStatement).blockStatement.statements);
     const onFailBodyChildren = getSTComponents((model as DoStatement).onFailClause.blockStatement.statements);
 
@@ -47,6 +49,28 @@ export function DoStatement(props: DoStatementProps) {
         height: viewState.bBox.h - DO_STATEMENT_SVG_WIDTH / 2,
         rx: DefaultConfig.forEach.radius
     };
+
+    const doBodyLifeLineProps = {
+        x1: viewState.doBodyLifeLine.cx,
+        y1: viewState.doBodyLifeLine.cy,
+        x2: viewState.doBodyLifeLine.cx,
+        y2: (viewState.doBodyLifeLine.cy + viewState.doBodyLifeLine.h)
+    };
+
+    const onFailBodyLifeLineProps = {
+        x1: onFailVS.onFailBodyLifeLine.cx,
+        y1: onFailVS.onFailBodyLifeLine.cy,
+        x2: onFailVS.onFailBodyLifeLine.cx,
+        y2: (onFailVS.onFailBodyLifeLine.cy + onFailVS.onFailBodyLifeLine.h)
+    };
+
+    const seperatorLineProps = {
+        x1: viewState.bBox.cx - viewState.bBox.lw,
+        y1: onFailVS.bBox.cy + DO_STATEMENT_SVG_HEIGHT_WITH_SHADOW / 2,
+        x2: viewState.bBox.cx + viewState.bBox.rw,
+        y2: onFailVS.bBox.cy + DO_STATEMENT_SVG_HEIGHT_WITH_SHADOW / 2,
+    };
+
     return (
         <g className="main-do-statement-wrapper">
             <g className={'do-statement-block'}>
@@ -57,7 +81,16 @@ export function DoStatement(props: DoStatementProps) {
                     text="FOR EACH"
                     componentSTNode={model}
                 />
+                <line className="life-line" {...doBodyLifeLineProps} />
                 {doBodyChildren}
+                <line className="life-line" {...onFailBodyLifeLineProps} />
+                <line className="life-line" {...seperatorLineProps} strokeDasharray={4} />
+                <DoStatementSVG
+                    x={onFailVS.bBox.cx - DO_STATEMENT_SVG_WIDTH_WITH_SHADOW / 2}
+                    y={onFailVS.bBox.cy}
+                    text="FOR EACH"
+                    componentSTNode={model}
+                />
                 {onFailBodyChildren}
             </g>
         </g>

@@ -66,6 +66,7 @@ import {
 import { DoStatementViewState } from "../ViewState/do-statement";
 import { DraftStatementViewState } from "../ViewState/draft";
 import { ModuleMemberViewState } from "../ViewState/module-member";
+import { OnFailClauseViewState } from "../ViewState/on-fail-clause";
 import { ServiceViewState } from "../ViewState/service";
 import { WhileViewState } from "../ViewState/while";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
@@ -1065,30 +1066,46 @@ export class SizingVisitor implements Visitor {
 
     public beginVisitDoStatement(node: DoStatement, parent?: STNode): void {
         const viewState: DoStatementViewState = node.viewState as DoStatementViewState;
-        viewState.headDo.h = IFELSE_SVG_HEIGHT;
-        viewState.headDo.lw = IFELSE_SVG_WIDTH / 2;
-        viewState.headDo.rw = IFELSE_SVG_WIDTH / 2;
-        viewState.headDo.w = IFELSE_SVG_WIDTH;
+        viewState.doBodyVS = node.blockStatement.viewState as BlockViewState;
+        viewState.onFailBodyVS = node.onFailClause.viewState as OnFailClauseViewState;
+        viewState.doHeadVS.h = IFELSE_SVG_HEIGHT;
+        viewState.doHeadVS.lw = IFELSE_SVG_WIDTH / 2;
+        viewState.doHeadVS.rw = IFELSE_SVG_WIDTH / 2;
+        viewState.doHeadVS.w = IFELSE_SVG_WIDTH;
     }
 
     public endVisitDoStatement(node: DoStatement, parent?: STNode): void {
         const viewState: DoStatementViewState = node.viewState as DoStatementViewState;
-        const doBlockVS: BlockViewState = node.blockStatement.viewState as BlockViewState;
-        const onFailBlockVS: BlockViewState = node.onFailClause?.viewState as BlockViewState;
-        viewState.bBox.h = IFELSE_SVG_HEIGHT + doBlockVS.bBox.h + onFailBlockVS.bBox.h;
+        const doBlockLifeline: SimpleBBox = viewState.doBodyLifeLine as SimpleBBox;
+        const doHeadVS = viewState.doHeadVS;
+        const doBlockVS = viewState.doBodyVS;
+        const onFailBlockVS = viewState.onFailBodyVS;
+        viewState.bBox.h = doHeadVS.h + doHeadVS.offsetFromBottom + doBlockVS.bBox.h + onFailBlockVS.bBox.h + DefaultConfig.offSet;
+        doBlockLifeline.h = doHeadVS.offsetFromBottom + doBlockVS.bBox.h;
         viewState.bBox.lw = doBlockVS.bBox.lw > onFailBlockVS.bBox.lw ? doBlockVS.bBox.lw : onFailBlockVS.bBox.lw;
         viewState.bBox.rw = doBlockVS.bBox.rw > onFailBlockVS.bBox.rw ? doBlockVS.bBox.rw : onFailBlockVS.bBox.rw;
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
     }
 
+    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
+        const viewState: OnFailClauseViewState = node.viewState as OnFailClauseViewState;
+        viewState.onFailBodyVS = node.blockStatement.viewState as BlockViewState;
+        viewState.onFailHeadVS.h = IFELSE_SVG_HEIGHT;
+        viewState.onFailHeadVS.lw = IFELSE_SVG_WIDTH / 2;
+        viewState.onFailHeadVS.rw = IFELSE_SVG_WIDTH / 2;
+        viewState.onFailHeadVS.w = IFELSE_SVG_WIDTH;
+    }
 
     public endVisitOnFailClause(node: OnFailClause, parent?: STNode) {
-        const viewState: BlockViewState = node.viewState as BlockViewState;
-        const statementBlockVS: BlockViewState = node.blockStatement.viewState as BlockViewState;
-        viewState.bBox.h = statementBlockVS.bBox.h;
-        viewState.bBox.lw = statementBlockVS.bBox.lw;
-        viewState.bBox.rw = statementBlockVS.bBox.rw;
-        viewState.bBox.w = statementBlockVS.bBox.w;
+        const viewState: OnFailClauseViewState = node.viewState as OnFailClauseViewState;
+        const onFailHeadVS = viewState.onFailHeadVS;
+        const onFailBlockVS = viewState.onFailBodyVS;
+        const onFailLifeLine = viewState.onFailBodyLifeLine as SimpleBBox;
+        viewState.bBox.h = onFailHeadVS.h + onFailHeadVS.offsetFromBottom + onFailBlockVS.bBox.h + DefaultConfig.offSet;
+        viewState.bBox.lw = onFailBlockVS.bBox.lw;
+        viewState.bBox.rw = onFailBlockVS.bBox.rw;
+        viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
+        onFailLifeLine.h = onFailHeadVS.offsetFromBottom + onFailBlockVS.bBox.h;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {
