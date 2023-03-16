@@ -246,6 +246,8 @@ export function Diagram() {
                 viewState: plusViewState
             }
         };
+
+        console.log('configOverlayFormStatus >>>', configOverlayFormStatus);
         setFormConfig({
             configOverlayFormStatus,
             onCancel: () => {

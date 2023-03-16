@@ -28,6 +28,7 @@ import { DoStatementViewState } from "../../../ViewState/do-statement";
 import { DoStatementSVG, DO_STATEMENT_SHADOW_OFFSET, DO_STATEMENT_SVG_HEIGHT_WITH_SHADOW, DO_STATEMENT_SVG_WIDTH, DO_STATEMENT_SVG_WIDTH_WITH_SHADOW } from "./DoStatementSVG";
 import "./style.scss";
 import { OnFailClauseViewState } from "../../../ViewState/on-fail-clause";
+import { PlusButton } from "../../PlusButtons/Plus";
 
 interface DoStatementProps {
     model: STNode;
@@ -71,6 +72,29 @@ export function DoStatement(props: DoStatementProps) {
         y2: onFailVS.bBox.cy + DO_STATEMENT_SVG_HEIGHT_WITH_SHADOW / 2,
     };
 
+    const plusButtons: React.ReactElement[] = [];
+
+    viewState.doBodyVS.plusButtons.forEach((plusView) => {
+        plusButtons.push(
+            <PlusButton
+                viewState={plusView}
+                model={(model as DoStatement).blockStatement}
+                initPlus={false}
+            />
+        );
+    });
+
+    viewState.onFailBodyVS.onFailBodyVS.plusButtons.forEach((plusView) => {
+        plusButtons.push(
+            <PlusButton
+                viewState={plusView}
+                model={(model as DoStatement).onFailClause.blockStatement}
+                initPlus={false}
+            />
+        );
+    });
+
+
     return (
         <g className="main-do-statement-wrapper">
             <g className={'do-statement-block'}>
@@ -92,6 +116,7 @@ export function DoStatement(props: DoStatementProps) {
                     componentSTNode={model}
                 />
                 {onFailBodyChildren}
+                {plusButtons}
             </g>
         </g>
     )
