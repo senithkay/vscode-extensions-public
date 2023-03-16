@@ -32,6 +32,8 @@ import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainerWithTopMargin, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
+import { OutputUnionTypeChangeMenu } from "../OutputUnionTypeChangeMenu";
+import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -133,6 +135,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
 	const dmStore = useDMSearchStore();
+	const isUnion = field?.type?.originalTypeName === PrimitiveBalType.Union;
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
@@ -227,6 +230,14 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 							{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
 						</IconButton>
 						{label}
+						{isUnion && (
+							<OutputUnionTypeChangeMenu
+								context={context}
+								type={field.type}
+								value={field.value}
+								portName={portIn?.getName()}
+							/>
+						)}
 					</span>
 				</TreeHeader>
 				<TreeBody>

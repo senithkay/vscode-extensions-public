@@ -115,6 +115,9 @@ export class NodeInitVisitor implements Visitor {
                 if (returnType?.typeName === PrimitiveBalType.Union) {
                     const matchingType = getAssignedUnionType(returnType, bodyExpr)
                     if (matchingType){
+                        if(matchingType.typeName === PrimitiveBalType.Array && matchingType.memberType) {
+                            matchingType.memberType.members = returnType.members
+                        }
                         returnType = matchingType;
                     } else if (STKindChecker.isMappingConstructor(bodyExpr)) {
                         returnType = {
@@ -129,6 +132,25 @@ export class NodeInitVisitor implements Visitor {
 
                 if (STKindChecker.isQueryExpression(bodyExpr)) {
                     if (this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY) {
+
+                        if (returnType?.typeName === PrimitiveBalType.Array && returnType?.memberType?.typeName === PrimitiveBalType.Union) {
+                            const matchingType = getAssignedUnionType(returnType.memberType, bodyExpr.selectClause?.expression)
+                            if (matchingType){
+                                returnType.memberType = matchingType;
+                            } else if (STKindChecker.isMappingConstructor(bodyExpr.selectClause?.expression)) {
+                                returnType = {
+                                    ...returnType,
+                                    memberType:{
+                                        typeName: PrimitiveBalType.Record,
+                                        name: null,
+                                        members: returnType?.memberType?.members,
+                                        originalTypeName: PrimitiveBalType.Union
+                                    }
+                                };
+                            }
+                            returnType.originalTypeName = PrimitiveBalType.Union;
+                        }
+
                         isFnBodyQueryExpr = true;
                         const selectClause = bodyExpr.selectClause;
                         const intermediateClausesHeight = 100 + bodyExpr.queryPipeline.intermediateClauses.length * OFFSETS.INTERMEDIATE_CLAUSE_HEIGHT;

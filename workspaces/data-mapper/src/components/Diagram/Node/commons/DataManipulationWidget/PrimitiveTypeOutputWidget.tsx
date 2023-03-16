@@ -27,6 +27,8 @@ import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { OutputUnionTypeChangeMenu } from '../OutputUnionTypeChangeMenu';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -110,6 +112,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	const type = typeName || field?.type?.typeName;
 	const fieldId = `${id}.${type}`;
 	const portIn = getPort(`${fieldId}.IN`);
+	const isUnion = field?.type?.typeName === PrimitiveBalType.Union || field?.type?.originalTypeName === PrimitiveBalType.Union;
 
 	let expanded = true;
 	if ((portIn && portIn.collapsed)) {
@@ -157,6 +160,14 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
 					</IconButton>
 					{label}
+					{isUnion && (
+						<OutputUnionTypeChangeMenu
+							context={context}
+							type={field.type}
+							value={field.value}
+							portName={portIn?.getName()}
+						/>
+					)}
 				</span>
 			</TreeHeader>
 			<TreeBody>

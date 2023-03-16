@@ -37,6 +37,7 @@ import { TreeBody, TreeContainer, TreeContainerWithTopMargin, TreeHeader } from 
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { ValueConfigMenu } from './ValueConfigButton';
+import { OutputUnionTypeChangeMenu } from '../OutputUnionTypeChangeMenu';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -95,12 +96,6 @@ const useStyles = makeStyles((theme: Theme) =>
 			width: "25px",
 			marginLeft: "auto"
 		},
-		loader: {
-			float: "right",
-			marginLeft: "auto",
-			marginRight: '3px',
-			alignSelf: 'center'
-		},
 	}),
 );
 
@@ -134,7 +129,6 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		type
 	} = props;
 	const classes = useStyles();
-	const [isLoading, setIsLoading] = useState(false);
 	const dmStore = useDMSearchStore();
 
 	const [portState, setPortState] = useState<PortState>(PortState.Unselected);
@@ -211,17 +205,6 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		return fieldNames;
 	}, [editableRecordFields]);
 
-	const handleChangeUnionType = async (unionTypeMember: Type) => {
-		setIsLoading(true);
-		try {
-			const defaultValue = getDefaultRecordValue(unionTypeMember);
-			const modification = [getModification(defaultValue, value?.position)];
-			await context.applyModifications(modification);
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
 	return (
 		<>
 			<SearchNodeWidget
@@ -241,10 +224,10 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 				>
 					<span className={classes.treeLabelInPort}>
 						{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
-								|| !expanded
-								|| !isBodyMappingConstructor
-								|| hasEmptyFields
-							) &&
+							|| !expanded
+							|| !isBodyMappingConstructor
+							|| hasEmptyFields
+						) &&
 							<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
 						}
 					</span>
@@ -260,13 +243,11 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						</IconButton>
 						{label}
 					</span>
-					{isLoading && <CircularProgress size={18} className={classes.loader} />}
-					{!isLoading && isUnion && (
-						<ValueConfigMenu
-							menuItems={type?.members?.map((member) => ({
-								title: `Reinitialize as ${member.name || member.typeName}`,
-								onClick: () => handleChangeUnionType(member),
-							}))}
+					{isUnion && (
+						<OutputUnionTypeChangeMenu
+							context={context}
+							type={type}
+							value={value}
 							portName={portIn?.getName()}
 						/>
 					)}
