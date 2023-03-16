@@ -93,7 +93,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								element.fireEvent({}, "mappingFinishedTo");
 								if (this.sourcePort.canLinkToPort(element)) {
 
-									this.link.setTargetPort(element);
+									this.link?.setTargetPort(element);
 									this.engine.getModel().addAll(this.link)
 									if (this.sourcePort instanceof RecordFieldPortModel) {
 										this.sourcePort.linkedPorts.forEach((linkedPort) => {
@@ -113,7 +113,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								}
 								this.sourcePort.removeLink(this.link);
 								this.sourcePort = element;
-								this.link.setSourcePort(element);
+								this.link?.setSourcePort(element);
 								element.fireEvent({}, "mappingStartedFrom");
 								if (element instanceof RecordFieldPortModel) {
 									element.linkedPorts.forEach((linkedPort) => {
@@ -122,8 +122,8 @@ export class CreateLinkState extends State<DiagramEngine> {
 								}
 							}
 						}
-					} else if (element === this.link.getLastPoint()) {
-						this.link.point(0, 0, -1);
+					} else if (element === this.link?.getLastPoint()) {
+						this.link?.point(0, 0, -1);
 					} else if (element === this.sourcePort) {
 						element.fireEvent({}, "mappingStartedFromSelectedAgain");
 						if (element instanceof RecordFieldPortModel) {
@@ -131,7 +131,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 								linkedPort.fireEvent({}, "enableNewLinking")
 							})
 						}
-						this.link.remove();
+						this.link?.remove();
 						this.clearState();
 						this.eject();
 					}
@@ -157,7 +157,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 				fire: (actionEvent: ActionEvent<KeyboardEvent>) => {
 					// on esc press remove any started link and pop back to default state
 					if (actionEvent.event.keyCode === 27) {
-						this.link.remove();
+						this.link?.remove();
 						this.clearState();
 						this.eject();
 						this.engine.repaintCanvas();

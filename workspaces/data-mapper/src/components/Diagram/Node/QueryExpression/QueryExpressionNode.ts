@@ -318,7 +318,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                 modifications = [{
                     type: "INSERT",
                     config: {
-                        "STATEMENT": getDefaultValue(dmNode.typeDef)
+                        "STATEMENT": getDefaultValue(dmNode.typeDef?.typeName)
                     },
                     ...this.value.position
                 }];

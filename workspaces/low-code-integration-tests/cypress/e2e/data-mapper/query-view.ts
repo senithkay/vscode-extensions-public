@@ -229,4 +229,39 @@ describe("Expanded query view for defined record within mapping constructor", ()
     it("Navigate out of expanded query view", () =>  DataMapper.clickHeaderBreadcrumb(0));
 
     it("Delete query link", () => DataMapper.deleteQueryLink('input.Items', 'Output.innerOutput'));
-});
+})
+
+
+describe("Verify input & output search", () => {
+    before(() => {
+        cy.visit(getIntegrationTestPageURL(INITIAL_BAL_FILE));
+        Canvas.getDataMapper("transform").clickEdit();
+    });
+
+    it("Create mapping between two record array element", () => {
+        DataMapper.createMappingUsingFields("input.Items", "Output.Items", "mappingConstructor");
+        DataMapper.linkExists("input.Items", "Output.Items", "mappingConstructor");
+    });
+
+    it("Convert link into query using code action", () => {
+        DataMapper.clickLinkCodeAction("input.Items", "Output.Items", "mappingConstructor");
+    });
+
+    it("Navigate into expanded query view", () => {
+        DataMapper.clickExpandQueryView("Output.Items");
+        DataMapper.getQueryExprNode("source.ItemsItem");
+        DataMapper.getTargetNode("mappingConstructor");
+    });
+
+    it("Verify input search", () => {
+        DataMapper.searchInput('id');
+        DataMapper.sourcePortExists('expandedQueryExpr.source.ItemsItem.Id');
+        DataMapper.sourcePortNotExists('expandedQueryExpr.source.Confirmed');
+    });
+
+    it("Verify output search", () => {
+        DataMapper.searchOutput('id');
+        DataMapper.mappingPortExists("mappingConstructor", 'Id');
+        DataMapper.mappingPortNotExists("mappingConstructor", 'Confirmed');
+    });
+})

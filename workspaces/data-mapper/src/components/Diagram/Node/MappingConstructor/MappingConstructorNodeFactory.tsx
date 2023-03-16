@@ -59,6 +59,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 				mappings={event.model.mappings}
 				valueLabel={valueLabel}
 				deleteField={(node: STNode) => event.model.deleteField(node)}
+				originalTypeName={event.model.typeDef.originalTypeName}
 			/>
 		);
 	}

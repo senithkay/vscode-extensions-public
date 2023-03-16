@@ -23,6 +23,7 @@ import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../../utils/constants';
 import { getTypeName } from "../../../utils/dm-utils";
+import { InputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
@@ -109,7 +110,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     const label = (
         <span style={{ marginRight: "auto" }}>
             <span className={classes.valueLabel}>
-                {valueLabel ? valueLabel : id}
+                <InputSearchHighlight>{valueLabel ? valueLabel : id}</InputSearchHighlight>
                 {typeName && ":"}
             </span>
             {typeName && (
@@ -181,6 +182,7 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                                 parentId={id}
                                 handleCollapse={handleCollapse}
                                 treeDepth={0}
+                                isOptional={typeDesc.optional}
                                 hasHoveredParent={isHovered}
                             />
                         );
