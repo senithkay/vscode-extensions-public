@@ -35,6 +35,7 @@ interface GraphqlConfigFormProps {
 
 export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
     const { targetPosition, model, configOverlayFormStatus, onSave, onCancel } = props;
+    const functionType = configOverlayFormStatus.formName;
 
     const {
         api: {
@@ -63,7 +64,7 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
                 isLastMember={false}
                 targetPosition={position}
                 onCancel={onCancel}
-                type={"GraphqlResource"}
+                type={functionType}
                 currentFile={currentFile}
                 getLangClient={getExpressionEditorLangClient}
                 applyModifications={modifyDiagram}

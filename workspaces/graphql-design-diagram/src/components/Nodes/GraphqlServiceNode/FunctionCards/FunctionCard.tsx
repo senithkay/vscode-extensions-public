@@ -16,7 +16,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 
-import { RemoteFunction, ResourceFunction } from '../../../resources/model';
+import { FunctionType, RemoteFunction, ResourceFunction } from '../../../resources/model';
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { FunctionContainer } from '../styles/styles';
 
@@ -29,10 +29,11 @@ interface FunctionCardProps {
     node: GraphqlServiceNodeModel;
     functionElement: ResourceFunction | RemoteFunction;
     isResourceFunction: boolean;
+    isSubscription?: boolean;
 }
 
 export function FunctionCard(props: FunctionCardProps) {
-    const { engine, node, functionElement, isResourceFunction } = props;
+    const { engine, node, functionElement, isResourceFunction, isSubscription } = props;
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -46,6 +47,24 @@ export function FunctionCard(props: FunctionCardProps) {
 
     const handleOnHover = (task: string) => {
         setIsHovered(task === 'SELECT' ? true : false);
+    };
+
+    const addFunctionMenu = () => {
+        if (!isResourceFunction) {
+            return (
+                <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.MUTATION}/>
+            );
+        } else {
+            if (isSubscription) {
+                return (
+                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.SUBSCRIPTION}/>
+                );
+            } else {
+                return (
+                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.QUERY}/>
+                );
+            }
+        }
     };
 
 
@@ -71,9 +90,7 @@ export function FunctionCard(props: FunctionCardProps) {
                     />
                 )
             }
-            {isHovered &&
-            <FunctionMenuWidget location={functionElement.position}/>
-            }
+            {isHovered && addFunctionMenu()}
         </FunctionContainer>
     );
 }

@@ -40,8 +40,13 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
                 startColumn: model.closeBraceToken.position.startColumn,
                 startLine: model.closeBraceToken.position.startLine
             };
-            // TODO: enable form rendering functionality
-            functionPanel(lastMemberPosition, "ResourceForm");
+            if (functionType === FunctionType.QUERY) {
+                functionPanel(lastMemberPosition, "GraphqlResource");
+            } else if (functionType === FunctionType.MUTATION) {
+                functionPanel(lastMemberPosition, "GraphqlMutation");
+            } else if (functionType === FunctionType.SUBSCRIPTION) {
+                functionPanel(lastMemberPosition, "GraphqlSubscription");
+            }
         }
     };
 

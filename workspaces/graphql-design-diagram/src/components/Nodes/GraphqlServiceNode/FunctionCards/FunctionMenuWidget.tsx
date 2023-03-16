@@ -25,10 +25,11 @@ import { EditFunctionWidget } from "./MenuActionComponents/EditFunction";
 
 interface FunctionMenuWidgetProps {
     location: Position;
+    functionType: FunctionType;
 }
 
 export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
-    const { location } = props;
+    const { location, functionType } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
@@ -41,8 +42,7 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
                 title={
                     <>
                         <DesignFunctionWidget position={location}/>
-                        {/*TODO support for subscription and mutation types*/}
-                        <EditFunctionWidget position={location} functionType={FunctionType.QUERY}/>
+                        <EditFunctionWidget position={location} functionType={functionType}/>
                         <DeleteFunctionWidget position={location}/>
                     </>
                 }
