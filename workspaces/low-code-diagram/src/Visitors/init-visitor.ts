@@ -639,7 +639,7 @@ export class InitVisitor implements Visitor {
     private setActionInvocationInfo(node: ActionStatement, remoteCall: RemoteMethodCallAction) {
         const stmtViewState: StatementViewState = node.viewState as StatementViewState;
         const simpleName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
-        stmtViewState.action.endpointName = simpleName.name.value;
+        stmtViewState.action.endpointName = simpleName?.name?.value ? simpleName.name.value : simpleName.source;
         const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
         stmtViewState.action.actionName = actionName.name.value;
 
