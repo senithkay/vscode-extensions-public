@@ -20,19 +20,19 @@
 import React, { useContext } from "react";
 
 import { DoStatement, STNode } from "@wso2-enterprise/syntax-tree";
-import { Context } from "../../../Context/diagram";
 
 import { DefaultConfig } from "../../..";
+import { Context } from "../../../Context/diagram";
+import { useFunctionContext } from "../../../Context/Function";
+import { ViewMode } from "../../../Context/types";
 import { collapseExpandedRange, expandCollapsedRange, getDraftComponent, getSTComponents, recalculateSizingAndPositioning } from "../../../Utils";
 import { DoStatementViewState } from "../../../ViewState/do-statement";
+import { OnFailClauseViewState } from "../../../ViewState/on-fail-clause";
+import { PlusButton } from "../../PlusButtons/Plus";
+import CollapseComponent from "../Collapse";
 
 import { DoStatementSVG, DO_STATEMENT_SHADOW_OFFSET, DO_STATEMENT_SVG_HEIGHT_WITH_SHADOW, DO_STATEMENT_SVG_WIDTH, DO_STATEMENT_SVG_WIDTH_WITH_SHADOW } from "./DoStatementSVG";
 import "./style.scss";
-import { OnFailClauseViewState } from "../../../ViewState/on-fail-clause";
-import { PlusButton } from "../../PlusButtons/Plus";
-import { useFunctionContext } from "../../../Context/Function";
-import { ViewMode } from "../../../Context/types";
-import CollapseComponent from "../Collapse";
 
 interface DoStatementProps {
     model: STNode;
