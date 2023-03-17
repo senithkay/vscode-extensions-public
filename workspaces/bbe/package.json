@@ -7,7 +7,7 @@
     "prepublishOnly": "pnpm run build",
     "clean": "rimraf lib && rimraf coverage && rimraf build",
     "lint": "tslint -t stylish --project .",
-    "build": "pnpm run build:theme && webpack --mode=production && pnpm run postbuild && pnpm run setGITOut",
+    "build": "pnpm run build:theme && webpack --mode=production && pnpm run postbuild",
     "build:theme": "node theme/scripts/build-theme.js",
     "test": "jest --colors",
     "coverage": "jest --coverage",
@@ -15,8 +15,7 @@
     "watch:webpack": "webpack-dev-server --mode=development --progress",
     "watch:test": "jest --watch",
     "storybook": "npx start-storybook -p 9001 -c .storybook",
-    "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs && copyfiles -f build/themes/*.min.css ../ballerina-extension/resources/jslibs/themes",
-    "setGITOut": "if [ $CI = 'true' ]; then echo \"built-$(basename \"$PWD\")=true\" >> $GITHUB_OUTPUT; fi"
+    "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs && copyfiles -f build/themes/*.min.css ../ballerina-extension/resources/jslibs/themes"
   },
   "dependencies": {
     "classnames": "^2.2.6",

@@ -10,7 +10,7 @@
     "typings": "lib/index",
     "scripts": {
         "prebuild": "pnpm run lint",
-        "build": "pnpm run storybook:setup && tsc --pretty && pnpm run copy:assets && pnpm run setGITOut",
+        "build": "pnpm run storybook:setup && tsc --pretty && pnpm run copy:assets",
         "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Gilmer/*.*\" lib/",
         "watch": "tsc --pretty --watch",
         "clean": "rimraf lib/",
