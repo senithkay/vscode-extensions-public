@@ -111,17 +111,15 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
             });
 
             if (packageModel.entryPoint) {
-                const { interactions, elementLocation } = packageModel.entryPoint;
-                const l1EntryNode = new EntryNodeModel(packageName, Level.ONE, elementLocation);
+                const { elementLocation, id } = packageModel.entryPoint;
+                const l1EntryNode = new EntryNodeModel(id || packageName, Level.ONE, elementLocation);
                 l1EntryNodes.set(packageName, l1EntryNode);
 
-                const cellEntryNode = new EntryNodeModel(packageName, Level.ONE, elementLocation);
+                const cellEntryNode = new EntryNodeModel(id || packageName, Level.ONE, elementLocation);
                 cellEntryNodes.set(packageName, cellEntryNode);
 
-                const l2EntryNode = new EntryNodeModel(packageName, Level.TWO, elementLocation);
+                const l2EntryNode = new EntryNodeModel(id || packageName, Level.TWO, elementLocation);
                 l2EntryNodes.set(packageName, l2EntryNode);
-
-                mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, interactions);
             }
         }
     });
@@ -145,6 +143,13 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                     }
                 }
             });
+            if (projectComponents.get(packageName).entryPoint) {
+                const l1EntryNode: EntryNodeModel = l1EntryNodes.get(packageName);
+                const l2EntryNode: EntryNodeModel = l2EntryNodes.get(packageName);
+                const cellEntryNode: EntryNodeModel = cellEntryNodes.get(packageName);
+                const { interactions } = projectComponents.get(packageName).entryPoint;
+                mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, interactions);
+            }
         }
     });
 }

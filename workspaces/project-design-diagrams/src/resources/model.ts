@@ -37,6 +37,7 @@ interface PackageID {
 }
 
 export interface EntryPoint {
+    id: string;
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
