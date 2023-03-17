@@ -26,6 +26,7 @@ export interface ComponentModel {
     packageId: PackageID;
     services: Map<string, Service>;
     entities: Map<string, Entity>;
+    entryPoint: EntryPoint;
     hasCompilationErrors: boolean;
 }
 
@@ -33,6 +34,13 @@ interface PackageID {
     name: string,
     org: string,
     version: string
+}
+
+export interface EntryPoint {
+    parameters: Parameter[];
+    returns: string[];
+    interactions: Interaction[];
+    elementLocation: Location;
 }
 
 export interface Service {
