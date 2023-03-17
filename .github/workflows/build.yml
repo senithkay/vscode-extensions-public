@@ -123,7 +123,7 @@ jobs:
             tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points" "test-se" "test-se-tools" "test-dm");
           fi 
 
-          sortedTests=$("${tests[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          sortedTests=$(echo "${tests[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
           testArray="["
           for test in "${sortedTests[@]}"; do
             testArray+="'$test',"
