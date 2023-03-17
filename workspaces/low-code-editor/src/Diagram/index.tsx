@@ -14,7 +14,16 @@
 import React, { useContext, useState } from "react";
 
 import { DefaultConfig, LowCodeDiagram, PlusViewState, ViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { ConfigOverlayFormStatus, ConnectorWizardProps, DiagramOverlayPosition, LowcodeEvent, OPEN_LOW_CODE, PlusWidgetProps, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    ConfigOverlayFormStatus,
+    ConnectorWizardProps,
+    DiagramEditorLangClientInterface,
+    DiagramOverlayPosition,
+    LowcodeEvent,
+    OPEN_LOW_CODE,
+    PlusWidgetProps,
+    STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DiagramTooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
@@ -29,6 +38,7 @@ import { GraphqlDiagramOverlay } from "./components/GraphqlDiagramOverlay";
 import { ServiceDesignOverlay } from "./components/ServiceDesignOverlay";
 import "./style.scss";
 import { useStyles } from "./styles";
+import { getListenerSignatureFromMemberNode } from "./utils";
 import { removeStatement } from "./utils/modification-util";
 import { visitor as STFindingVisitor } from "./visitors/st-finder-visitor";
 
@@ -51,6 +61,9 @@ export function Diagram() {
             insights: {
                 onEvent
             },
+            ls: {
+                getDiagramEditorLangClient
+            },
             navigation
         },
         props: {
@@ -64,7 +77,8 @@ export function Diagram() {
             zoomStatus,
             ballerinaVersion,
             experimentalEnabled,
-            openInDiagram
+            openInDiagram,
+            currentFile
         },
     } = useContext(DiagramContext);
 
@@ -278,6 +292,11 @@ export function Diagram() {
         await addAdvancedLabels(name, range, diagramRedrawFunc);
     };
 
+    const getListenerSignature = async (functionNode: STNode): Promise<string> => {
+        const langClient: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
+        return getListenerSignatureFromMemberNode(fullST, functionNode, langClient, currentFile.path);
+    }
+
     const textLoader = (
         <div className={classes.progressContainer}>
             {/* <TextPreLoader position="absolute" text={loaderText} /> */}
@@ -320,6 +339,7 @@ export function Diagram() {
                         zoomStatus={zoomStatus}
                         stSymbolInfo={stSymbolInfo}
                         experimentalEnabled={experimentalEnabled}
+                        getListenerSignature={getListenerSignature}
                         api={{
                             edit: {
                                 deleteComponent: handleDeleteComponent,
