@@ -17,6 +17,7 @@ export function ReadOnlyDiagram(props: ReadOnlyDiagramProps) {
 
     const context: LowCodeDiagramProperties = {
         syntaxTree: model,
+        fullST: model,
         isReadOnly: true,
         onDiagramDoubleClick,
     }

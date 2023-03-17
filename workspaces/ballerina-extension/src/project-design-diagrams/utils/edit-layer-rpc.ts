@@ -27,6 +27,8 @@ import { Location, Service } from "../resources";
 import { ExtendedLangClient } from "../../core";
 import { addConnector, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PALETTE_COMMANDS } from "../../project/cmds/cmd-runner";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -108,6 +110,19 @@ export class EditLayerRPC {
                     });
                 });
             }
+        });
+
+        this._messenger.onNotification({ method: 'goToDesign' }, (args: { filePath: string, position: NodePosition }): void => {
+            // workspace.openTextDocument(location.filePath).then((sourceFile) => {
+            //     window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
+            //         const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
+            //         const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
+            //         const range: Range = new Range(startPosition, endPosition);
+            //         textEditor.revealRange(range, TextEditorRevealType.InCenter);
+            //         textEditor.selection = new Selection(range.start, range.start);
+            //     });
+            // });
+            commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, args.filePath, args.position, true);
         });
 
         this._messenger.onNotification({ method: 'showErrorMsg' }, (msg: string) => {

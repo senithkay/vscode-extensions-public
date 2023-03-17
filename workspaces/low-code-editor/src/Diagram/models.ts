@@ -25,7 +25,7 @@ export const HTTP_OPTIONS = "OPTIONS";
 export const HTTP_HEAD = "HEAD";
 export const HTTP_PATCH = "PATCH";
 
-export const SERVICE_METHODS = [HTTP_GET, HTTP_PUT, HTTP_DELETE, HTTP_POST, HTTP_OPTIONS, HTTP_HEAD, HTTP_PATCH];
+export const SERVICE_METHODS = [HTTP_GET, HTTP_PUT, HTTP_DELETE, HTTP_POST, HTTP_PATCH];
 export const WEBHOOK_METHODS = [HTTP_GET, HTTP_POST];
 
 export type ServiceMethodType = typeof HTTP_GET | typeof HTTP_PUT | typeof HTTP_DELETE | typeof HTTP_POST | typeof HTTP_OPTIONS | typeof HTTP_HEAD | typeof HTTP_PATCH;

@@ -41,6 +41,7 @@ import {
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
+    getSearchFilteredOutput,
     getTypeName,
     getTypeOfValue
 } from "../../utils/dm-utils";
@@ -71,32 +72,24 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.typeDef = getSearchFilteredOutput(this.typeDef);
+
         if (this.typeDef) {
             const isSelectClause = STKindChecker.isSelectClause(this.value);
             this.rootName = this.typeDef?.name ? getBalRecFieldName(this.typeDef.name) : this.typeDef.typeName;
             if (isSelectClause){
                 this.rootName = this.typeIdentifier.value || this.typeIdentifier.source;
             }
-            if (this.typeDef.typeName === PrimitiveBalType.Union) {
-                this.typeName = getTypeName(this.typeDef);
-                const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
-                if (acceptedMembers.length === 1) {
-                    this.typeDef = acceptedMembers[0];
-                }
-            }
             const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
-            if (this.typeDef.typeName === PrimitiveBalType.Union) {
-                this.rootName = valueEnrichedType?.type?.typeName;
-            }
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, isSelectClause, this.recordField);
-            if (valueEnrichedType.type.typeName === PrimitiveBalType.Array) {
+            if (valueEnrichedType.type.typeName === PrimitiveBalType.Array || valueEnrichedType.type.typeName === PrimitiveBalType.Union) {
                 if (isSelectClause) {
-                    this.recordField = valueEnrichedType.elements[0].member;
+                    this.recordField = valueEnrichedType.elements[0]?.member;
                 }
                 if (this.recordField?.elements && this.recordField.elements.length > 0) {
                     this.recordField.elements.forEach((field, index) => {
@@ -183,9 +176,15 @@ export class ListConstructorNode extends DataMapperNodeModel {
             modifications = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(typeOfValue)
+                    "STATEMENT": getDefaultValue(typeOfValue?.typeName)
                 },
                 ...field.position
+            }];
+        } else if (this.typeDef?.memberType?.typeName === PrimitiveBalType.Union && STKindChecker.isSpecificField(field)) {
+            modifications = [{
+                type: "INSERT",
+                config: {  "STATEMENT": "" },
+                ...field.valueExpr.position
             }];
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.value.expression);

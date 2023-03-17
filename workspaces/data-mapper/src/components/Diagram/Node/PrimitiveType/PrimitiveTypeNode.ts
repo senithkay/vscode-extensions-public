@@ -28,7 +28,7 @@ import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getDefaultValue,
     getEnrichedRecordType,
@@ -65,13 +65,6 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
 
     async initPorts() {
         if (this.typeDef) {
-            if (this.typeDef.typeName === PrimitiveBalType.Union) {
-                this.typeName = getTypeName(this.typeDef);
-                const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
-                if (acceptedMembers.length === 1) {
-                    this.typeDef = acceptedMembers[0];
-                }
-            }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
@@ -160,7 +153,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         const modifications: STModification[] = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(typeOfValue)
+                    "STATEMENT": getDefaultValue(typeOfValue?.typeName)
                 },
                 ...field.position
             }];
@@ -179,7 +172,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             if (!this.x || !this.y) {
                 this.x = x;
                 this.y = y;
-                super.setPosition(x, y);
+                super.setPosition(x, y + OFFSETS.TARGET_NODE.Y);
             }
         }
     }

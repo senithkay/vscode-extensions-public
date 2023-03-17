@@ -40,6 +40,7 @@ import {
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
+    getSearchFilteredOutput,
     getTypeName,
     getTypeOfValue
 } from "../../utils/dm-utils";
@@ -71,22 +72,15 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.typeDef = getSearchFilteredOutput(this.typeDef);
+
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)
                 && this.typeDef.typeName === PrimitiveBalType.Array
                 && this.typeDef?.memberType
-                && this.typeDef.memberType.typeName === PrimitiveBalType.Record)
-            {
+                && this.typeDef.memberType.typeName === PrimitiveBalType.Record) {
                 this.rootName = this.typeDef.memberType?.name;
-            }
-            if (this.typeDef.typeName === PrimitiveBalType.Union) {
-                this.typeName = getTypeName(this.typeDef);
-                const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
-                if (acceptedMembers.length === 1) {
-                    this.typeDef = acceptedMembers[0];
-                    this.rootName = acceptedMembers[0]?.name;
-                }
             }
             const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
                 this.context.selection.selectedST.stNode);
@@ -95,9 +89,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
                 STKindChecker.isSelectClause(this.value), valueEnrichedType);
-            if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
+            if (valueEnrichedType.type.typeName === PrimitiveBalType.Record || valueEnrichedType.type.typeName === PrimitiveBalType.Union) {
                 this.recordField = valueEnrichedType;
-                if (this.recordField.childrenTypes.length) {
+                if (this.recordField.childrenTypes?.length) {
                     this.recordField.childrenTypes.forEach((field) => {
                         this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
                             MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
@@ -147,7 +141,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                 const keepDefault = ((mappedField && !mappedField?.name
                     && mappedField.typeName !== PrimitiveBalType.Array
                     && mappedField.typeName !== PrimitiveBalType.Record)
-                        || !STKindChecker.isMappingConstructor(this.value.expression)
+                    || !STKindChecker.isMappingConstructor(this.value.expression)
                 );
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
@@ -188,9 +182,17 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             modifications = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(typeOfValue)
+                    "STATEMENT": getDefaultValue(typeOfValue?.typeName)
                 },
                 ...field.position
+            }];
+        } else if ((this.typeDef?.typeName === PrimitiveBalType.Union
+            || this.typeDef?.originalTypeName === PrimitiveBalType.Union)
+            && STKindChecker.isSpecificField(field)) {
+             modifications = [{
+                type: "INSERT",
+                config: { "STATEMENT": "" },
+                ...field.valueExpr.position
             }];
         } else if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
             // if Within query expression expanded view

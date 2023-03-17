@@ -21,6 +21,7 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getDefaultValue, getExprBodyFromLetExpression, getFieldLabel, getFieldName } from "../../../utils/dm-utils";
+import { OutputSearchHighlight } from "../SearchHighlight";
 
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
@@ -90,9 +91,9 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     }, [editable, body]);
 
     const label = (
-        <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn.getName()}`}>
+        <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn ? portIn.getName() : ''}`}>
             <span className={classes.valueLabel}>
-                {value}
+                <OutputSearchHighlight>{value}</OutputSearchHighlight>
             </span>
         </span>
     );
@@ -117,7 +118,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
                 title: ValueConfigOption.DeleteElement,
                 onClick: handleDelete
             });
-        } else if (value !== getDefaultValue(field.type)) {
+        } else if (value !== getDefaultValue(field.type?.typeName)) {
             items.push({
                 title: ValueConfigOption.DeleteValue,
                 onClick: handleDelete

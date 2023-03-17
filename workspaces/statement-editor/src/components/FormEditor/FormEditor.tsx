@@ -9,11 +9,16 @@
  * this license, please see the license as well as any agreement you’ve
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
- */
+*/
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useState } from 'react';
 
-import { ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { FormControl } from '@material-ui/core';
+import {
+    ExpressionEditorLangClientInterface,
+    STModification,
+    STSymbolInfo
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
@@ -41,6 +46,7 @@ export interface FormEditorProps {
     targetPosition: NodePosition;
     stSymbolInfo?: STSymbolInfo;
     syntaxTree?: STNode;
+    fullST?: STNode;
     isLastMember?: boolean;
     type: string;
     onCancel: () => void;
@@ -54,6 +60,7 @@ export function FormEditor(props: FormEditorProps) {
         initialSource,
         initialModel,
         syntaxTree,
+        fullST,
         isLastMember,
         onCancel,
         getLangClient,
@@ -88,7 +95,7 @@ export function FormEditor(props: FormEditorProps) {
             if (!currentFile.content.includes(module)) {
                 newModuleList.add(module);
             }
-        })
+        });
         const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? { // todo : move this to a seperate variable
             ...initialModel.position,
             startLine: initialModel.position.startLine + offsetLineCount,
@@ -151,7 +158,7 @@ export function FormEditor(props: FormEditorProps) {
                 if (topLevelComponent) {
                     const partialST = await getPartialSTForModuleMembers(
                         { codeSnippet: initialSource.trim() }, getLangClient,
-                        type === "Resource"
+                        (type === "Resource" || type === "GraphqlResource" || type === "GraphqlMutation" || type === "GraphqlSubscription")
                     );
                     const updatedContent = getUpdatedSource(initialSource.trim(), currentFile.content,
                         initialModel.position, undefined, true);
@@ -171,15 +178,18 @@ export function FormEditor(props: FormEditorProps) {
                             startColumn: 0,
                             endColumn: 0
                         }
-                    )
+                    );
                     const source = getInitialSource(type, position).trim();
                     const partialST = await getPartialSTForModuleMembers({ codeSnippet: source },
-                        getLangClient, type === "Resource"
+                        getLangClient, (type === "Resource" || type === "GraphqlResource" || type === "GraphqlMutation" || type === "GraphqlSubscription")
                     );
                     let moduleList;
                     if (!currentFile?.content?.includes("ballerina/http") && (type === "Service" ||
                         type === "Listener")) {
                         moduleList = new Set<string>(['ballerina/http']);
+                    } else if (!currentFile?.content?.includes("ballerina/graphql") && type ===
+                        "GraphqlListener") {
+                        moduleList = new Set<string>(['ballerina/graphql']);
                     }
                     const updatedContent = getUpdatedSource(source, currentFile.content, position, moduleList,
                         true
@@ -201,6 +211,7 @@ export function FormEditor(props: FormEditorProps) {
                 targetPosition={targetPosition}
                 stSymbolInfo={stSymbolInfo}
                 syntaxTree={syntaxTree}
+                fullST={fullST}
                 onChange={onChange}
                 onCancel={onCancel}
                 onSave={onCancel}
@@ -232,5 +243,5 @@ export function FormEditor(props: FormEditorProps) {
                 }
             </FormEditorContextProvider>
         </div>
-    )
+    );
 }

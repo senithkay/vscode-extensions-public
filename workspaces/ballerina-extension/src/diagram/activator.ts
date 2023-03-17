@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
-	TextDocumentShowOptions, ProgressLocation, ExtensionContext
+	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern
 } from 'vscode';
 import { render } from './renderer';
 import {
@@ -30,7 +30,7 @@ import {
 import { BallerinaExtension, ballerinaExtInstance, Change } from '../core';
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from '../utils';
 import { join } from "path";
-import { TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, getMessageObject } from '../telemetry';
+import { CMP_DIAGRAM_VIEW, sendTelemetryEvent, sendTelemetryException, TM_EVENT_OPEN_CODE_EDITOR, TM_EVENT_OPEN_LOW_CODE, TM_EVENT_LOW_CODE_RUN, TM_EVENT_EDIT_DIAGRAM, TM_EVENT_ERROR_EXECUTE_DIAGRAM_OPEN, getMessageObject } from '../telemetry';
 import { getDataFromChoreo, openPerformanceDiagram, PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse } from '../forecaster';
 import { showMessage } from '../utils/showMessage';
 import { sep } from "path";
@@ -63,7 +63,7 @@ import { PALETTE_COMMANDS } from '../project';
 
 export let hasDiagram: boolean = false;
 
-const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
+// const NO_DIAGRAM_VIEWS: string = 'No Ballerina diagram views found!';
 
 let langClient: ExtendedLangClient;
 let diagramElement: DiagramOptions | undefined = undefined;
@@ -74,9 +74,12 @@ let experimentalEnabled: boolean;
 let openNodeInDiagram: NodePosition;
 
 export async function showDiagramEditor(startLine: number, startColumn: number, filePath: string,
-	isCommand: boolean = false, openInDiagram?): Promise<void> {
+	isCommand: boolean = false, openInDiagram?: NodePosition): Promise<void> {
 
-	openNodeInDiagram = openInDiagram;
+	if (openInDiagram) {
+		openNodeInDiagram = openInDiagram;
+	}
+
 	const editor = window.activeTextEditor;
 	if (isCommand) {
 		if (!editor || !editor.document.fileName.endsWith('.bal')) {
@@ -89,7 +92,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 
 	if (isCommand) {
 		if (!editor) {
-			window.showErrorMessage(NO_DIAGRAM_VIEWS);
+			window.showErrorMessage(CMP_DIAGRAM_VIEW);
 			return;
 		}
 
@@ -97,16 +100,27 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			fileUri: editor!.document.uri,
 			startLine: editor!.selection.active.line,
 			startColumn: editor!.selection.active.character,
-			isDiagram: true
+			isDiagram: true,
+
 		};
 	} else {
 		diagramElement = {
 			fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
 			startLine,
 			startColumn,
-			isDiagram: true
+			isDiagram: true,
 		};
 	}
+
+	diagramElement = {
+		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
+		startLine,
+		startColumn,
+		isDiagram: true,
+		diagramFocus: filePath && filePath.length !== 0 ?
+			{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined,
+		workspaceName: workspace.name
+	};
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 
@@ -186,32 +200,54 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_CODE_EDITOR, CMP_DIAGRAM_VIEW);
 	});
 
-	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (position, path) => {
+	commands.registerCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, (path, position, ignoreFileCheck) => {
 		if (!webviewRPCHandler || !DiagramPanel.currentPanel) {
-			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, position);
+			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position, ignoreFileCheck);
 		} else {
 			const args = [{
 				filePath: path,
 				startLine: 0,
 				startColumn: 0,
-				openInDiagram: position
+				openInDiagram: position,
 			}];
 			webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
+			commands.executeCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, path, position, ignoreFileCheck);
 		}
 	});
 
 	const diagramRenderDisposable = commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (...args: any[]) => {
+		let path = args.length > 0 ? args[0] : '';
+		if (args[0] instanceof Uri) {
+			path = args[0].fsPath;
+		}
+
+		let nodePosition: NodePosition;
+		if (args.length > 1
+			&& (args[1] as NodePosition).startLine !== undefined
+			&& (args[1] as NodePosition).startColumn !== undefined
+			&& (args[1] as NodePosition).endLine !== undefined
+			&& (args[1] as NodePosition).endColumn !== undefined) {
+			nodePosition = args[1];
+		}
+
+		let ignoreFileCheck = false;
+		if (args.length > 2) {
+			ignoreFileCheck = args[2];
+		}
+
 		//editor-lowcode-editor
 		sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_LOW_CODE, CMP_DIAGRAM_VIEW);
 		return ballerinaExtInstance.onReady()
 			.then(() => {
-				showDiagramEditor(0, 0, '', true, args.length == 1 ? args[0] : {});
+				showDiagramEditor(0, 0, path, !ignoreFileCheck, nodePosition);
 			})
 			.catch((e) => {
 				ballerinaExtInstance.showPluginActivationError();
 				sendTelemetryException(ballerinaExtInstance, e, CMP_DIAGRAM_VIEW);
 			});
 	});
+
+
 	const context = <ExtensionContext>ballerinaExtInstance.context;
 	context.subscriptions.push(diagramRenderDisposable);
 	experimentalEnabled = ballerinaExtension.enabledExperimentalFeatures();
@@ -478,6 +514,13 @@ class DiagramPanel {
 				}
 			},
 			{
+				methodName: "openArchitectureView",
+				handler: async (args: any[]): Promise<boolean> => {
+					commands.executeCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, args[0]);
+					return Promise.resolve(true);
+				}
+			},
+			{
 				methodName: "openExternalUrl",
 				handler: async (args: any[]): Promise<boolean> => {
 					openExternalUrl(args[0]);
@@ -539,6 +582,13 @@ class DiagramPanel {
 					return (envName in process.env) ? process.env[envName] : "NOT_FOUND";
 				}
 			},
+			{
+				methodName: "getAllFilesInProject",
+				handler: async (args: any[]): Promise<Uri[]> => {
+					// TODO: handle ignore glob pattern as well, and change the frontend filter
+					return workspace.findFiles(args[0]);
+				}
+			},
 		];
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);
@@ -559,8 +609,15 @@ class DiagramPanel {
 		if (diagramElement && diagramElement.isDiagram) {
 			if (!DiagramPanel.currentPanel) {
 				performDidOpen();
-				this.webviewPanel.webview.html = render(diagramElement!.fileUri!, diagramElement!.startLine!,
-					diagramElement!.startColumn!, experimentalEnabled, openNodeInDiagram, this.webviewPanel.webview);
+				this.webviewPanel.webview.html = render(
+					diagramElement!.fileUri!,
+					diagramElement!.startLine!,
+					diagramElement!.startColumn!,
+					experimentalEnabled,
+					openNodeInDiagram,
+					this.webviewPanel.webview,
+					diagramElement!.diagramFocus
+				);
 			} else {
 				callUpdateDiagramMethod();
 			}

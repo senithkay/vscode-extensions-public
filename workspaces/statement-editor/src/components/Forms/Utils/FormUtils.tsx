@@ -13,6 +13,7 @@
 import {
     createFunctionSignature,
     createListenerDeclartion,
+    createRemoteFunction,
     createResource,
     createServiceDeclartion,
     getSource,
@@ -48,9 +49,15 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         }
         case "Listener": {
             return getSource(createListenerDeclartion({
-                listenerName: "l",
+                listenerName: "'listener",
                 listenerPort: "9090"
-            }, targetPosition, false));
+            }, targetPosition, false, 'http'));
+        }
+        case "GraphqlListener": {
+            return getSource(createListenerDeclartion({
+                listenerName: "graphqlListener",
+                listenerPort: "9090"
+            }, targetPosition, false, 'graphql'));
         }
         case "Main": {
             return getSource(createFunctionSignature("public", "main", "",
@@ -58,6 +65,15 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         }
         case "Resource": {
             return getSource(createResource("get", "greeting/hello", '', "error?", targetPosition));
+        }
+        case "GraphqlResource": {
+            return getSource(createResource("get", "hello", '', "string", targetPosition));
+        }
+        case "GraphqlMutation": {
+            return getSource(createRemoteFunction("updateName", '', "string", targetPosition));
+        }
+        case "GraphqlSubscription": {
+            return getSource(createResource("subscribe", "hello", '', "stream<string>", targetPosition));
         }
     }
     return;

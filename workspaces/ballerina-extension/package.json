@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "3.3.9",
+    "version": "4.0.0-beta.0",
     "publisher": "wso2",
     "repository": {
         "type": "git",
@@ -426,13 +426,6 @@
             }
         ],
         "views": {
-            "diagram-explorer": [
-                {
-                    "id": "ballerinaExplorerTreeView",
-                    "name": "Diagram Explorer",
-                    "contextualTitle": "Diagram Explorer"
-                }
-            ],
             "notebook-variables": [
                 {
                     "type": "webview",
@@ -443,13 +436,6 @@
             ]
         },
         "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "diagram-explorer",
-                    "title": "Ballerina Low-Code",
-                    "icon": "resources/images/icons/tab.svg"
-                }
-            ],
             "panel": [
                 {
                     "id": "notebook-variables",
@@ -458,24 +444,8 @@
                 }
             ]
         },
-        "viewsWelcome": [
-            {
-                "view": "ballerinaExplorerTreeView",
-                "contents": "No files found in your workspace.\n[Go to File Explorer](command:workbench.files.action.focusFilesExplorer)"
-            }
-        ],
         "menus": {
             "view/title": [
-                {
-                    "command": "ballerina.refreshExplorerTree",
-                    "when": "view == ballerinaExplorerTreeView",
-                    "group": "navigation"
-                },
-                {
-                    "command": "ballerina.new.module",
-                    "when": "view == ballerinaExplorerTreeView",
-                    "group": "navigation"
-                },
                 {
                     "command": "ballerina.notebook.refreshVariableView",
                     "when": "view == ballerinaViewVariables",
@@ -532,23 +502,6 @@
                     "title": "Debug",
                     "group": "navigation@1",
                     "when": "notebookType == 'ballerina-notebook' && isNotebookDebugModeEnabled"
-                }
-            ],
-            "view/item/context": [
-                {
-                    "command": "ballerina.newFileExplorerTree",
-                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
-                    "group": "inline@0"
-                },
-                {
-                    "command": "ballerina.newFolderExplorerTree",
-                    "when": "view == ballerinaExplorerTreeView && viewItem == folder",
-                    "group": "inline@1"
-                },
-                {
-                    "command": "ballerina.deleteFileExplorerTree",
-                    "when": "view == ballerinaExplorerTreeView && viewItem == file || viewItem == folder",
-                    "group": "inline@2"
                 }
             ],
             "explorer/context": [

@@ -898,6 +898,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
             docButton : {
                 marginLeft: theme.spacing(15.75)
+            },
+            recordCreate: {
+                textTransform: 'none',
+                minWidth: '32px',
+                color: theme.palette.primary.main,
+                marginLeft: theme.spacing(0.5),
+                cursor: 'pointer',
             }
         }),
     { index: 1 }

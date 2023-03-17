@@ -10,11 +10,12 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
+import { monaco } from 'react-monaco-editor';
 
-import { Button, Divider, FormControl } from "@material-ui/core";
+import { Button, Divider, FormControl, TextField } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
 import {
@@ -30,21 +31,24 @@ import {
     SelectDropdownWithButton
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
+    NodePosition,
     ResourceAccessorDefinition,
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
+import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
-import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
-import { completionEditorTypeKinds } from '../../InputEditor/constants';
+import { getCompletionsForType, getPartialSTForModuleMembers } from "../../../utils/ls-utils";
+import { completionEditorTypeKinds, EXPR_SCHEME, FILE_SCHEME } from '../../InputEditor/constants';
 import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 
 import { AdvancedParamEditor } from "./AdvancedParamEditor";
 import { PayloadEditor } from "./PayloadEditor";
 import { ResourceParamEditor } from "./ResourceParamEditor";
+import { ResourceReturnEditor } from './ResourceReturnEditor';
 import { useStyles } from "./styles";
 import { ResourceDiagnostics } from "./types";
 import {
@@ -61,10 +65,10 @@ export interface FunctionProps {
 }
 
 export function ResourceForm(props: FunctionProps) {
-    const { model, completions } = props;
+    const { model } = props;
     const {
         targetPosition, isEdit, onChange, onCancel, getLangClient, applyModifications,
-        changeInProgress
+        changeInProgress, currentFile, fullST
     } = useContext(FormEditorContext);
 
     const classes = useStyles();
@@ -73,7 +77,7 @@ export function ResourceForm(props: FunctionProps) {
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
+    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>([]);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
     const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
     const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
@@ -90,6 +94,41 @@ export function ResourceForm(props: FunctionProps) {
         id: "lowcode.develop.apiConfigWizard.saveButton.text",
         defaultMessage: "Save"
     });
+
+
+    const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
+    const [completions, setCompletions] = useState([]);
+
+
+    const handleCompletions = async (newValue: string, currentModel: any, completionKinds: number[], newTargetPosition: NodePosition) => {
+        const lsSuggestions = await getCompletionsForType(fileURI, newTargetPosition, null,
+            currentModel, getLangClient, newValue, completionKinds);
+        setCompletions(lsSuggestions);
+    };
+
+
+    const updateDiag = () => {
+        const updatedDiagnostics = (model?.viewState.diagnosticsInRange.concat(model?.functionSignature?.returnTypeDesc?.viewState.diagnosticsInRange.concat(model?.functionBody?.viewState.diagnosticsInRange)));
+        const typeRelated: Diagnostic[] = updatedDiagnostics?.filter((diag: any) => diag?.message.includes("unknown type"));
+        const componentDiag: StatementSyntaxDiagnostics[] = [];
+        typeRelated.forEach(diag => {
+            const newDiag: StatementSyntaxDiagnostics = {
+                message: diag.message,
+            };
+            componentDiag.push(newDiag);
+        })
+        setCurrentComponentSyntaxDiag(componentDiag);
+    }
+    useEffect(() => {
+        handleCompletions("", null, [22, 25], targetPosition);
+        updateDiag();
+    }, [model])
+
+
+    // When a type is created and full ST is updated trigger the onChange to remove diagnostics // TODO: Find a better fix
+    useEffect(() => {
+        handlePathChange(resourcePath);
+    }, [fullST]);
 
     let pathNameSemDiagnostics = "";
     let pathTypeSemDiagnostics = "";
@@ -222,14 +261,11 @@ export function ResourceForm(props: FunctionProps) {
         );
     };
 
-    // Return type related functions
-    const onReturnFocus = () => {
-        setCurrentComponentName("Return");
-    }
 
-    const onReturnTypeChange = (value: string) => {
+    // Return type related functions
+    const onReturnTypeChange = async (value: string) => {
         // setIsEditInProgress(true);
-        handleResourceParamChange(
+        await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
             generateParameterSectionString(model?.functionSignature?.parameters),
@@ -290,31 +326,30 @@ export function ResourceForm(props: FunctionProps) {
                             </div>
                             <div className={connectorClasses.resourcePathWrapper}>
                                 <FieldTitle title='Resource Path' optional={true} />
-                                <LiteExpressionEditor
-                                    testId="resource-path"
-                                    diagnostics={
-                                        (currentComponentName === "Path" && currentComponentSyntaxDiag)
-                                        || getResourcePathDiagnostics()
-                                    }
-                                    defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
-                                    externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}
-                                    onChange={handlePathChange}
-                                    completions={completions}
-                                    onFocus={onPathFocus}
+                                <TextField
+                                    variant="outlined"
+                                    fullWidth={true}
+                                    value={resourcePath}
+                                    margin="none"
+                                    size="small"
+                                    onChange={(e) => { handlePathChange(e.target.value) }}
+                                    InputLabelProps={{ shrink: false }}
                                     disabled={currentComponentName !== "Path" && isEditInProgress}
+                                    onFocus={onPathFocus}
                                 />
                             </div>
-                            <div className={connectorClasses.advancedToggleWrapper}>
-                                <div className={classes.plusIconWrapper}>
-                                    <Button
-                                        data-test-id="request-add-button"
-                                        onClick={handlePathAddClick}
-                                        startIcon={<AddIcon />}
-                                        color="primary"
-                                        disabled={false}
-                                    />
-                                </div>
-                            </div>
+                        </div>
+                        <div className={connectorClasses.queryParam}>
+                            <Button
+                                data-test-id="query-param-add-button"
+                                onClick={handlePathAddClick}
+                                className={connectorClasses.addParameterBtn}
+                                startIcon={<AddIcon />}
+                                color="primary"
+                                disabled={false}
+                            >
+                                Add Path Param
+                            </Button>
                         </div>
                     </div>
                     <div className={connectorClasses.resourceParamWrapper}>
@@ -362,17 +397,16 @@ export function ResourceForm(props: FunctionProps) {
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <FieldTitle title='Return Type' optional={true} />
-                        <LiteExpressionEditor
-                            testId="return-type"
-                            diagnostics={(currentComponentName === "Return" && currentComponentSyntaxDiag) ||
-                                model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange}
-                            defaultValue={model?.functionSignature?.returnTypeDesc?.type?.source.trim()}
+                        <FieldTitle title='Responses' optional={false} />
+                        <ResourceReturnEditor
+                            returnSource={model.functionSignature?.returnTypeDesc?.source}
+                            syntaxDiag={currentComponentSyntaxDiag}
                             onChange={onReturnTypeChange}
-                            onFocus={onReturnFocus}
-                            disabled={currentComponentName !== "Return" && isEditInProgress}
                             completions={completions}
+                            readonly={isEditInProgress} // todo: implement the disable logic
+                            onChangeInProgress={setIsEditInProgress}
                         />
+
                         <div className={classes.serviceFooterWrapper}>
                             <SecondaryButton
                                 text="Cancel"
@@ -387,7 +421,6 @@ export function ResourceForm(props: FunctionProps) {
                                     onClick={handleOnSave}
                                     disabled={currentComponentSyntaxDiag?.length > 0
                                         || getResourcePathDiagnostics().length > 0
-                                        || model?.functionSignature?.returnTypeDesc?.type?.viewState?.diagnosticsInRange?.length > 0
                                         || isEditInProgress
                                         || changeInProgress}
                                 />

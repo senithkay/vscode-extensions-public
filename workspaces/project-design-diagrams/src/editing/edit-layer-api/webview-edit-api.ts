@@ -23,6 +23,7 @@ import { WebviewApi } from 'vscode-webview';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Location, Service, EditLayerAPI } from '../../resources';
+import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 export class WebviewEditLayerAPI implements EditLayerAPI {
     private readonly _messenger: Messenger;
@@ -83,5 +84,9 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
 
     public go2source(location: Location): void {
         return this._messenger.sendNotification({ method: 'go2source' }, HOST_EXTENSION, location);
+    }
+
+    public goToDesign(filePath: string, position: NodePosition): void {
+        return this._messenger.sendNotification({ method: 'goToDesign' }, HOST_EXTENSION, { filePath, position })
     }
 }

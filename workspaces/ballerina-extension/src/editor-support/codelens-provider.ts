@@ -31,7 +31,7 @@ import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
 import { openConfigEditor } from '../config-editor/configEditorPanel';
 import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { FunctionDefinition } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -134,7 +134,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                         codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
                         codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
 
-                        if (position.kind == 'source' && position.name != 'main') {
+                        if (position.kind === 'source' && position.name !== 'main') {
                             const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
                             const range: Position = {
                                 startLine: position.range.startLine.line, startColumn: position.range.startLine.offset,
@@ -164,20 +164,60 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 if (response.parseSuccess && response.syntaxTree) {
                     const syntaxTree = response.syntaxTree;
 
-                    syntaxTree.members.forEach(member => {
-                        if (member.kind === 'FunctionDefinition') {
-                            const functionBody = member.functionBody;
-                            if (functionBody.kind === 'ExpressionFunctionBody') {
-                                const position = (member as FunctionDefinition).functionSignature.position;
-                                const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
-                                codeLens.command = {
-                                    title: "Design",
-                                    tooltip: "Open this code block in data mapping view",
-                                    command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                    arguments: [member.position, activeEditorUri.fsPath]
-                                };
-                                codeLenses.push(codeLens);
-                            }
+                    syntaxTree.members.forEach((member: STNode) => {
+                        if (STKindChecker.isFunctionDefinition(member)) {
+                            const position = member.functionName.position;
+                            const codeLens = new CodeLens(new Range(
+                                position.startLine,
+                                position.startColumn,
+                                position.endLine,
+                                position.endColumn
+                            ));
+                            codeLens.command = {
+                                title: "Visualize",
+                                tooltip: "Open this code block in low code view",
+                                command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                arguments: [activeEditorUri.fsPath, member.position]
+                            };
+                            codeLenses.push(codeLens);
+                        } else if (STKindChecker.isServiceDeclaration(member)) {
+                            const position = member.serviceKeyword.position;
+                            const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
+                            codeLens.command = {
+                                title: "Visualize",
+                                tooltip: "Open this code block in low code view",
+                                command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                arguments: [activeEditorUri.fsPath, member.position]
+                            };
+                            codeLenses.push(codeLens);
+
+                            member.members.forEach(serviceMember => {
+                                if (STKindChecker.isObjectMethodDefinition(serviceMember)) {
+                                    const functionPosition = serviceMember.functionKeyword.position;
+                                    const codeLens = new CodeLens(
+                                        new Range(functionPosition.startLine, 0, functionPosition.endLine, 0)
+                                    );
+                                    codeLens.command = {
+                                        title: "Visualize",
+                                        tooltip: "Open this code block in low code view",
+                                        command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                        arguments: [activeEditorUri.fsPath, serviceMember.position]
+                                    };
+                                    codeLenses.push(codeLens);
+                                } else if (STKindChecker.isResourceAccessorDefinition(serviceMember)) {
+                                    const resourcePosition = serviceMember.qualifierList[0].position;
+                                    const codeLens = new CodeLens(
+                                        new Range(resourcePosition.startLine, 0, resourcePosition.endLine, 0)
+                                    );
+                                    codeLens.command = {
+                                        title: "Visualize",
+                                        tooltip: "Open this code block in low code view",
+                                        command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                        arguments: [activeEditorUri.fsPath, serviceMember.position]
+                                    };
+                                    codeLenses.push(codeLens);
+                                }
+                            })
                         }
                     });
                 }
@@ -185,6 +225,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             });
 
         });
+
         return codeLenses;
     }
 

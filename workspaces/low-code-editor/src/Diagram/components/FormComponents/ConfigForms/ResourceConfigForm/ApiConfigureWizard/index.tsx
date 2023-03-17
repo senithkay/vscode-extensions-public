@@ -94,7 +94,9 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
             isMutationProgress: isFileSaving,
             isLoadingSuccess: isFileSaved,
             currentFile,
-            ballerinaVersion
+            ballerinaVersion,
+            syntaxTree,
+            fullST
         }
     } = useContext(Context);
 
@@ -122,7 +124,12 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
         startColumn: model.functionName.position.startColumn,
         endLine: model.functionSignature.position.endLine,
         endColumn: model.functionSignature.position.endColumn
-    }) : targetPosition;
+    }) : ({
+        startLine: syntaxTree.position.endLine,
+        startColumn: syntaxTree.position.startColumn,
+        endLine: syntaxTree.position.endLine,
+        endColumn: syntaxTree.position.endColumn
+    });
     const statementEditorSupported = isStatementEditorSupported(ballerinaVersion);
 
     const [resource, setResource] = useState<Resource>(defaultConfig);
@@ -704,6 +711,8 @@ export function ApiConfigureWizard(props: ApiConfigureWizardProps) {
                     getLangClient={getExpressionEditorLangClient}
                     applyModifications={modifyDiagram}
                     topLevelComponent={true} // todo: Remove this
+                    syntaxTree={syntaxTree}
+                    fullST={fullST}
                 />
             ) : (
                 <FormControl data-testid="resource-form" className={formClasses.wizardFormControlExtended}>

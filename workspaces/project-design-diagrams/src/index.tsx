@@ -17,22 +17,25 @@
  *
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { DesignDiagram } from './DesignDiagram';
-import { ComponentModel } from './resources';
-import { WebviewEditLayerAPI } from './editing';
+import React from "react";
+import { render } from "react-dom";
+import { DesignDiagram } from "./DesignDiagram";
+import { ComponentModel } from "./resources";
+import { WebviewEditLayerAPI } from "./editing";
 
-export function renderDesignDiagrams(isEditable: boolean,
+export function renderDesignDiagrams(
+    isEditable: boolean,
     isChoreoProject: boolean,
+    selectedNodeId: string,
     getComponentModel: () => Promise<Map<string, ComponentModel>>,
     showChoreoProjectOverview: () => Promise<void>,
-    target: HTMLElement) {
-
+    target: HTMLElement
+) {
     render(
         <DesignDiagram
             isEditable={isEditable}
             isChoreoProject={isChoreoProject}
+            selectedNodeId={selectedNodeId}
             getComponentModel={getComponentModel}
             showChoreoProjectOverview={showChoreoProjectOverview}
             editLayerAPI={WebviewEditLayerAPI.getInstance()}

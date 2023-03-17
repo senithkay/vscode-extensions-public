@@ -26,6 +26,7 @@ import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../ut
 import { render } from "./renderer";
 import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
 import { getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
+import { PALETTE_COMMANDS } from "../project/activator";
 
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
@@ -43,11 +44,11 @@ export interface STResponse {
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance = ballerinaExtInstance;
     langClient = <ExtendedLangClient>extInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand("ballerina.view.architectureView", () => {
+    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, (selectedNodeId = "") => {
         ballerinaExtInstance.onReady()
             .then(async () => {
                 if (isCompatible(2201.2, 2)) {
-                    await viewProjectDesignDiagrams();
+                    await viewProjectDesignDiagrams(selectedNodeId);
                 } else {
                     window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
                     return;
@@ -62,11 +63,11 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance.context.subscriptions.push(designDiagramRenderer);
 }
 
-async function viewProjectDesignDiagrams() {
+async function viewProjectDesignDiagrams(selectedNodeId: string) {
     await setupWebviewPanel();
 
     if (designDiagramWebview) {
-        const html = render(designDiagramWebview.webview, isChoreoProject);
+        const html = render(designDiagramWebview.webview, isChoreoProject, selectedNodeId);
         if (html) {
             designDiagramWebview.webview.html = html;
         }

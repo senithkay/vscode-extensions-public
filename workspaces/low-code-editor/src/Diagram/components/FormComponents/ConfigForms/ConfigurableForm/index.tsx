@@ -66,7 +66,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
     const {
         props: {
             currentFile,
-            syntaxTree,
+            fullST,
             importStatements,
             experimentalEnabled,
             isCodeServerInstance
@@ -237,7 +237,7 @@ export function ConfigurableForm(props: ConfigurableFormProps) {
                         applyModifications: modifyDiagram,
                         updateFileContent,
                         library,
-                        syntaxTree,
+                        syntaxTree: fullST,
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,

@@ -80,6 +80,17 @@ function getLangClient() {
                 });
             });
         },
+        getBallerinaProjectComponents: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getBallerinaProjectComponents', [params], (resp) => {
+                    consoleLog(start, 'getBallerinaProjectComponents');
+                    // const unzippedResp = pako.inflate(resp.data, { to: 'string' });
+                    // resolve(JSON.parse(unzippedResp));
+                    resolve(resp);
+                });
+            });
+        },
         getCompletion: (params) => {
             return new Promise((resolve, _reject) => {
                 const start = new Date();
@@ -486,6 +497,15 @@ function getLangClient() {
                 const start = new Date();
                 webViewRPCHandler.invokeRemoteMethod('rename', [params], (resp) => {
                     consoleLog(start, 'rename');
+                    resolve(resp);
+                });
+            });
+        },
+        getGraphqlModel: (params) => {
+            return new Promise((resolve, _reject) => {
+                const start = new Date();
+                webViewRPCHandler.invokeRemoteMethod('getGraphqlModel', [params], (resp) => {
+                    consoleLog(start, 'getGraphqlModel');
                     resolve(resp);
                 });
             });

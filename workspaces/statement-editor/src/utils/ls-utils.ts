@@ -160,7 +160,6 @@ export async function getCompletionsForType(docUri: string,
                                             completionKinds: number[] = []
 ): Promise<SuggestionItem[]> {
 
-    const currentModelPosition = currentModel.model.position;
     const suggestions: SuggestionItem[] = [];
 
     const completionParams: CompletionParams = {
@@ -168,11 +167,11 @@ export async function getCompletionsForType(docUri: string,
             uri: docUri
         },
         context: {
-            triggerKind: 1
+            triggerKind: 22
         },
         position: {
-            character: targetPosition.startColumn + currentModelPosition.startColumn + userInput.length,
-            line: targetPosition.startLine + currentModelPosition.startLine
+            character: 0,
+            line: 0
         }
     }
 

@@ -31,7 +31,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
-import { useDMStore } from "../../store/store";
+import { useDMSearchStore, useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
@@ -196,7 +196,6 @@ function DataMapperC(props: DataMapperProps) {
         syntaxTree
     } = props;
 
-    const [nodes, setNodes] = useState<DataMapperNodeModel[]>([]);
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [isStmtEditorCanceled, setIsStmtEditorCanceled] = useState(false);
@@ -214,11 +213,14 @@ function DataMapperC(props: DataMapperProps) {
     const [nodeSetupCounter, setNodeSetupCounter] = useState(0);
     const [showLocalVarConfigPanel, setShowLocalVarConfigPanel] = useState(false);
     const { setFunctionST, setImports } = useDMStore();
+    const { inputSearch, outputSearch, resetSearchStore } = useDMSearchStore();
+    const [dmContext, setDmContext] = useState<DataMapperContext>();
 
     const classes = useStyles();
 
     const handleSelectedST = (mode: ViewOption, selectionState?: SelectionState, navIndex?: number) => {
         dispatchSelection({ type: mode, payload: selectionState, index: navIndex });
+        resetSearchStore();
     }
 
     const onConfigOpen = () => {
@@ -325,19 +327,25 @@ function DataMapperC(props: DataMapperProps) {
                         handleLocalVarConfigPanel
                     );
 
-                    const selectedST = selection.selectedST.stNode;
                     const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
                     await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
 
-                    const nodeInitVisitor = new NodeInitVisitor(context, selection);
-                    traversNode(selectedST, nodeInitVisitor);
-                    setNodes(nodeInitVisitor.getNodes());
+                    setDmContext(context);
                 }
             } finally {
                 setNodeSetupCounter(prevState => prevState + 1);
             }
         })();
     }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, fieldTobeEdited])
+
+    const nodes = useMemo(() => {
+        if (dmContext && selection?.selectedST?.stNode) {
+            const nodeInitVisitor = new NodeInitVisitor(dmContext, selection)
+            traversNode(selection.selectedST.stNode, nodeInitVisitor);
+            return nodeInitVisitor.getNodes();
+        }
+        return []
+    }, [dmContext, inputSearch, outputSearch])
 
     const dMSupported = isDMSupported(ballerinaVersion);
     const dmUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
@@ -347,30 +355,27 @@ function DataMapperC(props: DataMapperProps) {
     useEffect(() => {
         if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
             if (fnST) {
-                const hasSwitchFunction = fnName !== getFnNameFromST(fnST);
-                if (hasSwitchFunction) {
-                    if (nodes.length > 0) {
-                        // When open the DM of an existing function using code lens
-                        const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
-                            || [];
-                        setInputs(inputParams);
-                        const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
-                            || { type: undefined, isUnsupported: true };
-                        setOutput(outputType);
+                if (nodes.length > 0) {
+                    // When open the DM of an existing function using code lens
+                    const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
+                        || [];
+                    setInputs(inputParams);
+                    const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
+                        || { type: undefined, isUnsupported: true };
+                    setOutput(outputType);
+                    setFnName(getFnNameFromST(fnST));
+                } else {
+                    // When open the DM of an existing incomplete function using code lens
+                    const hasNoParameter = fnST.functionSignature.parameters.length === 0;
+                    const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
+                    if (hasNoParameter) {
+                        setInputs([]);
+                    }
+                    if (hasNoReturnType) {
+                        setOutput({ type: undefined, isUnsupported: true });
+                    }
+                    if (hasNoParameter || hasNoReturnType) {
                         setFnName(getFnNameFromST(fnST));
-                    } else {
-                        // When open the DM of an existing incomplete function using code lens
-                        const hasNoParameter = fnST.functionSignature.parameters.length === 0;
-                        const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
-                        if (hasNoParameter) {
-                            setInputs([]);
-                        }
-                        if (hasNoReturnType) {
-                            setOutput({ type: undefined, isUnsupported: true });
-                        }
-                        if (hasNoParameter || hasNoReturnType) {
-                            setFnName(getFnNameFromST(fnST));
-                        }
                     }
                 }
             } else {
@@ -398,6 +403,10 @@ function DataMapperC(props: DataMapperProps) {
     useEffect(() => {
         handleOverlay(!!currentEditableField || !selection?.selectedST?.stNode || isConfigPanelOpen || showConfigPanel);
     }, [currentEditableField, selection.selectedST, isConfigPanelOpen, showConfigPanel])
+
+    useEffect(() => {
+        resetSearchStore();
+    }, [fnName]);
 
     const cPanelProps = {
         fnST,

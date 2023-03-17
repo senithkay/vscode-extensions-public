@@ -41,20 +41,12 @@ export function ClientResourceAccessActionComponent(props: ClientResourceAccessA
     }
 
     const addNewExpression = () => {
-        const isEmpty = model.arguments.arguments.length === 0;
-        const expr = isEmpty ? EXPR_PLACEHOLDER : `, ${EXPR_PLACEHOLDER}`;
-        const newPosition = isEmpty ? {
-            ...model.arguments?.closeParenToken.position,
-            endColumn: model.arguments?.closeParenToken.position.startColumn
-        } : {
-            startLine: model.arguments?.arguments[model.arguments.arguments?.length - 1].position.endLine,
-            startColumn: model.arguments?.arguments[model.arguments.arguments?.length - 1].position.endColumn,
-            endLine: model.arguments?.closeParenToken.position.startLine,
-            endColumn: model.arguments?.closeParenToken.position.startColumn
-        }
-        updateModel(expr, newPosition);
+        const expression = `.${EXPR_PLACEHOLDER}`;
+        const position: NodePosition =  model.position;
+        position.startColumn = model.position.endColumn;
+        position.startLine = model.position.endLine;
+        updateModel(expression, position);
     };
-
 
     return (
         <>
@@ -69,9 +61,11 @@ export function ClientResourceAccessActionComponent(props: ClientResourceAccessA
                 <ExpressionComponent model={model.methodName} stmtPosition={methodPosition}>
                     {model.arguments?.openParenToken && <TokenComponent model={model.arguments.openParenToken} />}
                     {model.arguments?.arguments && <ExpressionArrayComponent expressions={model.arguments.arguments} />}
-                    <NewExprAddButton model={model} onClick={addNewExpression}/>
                     {model.arguments?.closeParenToken && <TokenComponent model={model.arguments.closeParenToken} />}
                 </ExpressionComponent>
+            )}
+            {!model.methodName && (
+                <NewExprAddButton model={model} onClick={addNewExpression}/>
             )}
         </>
     );

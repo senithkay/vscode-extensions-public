@@ -36,7 +36,8 @@ interface ServiceConfigFormProps {
 }
 
 export enum ServiceTypes {
-    HTTP = 'http'
+    HTTP = 'http',
+    GRAPHQL = 'graphql'
 }
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
@@ -96,7 +97,7 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
                 />
             </FormControl>
         )
-    } else if ((serviceType !== ServiceTypes.HTTP) && model) {
+    } else if ((serviceType !== ServiceTypes.HTTP && serviceType !== ServiceTypes.GRAPHQL) && model) {
         // Loading triggers in a service editing scenario when the service type is not HTTP
         configForm = (
             <FormControl data-testid="service-config-form" className={formClasses.wizardFormControl}>
