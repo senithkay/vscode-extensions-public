@@ -272,6 +272,11 @@ export class DataMapper {
         cy.contains(option).click();
     }
 
+    static targetNodeRootMenuClick = (option: string, targetNodeType: string) => {
+        cy.get(`[data-testid='value-config-${targetNodeType}.IN']`).click();
+        cy.contains(option).click();
+    }
+
     static directValueAssignmentExists = (field: string, value: string) => {
         cy.get(`[data-testid='record-widget-field-mappingConstructor.${field}.IN']`).should("have.text", value);
     }

@@ -91,7 +91,7 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                 className={classes.valueConfigMenu}
             >
                 {
-                    menuItems.map((menuItem: ValueConfigMenuItem) => {
+                    menuItems?.map((menuItem: ValueConfigMenuItem) => {
                         return (
                             <ValueConfigMenuItem
                                 key={menuItem.title}

@@ -17,8 +17,9 @@ import { CircularProgress, IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { Type } from "@wso2-enterprise/ballerina-languageclient";
 import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { MappingConstructor, NodePosition, SpecificField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -29,12 +30,14 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
+    getDefaultRecordValue,
     getDefaultValue,
     getFieldName,
     getNewFieldAdditionModification,
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
+import { getModification } from "../../../utils/modifications";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
 import { OutputSearchHighlight } from "../SearchHighlight";
 
@@ -90,13 +93,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const mappingConstruct = STKindChecker.isMappingConstructor(parentMappingConstruct) && parentMappingConstruct;
     const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
-    const isRecord = field.type.typeName === PrimitiveBalType.Record;
-    const typeName = getTypeName(field.type);
+    const isUnion = field.type.typeName === PrimitiveBalType.Union;
+    const isRecord = field.type.typeName === PrimitiveBalType.Record
+        || (field.value && STKindChecker.isMappingConstructor(field.value))
+        || ((field?.value as SpecificField)?.valueExpr && STKindChecker.isMappingConstructor((field?.value as SpecificField)?.valueExpr));
+    const typeName = isRecord && field.value?.typeData?.typeSymbol?.name  || getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
-    const isValueMappingConstructor = specificField
-        && specificField.valueExpr
-        && STKindChecker.isMappingConstructor(specificField.valueExpr);
     let indentation = treeDepth * 16;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
@@ -142,6 +145,25 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
     };
 
+    const handleChangeUnionType = async (type: Type) => {
+        setIsLoading(true);
+        try {
+            const defaultValue = getDefaultRecordValue(type);
+            let position: NodePosition = field.value?.position;
+            if (field.value && STKindChecker.isSpecificField(field.value)){
+                position = field.value?.valueExpr?.position
+            }
+            if (position){
+                const modification = [getModification(defaultValue, position)];
+                await applyModifications(modification);
+            } else{
+                await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleDeleteValue = async () => {
         setIsLoading(true);
         try {
@@ -167,7 +189,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsHovered(false);
     };
 
-    let isDisabled = portIn?.descendantHasValue || (value && !connectedViaLink);
+    let isDisabled = portIn?.descendantHasValue;
 
     if (!isDisabled) {
         if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
@@ -278,6 +300,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         anyDataConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Record) })
         anyDataConvertOptions.push({ title: `Initialize as array`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Array) })
         valConfigMenuItems.push(...anyDataConvertOptions)
+    } else if (isUnion) {
+        const unionTypeOptions = field.type?.members?.map(member => ({ title: `Reinitialize as ${member.name || member.typeName}`, onClick: () => handleChangeUnionType(member)}));
+        valConfigMenuItems.push(...unionTypeOptions)
     }
 
     const addNewField = async (newFieldNameStr: string) => {
@@ -289,7 +314,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const subFieldNames = useMemo(() => {
 		const fieldNames: string[] = [];
-  if (expanded && fields){
+  if (expanded && fields) {
             fields?.forEach(fieldItem => {
                 if (fieldItem.value && STKindChecker.isSpecificField(fieldItem.value)) {
                     fieldNames.push(fieldItem.value?.fieldName?.value)
@@ -338,7 +363,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         )}
                         {label}
                     </span>
-                    {(!isDisabled || hasValue) && !isValueMappingConstructor && (
+                    {valConfigMenuItems?.length > 0 && (
                         <>
                             {(isLoading || fieldId === fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />
