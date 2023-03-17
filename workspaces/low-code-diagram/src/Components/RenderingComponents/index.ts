@@ -12,6 +12,7 @@
  */
 import { ClassComponent } from './ClassComponent';
 import { Constant } from './Constant';
+import { DoStatement } from './DoStatement';
 import { End } from "./End";
 import { EnumDeclarationComponent } from './Enum';
 import { ForEach } from './ForEach';
@@ -47,6 +48,7 @@ export { Function as ResourceAccessorDefinition };
 export { Function as ObjectMethodDefinition };
 export { ModulePartComponent as ModulePart };
 export { While as WhileStatement };
-export { ClassComponent as ClassDefinition }
-export { EnumDeclarationComponent as EnumDeclaration }
-export { Worker as NamedWorkerDeclaration }
+export { ClassComponent as ClassDefinition };
+export { EnumDeclarationComponent as EnumDeclaration };
+export { Worker as NamedWorkerDeclaration };
+export { DoStatement as DoStatement };
