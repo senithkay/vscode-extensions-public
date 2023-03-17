@@ -1082,6 +1082,9 @@ export class SizingVisitor implements Visitor {
         const onFailBlockVS = viewState.onFailBodyVS;
         viewState.bBox.h = doHeadVS.h + doHeadVS.offsetFromBottom + doBlockVS.bBox.h + onFailBlockVS.bBox.h + DefaultConfig.offSet;
         doBlockLifeline.h = doHeadVS.offsetFromBottom + doBlockVS.bBox.h;
+        if (doBlockVS.isEndComponentAvailable) {
+            doBlockLifeline.h = doBlockVS.bBox.h - DefaultConfig.offSet ;
+        }
         viewState.bBox.lw = doBlockVS.bBox.lw > onFailBlockVS.bBox.lw ? doBlockVS.bBox.lw : onFailBlockVS.bBox.lw;
         viewState.bBox.rw = doBlockVS.bBox.rw > onFailBlockVS.bBox.rw ? doBlockVS.bBox.rw : onFailBlockVS.bBox.rw;
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
@@ -1106,6 +1109,9 @@ export class SizingVisitor implements Visitor {
         viewState.bBox.rw = onFailBlockVS.bBox.rw;
         viewState.bBox.w = viewState.bBox.lw + viewState.bBox.rw;
         onFailLifeLine.h = onFailHeadVS.offsetFromBottom + onFailBlockVS.bBox.h;
+        if (onFailBlockVS.isEndComponentAvailable) {
+            onFailLifeLine.h = onFailBlockVS.bBox.h - DefaultConfig.offSet ;
+        }
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {
@@ -1480,7 +1486,7 @@ export class SizingVisitor implements Visitor {
     }
 
     private endSizingBlock(node: BlockStatement, lastStatementIndex: number, width: number = 0, height: number = 0,
-                           index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
+        index: number = 0, leftWidth: number = 0, rightWidth: number = 0) {
         if (!node.viewState) {
             return;
         }
@@ -1676,8 +1682,8 @@ export class SizingVisitor implements Visitor {
     }
 
     private calculateStatementSizing(statements: STNode[], index: number, blockViewState: BlockViewState,
-                                     height: number, width: number, lastStatementIndex: any, leftWidth: number,
-                                     rightWidth: number) {
+        height: number, width: number, lastStatementIndex: any, leftWidth: number,
+        rightWidth: number) {
         const startIndex = index;
 
         blockViewState.collapsedViewStates.forEach(collapsedVS => {
