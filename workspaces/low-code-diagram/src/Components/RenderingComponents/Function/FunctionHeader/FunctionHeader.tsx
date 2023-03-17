@@ -59,17 +59,17 @@ export function FunctionHeader() {
     if (STKindChecker.isFunctionDefinition(functionNode)) {
         // TODO: handle general funciton
         titleComponents.push(
-            <div className="title-components">{`Function Design - ${functionNode.functionName.value}`}</div>
+            <div key={"title"} className="title-components">{`Function Design - ${functionNode.functionName.value}`}</div>
         );
 
         functionNode.functionSignature.parameters
-            .forEach(param => {
+            .forEach((param, paramIndex) => {
                 if (STKindChecker.isRequiredParam(param)
                     || STKindChecker.isDefaultableParam(param)
                     || STKindChecker.isRestParam(param)) {
 
                     argumentComponents.push(
-                        <div className={'argument-item'}>
+                        <div key={paramIndex} className={'argument-item'}>
                             <span className="type-name">{param.typeName.source.trim()}</span>
                             <span className="argument-name">{param.paramName.value}</span>
                         </div>
@@ -88,7 +88,7 @@ export function FunctionHeader() {
         functionNode.relativeResourcePath.forEach(node => {
             if (STKindChecker.isIdentifierToken(node) || STKindChecker.isSlashToken(node)) {
                 resourceTitleContent.push(
-                    node.value
+                    <>{node.value}</>
                 );
             } else if (STKindChecker.isResourcePathSegmentParam(node) || STKindChecker.isResourcePathRestParam(node)) {
                 resourceTitleContent.push(
@@ -129,7 +129,7 @@ export function FunctionHeader() {
         }
 
         titleComponents.push(
-            <div className="title-components">
+            <div key={"params"} className="title-components">
                 <div className="content">
                     {resourceTitleContent}
                 </div>
@@ -157,7 +157,7 @@ export function FunctionHeader() {
     }
 
     titleComponents.push(
-        <div className="config-form-icon" onClick={handleConfigFormClick}>
+        <div key={"config"} className="config-form-icon" onClick={handleConfigFormClick}>
             <SettingsIcon />
             <div className="config-form-icon-text">Configure Interface</div>
         </div>

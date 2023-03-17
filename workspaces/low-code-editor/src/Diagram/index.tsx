@@ -260,6 +260,7 @@ export function Diagram() {
                 viewState: plusViewState
             }
         };
+
         setFormConfig({
             configOverlayFormStatus,
             onCancel: () => {

@@ -18,7 +18,12 @@ export class LinkConnectorNodeFactory extends AbstractReactFactory<LinkConnector
 	}
 
 	generateReactWidget(event: { model: LinkConnectorNode; }): JSX.Element {
-		return <LinkConnectorNodeWidget engine={this.engine} node={event.model} />;
+		const inputPortHasLinks = Object.keys(event.model.inPort.links).length;
+		const outputPortHasLinks = Object.keys(event.model.outPort.links).length;
+		if (inputPortHasLinks && outputPortHasLinks) {
+			return <LinkConnectorNodeWidget engine={this.engine} node={event.model} />;
+		}
+		return null;
 	}
 
 	generateModel(): LinkConnectorNode {

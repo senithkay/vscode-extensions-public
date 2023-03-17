@@ -20,11 +20,12 @@ import {
     STKindChecker
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getLetExpressions } from "../../../DataMapper/LocalVarConfigPanel/local-var-mgt-utils";
 import { isGoToQueryWithinLetExprSupported } from "../../../DataMapper/utils";
 import { LET_EXPRESSION_SOURCE_PORT_PREFIX } from "../../utils/constants";
-import { getTypeFromStore, getTypeOfOutput } from "../../utils/dm-utils";
+import { getFilteredSubFields, getSearchFilteredInput, getTypeFromStore, getTypeOfOutput } from "../../utils/dm-utils";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const LET_EXPR_SOURCE_NODE_TYPE = "datamapper-node-type-desc-let-expression";
@@ -71,27 +72,31 @@ export class LetExpressionNode extends DataMapperNodeModel {
                         const varName = bindingPattern.variableName;
                         const exprPosition = decl.expression.position as NodePosition;
 
-                        const type = isGoToQueryWithinLetExprSupported(balVersion)
+                        const typeWithoutFilter = isGoToQueryWithinLetExprSupported(balVersion)
                             ? getTypeOfOutput(varName, this.context.ballerinaVersion)
                             : getTypeFromStore(exprPosition);
 
-                        const parentPort = this.addPortsForHeaderField(type, varName.value, "OUT",
+                        const type = getSearchFilteredInput(typeWithoutFilter, varName.value);
+
+                        if (type) {
+                            const parentPort = this.addPortsForHeaderField(type, varName.value, "OUT",
                             LET_EXPRESSION_SOURCE_PORT_PREFIX, this.context.collapsedFields);
 
-                        if (type && (type.typeName === PrimitiveBalType.Record)) {
-                            const fields = type.fields;
-                            fields.forEach((subField) => {
-                                this.numberOfFields += 1 + this.addPortsForInputRecordField(subField, "OUT",
+                            if (type && (type.typeName === PrimitiveBalType.Record)) {
+                                const fields = type.fields;
+                                fields.forEach((subField) => {
+                                    this.numberOfFields += 1 + this.addPortsForInputRecordField(subField, "OUT",
+                                        varName.value, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
+                                        this.context.collapsedFields, parentPort.collapsed);
+                                });
+                            } else {
+                                this.numberOfFields += this.addPortsForInputRecordField(type, "OUT",
                                     varName.value, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
                                     this.context.collapsedFields, parentPort.collapsed);
-                            });
-                        } else {
-                            this.numberOfFields += this.addPortsForInputRecordField(type, "OUT",
-                                varName.value, LET_EXPRESSION_SOURCE_PORT_PREFIX, parentPort,
-                                this.context.collapsedFields, parentPort.collapsed);
-                        }
+                            }
 
-                        this.letVarDecls.push({varName: varName.value, type, declaration: decl});
+                            this.letVarDecls.push({varName: varName.value, type, declaration: decl});
+                        }
                     }
                 }
             });

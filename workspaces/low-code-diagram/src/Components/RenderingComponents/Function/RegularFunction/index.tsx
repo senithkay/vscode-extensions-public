@@ -44,7 +44,8 @@ export function RegularFuncComponent(props: FunctionProps) {
     const diagramContext = useContext(Context);
     const { isReadOnly, syntaxTree } = diagramContext.props;
     const { diagramRedraw, diagramCleanDraw } = diagramContext.actions;
-    const { navigation: { navigateUptoParent } } = diagramContext.api;
+    const { navigation } = diagramContext.api;
+    const navigateUptoParent = navigation?.navigateUptoParent;
 
     const run = diagramContext?.api?.project?.run;
 

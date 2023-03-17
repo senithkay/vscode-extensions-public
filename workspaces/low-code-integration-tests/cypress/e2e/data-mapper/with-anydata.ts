@@ -30,34 +30,26 @@ describe("Map to a record which is having anydata fields", () => {
 
     it("Canvas contains the source and target nodes", () => {
         DataMapper.getSourceNode("input");
-        DataMapper.getTargetNode("Output");
+        DataMapper.getTargetNode("mappingConstructor", "Output");
+        DataMapper.fitToScreen();
     });
 
     it("Verify direct mappings between two string type fields", () => {
-        DataMapper.createMappingUsingFields('input.str', 'Output.str');
+        DataMapper.createMappingUsingFields('input.str', 'Output.str', "mappingConstructor");
         cy.wait(4000);
-        DataMapper.linkExists('input.str', 'Output.str');
-    });
-
-    it("Assign a value directly to a anydata typed field using statement editor", () => {
-        DataMapper.targetNodeFieldMenuClick('Output.outputField1', "Add Value");
-        StatementEditor.shouldBeVisible().getEditorPane();
-        EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
-        InputEditor.typeInput(`1.2`);
-        EditorPane.reTriggerDiagnostics("DecimalFloatingPointLiteralToken", `1.2`);
-        StatementEditor.save();
+        DataMapper.linkExists('input.str', 'Output.str', "mappingConstructor");
     });
 
     it("Navigate into expanded query view 1", () => {
         DataMapper.clickExpandQueryView('Output.anydataItems1');
         DataMapper.getQueryExprNode("source.items2Item");
-        DataMapper.getTargetNode();
+        DataMapper.getTargetNode("mappingConstructor");
     });
 
     it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExprUsingPortAndField('items2Item.confirmed', 'qualified');
+        DataMapper.createMappingFromQueryExprUsingPortAndField('items2Item.confirmed', 'qualified', "mappingConstructor");
         cy.wait(4000);
-        DataMapper.linkExists('expandedQueryExpr.source.items2Item.confirmed', 'qualified');
+        DataMapper.linkExists('expandedQueryExpr.source.items2Item.confirmed', 'qualified', "mappingConstructor");
     });
 
     it("Navigate out of expanded query view", () =>  DataMapper.clickHeaderBreadcrumb(0));
@@ -65,31 +57,44 @@ describe("Map to a record which is having anydata fields", () => {
     it("Navigate into expanded query view 2", () => {
         DataMapper.clickExpandQueryView('Output.items2');
         DataMapper.getQueryExprNode("source.items1Item");
-        DataMapper.getTargetNode();
+        DataMapper.getTargetNode("mappingConstructor");
     });
 
-    it("Create links between source nodes and target node", () => {
-        DataMapper.createMappingFromQueryExprUsingPortAndField('items1Item', 'outputField2.newlyAddedField');
+    it("Create links between source nodes and newly created field", () => {
+        DataMapper.addNewField('newlyAddedField','mappingConstructor.outputField2')
+        DataMapper.createMappingFromQueryExprUsingPortAndField('items1Item', 'outputField2.newlyAddedField', "mappingConstructor");
         cy.wait(4000);
-        DataMapper.linkExists('expandedQueryExpr.source.items1Item', 'outputField2.newlyAddedField');
+        DataMapper.linkExists('expandedQueryExpr.source.items1Item', 'outputField2.newlyAddedField', "mappingConstructor");
     });
 
     it("Navigate out of expanded query view", () =>  DataMapper.clickHeaderBreadcrumb(0));
 
     it("Check primitive type array", () => {
-        DataMapper.checkPrimitiveArrayFieldElementValue('Output.stArr.0', '""');
-        DataMapper.linkExists('input.str', 'Output.stArr.1');
+        DataMapper.checkPrimitiveArrayFieldElementValue('Output.stArr.0', '""', "mappingConstructor");
+        DataMapper.linkExists('input.str', 'Output.stArr.1', "mappingConstructor");
     });
 
-    it("Create link between source node and anydata typed inner field", () => {
-        DataMapper.createMappingUsingFields('input.dec', 'Output.outputField2.newlyAddedField');
+    it("Create link between source node and anydata typed inner field (newly created)", () => {
+        DataMapper.targetNodeFieldMenuClick('Output.outputField2', "Initialize as record", "mappingConstructor");
+        DataMapper.addNewField('newlyAddedField','mappingConstructor.Output.outputField2')
+        DataMapper.createMappingUsingFields('input.dec', 'Output.outputField2.newlyAddedField', "mappingConstructor");
         cy.wait(4000);
-        DataMapper.linkExists('input.dec', 'Output.outputField2.newlyAddedField');
+        DataMapper.linkExists('input.dec', 'Output.outputField2.newlyAddedField', "mappingConstructor");
     });
 
     it("Create mapping between the anydata array element and source node", () => {
-        DataMapper.createMappingUsingFields('input.inputField', 'Output.anydataItems2.0.newlyAddedField');
-        DataMapper.linkExists('input.inputField', 'Output.anydataItems2.0.newlyAddedField');
+        DataMapper.createMappingUsingFields('input.inputField', 'Output.anydataItems2.0.newlyAddedField', "mappingConstructor");
+        DataMapper.linkExists('input.inputField', 'Output.anydataItems2.0.newlyAddedField', "mappingConstructor");
+    });
+
+    it("Assign a value directly to a anydata typed field using statement editor", () => {
+        cy.wait(1000);
+        DataMapper.targetNodeFieldMenuClick('Output.outputField1', "Add Value", "mappingConstructor");
+        StatementEditor.shouldBeVisible().getEditorPane();
+        EditorPane.getExpression("IdentifierToken").doubleClickExpressionContent(`<add-expression>`);
+        InputEditor.typeInput(`1.2`);
+        EditorPane.reTriggerDiagnostics("DecimalFloatingPointLiteralToken", `1.2`);
+        StatementEditor.save();
     });
 
     it("Generated source code is valid", () => {

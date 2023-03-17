@@ -75,12 +75,14 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
     return (
         <>
             {letVarDeclItems.length > 0 ? (
-                <TreeContainer>
+                <TreeContainer data-testid={"local-variables-node"}>
                     <LocalVarsHeader>
                         <HeaderText>Local Variables</HeaderText>
                         {!isWithinQuery && (
                             <IconButton
+                                id={"edit-local-variables"}
                                 onClick={onClick}
+                                data-testid={"edit-local-variables-btn"}
                             >
                                 <SquareEditIcon color={"#3d3b3b"} />
                             </IconButton>
@@ -91,10 +93,12 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
             ) : !isWithinQuery && (
                 <LocalVarAddButton>
                     <Button
+                        id={"add-local-variable"}
                         aria-label="add"
                         className={classes.addIcon}
                         onClick={onClick}
                         startIcon={<AddIcon />}
+                        data-testid={"add-local-variable-btn"}
                     >
                         Add Local Variable
                     </Button>

@@ -12,10 +12,12 @@
  */
 
 import {
-    BlockStatement, ElseBlock, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NamedWorkerDeclaration, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
+    BlockStatement, DoStatement, ElseBlock, ForeachStatement, FunctionBodyBlock, FunctionDefinition, IfElseStatement, NamedWorkerDeclaration, NodePosition, STKindChecker, STNode, Visitor, WhileStatement
 } from "@wso2-enterprise/syntax-tree";
 
 import { BlockViewState, CollapseViewState, FunctionViewState, IfViewState, StatementViewState, ViewState } from "../ViewState";
+import { DoStatementViewState } from "../ViewState/do-statement";
+import { OnFailClauseViewState } from "../ViewState/on-fail-clause";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
@@ -59,6 +61,15 @@ export class CollapseInitVisitor implements Visitor {
         const whileBodyVS = whileBodyBlock.viewState as BlockViewState;
         // mark the statement as collapsed if it doesn't contain an action statement.
         whileViewstate.collapsed = !whileBodyVS.containsAction;
+    }
+
+    endVisitDoStatement(node: DoStatement, parent?: STNode): void {
+        const viewState = node.viewState as DoStatementViewState;
+        const doBodyVS = viewState.doBodyVS as BlockViewState;
+        const onFailVS = viewState.onFailBodyVS as OnFailClauseViewState;
+        const onFailBody = onFailVS.onFailBodyVS as BlockViewState;
+
+        viewState.collapsed = !doBodyVS.containsAction || !onFailBody.containsAction;
     }
 
     endVisitForeachStatement(node: ForeachStatement, parent?: STNode): void {

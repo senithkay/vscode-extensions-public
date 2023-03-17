@@ -79,7 +79,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
     const { props: { ballerinaVersion } } = useDiagramContext();
 
     const defaultOption = ((kind === "ServiceDeclaration") && !isTriggerType) ?
-        {name: "Resource", type: "ResourceAccessorDefinition"} : undefined;
+        { name: "Resource", type: "ResourceAccessorDefinition" } : undefined;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(defaultOption);
 
     let menuEntries: PlusMenuEntry[] = [];
@@ -121,7 +121,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     />
                 )
             }
-            {selectedOption && selectedOption.type !== "DataMapper"  && (
+            {selectedOption && selectedOption.type !== "DataMapper" && (
                 <FormGenerator
                     targetPosition={targetPosition}
                     configOverlayFormStatus={{
@@ -134,7 +134,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     onSave={handleOnSave}
                 />
             )}
-            {selectedOption && selectedOption.type === "DataMapper"  && (
+            {selectedOption && selectedOption.type === "DataMapper" && (
                 <DataMapperOverlay
                     targetPosition={targetPosition}
                     // configOverlayFormStatus={{

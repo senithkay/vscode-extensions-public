@@ -138,23 +138,25 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                 const inPort = this.inPort;
 
                 const lm = new DataMapperLinkModel(undefined, undefined, true);
-                lm.setTargetPort(this.inPort);
-                lm.setSourcePort(sourcePort);
-                sourcePort.addLinkedPort(this.inPort);
-                sourcePort.addLinkedPort(this.targetMappedPort)
+                if (sourcePort) {
+                    lm.setTargetPort(this.inPort);
+                    lm.setSourcePort(sourcePort);
+                    sourcePort.addLinkedPort(this.inPort);
+                    sourcePort.addLinkedPort(this.targetMappedPort)
 
-                lm.registerListener({
-                    selectionChanged(event) {
-                        if (event.isSelected) {
-                            inPort.fireEvent({}, "link-selected");
-                            sourcePort.fireEvent({}, "link-selected");
-                        } else {
-                            inPort.fireEvent({}, "link-unselected");
-                            sourcePort.fireEvent({}, "link-unselected");
-                        }
-                    },
-                })
-                this.getModel().addAll(lm);
+                    lm.registerListener({
+                        selectionChanged(event) {
+                            if (event.isSelected) {
+                                inPort.fireEvent({}, "link-selected");
+                                sourcePort.fireEvent({}, "link-selected");
+                            } else {
+                                inPort.fireEvent({}, "link-unselected");
+                                sourcePort.fireEvent({}, "link-unselected");
+                            }
+                        },
+                    })
+                    this.getModel().addAll(lm);
+                }
             })
 
             if (this.targetMappedPort) {
@@ -250,9 +252,17 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             modifications = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(targetField)
+                    "STATEMENT": getDefaultValue(targetField?.typeName)
                 },
                 ...deletePosition
+            }];
+        } else if ((this.targetPort?.parentModel?.field?.typeName === PrimitiveBalType.Union
+            || this.targetPort?.parentModel?.field?.originalTypeName === PrimitiveBalType.Union)
+            && STKindChecker.isSpecificField(this.valueNode)) {
+            modifications = [{
+                type: "INSERT",
+                config: { "STATEMENT": "" },
+                ...this.valueNode?.valueExpr?.position
             }];
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position as NodePosition, this.parentNode);

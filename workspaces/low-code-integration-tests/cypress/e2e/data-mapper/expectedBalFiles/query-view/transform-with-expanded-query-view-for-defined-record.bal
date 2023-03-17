@@ -6,15 +6,12 @@ type Input record {
     int int1;
     record {
         string Id;
+        int count;
         boolean Confirmed;
     }[] Items;
 };
 
 type SecondInput record {
-    string st1;
-};
-
-type UpdatedInput record {
     string st1;
 };
 
@@ -25,17 +22,28 @@ type Output record {
         string Id;
         boolean Confirmed;
     }[] Items;
+    InnerOutput[] innerOutput;
     string[] stArr;
 };
 
-type UpdatedOutput record {
+type User record {|
+    readonly string id;
+    string name;
+|};
+
+User[] users = [{id: "1234", name: "Keith"}];
+
+type InnerOutput record {
     string st1;
+    int i1;
 };
 
-function unsupportedTransform(Input[]|error? input) returns Output? => {};
-
-function incompleteTransform() => {};
-
 function transform(Input input, SecondInput secondInput) returns Output => {
-    st1: input.st1 + input.st2 + input.st3 + secondInput.st1
+    innerOutput: from var ItemsItem in input.Items
+        where true
+        let var updatedName = "strValue"
+        select {
+            st1: ItemsItem.Id + updatedName,
+            i1:
+        }
 };

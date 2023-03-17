@@ -16,13 +16,15 @@ import React, { useMemo, useState } from "react";
 import {
     Button,
     CircularProgress,
-    IconButton
+    IconButton,
+    Menu,
+    MenuItem
 } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
@@ -34,6 +36,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
+    getDefaultRecordValue,
     getDefaultValue,
     getExprBodyFromLetExpression,
     getFieldName,
@@ -42,12 +45,14 @@ import {
     isConnectedViaLink,
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
+import { OutputSearchHighlight } from "../SearchHighlight";
 import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
 import { useStyles } from "./styles";
 import { ValueConfigMenu, ValueConfigOption } from "./ValueConfigButton";
+import { ValueConfigMenuItem } from "./ValueConfigButton/ValueConfigMenuItem";
 
 export interface ArrayTypedEditableRecordFieldWidgetProps {
     parentId: string;
@@ -94,10 +99,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const valExpr = body && STKindChecker.isSpecificField(body) ? body.valueExpr : body;
     const hasValue = valExpr && !!valExpr.source;
     const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);
+    const isUnion = field.type?.memberType?.typeName === PrimitiveBalType.Union || field.type.typeName === PrimitiveBalType.Union;
     const typeName = getTypeName(field.type);
     const elements = field.elements;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const diagnostic = (valExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
+    const [addElementAnchorEl, addElementSetAnchorEl] = React.useState<null | HTMLButtonElement>(null);
+    const addMenuOpen = Boolean(addElementAnchorEl);
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
@@ -118,8 +126,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         indentation += 24;
     }
 
-    let isDisabled = portIn.descendantHasValue;
-    if (!isDisabled) {
+    let isDisabled = !!portIn?.descendantHasValue;
+    if (!isDisabled && portIn) {
         if (listConstructor && expanded && portIn.parentModel) {
             portIn.setDescendantHasValue();
             isDisabled = true;
@@ -145,13 +153,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     const label = (
-        <span style={{ marginRight: "auto" }}>
+        <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
                     isDisabled ? classes.valueLabelDisabled : "")}
                 style={{ marginLeft: (hasValue && !connectedViaLink && !isValQueryExpr) ? 0 : indentation + 24 }}
             >
-                {fieldName}
+                <OutputSearchHighlight>{fieldName}</OutputSearchHighlight>
                 {!field.type?.optional && <span className={classes.requiredMark}>*</span>}
                 {fieldName && typeName && ":"}
             </span>
@@ -253,19 +261,22 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 )
             } else {
                 return (
-                    <TreeBody>
-                        <PrimitiveTypedEditableElementWidget
-                            parentId={fieldId}
-                            field={element.member}
-                            engine={engine}
-                            getPort={getPort}
-                            context={context}
-                            fieldIndex={index}
-                            deleteField={deleteField}
-                            isArrayElement={true}
-                            hasHoveredParent={isHovered || hasHoveredParent}
-                        />
-                    </TreeBody>
+                    <>
+                        <TreeBody>
+                            <PrimitiveTypedEditableElementWidget
+                                parentId={fieldId}
+                                field={element.member}
+                                engine={engine}
+                                getPort={getPort}
+                                context={context}
+                                fieldIndex={index}
+                                deleteField={deleteField}
+                                isArrayElement={true}
+                                hasHoveredParent={isHovered || hasHoveredParent}
+                            />
+                        </TreeBody>
+                        <br />
+                    </>
                 );
             }
         })
@@ -304,11 +315,11 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
-    const handleAddArrayElement = async () => {
+    const handleAddArrayElement = async (type: Type) => {
         setIsAddingElement(true)
         try {
             const fieldsAvailable = !!listConstructor.expressions.length;
-            const defaultValue = field.type?.memberType && getDefaultValue(field.type.memberType);
+            const defaultValue = isUnion ? getDefaultRecordValue(type) : getDefaultValue(type?.typeName);
             let targetPosition: NodePosition;
             let newElementSource: string;
             if (fieldsAvailable) {
@@ -336,6 +347,41 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const onMouseLeave = () => {
         setIsHovered(false);
     };
+
+    const isAnydataType = field.type?.memberType?.typeName === AnydataType
+        || field.type?.memberType?.originalTypeName === AnydataType
+        || field.type?.originalTypeName === AnydataType;
+
+    const onAddElementClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (isAnydataType || isUnion) {
+            addElementSetAnchorEl(event.currentTarget)
+        } else {
+            handleAddArrayElement(field?.type?.memberType)
+        }
+    }
+
+    const onCloseElementSetAnchor = () => addElementSetAnchorEl(null);
+
+    const possibleTypeOptions = useMemo(() => {
+        if (isAnydataType) {
+            const anyDataConvertOptions: ValueConfigMenuItem[] = [];
+            anyDataConvertOptions.push({ title: `Add a primitive element`, onClick: () => handleAddArrayElement({ typeName: "()" }) })
+            anyDataConvertOptions.push({ title: `Add a record element`, onClick: () => handleAddArrayElement({ typeName: PrimitiveBalType.Record }) })
+            anyDataConvertOptions.push({ title: `Add an array element`, onClick: () => handleAddArrayElement({ typeName: PrimitiveBalType.Array }) })
+            return anyDataConvertOptions;
+        } else if (isUnion) {
+            const memberTypeDescriptorName = field.value?.typeData?.typeSymbol?.memberTypeDescriptor?.name;
+            if (memberTypeDescriptorName) {
+                const matchingMember = field.type?.members?.find(member => member?.memberType?.name === memberTypeDescriptorName);
+                if (matchingMember && matchingMember?.memberType?.typeName === PrimitiveBalType.Union) {
+                    return matchingMember?.memberType?.members?.map(member => ({ title: `Add a ${member.name || member.typeName} element`, onClick: () => handleAddArrayElement(member) }));
+                } else if (matchingMember?.memberType?.typeName === PrimitiveBalType.Array) {
+                    return [{ title: `Add a ${matchingMember.memberType.name} element`, onClick: () => handleAddArrayElement(matchingMember.memberType) }]
+                }
+            }
+            return field.type?.memberType?.members?.map(member => ({ title: `Add a ${member.name || member.typeName} element`, onClick: () => handleAddArrayElement(member) }));
+        }
+    }, [])
 
     return (
         <div
@@ -414,13 +460,30 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                             id={"add-array-element"}
                             aria-label="add"
                             className={classes.addIcon}
-                            onClick={handleAddArrayElement}
+                            onClick={onAddElementClick}
                             startIcon={isAddingElement ? <CircularProgress size={16} /> : <AddIcon />}
                             disabled={isAddingElement}
                             data-testid={`array-widget-${portIn?.getName()}-add-element`}
                         >
                             Add Element
                         </Button>
+                        {possibleTypeOptions?.length > 0 && (
+                            <Menu
+                                anchorEl={addElementAnchorEl}
+                                open={addMenuOpen}
+                                onClose={onCloseElementSetAnchor}
+                                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                                className={classes.valueConfigMenu}
+                            >
+                                {possibleTypeOptions?.map((item) => (
+                                    <>
+                                        <MenuItem key={item.title} onClick={item.onClick}>
+                                            {item.title}
+                                        </MenuItem>
+                                    </>
+                                ))}
+                            </Menu>
+                        )}
                         <span>]</span>
                     </div>
                 </div>

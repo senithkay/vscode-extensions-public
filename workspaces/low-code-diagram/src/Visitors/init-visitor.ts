@@ -5,6 +5,7 @@ import {
     CallStatement,
     CaptureBindingPattern,
     CheckAction,
+    DoStatement,
     ExpressionFunctionBody,
     FieldAccess,
     ForeachStatement,
@@ -18,6 +19,7 @@ import {
     NamedWorkerDeclaration,
     ObjectField,
     ObjectMethodDefinition,
+    OnFailClause,
     RemoteMethodCallAction,
     RequiredParam,
     ResourceAccessorDefinition,
@@ -48,7 +50,9 @@ import {
     StatementViewState,
     WhileViewState
 } from "../ViewState";
+import { DoStatementViewState } from "../ViewState/do-statement";
 import { DraftStatementViewState } from "../ViewState/draft";
+import { OnFailClauseViewState } from "../ViewState/on-fail-clause";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
@@ -383,6 +387,14 @@ export class InitVisitor implements Visitor {
         }
     }
 
+    public beginVisitDoStatement(node: DoStatement, parent?: STNode) {
+        node.viewState = new DoStatementViewState();
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
+        node.viewState = new OnFailClauseViewState();
+    }
+
     public endVisitAssignmentStatement(node: AssignmentStatement, parent?: STNode) {
         this.initStatement(node, parent);
         if (node.expression && isSTActionInvocation(node)) {
@@ -524,8 +536,8 @@ export class InitVisitor implements Visitor {
         let collapseFrom: number = 0;
         let collapsed: boolean = false;
         let plusButtons: PlusViewState[] = [];
-        let isDoBlock: boolean = false;
-        let isOnErrorBlock: boolean = false;
+        let isDoBlock: boolean = STKindChecker.isDoStatement(parent);
+        let isOnErrorBlock: boolean = STKindChecker.isOnFailClause(parent);
         if (node.viewState) {
             const viewState: BlockViewState = node.viewState as BlockViewState;
             draft = viewState.draft;

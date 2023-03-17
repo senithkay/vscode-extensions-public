@@ -30,11 +30,12 @@ import {
     SentryConfig,
     STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
+import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
 import { DiagramViewManager } from "../DiagramViewManager";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
@@ -75,8 +76,8 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
         panX,
         panY,
         resolveMissingDependency,
-        openInDiagram,
         experimentalEnabled,
+        openInDiagram
     } = props;
     const classes = useGeneratorStyles();
     const defaultScale = scale ? Number(scale) : 1;
@@ -136,16 +137,16 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
 
-                // if (focusPosition) {
-                //     const stFindingVisitor = new STFindingVisitor();
-                //     stFindingVisitor.setPosition(focusPosition);
-                //     traversNode(vistedSyntaxTree, stFindingVisitor);
-                //     setSyntaxTree(stFindingVisitor.getSTNode());
-                // } else {
-                //     setSyntaxTree(vistedSyntaxTree);
-                // }
+                if (openInDiagram) {
+                    const stFindingVisitor = new STFindingVisitor();
+                    stFindingVisitor.setPosition(openInDiagram);
+                    traversNode(vistedSyntaxTree, stFindingVisitor);
+                    setSyntaxTree(stFindingVisitor.getSTNode());
+                } else {
+                    setSyntaxTree(vistedSyntaxTree);
+                }
 
-                setFullSyntaxTree(vistedSyntaxTree);
+                // setSyntaxTree(vistedSyntaxTree);
 
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
@@ -196,16 +197,16 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     return (<div><h1>Parse error...!</h1></div>);
                 }
 
-                // if (focusPosition) {
-                //     const stFindingVisitor = new STFindingVisitor();
-                //     stFindingVisitor.setPosition(focusPosition);
-                //     traversNode(vistedSyntaxTree, stFindingVisitor);
-                //     setSyntaxTree(stFindingVisitor.getSTNode());
-                // } else {
-                //     setSyntaxTree(vistedSyntaxTree);
-                // }
+                if (openInDiagram) {
+                    const stFindingVisitor = new STFindingVisitor();
+                    stFindingVisitor.setPosition(openInDiagram);
+                    traversNode(vistedSyntaxTree, stFindingVisitor);
+                    setSyntaxTree(stFindingVisitor.getSTNode());
+                } else {
+                    setSyntaxTree(vistedSyntaxTree);
+                }
 
-                setFullSyntaxTree(vistedSyntaxTree);
+                // setFullSyntaxTree(vistedSyntaxTree);
 
                 undoRedo.updateContent(filePath, content);
                 setFileContent(content);
@@ -452,7 +453,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                         undo,
                         isMutationInProgress,
                         isModulePullInProgress,
-                        loaderText
+                        loaderText,
                     },
                     // FIXME Doesn't make sense to take these methods below from outside
                     // Move these inside and get an external API for pref persistance
@@ -477,7 +478,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     },
                     runBackgroundTerminalCommand,
                     openArchitectureView,
-                    openExternalUrl
+                    openExternalUrl,
                 }}
             />
         </DiagramGenErrorBoundary>

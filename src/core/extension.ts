@@ -253,6 +253,9 @@ export class BallerinaExtension {
                     disposeDidChange.dispose();
                     this.context!.subscriptions.push(disposable);
                 });
+                commands.registerCommand('ballerina.stopLangServer', () => {
+                    this.langClient.stop();
+                });
             }, (reason) => {
                 sendTelemetryException(this, reason, CMP_EXTENSION_CORE);
                 throw new Error(reason);

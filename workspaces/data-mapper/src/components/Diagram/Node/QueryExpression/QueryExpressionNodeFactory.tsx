@@ -19,7 +19,12 @@ export class QueryExpressionNodeFactory extends AbstractReactFactory<QueryExpres
 	}
 
 	generateReactWidget(event: { model: QueryExpressionNode; }): JSX.Element {
-		return <QueryExpressionNodeWidget engine={this.engine} node={event.model} />;
+		const inputPortHasLinks = Object.keys(event.model.inPort.links).length;
+		const outputPortHasLinks = Object.keys(event.model.outPort.links).length;
+		if (inputPortHasLinks && outputPortHasLinks) {
+			return <QueryExpressionNodeWidget engine={this.engine} node={event.model} />;
+		}
+		return null;
 	}
 
 	generateModel(): QueryExpressionNode {
