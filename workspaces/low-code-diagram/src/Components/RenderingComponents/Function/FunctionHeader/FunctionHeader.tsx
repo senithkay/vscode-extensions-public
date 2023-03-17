@@ -137,17 +137,17 @@ export function FunctionHeader() {
         )
     } else if (STKindChecker.isObjectMethodDefinition(functionNode)) {
         titleComponents.push(
-            <div className="title-components">{`${functionNode.functionName.value}`}</div>
+            <div  key={"title"} className="title-components">{`${functionNode.functionName.value}`}</div>
         );
 
         functionNode.functionSignature.parameters
-            .forEach(param => {
+            .forEach((param, paramIndex) => {
                 if (STKindChecker.isRequiredParam(param)
                     || STKindChecker.isDefaultableParam(param)
                     || STKindChecker.isRestParam(param)) {
 
                     argumentComponents.push(
-                        <div className={'argument-item'}>
+                        <div key={paramIndex} className={'argument-item'}>
                             <span className="type-name">{param.typeName.source.trim()}</span>
                             <span className="argument-name">{param.paramName.value}</span>
                         </div>
