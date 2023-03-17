@@ -455,6 +455,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/ballerina-graphql-design-diagram",
+      "projectFolder": "workspaces/graphql-design-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/lang-service",
       "projectFolder": "workspaces/lang-service",
       "versionPolicyName": "ballerina-extension"

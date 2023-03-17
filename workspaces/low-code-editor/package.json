@@ -48,7 +48,7 @@
     "@wso2-enterprise/ballerina-data-mapper": "workspace:*",
     "@wso2-enterprise/lang-service": "workspace:*",
     "@wso2-enterprise/syntax-tree": "workspace:*",
-    "@wso2-enterprise/ballerina-graphql-design-diagram": "^1.1.0",
+    "@wso2-enterprise/ballerina-graphql-design-diagram": "workspace:*",
     "classnames": "^2.2.6",
     "clipboard-copy": "^3.1.0",
     "clsx": "^1.1.0",
