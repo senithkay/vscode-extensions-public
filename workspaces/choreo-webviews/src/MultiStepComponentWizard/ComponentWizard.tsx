@@ -26,6 +26,9 @@ export const ComponentWizard: React.FC = () => {
             name: '',
             accessibility: "external",
             choreoType: "Service",
+            cache: {
+                authorizedOrgs: [],
+            }
         },
         isFormValid: false,
         isStepValid: false,

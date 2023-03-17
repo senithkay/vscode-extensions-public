@@ -53,13 +53,13 @@ export function usePopulateContext(): IChoreoWebViewContext {
           setError(err);
         }
         setLoginStatusPending(false);
-      }
+      };
       checkLoginStatus();
       rpcInstance.onLoginStatusChanged(setLoginStatus);
     }, []);
 
     useEffect(() => {
-        const rpcInstance = ChoreoWebViewAPI.getInstance()
+        const rpcInstance = ChoreoWebViewAPI.getInstance();
         const fetchOrgInfo = async () => {
             try {
               const currOrg = await rpcInstance.getCurrentOrg();
@@ -67,10 +67,10 @@ export function usePopulateContext(): IChoreoWebViewContext {
               setSelectedOrg(currOrg);
               setUserOrgs(allOrgs);
             } catch (err: any) {
-              setError(err)
+              setError(err);
             }
             setFetchingOrgInfo(false);
-        }
+        };
         fetchOrgInfo();
         rpcInstance.onSelectedOrgChanged(setSelectedOrg);
     }, []);
@@ -84,5 +84,5 @@ export function usePopulateContext(): IChoreoWebViewContext {
         error,
         isChoreoProject,
         choreoProject
-    }
+    };
 }

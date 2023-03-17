@@ -11,6 +11,7 @@
  *  associated services.
  */
 
+import { GithubOrgnization } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { ChoreoServiceComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 
 export type ChoreoComponentType = "Service" | "Scheduled Trigger" | "Manual Trigger" | "REST API Proxy";
@@ -32,6 +33,11 @@ export interface ComponentWizardState {
         repo?: string;
         branch?: string;
         subPath?: string;
+        dockerContext?: string;
+        dockerFile?: string;
     };
     version: string;
+    cache: {
+        authorizedOrgs: GithubOrgnization[]
+    };
 }

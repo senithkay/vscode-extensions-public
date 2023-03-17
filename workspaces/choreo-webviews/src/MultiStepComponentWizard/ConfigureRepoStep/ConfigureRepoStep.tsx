@@ -11,17 +11,15 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeTextField, VSCodeLink, VSCodeProgressRing, VSCodeOption, VSCodeDropdown } from "@vscode/webview-ui-toolkit/react";
-import { GHAppAuthStatus, GithubOrgnization, GithubRepository } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { VSCodeLink, VSCodeProgressRing, VSCodeOption, VSCodeDropdown } from "@vscode/webview-ui-toolkit/react";
+import { GHAppAuthStatus, GithubOrgnization } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { useCallback, useContext, useEffect, useState } from "react";
-import { ErrorIcon, ErrorBanner } from "../../Commons/ErrorBanner";
 import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
-import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-import { GithubRepoBranchSelector } from "../../GithubRepoBranchSelector/GithubRepoBranchSelector";
-// import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
+import { GithubRepoBranchSelector } from "./GithubRepoBranchSelector";
+import { RepoStructureConfig } from "./RepoStructureConfig";
 
 const StepContainer = styled.div`
     display: flex;
@@ -59,33 +57,34 @@ const GhRepoSelectorRepoContainer = styled.div`
 
 export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange } = props;
-    const { org, repo, branch, subPath } = formData?.repository || {};
     
     const [isRepoCloned, setIsRepoCloned] = useState<boolean>(false);
-    const [authorizedOrgs, setAuthorizedOrgs] = useState<GithubOrgnization[]>([]);
     const [isFetchingRepos, setIsFetchingRepos] = useState(false);
-    const [selectedRepository, setSelectedRepo] = useState<[GithubOrgnization,GithubRepository] | undefined>(undefined);
-    const [selectedBranch, setSelectedBranch] = useState<string>('');
 
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
     const [isCloneInProgress, setIsCloneInProgress] = useState<boolean>(false);
 
     const { choreoProject } = useContext(ChoreoWebViewContext);
 
-    const selectedRepoString = selectedRepository ? `${selectedRepository[0].orgName}/${selectedRepository[1].name}` : "";
+    let selectedRepoString = formData?.repository ? `${formData?.repository?.org}/${formData?.repository?.repo}` : undefined;
 
-    const setRepository = (newOrg: string, newRepo: string) => {
-        const repository = { ...formData?.repository, org: newOrg, repo: newRepo };
+    const authorizedOrgs = formData?.cache?.authorizedOrgs || [];
+    const selectedOrg = authorizedOrgs.find((org) => org.orgName === formData?.repository?.org) || authorizedOrgs[0];
+
+    if (!selectedRepoString && selectedOrg) {
+        selectedRepoString = `${selectedOrg.orgName}/${selectedOrg.repositories[0]}`;
+    }
+
+    const setRepository = (org: string, repo: string) => {
+        const repository = { ...formData?.repository, org, repo };
         onFormDataChange({ repository });
     };
-    
-    useEffect(() => {
-        if (authorizedOrgs.length > 0) {
-            setSelectedRepo([authorizedOrgs[0], authorizedOrgs[0].repositories[0]]);
-        } else {
-            setSelectedRepo(undefined);
-        }
-    }, [authorizedOrgs]);
+
+    const setAuthorizedOrgs = (orgs: GithubOrgnization[]) => {
+        const cache = { ...formData?.cache, authorizedOrgs: orgs };
+        onFormDataChange({ cache });
+    };
+
 
     useEffect(() => {
         const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
@@ -112,27 +111,27 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     }, []);
 
     useEffect(() => {
-        if (ghStatus.status === "authorized" || ghStatus.status === "installed") {
+        if ((ghStatus.status === "authorized" || ghStatus.status === "installed") && authorizedOrgs.length === 0) {
             getRepoList();
         }
     }, [getRepoList, ghStatus]);
 
     useEffect(() => {
         const checkRepoCloneStatus = async () => {
-             if (choreoProject && selectedRepoString && selectedBranch) {
+             if (choreoProject && selectedRepoString && formData?.repository?.branch) {
                  const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(choreoProject.id);
                  if (projectPath) {
                      const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
                          repository: selectedRepoString,
                          workspaceFilePath: projectPath,
-                         branch: selectedBranch
+                         branch: formData?.repository?.branch
                      });
                      setIsRepoCloned(isCloned);
                  }
              }
          };
          checkRepoCloneStatus();
-     }, [selectedBranch, selectedRepoString, choreoProject]);
+     }, [formData?.repository?.branch, selectedRepoString, choreoProject]);
 
     const handleAuthorizeWithGithub = () => {
         ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
@@ -145,25 +144,30 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     const handleGhOrgChange = (e: any) => {
         const org = authorizedOrgs.find(org => org.orgName === e.target.value);
         if (org) {
-            setSelectedRepo([org, org.repositories[0]]);
+            setRepository(org.orgName, org.repositories[0]?.name);
         }
     };
 
     const handleGhRepoChange = (e: any) => {
-        if (selectedRepository) {
-            setSelectedRepo([selectedRepository[0], selectedRepository[0].repositories.find(repo => repo.name === e.target.value)!]);
+        if (selectedOrg) {
+            setRepository(selectedOrg.orgName, selectedOrg.repositories.find(repo => repo.name === e.target.value)!.name);
         }
     };
 
+    const handleBranchChange = (branch: string) => {
+        const repository = { ...formData?.repository, branch };
+        onFormDataChange({ repository });
+    };
+
     const handleRepoClone = async () => {
-        if (choreoProject?.id && selectedRepository && selectedBranch) {
+        if (choreoProject?.id && selectedRepoString && formData?.repository?.branch) {
             setIsCloneInProgress(true);
             const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(choreoProject?.id);
             if (projectPath) {
                 const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
                     repository: selectedRepoString,
                     workspaceFilePath: projectPath,
-                    branch: selectedBranch
+                    branch: formData?.repository?.branch
                 });
                 setIsRepoCloned(isCloned);
             }
@@ -197,12 +201,11 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Organization</label>
-                        <VSCodeDropdown id="org-drop-down" onChange={handleGhOrgChange}>
+                        <VSCodeDropdown id="org-drop-down" value={formData?.repository?.org} onChange={handleGhOrgChange}>
                             {authorizedOrgs.map((org) => (
                                 <VSCodeOption
                                     key={org.orgName}
                                     value={org.orgName}
-                                    selected={selectedRepository && selectedRepository[0]?.orgName === org.orgName}
                                 >
                                     {org.orgName}
                                 </VSCodeOption>
@@ -211,12 +214,11 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                     </GhRepoSelectorOrgContainer>
                     <GhRepoSelectorRepoContainer>
                         <label htmlFor="repo-drop-down">Repository</label>
-                        <VSCodeDropdown id="repo-drop-down" onChange={handleGhRepoChange}>
-                            {selectedRepository && selectedRepository[0].repositories.map((repo) => (
+                        <VSCodeDropdown id="repo-drop-down" value={formData?.repository?.repo} onChange={handleGhRepoChange}>
+                            {selectedOrg?.repositories.map((repo) => (
                                 <VSCodeOption
                                     key={repo.name}
                                     value={repo.name}
-                                    selected={selectedRepository[1]?.name === repo.name}
                                 >
                                     {repo.name}
                                 </VSCodeOption>
@@ -225,10 +227,10 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                     </GhRepoSelectorRepoContainer>
                 </GhRepoSelectorContainer>
             )}
-            {selectedRepository && selectedRepository[1] && (
-                <GithubRepoBranchSelector repository={selectedRepoString} onBranchSelected={setSelectedBranch} />
+            {selectedRepoString && !isFetchingRepos && (
+                <GithubRepoBranchSelector repository={selectedRepoString} selectedBranch={formData?.repository?.branch} onBranchSelected={handleBranchChange} />
             )}
-            {(selectedRepository && !isRepoCloned) &&
+            {(selectedRepoString && !isRepoCloned) &&
                 <>
                     Selected Repository is not available locally in Project folder. Clone the repository to continue.
                     {!isCloneInProgress &&
@@ -242,8 +244,15 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                             <VSCodeProgressRing />
                         </>
                     }
+              
                 </>
             }
+            {isRepoCloned && (
+                <RepoStructureConfig 
+                        formData={formData}
+                        onFormDataChange={onFormDataChange}
+                />
+            )}
         </StepContainer>
     );
 };
