@@ -50,7 +50,12 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<s
             let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
             for (let [_key, packageModel] of packageModels) {
                 if (packageModel.hasCompilationErrors) {
-                    window.showInformationMessage(DIAGNOSTICS_WARNING);
+                    const action = 'View Problems';
+                    window.showInformationMessage(DIAGNOSTICS_WARNING, action).then((selection) => {
+                        if (action === selection) {
+                            commands.executeCommand('workbench.action.problems.focus');
+                        }
+                    });
                     break;
                 }
             }
