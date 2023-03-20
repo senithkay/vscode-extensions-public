@@ -4,9 +4,9 @@ importers:
 
   .:
     specifiers:
-      '@gigara/rush-github-action-build-cache-plugin': ^1.0.6
+      '@gigara/rush-github-action-build-cache-plugin': ^1.0.7
     dependencies:
-      '@gigara/rush-github-action-build-cache-plugin': 1.0.6
+      '@gigara/rush-github-action-build-cache-plugin': 1.0.7
 
 packages:
 
@@ -444,8 +444,8 @@ packages:
       fast-json-stringify: 5.6.2
     dev: false
 
-  /@gigara/rush-github-action-build-cache-plugin/1.0.6:
-    resolution: {integrity: sha512-eufWw/WshUA69aQuTZ0mIwwV0vshXe/s6ItyrLQH3BQy8XFMijr4n+UWRkUy1W1YDR616aMbAIq4obM21YCOuw==}
+  /@gigara/rush-github-action-build-cache-plugin/1.0.7:
+    resolution: {integrity: sha512-R+LrSjwk7fgxbQKdEotjxDPAc+cWYRhZrP9HSgm0b3Xo5Kdcy3jsSdNrUcLxg1Jai5ZY6sEuopfUigDRBnZx5A==}
     dependencies:
       '@actions/cache': 3.2.1
       '@actions/core': 1.10.0
