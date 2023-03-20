@@ -32,20 +32,29 @@ module.exports = {
         ]
       },
       {
-        test: /\.(woff|woff2|ttf|eot|svg)$/,
-        type: 'asset/inline'
+        test: /\.(woff|woff2|ttf|eot)$/,
+        type: 'asset/resource',
+        generator: {
+          filename: './fonts/[name][ext]',
+        },
+      },
+      {
+        test: /\.(svg)$/,
+        type: 'asset/resource',
+        generator: {
+          filename: './images/[name][ext]',
+        },
       }
     ],
   },
-  ignoreWarnings: [/Failed to parse source map/],
   devServer: {
-      allowedHosts: 'all',
-      port: 9000,
-      headers: {
-          'Access-Control-Allow-Origin': '*',
-      },
-      devMiddleware: {
-          mimeTypes: { 'text/css': ['css'] },
-      },
+    allowedHosts: 'all',
+    port: 9000,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    devMiddleware: {
+      mimeTypes: { 'text/css': ['css'] },
+    },
   }
 };

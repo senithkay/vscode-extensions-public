@@ -103,7 +103,8 @@ export function ProjectWizard() {
                     </VSCodeTextField>
                     <VSCodeTextField
                         autofocus
-                        validate={projectName.length > 0}
+                        // TODO: Add validation
+                        // validate={projectName.length > 0}
                         validationMessage="Project name is required"
                         placeholder="Name"
                         onInput={(e: any) => setProjectName(e.target.value)}

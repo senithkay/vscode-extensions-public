@@ -25,7 +25,7 @@ interface StyleProps {
     level: Level;
 }
 
-export const Container = styled.div`
+export const Container: React.FC<any> = styled.div`
     align-items: center;
     background-color: ${(props: StyleProps) => props.level === Level.ONE ? '#FFFFFF' : props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
     border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
