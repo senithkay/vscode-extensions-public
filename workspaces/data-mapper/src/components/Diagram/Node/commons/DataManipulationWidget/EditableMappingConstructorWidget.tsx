@@ -13,12 +13,13 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useMemo, useState } from 'react';
 
+import { CircularProgress } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { AnydataType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { AnydataType, PrimitiveBalType, Type } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { useDMSearchStore } from '../../../../../store/store';
@@ -26,14 +27,17 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
-import { getNewFieldAdditionModification, isEmptyValue } from "../../../utils/dm-utils";
+import { getDefaultRecordValue, getNewFieldAdditionModification, isEmptyValue } from "../../../utils/dm-utils";
+import { getModification } from '../../../utils/modifications';
 import { SearchType } from '../../Search';
 import { SearchNodeWidget } from '../../Search/SearchNodeWidget';
 import { AddRecordFieldButton } from '../AddRecordFieldButton';
+import { OutputUnionTypeChangeMenu } from '../OutputUnionTypeChangeMenu';
 import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainer, TreeContainerWithTopMargin, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
+import { ValueConfigMenu } from './ValueConfigButton';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -91,7 +95,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			height: "25px",
 			width: "25px",
 			marginLeft: "auto"
-		}
+		},
 	}),
 );
 
@@ -106,7 +110,7 @@ export interface EditableMappingConstructorWidgetProps {
 	valueLabel?: string;
 	mappings?: FieldAccessToSpecificFied[];
 	deleteField?: (node: STNode) => Promise<void>;
-	originalTypeName?: string;
+	type: Type;
 }
 
 
@@ -122,7 +126,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		mappings,
 		valueLabel,
 		deleteField,
-		originalTypeName
+		type
 	} = props;
 	const classes = useStyles();
 	const dmStore = useDMSearchStore();
@@ -133,13 +137,14 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	const hasValue = editableRecordFields && editableRecordFields.length > 0;
 	const isBodyMappingConstructor = value && STKindChecker.isMappingConstructor(value);
 	const hasSyntaxDiagnostics = value && value.syntaxDiagnostics.length > 0;
+	const isUnion = type?.typeName === PrimitiveBalType.Union || type?.originalTypeName === PrimitiveBalType.Union;
 	const hasEmptyFields = mappings && (mappings.length === 0 || !mappings.some(mapping => {
 		if (mapping.value) {
 			return !isEmptyValue(mapping.value.position);
 		}
 		return true;
 	}));
-	const isAnyData = originalTypeName === AnydataType;
+	const isAnyData = type?.originalTypeName === AnydataType;
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -198,7 +203,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 			}
 		})
 		return fieldNames;
-	}, [editableRecordFields])
+	}, [editableRecordFields]);
 
 	return (
 		<>
@@ -219,10 +224,10 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 				>
 					<span className={classes.treeLabelInPort}>
 						{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
-								|| !expanded
-								|| !isBodyMappingConstructor
-								|| hasEmptyFields
-							) &&
+							|| !expanded
+							|| !isBodyMappingConstructor
+							|| hasEmptyFields
+						) &&
 							<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
 						}
 					</span>
@@ -238,6 +243,14 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						</IconButton>
 						{label}
 					</span>
+					{isUnion && (
+						<OutputUnionTypeChangeMenu
+							context={context}
+							type={type}
+							value={value}
+							portName={portIn?.getName()}
+						/>
+					)}
 				</TreeHeader>
 				<TreeBody>
 					{expanded && editableRecordFields &&

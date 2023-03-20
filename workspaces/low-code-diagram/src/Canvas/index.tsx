@@ -31,6 +31,7 @@ export function Canvas(props: CanvasProps) {
                 preserveAspectRatio={"xMinYMin"}
                 width={w}
                 height={'calc(100vh - 98px)'}
+                style={{overflow: 'visible'}}
             >
                 <defs>
                     <marker

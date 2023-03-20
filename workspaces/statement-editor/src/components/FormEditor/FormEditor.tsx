@@ -14,7 +14,11 @@
 import React, { useEffect, useState } from 'react';
 
 import { FormControl } from '@material-ui/core';
-import { ExpressionEditorLangClientInterface, STModification, STSymbolInfo } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import {
+    ExpressionEditorLangClientInterface,
+    STModification,
+    STSymbolInfo
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
 
@@ -91,7 +95,7 @@ export function FormEditor(props: FormEditorProps) {
             if (!currentFile.content.includes(module)) {
                 newModuleList.add(module);
             }
-        })
+        });
         const updatedContent = getUpdatedSource(genSource.trim(), currentFile.content, initialModel ? { // todo : move this to a seperate variable
             ...initialModel.position,
             startLine: initialModel.position.startLine + offsetLineCount,
@@ -154,7 +158,7 @@ export function FormEditor(props: FormEditorProps) {
                 if (topLevelComponent) {
                     const partialST = await getPartialSTForModuleMembers(
                         { codeSnippet: initialSource.trim() }, getLangClient,
-                        (type === "Resource" || type === "GraphqlResource")
+                        (type === "Resource" || type === "GraphqlResource" || type === "GraphqlMutation" || type === "GraphqlSubscription")
                     );
                     const updatedContent = getUpdatedSource(initialSource.trim(), currentFile.content,
                         initialModel.position, undefined, true);
@@ -174,10 +178,10 @@ export function FormEditor(props: FormEditorProps) {
                             startColumn: 0,
                             endColumn: 0
                         }
-                    )
+                    );
                     const source = getInitialSource(type, position).trim();
                     const partialST = await getPartialSTForModuleMembers({ codeSnippet: source },
-                        getLangClient, (type === "Resource" || type === "GraphqlResource")
+                        getLangClient, (type === "Resource" || type === "GraphqlResource" || type === "GraphqlMutation" || type === "GraphqlSubscription")
                     );
                     let moduleList;
                     if (!currentFile?.content?.includes("ballerina/http") && (type === "Service" ||
@@ -239,5 +243,5 @@ export function FormEditor(props: FormEditorProps) {
                 }
             </FormEditorContextProvider>
         </div>
-    )
+    );
 }

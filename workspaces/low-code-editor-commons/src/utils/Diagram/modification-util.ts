@@ -255,6 +255,22 @@ export function createResource(method: string, path: string, parameters: string,
     return resource;
 }
 
+export function createRemoteFunction(path: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
+    const remoteFunction: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: 0,
+        endLine: targetPosition.startLine,
+        endColumn: 0,
+        type: "REMOTE_FUNCTION",
+        config: {
+            "PATH": path,
+            "PARAMETERS": parameters,
+            "ADD_RETURN": returnTypes
+        }
+    };
+    return remoteFunction;
+}
+
 export function updateResourceSignature(method: string, path: string, parameters: string, addReturn: string, targetPosition: NodePosition): STModification {
     const resourceSignature: STModification = {
         startLine: targetPosition.startLine,
@@ -271,6 +287,22 @@ export function updateResourceSignature(method: string, path: string, parameters
     };
 
     return resourceSignature;
+}
+
+export function updateRemoteFunctionSignature(name: string, parameters: string, returnTypes: string, targetPosition: NodePosition): STModification {
+    const remoteFunctionSignature: STModification = {
+        startLine: targetPosition.startLine,
+        startColumn: targetPosition.startColumn,
+        endLine: targetPosition.endLine,
+        endColumn: targetPosition.endColumn,
+        type: "REMOTE_FUNCTION_SIGNATURE",
+        config: {
+            "PATH": name,
+            "PARAMETERS": parameters,
+            "ADD_RETURN": returnTypes
+        }
+    };
+    return remoteFunctionSignature;
 }
 
 export function createImportStatement(org: string, module: string, targetPosition: NodePosition): STModification {

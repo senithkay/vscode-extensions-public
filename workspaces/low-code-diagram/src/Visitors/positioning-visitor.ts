@@ -12,6 +12,7 @@
  */
 import {
     BlockStatement,
+    DoStatement,
     ExpressionFunctionBody,
     ForeachStatement,
     FunctionBodyBlock,
@@ -20,6 +21,7 @@ import {
     ModulePart,
     NamedWorkerDeclaration,
     ObjectMethodDefinition,
+    OnFailClause,
     RemoteMethodCallAction,
     ResourceAccessorDefinition,
     STKindChecker,
@@ -55,6 +57,8 @@ import {
     StatementViewState,
     WhileViewState
 } from "../ViewState";
+import { DoStatementViewState } from "../ViewState/do-statement";
+import { OnFailClauseViewState } from "../ViewState/on-fail-clause";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
@@ -958,6 +962,40 @@ export class PositioningVisitor implements Visitor {
             const endLine = controlFlowLines[controlFlowLines.length - 1];
             endLine.h = lifeLine.cy + lifeLine.h - endLine.y
         }
+    }
+
+    public beginVisitDoStatement(node: DoStatement, parent?: STNode): void {
+        const viewState: DoStatementViewState = node.viewState as DoStatementViewState;
+        const doBodyVS = viewState.doBodyVS;
+        const onFailBodyVS = viewState.onFailBodyVS;
+        const doBlockLifeLine = viewState.doBodyLifeLine;
+
+        viewState.doHeadVS.cx = viewState.bBox.cx;
+        viewState.doHeadVS.cy = viewState.bBox.cy + (viewState.doHeadVS.h / 2);
+
+        doBlockLifeLine.cx = viewState.bBox.cx;
+        doBlockLifeLine.cy = viewState.doHeadVS.cy + (viewState.doHeadVS.h / 2);
+
+        doBodyVS.bBox.cx = viewState.bBox.cx;
+        doBodyVS.bBox.cy = viewState.doHeadVS.cy + (viewState.doHeadVS.h / 2) + viewState.doHeadVS.offsetFromBottom;
+
+        onFailBodyVS.bBox.cx = viewState.bBox.cx;
+        onFailBodyVS.bBox.cy = doBodyVS.bBox.cy + doBodyVS.bBox.h + DefaultConfig.offSet;
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
+        const viewState: OnFailClauseViewState = node.viewState as OnFailClauseViewState;
+        // const statementsBlockVS: BlockViewState = node.blockStatement.viewState as BlockViewState;
+        const onFailBlockVS = viewState.onFailBodyVS;
+        const onFailLifeLine = viewState.onFailBodyLifeLine;
+        viewState.onFailHeadVS.cx = viewState.bBox.cx;
+        viewState.onFailHeadVS.cy = viewState.bBox.cy + (viewState.onFailHeadVS.h / 2);
+
+        onFailLifeLine.cx = viewState.bBox.cx;
+        onFailLifeLine.cy = viewState.onFailHeadVS.cy + (viewState.onFailHeadVS.h / 2);
+
+        onFailBlockVS.bBox.cx = viewState.bBox.cx;
+        onFailBlockVS.bBox.cy = viewState.onFailHeadVS.cy + (viewState.onFailHeadVS.h / 2) + viewState.onFailHeadVS.offsetFromBottom;
     }
 
     public beginVisitIfElseStatement(node: IfElseStatement) {

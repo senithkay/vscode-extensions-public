@@ -50,14 +50,12 @@ export interface FunctionProps {
     completions: SuggestionItem[];
 }
 
-// TODO: Fix the proper functionality of resource form
-export function GraphqlResourceForm(props: FunctionProps) {
+export function GraphqlSubscriptionForm(props: FunctionProps) {
     const { model, completions } = props;
 
     const {
         targetPosition,
         isEdit,
-        type,
         onChange,
         applyModifications,
         onCancel,
@@ -67,7 +65,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
     const connectorClasses = connectorStyles();
 
     // States related to component model
-    const [resourcePath, setResourcePath] = useState<string>(model ? getResourcePath(model?.relativeResourcePath).trim() : "");
     const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
     const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
@@ -188,15 +185,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     const onDeleteParam = async (paramItem: FunctionParam) => {
         const newParams = parameters.filter((item) => item.id !== paramItem.id);
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
-        await handleResourceParamChange(
-            model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
-            parametersStr,
-            model.functionSignature?.returnTypeDesc?.type?.source
-        );
+        setParameters(newParams);
     };
 
     const handleOnEdit = (funcParam: FunctionParam) => {
@@ -412,11 +401,11 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
 
     return (
-        <FormControl data-testid="graphql-resource-form" className={connectorClasses.wizardFormControlExtended}>
+        <FormControl data-testid="graphql-subscription-form" className={connectorClasses.wizardFormControlExtended}>
             <FormHeaderSection
                 onCancel={onCancel}
-                formTitle={"Configure GraphQL Query"}
-                defaultMessage={"Configure GraphQL Query"}
+                formTitle={"Configure GraphQL Subscription"}
+                defaultMessage={"Configure GraphQL Subscription"}
             />
             {formContent()}
         </FormControl>

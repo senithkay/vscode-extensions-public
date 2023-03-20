@@ -13,6 +13,7 @@
 import {
     createFunctionSignature,
     createListenerDeclartion,
+    createRemoteFunction,
     createResource,
     createServiceDeclartion,
     getSource,
@@ -67,6 +68,12 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         }
         case "GraphqlResource": {
             return getSource(createResource("get", "hello", '', "string", targetPosition));
+        }
+        case "GraphqlMutation": {
+            return getSource(createRemoteFunction("updateName", '', "string", targetPosition));
+        }
+        case "GraphqlSubscription": {
+            return getSource(createResource("subscribe", "hello", '', "stream<string>", targetPosition));
         }
     }
     return;
