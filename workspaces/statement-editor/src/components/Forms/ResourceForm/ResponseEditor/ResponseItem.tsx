@@ -50,7 +50,7 @@ export function ResponseItem(props: ParamItemProps) {
 
     const icon = (<QueryIcon />);
 
-    const responseCode = responseCodes.find(item => item.source === param.name.trim());
+    const responseCode = responseCodes.find(item => param.name.trim().includes(item.source));
     const staticCode = param.name.trim().includes("error") ? 500 : 200;
 
     return (
