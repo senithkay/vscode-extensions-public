@@ -36,8 +36,24 @@ export function FunctionHeader() {
     const titleComponents: React.ReactElement[] = [];
     const argumentComponents: React.ReactElement[] = [];
 
-    const handleConfigFormClick = () => {
-        renderEditForm(functionNode, functionNode.position, { formType: functionNode.kind, isLoading: false });
+    const handleConfigFormClick = async () => {
+        const signature = await diagramContext.props.getListenerSignature(functionNode);
+        if (signature && signature.includes('graphql')) {
+            if (STKindChecker.isObjectMethodDefinition(functionNode)){
+                renderEditForm(functionNode, functionNode.position, { formType: "GraphqlConfigForm",
+                                                                      formName: "GraphqlMutation", isLoading: false });
+            } else if (STKindChecker.isResourceAccessorDefinition(functionNode)){
+                if (functionNode.functionName.value === 'subscribe'){
+                    renderEditForm(functionNode, functionNode.position, { formType: "GraphqlConfigForm",
+                                                                          formName: "GraphqlSubscription", isLoading: false });
+                } else {
+                    renderEditForm(functionNode, functionNode.position, { formType: "GraphqlConfigForm",
+                                                                          formName: "GraphqlResource", isLoading: false });
+                }
+            }
+        } else {
+            renderEditForm(functionNode, functionNode.position, { formType: functionNode.kind, isLoading: false });
+        }
     }
 
     if (STKindChecker.isFunctionDefinition(functionNode)) {
@@ -121,17 +137,17 @@ export function FunctionHeader() {
         )
     } else if (STKindChecker.isObjectMethodDefinition(functionNode)) {
         titleComponents.push(
-            <div className="title-components">{`${functionNode.functionName.value}`}</div>
+            <div  key={"title"} className="title-components">{`${functionNode.functionName.value}`}</div>
         );
 
         functionNode.functionSignature.parameters
-            .forEach(param => {
+            .forEach((param, paramIndex) => {
                 if (STKindChecker.isRequiredParam(param)
                     || STKindChecker.isDefaultableParam(param)
                     || STKindChecker.isRestParam(param)) {
 
                     argumentComponents.push(
-                        <div className={'argument-item'}>
+                        <div key={paramIndex} className={'argument-item'}>
                             <span className="type-name">{param.typeName.source.trim()}</span>
                             <span className="argument-name">{param.paramName.value}</span>
                         </div>

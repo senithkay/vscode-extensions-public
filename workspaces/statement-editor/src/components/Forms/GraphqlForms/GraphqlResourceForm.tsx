@@ -146,12 +146,15 @@ export function GraphqlResourceForm(props: FunctionProps) {
     };
 
     const handleOnSave = () => {
+        const parametersStr = parameters
+            .map((item) => `${item.type} ${item.name}`)
+            .join(", ");
         if (isEdit) {
             applyModifications([
                 updateResourceSignature(
                     model.functionName.value,
                     getResourcePath(model.relativeResourcePath),
-                    getParamString(model.functionSignature.parameters),
+                    parametersStr,
                     model.functionSignature?.returnTypeDesc?.type?.source,
                     targetPosition)
             ]);
@@ -160,7 +163,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
                 createResource(
                     model.functionName.value,
                     getResourcePath(model.relativeResourcePath),
-                    getParamString(model.functionSignature.parameters),
+                    parametersStr,
                     model.functionSignature?.returnTypeDesc?.type?.source,
                     targetPosition
                 )

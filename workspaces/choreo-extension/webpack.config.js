@@ -15,7 +15,7 @@ const PermissionsOutputPlugin = require('webpack-permissions-plugin');
 /** @type WebpackConfig */
 const extensionConfig = {
   target: 'node',
-  mode: 'development',
+  mode: 'none',
 
   entry: {
     extension: './src/extension.ts',
@@ -44,7 +44,14 @@ const extensionConfig = {
             loader: 'ts-loader'
           }
         ]
-      }
+      },
+      {
+        test: /\.m?js$/,
+        type: "javascript/auto",
+        resolve: {
+          fullySpecified: false
+        },
+      },
     ]
   },
   devtool: 'source-map',

@@ -23,6 +23,7 @@
       "strictNullChecks": false,
       "noUnusedLocals": true,
       "noUnusedParameters": true,
+      "preserveSymlinks": true,
       "typeRoots": [
         "node_modules/@types"
       ]

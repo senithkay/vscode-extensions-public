@@ -3,10 +3,12 @@ import * as React from 'react';
 
 import { Typography } from '@material-ui/core';
 import { createStyles, withStyles, WithStyles } from "@material-ui/core/styles";
+import type { } from "@material-ui/styles";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 
 import { BinaryExpressionNode } from './BinaryExpressionNode';
 
+// @ts-ignore
 const styles = () => createStyles({
 	root: {
 		width: '100%',

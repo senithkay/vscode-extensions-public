@@ -11,7 +11,14 @@
  * associated services.
  */
 import { ActionInvocationFinder, FunctionViewState, initVisitor, positionVisitor, sizingVisitor } from "@wso2-enterprise/ballerina-low-code-diagram";
-import { BallerinaConnectorInfo, BallerinaRecord, Connector, FunctionDefinitionInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    BallerinaConnectorInfo,
+    BallerinaRecord,
+    Connector,
+    DiagramEditorLangClientInterface,
+    FunctionDefinitionInfo
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {parentSetupVisitor as ParentSetupVisitor} from "@wso2-enterprise/ballerina-statement-editor";
 import {
     BooleanLiteral,
     CallStatement, CaptureBindingPattern, ElseBlock, FunctionDefinition, IdentifierToken, IfElseStatement, LocalVarDecl,
@@ -22,6 +29,7 @@ import {
 import { subMinutes } from "date-fns";
 import { Diagnostic } from 'vscode-languageserver-protocol';
 
+import { getSTNodeForReference } from "../../DiagramViewManager/utils";
 import { AnalyzePayloadVisitor } from "../visitors/analyze-payload-visitor";
 import { clearAllDiagnostics, getAllDiagnostics, visitor as DiagnosticVisitor } from '../visitors/diagnostics-collector';
 // import { BlockStatementFinder } from '../components/LowCodeDiagram/Visitors/block-statement-finder';
@@ -472,4 +480,25 @@ export function isLiteral(node: STNode): node is StringLiteral | NumericLiteral 
             || STKindChecker.isNumericLiteral(node)
             || STKindChecker.isBooleanLiteral(node)
         );
+}
+
+export async function getListenerSignatureFromMemberNode(fullST: STNode, functionNode: STNode,
+                                                         langClient: DiagramEditorLangClientInterface,
+                                                         filePath: string): Promise<string> {
+
+    let listenerSignature: string
+    traversNode(fullST, ParentSetupVisitor);
+    const parentNode: STNode = functionNode.parent;
+    if (STKindChecker.isServiceDeclaration(parentNode)) {
+        const listenerExpression = parentNode.expressions[0];
+        if (STKindChecker.isExplicitNewExpression(listenerExpression)) {
+            listenerSignature = listenerExpression.typeData?.typeSymbol?.signature;
+        } else {
+            const listenerSTDecl = await getSTNodeForReference(filePath, listenerExpression.position, langClient);
+            if (listenerSTDecl) {
+                listenerSignature = listenerExpression.typeData?.typeSymbol?.signature;
+            }
+        }
+    }
+    return listenerSignature;
 }

@@ -47,14 +47,10 @@ module.exports = (env, argv) => ({
             },
         ],
     },
-    ignoreWarnings: [/Failed to parse source map/],
     output: {
         filename: 'ConfigEditor.js',
         path: path.resolve(__dirname, 'build', 'umd'),
-        library: {
-            name: "configEditor",
-            type: "umd"
-        }
+        libraryTarget: "umd",
     },
     plugins: [
         new webpack.DefinePlugin({
