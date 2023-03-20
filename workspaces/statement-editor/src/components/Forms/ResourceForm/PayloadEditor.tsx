@@ -107,9 +107,9 @@ export function PayloadEditor(props: PayloadEditorProps) {
     if (paramIndex > -1) {
         paramConfig.id = paramIndex;
         paramConfig.name = (parameters[paramIndex] as DefaultableParam | RequiredParam
-            | IncludedRecordParam).paramName.value;
+            | IncludedRecordParam)?.paramName.value;
         paramConfig.type = (parameters[paramIndex] as DefaultableParam | RequiredParam
-            | IncludedRecordParam).typeName.source;
+            | IncludedRecordParam)?.typeName.source;
         paramConfig.option = PARAM_TYPES.PAYLOAD;
         paramConfig.defaultValue = STKindChecker.isDefaultableParam(parameters[paramIndex]) ?
             (parameters[paramIndex] as DefaultableParam).expression.source
