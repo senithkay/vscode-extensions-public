@@ -17,7 +17,7 @@ import React, { useState } from 'react';
 import { Button } from '@material-ui/core';
 import AddIcon from "@material-ui/icons/Add";
 import { connectorStyles } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { STNode } from '@wso2-enterprise/syntax-tree';
+import { ResourceAccessorDefinition, STNode } from '@wso2-enterprise/syntax-tree';
 import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
@@ -35,6 +35,7 @@ export interface QueryParamEditorProps {
     syntaxDiag?: StatementSyntaxDiagnostics[];
     readonly?: boolean;
     onChangeInProgress?: (isInProgress: boolean) => void;
+    model: ResourceAccessorDefinition
 }
 
 export const RESOURCE_PAYLOAD_PREFIX = "@http:Payload";
@@ -44,7 +45,7 @@ export const RESOURCE_CALLER_TYPE = "http:Caller";
 export const RESOURCE_HEADER_MAP_TYPE = "http:Headers";
 
 export function ResourceReturnEditor(props: QueryParamEditorProps) {
-    const { returnSource, completions, onChange, syntaxDiag, readonly, onChangeInProgress } = props;
+    const { returnSource, completions, onChange, syntaxDiag, readonly, onChangeInProgress, model } = props;
     const connectorClasses = connectorStyles();
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState<boolean>(false);
@@ -136,6 +137,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                     isTypeReadOnly={false}
                     onChange={onParamChange}
                     onCancel={onParamEditCancel}
+                    httpMethodName={model?.functionName?.value?.toUpperCase()}
                 />
             )
         }
@@ -154,6 +156,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             isTypeReadOnly={false}
             onChange={onParamChange}
             onCancel={onParamEditCancel}
+            httpMethodName={model?.functionName?.value?.toUpperCase()}
         />
     );
     // parameters
