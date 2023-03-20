@@ -214,7 +214,12 @@ export function setConfigValue(configProperties: ConfigElementProps[], configVal
     Object.keys(configProperties).forEach((key) => {
         const value = getValue(configProperties[key].name, configValues);
         if (value !== undefined) {
-            configProperties[key].value = value;
+            if (value.hasOwnProperty("value")) {
+                configProperties[key].value = value.value;
+                configProperties[key].valueRef = value.valueReference;
+            } else {
+                configProperties[key].value = value;
+            }
         }
     });
     return configProperties;

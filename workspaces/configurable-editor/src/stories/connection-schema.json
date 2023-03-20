@@ -9,40 +9,46 @@
         "valueRef": "/azure-kv/host"
       },
       {
-        "configKey": "config.port",
-        "valueType": "int",
-        "valueRef": "/azure-kv/port"
-      },
-      {
-        "configKey": "username",
+        "configKey": "config.host2",
         "valueType": "string",
-        "valueRef": "/azure-kv/username"
+        "valueRef": "/azure-kv/host2"
       },
       {
-        "configKey": "isAvailable",
-        "valueType": "boolean",
-        "valueRef": "/azure-kv/isAvailable"
+        "configKey": "config.host3",
+        "valueType": "int",
+        "valueRef": "/azure-kv/host3"
       }
     ]
   },
   {
-    "name": "salesforce_sandbox",
-    "uuid": "c6203fae-33a1-4da1-b374-1114068e4bf3",
+    "name": "customer_dev_db2",
+    "uuid": "ad85c990-6552-44a0-81c0-033b380dab72",
     "configurationData": [
       {
-        "configKey": "clientId",
+        "configKey": "config.host4",
         "valueType": "string",
-        "valueRef": "/azure-kv/clientId"
+        "valueRef": "/azure-kv/host4"
       },
       {
-        "configKey": "clientSecret",
-        "valueType": "string",
-        "valueRef": "/azure-kv/clientSecret"
+        "configKey": "config.host5",
+        "valueType": "float",
+        "valueRef": "/azure-kv/host5"
       },
       {
-        "configKey": "username",
+        "configKey": "config.host6",
         "valueType": "string",
-        "valueRef": "/azure-kv/username"
+        "valueRef": "/azure-kv/host6"
+      }
+    ]
+  },
+  {
+    "name": "customer_dev_db3",
+    "uuid": "ad85c990-6552-44a0-81c0-033b380dab73",
+    "configurationData": [
+      {
+        "configKey": "config.host7",
+        "valueType": "string",
+        "valueRef": "/azure-kv/host7"
       }
     ]
   }

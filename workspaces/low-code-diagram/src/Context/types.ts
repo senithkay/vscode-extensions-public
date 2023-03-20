@@ -37,6 +37,7 @@ export interface LowCodeDiagramProperties {
     zoomStatus?: ZoomStatus;
     experimentalEnabled?: boolean;
     onDiagramDoubleClick?: () => void,
+    getListenerSignature?: (functionNode: STNode) => Promise<string>;
 }
 
 export interface LowCodeDiagramState {

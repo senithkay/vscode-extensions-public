@@ -33,7 +33,7 @@ export class BallerinaLangClient implements IBallerinaLangClient {
         return this.lsConnection.initialize(params)
                 .then((resp) => {
                     return resp;
-                });
+                }) as Thenable<InitializeResult>;
     }
 
     public didOpen(params: DidOpenParams) {

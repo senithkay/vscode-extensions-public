@@ -18,7 +18,7 @@ import styled from "@emotion/styled";
 
 const background = require('../resources/assets/PatternBg.svg') as string;
 
-export const Container = styled.div`
+export const Container: React.FC<any> = styled.div`
   // should take up full height minus the height of the header
   height: calc(100vh - 70px);
   // background: #E6E8F0;

@@ -13,7 +13,7 @@
 
 import styled from "@emotion/styled";
 
-export const Container = styled.div`
+export const Container: React.FC<any> = styled.div`
     width: 600px;
     height: 100vh;
     opacity: ${(props: { isLoading: boolean }) => props.isLoading ? 0.3 : 1};
