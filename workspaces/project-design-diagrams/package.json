@@ -9,12 +9,12 @@
   "types": "lib/DesignDiagram.d.ts",
   "scripts": {
     "start": "webpack-dev-server --progress --mode=development",
-    "build": "tsc --pretty && npm run copy:assets && webpack",
+    "build": "tsc --pretty && npm run copy:assets && webpack && pnpm run postbuild",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/",
     "deploy": "npm publish",
-    "postbuild": "copyfiles -f build/*.js ../ballerina-extension/resources/jslibs"
+    "postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../ballerina-extension/resources/jslibs"
   },
   "keywords": [],
   "dependencies": {
