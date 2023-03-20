@@ -1,7 +1,9 @@
 name: Save build cache when PR merged
 
 on:
-  push
+  push:
+    branches:
+      - dev
 
 env:
   ballerina_version: 2201.3.1
