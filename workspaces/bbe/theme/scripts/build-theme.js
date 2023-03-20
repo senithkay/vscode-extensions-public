@@ -31,7 +31,7 @@ const buildDir = path.join(__dirname, '..', 'build');
 const themesDir = path.join(__dirname, '..', 'src', 'themes');
 
 const lessNpmModuleDir = path.dirname(require.resolve('less'));
-const semanticUILessModuleDir = path.join(lessNpmModuleDir, '..', 'semantic-ui-less');
+const semanticUILessModuleDir = path.join(lessNpmModuleDir, '..', '..', '..', 'semantic-ui-less@2.5.0', 'node_modules', 'semantic-ui-less');
 
 const generateThemes = () => {
     const themes = fs.readdirSync(themesDir);
@@ -62,7 +62,7 @@ const generateThemes = () => {
 
         const src = fs.readFileSync(filePath, 'utf8');
 
-        return less.render(src, options).then(function(output) {
+        return less.render(src, options).then(function (output) {
             const minifiedOutput = new CleanCSS().minify(output.css);
             const files = {
                 '.css': output.css,
@@ -76,9 +76,9 @@ const generateThemes = () => {
         });
     });
 
-    Promise.all(fileWritePromises).then(function(buffers) {
+    Promise.all(fileWritePromises).then(function (buffers) {
         copyFiles();
-    }).catch(function(error) {
+    }).catch(function (error) {
         console.error(error);
     });
 };
@@ -106,7 +106,7 @@ const copyFiles = () => {
 const copyCSS = () => {
     fs.copy(buildDir, libDir)
         .then(() => {
-            console.error('generated css files copied.');
+            console.info('generated css files copied.');
             copyAssets();
         })
         .catch((error) => {
@@ -117,9 +117,9 @@ const copyCSS = () => {
 const copyAssets = () => {
     fs.copy(path.join(semanticUILessModuleDir, 'themes', 'default', 'assets'), path.join(libDir, 'assets'))
         .then(() => {
-            console.error('semantic-ui-less assets copied.');
+            console.info('semantic-ui-less assets copied.');
             fs.removeSync(buildDir);
-            console.error('Done.');
+            console.info('Done.');
         })
         .catch((error) => {
             console.error(error);

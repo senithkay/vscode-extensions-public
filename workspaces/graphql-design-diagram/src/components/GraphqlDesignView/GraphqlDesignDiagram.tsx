@@ -25,6 +25,8 @@ import { GraphqlDiagramContainer } from "../GraphqlDiagramContainer/GraphqlDiagr
 import { GraphqlDesignModel } from "../resources/model";
 import { getModelForGraphqlService } from "../utils/ls-util";
 
+import { GraphqlUnsupportedOverlay } from "./GraphqlUnsupportedOverlay";
+
 export interface GraphqlDesignDiagramProps {
     model?: STNode;
     targetPosition?: NodePosition;
@@ -96,12 +98,11 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     };
 
     return (
-        // TODO: Add overlay header
         <>
             <GraphqlDiagramContext {...ctxt}>
                 {designModel && <GraphqlDiagramContainer designModel={designModel} />}
             </GraphqlDiagramContext>
+            {isIncompleteModel && <GraphqlUnsupportedOverlay />}
         </>
-        // TODO: Add the error banner in-case of an incompleteModel (compilation errors will be handled at the initial level)
     );
 }

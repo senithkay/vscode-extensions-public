@@ -20,8 +20,9 @@ import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 import { ParametersPopup } from "../../Popup/ParametersPopup";
 import { popOverStyle } from "../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../Port/GraphqlBasePortWidget";
-import { ResourceFunction } from "../../resources/model";
+import { FunctionType, ResourceFunction } from "../../resources/model";
 import { FieldName, FieldType, NodeFieldContainer } from "../../resources/styles/styles";
+import { FunctionMenuWidget } from "../GraphqlServiceNode/FunctionCards/FunctionMenuWidget";
 
 import { HierarchicalNodeModel } from "./HierarchicalNodeModel";
 
@@ -92,6 +93,10 @@ export function ResourceField(props: ResourceFieldProps) {
                     <ParametersPopup parameters={resource.parameters}/>
                 </Popover>
             )}
+            {resource.subscription ?
+                <FunctionMenuWidget location={resource.position} functionType={FunctionType.SUBSCRIPTION}/> :
+                <FunctionMenuWidget location={resource.position} functionType={FunctionType.QUERY}/>
+            }
         </NodeFieldContainer>
     );
 }

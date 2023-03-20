@@ -65,8 +65,11 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
     const classes = useStyles();
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (connectionConfigs.length > 0) {
+        if (connectionConfigs.length !== 0) {
+            setIsOpenCollapse(0);
             setAnchorEl(event.currentTarget);
+        } else {
+            setAnchorEl(null);
         }
     };
     const handleClose = () => {
@@ -101,7 +104,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
         setBooleanConfig(propertyId, propertyValue !== undefined ? Boolean(propertyValue) : undefined,
             propertyValueRef !== undefined ? Boolean(propertyValueRef) : "");
     };
-
+    // tslint:disable: jsx-no-lambda jsx-no-multiline-js
     const onSelected = (index: string, mappingName: string, valueReference: string,
                         valueType: string, connectionName: string) => () => {
             if (valueType === "boolean") {
@@ -114,10 +117,20 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
             }
         };
 
+    const [isOpenCollapse, setIsOpenCollapse] = useState(null);
+
+    const handleOpen = (clickedIndex: number) => {
+        if (isOpenCollapse === clickedIndex) {
+            setIsOpenCollapse(null);
+        } else {
+            setIsOpenCollapse(clickedIndex);
+        }
+    };
+
     const getConnection = connectionConfigs?.map((connections, index) => {
         return (
             <Box key={index} className={classes.accordionBox}>
-                <ListItem button={true} className={classes.accordion}>
+                <ListItem button={true} className={classes.accordion} key={index} onClick={() => handleOpen(index)}>
                     {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
@@ -131,7 +144,7 @@ const BooleanType = (props: BooleanTypeProps): ReactElement => {
                         sIndex: React.Key,
                         ) => {
                         return  (
-                            <Collapse key={sIndex} in={openConnection} timeout="auto" unmountOnExit={true}>
+                            <Collapse key={sIndex} in={isOpenCollapse === index} timeout="auto" unmountOnExit={true}>
                                     <List component="div" disablePadding={true}>
                                     <MenuItem
                                         button={true}

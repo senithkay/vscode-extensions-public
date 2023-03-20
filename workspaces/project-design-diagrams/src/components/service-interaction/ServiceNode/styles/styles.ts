@@ -29,7 +29,7 @@ interface StyleProps {
     isEditMode?: boolean;
 }
 
-export const ServiceNode = styled.div`
+export const ServiceNode: React.FC<any> = styled.div`
     animation: ${(props: StyleProps) => props.isNew ? 'fadeIn 5s' : ''};
     background-color: ${(props: StyleProps) => props.level === Level.ONE ? `#FFFFFF` :
         props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
@@ -46,7 +46,7 @@ export const ServiceNode = styled.div`
     min-height: 32px;
 `;
 
-export const ServiceHead = styled.div`
+export const ServiceHead: React.FC<any> = styled.div`
     align-items: center;
     border-bottom: ${(props: StyleProps) => props.level === Level.TWO ?
         `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}` : ``};
@@ -67,7 +67,7 @@ export const ServiceName = styled.span`
     margin-left: 8px;
 `;
 
-export const FunctionContainer = styled.div`
+export const FunctionContainer: React.FC<any> = styled.div`
     align-items: center;
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
     border-bottom: 0.5px solid #cccde3;
@@ -102,7 +102,7 @@ export const ResourceName = styled.div`
     white-space: nowrap;
 `;
 
-export const RemoteName = styled.span`
+export const RemoteName: React.FC<any> = styled.span`
     margin-left: ${(props: { spaceOut: boolean }) => props.spaceOut ? '8px' : '0px'};
 `;
 

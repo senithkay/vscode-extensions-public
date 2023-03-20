@@ -19,7 +19,7 @@ interface StyleProps {
     leftMargin?: number;
 }
 
-export const GatewayContainer = styled.div`
+export const GatewayContainer: React.FC<any> = styled.div`
     opacity: 0;
     border-radius: 3px;
     color: #fff;

@@ -23,7 +23,7 @@ interface ControlPanelProps {
     showDownloadButton?: boolean;
 }
 
-export const ControlPanel = styled.div`
+export const ControlPanel: React.FC<any> = styled.div`
     bottom: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 15 : 120}px`};
     display: flex;
     flex-direction: column;
