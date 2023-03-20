@@ -1,0 +1,27 @@
+name: Save build cache when PR merged
+
+on:
+  pull_request:
+    types: [closed]
+    pull_request:
+      types: [closed]
+      merged: true
+
+jobs:
+  Build_Stage:
+    name: Build repo
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          set-env: true
+          rush-install: true
+
+      - name: Build repo and save cache
+        run: node common/scripts/install-run-rush.js build --verbose
