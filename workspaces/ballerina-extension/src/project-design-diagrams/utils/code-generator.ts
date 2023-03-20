@@ -30,13 +30,11 @@ import { Service, ServiceTypes } from "../resources";
 import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "./connector-code-gen-utils";
 import { runBackgroundTerminalCommand } from "../../utils/runCommand";
 
-const ClientVarNameRegex: RegExp = /[^a-zA-Z0-9_]/g;
 let clientName: string;
 
 // TODO: Handle errors from the FE
 export async function linkServices(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
     : Promise<boolean> {
-    clientName = transformLabel(targetService.annotation.label) || transformLabel(targetService.annotation.id);
     const filePath: string = sourceService.elementLocation.filePath;
 
     const stResponse: STResponse = await langClient.getSyntaxTree({
@@ -52,6 +50,7 @@ export async function linkServices(langClient: ExtendedLangClient, sourceService
         const members: any[] = stResponse.syntaxTree.members;
         const serviceDecl = getServiceDeclaration(members, sourceService, true);
         const initMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
+        clientName = genClientName(stResponse.source, "serviceClient");
         let modifiedST: STResponse;
 
         if (initMember) {
@@ -125,7 +124,7 @@ export async function addConnector(langClient: ExtendedLangClient, connector: Co
         return false;
     }
     
-    clientName = genClientName(stResponse.syntaxTree.source, connector);
+    clientName = genClientName(stResponse.syntaxTree.source, "Ep", connector);
     const members: any[] = (stResponse as GetSyntaxTreeResponse).syntaxTree.members;
     const serviceDecl = getServiceDeclaration(members, targetService, true);
     const connectorInfo = await fetchConnectorInfo(langClient, connector);
@@ -353,14 +352,18 @@ function getMissingImports(source: string, imports: Set<string>) {
     return missingImports;
 }
 
-function genClientName(source: string, connector: Connector) {
-    if (!connector.moduleName) {
-        return "Ep";
+function genClientName(source: string, prefix: string, connector?: Connector) {
+    if (connector && !connector.moduleName) {
+        return prefix; 
     }
-    const moduleName = getFormattedModuleName(connector.moduleName);
+
+    let moduleName: string = "";
+    if (connector && connector.moduleName) {
+        moduleName = getFormattedModuleName(connector.moduleName);
+    }
 
     let index = 0;
-    let varName = moduleName + "Ep";
+    let varName = moduleName + prefix;
     let tempName = varName;
     while (source.indexOf(tempName) > 0) {
         index++;
@@ -368,9 +371,4 @@ function genClientName(source: string, connector: Connector) {
     }
 
     return tempName;
-}
-
-function transformLabel(label: string): string {
-    return label.split(ClientVarNameRegex).reduce((varName: string, subname: string) =>
-        varName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
 }
