@@ -6,7 +6,7 @@ webviews/node_modules
 *.vsix
 **/vsix
 !resources/jslibs/font/DroidSansMono.ttf
-resources/jslibs
+**/resources/jslibs
 !.vscode
 coverage
 extractedDistribution
