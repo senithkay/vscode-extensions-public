@@ -1,9 +1,7 @@
 name: Save build cache when PR merged
 
 on:
-  pull_request:
-    types:
-      - closed
+  push
 
 env:
   ballerina_version: 2201.3.1
