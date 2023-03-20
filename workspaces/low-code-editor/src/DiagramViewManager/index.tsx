@@ -90,7 +90,7 @@ export function DiagramViewManager(props: EditorProps) {
 
             const currentProjectPath = projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
 
-            if (!currentProject || currentProject.name !== currentProjectPath.name) {
+            if (!currentProject || (currentProjectPath && currentProject.name !== currentProjectPath.name)) {
                 setCurrentProject(currentProjectPath);
             }
             if (!focusFile || focusFile !== file) setFocusFile(file);
