@@ -2,14 +2,13 @@ name: Save build cache when PR merged
 
 on:
   pull_request:
-    types: [closed]
-    pull_request:
-      types: [closed]
-      merged: true
+    types:
+      - closed
 
 jobs:
   Build_Stage:
     name: Build repo
+    if: github.event.pull_request.merged
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
