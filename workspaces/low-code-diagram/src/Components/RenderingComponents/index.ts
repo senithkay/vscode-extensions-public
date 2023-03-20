@@ -23,7 +23,6 @@ import { ModuleVariable } from './ModuleVariable';
 import { RecordDefinitionComponent } from "./RecordDefinion";
 import { Return } from './Return';
 import { Service } from "./Service";
-import {ServiceDesign} from './ServiceDesign';
 import { Statement } from "./Statement";
 import { TypeDefinitionComponent } from './TypeDefinition';
 import { While } from './While';
@@ -31,7 +30,6 @@ import { Worker } from './WorkerDeclaration';
 
 export { IfElse as IfElseStatement };
 export { ForEach as ForeachStatement };
-export { ServiceDesign as ServiceDeclaration };
 export { Statement as LocalVarDecl };
 export { Statement as CallStatement };
 export { Statement as ActionStatement };
