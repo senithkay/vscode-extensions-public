@@ -5,6 +5,9 @@ on:
     types:
       - closed
 
+env:
+  ballerina_version: 2201.3.1
+
 jobs:
   Build_Stage:
     name: Build repo
@@ -21,6 +24,11 @@ jobs:
           node: 16.x
           set-env: true
           rush-install: true
+
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
 
       - name: Build repo and save cache
         run: node common/scripts/install-run-rush.js build --verbose
