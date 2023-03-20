@@ -225,6 +225,8 @@ export class ChoreoProjectManager implements IProjectManager {
     public async isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
         const { repository, workspaceFilePath } = params;
         const projectDir = path.dirname(workspaceFilePath);
+        // TODO: check if the repo is cloned in the correct branch using params.branch
+        // We need to handle the case where the repo is cloned in a different branch
         return existsSync(join(projectDir, 'repos', repository));
     }
 

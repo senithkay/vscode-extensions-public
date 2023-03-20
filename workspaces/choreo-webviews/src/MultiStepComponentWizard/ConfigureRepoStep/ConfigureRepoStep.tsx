@@ -72,7 +72,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     const selectedOrg = authorizedOrgs.find((org) => org.orgName === formData?.repository?.org) || authorizedOrgs[0];
 
     if (!selectedRepoString && selectedOrg) {
-        selectedRepoString = `${selectedOrg.orgName}/${selectedOrg.repositories[0]}`;
+        selectedRepoString = `${selectedOrg.orgName}/${selectedOrg.repositories[0].name}`;
     }
 
     const setRepository = (org: string, repo: string) => {
@@ -103,9 +103,9 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         try {
             const repos = await ghClient.getAuthorizedRepositories();
             setAuthorizedOrgs(repos);
-        } catch (error) {
+        } catch (error: any) {
             setAuthorizedOrgs([]);
-            console.log("Error while fetching authorized repositories: " + error);
+            ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. Please authorize with GitHub.");
         }
         setIsFetchingRepos(false);
     }, []);
@@ -118,13 +118,15 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
     useEffect(() => {
         const checkRepoCloneStatus = async () => {
-             if (choreoProject && selectedRepoString && formData?.repository?.branch) {
+             if (choreoProject && selectedRepoString) {
                  const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(choreoProject.id);
                  if (projectPath) {
                      const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
                          repository: selectedRepoString,
                          workspaceFilePath: projectPath,
-                         branch: formData?.repository?.branch
+                         // TODO: Handle this properly from the backend
+                         // Currently, backend is not validating the branch name
+                         branch: formData?.repository?.branch || "main"
                      });
                      setIsRepoCloned(isCloned);
                  }
@@ -262,4 +264,3 @@ export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
     component: ConfigureRepoStepC,
     validationRules: []
 };
-
