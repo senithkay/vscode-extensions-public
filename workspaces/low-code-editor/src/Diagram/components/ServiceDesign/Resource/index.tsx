@@ -27,6 +27,7 @@ import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
 import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
+import { responseCodes } from "../types";
 
 import { ResourceHeader } from "./ResourceHeader";
 
@@ -132,18 +133,6 @@ export function ResourceBody(props: ResourceBodyProps) {
     });
 
     const responseArgs: any[] = [];
-
-    interface ResponseCode {
-        code: number;
-        source: string;
-    }
-
-    const responseCodes: ResponseCode[] = [
-        { code: 200, source: "http:Ok" },
-        { code: 201, source: "http:Created" },
-        { code: 404, source: "http:NotFound" },
-        { code: 500, source: "http:InternalServerError" }
-    ];
 
     traversNode(model, RecordsFinderVisitor);
     const records = RecordsFinderVisitor.getRecords();
