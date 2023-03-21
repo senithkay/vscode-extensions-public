@@ -54,11 +54,18 @@ export const Wizard = <T extends {}>({ title, steps, initialState, validationRul
         setState({ ...state, formData: newFormData, isFormValid, validationErrors, isStepValid, stepValidationErrors });
     };
 
-    const handlePrevClick = () => {
-        setState((prevState) => ({ ...prevState, currentStep: prevState.currentStep - 1 }));
+    const handlePrevClick = async () => {
+        const currentStep = state.currentStep - 1;
+        const [isStepValid, stepValidationErrors] = await validateForm(state.formData, steps[currentStep].validationRules, context);
+        setState((prevState) => ({ ...prevState, currentStep, isStepValid, stepValidationErrors }));
     };
 
-    const handleNextClick = () => {
+    const handleNextClick = async () => {
+        const [isStepValid, stepValidationErrors] = await validateForm(state.formData, currentStepValidationRules, context);
+        if (!isStepValid) {
+            setState({ ...state, isStepValid, stepValidationErrors });
+            return;
+        }
         setState((prevState) => ({ ...prevState, currentStep: prevState.currentStep + 1 }));
     };
 

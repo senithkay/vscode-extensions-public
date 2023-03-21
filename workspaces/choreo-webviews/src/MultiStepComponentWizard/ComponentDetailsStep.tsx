@@ -116,9 +116,8 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
             field: 'name',
             message: 'Name is required',
             rule: async (value: any) => {
-                return value !== undefined;
+                return value !== undefined && value !== '';
             }
         },
     ]
 };
-
