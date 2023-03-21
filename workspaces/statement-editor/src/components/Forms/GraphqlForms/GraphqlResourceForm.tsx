@@ -97,6 +97,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
+        setReturnType(value);
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
@@ -272,7 +273,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
     });
 
     useEffect(() => {
-        setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
 
         if (currentComponentName === "") {
             const editParams: FunctionParameter[] = model?.functionSignature.parameters
