@@ -11,12 +11,12 @@
  * associated services.
  */
 
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 
-import { Button, Divider, FormControl } from "@material-ui/core";
+import { Button, Divider, FormControl, TextField } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteExpressionEditor, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createResource,
     getSource,
@@ -41,9 +41,10 @@ import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from "../../InputEditor/constants";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
-import { FunctionParam, FunctionParamItem } from "../FunctionForm/FunctionParamEditor/FunctionParamItem";
-import { FunctionParamSegmentEditor } from "../FunctionForm/FunctionParamEditor/FunctionSegmentEditor";
-import { generateParameterSectionString, getParamString, getResourcePath } from "../ResourceForm/util";
+import { createNewRecord, generateParameterSectionString, getParamString, getResourcePath } from "../ResourceForm/util";
+
+import { ParameterEditor } from "./ParameterEditor/ParameterEditor";
+import { FunctionParameter, ParameterField } from "./ParameterEditor/ParameterField";
 
 export interface FunctionProps {
     model: ResourceAccessorDefinition;
@@ -60,7 +61,9 @@ export function GraphqlResourceForm(props: FunctionProps) {
         onChange,
         applyModifications,
         onCancel,
-        getLangClient
+        getLangClient,
+        syntaxTree,
+        fullST
     } = useContext(FormEditorContext);
 
     const connectorClasses = connectorStyles();
@@ -76,15 +79,25 @@ export function GraphqlResourceForm(props: FunctionProps) {
     const [currentComponentCompletions, setCurrentComponentCompletions] = useState<SuggestionItem[]>(undefined);
 
     // States related parameters
-    const [parameters, setParameters] = useState<FunctionParam[]>([]);
+    const [parameters, setParameters] = useState<FunctionParameter[]>([]);
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [addingNewParam, setAddingNewParam] = useState(false);
 
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
+    // TODO : These logic will be replaced with the record/class options
+    const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
+
+    // When a type is created and full ST is updated update the onChange to remove diagnostics
+    useEffect(() => {
+        if (newlyCreatedRecord) {
+            onReturnTypeChange(newlyCreatedRecord);
+        }
+    }, [fullST]);
+
     // Return type related functions
-    const onReturnTypeChange = (value: string) => {
-        handleResourceParamChange(
+    const onReturnTypeChange = async (value: string) => {
+        await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
             generateParameterSectionString(model?.functionSignature?.parameters),
@@ -106,7 +119,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
         setEditingSegmentId(-1);
         const newParams = [...parameters, { type: "string", name: "name" }];
         const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
+            .map((item: FunctionParameter) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ""}`)
             .join(", ");
         await handleResourceParamChange(
             model.functionName.value,
@@ -116,11 +129,11 @@ export function GraphqlResourceForm(props: FunctionProps) {
         );
     };
 
-    const onParamChange = async (param: FunctionParam) => {
+    const onParamChange = async (param: FunctionParameter) => {
         setCurrentComponentName("Param");
         const newParams = [...parameters, param];
         const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
+            .map((item: FunctionParameter) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ""}`)
             .join(", ");
         await handleResourceParamChange(
             model.functionName.value,
@@ -130,12 +143,12 @@ export function GraphqlResourceForm(props: FunctionProps) {
         );
     };
 
-    const onUpdateParamChange = async (param: FunctionParam) => {
+    const onUpdateParamChange = async (param: FunctionParameter) => {
         setCurrentComponentName("Param");
         const newParams = [...parameters];
         newParams[param.id] = param;
         const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
+            .map((item: FunctionParameter) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ""}`)
             .join(", ");
         await handleResourceParamChange(
             model.functionName.value,
@@ -147,7 +160,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     const handleOnSave = () => {
         const parametersStr = parameters
-            .map((item) => `${item.type} ${item.name}`)
+            .map((item: FunctionParameter) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ""}`)
             .join(", ");
         if (isEdit) {
             applyModifications([
@@ -181,18 +194,18 @@ export function GraphqlResourceForm(props: FunctionProps) {
         setCurrentComponentSyntaxDiag(undefined);
     };
 
-    const onSaveNewParam = (param: FunctionParam) => {
+    const onSaveNewParam = (param: FunctionParameter) => {
         setParameters([...parameters, param]);
         setAddingNewParam(false);
         setEditingSegmentId(-1);
     };
 
-    const onDeleteParam = async (paramItem: FunctionParam) => {
+    const onDeleteParam = async (paramItem: FunctionParameter) => {
         const newParams = parameters.filter((item) => item.id !== paramItem.id);
         setParameters(newParams);
     };
 
-    const handleOnEdit = (funcParam: FunctionParam) => {
+    const handleOnEdit = (funcParam: FunctionParameter) => {
         const id = parameters.findIndex(param => param.id === funcParam.id);
         // Once edit is clicked
         if (id > -1) {
@@ -202,7 +215,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
         setIsEditInProgress(true);
     };
 
-    const handleOnUpdateParam = (param: FunctionParam) => {
+    const handleOnUpdateParam = (param: FunctionParameter) => {
         const id = param.id;
         if (id > -1) {
             parameters[id] = param;
@@ -217,9 +230,15 @@ export function GraphqlResourceForm(props: FunctionProps) {
         if (param.name) {
             if (editingSegmentId !== index) {
                 paramElements.push(
-                    <FunctionParamItem
-                        key={index}
-                        functionParam={param}
+                    // <FunctionParamItem
+                    //     key={index}
+                    //     functionParam={param}
+                    //     readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}
+                    //     onDelete={onDeleteParam}
+                    //     onEditClick={handleOnEdit}
+                    // />
+                    <ParameterField
+                        param={param}
                         readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}
                         onDelete={onDeleteParam}
                         onEditClick={handleOnEdit}
@@ -227,7 +246,17 @@ export function GraphqlResourceForm(props: FunctionProps) {
                 );
             } else if (editingSegmentId === index) {
                 paramElements.push(
-                    <FunctionParamSegmentEditor
+                    // <FunctionParamSegmentEditor
+                    //     param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
+                    //         RestParam)}
+                    //     id={editingSegmentId}
+                    //     syntaxDiag={currentComponentSyntaxDiag}
+                    //     onCancel={closeNewParamView}
+                    //     onUpdate={handleOnUpdateParam}
+                    //     onChange={onUpdateParamChange}
+                    //     isEdit={true}
+                    // />
+                    <ParameterEditor
                         param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
                             RestParam)}
                         id={editingSegmentId}
@@ -246,12 +275,13 @@ export function GraphqlResourceForm(props: FunctionProps) {
         setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
 
         if (currentComponentName === "") {
-            const editParams: FunctionParam[] = model?.functionSignature.parameters
-                .filter((param) => STKindChecker.isRequiredParam(param))
+            const editParams: FunctionParameter[] = model?.functionSignature.parameters
+                .filter((param) => !STKindChecker.isCommaToken(param))
                 .map((param: any, index) => ({
                     id: index,
                     name: param.paramName.value,
                     type: param.typeName.source.trim(),
+                    defaultValue: param.expression ? param.expression.source.trim() : ""
                 }));
             setParameters(editParams);
         }
@@ -325,12 +355,31 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     };
 
+    const createRecord = (newRecord: string) => {
+        if (newRecord) {
+            createNewRecord(newRecord, syntaxTree, applyModifications)
+            setNewlyCreatedRecord(newRecord);
+        }
+    }
+
     const formContent = () => {
         return (
             <>
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title="Path" optional={false}/>
+                        {/*<TextField*/}
+                        {/*    variant="outlined"*/}
+                        {/*    fullWidth={true}*/}
+                        {/*    value={getResourcePath(model?.relativeResourcePath).trim()}*/}
+                        {/*    margin="none"*/}
+                        {/*    size="small"*/}
+                        {/*    onChange={(e) => { handlePathChange(e.target.value) }}*/}
+                        {/*    InputLabelProps={{ shrink: false }}*/}
+                        {/*    disabled={currentComponentName !== "Path" && isEditInProgress}*/}
+                        {/*    onFocus={onPathFocus}*/}
+                        {/*    // externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}*/}
+                        {/*/>*/}
                         <LiteExpressionEditor
                             testId="resource-path"
                             diagnostics={
@@ -348,7 +397,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
                         <ConfigPanelSection title={"Parameters"}>
                             {paramElements}
                             {addingNewParam ? (
-                                <FunctionParamSegmentEditor
+                                <ParameterEditor
                                     param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
                                         RequiredParam | RestParam)}
                                     id={parameters.length}
@@ -359,6 +408,17 @@ export function GraphqlResourceForm(props: FunctionProps) {
                                     isEdit={false}
                                     completions={completions}
                                 />
+                                /*<FunctionParamSegmentEditor
+                                    param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
+                                        RequiredParam | RestParam)}
+                                    id={parameters.length}
+                                    syntaxDiag={currentComponentSyntaxDiag}
+                                    onCancel={closeNewParamView}
+                                    onChange={onParamChange}
+                                    onSave={onSaveNewParam}
+                                    isEdit={false}
+                                    completions={completions}
+                                />*/
                             ) : (
                                 <Button
                                     data-test-id="param-add-button"
@@ -374,19 +434,27 @@ export function GraphqlResourceForm(props: FunctionProps) {
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <FieldTitle title="Return Type" optional={false}/>
-                        <LiteExpressionEditor
-                            testId={"return-type"}
-                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
-                            defaultValue={returnType}
+                        <TypeBrowser
+                            type={returnType}
                             onChange={onReturnTypeChange}
-                            completions={currentComponentCompletions}
-                            onFocus={onReturnFocus}
-                            disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
-                            customProps={{
-                                index: 2,
-                                optional: true
-                            }}
+                            isLoading={false}
+                            recordCompletions={completions.filter((completion) => completion.kind !== "Module")}
+                            createNew={createRecord}
+                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                         />
+                        {/*<LiteExpressionEditor*/}
+                        {/*    testId={"return-type"}*/}
+                        {/*    diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}*/}
+                        {/*    defaultValue={returnType}*/}
+                        {/*    onChange={onReturnTypeChange}*/}
+                        {/*    completions={currentComponentCompletions}*/}
+                        {/*    onFocus={onReturnFocus}*/}
+                        {/*    disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}*/}
+                        {/*    customProps={{*/}
+                        {/*        index: 2,*/}
+                        {/*        optional: true*/}
+                        {/*    }}*/}
+                        {/*/>*/}
                     </div>
                 </div>
                 <FormActionButtons
