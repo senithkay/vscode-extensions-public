@@ -54,7 +54,7 @@ suite("Language Server Tests", function () {
 
 
     test("Test Language Server Start", function (done): void {
-        langClient.onReady().then(async () => {
+        langClient.start().then(async () => {
             await langClient.registerExtendedAPICapabilities();
             done();
         }, () => {
@@ -67,7 +67,6 @@ suite("Language Server Tests", function () {
     test("Test getSyntaxTree", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 langClient.getSyntaxTree({
                     documentIdentifier: {
                         uri: uri.toString()
@@ -78,7 +77,6 @@ suite("Language Server Tests", function () {
                 }, (reason) => {
                     done(reason);
                 });
-            });
         });
     });
 
@@ -86,7 +84,6 @@ suite("Language Server Tests", function () {
         const projectPath = join(PROJECT_ROOT, 'helloPackage');
         const uri = Uri.file(join(projectPath, 'main.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 const projectPath = join(PROJECT_ROOT, 'helloPackage');
                 const documentIdentifier = {
                     documentIdentifier: {
@@ -103,14 +100,12 @@ suite("Language Server Tests", function () {
                 }, (reason) => {
                     done(reason);
                 });
-            });
         });
     });
 
     test("Test getBallerinaProject - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 const documentIdentifier = {
                     documentIdentifier: {
                         uri: uri.toString()
@@ -123,12 +118,10 @@ suite("Language Server Tests", function () {
                 }, (reason) => {
                     done(reason);
                 });
-            });
         });
     });
 
     test("Test fetchExamples", (done) => {
-        langClient.onReady().then(() => {
             langClient.fetchExamples().then((examplesResponse) => {
                 const response = examplesResponse as BallerinaExampleListResponse;
                 assert.notEqual(response.samples.length, 0, 'No samples listed');
@@ -136,13 +129,11 @@ suite("Language Server Tests", function () {
             }, (reason) => {
                 done(reason);
             });
-        });
     });
 
     test("Test Folding Range - Ballerina project", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'helloPackage', 'modules', 'hello', 'hello_service.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 const foldingRangeParam = {
                     textDocument: {
                         uri: uri.toString()
@@ -167,14 +158,12 @@ suite("Language Server Tests", function () {
                     assert.equal(response[4].kind, 'region', 'Invalid folding kind - 4th.');
                     done();
                 });
-            });
         });
     });
 
     test("Test Folding Range - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 const foldingRangeParam = {
                     textDocument: {
                         uri: uri.toString()
@@ -196,13 +185,11 @@ suite("Language Server Tests", function () {
                     assert.equal(response[3].kind, 'region', 'Invalid folding kind - 3rd.');
                     done();
                 });
-            });
         });
     });
 
     test("Test Goto Defition - Ballerina project", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'helloPackage', 'main.bal'));
-        langClient.onReady().then(() => {
             const definitionParam = {
                 textDocument: {
                     uri: uri.toString()
@@ -222,12 +209,10 @@ suite("Language Server Tests", function () {
                 assert.equal(response[0].range.end.character, 26, 'Invalid goto def start character.');
                 done();
             });
-        });
     });
 
     test("Test Goto Defition - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
-        langClient.onReady().then(() => {
             const definitionParam = {
                 textDocument: {
                     uri: uri.toString()
@@ -245,11 +230,9 @@ suite("Language Server Tests", function () {
                 assert.equal(response[0].range.end.character, 26, 'Invalid goto def start character.');
                 done();
             });
-        });
     });
 
     test("Test Hover - Ballerina project", (done) => {
-        langClient.onReady().then(() => {
             const hoverParam = {
                 textDocument: {
                     uri: Uri.file(join(PROJECT_ROOT, 'helloPackage', 'main.bal')).toString()
@@ -264,11 +247,9 @@ suite("Language Server Tests", function () {
                 assert.equal(response.contents.value.includes('Prints'), true, 'Invalid hover value.');
                 done();
             });
-        });
     });
 
     test("Test Hover - Single file", (done) => {
-        langClient.onReady().then(() => {
             const hoverParam = {
                 textDocument: {
                     uri: Uri.file(join(PROJECT_ROOT, 'hello_world.bal')).toString()
@@ -283,11 +264,9 @@ suite("Language Server Tests", function () {
                 assert.equal(response.contents.value.includes('Returns a message'), true, 'Invalid hover value.');
                 done();
             });
-        });
     });
 
     test("Test Code Action - Ballerina project", (done) => {
-        langClient.onReady().then(() => {
             const actionParam = {
                 textDocument: {
                     uri: Uri.file(join(PROJECT_ROOT, 'helloPackage', 'main.bal')).toString()
@@ -312,11 +291,9 @@ suite("Language Server Tests", function () {
                 assert.equal(response[1].command.title, 'Document all', 'Invalid \'Document all\' action.');
                 done();
             });
-        });
     });
 
     test("Test Code Action - Single file", (done) => {
-        langClient.onReady().then(() => {
             const actionParam = {
                 textDocument: {
                     uri: Uri.file(join(PROJECT_ROOT, 'hello_world.bal')).toString()
@@ -340,11 +317,9 @@ suite("Language Server Tests", function () {
                 assert.equal(response[0].command.title, 'Document all', 'Invalid \'Document all\' action.');
                 done();
             });
-        });
     });
 
     test("Test No Code Action - Single file (source)", (done) => {
-        langClient.onReady().then(() => {
             const actionParam = {
                 textDocument: {
                     uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
@@ -367,11 +342,9 @@ suite("Language Server Tests", function () {
                 assert.equal(response.length, 0, 'Invalid number of code actions.');
                 done();
             });
-        });
     });
 
     test("Test No Code Action - Single file (comment)", (done) => {
-        langClient.onReady().then(() => {
             const actionParam = {
                 textDocument: {
                     uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
@@ -394,13 +367,11 @@ suite("Language Server Tests", function () {
                 assert.equal(response.length, 0, 'Invalid number of code actions.');
                 done();
             });
-        });
     });
 
     test("Test Folding Range - Different Ballerina components", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 const foldingRangeParam = {
                     textDocument: {
                         uri: uri.toString()
@@ -524,14 +495,12 @@ suite("Language Server Tests", function () {
                     assert.equal(response[37].kind, 'region', 'Invalid folding kind - 37th. (imports)');
                     done();
                 });
-            });
         });
     });
 
     test("Test Incompatible Params Action - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 const actionParam = {
                     textDocument: {
                         uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
@@ -557,14 +526,12 @@ suite("Language Server Tests", function () {
                     assert.equal(response[3].kind, "quickfix", "Invalid code action kind - 1st.");
                     done();
                 });
-            });
         });
     });
 
     test("Test Create Variable Action - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 const actionParam = {
                     textDocument: {
                         uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
@@ -592,14 +559,12 @@ suite("Language Server Tests", function () {
                     assert.equal(response[0].kind, "quickfix", "Invalid code action kind - 0th.");
                     done();
                 });
-            });
         });
     });
 
     test("Test Create Variable With Unions Action - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 const actionParam = {
                     textDocument: {
                         uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
@@ -629,14 +594,13 @@ suite("Language Server Tests", function () {
                     assert.equal(response[2].kind, "quickfix", "Invalid code action kind - 2nd.");
                     done();
                 });
-            });
         });
     });
 
     test("Test CodeLens - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'sample1.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
+
                 const lensParam = {
                     textDocument: {
                         uri: Uri.file(join(PROJECT_ROOT, 'sample1.bal')).toString()
@@ -650,14 +614,12 @@ suite("Language Server Tests", function () {
                     assert.equal(response[0].range.end.line, 59, 'Invalid end line.');
                     done();
                 });
-            });
         });
     });
 
     test("Test Update Document Action - Single file", (done) => {
         const uri = Uri.file(join(PROJECT_ROOT, 'sample2.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 const actionParam = {
                     textDocument: {
                         uri: Uri.file(join(PROJECT_ROOT, 'sample2.bal')).toString()
@@ -682,14 +644,12 @@ suite("Language Server Tests", function () {
                     assert.equal(response[0].title, 'Update documentation', 'Invalid update documentation action.');
                     done();
                 });
-            });
         });
     });
 
     test("Test BallerinaProjectComponents, and ExecutorPositions", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
-        commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(async () => {
+        commands.executeCommand('vscode.open', uri).then(async () => {
                 await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [{
                         uri: uri.toString()
@@ -703,7 +663,6 @@ suite("Language Server Tests", function () {
                 }, (reason) => {
                     done(reason);
                 });
-            });
         });
     });
 
@@ -751,7 +710,7 @@ suite("Language Server Tests", function () {
     });
 
     test("Test Semantic Highlighting", async function (): Promise<void> {
-        langClient.onReady().then(async () => {
+        langClient.start().then(async () => {
             const result: boolean = await runSemanticTokensTestCases(langClient);
             assert.equal(result, true, "Semantic highlighting test cases failed.");
             return Promise.resolve();
@@ -829,7 +788,6 @@ suite("Language Server Tests", function () {
     test("Test open API generator", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'helloServicePackage', 'hello_service.bal').toString());
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 langClient.convertToOpenAPI({
                     documentFilePath: uri.fsPath
                 }).then(async (res) => {
@@ -841,7 +799,6 @@ suite("Language Server Tests", function () {
                 }, error => {
                     done(error);
                 });
-            });
         });
     });
 
@@ -875,7 +832,6 @@ suite("Language Server Tests", function () {
     test("Test get diagnostics", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'error.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 langClient.getDiagnostics({
                     documentIdentifier: {
                         uri: uri.toString()
@@ -888,14 +844,12 @@ suite("Language Server Tests", function () {
                 }, error => {
                     done(error);
                 });
-            });
         });
     });
 
     test("Test get completion", function (done): void {
         const uri = Uri.file(join(PROJECT_ROOT, 'hello_world.bal'));
         commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(() => {
                 langClient.getCompletion({
                     textDocument: {
                         uri: uri.toString()
@@ -915,7 +869,6 @@ suite("Language Server Tests", function () {
                 }, error => {
                     done(error);
                 });
-            });
         });
     });
 

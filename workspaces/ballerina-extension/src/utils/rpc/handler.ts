@@ -28,72 +28,60 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'getSyntaxTree',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getSyntaxTree(args[0]).then((result) => {
                     consoleLog(start, 'getSyntaxTree');
                     const zippedResult = deflateSync(Buffer.from(JSON.stringify(result)));
                     return Promise.resolve(zippedResult);
                 });
-            });
         }
     },{
         methodName: 'getBallerinaProjectComponents',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getBallerinaProjectComponents(args[0]).then(result => {
                     consoleLog(start, 'getBallerinaProjectComponents');
                     return Promise.resolve(result);
                 });
-            });
         }
     },
     {
         methodName: 'getCompletion',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getCompletion(args[0]).then(result => {
                     consoleLog(start, 'getCompletion');
                     return Promise.resolve(result);
                 });
-            });
         }
     },
     {
         methodName: 'getType',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getType(args[0]).then(result => {
                     consoleLog(start, 'getType');
                     return Promise.resolve(result);
                 });
-            });
         }
     },
     {
         methodName: 'getDiagnostics',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getDiagnostics(args[0]).then(result => {
                     consoleLog(start, 'getDiagnostics');
                     return Promise.resolve(result);
                 });
-            });
         }
     },
     {
         methodName: 'getExamples',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.fetchExamples().then(result => {
                     consoleLog(start, 'getExamples');
                     return Promise.resolve(result);
                 });
-            });
         }
     },
     {
@@ -323,23 +311,19 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'getNotebookVariables',
         handler: () => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getNotebookVariables().then(result => {
                     consoleLog(start, 'getNotebookVariables');
                     return Promise.resolve(result);
                 });
-            });
         }
     }, {
         methodName: 'getSymbolDocumentation',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getSymbolDocumentation(args[0]).then(result => {
                     consoleLog(start, 'getSymbolDocumentation');
                     return Promise.resolve(result);
                 });
-            });
         }
     }, {
         methodName: 'codeAction',
@@ -354,56 +338,46 @@ const getLangClientMethods = (langClient: ExtendedLangClient): WebViewMethod[] =
         methodName: 'getTypeFromExpression',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getTypeFromExpression(args[0]).then(result => {
                     consoleLog(start, 'getTypeFromExpression');
                     return Promise.resolve(result);
                 });
-            });
         }
     }, {
         methodName: 'getTypeFromSymbol',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getTypeFromSymbol(args[0]).then(result => {
                     consoleLog(start, 'getTypeFromSymbol');
                     return Promise.resolve(result);
                 });
-            });
         }
     }, {
         methodName: 'getTypesFromFnDefinition',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getTypesFromFnDefinition(args[0]).then(result => {
                     consoleLog(start, 'getTypesFromFnDefinition');
                     return Promise.resolve(result);
                 });
-            });
         }
     }, {
         methodName: 'rename',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.rename(args[0]).then(result => {
                     consoleLog(start, 'rename');
                     return Promise.resolve(result);
                 });
-            });
         }
     }, {
         methodName: 'getGraphqlModel',
         handler: (args: any[]) => {
             const start = new Date().getTime();
-            return langClient.onReady().then(() => {
                 return langClient.getGraphqlModel(args[0]).then(result => {
                     consoleLog(start, 'getGraphqlModel');
                     return Promise.resolve(result);
                 });
-            });
         }
         }
     ];

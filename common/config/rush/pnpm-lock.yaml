@@ -58,8 +58,8 @@ importers:
       vscode-debugprotocol: ^1.44.0
       vscode-extension-telemetry: ^0.1.7
       vscode-extension-tester: ^5.4.0
-      vscode-languageclient: ^7.0.0
-      vscode-languageserver-protocol: ^3.16.0
+      vscode-languageclient: ^8.0.2
+      vscode-languageserver-protocol: ^3.17.2
       vscode-messenger: ^0.4.4
       vscode-test: ^1.6.1
       webpack: ^5.56.0
@@ -89,7 +89,7 @@ importers:
       toml: 3.0.0
       vscode-debugprotocol: 1.51.0
       vscode-extension-telemetry: 0.1.7
-      vscode-languageclient: 7.0.0
+      vscode-languageclient: 8.1.0
       vscode-languageserver-protocol: 3.17.3
       vscode-messenger: 0.4.4
       vscode-test: 1.6.1
@@ -25327,7 +25327,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       brace-expansion: 2.0.1
-    dev: true
 
   /minimatch/7.3.0:
     resolution: {integrity: sha512-WaMDuhKa7a6zKiwplR1AOz+zGvJba24k5VU1Cy6NhEguavT2YRlHxuINUgTas4wiS6fwBpYq4TcA1XIECSntyw==}
@@ -34522,6 +34521,15 @@ packages:
       minimatch: 3.1.2
       semver: 7.3.8
       vscode-languageserver-protocol: 3.16.0
+    dev: false
+
+  /vscode-languageclient/8.1.0:
+    resolution: {integrity: sha512-GL4QdbYUF/XxQlAsvYWZRV3V34kOkpRlvV60/72ghHfsYFnS/v2MANZ9P6sHmxFcZKOse8O+L9G7Czg0NUWing==}
+    engines: {vscode: ^1.67.0}
+    dependencies:
+      minimatch: 5.1.6
+      semver: 7.3.8
+      vscode-languageserver-protocol: 3.17.3
     dev: false
 
   /vscode-languageserver-protocol/3.16.0:

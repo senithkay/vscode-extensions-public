@@ -164,7 +164,7 @@ export class BallerinaNotebookController {
             return false;
         }
 
-        await langClient.onReady();
+        await langClient.start();
 
         try {
             // bal cmds
@@ -285,7 +285,7 @@ export class BallerinaNotebookController {
             return [];
         }
 
-        await langClient.onReady();
+        await langClient.start();
         let failedVars: string[] = [];
         for (const varToDelete of varsToDelete) {
             const deleted = await langClient.deleteDeclarations({ varToDelete: varToDelete });

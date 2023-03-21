@@ -57,9 +57,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
       return;
     }
     // search for all the test.
-    langClient.onReady().then(() => {
-      startWatchingWorkspace(testController);
-    });
+    startWatchingWorkspace(testController);
   });
 
   // update test tree when file updated.
@@ -78,9 +76,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
   }
 
   // search for all the tests.
-  langClient.onReady().then(() => {
     startWatchingWorkspace(testController);
-  });
 
 }
 
@@ -131,7 +127,6 @@ export async function createTests(uri: Uri) {
   currentProjectRoot = projectRoot;
 
   // Get tests from LS.
-  langClient.onReady().then(() => {
     langClient!.getExecutorPositions({
       documentIdentifier: {
         uri: uri.toString()
@@ -222,17 +217,14 @@ export async function createTests(uri: Uri) {
       rootNode.canResolveChildren = true;
     }, _error => {
     });
-  });
 }
 
 async function setCurrentProjectRoot(uri: Uri) {
-  await langClient!.onReady().then(async () => {
     projectRoot = (await langClient!.getBallerinaProject({
       documentIdentifier: {
         uri: uri.toString()
       }
     }) as BallerinaProject).path;
-  });
 }
 
 /**

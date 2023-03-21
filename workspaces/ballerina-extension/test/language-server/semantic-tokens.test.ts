@@ -55,7 +55,6 @@ export async function runSemanticTokensTestCases(langClient: ExtendedLangClient)
 
         const uri = Uri.file(filePath);
         await commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(async () => {
                 const start = new Date();
                 langClient.sendRequest("textDocument/semanticTokens/full", {
                     textDocument: {
@@ -70,7 +69,6 @@ export async function runSemanticTokensTestCases(langClient: ExtendedLangClient)
                     log(`Time taken for ${filePath}: ${diff}`);
                     assert.equal(diff < 5000, true, `Semantic token response took more than 5 seconds for ${filePath}.`)
                 });
-            });
         });
     }
     return status;

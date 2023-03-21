@@ -119,7 +119,6 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             return codeLenses;
         }
 
-        await langClient.onReady().then(async () => {
             const activeEditorUri = this.activeTextEditorUri ? this.activeTextEditorUri
                 : window.activeTextEditor!.document.uri;
             const fileUri = activeEditorUri.toString();
@@ -223,8 +222,6 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 }
 
             });
-
-        });
 
         return codeLenses;
     }
