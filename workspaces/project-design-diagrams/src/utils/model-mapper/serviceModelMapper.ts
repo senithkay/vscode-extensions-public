@@ -18,7 +18,7 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { uniqueId } from 'lodash';
+import { v4, validate } from 'uuid';
 import {
     ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels,
     ServiceTypes
@@ -41,6 +41,8 @@ let l1Links: Map<string, ServiceLinkModel>;
 let l2Links: ServiceLinkModel[];
 let cellLinks: Map<string, ServiceLinkModel>;
 
+let untitledServiceCount: number;
+
 export function serviceModeller(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>): ServiceModels {
     l1Nodes = new Map<string, ServiceNodeModel>();
     l2Nodes = new Map<string, ServiceNodeModel>();
@@ -55,6 +57,8 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l1Links = new Map<string, ServiceLinkModel>();
     cellLinks = new Map<string, ServiceLinkModel>();
     l2Links = []
+
+    untitledServiceCount = 0;
 
     // convert services to nodes
     generateNodes(projectComponents, projectPackages);
@@ -94,9 +98,19 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
             const packageModel: ComponentModel = projectComponents.get(packageName);
             const services: Map<string, Service> = new Map(Object.entries(packageModel.services));
             services.forEach((service) => {
-                if (service.serviceId === '') {
-                    service.serviceId = uniqueId(`${packageName}/${service.path}`);
+                if (!service.serviceId) {
+                    service.serviceId = v4();
+                    service.annotation = {
+                        label: labelUntitledServices(),
+                        id: service.serviceId
+                    };
                 }
+
+                if (!service.path && (!service.annotation.label || validate(service.annotation.label)) &&
+                    validate(service.annotation.id)) {
+                    service.annotation.label = labelUntitledServices();
+                }
+
                 // create the L1 service nodes
                 const l1Node = new ServiceNodeModel(service, Level.ONE);
                 l1Nodes.set(service.serviceId, l1Node);
@@ -388,4 +402,10 @@ function generateEntryPointLinks(source: EntryNodeModel, target: ServiceNodeMode
 
 function isResource(functionObject: ResourceFunction | RemoteFunction): functionObject is ResourceFunction {
     return (functionObject as ResourceFunction).resourceId !== undefined;
+}
+
+function labelUntitledServices(): string {
+    const label: string = `UntitledService${untitledServiceCount + 1}`;
+    untitledServiceCount++;
+    return label;
 }
