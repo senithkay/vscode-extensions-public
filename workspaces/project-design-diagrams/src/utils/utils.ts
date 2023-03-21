@@ -108,7 +108,7 @@ export function getZoomOffSet(engine: DiagramEngine): ZoomOffset {
     };
 }
 
-export function positionGatewayNodes(engine: DiagramEngine) {
+export function positionGatewayNodes(engine: DiagramEngine, consoleViewWestOffset: number) {
     const model = engine.getModel();
     const gatewayNodes: GatewayNodeModel[] = <GatewayNodeModel[]>
         (model?.getNodes()?.filter((node) => node instanceof GatewayNodeModel));
@@ -125,7 +125,7 @@ export function positionGatewayNodes(engine: DiagramEngine) {
         const canvasLeftMidX = (canvas.clientWidth * 0.006) - diagramLeftXOffset - model.getOffsetX()
             + zoomOffset.leftXOffset;
         const canvasLeftMidY = (canvas.clientHeight * 0.42) + diagramLeftYOffset - model.getOffsetY()
-            - zoomOffset.leftYOffset;
+            - zoomOffset.leftYOffset - consoleViewWestOffset;
         gatewayNodes.forEach((node) => {
             if (node.type === 'NORTH') {
                 node.setPosition(canvasTopMidX, canvasTopMidY);
@@ -224,7 +224,7 @@ export function removeGWLinks(engine: DiagramEngine) {
     });
 }
 
-export function cellDiagramZoomToFit(diagramEngine: DiagramEngine) {
+export function cellDiagramZoomToFit(diagramEngine: DiagramEngine, consoleViewWestOffset: number) {
     // Exclude gateway nodes from the zoom to fit, since we are manually positioning them after zoom to fit
     const nodesWithoutGW = diagramEngine.getModel().getNodes().filter(
         node => !(node instanceof GatewayNodeModel)
@@ -232,7 +232,7 @@ export function cellDiagramZoomToFit(diagramEngine: DiagramEngine) {
     const nodesRect = diagramEngine.getBoundingNodesRect(nodesWithoutGW);
     diagramEngine.getModel().setOffset((nodesRect.getWidth() / 2) + CELL_DIAGRAM_MARGIN_X,
         (nodesRect.getHeight() / 2) + CELL_DIAGRAM_MARGIN_Y);
-    positionGatewayNodes(diagramEngine);
+    positionGatewayNodes(diagramEngine, consoleViewWestOffset);
     diagramEngine.repaintCanvas();
 }
 

@@ -30,11 +30,13 @@ interface DiagramContextProps {
     getTypeComposition: (entityID: string) => void;
     setConnectorTarget: (service: Service) => void;
     editLayerAPI: EditLayerAPI | undefined;
+    isConsoleView: boolean;
 }
 
 interface IDiagramContext {
     editingEnabled: boolean;
     isChoreoProject: boolean;
+    isConsoleView: boolean;
     currentView: Views;
     refreshDiagram: () => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
@@ -61,6 +63,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         currentView,
         editingEnabled,
         isChoreoProject,
+        isConsoleView,
         editLayerAPI,
         refreshDiagram,
         getTypeComposition,
@@ -74,6 +77,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         currentView,
         editingEnabled,
         isChoreoProject,
+        isConsoleView,
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview
@@ -84,6 +88,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
             ...context,
             editLayerAPI,
             newComponentID,
+            isConsoleView,
             setNewComponentID,
             newLinkNodes,
             setNewLinkNodes,

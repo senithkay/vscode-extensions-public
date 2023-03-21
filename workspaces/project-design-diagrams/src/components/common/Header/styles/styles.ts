@@ -28,8 +28,7 @@ export const HeaderContainer = styled.div`
     font-family: inherit;
     height: 50px;
     justify-content: space-between;
-    min-width: 720px;
-    width: calc(100vw - 30px);
+    width: calc(100% - 30px);
 `;
 
 export const DiagramTitle = styled.div`

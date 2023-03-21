@@ -14,8 +14,10 @@
 import styled from '@emotion/styled';
 
 export const CellContainer = styled.div`
-  width: calc(100vw - 100px);
-  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
   position: relative;
   clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
   &:before {
@@ -30,22 +32,30 @@ export const CellContainer = styled.div`
 `;
 
 export const CanvasWrapper = styled.div`
-  position: absolute;
+  display: flex;
+  flex-direction: column;
+  position: relative;
   top: 1px;
   left: 1px;
-  width: calc(100vw - 100px - 2px);
-  height: calc(100vh - 100px - 2px);
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
   clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
 `;
 
+interface CellContainerProps {
+  isConsoleView?: boolean;
+}
+
 export const CellContainerWrapper = styled.div`
+  display: flex;
   position: relative;
-  width: calc(100vw - 100px);
+  left: 50px;
+  width: calc(100% - 100px);
   flex-direction: column;
   padding-top: 30px;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
   z-index: 1;
-  height: calc(100vh - 50px);
+  height: ${(props: CellContainerProps) => props.isConsoleView ? 'calc(100vh - 250px)' : 'calc(100vh - 90px)'};
 `;
 
 interface GatewayContainerProps {

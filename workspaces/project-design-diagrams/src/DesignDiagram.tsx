@@ -40,9 +40,8 @@ const Container = styled.div`
     flex-direction: column;
     font-family: GilmerRegular;
     justify-content: center;
-    min-height: 100vh;
-    min-width: 100vw;
-    position: relative;
+    height: 100%;
+    width: 100%;
 `;
 
 interface DiagramProps {
@@ -51,12 +50,15 @@ interface DiagramProps {
     getComponentModel(): Promise<Map<string, ComponentModel>>;
     showChoreoProjectOverview?: () => Promise<void>;
     editLayerAPI?: EditLayerAPI;
+    isConsoleView?: boolean;
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { isChoreoProject, isEditable, getComponentModel, showChoreoProjectOverview = undefined, editLayerAPI = undefined } = props;
+    const { isChoreoProject, isEditable, getComponentModel, showChoreoProjectOverview = undefined,
+        editLayerAPI = undefined, isConsoleView = false } = props;
 
-    const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
+    const currentViewDefaultValue = isConsoleView ? Views.CELL_VIEW : Views.L1_SERVICES;
+    const [currentView, setCurrentView] = useState<Views>(currentViewDefaultValue);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
@@ -74,13 +76,13 @@ export function DesignDiagram(props: DiagramProps) {
 
     const changeDiagramLayout = () => {
         switchLayout(layout === DagreLayout.GRAPH ? DagreLayout.TREE : DagreLayout.GRAPH);
-    }
+    };
 
     const getTypeComposition = (typeID: string) => {
         previousScreen.current = currentView;
         typeCompositionModel.current = generateCompositionModel(projectComponents, typeID);
         setCurrentView(Views.TYPE_COMPOSITION);
-    }
+    };
 
     const refreshDiagram = async () => {
         await getComponentModel().then((response) => {
@@ -91,11 +93,11 @@ export function DesignDiagram(props: DiagramProps) {
             setProjectPkgs(createRenderPackageObject(components.keys()));
             setProjectComponents(components);
         });
-    }
+    };
 
     const onConnectorWizardClose = () => {
         setConnectorTarget(undefined);
-    }
+    };
 
     // If the diagram should be rendered on edit mode, the editLayerAPI is a required prop as it contains the
     // utils required to handle the edit-mode features
@@ -104,13 +106,14 @@ export function DesignDiagram(props: DiagramProps) {
     const ctx = {
         editingEnabled,
         isChoreoProject,
+        isConsoleView,
         currentView,
         refreshDiagram,
         getTypeComposition,
         setConnectorTarget,
         showChoreoProjectOverview,
         editLayerAPI
-    }
+    };
 
     return (
         <DesignDiagramContext {...ctx}>

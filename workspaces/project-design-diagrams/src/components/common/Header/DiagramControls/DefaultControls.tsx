@@ -44,7 +44,7 @@ interface DefaultControlProps {
 
 export function DefaultControls(props: DefaultControlProps) {
     const { projectPackages, layout, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
-    const { isChoreoProject, editingEnabled, showChoreoProjectOverview } = useContext(DiagramContext);
+    const { isChoreoProject, isConsoleView, editingEnabled, showChoreoProjectOverview } = useContext(DiagramContext);
 
     const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
     const [pkgAnchorElement, setPkgAnchorElement] = useState<HTMLButtonElement>(null);
@@ -71,14 +71,16 @@ export function DefaultControls(props: DefaultControlProps) {
             />
 
             <div>
-                <IconButton
-                    className={'iconButton'}
-                    size='small'
-                    onClick={() => { updateViewDrawer(true) }}
-                >
-                    <MenuIcon fontSize='small' />
-                </IconButton>
-                {isChoreoProject && showChoreoProjectOverview &&
+                {!isConsoleView && (
+                    <IconButton
+                        className={'iconButton'}
+                        size='small'
+                        onClick={() => { updateViewDrawer(true) }}
+                    >
+                        <MenuIcon fontSize='small' />
+                    </IconButton>
+                )}
+                {!isConsoleView && isChoreoProject && showChoreoProjectOverview &&
                     <Button
                         variant='outlined'
                         size='small'

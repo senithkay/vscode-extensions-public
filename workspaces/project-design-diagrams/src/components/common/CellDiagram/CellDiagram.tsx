@@ -17,12 +17,13 @@
  *
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { CanvasWrapper, CellContainer, CellContainerWrapper } from "../DiagramContainer/style";
 import { Gateways } from "../../gateway/Gateways/Gateways";
 import { DiagramCanvasWidget } from "../DiagramCanvas/CanvasWidget";
 import { DagreLayout, Views } from "../../../resources";
 import { DiagramModel } from "@projectstorm/react-diagrams";
+import { DiagramContext } from "../DiagramContext/DiagramContext";
 
 interface CellDiagramProps {
     currentView: Views;
@@ -32,11 +33,12 @@ interface CellDiagramProps {
 
 export function CellDiagram(props: CellDiagramProps) {
     const { currentView, layout, cellModel } = props;
+    const { isConsoleView } = useContext(DiagramContext);
 
     return (
         <div>
-            <Gateways/>
-            <CellContainerWrapper >
+            <CellContainerWrapper isConsoleView={isConsoleView}>
+                <Gateways/>
                 <CellContainer>
                     <CanvasWrapper>
                         <DiagramCanvasWidget

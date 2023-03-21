@@ -54,11 +54,19 @@ let dagreEngine = new DagreEngine({
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const { model, currentView, layout, type } = props;
-    const { editingEnabled, setNewLinkNodes } = useContext(DiagramContext);
+    const { editingEnabled, setNewLinkNodes, isConsoleView } = useContext(DiagramContext);
 
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE || type === Views.TYPE_COMPOSITION ?
         createEntitiesEngine : createServicesEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
+
+    const consoleViewWestOffSet = isConsoleView ? 70 : 0;
+    let diagramClass = 'diagram-container';
+    if (type === Views.CELL_VIEW && !isConsoleView) {
+        diagramClass = 'cell-diagram-container';
+    } else if (isConsoleView) {
+        diagramClass = 'choreo-cell-diagram-container';
+    }
 
     const hideGWLinks = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
@@ -66,7 +74,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 link.fireEvent({ hide: true }, 'updateVisibility');
             }
         });
-        positionGatewayNodes(diagramEngine);
+        positionGatewayNodes(diagramEngine, consoleViewWestOffSet);
     };
 
     const showGWLinks = () => {
@@ -75,7 +83,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 link.fireEvent({ hide: false }, 'updateVisibility');
             }
         });
-        positionGatewayNodes(diagramEngine);
+        positionGatewayNodes(diagramEngine, consoleViewWestOffSet);
     };
 
     const onDiagramMoveStarted = debounce(() => {
@@ -146,7 +154,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 const hasGwNode = diagramEngine.getModel().getNodes().find(node => (node instanceof GatewayNodeModel));
                 // Adding GW links and nodes after dagre distribution
                 addGWNodesModel(diagramEngine, !hasGwNode);
-                positionGatewayNodes(diagramEngine);
+                positionGatewayNodes(diagramEngine, consoleViewWestOffSet);
             }
             zoomToFit();
         }, 30);
@@ -154,7 +162,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const redrawDiagram = () => {
         if (type === Views.CELL_VIEW) {
-            positionGatewayNodes(diagramEngine);
+            positionGatewayNodes(diagramEngine, consoleViewWestOffSet);
         }
         diagramEngine.repaintCanvas();
     };
@@ -168,7 +176,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
         if (type === Views.CELL_VIEW) {
-            cellDiagramZoomToFit(diagramEngine);
+            cellDiagramZoomToFit(diagramEngine, consoleViewWestOffSet);
         }
     };
 
@@ -197,7 +205,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                     onMouseDown={type === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
                     onMouseUp={type === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
                 >
-                    <CanvasWidget engine={diagramEngine} className={'diagram-container'} />
+                    <CanvasWidget engine={diagramEngine} className={diagramClass} />
                 </div>
             }
 
