@@ -6,7 +6,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, "build"),
         filename: "NotebookRenderer.js",
-        libraryTarget: "module",
+        libraryTarget: "umd",
     },
     resolve: {
         extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
@@ -14,9 +14,6 @@ module.exports = {
             react: "preact/compat",
             "react-dom": "preact/compat",
         },
-    },
-    experiments: {
-        outputModule: true,
     },
     module: {
         rules: [

@@ -1,6 +1,5 @@
 const path = require("path");
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 module.exports = {
   entry: "./src/components/index.tsx",
   target: "web",
@@ -13,7 +12,6 @@ module.exports = {
   resolve: {
     mainFields: ['browser', 'main', 'module'],
     extensions: [".mjs", ".js", ".json", ".ts", ".tsx",],
-    preferRelative: false,
   },
   module: {
     rules: [
@@ -24,11 +22,8 @@ module.exports = {
       {
         test: /\.m?js$/,
         type: "javascript/auto",
-      },
-      {
-        test: /\.m?js/,
         resolve: {
-          fullySpecified: false,
+          fullySpecified: false
         },
       },
       {
@@ -57,9 +52,6 @@ module.exports = {
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
-    }),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "src", "components", "index.html"),
     }),
   ],
 };

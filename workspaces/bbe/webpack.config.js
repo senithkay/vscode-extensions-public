@@ -56,7 +56,7 @@ module.exports = {
     },
     watchOptions: {
         ignored: [
-            /build/
+            "/build/"
         ]
     },
     devServer: {
@@ -68,9 +68,11 @@ module.exports = {
         }
     },
     plugins: [
-        new CopyWebpackPlugin([
-            { context: path.resolve(__dirname, 'theme'), from: 'lib', to: 'themes' }
-        ])
+        new CopyWebpackPlugin({
+            patterns: [
+                { context: path.resolve(__dirname, 'theme'), from: 'lib', to: 'themes' }
+            ]
+        })
     ],
     devtool: 'source-map',
     optimization: {

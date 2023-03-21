@@ -244,10 +244,10 @@ export function Marketplace(props: MarketplaceProps) {
     const loadingScreen = (
         <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
             <Grid item={true} sm={12}>
-                <Box display="flex" justifyContent="center">
+                <Box sx={{ display: "flex", justifyContent: "center" }}>
                     <CircularProgress data-testid="marketplace-search-loader" />
                 </Box>
-                <Box display="flex" justifyContent="center" mt={2}>
+                <Box sx={{ display: "flex", justifyContent: "center" }}>
                     <Typography variant="body1">Loading {shortName}...</Typography>
                 </Box>
             </Grid>
@@ -257,7 +257,7 @@ export function Marketplace(props: MarketplaceProps) {
     const notFoundComponent = (
         <Grid sm={12} item={true} container={true} className={classes.msgContainer}>
             <Grid item={true} sm={12}>
-                <Box display="flex" justifyContent="center">
+                <Box sx={{ display: "flex", justifyContent: "center" }}>
                     <Typography variant="body1">No {shortName.toLocaleLowerCase()} found.</Typography>
                 </Box>
             </Grid>
@@ -280,7 +280,7 @@ export function Marketplace(props: MarketplaceProps) {
             {centralModules.current.size > 0 && renderModulesList(centralModuleComponents)}
             {isNextPageFetching && (
                 <Grid item={true} sm={12} className={classes.balModuleSectionWrap}>
-                    <Box display="flex" justifyContent="center" alignItems="center">
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <CircularProgress data-testid="marketplace-next-page-loader" size={20} />
                         <Typography variant="body1" className={classes.pageLoadingText}>
                             Loading more {shortName}...
@@ -295,7 +295,7 @@ export function Marketplace(props: MarketplaceProps) {
 
     const selectedCategoriesChips = (
         <Grid sm={12} item={true} container={true} className={classes.filterTagWrap}>
-            <Box display="flex" justifyContent="center" alignItems="center" className={classes.filterTag}>
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", className: classes.filterTag }}>
                 <Typography variant="body1">{selectedCategory}</Typography>
                 <IconButton className={classes.filterRemoveBtn} onClick={clearCategory}>
                     <CloseRounded fontSize="small" />

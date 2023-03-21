@@ -88,7 +88,7 @@ function FilterByMenu(props: FilterByMenuProps) {
                                 <CustomCheckbox
                                     id={node.id}
                                     checked={filterState[node.name] ? filterState[node.name] : false}
-                                    onChange={(event) => handleChange(event, node.value)}
+                                    onChange={(event: any) => handleChange(event, node.value)}
                                     name={node.name}
                                     value={node.value}
                                 />
