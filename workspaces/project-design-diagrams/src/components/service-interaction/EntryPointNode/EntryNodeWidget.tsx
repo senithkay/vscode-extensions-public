@@ -52,11 +52,12 @@ export function EntryNodeWidget(props: EntryNodeProps) {
         setIsHovered(task === 'SELECT' ? true : false);
     }
 
-    var displayName = node.getID();
-    const displayNameSplitted = displayName.split('/');
-    if (displayNameSplitted.length > 1) {
-        displayName = displayNameSplitted[1].split(":")[0];
+    const processPackageName = (): string => {
+        const packageNameWithVersion: string = node.getID().slice(node.getID().indexOf('/') + 1);
+        return packageNameWithVersion.slice(0, packageNameWithVersion.lastIndexOf(':'));
     }
+
+    const displayName: string = node.entryPoint.annotation.label || processPackageName();
 
     return (
         <Container
@@ -69,12 +70,12 @@ export function EntryNodeWidget(props: EntryNodeProps) {
                 port={node.getPort(`left-${node.getID()}`)}
                 engine={engine}
             />
-                <EntryPointIcon />
-                <DisplayName>{displayName}</DisplayName>
-                {isHovered && node.elementLocation && editingEnabled &&
+            <EntryPointIcon />
+            <DisplayName>{displayName}</DisplayName>
+                {isHovered && node.entryPoint.elementLocation && editingEnabled &&
                     <NodeMenuWidget
                         background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
-                        location={node.elementLocation}
+                        location={node.entryPoint.elementLocation}
                     />
                 }
             <ServicePortWidget

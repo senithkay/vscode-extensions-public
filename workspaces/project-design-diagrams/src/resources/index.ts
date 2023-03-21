@@ -27,6 +27,7 @@ export type {
     Dependency,
     EditLayerAPI,
     Entity,
+    EntryPoint,
     Interaction,
     Location,
     RemoteFunction,

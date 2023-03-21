@@ -37,7 +37,7 @@ interface PackageID {
 }
 
 export interface EntryPoint {
-    id: string;
+    annotation: DisplayAnnotation;
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
@@ -45,7 +45,7 @@ export interface EntryPoint {
 }
 
 export interface Service {
-    annotation: ServiceAnnotation;
+    annotation: DisplayAnnotation;
     path: string;
     serviceId: string;
     resources: ResourceFunction[];
@@ -56,7 +56,7 @@ export interface Service {
     elementLocation: Location;
 }
 
-interface ServiceAnnotation {
+interface DisplayAnnotation {
     id: string;
     label: string;
 }

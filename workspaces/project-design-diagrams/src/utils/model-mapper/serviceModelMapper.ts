@@ -111,14 +111,13 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
             });
 
             if (packageModel.entryPoint) {
-                const { elementLocation, id } = packageModel.entryPoint;
-                const l1EntryNode = new EntryNodeModel(id || packageName, Level.ONE, elementLocation);
+                const l1EntryNode = new EntryNodeModel(packageName, packageModel.entryPoint, Level.ONE);
                 l1EntryNodes.set(packageName, l1EntryNode);
 
-                const cellEntryNode = new EntryNodeModel(id || packageName, Level.ONE, elementLocation);
+                const cellEntryNode = new EntryNodeModel(packageName, packageModel.entryPoint, Level.ONE);
                 cellEntryNodes.set(packageName, cellEntryNode);
 
-                const l2EntryNode = new EntryNodeModel(id || packageName, Level.TWO, elementLocation);
+                const l2EntryNode = new EntryNodeModel(packageName, packageModel.entryPoint, Level.TWO);
                 l2EntryNodes.set(packageName, l2EntryNode);
             }
         }
