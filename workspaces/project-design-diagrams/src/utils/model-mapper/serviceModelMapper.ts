@@ -18,12 +18,13 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { v4, validate } from 'uuid';
+import { v4 as uuid, validate as validateUUID } from 'uuid';
 import {
-    ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels,
-    ServiceTypes
+    ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes
 } from '../../resources';
-import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
+import {
+    EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel
+} from '../../components/service-interaction';
 import { extractGateways } from "../utils";
 
 type ServiceNodeModels = ServiceNodeModel | EntryNodeModel;
@@ -41,7 +42,7 @@ let l1Links: Map<string, ServiceLinkModel>;
 let l2Links: ServiceLinkModel[];
 let cellLinks: Map<string, ServiceLinkModel>;
 
-let untitledServiceCount: number;
+let untrackedPkgComponents: string[];
 
 export function serviceModeller(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>): ServiceModels {
     l1Nodes = new Map<string, ServiceNodeModel>();
@@ -57,8 +58,6 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l1Links = new Map<string, ServiceLinkModel>();
     cellLinks = new Map<string, ServiceLinkModel>();
     l2Links = []
-
-    untitledServiceCount = 0;
 
     // convert services to nodes
     generateNodes(projectComponents, projectPackages);
@@ -95,20 +94,21 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
 function generateNodes(projectComponents: Map<string, ComponentModel>, projectPackages: Map<string, boolean>) {
     projectPackages.forEach((shouldRender, packageName) => {
         if (shouldRender && projectComponents.has(packageName)) {
+            untrackedPkgComponents = [];
             const packageModel: ComponentModel = projectComponents.get(packageName);
             const services: Map<string, Service> = new Map(Object.entries(packageModel.services));
             services.forEach((service) => {
                 if (!service.serviceId) {
-                    service.serviceId = v4();
+                    service.serviceId = uuid();
                     service.annotation = {
-                        label: labelUntitledServices(),
+                        label: generateLabels(packageModel.packageId.name, service.serviceId),
                         id: service.serviceId
                     };
                 }
 
-                if (!service.path && (!service.annotation.label || validate(service.annotation.label)) &&
-                    validate(service.annotation.id)) {
-                    service.annotation.label = labelUntitledServices();
+                if (!service.path && (!service.annotation.label || validateUUID(service.annotation.label))
+                    && validateUUID(service.annotation.id)) {
+                    service.annotation.label = generateLabels(packageModel.packageId.name, service.serviceId);
                 }
 
                 // create the L1 service nodes
@@ -404,8 +404,14 @@ function isResource(functionObject: ResourceFunction | RemoteFunction): function
     return (functionObject as ResourceFunction).resourceId !== undefined;
 }
 
-function labelUntitledServices(): string {
-    const label: string = `UntitledService${untitledServiceCount + 1}`;
-    untitledServiceCount++;
+function generateLabels(packageName: string, serviceId: string): string {
+    if (untrackedPkgComponents.length === 1 && l1Nodes.has(untrackedPkgComponents[0]) &&
+        l2Nodes.has(untrackedPkgComponents[0]) && cellNodes.has(untrackedPkgComponents[0])) {
+        l1Nodes.get(untrackedPkgComponents[0]).serviceObject.annotation.label = `${packageName} Component1`;
+        l2Nodes.get(untrackedPkgComponents[0]).serviceObject.annotation.label = `${packageName} Component1`;
+        cellNodes.get(untrackedPkgComponents[0]).serviceObject.annotation.label = `${packageName} Component1`;
+    }
+    const label: string = `${packageName} Component${untrackedPkgComponents.length > 0 ? untrackedPkgComponents.length + 1 : ''}`;
+    untrackedPkgComponents.push(serviceId);
     return label;
 }
