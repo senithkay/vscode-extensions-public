@@ -262,5 +262,27 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
     title: 'Configure Repository',
     component: ConfigureRepoStepC,
-    validationRules: []
+    validationRules: [
+        {
+            field: 'repository',
+            message: 'Repository is not cloned. Please clone the repository to continue.',
+            rule: async (value: any, formData, context) => {
+                const {  isChoreoProject, choreoProject }  = context;
+                if (choreoProject && formData?.repository?.repo && isChoreoProject) {
+                    const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(choreoProject.id);
+                    if (projectPath) {
+                        const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
+                            repository: `${formData?.repository?.org}/${formData?.repository?.repo}`,
+                            workspaceFilePath: projectPath,
+                            // TODO: Handle this properly from the backend
+                            // Currently, backend is not validating the branch name
+                            branch: formData?.repository?.branch || "main"
+                        });
+                        return isCloned;
+                    }
+                }
+                return false;
+            }
+        },
+    ]
 };
