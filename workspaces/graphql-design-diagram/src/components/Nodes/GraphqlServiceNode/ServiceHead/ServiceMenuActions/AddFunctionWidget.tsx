@@ -12,14 +12,16 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
-import { IconButton, Tooltip } from "@material-ui/core";
+import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../../../../resources/model";
+
+import { useStyles } from "./styles";
 
 interface AddFunctionWidgetProps {
     position: Position;
@@ -30,7 +32,7 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
     const { position, functionType } = props;
     const { functionPanel, model } = useContext(DiagramContext);
 
-    const [isHovered, setIsHovered] = useState<boolean>(false);
+    const classes = useStyles();
 
     const openFunctionPanel = () => {
         if (STKindChecker.isServiceDeclaration(model)) {
@@ -73,31 +75,12 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
     return (
         <>
             {position &&
-            <>
-                <Tooltip
-                    open={isHovered}
-                    onClose={() => setIsHovered(false)}
-                    title={popupTitle()}
-                    arrow={true}
-                    placement="right"
-                >
-                    <IconButton
-                        onClick={() => openFunctionPanel()}
-                        onMouseOver={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                        style={{
-                            backgroundColor: isHovered ? '#ffaf4d' : '',
-                            borderRadius: '50%',
-                            color: isHovered ? 'whitesmoke' : '#ffaf4d',
-                            cursor: 'pointer',
-                            fontSize: '22px',
-                            padding: '2px'
-                        }}
-                    >
+                <MenuItem onClick={() => openFunctionPanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                    <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
                         {popupIcon()}
-                    </IconButton>
-                </Tooltip>
-            </>
+                    </ListItemIcon>
+                    <ListItemText className={classes.listItemText}>{popupTitle()}</ListItemText>
+                </MenuItem>
             }
         </>
     );
