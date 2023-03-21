@@ -57,7 +57,7 @@ export function EntryNodeWidget(props: EntryNodeProps) {
         return packageNameWithVersion.slice(0, packageNameWithVersion.lastIndexOf(':'));
     }
 
-    const displayName: string = node.entryPoint.annotation.label || processPackageName();
+    const displayName: string = node.entryPoint.annotation?.label || processPackageName();
 
     return (
         <Container
