@@ -29,6 +29,7 @@ export interface ComponentWizardState {
     choreoType: ChoreoComponentType;
     accessibility: ComponentAccessibility;
     repository: {
+        isCloned?: boolean;
         org?: string;
         repo?: string;
         branch?: string;
@@ -38,6 +39,7 @@ export interface ComponentWizardState {
     };
     version: string;
     cache: {
-        authorizedOrgs: GithubOrgnization[]
+        authorizedOrgs?: GithubOrgnization[],
+        branches?: Map<string, string[]>
     };
 }

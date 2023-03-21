@@ -13,8 +13,9 @@
 
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { ComponentWizardState } from "../types";
 
 const GhRepoBranhSelectorContainer = styled.div`
     display  : flex;
@@ -23,46 +24,78 @@ const GhRepoBranhSelectorContainer = styled.div`
     width: 200px;
 `;
 
+function getDefaultBranch(branches: string[], branch?: string): string {
+    if (!branch) {
+        if (branches.includes('main')) {
+            return 'main';
+        } else if (branches.includes('master')) {
+            return 'master';
+        }
+        return branches[0];
+    }
+    return branches.includes(branch) ? branch : getDefaultBranch(branches);
+}
+
 export interface GithubRepoBranchSelectorProps {
-    repository: string;
-    selectedBranch?: string;
-    onBranchSelected: (branch: string) => void;
+    formData: Partial<ComponentWizardState>;
+    onFormDataChange: (formData: Partial<ComponentWizardState>) => void;
 }
 
 export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
-    const { repository, selectedBranch, onBranchSelected } = props;
+    const { formData, onFormDataChange } = props;
+    const { org, repo, branch } = formData?.repository || {};
 
     const [updatingBranchList, setUpdatingBranchList] = useState<boolean>(false);
-    const [repoBranchList, setRepoBranchList] = useState<string[]>([]);
+
+    const repoId = `${org}/${repo}`;
+
+    const repoBranchList = formData?.cache?.branches?.get(repoId) || [];
+
+    const refreshBranchList = useCallback(async (forceReload: boolean = false) => {
+            setUpdatingBranchList(true);
+            const branchesCache: Map<string, string[]> = formData?.cache?.branches || new Map();
+            if (org && repo) {
+                let repoBranches = branchesCache.get(repoId);
+                if (forceReload || !repoBranches || repoBranches.length === 0) {
+                    try {
+                        repoBranches = await ChoreoWebViewAPI.getInstance()
+                            .getChoreoGithubAppClient()
+                            .getRepoBranches(org, repo);
+                        branchesCache.set(repoId, repoBranches);
+                    } catch (error: any) {
+                        ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
+                    }
+                }
+                if (!repoBranches) {
+                    return;
+                }
+                const defaultBranch = getDefaultBranch(repoBranches, branch);
+                onFormDataChange({
+                    repository: { ...formData.repository, branch: defaultBranch },
+
+                    cache: { 
+                        ...formData.cache,
+                        branches: branchesCache
+                    }
+                });
+            }
+            setUpdatingBranchList(false);
+    }, [org, repo, branch]);
 
     useEffect(() => {
-        setUpdatingBranchList(true);
-        async function updateBranchList() {
-            const repoSplit = repository.split('/');
-            if (repository && repoSplit.length === 2) {
-                try {
-                    const branches = await ChoreoWebViewAPI.getInstance()
-                        .getChoreoGithubAppClient()
-                        .getRepoBranches(repoSplit[0], repoSplit[1]);
-                    setRepoBranchList(branches);
-                    setUpdatingBranchList(false);
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-        }
-        updateBranchList();
-    }, [repository]);
+        refreshBranchList();
+    }, [org, repo, refreshBranchList]);
 
     const handleBranchChange = (event: any) => {
-        onBranchSelected(event.target.value);
+        const repository = { ...formData.repository, branch: event.target.value };
+        onFormDataChange({ repository });
     };
 
     return (
         <GhRepoBranhSelectorContainer>
             <label htmlFor="branch-drop-down">Branch</label>
             {!updatingBranchList && repoBranchList.length > 0 && (
-                <VSCodeDropdown id="branch-drop-down" value={selectedBranch} onChange={handleBranchChange}>
+                <VSCodeDropdown id="branch-drop-down" value={branch} onChange={handleBranchChange}>
                     {repoBranchList.map((branch) => (
                         <VSCodeOption
                             key={branch}
