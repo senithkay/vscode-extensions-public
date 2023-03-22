@@ -1,10 +1,10 @@
-// tslint:disable: jsx-no-lambda jsx-no-multiline-js
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
 import { Button, FormHelperText, LinearProgress, TextField } from "@material-ui/core";
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete'
-import { TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { CheckBoxGroup, TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import { useStyles as useFormStyles } from "../../themes";
@@ -26,7 +26,8 @@ export interface TypeBrowserProps {
     isLoading: boolean;
     recordCompletions: CompletionResponseWithModule[];
     createNew: (newType: string) => void;
-    diagnostics: StatementSyntaxDiagnostics[]
+    diagnostics: StatementSyntaxDiagnostics[];
+    isGraphqlForm?: boolean;
 }
 
 export interface CompletionResponseWithModule extends SuggestionItem {
@@ -34,7 +35,7 @@ export interface CompletionResponseWithModule extends SuggestionItem {
 }
 
 function TypeBrowserC(props: TypeBrowserProps) {
-    const { type, diagnostics, onChange, isLoading, recordCompletions, createNew } = props;
+    const { type, diagnostics, onChange, isLoading, recordCompletions, createNew, isGraphqlForm } = props;
     const [selectedTypeStr, setSelectedTypeStr] = useState(type ? type : '');
 
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState("");
@@ -58,6 +59,19 @@ function TypeBrowserC(props: TypeBrowserProps) {
         }
         recordCompletions.push(completion);
         createNew(validName);
+        setSelectedTypeStr(selectedTypeStr);
+        setExpressionDiagnosticMsg("");
+    }
+
+    const handleCreatingNewConstruct = (nodeType : ConstructType) => {
+        const validName = selectedTypeStr.replace(/[\])}[{(]/g, '');
+        let codeSnippet : string = "";
+        if (nodeType === ConstructType.RECORD_CONSTRUCT) {
+            codeSnippet = `type ${validName} record {};`;
+        } else if (nodeType === ConstructType.CLASS_CONSTRUCT) {
+            codeSnippet = `service class ${validName} {}`
+        }
+        createNew(codeSnippet);
         setSelectedTypeStr(selectedTypeStr);
         setExpressionDiagnosticMsg("");
     }
@@ -113,7 +127,12 @@ function TypeBrowserC(props: TypeBrowserProps) {
             {isLoading && <LinearProgress />}
             {selectedTypeStr && expressionDiagnosticMsg && (
                 <>
-                    {<DiagnosticView handleCreateNew={handleCreateNew} message={expressionDiagnosticMsg} />}
+                    {<DiagnosticView
+                        handleCreateNew={handleCreateNew}
+                        message={expressionDiagnosticMsg}
+                        isGraphqlForm={isGraphqlForm ? isGraphqlForm : false}
+                        createNewConstruct={handleCreatingNewConstruct}
+                    />}
                 </>
             )
             }
@@ -121,17 +140,52 @@ function TypeBrowserC(props: TypeBrowserProps) {
     );
 }
 
-function DiagnosticView(props: { handleCreateNew: () => void, message: string }) {
-    const { message, handleCreateNew } = props;
+enum ConstructType {
+    RECORD_CONSTRUCT = "Create Record",
+    CLASS_CONSTRUCT = "Create Class"
+}
+
+function DiagnosticView(props: { handleCreateNew: () => void, message: string, isGraphqlForm?: boolean, createNewConstruct?: (constructType: ConstructType) => void }) {
+    const { message, handleCreateNew, isGraphqlForm, createNewConstruct} = props;
     const formClasses = useFormStyles();
 
+    const [selectedOption, setSelectedOption] = useState<string[]>(undefined);
+
+    const handleConstructOption = async (mode: string[]) => {
+        setSelectedOption(mode);
+        createNewConstruct(mode[0] as ConstructType);
+    }
+
     return (
-        <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
-            <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
-                {truncateDiagnosticMsg(message)}
-                <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>
-            </FormHelperText>
-        </TooltipCodeSnippet>
+        <>
+            {!isGraphqlForm ? (
+                <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
+                    <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
+                        {truncateDiagnosticMsg(message)}
+                        <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>
+                    </FormHelperText>
+                </TooltipCodeSnippet>
+                ) : (
+                <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
+                    <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
+                        {truncateDiagnosticMsg(message)}
+                        <CheckBoxGroup
+                            // className={classes.subType}
+                            values={[ConstructType.RECORD_CONSTRUCT, ConstructType.CLASS_CONSTRUCT]}
+                            defaultValues={selectedOption ? selectedOption : []}
+                            onChange={handleConstructOption}
+                        />
+                    </FormHelperText>
+                </TooltipCodeSnippet>
+                )
+            }
+        </>
+        // <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
+        //     <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
+        //         {truncateDiagnosticMsg(message)}
+        //         <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>
+        //     </FormHelperText>
+        // </TooltipCodeSnippet>
     );
 }
 

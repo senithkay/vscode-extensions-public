@@ -45,7 +45,9 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
             ls: { getExpressionEditorLangClient }
         },
         props: {
-            currentFile
+            currentFile,
+            syntaxTree,
+            fullST
         }
     } = useContext(Context);
 
@@ -69,6 +71,8 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
                 getLangClient={getExpressionEditorLangClient}
                 applyModifications={modifyDiagram}
                 topLevelComponent={true} // todo: Remove this
+                syntaxTree={syntaxTree}
+                fullST={fullST}
             />
         </>
     );

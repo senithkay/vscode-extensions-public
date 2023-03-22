@@ -34,6 +34,7 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
+import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
@@ -41,7 +42,13 @@ import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from "../../InputEditor/constants";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
-import { createNewRecord, generateParameterSectionString, getParamString, getResourcePath } from "../ResourceForm/util";
+import {
+    createNewConstruct,
+    createNewRecord,
+    generateParameterSectionString,
+    getParamString,
+    getResourcePath
+} from "../ResourceForm/util";
 
 import { ParameterEditor } from "./ParameterEditor/ParameterEditor";
 import { FunctionParameter, ParameterField } from "./ParameterEditor/ParameterField";
@@ -98,14 +105,20 @@ export function GraphqlResourceForm(props: FunctionProps) {
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
         setReturnType(value);
-        await handleResourceParamChange(
-            model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
-            generateParameterSectionString(model?.functionSignature?.parameters),
-            value,
-            model.functionSignature?.returnTypeDesc?.type,
-            value
-        );
+
+        const returnTypeChange =  debounce(async () => {
+            await handleResourceParamChange(
+                model.functionName.value,
+                getResourcePath(model.relativeResourcePath),
+                generateParameterSectionString(model?.functionSignature?.parameters),
+                value,
+                model.functionSignature?.returnTypeDesc?.type,
+                value
+            );
+        }, 500);
+
+        returnTypeChange();
+
     };
 
     const onReturnFocus = async () => {
@@ -355,14 +368,18 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     };
 
-    const createRecord = (newRecord: string) => {
-        if (newRecord) {
-            createNewRecord(newRecord, syntaxTree, applyModifications)
-            setNewlyCreatedRecord(newRecord);
+    const createConstruct = (newCodeSnippet: string) => {
+        if (newCodeSnippet) {
+            createNewConstruct(newCodeSnippet, fullST, applyModifications)
+            setNewlyCreatedRecord(returnType);
         }
     }
 
     const formContent = () => {
+        // tslint:disable-next-line:no-console
+        console.log("=====LOGG" , model)
+        // tslint:disable-next-line:no-console
+        console.log("=====ST" , fullST)
         return (
             <>
                 <div className={connectorClasses.formContentWrapper}>
@@ -439,8 +456,9 @@ export function GraphqlResourceForm(props: FunctionProps) {
                             onChange={onReturnTypeChange}
                             isLoading={false}
                             recordCompletions={completions.filter((completion) => completion.kind !== "Module")}
-                            createNew={createRecord}
+                            createNew={createConstruct}
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                            isGraphqlForm={true}
                         />
                         {/*<LiteExpressionEditor*/}
                         {/*    testId={"return-type"}*/}
@@ -457,6 +475,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
                         {/*/>*/}
                     </div>
                 </div>
+
                 <FormActionButtons
                     cancelBtnText="Cancel"
                     cancelBtn={true}
@@ -464,7 +483,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
                     onSave={handleOnSave}
                     onCancel={onCancel}
                     validForm={!(model?.functionSignature?.viewState?.diagnosticsInRange?.length > 0)
-                    && !(model?.functionName?.viewState?.diagnosticsInRange?.length > 0)
                     && !(currentComponentSyntaxDiag?.length > 0)}
                 />
             </>
