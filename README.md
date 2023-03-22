@@ -59,7 +59,7 @@ rush build -o @wso2-enterprise/ballerina-low-code-editor
 To add a new package to the mono-repo, you can use the following command:
 
 ```bash
-rush add --p <package-name> 
+rush add -p <package-name> 
 ```
 
 Replace <package-name> with the name of the package you want to add. If `-m` argument passed, other packages with this dependency will have their package.json files updated to use the same version of the dependency
