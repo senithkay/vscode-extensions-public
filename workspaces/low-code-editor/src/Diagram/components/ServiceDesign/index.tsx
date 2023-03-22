@@ -14,7 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 
-import { ArrowBack } from "@material-ui/icons";
+import { Grid, Typography } from "@material-ui/core";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ConfigOverlayFormStatus, SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ComponentExpandButton, LinePrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -35,7 +35,6 @@ import { ResourceBody } from "./Resource";
 import { ServiceHeader } from "./ServiceHeader";
 import { useStyles } from "./style";
 import "./style.scss";
-import { Grid, Typography } from "@material-ui/core";
 
 export interface ServiceDesignProps {
     model: STNode;
