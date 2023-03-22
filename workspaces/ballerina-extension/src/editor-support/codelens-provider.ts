@@ -119,109 +119,109 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             return codeLenses;
         }
 
-            const activeEditorUri = this.activeTextEditorUri ? this.activeTextEditorUri
-                : window.activeTextEditor!.document.uri;
-            const fileUri = activeEditorUri.toString();
-            await langClient!.getExecutorPositions({
-                documentIdentifier: {
-                    uri: fileUri
-                }
-            }).then(executorsResponse => {
-                const response = executorsResponse as ExecutorPositionsResponse;
-                if (response.executorPositions) {
-                    response.executorPositions.forEach(position => {
-                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
-                        codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
+        const activeEditorUri = this.activeTextEditorUri ? this.activeTextEditorUri
+            : window.activeTextEditor!.document.uri;
+        const fileUri = activeEditorUri.toString();
+        await langClient!.getExecutorPositions({
+            documentIdentifier: {
+                uri: fileUri
+            }
+        }).then(executorsResponse => {
+            const response = executorsResponse as ExecutorPositionsResponse;
+            if (response.executorPositions) {
+                response.executorPositions.forEach(position => {
+                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
+                    codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
 
-                        if (position.kind === 'source' && position.name !== 'main') {
-                            const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
-                            const range: Position = {
-                                startLine: position.range.startLine.line, startColumn: position.range.startLine.offset,
-                                endLine: position.range.endLine.line, endColumn: position.range.endLine.offset
-                            };
-                            codeLens.command = {
-                                title: "Try it",
-                                tooltip: "Try running this service",
-                                command: PALETTE_COMMANDS.TRY_IT,
-                                arguments: [fileUri, position.name, range]
-                            };
-                            codeLenses.push(codeLens);
-                        }
-                    });
-                }
-            }, _error => {
-                return codeLenses;
-            });
+                    if (position.kind === 'source' && position.name !== 'main') {
+                        const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
+                        const range: Position = {
+                            startLine: position.range.startLine.line, startColumn: position.range.startLine.offset,
+                            endLine: position.range.endLine.line, endColumn: position.range.endLine.offset
+                        };
+                        codeLens.command = {
+                            title: "Try it",
+                            tooltip: "Try running this service",
+                            command: PALETTE_COMMANDS.TRY_IT,
+                            arguments: [fileUri, position.name, range]
+                        };
+                        codeLenses.push(codeLens);
+                    }
+                });
+            }
+        }, _error => {
+            return codeLenses;
+        });
 
-            // Open in diagram code lenses
-            await langClient!.getSyntaxTree({
-                documentIdentifier: {
-                    uri: fileUri
-                }
-            }).then(syntaxTreeResponse => {
-                const response = syntaxTreeResponse as GetSyntaxTreeResponse;
-                if (response.parseSuccess && response.syntaxTree) {
-                    const syntaxTree = response.syntaxTree;
+        // Open in diagram code lenses
+        await langClient!.getSyntaxTree({
+            documentIdentifier: {
+                uri: fileUri
+            }
+        }).then(syntaxTreeResponse => {
+            const response = syntaxTreeResponse as GetSyntaxTreeResponse;
+            if (response.parseSuccess && response.syntaxTree) {
+                const syntaxTree = response.syntaxTree;
 
-                    syntaxTree.members.forEach((member: STNode) => {
-                        if (STKindChecker.isFunctionDefinition(member)) {
-                            const position = member.functionName.position;
-                            const codeLens = new CodeLens(new Range(
-                                position.startLine,
-                                position.startColumn,
-                                position.endLine,
-                                position.endColumn
-                            ));
-                            codeLens.command = {
-                                title: "Visualize",
-                                tooltip: "Open this code block in low code view",
-                                command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                arguments: [activeEditorUri.fsPath, member.position]
-                            };
-                            codeLenses.push(codeLens);
-                        } else if (STKindChecker.isServiceDeclaration(member)) {
-                            const position = member.serviceKeyword.position;
-                            const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
-                            codeLens.command = {
-                                title: "Visualize",
-                                tooltip: "Open this code block in low code view",
-                                command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                arguments: [activeEditorUri.fsPath, member.position]
-                            };
-                            codeLenses.push(codeLens);
+                syntaxTree.members.forEach((member: STNode) => {
+                    if (STKindChecker.isFunctionDefinition(member)) {
+                        const position = member.functionName.position;
+                        const codeLens = new CodeLens(new Range(
+                            position.startLine,
+                            position.startColumn,
+                            position.endLine,
+                            position.endColumn
+                        ));
+                        codeLens.command = {
+                            title: "Visualize",
+                            tooltip: "Open this code block in low code view",
+                            command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                            arguments: [activeEditorUri.fsPath, member.position]
+                        };
+                        codeLenses.push(codeLens);
+                    } else if (STKindChecker.isServiceDeclaration(member)) {
+                        const position = member.serviceKeyword.position;
+                        const codeLens = new CodeLens(new Range(position.startLine, 0, position.endLine, 0));
+                        codeLens.command = {
+                            title: "Visualize",
+                            tooltip: "Open this code block in low code view",
+                            command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                            arguments: [activeEditorUri.fsPath, member.position]
+                        };
+                        codeLenses.push(codeLens);
 
-                            member.members.forEach(serviceMember => {
-                                if (STKindChecker.isObjectMethodDefinition(serviceMember)) {
-                                    const functionPosition = serviceMember.functionKeyword.position;
-                                    const codeLens = new CodeLens(
-                                        new Range(functionPosition.startLine, 0, functionPosition.endLine, 0)
-                                    );
-                                    codeLens.command = {
-                                        title: "Visualize",
-                                        tooltip: "Open this code block in low code view",
-                                        command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                        arguments: [activeEditorUri.fsPath, serviceMember.position]
-                                    };
-                                    codeLenses.push(codeLens);
-                                } else if (STKindChecker.isResourceAccessorDefinition(serviceMember)) {
-                                    const resourcePosition = serviceMember.qualifierList[0].position;
-                                    const codeLens = new CodeLens(
-                                        new Range(resourcePosition.startLine, 0, resourcePosition.endLine, 0)
-                                    );
-                                    codeLens.command = {
-                                        title: "Visualize",
-                                        tooltip: "Open this code block in low code view",
-                                        command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
-                                        arguments: [activeEditorUri.fsPath, serviceMember.position]
-                                    };
-                                    codeLenses.push(codeLens);
-                                }
-                            })
-                        }
-                    });
-                }
+                        member.members.forEach(serviceMember => {
+                            if (STKindChecker.isObjectMethodDefinition(serviceMember)) {
+                                const functionPosition = serviceMember.functionKeyword.position;
+                                const codeLens = new CodeLens(
+                                    new Range(functionPosition.startLine, 0, functionPosition.endLine, 0)
+                                );
+                                codeLens.command = {
+                                    title: "Visualize",
+                                    tooltip: "Open this code block in low code view",
+                                    command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                    arguments: [activeEditorUri.fsPath, serviceMember.position]
+                                };
+                                codeLenses.push(codeLens);
+                            } else if (STKindChecker.isResourceAccessorDefinition(serviceMember)) {
+                                const resourcePosition = serviceMember.qualifierList[0].position;
+                                const codeLens = new CodeLens(
+                                    new Range(resourcePosition.startLine, 0, resourcePosition.endLine, 0)
+                                );
+                                codeLens.command = {
+                                    title: "Visualize",
+                                    tooltip: "Open this code block in low code view",
+                                    command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                    arguments: [activeEditorUri.fsPath, serviceMember.position]
+                                };
+                                codeLenses.push(codeLens);
+                            }
+                        })
+                    }
+                });
+            }
 
-            });
+        });
 
         return codeLenses;
     }
