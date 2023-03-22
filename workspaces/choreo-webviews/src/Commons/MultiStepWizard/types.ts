@@ -24,7 +24,7 @@ export interface WizardState<T> {
 export interface StepProps<T> {
     formData: T;
     stepValidationErrors: Record<keyof T, string>;
-    onFormDataChange: (formData: T) => Promise<void>;
+    onFormDataChange: (formDataUpdater: (prevFormData: T) => T) => Promise<void>;
 }
 
 export interface Step<T> {

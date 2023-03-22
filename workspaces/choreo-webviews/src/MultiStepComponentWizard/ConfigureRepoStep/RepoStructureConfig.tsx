@@ -30,7 +30,7 @@ const StepContainer = styled.div`
 
 export interface RepoStructureConfigProps {
     formData: Partial<ComponentWizardState>;
-    onFormDataChange: (formData: Partial<ComponentWizardState>) => void;
+    onFormDataChange: (updater: (prevFormData: Partial<ComponentWizardState>) => Partial<ComponentWizardState>) => void;
 }
 
 export const RepoStructureConfig = (props: RepoStructureConfigProps) => {

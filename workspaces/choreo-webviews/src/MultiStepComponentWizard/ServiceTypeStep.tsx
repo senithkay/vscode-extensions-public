@@ -26,10 +26,10 @@ const StepContainer = styled.div`
 export const ServiceTypeStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange } = props;
 
-    const setSelectedType = useCallback((subType: ChoreoServiceComponentType) => {
-        onFormDataChange({ subType });
-    }, [onFormDataChange]);
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const setSelectedType = (subType: ChoreoServiceComponentType) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, subType }));
+    };
    
     useEffect(() => {
         if (!formData?.subType) {   

@@ -47,11 +47,13 @@ export const Wizard = <T extends {}>({ title, steps, initialState, validationRul
     const allValidationRules: ValidationRule<T>[] = [steps.map((step) => step.validationRules).flat(), validationRules].flat();
     const currentStepValidationRules = steps[state.currentStep].validationRules;
 
-    const handleFormDataChange = async (updatedData: Partial<T>) => {
-        const newFormData = { ...state.formData, ...updatedData };
-        const [isFormValid, validationErrors] = await validateForm(newFormData, allValidationRules, context); // validate the entire form data
-        const [isStepValid, stepValidationErrors] = await validateForm(newFormData, currentStepValidationRules, context); // validate the current step data
-        setState({ ...state, formData: newFormData, isFormValid, validationErrors, isStepValid, stepValidationErrors });
+    const handleFormDataChange = async (formDataUpdater: (prevFormData: T) => T) => {
+        const updatedData = formDataUpdater(state.formData);
+        const [isFormValid, validationErrors] = await validateForm(updatedData, allValidationRules, context); // validate the entire form data
+        const [isStepValid, stepValidationErrors] = await validateForm(updatedData, currentStepValidationRules, context); // validate the current step data
+        setState((prevState) => {
+            return { ...prevState, formData: formDataUpdater(prevState.formData), isFormValid, validationErrors, isStepValid, stepValidationErrors };
+        });
     };
 
     const handlePrevClick = async () => {

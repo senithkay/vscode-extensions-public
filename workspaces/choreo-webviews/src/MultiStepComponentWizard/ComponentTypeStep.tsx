@@ -46,16 +46,16 @@ const SubContainer = styled.div`
 export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange } = props;
 
-    const setSelectedType = useCallback((type: ComponentType, choreoType: ChoreoComponentType, subType?: ChoreoServiceComponentType) => {
-        onFormDataChange({ type, subType, choreoType });
-    }, [onFormDataChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const setSelectedType = (type: ComponentType, choreoType: ChoreoComponentType, subType?: ChoreoServiceComponentType) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, type, choreoType, subType }));
+    };
 
-   
     useEffect(() => {
         if (!formData?.type) {   
             setSelectedType("Service", "Service", ChoreoServiceComponentType.REST_API);
         }
-    }, [formData?.type, setSelectedType]);
+    }, []);
 
     useEffect(() => {
         // Make sure we select appropriate choreo type when we switch the mode
@@ -71,17 +71,17 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
 
     const handleFromScrachCheckChange = (e: any) => {
        const mode = e.target.checked ? "fromScratch" : "fromExisting";
-       onFormDataChange({ mode });
+       onFormDataChange(prevFormData => ({ ...prevFormData, mode }));
     };
 
     const handleFromExistingCheckChange = (e: any) => {
         const mode = e.target.checked ? "fromExisting" : "fromScratch";
-        onFormDataChange({ mode });
+        onFormDataChange(prevFormData => ({ ...prevFormData, mode }));
     };
 
     const handleOnChoreoTypeChange = (e: any) => {
         const choreoType = e.target.value as ExistingChoreoComponentType;
-        onFormDataChange({ choreoType });
+        onFormDataChange(prevFormData => ({ ...prevFormData, choreoType }));
     };
 
     return (
@@ -103,7 +103,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                             description="Design, develop, test, and deploy your microservices"
                             isSelected={formData?.type === "Service" && formData?.subType === ChoreoServiceComponentType.REST_API}
                             onSelect={setSelectedType}
-                            key="Service"
+                            key={ChoreoServiceComponentType.REST_API}
                         />
                         <ComponentTypeCard
                             type="Service"
@@ -113,7 +113,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                             description="Design, develop, test, and deploy your microservices"
                             isSelected={formData?.type === "Service" && formData?.subType === ChoreoServiceComponentType.GQL_API}
                             onSelect={setSelectedType}
-                            key="Service"
+                            key={ChoreoServiceComponentType.GQL_API}
                         />
                         <ComponentTypeCard
                             type="Service"
@@ -123,7 +123,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                             description="Design, develop, test, and deploy your microservices"
                             isSelected={formData?.type === "Service" && formData?.subType === ChoreoServiceComponentType.GRPC_API}
                             onSelect={setSelectedType}
-                            key="Service"
+                            key={ChoreoServiceComponentType.GRPC_API}
                         />
                         <ComponentTypeCard
                             type="Service"
@@ -133,7 +133,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                             description="Design, develop, test, and deploy your microservices"
                             isSelected={formData?.type === "Service" && formData?.subType === ChoreoServiceComponentType.WEBSOCKET_API}
                             onSelect={setSelectedType}
-                            key="Service"
+                            key={ChoreoServiceComponentType.WEBSOCKET_API}
                         />
                         <ComponentTypeCard
                             type="Scheduled Trigger"

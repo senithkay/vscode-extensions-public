@@ -38,17 +38,17 @@ const DropDownContainer = styled.div`
 export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange, stepValidationErrors } = props;
 
-    const setComponentName = useCallback((name: string) => {
-        onFormDataChange({ name });
-    }, [onFormDataChange]);
+    const setComponentName = (name: string) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, name }));
+    };
 
-    const setDescription = useCallback((description: string) => {
-        onFormDataChange({ description });
-    }, [onFormDataChange]);
+    const setDescription = (description: string) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, description }));
+    };
 
-    const setAccessibility = useCallback((accessibility: ComponentAccessibility) => {
-        onFormDataChange({ accessibility });
-    }, [onFormDataChange]);
+    const setAccessibility = (accessibility: ComponentAccessibility) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, accessibility }));
+    };
 
 
     return (

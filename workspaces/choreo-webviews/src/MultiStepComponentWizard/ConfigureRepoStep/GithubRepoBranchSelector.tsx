@@ -38,7 +38,7 @@ function getDefaultBranch(branches: string[], branch?: string): string {
 
 export interface GithubRepoBranchSelectorProps {
     formData: Partial<ComponentWizardState>;
-    onFormDataChange: (formData: Partial<ComponentWizardState>) => void;
+    onFormDataChange: (updater: (prevFormData: Partial<ComponentWizardState>) => Partial<ComponentWizardState>) => void;
 }
 
 export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
@@ -51,44 +51,43 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
 
     const repoBranchList = formData?.cache?.branches?.get(repoId) || [];
 
-    const refreshBranchList = useCallback(async (forceReload: boolean = false) => {
-            setUpdatingBranchList(true);
-            const branchesCache: Map<string, string[]> = formData?.cache?.branches || new Map();
-            if (org && repo) {
-                let repoBranches = branchesCache.get(repoId);
-                if (forceReload || !repoBranches || repoBranches.length === 0) {
-                    try {
-                        repoBranches = await ChoreoWebViewAPI.getInstance()
-                            .getChoreoGithubAppClient()
-                            .getRepoBranches(org, repo);
-                        branchesCache.set(repoId, repoBranches);
-                    } catch (error: any) {
-                        ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
-                    }
+    const refreshBranchList = async (forceReload: boolean = false) => {
+        setUpdatingBranchList(true);
+        const branchesCache: Map<string, string[]> = formData?.cache?.branches || new Map();
+        if (org && repo) {
+            let repoBranches = branchesCache.get(repoId);
+            if (forceReload || !repoBranches || repoBranches.length === 0) {
+                try {
+                    repoBranches = await ChoreoWebViewAPI.getInstance()
+                        .getChoreoGithubAppClient()
+                        .getRepoBranches(org, repo);
+                    branchesCache.set(repoId, repoBranches);
+                } catch (error: any) {
+                    ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
                 }
-                if (!repoBranches) {
-                    return;
-                }
-                const defaultBranch = getDefaultBranch(repoBranches, branch);
-                onFormDataChange({
-                    repository: { ...formData.repository, branch: defaultBranch },
-
-                    cache: { 
-                        ...formData.cache,
-                        branches: branchesCache
-                    }
-                });
             }
-            setUpdatingBranchList(false);
-    }, [org, repo, branch]);
+            if (!repoBranches) {
+                return;
+            }
+            const defaultBranch = getDefaultBranch(repoBranches, branch);
+            onFormDataChange((prevFormData) => ({
+                ...prevFormData,
+                repository: { ...prevFormData.repository, branch: defaultBranch },
+                cache: { 
+                    ...prevFormData.cache,
+                    branches: branchesCache
+                }
+            }));
+        }
+        setUpdatingBranchList(false);
+    };
 
     useEffect(() => {
         refreshBranchList();
-    }, [org, repo, refreshBranchList]);
+    }, [repoId]);
 
     const handleBranchChange = (event: any) => {
-        const repository = { ...formData.repository, branch: event.target.value };
-        onFormDataChange({ repository });
+        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, branch: event.target.value } }));
     };
 
     return (

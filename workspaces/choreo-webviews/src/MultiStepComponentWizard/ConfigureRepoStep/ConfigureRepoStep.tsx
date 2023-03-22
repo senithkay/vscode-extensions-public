@@ -71,22 +71,21 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     const selectedOrg = authorizedOrgs.find((org) => org.orgName === formData?.repository?.org);
 
     const setRepository = (org: string, repo: string) => {
-        const repository = { ...formData?.repository, org, repo };
-        onFormDataChange({ repository });
+        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, org, repo} }));
     };
 
     const setIsRepoCloned = (isCloned: boolean ) => {
-        const repository = { ...formData?.repository, isCloned };
-        onFormDataChange({ repository });
+        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isCloned} }));
     };
 
     const setAuthorizedOrgs = (orgs: GithubOrgnization[]) => {
-        const cache = { ...formData?.cache, authorizedOrgs: orgs };
-        let repository = formData?.repository;
-        if (!(formData?.repository?.org && formData?.repository?.repo) && orgs.length > 0) {
-            repository = { ...formData?.repository, org: orgs[0].orgName, repo: orgs[0].repositories[0].name };
-        }
-        onFormDataChange({ cache, repository });
+        onFormDataChange(prevFormData => {
+            let repository = prevFormData?.repository;
+            if (!(prevFormData?.repository?.org && prevFormData?.repository?.repo) && orgs.length > 0) {
+                repository = { ...prevFormData?.repository, org: orgs[0].orgName, repo: orgs[0].repositories[0].name };
+            }
+            return { ...prevFormData, repository, cache: { ...formData?.cache, authorizedOrgs: orgs } };
+        });
     };
 
 
@@ -137,7 +136,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
             }
         };
         checkRepoCloneStatus();
-    }, [formData?.repository?.branch, selectedRepoString, choreoProject]);
+    }, [selectedRepoString, choreoProject]);
 
     const handleAuthorizeWithGithub = () => {
         ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
@@ -158,11 +157,6 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         if (selectedOrg) {
             setRepository(selectedOrg.orgName, selectedOrg.repositories.find(repo => repo.name === e.target.value)!.name);
         }
-    };
-
-    const handleBranchChange = (branch: string) => {
-        const repository = { ...formData?.repository, branch };
-        onFormDataChange({ repository });
     };
 
     const handleRepoClone = async () => {
