@@ -30,7 +30,7 @@ import { activate as activateProjectFeatures } from './project';
 import { activate as activateEditorSupport } from './editor-support';
 import { activate as activatePackageOverview } from './tree-view';
 import { activate as activateTesting } from './testing/activator';
-import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams } from 'vscode-languageclient';
+import { StaticFeature, DocumentSelector, ServerCapabilities, InitializeParams, FeatureState } from 'vscode-languageclient';
 import { ExtendedClientCapabilities, ExtendedLangClient } from './core/extended-language-client';
 import { activate as activatePerformanceForecaster } from './forecaster';
 import { activate as activateTryIt } from './tryIt/tryit';
@@ -46,6 +46,10 @@ export let isPluginStartup = true;
 // TODO initializations should be contributions from each component
 function onBeforeInit(langClient: ExtendedLangClient) {
     class TraceLogsFeature implements StaticFeature {
+        preInitialize?: (capabilities: ServerCapabilities<any>, documentSelector: DocumentSelector) => void;
+        getState(): FeatureState {
+            throw new Error('Method not implemented.');
+        }
         fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
         dispose(): void {
         }
@@ -58,6 +62,10 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     }
 
     class ShowFileFeature implements StaticFeature {
+        preInitialize?: (capabilities: ServerCapabilities<any>, documentSelector: DocumentSelector) => void;
+        getState(): FeatureState {
+            throw new Error('Method not implemented.');
+        }
         fillInitializeParams?: ((params: InitializeParams) => void) | undefined;
         dispose(): void {
 

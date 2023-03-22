@@ -248,11 +248,8 @@ export class BallerinaExtension {
                     }
                 });
 
-                let disposable = this.langClient.start();
-                this.langClient.onReady().then(() => {
-                    disposeDidChange.dispose();
-                    this.context!.subscriptions.push(disposable);
-                });
+                disposeDidChange.dispose();
+
                 commands.registerCommand('ballerina.stopLangServer', () => {
                     this.langClient.stop();
                 });
@@ -286,7 +283,7 @@ export class BallerinaExtension {
             this.telemetryReporter.dispose();
             return Promise.reject('BallerinaExtension is not initialized');
         }
-        return this.langClient.onReady();
+        return this.langClient.start();
     }
 
     showPluginActivationError(): any {
