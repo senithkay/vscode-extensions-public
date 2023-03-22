@@ -57,9 +57,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
       return;
     }
     // search for all the test.
-    langClient.onReady().then(() => {
-      startWatchingWorkspace(testController);
-    });
+    startWatchingWorkspace(testController);
   });
 
   // update test tree when file updated.
@@ -78,9 +76,7 @@ export async function activate(ballerinaExtInstance: BallerinaExtension) {
   }
 
   // search for all the tests.
-  langClient.onReady().then(() => {
-    startWatchingWorkspace(testController);
-  });
+  startWatchingWorkspace(testController);
 
 }
 
@@ -131,108 +127,104 @@ export async function createTests(uri: Uri) {
   currentProjectRoot = projectRoot;
 
   // Get tests from LS.
-  langClient.onReady().then(() => {
-    langClient!.getExecutorPositions({
-      documentIdentifier: {
-        uri: uri.toString()
+  langClient!.getExecutorPositions({
+    documentIdentifier: {
+      uri: uri.toString()
+    }
+  }).then(async execResponse => {
+    const response = execResponse as ExecutorPositionsResponse;
+    if (!response.executorPositions) {
+      return;
+    }
+
+    let positions: ExecutorPosition[] = [];
+    response.executorPositions.forEach(position => {
+      if (position.kind === EXEC_POSITION_TYPE.TEST) {
+        positions.push(position);
       }
-    }).then(async execResponse => {
-      const response = execResponse as ExecutorPositionsResponse;
-      if (!response.executorPositions) {
-        return;
-      }
-
-      let positions: ExecutorPosition[] = [];
-      response.executorPositions.forEach(position => {
-        if (position.kind === EXEC_POSITION_TYPE.TEST) {
-          positions.push(position);
-        }
-      });
-
-      let relativePath = path.relative(projectRoot!, uri.fsPath).toString().split(path.sep);
-
-      let level = relativePath[0];
-      let testRoot = path.join(projectRoot!, level).toString();
-      let depth = 0;
-
-      if (positions.length === 0) {
-        deleteFileNode(testController.items, uri);
-        return;
-      } else {
-        testFiles.push(uri.toString());
-      }
-
-      const ancestors: TestItem[] = [];
-
-      // if already added to the test explorer.
-      let rootNode = testController.items.get(testRoot);
-      if (rootNode) {
-        let parentNode: TestItem = rootNode;
-        let pathToFind = uri.fsPath;
-        while (pathToFind != '') {
-          parentNode = getTestItemNode(rootNode, pathToFind);
-          if (parentNode.id == pathToFind) {
-            relativePath = path.relative(pathToFind, uri.fsPath).split(path.sep);
-            break;
-          }
-          const lastIndex = pathToFind.lastIndexOf(path.sep);
-          pathToFind = pathToFind.slice(0, lastIndex);
-        }
-
-        if (parentNode && parentNode.id === uri.fsPath) {
-          let testCaseItems: TestItem[] = [];
-
-          positions.forEach(position => {
-            const tcase = createTestCase(testController, position);
-            testCaseItems.push(tcase);
-          });
-          parentNode.children.replace(testCaseItems);
-
-          return;
-        } else {
-          rootNode = parentNode;
-          ancestors.push(rootNode);
-          depth = 0;
-        }
-      } else {
-        rootNode = createTestItem(testController, testRoot, testRoot, level);
-        testController.items.add(rootNode);
-        ancestors.push(rootNode);
-        depth = 1;
-      }
-
-      for (depth; depth < relativePath.length; depth++) {
-        const parent = ancestors.pop()!;
-        const level = relativePath[depth];
-        testRoot = path.join(testRoot, level).toString();
-        const middleNode = createTestItem(testController, testRoot, testRoot, level);
-        middleNode.canResolveChildren = true;
-        parent.children.add(middleNode);
-        ancestors.push(middleNode);
-      }
-
-      const parent = ancestors.pop()!;
-      let testCaseItems: TestItem[] = [];
-      positions.forEach(position => {
-        const tcase = createTestCase(testController, position);
-        testCaseItems.push(tcase);
-      });
-      parent.children.replace(testCaseItems);
-
-      rootNode.canResolveChildren = true;
-    }, _error => {
     });
+
+    let relativePath = path.relative(projectRoot!, uri.fsPath).toString().split(path.sep);
+
+    let level = relativePath[0];
+    let testRoot = path.join(projectRoot!, level).toString();
+    let depth = 0;
+
+    if (positions.length === 0) {
+      deleteFileNode(testController.items, uri);
+      return;
+    } else {
+      testFiles.push(uri.toString());
+    }
+
+    const ancestors: TestItem[] = [];
+
+    // if already added to the test explorer.
+    let rootNode = testController.items.get(testRoot);
+    if (rootNode) {
+      let parentNode: TestItem = rootNode;
+      let pathToFind = uri.fsPath;
+      while (pathToFind != '') {
+        parentNode = getTestItemNode(rootNode, pathToFind);
+        if (parentNode.id == pathToFind) {
+          relativePath = path.relative(pathToFind, uri.fsPath).split(path.sep);
+          break;
+        }
+        const lastIndex = pathToFind.lastIndexOf(path.sep);
+        pathToFind = pathToFind.slice(0, lastIndex);
+      }
+
+      if (parentNode && parentNode.id === uri.fsPath) {
+        let testCaseItems: TestItem[] = [];
+
+        positions.forEach(position => {
+          const tcase = createTestCase(testController, position);
+          testCaseItems.push(tcase);
+        });
+        parentNode.children.replace(testCaseItems);
+
+        return;
+      } else {
+        rootNode = parentNode;
+        ancestors.push(rootNode);
+        depth = 0;
+      }
+    } else {
+      rootNode = createTestItem(testController, testRoot, testRoot, level);
+      testController.items.add(rootNode);
+      ancestors.push(rootNode);
+      depth = 1;
+    }
+
+    for (depth; depth < relativePath.length; depth++) {
+      const parent = ancestors.pop()!;
+      const level = relativePath[depth];
+      testRoot = path.join(testRoot, level).toString();
+      const middleNode = createTestItem(testController, testRoot, testRoot, level);
+      middleNode.canResolveChildren = true;
+      parent.children.add(middleNode);
+      ancestors.push(middleNode);
+    }
+
+    const parent = ancestors.pop()!;
+    let testCaseItems: TestItem[] = [];
+    positions.forEach(position => {
+      const tcase = createTestCase(testController, position);
+      testCaseItems.push(tcase);
+    });
+    parent.children.replace(testCaseItems);
+
+    rootNode.canResolveChildren = true;
+  }, _error => {
   });
 }
 
 async function setCurrentProjectRoot(uri: Uri) {
-  await langClient!.onReady().then(async () => {
-    projectRoot = (await langClient!.getBallerinaProject({
-      documentIdentifier: {
-        uri: uri.toString()
-      }
-    }) as BallerinaProject).path;
-  });
+  projectRoot = (await langClient!.getBallerinaProject({
+    documentIdentifier: {
+      uri: uri.toString()
+    }
+  }) as BallerinaProject).path;
 }
 
 /**
