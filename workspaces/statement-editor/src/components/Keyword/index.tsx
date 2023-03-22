@@ -18,7 +18,7 @@ import {
 import cn from "classnames";
 
 import { StatementEditorContext } from "../../store/statement-editor-context";
-import { getJSXForMinutiae, isPositionsEquals } from "../../utils";
+import { checkCommentMinutiae, getJSXForMinutiae, isPositionsEquals } from "../../utils";
 import { StatementEditorViewState } from "../../utils/statement-editor-viewstate";
 import { InputEditor } from "../InputEditor";
 import { useStatementRendererStyles } from "../styles";
@@ -82,6 +82,7 @@ export function KeywordComponent(props: KeywordComponentProps) {
 
     const leadingMinutiaeJSX = getJSXForMinutiae(model.leadingMinutiae, isFieldWithNewLine);
     const trailingMinutiaeJSX = getJSXForMinutiae(model.trailingMinutiae, isFieldWithNewLine);
+    const filteredLeadingMinutiaeJSX = checkCommentMinutiae(leadingMinutiaeJSX);
 
     return (
         <span
@@ -91,7 +92,7 @@ export function KeywordComponent(props: KeywordComponentProps) {
             className={styleClassNames}
             onClick={onMouseClick}
         >
-            {leadingMinutiaeJSX}
+            {filteredLeadingMinutiaeJSX}
             <InputEditor {...inputEditorProps} />
             {trailingMinutiaeJSX}
         </span>

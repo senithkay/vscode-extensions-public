@@ -12,6 +12,8 @@
  */
 import React from "react";
 
+import './style.scss';
+
 export interface CanvasProps {
     children?: React.ReactElement | React.ReactElement[],
     w: number,
@@ -28,7 +30,8 @@ export function Canvas(props: CanvasProps) {
                 className="diagram-canvas"
                 preserveAspectRatio={"xMinYMin"}
                 width={w}
-                height={h}
+                height={'calc(100vh - 98px)'}
+                style={{overflow: 'visible'}}
             >
                 <defs>
                     <marker

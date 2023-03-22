@@ -16,6 +16,7 @@ import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { Context } from "../../../../Context/diagram";
 import { ViewMode } from "../../../../Context/types";
+import { FunctionHeader } from "../FunctionHeader/FunctionHeader";
 
 import FitToScreenSVG from "./images/fit-to-screen";
 import InteractionMode from "./images/interaction-mode";
@@ -102,24 +103,27 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
             onPanningStart={onPanningStart}
             onPanningStop={onPanningStop}
         >
-            <div className={'design-container-outer'}>
-                <TransformComponent>
-                    <div className={'design-container'} onDoubleClick={handleDoubleClick}>
-                        {props.children}
-                    </div>
-                </TransformComponent>
-                <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
-                    <div className={'zoom-control-wrapper'} onClick={toggleViewMode}>
-                        {viewMode === ViewMode.STATEMENT ? <InteractionMode /> : <StatementMode />}
-                    </div>
-                    <div className={'zoom-control-wrapper'} onClick={zoomIn}>
-                        <ZoomInSVG />
-                    </div>
-                    <div className={'zoom-control-wrapper'} onClick={zoomOut}>
-                        <ZoomOutSVG />
-                    </div>
-                    <div className={'zoom-control-wrapper'} onClick={resetZoomStatus}>
-                        <FitToScreenSVG />
+            <div className={'design-container-outer'} style={{ display: "flex", flexDirection: "column" }}>
+                <FunctionHeader />
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                    <TransformComponent>
+                        <div className={'design-container'} onDoubleClick={handleDoubleClick}>
+                            {props.children}
+                        </div>
+                    </TransformComponent>
+                    <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
+                        <div className={'zoom-control-wrapper'} onClick={toggleViewMode}>
+                            {viewMode === ViewMode.STATEMENT ? <InteractionMode /> : <StatementMode />}
+                        </div>
+                        <div className={'zoom-control-wrapper'} onClick={zoomIn}>
+                            <ZoomInSVG />
+                        </div>
+                        <div className={'zoom-control-wrapper'} onClick={zoomOut}>
+                            <ZoomOutSVG />
+                        </div>
+                        <div className={'zoom-control-wrapper'} onClick={resetZoomStatus}>
+                            <FitToScreenSVG />
+                        </div>
                     </div>
                 </div>
             </div>

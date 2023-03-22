@@ -1,0 +1,3 @@
+{
+    "extends": "../../low-code-distribution/config/rush-project.json"
+}

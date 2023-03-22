@@ -8,7 +8,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             flexDirection: `column`,
             borderRadius: 5,
             border: '1px solid #dee0e7',
-            padding: 5
+            padding: 10
         },
         paramContent: {
             display: 'flex',
@@ -129,6 +129,13 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginTop: 6,
             textTransform: 'initial',
             marginLeft: -200
+        },
+        payload: {
+            fontSize: '13px',
+            fontWeight: 700,
+            letterSpacing: '0',
+            lineHeight: '14px',
+            paddingLeft: '0px',
         }
     }),
 );

@@ -18,11 +18,12 @@ import {
     DocumentSymbol,
     DocumentSymbolParams,
     SymbolInformation,
+    TextDocumentPositionParams,
 } from "vscode-languageserver-protocol";
 
 import { BallerinaTriggerRequest, BallerinaTriggerResponse, BallerinaTriggersRequest, BallerinaTriggersResponse } from ".";
 import { BaseLangClientInterface } from "./base-lang-client-interface";
-import { LinePosition, PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
+import { BallerinaProjectComponents, GetBallerinaPackagesParams, LinePosition, PublishDiagnosticsParams } from "./expression-editor-lang-client-interface";
 import {
     BallerinaConnectorRequest,
     BallerinaConnectorResponse,
@@ -91,6 +92,17 @@ interface Position {
     character: number;
 }
 
+export interface GraphqlDesignServiceRequest {
+    filePath: string;
+    startLine: LinePosition;
+    endLine: LinePosition;
+}
+export interface GraphqlDesignServiceResponse {
+    graphqlDesignModel: any;
+    isIncompleteModel: boolean;
+    errorMsg: string;
+}
+
 export interface PerformanceAnalyzerResponse {
     resourcePos: Range;
     endpoints: any;
@@ -153,10 +165,19 @@ export interface DiagramEditorLangClientInterface extends BaseLangClientInterfac
     getSTForFunction: (
         params: BallerinaFunctionSTRequest
     ) => Thenable<BallerinaSTModifyResponse>;
+    getDefinitionPosition: (
+        params: TextDocumentPositionParams
+    ) => Thenable<BallerinaSTModifyResponse>;
     getDiagnostics: (
         params: BallerinaProjectParams
     ) => Thenable<PublishDiagnosticsParams[]>;
     codeAction: (
         params: CodeActionParams
     ) => Thenable<CodeAction[]> ;
+    getBallerinaProjectComponents: (
+        params: GetBallerinaPackagesParams
+    ) => Promise<BallerinaProjectComponents>;
+    getGraphqlModel: (
+        params: GraphqlDesignServiceRequest
+    ) => Thenable<GraphqlDesignServiceResponse>;
 }

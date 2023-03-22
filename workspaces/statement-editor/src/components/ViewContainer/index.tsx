@@ -93,8 +93,8 @@ export function ViewContainer(props: ViewContainerProps) {
     });
 
     const onSaveClick = async () => {
-        await handleModifications();
-        onWizardClose();
+        const typeName = await handleModifications();
+        onWizardClose(typeName);
     };
 
     const onAddConfigurableClick = async () => {
@@ -149,6 +149,10 @@ export function ViewContainer(props: ViewContainerProps) {
                 }
 
             ]);
+
+            if (STKindChecker.isTypeDefinition(statementModel)) {
+                return statementModel.typeName.value;
+            }
         }
     };
 

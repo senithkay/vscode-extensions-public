@@ -25,6 +25,7 @@ export interface PlusOptionsProps {
     kind: string
     margin?: Margin;
     onClose: () => void;
+    goBack: () => void;
     targetPosition?: NodePosition;
     isTriggerType?: boolean;
     isLastMember?: boolean;
@@ -73,12 +74,12 @@ export const triggerEntries: PlusMenuEntry[] = [
 ]
 
 export const PlusOptionsSelector = (props: PlusOptionsProps) => {
-    const { onClose, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
+    const { onClose, goBack, targetPosition, kind, isTriggerType, isLastMember, showCategorized } = props;
 
     const { props: { ballerinaVersion } } = useDiagramContext();
 
     const defaultOption = ((kind === "ServiceDeclaration") && !isTriggerType) ?
-        {name: "Resource", type: "ResourceAccessorDefinition"} : undefined;
+        { name: "Resource", type: "ResourceAccessorDefinition" } : undefined;
     const [selectedOption, setSelectedOption] = useState<PlusMenuEntry>(defaultOption);
 
     let menuEntries: PlusMenuEntry[] = [];
@@ -113,13 +114,14 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     <PlusOptionRenderer
                         entries={menuEntries}
                         onClose={handleOnClose}
+                        goBack={goBack}
                         onOptionSelect={onOptionSelect}
                         targetPosition={targetPosition}
                         showCategorized={showCategorized}
                     />
                 )
             }
-            {selectedOption && selectedOption.type !== "DataMapper"  && (
+            {selectedOption && selectedOption.type !== "DataMapper" && (
                 <FormGenerator
                     targetPosition={targetPosition}
                     configOverlayFormStatus={{
@@ -132,15 +134,15 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     onSave={handleOnSave}
                 />
             )}
-            {selectedOption && selectedOption.type === "DataMapper"  && (
+            {selectedOption && selectedOption.type === "DataMapper" && (
                 <DataMapperOverlay
                     targetPosition={targetPosition}
-                    configOverlayFormStatus={{
-                        formType: selectedOption.type,
-                        formName: selectedOption.name,
-                        isLoading: false,
-                        isLastMember: isLastMember
-                    }}
+                    // configOverlayFormStatus={{
+                    //     formType: selectedOption.type,
+                    //     formName: selectedOption.name,
+                    //     isLoading: false,
+                    //     isLastMember: isLastMember
+                    // }}
                     ballerinaVersion={ballerinaVersion}
                     onCancel={handleOnClose}
                 />

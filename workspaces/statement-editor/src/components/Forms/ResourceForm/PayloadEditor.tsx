@@ -64,12 +64,12 @@ export function PayloadEditor(props: PayloadEditorProps) {
         const parameterNames = parameters.map(param => !STKindChecker.isCommaToken(param) && param.paramName?.value);
         const lastParamIndex = parameters.findIndex(param => STKindChecker.isRestParam(param) || STKindChecker.isDefaultableParam(param));
         if (lastParamIndex === -1) {
-            newParamString = `${getParamString(parameters)}${parameters.length === 0 ? '' : ','} ${RESOURCE_PAYLOAD_PREFIX} string ${genParamName('param', parameterNames)}`;
+            newParamString = `${getParamString(parameters)}${parameters.length === 0 ? '' : ','} ${RESOURCE_PAYLOAD_PREFIX} string ${genParamName('payload', parameterNames)}`;
         } else {
             newParamString = parameters.reduce((prev, current, currentIndex) => {
                 let returnString = prev;
                 if (currentIndex === lastParamIndex) {
-                    returnString = `${returnString} ${RESOURCE_PAYLOAD_PREFIX} string ${genParamName('param', parameterNames)},`
+                    returnString = `${returnString} ${RESOURCE_PAYLOAD_PREFIX} string ${genParamName('payload', parameterNames)},`
                 }
 
                 returnString = `${returnString}${current.source ? current.source : current.value}`

@@ -33,7 +33,7 @@ interface ContainerStyleProps {
     backgroundColor?: string;
 }
 
-const Container = styled.div`
+const Container: React.FC<any> = styled.div`
     align-items: center;
     background: ${(props: ContainerStyleProps) => `${props.backgroundColor}`};
     display: flex;
@@ -47,6 +47,7 @@ const Container = styled.div`
 interface DiagramProps {
     isEditable: boolean;
     isChoreoProject: boolean;
+    selectedNodeId?: string;
     getComponentModel(): Promise<Map<string, ComponentModel>>;
     showChoreoProjectOverview?: () => Promise<void>;
     editLayerAPI?: EditLayerAPI;
@@ -54,8 +55,15 @@ interface DiagramProps {
 }
 
 export function DesignDiagram(props: DiagramProps) {
-    const { isChoreoProject, isEditable, getComponentModel, showChoreoProjectOverview = undefined,
-        editLayerAPI = undefined, isConsoleView = false } = props;
+    const {
+        isChoreoProject,
+        isEditable,
+        selectedNodeId,
+        getComponentModel,
+        showChoreoProjectOverview = undefined,
+        editLayerAPI = undefined,
+        isConsoleView = false
+    } = props;
 
     const currentViewDefaultValue = isConsoleView ? Views.CELL_VIEW : Views.L1_SERVICES;
     const [currentView, setCurrentView] = useState<Views>(currentViewDefaultValue);
@@ -80,6 +88,13 @@ export function DesignDiagram(props: DiagramProps) {
     useEffect(() => {
         refreshDiagram();
     }, [props]);
+
+    useEffect(() => {
+        // Navigate to the type composition view if a type is already selected
+        if (selectedNodeId && selectedNodeId.trim() !== "" && projectComponents && projectComponents.size > 0) {
+            getTypeComposition(selectedNodeId);
+        }
+    }, [projectComponents]);
 
     const changeDiagramLayout = () => {
         switchLayout(layout === DagreLayout.GRAPH ? DagreLayout.TREE : DagreLayout.GRAPH);

@@ -252,9 +252,17 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             modifications = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(targetField)
+                    "STATEMENT": getDefaultValue(targetField?.typeName)
                 },
                 ...deletePosition
+            }];
+        } else if ((this.targetPort?.parentModel?.field?.typeName === PrimitiveBalType.Union
+            || this.targetPort?.parentModel?.field?.originalTypeName === PrimitiveBalType.Union)
+            && STKindChecker.isSpecificField(this.valueNode)) {
+            modifications = [{
+                type: "INSERT",
+                config: { "STATEMENT": "" },
+                ...this.valueNode?.valueExpr?.position
             }];
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(this.valueNode.position as NodePosition, this.parentNode);

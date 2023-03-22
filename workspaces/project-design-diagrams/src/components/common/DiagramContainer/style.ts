@@ -64,7 +64,7 @@ interface GatewayContainerProps {
   rotate?: string;
 }
 
-export const GatewayContainer = styled.div`
+export const GatewayContainer: React.FC<any> = styled.div`
   width: 60px;
   height: 60px;
   position: absolute;

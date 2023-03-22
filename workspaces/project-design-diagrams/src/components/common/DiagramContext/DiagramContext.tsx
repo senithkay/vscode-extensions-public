@@ -102,3 +102,6 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         </DiagramContext.Provider>
     );
 }
+
+export const useDiagramContext = () => React.useContext(DiagramContext);
+

@@ -84,7 +84,7 @@ export function Marketplace(props: MarketplaceProps) {
     const {
         props: { currentFile, userInfo },
         api: {
-            helpPanel: { openConnectorHelp },
+            // helpPanel: { openConnectorHelp },
             ls: { getDiagramEditorLangClient },
             insights: { onEvent },
         },
@@ -118,7 +118,7 @@ export function Marketplace(props: MarketplaceProps) {
     const onSelectModule = (balModule: BallerinaConstruct) => {
         trackItemSelect(balModule);
         onSelect(balModule, undefined);
-        openConnectorHelp(balModule);
+        // openConnectorHelp(balModule);
     };
 
     const getModuleComponents = (balModules: Map<string, BallerinaConstruct>): ReactNode[] => {

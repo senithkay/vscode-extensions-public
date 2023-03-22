@@ -5,6 +5,7 @@ import {
     CallStatement,
     CaptureBindingPattern,
     CheckAction,
+    DoStatement,
     ExpressionFunctionBody,
     FieldAccess,
     ForeachStatement,
@@ -18,6 +19,7 @@ import {
     NamedWorkerDeclaration,
     ObjectField,
     ObjectMethodDefinition,
+    OnFailClause,
     RemoteMethodCallAction,
     RequiredParam,
     ResourceAccessorDefinition,
@@ -48,13 +50,28 @@ import {
     StatementViewState,
     WhileViewState
 } from "../ViewState";
+import { DoStatementViewState } from "../ViewState/do-statement";
 import { DraftStatementViewState } from "../ViewState/draft";
+import { OnFailClauseViewState } from "../ViewState/on-fail-clause";
 import { WorkerDeclarationViewState } from "../ViewState/worker-declaration";
 
 import { DefaultConfig } from "./default";
 import { haveBlockStatement, isEndpointNode, isSTActionInvocation } from "./util";
 
 let currentFnBody: FunctionBodyBlock | ExpressionFunctionBody;
+
+function getParentNamePlaceholder(parent: STNode): string | undefined {
+    if (STKindChecker.isServiceDeclaration(parent)) {
+        let servicePath = "";
+
+        parent.absoluteResourcePath.forEach(item => {
+            servicePath += item.value;
+        });
+
+        return `service ${servicePath.length > 0 ? servicePath : '/'}`;
+    }
+    return;
+}
 
 export class InitVisitor implements Visitor {
     private allEndpoints: Map<string, Endpoint> = new Map();
@@ -77,10 +94,20 @@ export class InitVisitor implements Visitor {
 
     public beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode) {
         const viewState = new FunctionViewState();
-        node.viewState = viewState;
+        if (node.viewState && (node.viewState as FunctionViewState).parentNamePlaceHolder) {
+            viewState.parentPosition = (node.viewState as FunctionViewState).parentPosition;
+            viewState.parentNamePlaceHolder = (node.viewState as FunctionViewState).parentNamePlaceHolder;
+        }
+
+        if (parent) {
+            viewState.parentNamePlaceHolder = getParentNamePlaceholder(parent);
+            viewState.parentPosition = parent.position;
+        }
+
         if (viewState.initPlus) {
             viewState.initPlus = undefined;
         }
+        node.viewState = viewState;
         this.allEndpoints = new Map<string, Endpoint>();
     }
 
@@ -135,6 +162,17 @@ export class InitVisitor implements Visitor {
 
     public beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode) {
         const viewState = new FunctionViewState();
+
+        if (node.viewState && (node.viewState as FunctionViewState).parentNamePlaceHolder) {
+            viewState.parentPosition = (node.viewState as FunctionViewState).parentPosition;
+            viewState.parentNamePlaceHolder = (node.viewState as FunctionViewState).parentNamePlaceHolder;
+        }
+
+        if (parent) {
+            viewState.parentNamePlaceHolder = getParentNamePlaceholder(parent);
+            viewState.parentPosition = parent.position;
+        }
+
         node.viewState = viewState;
         this.allEndpoints = new Map<string, Endpoint>();
     }
@@ -349,19 +387,35 @@ export class InitVisitor implements Visitor {
         }
     }
 
+    public beginVisitDoStatement(node: DoStatement, parent?: STNode) {
+        node.viewState = new DoStatementViewState();
+    }
+
+    public beginVisitOnFailClause(node: OnFailClause, parent?: STNode) {
+        node.viewState = new OnFailClauseViewState();
+    }
+
     public endVisitAssignmentStatement(node: AssignmentStatement, parent?: STNode) {
         this.initStatement(node, parent);
-
         if (node.expression && isSTActionInvocation(node)) {
             const stmtViewState: StatementViewState = node.viewState as StatementViewState;
 
             if (STKindChecker.isCheckAction(node.expression) && STKindChecker.isRemoteMethodCallAction(node.expression.expression)) {
                 const remoteAction: RemoteMethodCallAction = node.expression.expression;
-                const varRef: SimpleNameReference = remoteAction.expression as SimpleNameReference;
-                stmtViewState.action.endpointName = varRef.name.value;
+                let varRef: SimpleNameReference
+                if (STKindChecker.isSimpleNameReference(remoteAction.expression)) {
+                    varRef = remoteAction.expression as SimpleNameReference;
+                } else if (STKindChecker.isFieldAccess(remoteAction.expression)) {
+                    varRef = remoteAction.expression.fieldName as SimpleNameReference;
+                }
+
+                stmtViewState.action.endpointName = varRef?.name?.value;
                 stmtViewState.action.actionName = remoteAction.methodName.name.value;
 
-                if (currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody) && currentFnBody.VisibleEndpoints) {
+                if (varRef
+                    && currentFnBody
+                    && STKindChecker.isFunctionBodyBlock(currentFnBody)
+                    && currentFnBody.VisibleEndpoints) {
                     const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                     stmtViewState.isCallerAction = callerParam && callerParam.name === varRef.name.value;
                 }
@@ -482,8 +536,8 @@ export class InitVisitor implements Visitor {
         let collapseFrom: number = 0;
         let collapsed: boolean = false;
         let plusButtons: PlusViewState[] = [];
-        let isDoBlock: boolean = false;
-        let isOnErrorBlock: boolean = false;
+        let isDoBlock: boolean = STKindChecker.isDoStatement(parent);
+        let isOnErrorBlock: boolean = STKindChecker.isOnFailClause(parent);
         if (node.viewState) {
             const viewState: BlockViewState = node.viewState as BlockViewState;
             draft = viewState.draft;
@@ -597,7 +651,7 @@ export class InitVisitor implements Visitor {
     private setActionInvocationInfo(node: ActionStatement, remoteCall: RemoteMethodCallAction) {
         const stmtViewState: StatementViewState = node.viewState as StatementViewState;
         const simpleName: SimpleNameReference = remoteCall.expression as SimpleNameReference;
-        stmtViewState.action.endpointName = simpleName.name.value;
+        stmtViewState.action.endpointName = simpleName?.name?.value ? simpleName.name.value : simpleName.source;
         const actionName: SimpleNameReference = remoteCall.methodName as SimpleNameReference;
         stmtViewState.action.actionName = actionName.name.value;
 

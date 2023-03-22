@@ -20,6 +20,7 @@
 import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import {
+    EntryNodeFactory,
     ExtServiceNodeFactory,
     ServiceLinkFactory,
     ServiceNodeFactory,
@@ -75,6 +76,7 @@ export function createServicesEngine(): DiagramEngine {
     diagramEngine.getPortFactories().registerFactory(new ServicePortFactory());
     diagramEngine.getNodeFactories().registerFactory(new ServiceNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new ExtServiceNodeFactory());
+    diagramEngine.getNodeFactories().registerFactory(new EntryNodeFactory());
     return diagramEngine;
 }
 

@@ -65,13 +65,6 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
 
     async initPorts() {
         if (this.typeDef) {
-            if (this.typeDef.typeName === PrimitiveBalType.Union) {
-                this.typeName = getTypeName(this.typeDef);
-                const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);
-                if (acceptedMembers.length === 1) {
-                    this.typeDef = acceptedMembers[0];
-                }
-            }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
                 this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
@@ -160,7 +153,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         const modifications: STModification[] = [{
                 type: "INSERT",
                 config: {
-                    "STATEMENT": getDefaultValue(typeOfValue)
+                    "STATEMENT": getDefaultValue(typeOfValue?.typeName)
                 },
                 ...field.position
             }];

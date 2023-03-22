@@ -15,27 +15,33 @@ env:
   ballerina_version: 2201.3.1
   ballerina_zip_url: https://github.com/ballerina-platform/ballerina-distribution/releases/download/v2201.3.1/ballerina-2201.3.1-swan-lake.zip
   ballerina_deb_url: https://dist.ballerina.io/downloads/2201.3.1/ballerina-2201.3.1-swan-lake-linux-x64.deb
-  vscVersion: 1.68.0
 
 jobs:
   Build_Stage:
     name: Build repo
     timeout-minutes: 45
     runs-on: ubuntu-latest
+    outputs:
+      runBalPluginTests: ${{ steps.testMatrix.outputs.runBalPluginTests }}
+      testArray: ${{ steps.testMatrix.outputs.testArray }}
     steps:
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
 
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
+      - name: Setup
+        uses: gigara/rush-cache@v1
         with:
-          node-version: 16.x
+          pnpm: 7.26.3
+          node: 16.x
+          set-env: true
+          rush-install: true
 
-      - name: Install Ballerina
-        run: |
-          wget ${{ env.ballerina_deb_url }}
-          sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
 
       - name: Update versions
         if: ${{ inputs.version != 'N/A' }}
@@ -52,6 +58,7 @@ jobs:
       - name: Set prerelase version - ballerina
         if: ${{ inputs.isPreRelease }}
         run: |
+          cd workspaces/ballerina-extension
           currentVersion=$(node -p "require('./package.json').version")
           currentVersionWOPreId=${currentVersion%-*}
           currentVersionNo=${currentVersionWOPreId%.*}
@@ -69,16 +76,72 @@ jobs:
           newVersion=${currentVersionNo}.${{ steps.timestamp.outputs.timestamp }}
           echo $newVersion
           npm version $newVersion --preid beta --no-git-tag-version
-          
-      - name: Build plugin repo
-        run: npm run build
+
+      - name: Build repo
+        id: build
+        run: |
+          node common/scripts/install-run-rush.js build --verbose
         env:
           isPreRelease: ${{ inputs.isPreRelease  }}
 
+      - name: Set test matrix
+        id: testMatrix
+        run: |
+          testArray=""
+          if [[ ${{ inputs.isPreRelease }} = 'true' ]]; then
+            # Get list of all changed files in the PR
+            CHANGED_DIRS=$(git diff --name-only HEAD^..HEAD | grep -E "^workspaces/*" || true)
+
+            # Loop through each directory and extract the folder name
+            FOLDERS=()
+            i=0
+            while read -r dir; do
+              # Extract the top-level folder name by removing the first path segment ('workspaces/') and the trailing slash (if any)
+              folder=$(echo "$dir" | cut -d / -f 2 | sed 's/\/$//')
+              # Add the folder name to the array if it hasn't been added already
+              if ! [[ "${FOLDERS[@]}" =~ "$folder" ]]; then
+                FOLDERS+=("$folder")
+              fi
+            done <<< "$CHANGED_DIRS"
+
+            tests=()
+
+            echo "Changed workspaces: $FOLDERS"
+            if [[ "${FOLDERS[@]}" =~ "ballerina-extension" ]]; then
+              echo "runBalPluginTests=true" >> $GITHUB_OUTPUT
+            fi 
+
+            if [[ "${FOLDERS[@]}" =~ "low-code-diagram" ]] || [[ "${FOLDERS[@]}" =~ "low-code-editor" ]]; then
+              tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points");
+            fi 
+
+            if [[ "${FOLDERS[@]}" =~ "ballerina-languageclient" ]] || 
+            [[ "${FOLDERS[@]}" =~ "expression-editor" ]] || 
+            [[ "${FOLDERS[@]}" =~ "lang-service" ]] || 
+            [[ "${FOLDERS[@]}" =~ "low-code-editor-commons" ]] || 
+            [[ "${FOLDERS[@]}" =~ "low-code-ui-components" ]] || 
+            [[ "${FOLDERS[@]}" =~ "statement-editor" ]] || 
+            [[ "${FOLDERS[@]}" =~ "syntax-tree" ]]; then
+              tests+=( "test-connectors" "test-block-level" "test-module-level" "test-entry-points" "test-se" "test-se-tools" "test-dm");
+            fi 
+
+            sortedTests=($(echo "${tests[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+            testArray="["
+            for test in "${sortedTests[@]}"; do
+              testArray+="'$test',"
+            done
+            testArray=${testArray:0: -1}
+            testArray+="]"
+            if [ ${#tests[@]} = 0 ]; then testArray='false'; fi
+          else 
+            testArray=['test-connectors','test-block-level','test-module-level','test-entry-points','test-se','test-se-tools','test-dm'];
+          fi  
+          echo $testArray
+          echo "testArray=$testArray" >> $GITHUB_OUTPUT
+
       - name: Compress build
         run: |
-          find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +
-          zip -r build.zip ./
+          zip -r build.zip ./ -x 'common/temp*' -y
           zip VSIX.zip *.vsix
 
       - name: Save VSIX
@@ -96,6 +159,7 @@ jobs:
   PluginTest_Stage:
     name: Run Plugin test
     needs: Build_Stage
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalPluginTests }}
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -110,16 +174,16 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
+      - name: Setup
+        uses: gigara/rush-cache@v1
         with:
-          node-version: 16.x
-
-      - name: Install node modules
-        run: npm install --legacy-peer-deps
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
 
       - name: Set up Ballerina
         run: |
+          cd workspaces/ballerina-extension
           mkdir extractedDistribution
           wget ${{ env.ballerina_zip_url }}
           unzip -qq ./ballerina-${{ env.ballerina_version }}-swan-lake.zip -d ./extractedDistribution
@@ -130,33 +194,38 @@ jobs:
           echo "$balHome/bin" >> $GITHUB_PATH
 
       - name: Run Test
-        run: xvfb-run --auto-servernum npm run test
+        run: |
+          cd workspaces/ballerina-extension
+          xvfb-run --auto-servernum pnpm run test
         env:
           balVersion: ${{ steps.set-version.outputs.balVersion }}
           balHome: ${{ steps.set-version.outputs.balHome }}
 
       - name: Convert lcov to cobertura
-        run: python lcov_cobertura.py coverage/lcov.info -b src/ -o coverage/coverage.xml
+        run: |
+          cd workspaces/ballerina-extension
+          python lcov_cobertura.py coverage/lcov.info -b src/ -o coverage/coverage.xml
 
       - name: Publish coverage reports
         uses: actions/upload-artifact@v3
         with:
-          path: coverage
+          path: workspaces/ballerina-extension/coverage
           name: vscode-extension-coverage-${{ github.run_attempt }}
         if: always()
     
       - name: Rename code coverage file
-        run: mv coverage/coverage.xml coverage/plugin-coverage.xml
+        run: mv workspaces/ballerina-extension/coverage/coverage.xml workspaces/ballerina-extension/coverage/plugin-coverage.xml
     
       - name: Publish partial code coverage
         uses: actions/upload-artifact@v3
         with:
-          path: coverage/plugin-coverage.xml
+          path: workspaces/ballerina-extension/coverage/plugin-coverage.xml
           name: CodeCoverages
 
   UiTest_Stage:
     name: Run UI tests
     needs: Build_Stage
+    if: ${{ !inputs.isPreRelease || needs.Build_Stage.outputs.runBalPluginTests }}
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
@@ -171,41 +240,41 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v1
+      - name: Setup
+        uses: gigara/rush-cache@v1
         with:
-          node-version: 16.x
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
 
-      - name: Install node modules
-        run: npm install --legacy-peer-deps
-
-      - name: Install Ballerina
-        run: |
-          wget ${{ env.ballerina_deb_url }}
-          sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
 
       - name: UI Test
         run: |
+          cd workspaces/ballerina-extension
           sudo apt-get install xvfb
-          npx extest get-vscode -c ${{ env.vscVersion }} && npx extest get-chromedriver -c ${{ env.vscVersion }} && npx extest install-vsix -f $(ls *.vsix)
+          pnpm run ui-test-setup
           export DISPLAY=:98.0
-          Xvfb -ac :98 -screen 0 1920x1080x16 & 
-          npm run ui-test
+          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run ui-test
 
       - name: Publish UI Test Screenshots
         uses: actions/upload-artifact@v3
         with:
-          path: ./test-resources/screenshots/
+          path: workspaces/ballerina-extension/test-resources/screenshots/
           name: Ui-test-screenshots-${{ github.run_attempt }}
         if: failure()
 
   LowCode_Test_Stage:
     name: Run low code tests
     needs: Build_Stage
+    if: ${{ !inputs.isPreRelease }}
     strategy:
       fail-fast: false
       matrix:
-        testStage: [test-connectors, test-block-level, test-module-level, test-entry-points, test-se, test-se-tools, test-dm]
+        testStage: ${{ fromJSON(needs.Build_Stage.outputs.testArray) }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -220,16 +289,20 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Install node modules
-        run: npm i --legacy-peer-deps
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
 
       - name: Install Cypress Dependencies
         run: sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
 
-      - name: Install Ballerina
-        run: |
-          wget ${{ env.ballerina_deb_url }}
-          sudo dpkg -i ballerina-${{ env.ballerina_version }}-swan-lake-linux-x64.deb
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
+        with:
+          version: ${{ env.ballerina_version }}
 
       - name: Install Chrome Stable Version
         run: |
@@ -288,8 +361,12 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Install node modules
-        run: npm i --legacy-peer-deps
+      - name: Setup
+        uses: gigara/rush-cache@v1
+        with:
+          pnpm: 7.26.3
+          node: 16.x
+          rush-install: true
 
       - name: Download partial code coverages
         uses: actions/download-artifact@v3

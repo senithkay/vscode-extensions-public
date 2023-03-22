@@ -168,6 +168,7 @@ export function getDraftComponentSizes(type: string, subType: string): { h: numb
                 case "If":
                 case "ForEach":
                 case "While":
+                case "DoStatement":
                     h = IFELSE_SVG_HEIGHT;
                     w = DefaultConfig.defaultBlockWidth;
                     break;

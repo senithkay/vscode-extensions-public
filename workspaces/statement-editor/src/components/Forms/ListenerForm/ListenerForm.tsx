@@ -41,6 +41,7 @@ export interface FunctionProps {
 }
 
 const HTTP_IMPORT = new Set<string>(['ballerina/http']);
+const GRAPHQL_IMPORT = new Set<string>(['ballerina/graphql']);
 
 export function ListenerForm(props: FunctionProps) {
     const { model} = props;
@@ -70,15 +71,16 @@ export function ListenerForm(props: FunctionProps) {
     const [listenerPort, setListenerPort] = useState<FormEditorField>({
         value: model ? port : "", isInteracted: false
     });
-    const [listenerType, setListenerType] = useState<string>(type.length === 0 ? type : "HTTP");
+    const [listenerType, setListenerType] = useState<string>(type === "graphql" ? "GraphQL" : "HTTP");
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
 
     const listenerParamChange = async (name: string, portValue: string) => {
+        const serviceType = listenerType === 'GraphQL' ? 'graphql' : 'http';
         const codeSnippet = getSource(createListenerDeclartion({listenerPort: portValue, listenerName: name},
-            targetPosition, false));
+            targetPosition, false, serviceType));
         const updatedContent = getUpdatedSource(codeSnippet, model?.source, model?.position, undefined,
             true);
         const partialST = await getPartialSTForModuleMembers(
@@ -86,7 +88,8 @@ export function ListenerForm(props: FunctionProps) {
         );
         if (!partialST.syntaxDiagnostics.length) {
             setCurrentComponentSyntaxDiag(undefined);
-            onChange(updatedContent, partialST, HTTP_IMPORT);
+            const module = listenerType === 'GraphQL' ? GRAPHQL_IMPORT : HTTP_IMPORT;
+            onChange(updatedContent, partialST,  module);
         } else {
             setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
         }
@@ -113,10 +116,11 @@ export function ListenerForm(props: FunctionProps) {
     const debouncedPortChange = debounce(handlePortChange, 800);
 
     const handleOnSave = () => {
+        const module = listenerType === 'GraphQL' ? 'graphql' : 'http';
         applyModifications([
-            createImportStatement('ballerina', 'http', {startColumn: 0, startLine: 0}),
+            createImportStatement('ballerina', module, {startColumn: 0, startLine: 0}),
             createListenerDeclartion({listenerPort: listenerPort.value, listenerName: listenerName.value},
-                targetPosition, !isEdit, isLastMember)
+                targetPosition, !isEdit, module, isLastMember)
         ]);
         onCancel();
     }
@@ -137,6 +141,10 @@ export function ListenerForm(props: FunctionProps) {
         })
     }, [model]);
 
+    const handleListenerTypeChange = async (value: string) => {
+        setListenerType(value);
+    }
+
     return (
         <FormControl data-testid="listener-form" className={formClasses.wizardFormControl}>
             <FormHeaderSection
@@ -152,9 +160,10 @@ export function ListenerForm(props: FunctionProps) {
                         defaultMessage="Listener Type :"
                     />
                     <SelectDropdownWithButton
-                        customProps={{ values: ['HTTP'], disableCreateNew: true }}
+                        customProps={{ values: ['HTTP', 'GraphQL'], disableCreateNew: true }}
                         defaultValue={listenerType}
                         placeholder="Select Type"
+                        onChange={handleListenerTypeChange}
                     />
                     <FormTextInput
                         label="Listener Name"

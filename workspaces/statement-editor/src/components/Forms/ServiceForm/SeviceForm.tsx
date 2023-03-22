@@ -22,6 +22,7 @@ import { ModulePart, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getServiceTypeFromModel } from "../Utils/FormUtils";
 
+import { GraphqlServiceForm } from "./GraphqlServiceForm";
 import { HttpServiceForm } from "./HTTPServiceForm";
 
 interface ServiceConfigFormProps {
@@ -29,7 +30,8 @@ interface ServiceConfigFormProps {
 }
 
 export enum ServiceTypes {
-    HTTP = 'http'
+    HTTP = 'http',
+    GRAPHQL = 'graphql'
 }
 
 export function ServiceConfigForm(props: ServiceConfigFormProps) {
@@ -54,6 +56,9 @@ export function ServiceConfigForm(props: ServiceConfigFormProps) {
     switch (serviceType) {
         case ServiceTypes.HTTP:
             configForm = <HttpServiceForm model={model} />
+            break;
+        case ServiceTypes.GRAPHQL:
+            configForm = <GraphqlServiceForm model={model}/>
             break;
         default:
             // configForm = <TriggerServiceForm onSave={onSave} onCancel={onCancel} model={model} targetPosition={targetPosition} />

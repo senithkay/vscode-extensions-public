@@ -25,14 +25,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             }
         },
         sectionTitle: {
-            fontSize: '13px',
+            fontSize: '14px',
             letterSpacing: 'normal',
             textTransform: 'capitalize',
             margin: '0 0 8px',
             fontFamily: 'Gilmer',
             lineHeight: '1rem',
             paddingBottom: '0.6rem',
-            fontWeight: 500
+            fontWeight: 700
         },
         titleContent: {
             display: "flex",

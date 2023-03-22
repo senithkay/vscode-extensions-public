@@ -40,7 +40,7 @@ export function AddReturnForm(props: ReturnFormProps) {
             ballerinaVersion,
             isMutationProgress: isMutationInProgress,
             currentFile,
-            syntaxTree,
+            fullST,
             stSymbolInfo,
             importStatements,
             experimentalEnabled,
@@ -74,14 +74,14 @@ export function AddReturnForm(props: ReturnFormProps) {
     }
 
     const isOptionalReturn = () => {
-        const st = syntaxTree as ModulePart;
+        const st = fullST as ModulePart;
         let noReturn = true;
         /*
          TODO: Revise this logic as this will not work for blocks like
          Services and Class as functions are wrapped inside them. So you need to
          again do a iteration to find the function level.
         */
-        st?.members.forEach((def: FunctionDefinition) => {
+        st?.members?.forEach((def: FunctionDefinition) => {
             if (def.position?.startLine < formArgs?.targetPosition.startLine
                 && formArgs?.targetPosition.startLine <= def.position?.endLine
                 && (STKindChecker.isFunctionDefinition(def) || STKindChecker.isResourceAccessorDefinition(def))) {
@@ -145,7 +145,7 @@ export function AddReturnForm(props: ReturnFormProps) {
                         applyModifications: modifyDiagram,
                         updateFileContent,
                         library,
-                        syntaxTree,
+                        syntaxTree: fullST,
                         stSymbolInfo,
                         importStatements,
                         experimentalEnabled,

@@ -29,6 +29,7 @@ export interface LowCodeDiagramContext {
 
 export interface LowCodeDiagramProperties {
     syntaxTree: STNode;
+    fullST?: STNode; // TODO: make this required once the tests are fixed
     isReadOnly: boolean;
     error?: Error;
     selectedPosition?: SelectedPosition;
@@ -36,6 +37,7 @@ export interface LowCodeDiagramProperties {
     zoomStatus?: ZoomStatus;
     experimentalEnabled?: boolean;
     onDiagramDoubleClick?: () => void,
+    getListenerSignature?: (functionNode: STNode) => Promise<string>;
 }
 
 export interface LowCodeDiagramState {
@@ -53,6 +55,29 @@ export interface LowCodeDiagramActions {
     diagramRedraw: (payload: STNode) => void;
     insertComponentStart: (payload: NodePosition) => void;
     editorComponentStart: (payload: STNode) => void;
+}
+
+
+// TODO: move this to commons module
+export interface ComponentViewInfo {
+    filePath: string;
+    position: NodePosition;
+    fileName?: string;
+    moduleName?: string;
+    name?: string;
+    uid?: string;
+}
+// TODO: move this to commons module
+export interface FileListEntry {
+    fileName: string;
+    uri: Uri;
+}
+// TODO: move this to commons module
+export interface Uri {
+    fsPath: string
+    external: string
+    path: string;
+    sheme: string;
 }
 
 export interface LowCodeDiagramAPI {
@@ -106,6 +131,11 @@ export interface LowCodeDiagramAPI {
 
     insights?: {
         onEvent?: (event: LowcodeEvent) => void;
+    },
+    navigation: {
+        updateActiveFile: (currentFile: FileListEntry) => void,
+        updateSelectedComponent: (info: ComponentViewInfo) => void;
+        navigateUptoParent: (position: NodePosition) => void;
     }
 }
 

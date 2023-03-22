@@ -16,7 +16,7 @@ import { render } from "react-dom";
 import styled from "@emotion/styled";
 import ChoreoWebview from "./ChoreoWebview";
 
-export const Main = styled.main`
+export const Main: React.FC<any> = styled.main`
   display: flex;
   flex-direction: row;
   justify-content: center;

@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useRef, useState } from "react";
 
+import { NavigationBarDetailContainer } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FunctionBodyBlock,
     STKindChecker,
@@ -35,19 +36,20 @@ import { FunctionProps } from "../index";
 import PanAndZoom from "../PanAndZoom";
 import { PerformanceBar } from "../perBar/PerformanceBar";
 
-import { FunctionHeader } from "./FunctionHeader";
-import { ResourceHeader } from "./ResourceHeader";
 import "./style.scss";
 
 
 export function RegularFuncComponent(props: FunctionProps) {
     const [overlayId] = useState(`function-overlay-${uuid()}`);
     const diagramContext = useContext(Context);
-    const { isReadOnly, syntaxTree, experimentalEnabled } = diagramContext.props;
+    const { isReadOnly, syntaxTree } = diagramContext.props;
     const { diagramRedraw, diagramCleanDraw } = diagramContext.actions;
+    const { navigation } = diagramContext.api;
+    const navigateUptoParent = navigation?.navigateUptoParent;
+
     const run = diagramContext?.api?.project?.run;
 
-    const { model, hideHeader } = props;
+    const { model } = props;
 
     const viewState: FunctionViewState = model.viewState;
     const isInitPlusAvailable: boolean = viewState.initPlus !== undefined;
@@ -68,9 +70,6 @@ export function RegularFuncComponent(props: FunctionProps) {
         }
     }, [viewMode]);
 
-    const onExpandClick = () => {
-        setDiagramExpanded(!diagramExpanded);
-    };
 
     const toggleViewMode = () => {
         setViewMode(viewMode === ViewMode.INTERACTION ? ViewMode.STATEMENT : ViewMode.INTERACTION);
@@ -157,6 +156,24 @@ export function RegularFuncComponent(props: FunctionProps) {
         }
     }
 
+    const headerComponent: React.ReactElement[] = [];
+
+    if (viewState.parentNamePlaceHolder) {
+        headerComponent.push(
+            <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }}>/</div>
+        );
+        const handleParentNavigation = () => {
+            navigateUptoParent(viewState.parentPosition);
+        }
+        headerComponent.push(
+            <div className="btn-container" onClick={handleParentNavigation}>
+                <span className="module-text">{viewState.parentNamePlaceHolder}</span>
+            </div>
+        )
+        // <span className="component-name">{model?.functionName.value}</span>
+    }
+
+
     return (
         <div
             ref={containerRef}
@@ -174,7 +191,7 @@ export function RegularFuncComponent(props: FunctionProps) {
             )}
             data-function-name={model?.functionName?.value}
         >
-            {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
+            {/* {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
                 <ResourceHeader
                     isExpanded={diagramExpanded}
                     model={model}
@@ -189,9 +206,48 @@ export function RegularFuncComponent(props: FunctionProps) {
                         onClickRun={model.isRunnable && onClickRun}
                     />
                 </div>
-            ))}
-            {(diagramExpanded || hideHeader) && functionBody}
+            ))} */}
+            <NavigationBarDetailContainer forceRender={true}>
+                {headerComponent}
+            </NavigationBarDetailContainer>
+            {functionBody}
         </div>
     );
 
 }
+
+
+        // <div
+        //     ref={containerRef}
+        //     className={classNames(
+        //         {
+        //             "function-box":
+        //                 STKindChecker.isResourceAccessorDefinition(model) ||
+        //                 STKindChecker.isObjectMethodDefinition(model),
+        //             "module-level-function": STKindChecker.isFunctionDefinition(model),
+        //             expanded: diagramExpanded,
+        //         },
+        //         STKindChecker.isResourceAccessorDefinition(model)
+        //             ? model.functionName.value
+        //             : ""
+        //     )}
+        //     data-function-name={model?.functionName?.value}
+        // >
+        //     {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
+        //         <ResourceHeader
+        //             isExpanded={diagramExpanded}
+        //             model={model}
+        //             onExpandClick={onExpandClick}
+        //         />
+        //     ) : (
+        //         <div >
+        //             <FunctionHeader
+        //                 isExpanded={diagramExpanded}
+        //                 model={model}
+        //                 onExpandClick={onExpandClick}
+        //                 onClickRun={model.isRunnable && onClickRun}
+        //             />
+        //         </div>
+        //     ))}
+        //     {(diagramExpanded || hideHeader) && functionBody}
+        // </div>

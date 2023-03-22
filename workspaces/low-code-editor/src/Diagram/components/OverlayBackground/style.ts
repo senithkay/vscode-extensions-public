@@ -17,7 +17,7 @@ export const useStyles = makeStyles(() =>
         overlayBackground: {
             background: '#e6e7ec6e',
             position: 'fixed',
-            zIndex: 1,
+            zIndex: 2,
             top: '-100rem',
             left: '-100rem'
         },

@@ -1,10 +1,11 @@
 const path = require('path');
+const fs = require('fs');
 const webpack = require('webpack');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const APP_DIR = path.resolve(__dirname, './src');
-const MONACO_DIR = path.resolve(__dirname, '../../node_modules/monaco-editor');
+const MONACO_DIR = fs.realpathSync(path.resolve(__dirname, './node_modules/monaco-editor'));
 const DATA_MAPPER_DIR = path.resolve(__dirname, '../data-mapper');
 
 module.exports = (env, argv) => ({

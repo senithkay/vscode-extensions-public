@@ -68,7 +68,7 @@ export { AnalyzePayloadVisitor } from "./Diagram/visitors/analyze-payload-visito
 export { cleanLocalSymbols, cleanModuleLevelSymbols, getSymbolInfo, visitor as SymbolVisitor } from "./Diagram/visitors/symbol-finder-visitor";
 export { getTriggerSource, getSampleSource } from "./Diagram/utils/template-utils";
 export { createPropertyStatement } from "./Diagram/utils/modification-util";
-export { renderDiagramEditor } from "./DiagramGenerator/vscode";
+export * from "./DiagramGenerator/vscode";
 export { updatePerfPath } from "./DiagramGenerator/performanceUtil";
 
 const LowCodeEditor: React.FC<Props> = (props: Props) => {

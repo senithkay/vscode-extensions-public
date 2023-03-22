@@ -17,8 +17,9 @@ import { CircularProgress, IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { Type } from "@wso2-enterprise/ballerina-languageclient";
+import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { MappingConstructor, NodePosition, SpecificField, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -29,10 +30,15 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     createSourceForUserInput,
+    getDefaultRecordValue,
+    getDefaultValue,
     getFieldName,
+    getNewFieldAdditionModification,
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
+import { getModification } from "../../../utils/modifications";
+import { AddRecordFieldButton } from "../AddRecordFieldButton";
 import { OutputSearchHighlight } from "../SearchHighlight";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
@@ -85,17 +91,17 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const portIn = getPort(fieldId + ".IN");
     const specificField = field.hasValue() && STKindChecker.isSpecificField(field.value) && field.value;
     const mappingConstruct = STKindChecker.isMappingConstructor(parentMappingConstruct) && parentMappingConstruct;
-    const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source && !Object.keys(portIn.links)?.length;
+    const hasValue = specificField && specificField.valueExpr && !!specificField.valueExpr.source;
     const isArray = field.type.typeName === PrimitiveBalType.Array;
-    const isRecord = field.type.typeName === PrimitiveBalType.Record;
-    const typeName = getTypeName(field.type);
+    const isUnion = field.type.typeName === PrimitiveBalType.Union;
+    const isRecord = field.type.typeName === PrimitiveBalType.Record
+        || (field.value && STKindChecker.isMappingConstructor(field.value))
+        || ((field?.value as SpecificField)?.valueExpr && STKindChecker.isMappingConstructor((field?.value as SpecificField)?.valueExpr));
+    const typeName = isRecord && field.value?.typeData?.typeSymbol?.name  || getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
-    const isValueMappingConstructor = specificField
-        && specificField.valueExpr
-        && STKindChecker.isMappingConstructor(specificField.valueExpr);
     let indentation = treeDepth * 16;
-    const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
+    const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
     useEffect(() => {
         if (fieldToBeEdited === fieldId) {
@@ -139,6 +145,25 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
     };
 
+    const handleChangeUnionType = async (type: Type) => {
+        setIsLoading(true);
+        try {
+            const defaultValue = getDefaultRecordValue(type);
+            let position: NodePosition = field.value?.position;
+            if (field.value && STKindChecker.isSpecificField(field.value)){
+                position = field.value?.valueExpr?.position
+            }
+            if (position){
+                const modification = [getModification(defaultValue, position)];
+                await applyModifications(modification);
+            } else{
+                await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleDeleteValue = async () => {
         setIsLoading(true);
         try {
@@ -164,7 +189,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsHovered(false);
     };
 
-    let isDisabled = portIn?.descendantHasValue || (value && !connectedViaLink);
+    let isDisabled = portIn?.descendantHasValue;
 
     if (!isDisabled) {
         if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
@@ -244,6 +269,16 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         </span>
     );
 
+    const handleAssignDefaultValue = async (typeNameStr: string) => {
+        setIsLoading(true);
+        try {
+            const defaultValue = getDefaultValue(typeNameStr);
+            await createSourceForUserInput(field, parentMappingConstruct as MappingConstructor, defaultValue, applyModifications);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
         : { title: ValueConfigOption.AddValue, onClick: handleAddValue };
@@ -255,8 +290,40 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
-        (hasValue || isWithinArray) && deleteValueMenuItem
+        (hasValue || isWithinArray) && deleteValueMenuItem,
     ];
+
+    const isAnyDataRecord = field.type?.originalTypeName === AnydataType && field.type?.typeName !== PrimitiveBalType.Array;
+
+    if (field.type?.typeName === AnydataType) {
+        const anyDataConvertOptions: ValueConfigMenuItem[] = []
+        anyDataConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Record) })
+        anyDataConvertOptions.push({ title: `Initialize as array`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Array) })
+        valConfigMenuItems.push(...anyDataConvertOptions)
+    } else if (isUnion) {
+        const unionTypeOptions = field.type?.members?.map(member => ({ title: `Reinitialize as ${member.name || member.typeName}`, onClick: () => handleChangeUnionType(member)}));
+        valConfigMenuItems.push(...unionTypeOptions)
+    }
+
+    const addNewField = async (newFieldNameStr: string) => {
+        const modification = getNewFieldAdditionModification(field.value, newFieldNameStr);
+        if (modification) {
+            await context.applyModifications(modification);
+        }
+    }
+
+    const subFieldNames = useMemo(() => {
+		const fieldNames: string[] = [];
+  if (expanded && fields) {
+            fields?.forEach(fieldItem => {
+                if (fieldItem.value && STKindChecker.isSpecificField(fieldItem.value)) {
+                    fieldNames.push(fieldItem.value?.fieldName?.value)
+                }
+            })
+        }
+
+		return fieldNames;
+	}, [fields, expanded])
 
     return (
         <>
@@ -273,16 +340,16 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     onMouseLeave={onMouseLeave}
                 >
                     <span className={classes.treeLabelInPort}>
-                    {portIn && (
-                        <DataMapperPortWidget
-                            engine={engine}
-                            port={portIn}
-                            disable={isDisabled && expanded}
-                            handlePortState={handlePortState}
-                        />
-                    )}
+                        {portIn && (
+                            <DataMapperPortWidget
+                                engine={engine}
+                                port={portIn}
+                                disable={isDisabled && expanded}
+                                handlePortState={handlePortState}
+                            />
+                        )}
                     </span>
-                        <span className={classes.label}>
+                    <span className={classes.label}>
                         {fields && (
                             <IconButton
                                 id={"button-wrapper-" + fieldId}
@@ -296,12 +363,12 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         )}
                         {label}
                     </span>
-                    {(!isDisabled || hasValue) && !isValueMappingConstructor && (
+                    {valConfigMenuItems?.length > 0 && (
                         <>
                             {(isLoading || fieldId === fieldToBeEdited) ? (
                                 <CircularProgress size={18} className={classes.loader} />
                             ) : (
-                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()}/>
+                                <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
                             )}
                         </>
                     )}
@@ -344,6 +411,14 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     );
                 })
             }
+            {isAnyDataRecord && (
+                <AddRecordFieldButton
+                    fieldId={fieldId}
+                    addNewField={addNewField}
+                    indentation={indentation + 50}
+                    existingFieldNames={subFieldNames}
+                />
+            )}
         </>
     );
 }

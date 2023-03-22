@@ -647,7 +647,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
             {/* {invalidSourceCode ? (
                 <>
                     {!(subEditor && cursorOnEditor) && <DiagnosticView message={mainDiagnostics[0]?.message} />}
-                    <FormHelperText className={formClasses.invalidCode}>
+                    <FormHelperText className={formClasses.recordCreateinvalidCode}>
                         <FormattedMessage
                             id="lowcode.develop.elements.expressionEditor.invalidSourceCode.errorMessage"
                             defaultMessage="Error occurred in the code-editor. Please fix it first to continue."

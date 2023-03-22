@@ -57,10 +57,12 @@ import {
     ACTION,
     BAL_SOURCE,
     CALL_CONFIG_TYPE,
+    COMMENT_MINUTIAE,
     CONNECTOR,
     CUSTOM_CONFIG_TYPE,
     END_OF_LINE_MINUTIAE,
     EXPR_CONSTRUCTOR,
+    HTTP_ACTION,
     IGNORABLE_DIAGNOSTICS,
     OTHER_EXPRESSION,
     OTHER_STATEMENT,
@@ -410,7 +412,7 @@ export function addImportStatements(
 
 export function getMinutiaeJSX(model: STNode): MinutiaeJSX {
     return {
-        leadingMinutiaeJSX: getJSXForMinutiae(model?.leadingMinutiae),
+        leadingMinutiaeJSX: checkCommentMinutiae(getJSXForMinutiae(model?.leadingMinutiae)),
         trailingMinutiaeJSX: getJSXForMinutiae(model?.trailingMinutiae)
     };
 }
@@ -421,8 +423,28 @@ export function getJSXForMinutiae(minutiae: Minutiae[], dropEndOfLineMinutiaeJSX
             return Array.from({ length: element.minutiae.length }, () => <>&nbsp;</>);
         } else if (element.kind === END_OF_LINE_MINUTIAE && !dropEndOfLineMinutiaeJSX) {
             return <br />;
+        } else if (element.kind === COMMENT_MINUTIAE) {
+            return Array.from("/");
         }
     });
+}
+
+export function checkCommentMinutiae(minutiae: ReactNode[]): ReactNode[] {
+    const checkedMinutiae = minutiae;
+    const commentList: number[] = [];
+    minutiae?.map((element, index) => {
+        if (element && element[0] === "/") {
+            commentList.push(index);
+        }
+    });
+
+    if (commentList.length) {
+        const commentHasLeadingMin = commentList[0] > 0;
+        checkedMinutiae.splice(commentHasLeadingMin ? commentList[0] - 1 : commentList[0],
+            commentList[commentList.length - 1] - commentList[0] + (commentHasLeadingMin ? 3 : 2))
+    }
+
+    return checkedMinutiae;
 }
 
 export function getClassNameForToken(model: STNode): string {
@@ -671,7 +693,7 @@ export function isInsideConnectorParams(currentModel: STNode, editorConfigType: 
     const paramPosition = (currentModel.viewState as StatementEditorViewState)?.parentFunctionPos;
     const modelPosition = currentModel.position as NodePosition;
     return (
-        (editorConfigType === CONNECTOR || editorConfigType === ACTION) &&
+        (editorConfigType === CONNECTOR || editorConfigType === ACTION || editorConfigType === HTTP_ACTION) &&
         paramPosition &&
         (paramPosition.startLine < modelPosition.startLine ||
             (getNumericPosition(paramPosition.startLine) === getNumericPosition(modelPosition.startLine) &&
@@ -944,17 +966,29 @@ function getModelParamSourceList(currentModel: STNode): string[] {
 
 export function getParamUpdateModelPosition(model: STNode) {
     let position: NodePosition;
-    if (
-        STKindChecker.isFunctionCall(model) ||
-        STKindChecker.isMethodCall(model) ||
-        STKindChecker.isRemoteMethodCallAction(model)
-    ) {
+    if (STKindChecker.isFunctionCall(model) || STKindChecker.isMethodCall(model) || STKindChecker.isRemoteMethodCallAction(model)) {
         position = {
             startLine: model.openParenToken.position.startLine,
             startColumn: model.openParenToken.position.startColumn,
             endLine: model.closeParenToken.position.endLine,
             endColumn: model.closeParenToken.position.endColumn,
         };
+    } else if (STKindChecker.isClientResourceAccessAction(model)) {
+        if (model.arguments) { // With method name and query params
+            position = {
+                startLine: model.arguments.openParenToken.position.startLine,
+                startColumn: model.arguments.openParenToken.position.startColumn,
+                endLine: model.arguments.closeParenToken.position.endLine,
+                endColumn: model.arguments.closeParenToken.position.endColumn,
+            };
+        } else { // Without method name
+            position = {
+                startLine: model.position.endLine,
+                startColumn: model.position.endColumn,
+                endLine: model.position.endLine,
+                endColumn: model.position.endColumn,
+            };
+        }
     } else if (STKindChecker.isImplicitNewExpression(model) || STKindChecker.isExplicitNewExpression(model)) {
         position = {
             startLine: model.parenthesizedArgList.openParenToken.position.startLine,

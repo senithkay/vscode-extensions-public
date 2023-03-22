@@ -18,7 +18,7 @@ import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree"
 import * as monaco from "monaco-editor";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
-import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE } from "../../constants";
+import { ACTION, CONNECTOR, CUSTOM_CONFIG_TYPE, DEFAULT_INTERMEDIATE_CLAUSE, HTTP_ACTION } from "../../constants";
 import {
     CurrentModel,
     DocumentationInfo,
@@ -73,7 +73,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
         editors: EditorModel[];
     };
     extraModules?: Set<string>;
-    onWizardClose: () => void;
+    onWizardClose: (typeName?: string) => void;
     onCancel: () => void;
     isHeaderHidden?: boolean;
     skipSemicolon?: boolean;
@@ -287,7 +287,11 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const updateDraftFileContent = async (statement: string, fileContent: string) => {
-        const updatedContent = getUpdatedSource(statement, fileContent, targetPosition, moduleList, skipStatementSemicolon);
+        // Remove comments from the draft statement
+        const lines = statement.split('\n');
+        const filteredStatement = lines.filter((line) => !line.trim().startsWith('//')).join('\n');
+
+        const updatedContent = getUpdatedSource(filteredStatement, fileContent, targetPosition, moduleList, skipStatementSemicolon);
         const stmtIndex = getStatementIndex(updatedContent, statement, targetPosition);
         const newTargetPosition = getStatementPosition(updatedContent, statement, stmtIndex);
 
@@ -420,7 +424,7 @@ export function StatementEditor(props: StatementEditorProps) {
         if (config.type === CONNECTOR){
             pullUnresolvedModules(diag).then();
         }
-        if (config.type !== CONNECTOR && config.type !== ACTION){
+        if (config.type !== CONNECTOR && config.type !== ACTION && config.type !== HTTP_ACTION){
             removeUnusedModules(diag);
         }
         const filteredDiagnostics = getFilteredDiagnosticMessages(statement, (targetedPosition || draftPosition), diag);
@@ -444,7 +448,7 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const handleDocumentation = async (newCurrentModel: STNode) => {
-        if (config.type === CONNECTOR || config.type === ACTION){
+        if (config.type === CONNECTOR || config.type === ACTION || config.type === HTTP_ACTION){
             return setDocumentation(initSymbolInfo);
         }
         if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){

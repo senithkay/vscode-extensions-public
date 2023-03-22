@@ -66,6 +66,7 @@ export { default as ExpandButton } from "./ExpandButton";
 export { default as TopLevelPlusIcon } from "./TopLevelPlusIcon";
 export { default as WarningIcon } from "./Warning";
 export { ServiceIconLight } from "./ServiceIcon";
+export { ServiceInvalidImg } from "./ServiceInvalidImg";
 export { default as ModuleVariableIcon } from './ModuleVariableIcon';
 export { default as EnumIcon } from './EnumIcon';
 export { default as ErrorCopyIcon } from './ErrorCopyIcon';
@@ -89,3 +90,9 @@ export { default as LabelTryIcon } from './LabelTryIcon';
 export { default as ShowMenuIcon } from './ShowMenuIcon';
 export { default as FileUploadIcon } from './FileUploadIcon';
 export { default as UndoIcon } from './UndoIcon';
+export { DesignViewIcon } from './DesignViewIcon';
+export { GraphqlQueryIcon } from "./GraphqlQueryIcon";
+export { GraphqlMutationIcon } from "./GraphqlMutationIcon";
+export { GraphqlSubscriptionIcon } from "./GraphqlSubscriptionIcon";
+export { default as BackArrow } from './BackArrow';
+
