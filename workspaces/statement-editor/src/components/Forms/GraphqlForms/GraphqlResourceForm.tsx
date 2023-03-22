@@ -376,10 +376,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
     }
 
     const formContent = () => {
-        // tslint:disable-next-line:no-console
-        console.log("=====LOGG" , model)
-        // tslint:disable-next-line:no-console
-        console.log("=====ST" , fullST)
         return (
             <>
                 <div className={connectorClasses.formContentWrapper}>
