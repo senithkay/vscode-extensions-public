@@ -20,3 +20,9 @@ export function getSTNodeFromRange(position: NodePosition, model: STNode): STNod
     traversNode(model, STNodeFindingVisitor);
     return STNodeFindingVisitor.getSTNode();
 }
+
+export function getParentSTNodeFromRange(position: NodePosition, model: STNode): STNode {
+    STNodeFindingVisitor.setPosition(position);
+    traversNode(model, STNodeFindingVisitor);
+    return STNodeFindingVisitor.getParent();
+}

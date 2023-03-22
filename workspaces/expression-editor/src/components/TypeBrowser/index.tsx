@@ -4,7 +4,11 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, FormHelperText, LinearProgress, TextField } from "@material-ui/core";
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete'
-import { CheckBoxGroup, TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import {
+    CheckBoxGroup,
+    SecondaryButton,
+    TooltipCodeSnippet
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import { useStyles as useFormStyles } from "../../themes";
@@ -149,33 +153,31 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
     const { message, handleCreateNew, isGraphqlForm, createNewConstruct} = props;
     const formClasses = useFormStyles();
 
-    const [selectedOption, setSelectedOption] = useState<string[]>(undefined);
 
-    const handleConstructOption = async (mode: string[]) => {
-        setSelectedOption(mode);
-        createNewConstruct(mode[0] as ConstructType);
+    const handleConstructOption = async (mode: ConstructType) => {
+        createNewConstruct(mode);
     }
 
     return (
         <>
-            {!isGraphqlForm ? (
+            {!isGraphqlForm &&  (
                 <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
                     <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
                         {truncateDiagnosticMsg(message)}
                         <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>
                     </FormHelperText>
                 </TooltipCodeSnippet>
-                ) : (
+                )}
+            {isGraphqlForm && message.includes("unknown type") &&
+                (
                 <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
-                    <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
-                        {truncateDiagnosticMsg(message)}
-                        <CheckBoxGroup
-                            // className={classes.subType}
-                            values={[ConstructType.RECORD_CONSTRUCT, ConstructType.CLASS_CONSTRUCT]}
-                            defaultValues={selectedOption ? selectedOption : []}
-                            onChange={handleConstructOption}
-                        />
-                    </FormHelperText>
+                    <>
+                        <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
+                            {truncateDiagnosticMsg(message + ". Do you want to create a new construct?")}
+                        </FormHelperText>
+                        <SecondaryButton text={"Create Class"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.CLASS_CONSTRUCT)} />
+                        <SecondaryButton text={"Create Record"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.RECORD_CONSTRUCT)} />
+                    </>
                 </TooltipCodeSnippet>
                 )
             }

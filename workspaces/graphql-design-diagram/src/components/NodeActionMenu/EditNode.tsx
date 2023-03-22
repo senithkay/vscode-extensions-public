@@ -18,38 +18,30 @@ import { IconButton, Tooltip } from "@material-ui/core";
 import {
     LabelEditIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
-import { FunctionType, Position } from "../../../../resources/model";
-import { getSTNodeFromRange } from "../../../../utils/common-util";
+import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
+import { FunctionType } from "../resources/model";
 
-interface EditFunctionWidgetProps {
-    position: Position;
+interface EditNodeProps {
+    model: STNode;
     functionType: FunctionType;
 }
 
-export function EditFunctionWidget(props: EditFunctionWidgetProps) {
-    const { position, functionType } = props;
-    const { functionPanel, model } = useContext(DiagramContext);
+export function EditNode(props: EditNodeProps) {
+    const { model, functionType } = props;
+    const { functionPanel } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const openFunctionPanel = () => {
-        if (STKindChecker.isServiceDeclaration(model)) {
-            const functionPosition: NodePosition = {
-                endColumn: position.endLine.offset,
-                endLine: position.endLine.line,
-                startColumn: position.startLine.offset,
-                startLine: position.startLine.line
-            };
-            // console.log("===editingMODEL", getSTNodeFromRange(functionPosition, model));
+        if (STKindChecker.isResourceAccessorDefinition(model)) {
             if (functionType === FunctionType.QUERY) {
-                functionPanel(functionPosition, "GraphqlResource", getSTNodeFromRange(functionPosition, model));
+                functionPanel(model.position, "GraphqlResource", model);
             } else if (functionType === FunctionType.MUTATION) {
-                functionPanel(functionPosition, "GraphqlMutation", getSTNodeFromRange(functionPosition, model));
+                functionPanel(model.position, "GraphqlMutation", model);
             } else if (functionType === FunctionType.SUBSCRIPTION) {
-                functionPanel(functionPosition, "GraphqlSubscription", getSTNodeFromRange(functionPosition, model));
+                functionPanel(model.position, "GraphqlSubscription", model);
             }
         }
     };
@@ -57,7 +49,7 @@ export function EditFunctionWidget(props: EditFunctionWidgetProps) {
 
     return (
         <>
-            {position &&
+            {model &&
             <>
                 <Tooltip
                     open={isHovered}

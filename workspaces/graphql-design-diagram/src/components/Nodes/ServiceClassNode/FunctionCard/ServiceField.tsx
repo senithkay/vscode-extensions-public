@@ -12,16 +12,20 @@
  */
 
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
+import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
+import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { ChildActionMenu } from "../../../NodeActionMenu/ChildActionMenu";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
 import { popOverStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
-import { ServiceClassField } from "../../../resources/model";
+import { FunctionType, ServiceClassField } from "../../../resources/model";
 import { FieldName, FieldType, NodeFieldContainer } from "../../../resources/styles/styles";
+import { getParentSTNodeFromRange } from "../../../utils/common-util";
 import { ServiceClassNodeModel } from "../ServiceClassNodeModel";
 
 interface ServiceFieldProps {
@@ -32,9 +36,12 @@ interface ServiceFieldProps {
 
 export function ServiceField(props: ServiceFieldProps) {
     const { engine, node, functionElement } = props;
+    const { functionPanel, fullST } = useContext(DiagramContext);
 
     const functionPorts = useRef<PortModel[]>([]);
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
+
+    const [model, setModel] = useState<any>(null);
 
     const path = functionElement.identifier;
 
@@ -42,6 +49,27 @@ export function ServiceField(props: ServiceFieldProps) {
         functionPorts.current.push(node.getPortFromID(`left-${path}`));
         functionPorts.current.push(node.getPortFromID(`right-${path}`));
     }, [functionElement]);
+
+    useEffect(() => {
+        const position = node.classObject.position;
+        const nodePosition: NodePosition = {
+            endColumn: position.endLine.offset,
+            endLine: position.endLine.line,
+            startColumn: position.startLine.offset,
+            startLine: position.startLine.line
+        };
+
+        const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
+        if (STKindChecker.isClassDefinition(parentNode)) {
+            parentNode.members.forEach((resource: any) => {
+                if (STKindChecker.isResourceAccessorDefinition(resource)) {
+                    if (resource.relativeResourcePath.length === 1  && resource.relativeResourcePath[0]?.value === path) {
+                       setModel(resource);
+                    }
+                }
+            });
+        }
+    }, [node]);
 
     const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorElement(event.currentTarget);
@@ -63,6 +91,7 @@ export function ServiceField(props: ServiceFieldProps) {
                 {functionElement.identifier}
             </FieldName>
             <FieldType>{functionElement.returnType}</FieldType>
+            <ChildActionMenu model={model} functionType={FunctionType.QUERY}/>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}
                 engine={engine}

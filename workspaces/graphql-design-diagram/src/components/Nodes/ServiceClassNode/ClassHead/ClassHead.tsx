@@ -20,6 +20,8 @@ import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIc
 import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
 import { ServiceClassNodeModel } from "../ServiceClassNodeModel";
 
+import { ClassHeaderMenu } from "./ClassHeaderMenu";
+
 interface ServiceClassHeadProps {
     engine: DiagramEngine;
     node: ServiceClassNodeModel;
@@ -44,7 +46,7 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
                 engine={engine}
             />
             <HeaderName>{displayName}</HeaderName>
-
+            <ClassHeaderMenu location={node.classObject.position}/>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${node.getID()}`)}
                 engine={engine}
