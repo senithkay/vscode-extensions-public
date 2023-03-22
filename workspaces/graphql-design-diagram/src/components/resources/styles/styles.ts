@@ -68,7 +68,7 @@ export const NodeHeader = styled.div`
   justify-content: center;
   line-height: 24px;
   padding-inline: 8px;
-  min-width: calc(100% - 16px);
+  min-width: 160px;
   text-align: center;
   white-space: nowrap;
 `;

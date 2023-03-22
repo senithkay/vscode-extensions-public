@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../resources/model";
@@ -24,30 +24,17 @@ import { getParentSTNodeFromRange } from "../utils/common-util";
 
 import { useStyles } from "./styles";
 
-interface AddFunctionWidgetProps {
+interface NodeActionMenuProps {
     position: Position;
+    model: STNode;
     functionType: FunctionType;
 }
 
-export function NodeActionMenu(props: AddFunctionWidgetProps) {
-    const { position, functionType } = props;
-    const { functionPanel, fullST } = useContext(DiagramContext);
-
-    const [model, setModel] = useState<any>(null);
+export function NodeActionMenu(props: NodeActionMenuProps) {
+    const { position, model, functionType } = props;
+    const { functionPanel } = useContext(DiagramContext);
 
     const classes = useStyles();
-
-    useEffect(() => {
-        const nodePosition: NodePosition = {
-            endColumn: position.endLine.offset,
-            endLine: position.endLine.line,
-            startColumn: position.startLine.offset,
-            startLine: position.startLine.line
-        };
-        const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
-        setModel(parentNode);
-    }, [position]);
-
 
     const openFunctionPanel = () => {
         if (model && STKindChecker.isClassDefinition(model)) {
