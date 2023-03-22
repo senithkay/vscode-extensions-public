@@ -14,6 +14,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useState } from "react";
 
+import { MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 import { STNode } from "@wso2-enterprise/syntax-tree";
@@ -39,9 +40,11 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <>
-                        <EditNode model={model} functionType={functionType}/>
-                    </>
+                    <Paper style={{maxWidth: "100%"}}>
+                        <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                            <EditNode model={model} functionType={functionType}/>
+                        </MenuList>
+                    </Paper>
                 }
                 PopperProps={{
                     modifiers: [
@@ -56,10 +59,11 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
                 componentsProps={{
                     tooltip: {
                         sx: {
-                            backgroundColor: '#efeeee',
+                            backgroundColor: 'none',
                             display: 'flex',
                             flexDirection: 'column',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            padding: 0
                         }
                     },
                     arrow: {

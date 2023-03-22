@@ -14,14 +14,16 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { IconButton, Tooltip } from "@material-ui/core";
+import { IconButton, ListItemIcon, ListItemText, MenuItem, Tooltip } from "@material-ui/core";
 import {
-    DesignViewIcon
+    DesignViewIcon, LabelEditIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { Position } from "../../../../resources/model";
+
+import { useStyles } from "./styles";
 
 interface DesignFunctionWidgetProps {
     position: Position;
@@ -32,6 +34,8 @@ export function DesignFunctionWidget(props: DesignFunctionWidgetProps) {
     const { operationDesignView } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
+
+    const classes = useStyles();
 
     const openFunctionDesignPanel = (evt: React.MouseEvent) => {
         evt.stopPropagation();
@@ -48,31 +52,37 @@ export function DesignFunctionWidget(props: DesignFunctionWidgetProps) {
     return (
         <>
             {position &&
-            <>
-                <Tooltip
-                    open={isHovered}
-                    onClose={() => setIsHovered(false)}
-                    title={"Design Operation"}
-                    arrow={true}
-                    placement="right"
-                >
-                    <IconButton
-                        onClick={openFunctionDesignPanel}
-                        onMouseOver={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                        style={{
-                            backgroundColor: isHovered ? '#ffaf4d' : '',
-                            borderRadius: '50%',
-                            color: isHovered ? 'whitesmoke' : '#ffaf4d',
-                            cursor: 'pointer',
-                            fontSize: '22px',
-                            padding: '2px'
-                        }}
-                    >
-                        <DesignViewIcon/>
-                    </IconButton>
-                </Tooltip>
-            </>
+            // <>
+            //     <Tooltip
+            //         open={isHovered}
+            //         onClose={() => setIsHovered(false)}
+            //         title={"Design Operation"}
+            //         arrow={true}
+            //         placement="right"
+            //     >
+            //         <IconButton
+            //             onClick={openFunctionDesignPanel}
+            //             onMouseOver={() => setIsHovered(true)}
+            //             onMouseLeave={() => setIsHovered(false)}
+            //             style={{
+            //                 backgroundColor: isHovered ? '#ffaf4d' : '',
+            //                 borderRadius: '50%',
+            //                 color: isHovered ? 'whitesmoke' : '#ffaf4d',
+            //                 cursor: 'pointer',
+            //                 fontSize: '22px',
+            //                 padding: '2px'
+            //             }}
+            //         >
+            //             <DesignViewIcon/>
+            //         </IconButton>
+            //     </Tooltip>
+            // </>
+            <MenuItem onClick={openFunctionDesignPanel} style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
+                    <DesignViewIcon/>
+                </ListItemIcon>
+                <ListItemText className={classes.listItemText}>{"Design Operation"}</ListItemText>
+            </MenuItem>
             }
         </>
     );

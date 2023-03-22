@@ -14,7 +14,7 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { IconButton, Tooltip } from "@material-ui/core";
+import { IconButton, ListItemIcon, ListItemText, MenuItem, Tooltip } from "@material-ui/core";
 import {
     LabelEditIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -22,6 +22,8 @@ import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 import { FunctionType } from "../resources/model";
+
+import { useStyles } from "./styles";
 
 interface EditNodeProps {
     model: STNode;
@@ -33,6 +35,8 @@ export function EditNode(props: EditNodeProps) {
     const { functionPanel } = useContext(DiagramContext);
 
     const [isHovered, setIsHovered] = useState<boolean>(false);
+
+    const classes = useStyles();
 
     const openFunctionPanel = () => {
         if (STKindChecker.isResourceAccessorDefinition(model)) {
@@ -50,7 +54,7 @@ export function EditNode(props: EditNodeProps) {
     return (
         <>
             {model &&
-            <>
+            /*<>
                 <Tooltip
                     open={isHovered}
                     onClose={() => setIsHovered(false)}
@@ -74,7 +78,13 @@ export function EditNode(props: EditNodeProps) {
                         <LabelEditIcon/>
                     </IconButton>
                 </Tooltip>
-            </>
+            </>*/
+            <MenuItem onClick={() => openFunctionPanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
+                    <LabelEditIcon/>
+                </ListItemIcon>
+                <ListItemText className={classes.listItemText}>{"Edit Operation"}</ListItemText>
+            </MenuItem>
             }
         </>
     );

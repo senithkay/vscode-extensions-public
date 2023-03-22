@@ -14,10 +14,13 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useState } from "react";
 
+import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
+import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { FunctionType, Position } from "../../../resources/model";
+import { AddFunctionWidget } from "../ServiceHead/ServiceMenuActions/AddFunctionWidget";
 
 import { DeleteFunctionWidget } from "./MenuActionComponents/DeleteFunction";
 import { DesignFunctionWidget } from "./MenuActionComponents/DesignFunction";
@@ -40,11 +43,18 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <>
+                    <Paper style={{maxWidth: "100%"}}>
+                        <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                            <DesignFunctionWidget position={location}/>
+                            <EditFunctionWidget position={location} functionType={functionType}/>
+                            <DeleteFunctionWidget position={location}/>
+                        </MenuList>
+                    </Paper>
+                    /*<>
                         <DesignFunctionWidget position={location}/>
                         <EditFunctionWidget position={location} functionType={functionType}/>
                         <DeleteFunctionWidget position={location}/>
-                    </>
+                    </>*/
                 }
                 PopperProps={{
                     modifiers: [
@@ -59,10 +69,11 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
                 componentsProps={{
                     tooltip: {
                         sx: {
-                            backgroundColor: '#efeeee',
+                            backgroundColor: 'none',
                             display: 'flex',
                             flexDirection: 'column',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            padding: 0
                         }
                     },
                     arrow: {
