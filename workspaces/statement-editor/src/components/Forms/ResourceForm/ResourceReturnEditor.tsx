@@ -16,6 +16,7 @@ import React, { useState } from 'react';
 
 import { Button } from '@material-ui/core';
 import AddIcon from "@material-ui/icons/Add";
+import { responseCodes } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { connectorStyles } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ResourceAccessorDefinition, STNode } from '@wso2-enterprise/syntax-tree';
 import { Diagnostic } from 'vscode-languageserver-protocol';
@@ -26,7 +27,6 @@ import { Param } from './ParamEditor/ParamEditor';
 import { ParameterConfig } from './ParamEditor/ParamItem';
 import { ResponseEditor } from './ResponseEditor/ResponseEditor';
 import { ResponseItem } from './ResponseEditor/ResponseItem';
-import { responseCodes } from './types';
 
 export interface QueryParamEditorProps {
     returnSource: string;

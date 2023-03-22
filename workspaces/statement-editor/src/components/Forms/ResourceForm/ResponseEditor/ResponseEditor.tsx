@@ -15,6 +15,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 
 import { LiteExpressionEditor, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
+import { ResponseCode } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
     ParamDropDown, PrimaryButton, SecondaryButton
@@ -24,7 +25,6 @@ import { ModulePart, NodePosition } from '@wso2-enterprise/syntax-tree';
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
 import { FormEditorContext } from '../../../../store/form-editor-context';
 import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
-import { ResponseCode } from '../types';
 import { createNewRecord, createPropertyStatement } from '../util';
 
 import { useStyles } from "./style";

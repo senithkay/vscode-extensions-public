@@ -13,9 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { DeleteButton, ParamEditButton, QueryIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-
-import { responseCodes } from "../types";
+import { DeleteButton, ParamEditButton, QueryIcon, responseCodes } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
 import { useStyles } from './style';
 

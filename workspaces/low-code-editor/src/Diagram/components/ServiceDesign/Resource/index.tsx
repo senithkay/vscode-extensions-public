@@ -16,7 +16,7 @@ import { useIntl } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { Divider } from "@material-ui/core";
-import { BallerinaSTModifyResponse, ConfigOverlayFormStatus, DiagramEditorLangClientInterface, LabelEditIcon, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaSTModifyResponse, ConfigOverlayFormStatus, DiagramEditorLangClientInterface, LabelEditIcon, responseCodes, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConfigPanelSection, Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModulePart, NodePosition, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -27,7 +27,6 @@ import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
 import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
-import { responseCodes } from "../types";
 
 import { ResourceHeader } from "./ResourceHeader";
 
