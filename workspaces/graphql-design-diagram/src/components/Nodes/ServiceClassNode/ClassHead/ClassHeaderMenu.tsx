@@ -12,14 +12,19 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
-import { MenuList, Paper } from "@material-ui/core";
+import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
+import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { NodeActionMenu } from "../../../NodeActionMenu";
+import { useStyles } from "../../../NodeActionMenu/styles";
 import { Colors, FunctionType, Position } from "../../../resources/model";
+import { getParentSTNodeFromRange } from "../../../utils/common-util";
 
 interface ServiceHeaderMenuProps {
     location: Position;
@@ -27,12 +32,39 @@ interface ServiceHeaderMenuProps {
 
 export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
     const { location } = props;
+    const classes = useStyles();
+
+    const { fullST, functionPanel } = useContext(DiagramContext);
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
+    const [model, setModel] = useState<STNode>(null);
+
+    useEffect(() => {
+        const nodePosition: NodePosition = {
+            endColumn: location.endLine.offset,
+            endLine: location.endLine.line,
+            startColumn: location.startLine.offset,
+            startLine: location.startLine.line
+        };
+        const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
+        setModel(parentNode);
+    }, [location]);
+
+    const handleEditClassDef = () => {
+        if (model && STKindChecker.isClassDefinition(model)) {
+            const lastMemberPosition: NodePosition = {
+                endColumn: model.closeBrace.position.endColumn,
+                endLine: model.closeBrace.position.endLine,
+                startColumn: model.closeBrace.position.startColumn,
+                startLine: model.closeBrace.position.startLine
+            };
+            functionPanel(lastMemberPosition, "GraphqlClass", model);
+        }
+     }
 
     return (
         <>
-            {location &&
+            { model &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
@@ -40,7 +72,14 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                     <>
                         <Paper style={{maxWidth: "100%"}}>
                             <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                                <NodeActionMenu position={location} functionType={FunctionType.QUERY}/>
+                                <MenuItem onClick={() => handleEditClassDef()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                                    <ListItemIcon  style={{marginRight: "10px", minWidth: "0px"}}>
+                                        <LabelEditIcon/>
+                                    </ListItemIcon>
+                                    <ListItemText className={classes.listItemText}>Edit Class</ListItemText>
+                                </MenuItem>
+                                <Divider />
+                                <NodeActionMenu position={location} model={model} functionType={FunctionType.QUERY}/>
                             </MenuList>
                         </Paper>
                     </>

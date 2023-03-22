@@ -195,8 +195,8 @@ export function ParameterEditor(props: ParameterEditorProps) {
                     disabled={
                         (syntaxDiag?.length > 0)
                         || (param?.viewState?.diagnosticsInRange?.length > 0)
-                        || segmentName.length === 0
-                        || segmentType.length === 0
+                        || segmentName?.length === 0
+                        || segmentType?.length === 0
                     }
                     fullWidth={false}
                     onClick={onUpdate ? handleOnUpdate : handleOnSave}
