@@ -60,7 +60,7 @@ export function ServiceField(props: ServiceFieldProps) {
         };
 
         const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
-        if (STKindChecker.isClassDefinition(parentNode)) {
+        if (parentNode && STKindChecker.isClassDefinition(parentNode)) {
             parentNode.members.forEach((resource: any) => {
                 if (STKindChecker.isResourceAccessorDefinition(resource)) {
                     if (resource.relativeResourcePath.length === 1  && resource.relativeResourcePath[0]?.value === path) {
