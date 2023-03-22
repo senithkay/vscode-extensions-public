@@ -11,7 +11,7 @@
  * associated services.
  */
 
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { Popover } from "@material-ui/core";
@@ -42,6 +42,7 @@ export function ServiceField(props: ServiceFieldProps) {
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
 
     const [model, setModel] = useState<any>(null);
+    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const path = functionElement.identifier;
 
@@ -81,8 +82,15 @@ export function ServiceField(props: ServiceFieldProps) {
 
     const classes = popOverStyle();
 
+    const handleOnHover = (task: string) => {
+        setIsHovered(task === 'SELECT' ? true : false);
+    };
+
     return (
-        <NodeFieldContainer>
+        <NodeFieldContainer
+            onMouseOver={() => handleOnHover('SELECT')}
+            onMouseLeave={() => handleOnHover('UNSELECT')}
+        >
             <GraphqlBasePortWidget
                 port={node.getPort(`left-${path}`)}
                 engine={engine}
@@ -91,7 +99,7 @@ export function ServiceField(props: ServiceFieldProps) {
                 {functionElement.identifier}
             </FieldName>
             <FieldType>{functionElement.returnType}</FieldType>
-            <ChildActionMenu model={model} functionType={FunctionType.QUERY}/>
+            {isHovered && <ChildActionMenu model={model} functionType={FunctionType.QUERY}/>}
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}
                 engine={engine}

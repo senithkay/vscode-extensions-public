@@ -36,6 +36,7 @@ export const ServiceNode = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 32px;
+  min-width: 160px;
 `;
 
 export const ServiceHead = styled.div`
