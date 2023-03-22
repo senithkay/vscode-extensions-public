@@ -35,6 +35,7 @@ import { ResourceBody } from "./Resource";
 import { ServiceHeader } from "./ServiceHeader";
 import { useStyles } from "./style";
 import "./style.scss";
+import { Grid, Typography } from "@material-ui/core";
 
 export interface ServiceDesignProps {
     model: STNode;
@@ -147,6 +148,27 @@ export function ServiceDesign(props: ServiceDesignProps) {
         handleDiagramEdit(model, model?.position, { formType: "ServiceDeclaration", isLoading: false });
     }
 
+    const emptyView = (
+        <Grid
+            container={true}
+            direction="column"
+            justify="center"
+            alignItems="center"
+            className={classes.gridContainer}
+        >
+            <Grid item={true}>
+                <Typography variant="h3"  component="div">
+                    Service list is empty 
+                </Typography>
+            </Grid>
+            <Grid item={true}>
+                <Typography variant="subtitle1"  component="div">
+                    Add a new resource 
+                </Typography>
+            </Grid>
+        </Grid>
+    );
+
     return (
         <div className={classes.root}>
             {serviceST && (
@@ -159,7 +181,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                                 {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
                             </span>
                         </div>
-                        <div className={classes.serviceConfigure} onClick={handlePlusClick} >
+                        <div className={classes.resourceAdd} onClick={handlePlusClick} >
                             <AddIcon />
                             <div>Add Resource</div>
                         </div>
@@ -168,18 +190,20 @@ export function ServiceDesign(props: ServiceDesignProps) {
                             <div>Configure Service</div>
                         </div>
                     </div>
-                    <div className={classes.expandAll}>
-                        <div className={classes.collapseBtn} onClick={onExpandAllClick}>
-                            {isAllExpanded ? 'Collapse All' : 'Expand All'}
-                            <ComponentExpandButton
-                                isExpanded={isAllExpanded}
-                                onClick={onExpandAllClick}
-                            />
+                    {children.length > 0 &&
+                        <div className={classes.expandAll}>
+                            <div className={classes.collapseBtn} onClick={onExpandAllClick}>
+                                {isAllExpanded ? 'Collapse All' : 'Expand All'}
+                                <ComponentExpandButton
+                                    isExpanded={isAllExpanded}
+                                    onClick={onExpandAllClick}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    }
                     <div className={classes.serviceList}>
                         <>
-                            {children}
+                            {children.length > 0 ? children : emptyView}
                         </>
                     </div>
 

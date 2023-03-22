@@ -59,12 +59,15 @@ enum ParamEditorInputTypes {
     DEFAULT_VALUE
 }
 
+
 export function ResponseEditor(props: ParamProps) {
     const {
         segmentId, syntaxDiagnostics, model, alternativeName, isEdit, option, optionList, isTypeReadOnly, onChange,
         onCancel, completions, httpMethodName
     } = props;
     const classes = useStyles();
+    
+    const subTypeText = "Define a name record for the return type";
 
     const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
 
@@ -132,7 +135,7 @@ export function ResponseEditor(props: ParamProps) {
     }
 
     const handleNameChange = (value: string) => {
-        setAnonymousValue(value);
+        setAnonymousValue(value.replace(/\s/g, ''));
         // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         // const type = model.typeName.source.trim();
         // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
@@ -196,13 +199,21 @@ export function ResponseEditor(props: ParamProps) {
         onCancel();
     }
 
-    const handleListenerDefModeChange = async (mode: string[]) => {
-        setSubType(mode.length > 0);
+    const handleSubTypeCreation = (mode: string[]) => {
+        if (mode.length > 0) {
+            const responseCode = optionList.find(item => item.title === response);
+            const responseName = responseCode.source.split(":")[1];
+            const nameValue = `${responseName}${typeValue}`;
+            setAnonymousValue(nameValue);
+            setSubType(true);
+        } else {
+            setSubType(false);
+            setAnonymousValue("");
+        }
     }
 
     const subTypeEditor = (
         <>
-            <FieldTitle title='Subtype Record Name' optional={true} />
             <LiteExpressionEditor
                 testId="anonymous-record-name"
                 defaultValue={anonymousValue}
@@ -257,9 +268,9 @@ export function ResponseEditor(props: ParamProps) {
 
                     <CheckBoxGroup
                         className={classes.subType}
-                        values={["Define Subtype"]}
-                        defaultValues={subType ? ["Define Subtype"] : []}
-                        onChange={handleListenerDefModeChange}
+                        values={[subTypeText]}
+                        defaultValues={subType ? [subTypeText] : []}
+                        onChange={handleSubTypeCreation}
                     />
 
                     {subType && subTypeEditor}

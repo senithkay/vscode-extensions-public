@@ -109,6 +109,7 @@ function TypeBrowserC(props: TypeBrowserProps) {
                 }
                 blurOnSelect={true}
                 filterOptions={filterOptions}
+                style={{height: "18px"}}
             />
             {isLoading && <LinearProgress />}
             {selectedTypeStr && expressionDiagnosticMsg && (
@@ -159,4 +160,5 @@ const TextFieldStyled = styled(TextField)`
     border-radius: 5px;
     padding: 2px 6px;
     background-color: #ffffff;
+    height: 36.44px;
 `;
