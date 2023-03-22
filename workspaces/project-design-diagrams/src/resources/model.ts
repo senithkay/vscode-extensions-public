@@ -184,6 +184,7 @@ export enum ServiceTypes {
 export enum Colors {
     DIAGRAM_BACKGROUND = '#FFF',
     CELL_DIAGRAM_BACKGROUND = '#eeeffb',
+    CONSOLE_CELL_DIAGRAM_BACKGROUND = '#f7f8fb',
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',

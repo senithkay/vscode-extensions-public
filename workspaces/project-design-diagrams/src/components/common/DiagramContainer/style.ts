@@ -19,7 +19,7 @@ export const CellContainer = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
-  clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+  clip-path: ${(props: CellContainerProps) => props.isConsoleView ? 'polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%)' : 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)'};
   &:before {
     position: absolute;
     z-index: -1;
@@ -39,7 +39,7 @@ export const CanvasWrapper = styled.div`
   left: 1px;
   width: calc(100% - 2px);
   height: calc(100% - 2px);
-  clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+  clip-path: ${(props: CellContainerProps) => props.isConsoleView ? 'polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%)' : 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)'};
 `;
 
 interface CellContainerProps {

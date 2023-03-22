@@ -39,8 +39,8 @@ export function CellDiagram(props: CellDiagramProps) {
         <div>
             <CellContainerWrapper isConsoleView={isConsoleView}>
                 <Gateways/>
-                <CellContainer>
-                    <CanvasWrapper>
+                <CellContainer isConsoleView={isConsoleView}>
+                    <CanvasWrapper isConsoleView={isConsoleView}>
                         <DiagramCanvasWidget
                             type={Views.CELL_VIEW}
                             model={cellModel}

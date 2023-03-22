@@ -68,7 +68,14 @@ export function DesignDiagram(props: DiagramProps) {
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
-    const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
+    let diagramBGColor;
+    if (isConsoleView) {
+        diagramBGColor = Colors.CONSOLE_CELL_DIAGRAM_BACKGROUND;
+    } else if (currentView === Views.CELL_VIEW) {
+        diagramBGColor = Colors.CELL_DIAGRAM_BACKGROUND;
+    } else {
+        diagramBGColor = Colors.DIAGRAM_BACKGROUND;
+    }
 
     useEffect(() => {
         refreshDiagram();
@@ -128,16 +135,18 @@ export function DesignDiagram(props: DiagramProps) {
                             }
                             {connectorTarget &&
                                 <ConnectorWizard service={connectorTarget} onClose={onConnectorWizardClose} />}
-                            <DiagramHeader
-                                currentView={currentView}
-                                prevView={previousScreen.current}
-                                layout={layout}
-                                changeLayout={changeDiagramLayout}
-                                projectPackages={projectPkgs}
-                                switchView={setCurrentView}
-                                updateProjectPkgs={setProjectPkgs}
-                                onRefresh={refreshDiagram}
-                            />
+                            {!isConsoleView && (
+                                <DiagramHeader
+                                    currentView={currentView}
+                                    prevView={previousScreen.current}
+                                    layout={layout}
+                                    changeLayout={changeDiagramLayout}
+                                    projectPackages={projectPkgs}
+                                    switchView={setCurrentView}
+                                    updateProjectPkgs={setProjectPkgs}
+                                    onRefresh={refreshDiagram}
+                                />
+                            )}
                             <DiagramContainer
                                 currentView={currentView}
                                 layout={layout}
