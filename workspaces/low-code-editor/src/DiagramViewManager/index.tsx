@@ -221,85 +221,88 @@ export function DiagramViewManager(props: EditorProps) {
 
     const viewComponent: React.ReactElement[] = [];
 
-    if (history.length > 0 && history[history.length - 1].position && !focusedST) {
-        viewComponent.push(<TextPreLoader position={'absolute'} />);
-    } else if (!focusedST && fileList) {
-        const currentFileName = fileList.find(file => file.uri.path === focusFile)?.fileName;
-        viewComponent.push((
-            <OverviewDiagram
-                currentProject={currentProject}
-                currentFile={focusFile}
-                currentFileName={currentFileName}
-                notifyComponentSelection={updateSelectedComponent}
-                updateCurrentFile={setFocusFile}
-                fileList={fileList}
-                lastUpdatedAt={updatedTimeStamp}
-            />
-        ));
-    } else if (focusedST) {
-        if (STKindChecker.isServiceDeclaration(focusedST)) {
-            const listenerExpression = focusedST.expressions[0];
-            const typeData = listenerExpression.typeData;
-            const typeSymbol = typeData?.typeSymbol;
-            const signature = typeSymbol?.signature;
-            if (serviceTypeSignature && serviceTypeSignature.includes('http')) {
+    if (currentFileContent) {
+        if (history.length > 0 && history[history.length - 1].position && !focusedST) {
+            viewComponent.push(<TextPreLoader position={'absolute'} />);
+        } else if (!focusedST && fileList) {
+            const currentFileName = fileList.find(file => file.uri.path === focusFile)?.fileName;
+            viewComponent.push((
+                <OverviewDiagram
+                    currentProject={currentProject}
+                    currentFile={focusFile}
+                    currentFileName={currentFileName}
+                    notifyComponentSelection={updateSelectedComponent}
+                    updateCurrentFile={setFocusFile}
+                    fileList={fileList}
+                    lastUpdatedAt={updatedTimeStamp}
+                />
+            ));
+        } else if (focusedST) {
+            if (STKindChecker.isServiceDeclaration(focusedST)) {
+                const listenerExpression = focusedST.expressions[0];
+                const typeData = listenerExpression.typeData;
+                const typeSymbol = typeData?.typeSymbol;
+                const signature = typeSymbol?.signature;
+                if (serviceTypeSignature && serviceTypeSignature.includes('http')) {
+                    viewComponent.push((
+                        <ServiceDesignOverlay
+                            model={focusedST}
+                            targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                            onCancel={handleNavigationHome}
+                        />
+                    ));
+                } else if (experimentalEnabled && serviceTypeSignature && serviceTypeSignature.includes('graphql')) {
+                    viewComponent.push(
+                        <GraphqlDiagramOverlay
+                            model={focusedST}
+                            targetPosition={focusedST.position}
+                            ballerinaVersion={balVersion}
+                            onCancel={handleNavigationHome}
+                        />
+                    );
+                } else if (signature && signature === "$CompilationError$") {
+                    viewComponent.push((
+                        <ServiceInvalidOverlay />
+                    ));
+                } else {
+                    viewComponent.push(
+                        <ServiceUnsupportedOverlay />
+                    )
+                }
+            } else if (STKindChecker.isFunctionDefinition(focusedST)
+                && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
                 viewComponent.push((
-                    <ServiceDesignOverlay
-                        model={focusedST}
+                    <DataMapperOverlay
                         targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                        onCancel={handleNavigationHome}
-                    />
-                ));
-            } else if (experimentalEnabled && serviceTypeSignature && serviceTypeSignature.includes('graphql')) {
-                viewComponent.push(
-                    <GraphqlDiagramOverlay
                         model={focusedST}
-                        targetPosition={focusedST.position}
                         ballerinaVersion={balVersion}
                         onCancel={handleNavigationHome}
                     />
-                );
-            } else if (signature && signature === "$CompilationError$") {
-                viewComponent.push((
-                    <ServiceInvalidOverlay />
-                ));
+                ))
+            } else if (STKindChecker.isTypeDefinition(focusedST)
+                && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
+                // Navigate to record composition view
+                const recordST = { ...focusedST }; // Clone focusedST
+                const name = recordST.typeName.value;
+                const module = recordST.typeData?.symbol?.moduleID;
+                if (!(name && module)) {
+                    // TODO: Handle error properly
+                    // tslint:disable-next-line
+                    console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
+                } else {
+                    const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
+                    props.openArchitectureView(nodeId);
+                }
+                // Show file view, clear focus syntax tree
+                setFocusedST(undefined);
+                setFocusUid(undefined);
+                handleNavigationHome();
             } else {
-                viewComponent.push(
-                    <ServiceUnsupportedOverlay />
-                )
+                viewComponent.push(<Diagram />);
             }
-        } else if (STKindChecker.isFunctionDefinition(focusedST)
-            && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
-            viewComponent.push((
-                <DataMapperOverlay
-                    targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                    model={focusedST}
-                    ballerinaVersion={balVersion}
-                    onCancel={handleNavigationHome}
-                />
-            ))
-        } else if (STKindChecker.isTypeDefinition(focusedST)
-            && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
-            // Navigate to record composition view
-            const recordST = { ...focusedST }; // Clone focusedST
-            const name = recordST.typeName.value;
-            const module = recordST.typeData?.symbol?.moduleID;
-            if (!(name && module)) {
-                // TODO: Handle error properly
-                // tslint:disable-next-line
-                console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
-            } else {
-                const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
-                props.openArchitectureView(nodeId);
-            }
-            // Show file view, clear focus syntax tree
-            setFocusedST(undefined);
-            setFocusUid(undefined);
-            handleNavigationHome();
-        } else {
-            viewComponent.push(<Diagram />);
         }
     }
+
     const navigateUptoParent = (position: NodePosition) => {
         if (!position) {
             return;
