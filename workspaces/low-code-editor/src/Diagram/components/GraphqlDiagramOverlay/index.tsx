@@ -38,17 +38,18 @@ export interface GraphqlDesignOverlayProps {
     ballerinaVersion?: string;
     onCancel?: () => void;
     configOverlayFormStatus?: ConfigOverlayFormStatus;
+    goToSource: (filePath: string, position: NodePosition) => void;
 }
 
 export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
-    const { targetPosition, ballerinaVersion, onCancel: onClose, model } = props;
+    const { targetPosition, ballerinaVersion, onCancel: onClose, model, goToSource } = props;
 
     const graphQLStyleClasses = graphQLOverlayStyles();
 
     const {
         props: { currentFile, syntaxTree: lowcodeST, fullST },
         api: {
-            code: { modifyDiagram },
+            code: { modifyDiagram,  },
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
@@ -125,6 +126,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 operationDesignView={handleDesignOperationClick}
                 onDelete={handleDeleteBtnClick}
                 fullST={fullST}
+                goToSource={goToSource}
             />
             {enableFunctionForm &&
             <FormGenerator {...formConfig}/>

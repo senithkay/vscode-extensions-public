@@ -58,7 +58,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     const [authorizedOrgs, setAuthorizedOrgs] = useState<GithubOrgnization[]>([]);
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
     const [isFetchingRepos, setIsFetchingRepos] = useState(false);
-    const [selectedRepository, setSelectedRepo] = useState<[GithubOrgnization,GithubRepository] | undefined>(undefined);
+    const [selectedRepository, setSelectedRepo] = useState<[GithubOrgnization, GithubRepository] | undefined>(undefined);
 
     useEffect(() => {
         if (selectedRepo?.org) {
@@ -135,6 +135,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const handleGhRepoChange = (e: any) => {
         if (selectedRepository) {
+            // eslint-disable-next-line
             setSelectedRepo([selectedRepository[0], selectedRepository[0].repositories.find(repo => repo.name === e.target.value)!]);
         }
     };

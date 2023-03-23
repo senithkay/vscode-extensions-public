@@ -20,6 +20,7 @@ import { RecordIcon } from "../../../resources/assets/icons/RecordIcon";
 import { HeaderName } from "../../../resources/styles/styles";
 import { RecordNodeModel } from "../RecordNodeModel";
 import { RecordHead } from "../styles";
+import { CtrlClickHandler } from "../../../CtrlClickHandler";
 
 interface RecordHeadProps {
     engine: DiagramEngine;
@@ -38,21 +39,31 @@ export function RecordHeadWidget(props: RecordHeadProps) {
     }, [node]);
 
     return (
-        <RecordHead>
-            <RecordIcon/>
-            <GraphqlBasePortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-            <HeaderName>{displayName}</HeaderName>
-            <GraphqlBasePortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
-            <GraphqlBasePortWidget
-                port={node.getPort(`top-${node.getID()}`)}
-                engine={engine}
-            />
-        </RecordHead>
+        <CtrlClickHandler
+            filePath={node.recordObject.position.filePath}
+            position={{
+                startLine: node.recordObject.position.startLine.line,
+                startColumn: node.recordObject.position.startLine.offset,
+                endLine: node.recordObject.position.endLine.line,
+                endColumn: node.recordObject.position.endLine.offset,
+            }}
+        >
+            <RecordHead>
+                <RecordIcon />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`left-${node.getID()}`)}
+                    engine={engine}
+                />
+                <HeaderName>{displayName}</HeaderName>
+                <GraphqlBasePortWidget
+                    port={node.getPort(`right-${node.getID()}`)}
+                    engine={engine}
+                />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`top-${node.getID()}`)}
+                    engine={engine}
+                />
+            </RecordHead>
+        </CtrlClickHandler>
     );
 }

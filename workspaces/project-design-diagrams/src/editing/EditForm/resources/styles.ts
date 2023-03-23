@@ -19,7 +19,7 @@
 
 import styled from '@emotion/styled';
 
-export const PrimaryContainer = styled.div`
+export const PrimaryContainer: React.FC<any> = styled.div`
     display: flex;
     flex-direction: column;
     font-family: GilmerRegular;

@@ -33,7 +33,7 @@ interface ContainerStyleProps {
     backgroundColor?: string;
 }
 
-const Container = styled.div`
+const Container: React.FC<any> = styled.div`
     align-items: center;
     background: ${(props: ContainerStyleProps) => `${props.backgroundColor}`};
     display: flex;

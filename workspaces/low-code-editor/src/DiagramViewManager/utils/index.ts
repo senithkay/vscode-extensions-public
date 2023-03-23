@@ -50,7 +50,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+        getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
@@ -193,8 +193,8 @@ export function getDiagramProviderProps(
                     // TODO: Add perf data
                     // await addPerfData(visitedST);
                 },
-                gotoSource: (position: { startLine: number; startColumn: number; }) => {
-                    props.gotoSource(focusFile, position);
+                gotoSource: (position: { startLine: number; startColumn: number; }, filePath?: string) => {
+                    props.gotoSource(filePath && filePath.length > 0 ? filePath : focusFile, position);
                 },
                 getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
                     const langClient = await langClientPromise;

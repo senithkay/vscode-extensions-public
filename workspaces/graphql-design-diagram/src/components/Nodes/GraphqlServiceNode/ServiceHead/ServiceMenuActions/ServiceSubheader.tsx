@@ -16,12 +16,12 @@ import React, { useContext } from "react";
 
 import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { useStyles } from "@wso2-enterprise/project-design-diagrams/lib/components/common/NodeMenu/components/styles";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../../../../resources/model";
 
 import { AddFunctionWidget } from "./AddFunctionWidget";
+import { useStyles } from "./styles";
 
 interface ServiceSubheaderProps {
     location: Position;

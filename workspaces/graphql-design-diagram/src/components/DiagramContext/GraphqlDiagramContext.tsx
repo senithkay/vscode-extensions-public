@@ -24,6 +24,7 @@ interface GraphqlDiagramContextProps {
     operationDesignView?: (functionPosition: NodePosition) => void;
     onDelete?: (position: NodePosition) => void;
     fullST?: STNode;
+    goToSource?: (filePath: string, position: NodePosition) => void
 }
 
 export const DiagramContext = createContext({
@@ -32,13 +33,16 @@ export const DiagramContext = createContext({
         model: undefined,
         operationDesignView: (functionPosition: NodePosition) => {},
         onDelete: (position: NodePosition) => {},
-        fullST: undefined
+        fullST: undefined,
+        goToSource: (filePath: string, position: NodePosition) => {},
     }
 );
 
 export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
 
-    const { children, functionPanel, servicePanel, model, operationDesignView, onDelete, fullST } = props;
+    const { 
+        children, functionPanel, servicePanel, model, operationDesignView, onDelete, fullST, goToSource 
+    } = props;
 
     return (
         <DiagramContext.Provider
@@ -48,10 +52,14 @@ export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
                 model,
                 operationDesignView,
                 onDelete,
-                fullST
+                fullST,
+                goToSource
             }}
         >
             {children}
         </DiagramContext.Provider>
     );
 }
+
+export const useGraphQlContext = () => React.useContext(DiagramContext);
+

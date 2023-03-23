@@ -13,7 +13,7 @@
 import React from "react";
 
 import { ClickAwayListener, Popover } from "@material-ui/core";
-import { Apps, ArrowBack, ArrowDropDown,  Home } from "@material-ui/icons";
+import { Apps, ArrowBack, ArrowDropDown, Home } from "@material-ui/icons";
 
 import { PackageIcon } from "../../assets/icons";
 import { WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
@@ -21,6 +21,7 @@ import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
+import { CtrlClickWrapper } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 interface NavigationBarProps {
     workspaceName: string;
@@ -81,7 +82,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
         return (
             <div className="btn-container" ref={popoverRef} onClick={handlePojectSelectorOpen} >
-                <PackageIcon className={'icon'}/>
+                <PackageIcon className={'icon'} />
                 <span className="icon-text">{currentProject?.name || ''}</span>
                 <ArrowDropDown />
                 <Popover

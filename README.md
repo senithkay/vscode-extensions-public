@@ -1,76 +1,75 @@
-# The Ballerina extension for Visual Studio Code
+# Ballerina/Choreo vscode extensions mono-repo
 
-The Ballerina extension for Visual Studio Code provides a set of rich language features along with an enhanced user experience. 
+This repository contains a mono-repo of Ballerina and Choreo VSCode extensions and libraries. This project consists of multiple packages, each having their own source code and dependencies.
 
-It offers easy development, execution, debugging, and testing for the [Ballerina programming language](https://ballerina.io/). The Ballerina language possesses a bidirectional mapping between its syntaxes and the visual representation. You can visualize the graphical representation of your Ballerina source further via the extension.
+## Prerequisites
 
-<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/low-code-view.gif?raw=true" width="100%" />
+Before you can use this repository, you must have the following installed on your system:
 
-## Quick start
+- Node.js version 16.3.
 
-Follow the steps below to get the Ballerina VS Code extension up and running.
+- npm version 8.5 .
 
-1. [Install the extension](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
-2. [Run a program](https://wso2.com/ballerina/vscode/docs/get-started/run-a-program/).
+- pnpm version 7.26 or later. You can install it by running the following command:
 
-## Features
+    ```bash
+    npm install -g pnpm
+    ``` 
+- Rush.js version 5.89 or later. You can install it by running the following command:
 
-The main functionalities of the extension are listed below.
+    ```bash
+    npm install -g @microsoft/rush
+    ```
+## Installation
 
-### Code editing
+To install the dependencies for this repository, you can run the following command:
 
-Use the following features of this extension to edit Ballerina code via the VS Code extension.
+```bash
+rush install
+```
 
-- [IntelliSense](https://wso2.com/ballerina/vscode/docs/edit-the-code/intellisense/)
-- [Code navigation](https://wso2.com/ballerina/vscode/docs/edit-the-code/code-navigation/)
-- [Code actions](https://wso2.com/ballerina/vscode/docs/edit-the-code/code-actions/)
-- [Diagnostics](https://wso2.com/ballerina/vscode/docs/edit-the-code/diagnostics/)
-- [Commands](https://wso2.com/ballerina/vscode/docs/edit-the-code/commands/)
+This command will install all the dependencies for all the workspaces in the mono-repo.
 
-### Visual programming
+## Building the Mono-Repo
 
-The VS Code extension allows you to visualize a program written in Ballerina as a graphical representation of the code. This graphical view displays the logic and network interaction of a function or a service resource, which makes it easy to understand the source. 
+To build the entire mono-repo, you can run the following command:
 
-- [Sequence Diagram view](https://wso2.com/ballerina/vscode/docs/visual-programming/sequence-diagram-view/)
-- [Project Design view](https://wso2.com/ballerina/vscode/docs/visual-programming/project-design-view/)
-- [Data Mapper](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/)
+```bash
+rush build
+```
 
-### Debugging capabilities
+This command will build all the packages in the mono-repo. The repository is configured to use a local build cache, so only the changed packages will be built.
 
-Use the following features to debug your Ballerina programs via the VS Code extension.
+### Building a Single Workspace
 
-- [Debug using CodeLens](https://wso2.com/ballerina/vscode/docs/debug-the-code/#debug-using-codelens)
-- [Debug using configurations](https://wso2.com/ballerina/vscode/docs/debug-the-code/#debug-using-configurations)
-- [Set up debugging configurations](https://wso2.com/ballerina/vscode/docs/debug-the-code/#set-up-debugging-configurations)
-- [Use the debugging features](https://wso2.com/ballerina/vscode/docs/debug-the-code/#use-the-debugging-features)
+To build a single workspace in the mono-repo, you can run the following command:
 
-### Notebooks
+```bash
+rush build -o <package name>
+```
 
-Use the following features to work with Ballerina notebooks via the VS Code extension.
+Replace <package name> with the name of the package you want to build.
 
-- [Create a notebook](https://wso2.com/ballerina/vscode/docs/notebooks/#create-a-notebook)
-- [Execute the code](https://wso2.com/ballerina/vscode/docs/notebooks/#execute-the-code)
-- [Edit the code](https://wso2.com/ballerina/vscode/docs/notebooks/#edit-the-code)
-- [View variables](https://wso2.com/ballerina/vscode/docs/notebooks/#view-variables)
-- [Debug notebooks](https://wso2.com/ballerina/vscode/docs/notebooks/#debug-notebooks)
+Example: To build ballerina-low-code-editor, you can run the followind command:
+```bash
+rush build -o @wso2-enterprise/ballerina-low-code-editor
+```
+### Adding a New Package
 
-## Configure the extension
+To add a new package to the mono-repo, you can use the following command:
 
-You can configure the Ballerina VS Code extension to get a custom user experience. For more details, see [Configure the extension](https://wso2.com/ballerina/vscode/docs/configure-the-extension/).
+```bash
+rush add -p <package-name> 
+```
 
-## Troubleshoot
+Replace <package-name> with the name of the package you want to add. If `-m` argument passed, other packages with this dependency will have their package.json files updated to use the same version of the dependency
 
-For troubleshooting, see the Ballerina output. To view the Ballerina output tab, click **View**, click **Output,** and select **Ballerina** from the output list. It provides additional information if the plugin fails to detect a Ballerina distribution.  
+## Other Important Commands
 
-You can also enable the [debug logs](https://wso2.com/ballerina/vscode/docs/configure-the-extension/#advanced-configurations) from the Ballerina extension settings to view any issues arising from the extension features.
-
-## Documentation
-
-The [Ballerina VS Code Extension Documentation](https://wso2.com/ballerina/vscode/docs/) describes the functionalities of this extension in detail.
-
-## Ask for help
-
-Create [GitHub issues](https://github.com/wso2/ballerina-plugin-vscode/issues) to reach out to us.
+- `rush update`: This command updates the dependencies shrinkwrap file in the mono-repo.
+- `rush rebuild`: This command cleans the common/temp folder and then runs rush build command.
+- `rush check`: This command checks the consistency of the package dependencies, and ensures that all the packages are built with the same version of the dependencies.
+- `rush purge`: This command cleans up the temporary files and folders in the mono-repo.
 
 ## License
 

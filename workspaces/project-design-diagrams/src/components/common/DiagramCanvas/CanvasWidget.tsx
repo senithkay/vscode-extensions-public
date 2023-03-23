@@ -18,7 +18,8 @@
  */
 
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { DagreEngine, DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import {  DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import debounce from 'lodash.debounce';

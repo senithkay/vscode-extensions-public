@@ -43,9 +43,6 @@ export function GraphqlClassForm(props: ClassFormProps) {
     const [className, setClassName] = useState<string>(model?.className.value);
     const [diagnostics, setDiagnostics] = useState<SyntaxDiagnostics[]>(undefined);
 
-    console.log(">>> model", model);
-    console.log(">>> fullST", fullST);
-
     const handleClassNameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const name = event.target?.value.trim();
         setClassName(name);
@@ -77,7 +74,6 @@ export function GraphqlClassForm(props: ClassFormProps) {
         // update the class name
         const updatedContent = getUpdatedSource(name.trim(), fullST?.source, classNamePosition, undefined, true);
         const partialST = await getPartialSTForModulePart({ codeSnippet: updatedContent.trim() }, getLangClient);
-        console.log(">>> partialST", partialST);
         if (!partialST.syntaxDiagnostics.length) {
             // onChange(updatedContent, partialST, undefined, { model: model }, name, completionEditorTypeKinds, 0, { startLine: -1, startColumn: -4 });
             setDiagnostics(undefined);

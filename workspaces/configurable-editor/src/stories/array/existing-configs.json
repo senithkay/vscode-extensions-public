@@ -1,31 +1,31 @@
 {
     "user": {
         "test": {
-            "switches": [
+            "switches": {"value": [
                 true,
                 false,
                 false
-            ],
-            "rates": [
+            ], "valueReference":"switchesRef"},
+            "rates": {"value": [
                 11.56,
                 0.98
-            ],
-            "values": [
+            ], "valueReference":""},
+            "values": {"value": [
                 12.2
-            ],
-            "colors": [
+            ], "valueReference":""},
+            "colors": {"value": [
                 "green",
                 "red"
-            ],
-            "count": [
+            ], "valueReference":""},
+            "count": {"value": [
                 12.8,
                 55.1
-            ],
-            "ports": [
+            ], "valueReference":""},
+            "ports": {"value": [
                 12,
                 10
-            ],
-            "people": [
+            ], "valueReference":""},
+            "people": {"value": [
                 {
                     "name": "Jack",
                     "type": "student"
@@ -33,8 +33,8 @@
                 {
                     "name": "Jill"
                 }
-            ],
-            "employees": [
+            ], "valueReference":""},
+            "employees": {"value": [
                 {
                     "name": "Jane",
                     "age": 45
@@ -43,12 +43,12 @@
                     "name": "Robin",
                     "age": 23
                 }
-            ],
-            "users": [
+            ], "valueReference":""},
+            "users": {"value": [
                 {
                     "hello": "everyone"
                 }
-            ]
+            ], "valueReference":""}
         }
     }
 }

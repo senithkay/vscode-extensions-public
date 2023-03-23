@@ -56,7 +56,8 @@ export function DiagramViewManager(props: EditorProps) {
         getEnv,
         getBallerinaVersion,
         workspaceName,
-        getAllFiles
+        getAllFiles,
+        gotoSource
     } = props;
     const classes = useGeneratorStyles();
 
@@ -257,6 +258,7 @@ export function DiagramViewManager(props: EditorProps) {
                         targetPosition={focusedST.position}
                         ballerinaVersion={balVersion}
                         onCancel={handleNavigationHome}
+                        goToSource={gotoSource}
                     />
                 );
             } else if (signature && signature === "$CompilationError$") {

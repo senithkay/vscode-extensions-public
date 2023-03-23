@@ -21,6 +21,7 @@ import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
 import { ServiceClassNodeModel } from "../ServiceClassNodeModel";
 
 import { ClassHeaderMenu } from "./ClassHeaderMenu";
+import { CtrlClickHandler } from "../../../CtrlClickHandler";
 
 interface ServiceClassHeadProps {
     engine: DiagramEngine;
@@ -39,22 +40,32 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
     }, [node]);
 
     return (
-        <NodeHeader>
-            <ServiceClassIcon/>
-            <GraphqlBasePortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-            <HeaderName>{displayName}</HeaderName>
-            <ClassHeaderMenu location={node.classObject.position}/>
-            <GraphqlBasePortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
-            <GraphqlBasePortWidget
-                port={node.getPort(`top-${node.getID()}`)}
-                engine={engine}
-            />
-        </NodeHeader>
+        <CtrlClickHandler
+            filePath={node.classObject.position.filePath}
+            position={{
+                startLine: node.classObject.position.startLine.line,
+                startColumn: node.classObject.position.startLine.offset,
+                endLine: node.classObject.position.endLine.line,
+                endColumn: node.classObject.position.endLine.offset,
+            }}
+        >
+            <NodeHeader>
+                <ServiceClassIcon />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`left-${node.getID()}`)}
+                    engine={engine}
+                />
+                <HeaderName>{displayName}</HeaderName>
+                <ClassHeaderMenu location={node.classObject.position} />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`right-${node.getID()}`)}
+                    engine={engine}
+                />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`top-${node.getID()}`)}
+                    engine={engine}
+                />
+            </NodeHeader>
+        </CtrlClickHandler>
     );
 }

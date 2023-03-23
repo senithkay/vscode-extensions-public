@@ -20,7 +20,7 @@ import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
 import { ProjectOverview } from "./ProjectOverview/ProjectOverview";
 import { ChoreoArchitectureView } from "./ChoreoArchitectureView/ArchitectureView";
 
-export const Main = styled.main`
+export const Main: React.FC<any> = styled.main`
   display: flex;
   flex-direction: row;
   justify-content: center;

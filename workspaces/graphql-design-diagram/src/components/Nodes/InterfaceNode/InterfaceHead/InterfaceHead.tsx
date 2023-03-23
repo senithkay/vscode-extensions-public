@@ -19,6 +19,7 @@ import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIcon";
 import { HeaderName, InterfaceNodeHeader, InterfaceSubHeader } from "../../../resources/styles/styles";
 import { InterfaceNodeModel } from "../InterfaceNodeModel";
+import { CtrlClickHandler } from "../../../CtrlClickHandler";
 
 interface InterfaceHeadProps {
     engine: DiagramEngine;
@@ -37,24 +38,34 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
     }, [node]);
 
     return (
-        <InterfaceNodeHeader>
-            <div>{"<<interface>>"}</div>
-            <InterfaceSubHeader>
-                <ServiceClassIcon/>
-                <GraphqlBasePortWidget
-                    port={node.getPort(`left-${node.getID()}`)}
-                    engine={engine}
-                />
-                <HeaderName>{displayName}</HeaderName>
-                <GraphqlBasePortWidget
-                    port={node.getPort(`right-${node.getID()}`)}
-                    engine={engine}
-                />
-                <GraphqlBasePortWidget
-                    port={node.getPort(`top-${node.getID()}`)}
-                    engine={engine}
-                />
-            </InterfaceSubHeader>
-        </InterfaceNodeHeader>
+        <CtrlClickHandler
+            filePath={node.interfaceObject.position.filePath}
+            position={{
+                startLine: node.interfaceObject.position.startLine.line,
+                startColumn: node.interfaceObject.position.startLine.offset,
+                endLine: node.interfaceObject.position.endLine.line,
+                endColumn: node.interfaceObject.position.endLine.offset,
+            }}
+        >
+            <InterfaceNodeHeader>
+                <div>{"<<interface>>"}</div>
+                <InterfaceSubHeader>
+                    <ServiceClassIcon/>
+                    <GraphqlBasePortWidget
+                        port={node.getPort(`left-${node.getID()}`)}
+                        engine={engine}
+                    />
+                    <HeaderName>{displayName}</HeaderName>
+                    <GraphqlBasePortWidget
+                        port={node.getPort(`right-${node.getID()}`)}
+                        engine={engine}
+                    />
+                    <GraphqlBasePortWidget
+                        port={node.getPort(`top-${node.getID()}`)}
+                        engine={engine}
+                    />
+                </InterfaceSubHeader>
+            </InterfaceNodeHeader>
+        </CtrlClickHandler>
     );
 }

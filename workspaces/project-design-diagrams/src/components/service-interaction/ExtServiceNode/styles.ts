@@ -20,7 +20,7 @@
 import styled from '@emotion/styled';
 import { Colors } from '../../../resources';
 
-export const Container = styled.div`
+export const Container: React.FC<any> = styled.div`
     align-items: center;
     color: ${Colors.PRIMARY};
     display: flex;
@@ -35,7 +35,7 @@ export const Container = styled.div`
     text-transform: capitalize;
 `;
 
-export const IconContainer = styled.div`
+export const IconContainer: React.FC<any> = styled.div`
 	align-items: center;
 	background-color: #FFFFFF;
 	border: ${(props: { isSelected: boolean }) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};

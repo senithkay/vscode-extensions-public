@@ -33,7 +33,7 @@ interface StyleProps {
     shouldShade?: boolean;
 }
 
-export const EntityNode = styled.div`
+export const EntityNode: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
     border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
@@ -47,7 +47,7 @@ export const EntityNode = styled.div`
     opacity: ${(props: StyleProps) => props.shouldShade ? 0.85 : 1};
 `;
 
-export const EntityHead = styled.div`
+export const EntityHead: React.FC<any> = styled.div`
     align-items: center;
     border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY}`};
@@ -62,7 +62,7 @@ export const EntityHead = styled.div`
     text-align: center;
 `;
 
-export const EntityName = styled.span`
+export const EntityName: React.FC<any> = styled.span`
     &:hover {
         color: ${(props: StyleProps) => props.isClickable ? (props.isAnonymous ? ANON_RECORD_HOVER : PRIMARY_HOVER) : ``};
         cursor: ${(props: StyleProps) => props.isClickable ? `grabbing` : ``};
@@ -70,7 +70,7 @@ export const EntityName = styled.span`
     }
 `;
 
-export const AttributeContainer = styled.div`
+export const AttributeContainer: React.FC<any>  = styled.div`
     align-items: center;
     background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
     border-bottom: 0.5px solid #cccde3;
@@ -97,7 +97,7 @@ export const AttributeName = styled.span`
     text-align: left;
 `;
 
-export const AttributeType = styled.span`
+export const AttributeType: React.FC<any>  = styled.span`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SHADED_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
     border-radius: 3px;

@@ -186,6 +186,7 @@ function getNestedElements(nestedObjects: ConfigElementProps[], connectionConfig
             schema: property.schema,
             type: property.type,
             value: property.value,
+            valueRef: property.valueRef,
         });
     });
     return properties;

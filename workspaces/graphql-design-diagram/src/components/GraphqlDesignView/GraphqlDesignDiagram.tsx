@@ -44,6 +44,7 @@ export interface GraphqlDesignDiagramProps {
     operationDesignView?: (functionPosition: NodePosition) => void;
     onDelete?: (position: NodePosition) => void;
     fullST?: STNode;
+    goToSource?: (filePath: string, position: NodePosition) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -66,7 +67,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         servicePanel,
         operationDesignView,
         onDelete,
-        fullST
+        fullST,
+        goToSource
     } = props;
 
     const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
@@ -97,7 +99,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         servicePanel,
         operationDesignView,
         onDelete,
-        fullST
+        fullST,
+        goToSource
     };
 
     return (

@@ -387,6 +387,7 @@ export function Diagram() {
                     {experimentalEnabled && isGraphQLViewOpen && (
                         <GraphqlDiagramOverlay
                             {...dataMapperArgs}
+                            goToSource={() => {}}
                         />
                     )}
                     {!isFormOpen && isConnectorConfigWizardOpen && (

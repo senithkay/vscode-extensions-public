@@ -23,6 +23,7 @@ import { FunctionContainer } from '../styles/styles';
 import { FunctionMenuWidget } from "./FunctionMenuWidget";
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
+import { CtrlClickHandler } from '../../../CtrlClickHandler';
 
 interface FunctionCardProps {
     engine: DiagramEngine;
@@ -52,28 +53,38 @@ export function FunctionCard(props: FunctionCardProps) {
     const addFunctionMenu = () => {
         if (!isResourceFunction) {
             return (
-                <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.MUTATION}/>
+                <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.MUTATION} />
             );
         } else {
             if (isSubscription) {
                 return (
-                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.SUBSCRIPTION}/>
+                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.SUBSCRIPTION} />
                 );
             } else {
                 return (
-                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.QUERY}/>
+                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.QUERY} />
                 );
             }
         }
     };
 
 
+    // TODO: create a common util for position generation
     return (
-        <FunctionContainer
-            onMouseOver={() => handleOnHover('SELECT')}
-            onMouseLeave={() => handleOnHover('UNSELECT')}
+        <CtrlClickHandler
+            filePath={functionElement.position.filePath}
+            position={{
+                startLine: functionElement.position.startLine.line,
+                endLine: functionElement.position.endLine.line,
+                startColumn: functionElement.position.startLine.offset,
+                endColumn: functionElement.position.endLine.offset,
+            }}
         >
-            {isResourceFunction ? (
+            <FunctionContainer
+                onMouseOver={() => handleOnHover('SELECT')}
+                onMouseLeave={() => handleOnHover('UNSELECT')}
+            >
+                {isResourceFunction ? (
                     <ResourceFunctionWidget
                         engine={engine}
                         node={node}
@@ -81,16 +92,17 @@ export function FunctionCard(props: FunctionCardProps) {
                         resourcePath={path}
                     />
                 )
-                : (
-                    <RemoteFunctionWidget
-                        engine={engine}
-                        node={node}
-                        remoteFunc={functionElement}
-                        remotePath={path}
-                    />
-                )
-            }
-            {isHovered && addFunctionMenu()}
-        </FunctionContainer>
+                    : (
+                        <RemoteFunctionWidget
+                            engine={engine}
+                            node={node}
+                            remoteFunc={functionElement}
+                            remotePath={path}
+                        />
+                    )
+                }
+                {isHovered && addFunctionMenu()}
+            </FunctionContainer>
+        </CtrlClickHandler>
     );
 }
