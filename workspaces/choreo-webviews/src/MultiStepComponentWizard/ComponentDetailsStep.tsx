@@ -10,10 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption, VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 import { Component, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
-import { useCallback } from "react";
 import { ErrorBanner, ErrorIcon } from "../Commons/ErrorBanner";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { RequiredFormInput } from "../Commons/RequiredInput";
@@ -98,7 +98,7 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
         {
             field: 'name',
             message: 'Componet name is already taken',
-            rule: async (value: any, formData, context) => {
+            rule: async (value: any, _formData, context) => {
                 const {  isChoreoProject, choreoProject }  = context;
                 if (isChoreoProject && choreoProject && choreoProject?.id) {
                     const components = await ChoreoWebViewAPI.getInstance().getComponents(choreoProject?.id);

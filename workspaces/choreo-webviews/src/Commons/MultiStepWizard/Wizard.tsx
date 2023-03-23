@@ -10,6 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import React from "react";
 import { VSCodeDivider, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 import styled from "@emotion/styled";

@@ -10,6 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import React from "react";
 
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
@@ -47,4 +48,3 @@ export const ComponentWizard: React.FC = () => {
         />
     );
 };
-

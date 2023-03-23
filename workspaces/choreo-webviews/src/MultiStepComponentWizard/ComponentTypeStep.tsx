@@ -10,10 +10,12 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import React from "react";
+
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ComponentTypeCard } from "./ComponentTypeCard";
 import { ChoreoComponentType, ComponentType, ComponentWizardState, ExistingChoreoComponentType } from "./types";
@@ -209,4 +211,3 @@ export const ComponentTypeStep: Step<Partial<ComponentWizardState>> = {
     component: ComponentTypeStepC,
     validationRules: []
 };
-

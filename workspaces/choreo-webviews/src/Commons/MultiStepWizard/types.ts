@@ -1,5 +1,3 @@
-import { IChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  * 
@@ -12,6 +10,8 @@ import { IChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { IChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+
 export interface WizardState<T> {
     currentStep: number;
     formData: T;

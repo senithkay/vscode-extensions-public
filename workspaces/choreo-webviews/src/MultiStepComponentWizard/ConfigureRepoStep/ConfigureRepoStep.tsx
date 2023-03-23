@@ -10,6 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing, VSCodeOption, VSCodeDropdown } from "@vscode/webview-ui-toolkit/react";
 import { GHAppAuthStatus, GithubOrgnization } from "@wso2-enterprise/choreo-client/lib/github/types";
@@ -267,7 +268,7 @@ export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
         {
             field: 'repository',
             message: 'Repository is not cloned. Please clone the repository to continue.',
-            rule: async (value: any, formData, context) => {
+            rule: async (_value: any, formData, context) => {
                 const { isChoreoProject, choreoProject } = context;
                 if (choreoProject && formData?.repository?.repo && isChoreoProject) {
                     const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(choreoProject.id);

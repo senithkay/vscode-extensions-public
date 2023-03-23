@@ -10,6 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import React from "react";
 import cn from "classnames";
 
 import styled from "@emotion/styled";

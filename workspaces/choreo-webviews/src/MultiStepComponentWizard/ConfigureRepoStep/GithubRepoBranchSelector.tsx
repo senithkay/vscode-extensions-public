@@ -10,10 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import React from "react";
 
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 
