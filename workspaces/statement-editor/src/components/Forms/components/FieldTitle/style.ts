@@ -209,7 +209,6 @@ export const useStyles = makeStyles((theme: Theme) =>
       fontSize: '12px',
       textTransform: 'capitalize',
       display: 'inline-block',
-      lineHeight: '35px',
       marginBottom: '0.06rem',
       marginLeft: '0.25rem',
       marginTop: '0px'
