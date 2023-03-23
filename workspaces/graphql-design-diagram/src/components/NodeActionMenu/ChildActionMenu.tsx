@@ -21,6 +21,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { FunctionType } from "../resources/model";
 
+import { DesignNode } from "./DesignNode";
 import { EditNode } from "./EditNode";
 
 interface ChildActionMenuProps {
@@ -43,6 +44,7 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
                     <Paper style={{maxWidth: "100%"}}>
                         <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
                             <EditNode model={model} functionType={functionType}/>
+                            <DesignNode model={model}/>
                         </MenuList>
                     </Paper>
                 }
