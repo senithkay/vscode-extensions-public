@@ -17,7 +17,7 @@ import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIcon";
-import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
+import { HeaderName, InterfaceNodeHeader, InterfaceSubHeader } from "../../../resources/styles/styles";
 import { InterfaceNodeModel } from "../InterfaceNodeModel";
 
 interface InterfaceHeadProps {
@@ -37,22 +37,24 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
     }, [node]);
 
     return (
-        <NodeHeader>
-            <ServiceClassIcon/>
-            <GraphqlBasePortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-            <HeaderName>{displayName}</HeaderName>
-
-            <GraphqlBasePortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
-            <GraphqlBasePortWidget
-                port={node.getPort(`top-${node.getID()}`)}
-                engine={engine}
-            />
-        </NodeHeader>
+        <InterfaceNodeHeader>
+            <div>{"<<interface>>"}</div>
+            <InterfaceSubHeader>
+                <ServiceClassIcon/>
+                <GraphqlBasePortWidget
+                    port={node.getPort(`left-${node.getID()}`)}
+                    engine={engine}
+                />
+                <HeaderName>{displayName}</HeaderName>
+                <GraphqlBasePortWidget
+                    port={node.getPort(`right-${node.getID()}`)}
+                    engine={engine}
+                />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`top-${node.getID()}`)}
+                    engine={engine}
+                />
+            </InterfaceSubHeader>
+        </InterfaceNodeHeader>
     );
 }

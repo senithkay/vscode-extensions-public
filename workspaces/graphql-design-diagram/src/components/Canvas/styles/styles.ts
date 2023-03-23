@@ -17,7 +17,7 @@ import { createStyles, makeStyles } from "@material-ui/core/styles";
 export const Canvas = styled.div`
   position: relative;
   cursor: move;
-  overflow: hidden;
+  overflow: visible;
 
   & > svg {
     overflow: visible;

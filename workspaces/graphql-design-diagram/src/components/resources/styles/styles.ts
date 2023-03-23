@@ -73,6 +73,33 @@ export const NodeHeader = styled.div`
   white-space: nowrap;
 `;
 
+export const InterfaceNodeHeader = styled.div`
+  align-items: center;
+  display: flex;
+  font-family: GilmerRegular;
+  border-bottom: ${`1px solid ${Colors.PRIMARY}`};
+  font-size: 13px;
+  justify-content: center;
+  line-height: 24px;
+  padding-inline: 8px;
+  min-width: 160px;
+  text-align: center;
+  white-space: nowrap;
+  flex-direction: column;
+`;
+
+export const InterfaceSubHeader = styled.div`
+  align-items: center;
+  display: flex;
+  font-family: GilmerRegular;
+  font-size: 13px;
+  justify-content: center;
+  line-height: 24px;
+  min-width: 160px;
+  text-align: center;
+  white-space: nowrap;
+`;
+
 export const NodeFieldContainer = styled.div`
   align-items: center;
   background-color: #FFFFFF;
