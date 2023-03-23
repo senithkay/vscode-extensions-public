@@ -109,7 +109,6 @@ function TypeBrowserC(props: TypeBrowserProps) {
                 }
                 blurOnSelect={true}
                 filterOptions={filterOptions}
-                style={{height: "18px"}}
             />
             {isLoading && <LinearProgress />}
             {selectedTypeStr && expressionDiagnosticMsg && (
