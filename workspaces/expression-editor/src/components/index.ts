@@ -18,6 +18,7 @@ export * from "./ExpressionEditor";
 export * from "./ExpressionEditorLabel";
 export * from "./LiteExpressionEditor";
 export * from "./TypeBrowser";
+export * from "./LiteTextField";
 export { createSortText };
 export { transformFormFieldTypeToString };
 export { getInitialValue };

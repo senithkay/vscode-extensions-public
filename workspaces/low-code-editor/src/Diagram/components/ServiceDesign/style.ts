@@ -170,6 +170,7 @@ export const useStyles = makeStyles(() =>
             flexGrow: 1,
         },
         serviceConfigure: {
+            cursor: "pointer",
             display: "flex",
             marginLeft: 5,
             justifyContent: "center",
@@ -184,6 +185,17 @@ export const useStyles = makeStyles(() =>
             "& :hover": {
                 cursor: "pointer"
             }
+        },
+        resourceAdd: {
+            cursor: "pointer",
+            display: "flex",
+            marginLeft: 5,
+            justifyContent: "center",
+            alignItems: "center",
+            borderRadius: 4,
+            padding: 5,
+            backgroundColor: "#328b5e",
+            color: "white",
         },
         navigationIcon: {
             display: "flex",
@@ -201,6 +213,9 @@ export const useStyles = makeStyles(() =>
         },
         addResource: {
             height: '30px !important',
+        },
+        gridContainer: {
+            marginTop: "5%"
         }
     }),
 );
