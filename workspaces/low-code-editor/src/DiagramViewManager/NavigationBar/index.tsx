@@ -10,12 +10,19 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import React from "react";
+// tslint:disable: jsx-no-multiline-js
+import React, { useContext, useMemo } from "react";
 
 import { ClickAwayListener, Popover } from "@material-ui/core";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+import Link from "@material-ui/core/Link";
+import Typography from "@material-ui/core/Typography";
 import { Apps, ArrowBack, ArrowDropDown,  Home } from "@material-ui/icons";
+import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { PackageIcon } from "../../assets/icons";
+import { Context } from "../../Contexts/Diagram";
 import { WorkspaceFolder } from "../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../context/history";
 
@@ -29,7 +36,6 @@ interface NavigationBarProps {
     updateCurrentProject: (project: WorkspaceFolder) => void;
 }
 
-
 export function NavigationBar(props: NavigationBarProps) {
     const {
         workspaceName,
@@ -38,12 +44,16 @@ export function NavigationBar(props: NavigationBarProps) {
         updateCurrentProject,
     } = props;
     const classes = useStyles();
-    const { history, historyPop, historyReset } = useHistoryContext();
+    const { history, historyPop, historySelect, historyReset } = useHistoryContext();
+    const { props: { syntaxTree } } = useContext(Context);
 
     const [isProjectSelectorOpen, setIsProjectSelectorOpen] = React.useState(false);
     const popoverRef = React.useRef<HTMLDivElement>(null);
 
     const isWorkspace = projectList.length > 1;
+
+    const isRootDataMapper = syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)
+        && STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody);
 
     const handleProjectChange = (selectedProject: WorkspaceFolder) => {
         updateCurrentProject(selectedProject);
@@ -126,7 +136,48 @@ export function NavigationBar(props: NavigationBarProps) {
                 </div>
             </>
         );
-    }
+    };
+
+    const handleClick = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        event.preventDefault();
+        const index: number = +event.currentTarget.getAttribute('data-index');
+        historySelect(index);
+    };
+
+    const [activeLink, links] = useMemo(() => {
+        if (isRootDataMapper && history.length > 0) {
+            if (history.length === 1) {
+                history[0].name = (syntaxTree as FunctionDefinition).functionName.value;
+            }
+            let label = history[history.length - 1]?.name;
+            const selectedLink = (
+                <Typography className={classes.active}>
+                    {label}
+                </Typography>
+            );
+
+            const restLinks = history.length > 1 && (
+                history.slice(0, -1).map((node, index) => {
+                    label = node?.name;
+                    return (
+                        <Link
+                            data-index={index}
+                            key={index}
+                            underline="hover"
+                            onClick={handleClick}
+                            className={classes.link}
+                            data-testid={`dm-header-breadcrumb-${index}`}
+                        >
+                            {label}
+                        </Link>
+                    );
+                })
+            );
+
+            return [selectedLink, restLinks];
+        }
+        return [undefined, undefined];
+    }, [history, syntaxTree, isRootDataMapper]);
 
     // {renderWorkspaceNameComponent(isWorkspace)}
     return (
@@ -135,7 +186,20 @@ export function NavigationBar(props: NavigationBarProps) {
             {renderWorkspaceNameComponent()}
             {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
             {isWorkspace && renderProjectSelectorComponent()}
-            <div className="component-details" />
+            {isRootDataMapper ? (
+                    <Breadcrumbs
+                        maxItems={3}
+                        separator={<NavigateNextIcon fontSize="small" />}
+                        className={classes.breadcrumb}
+                    >
+                        {links}
+                        {activeLink}
+                    </Breadcrumbs>
+                ) :
+                (
+                    <div className="component-details"/>
+                )
+            }
         </div>
     );
 }

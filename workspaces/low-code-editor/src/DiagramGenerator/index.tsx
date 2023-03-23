@@ -30,7 +30,7 @@ import {
     SentryConfig,
     STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, ModulePart, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
@@ -128,7 +128,6 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                 const langClient = await langClientPromise;
                 const genSyntaxTree: ModulePart = await getSyntaxTree(filePath, langClient);
                 const content = await props.getFileContent(filePath);
-
                 // if (genSyntaxTree?.typeData?.diagnostics && genSyntaxTree?.typeData?.diagnostics?.length > 0) {
                 //     resolveMissingDependency(filePath, content);
                 // }
@@ -478,7 +477,7 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                     },
                     runBackgroundTerminalCommand,
                     openArchitectureView,
-                    openExternalUrl,
+                    openExternalUrl
                 }}
             />
         </DiagramGenErrorBoundary>

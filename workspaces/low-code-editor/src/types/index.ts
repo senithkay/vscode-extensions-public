@@ -16,15 +16,28 @@
 
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
-    BallerinaConnectorInfo, CommandResponse, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, FunctionDef, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse,
-    STModification, STSymbolInfo, WizardType
+    BallerinaConnectorInfo,
+    CommandResponse,
+    ConditionConfig,
+    ConfigOverlayFormStatus,
+    ConfigPanelStatus,
+    Connector,
+    CurrentFile,
+    DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface,
+    FileListEntry,
+    FunctionDef,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibrarySearchResponse,
+    STModification,
+    STSymbolInfo,
+    WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { Warning } from "../Diagram/utils/st-util";
-import { FileListEntry } from "../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
 
 export interface ZoomStatus {
