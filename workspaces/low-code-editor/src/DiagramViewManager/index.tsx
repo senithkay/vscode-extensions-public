@@ -62,7 +62,7 @@ export function DiagramViewManager(props: EditorProps) {
     const classes = useGeneratorStyles();
 
     const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [history, historyPush, historyPop, historyReplace, historySelect, historyClear, updateCurrentEntry] =
+    const [history, historyPush, historyPop, historyClearAndPopulateWith, historySelect, historyClear, updateCurrentEntry] =
         useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
@@ -134,7 +134,7 @@ export function DiagramViewManager(props: EditorProps) {
                     setCurrentProject(currentProjectPath);
                     setFocusFile(currentFile.uri.path);
                 } else {
-                    historyReplace({ file: filePath, position });
+                    historyClearAndPopulateWith({ file: filePath, position });
                 }
             })();
 
@@ -359,7 +359,7 @@ export function DiagramViewManager(props: EditorProps) {
                                 history={history}
                                 historyPush={historyPush}
                                 historyPop={historyPop}
-                                historyReplace={historyReplace}
+                                historyClearAndPopulateWith={historyClearAndPopulateWith}
                                 historySelect={historySelect}
                                 historyReset={historyClear}
                             >
