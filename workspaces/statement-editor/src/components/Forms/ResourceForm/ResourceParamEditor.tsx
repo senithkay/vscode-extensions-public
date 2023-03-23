@@ -120,7 +120,8 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                             id: index,
                             name: getParameterNameFromModel(param),
                             type: getParameterTypeFromModel(param),
-                            option: param.source.includes(RESOURCE_HEADER_PREFIX) ? PARAM_TYPES.HEADER : PARAM_TYPES.DEFAULT
+                            option: param.source.includes(RESOURCE_HEADER_PREFIX) ? PARAM_TYPES.HEADER : PARAM_TYPES.DEFAULT,
+                            defaultValue: (STKindChecker.isDefaultableParam(param) && param.expression?.source.trim()) || ""
                         }}
                         readonly={editingSegmentId !== -1 || readonly}
                         onDelete={onDelete}

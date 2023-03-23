@@ -67,16 +67,3 @@ You can also enable the [debug logs](https://wso2.com/ballerina/vscode/docs/conf
 ## Documentation
 
 The [Ballerina VS Code Extension Documentation](https://wso2.com/ballerina/vscode/docs/) describes the functionalities of this extension in detail.
-
-## Ask for help
-
-Create [GitHub issues](https://github.com/wso2/ballerina-plugin-vscode/issues) to reach out to us.
-
-## License
-
-By downloading and using the Visual Studio Code Ballerina extension, you agree to the [license terms](https://wso2.com/licenses/ballerina-vscode-plugin-2021-05-25/) and [privacy statement](https://wso2.com/privacy-policy).
-
-The VS Code Ballerina extension uses the following components, which are licensed separately.
-
-- It runs with the support of the Ballerina Language Server, which is a part of the Ballerina language distribution. The [Ballerina language](https://ballerina.io/) is an open-source software that comes under the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
-- It is structured as an extension pack along with the [TOML Language Support](https://marketplace.visualstudio.com/items?itemName=be5invis.toml) extension.
