@@ -96,6 +96,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
         applyModifications,
         recordPanel
     } = props;
+    const { path, content } = useContext(CurrentFileContext);
     const formClasses = useFormStyles();
 
     const langClientPromise = useContext(LSClientContext);
@@ -132,7 +133,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
             setValidationInProgress(true);
             try {
                 const diagnostics = await getDiagnosticsForFnName(fnName, inputParams, outputType.type,
-                    fnST, targetPosition, currentFile.content, filePath, langClientPromise);
+                    fnST, targetPosition, content, filePath, langClientPromise);
                 if (diagnostics.length > 0) {
                     const redeclaredSymbol = diagnostics.some((diagnostic) => {
                         return diagnostic.code === REDECLARED_SYMBOL_ERROR_CODE
@@ -152,15 +153,13 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
     }, []);
     const [fetchingCompletions, setFetchingCompletions] = useState(false);
 
-    const { path, content } = useContext(CurrentFileContext);
-
     const [recordCompletions, setRecordCompletions] = useState<CompletionResponseWithModule[]>([]);
 
     useEffect(() => {
         void (async () => {
             if (initiated) {
                 setFetchingCompletions(true);
-                const allCompletions = await getRecordCompletions(currentFile.content, langClientPromise,
+                const allCompletions = await getRecordCompletions(content, langClientPromise,
                     importStatements, fnST?.position as NodePosition || targetPosition, path);
                 setRecordCompletions(allCompletions);
                 setFetchingCompletions(false);
@@ -243,7 +242,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
             try {
                 if (fnNameFromST) {
                     const diagnostics = await getDiagnosticsForFnName(fnNameFromST, inputParams, outputType.type, fnST,
-                        targetPosition, currentFile.content, filePath, langClientPromise);
+                        targetPosition, content, filePath, langClientPromise);
                     if (diagnostics.length > 0) {
                         setDmFuncDiagnostic(diagnostics[0]?.message);
                     }
@@ -322,7 +321,7 @@ export function DataMapperConfigPanel(props: DataMapperConfigPanelProps) {
             setValidationInProgress(true);
             try {
                 const diagnostics = await getDiagnosticsForFnName(event.target.value, inputParams, outputType.type, fnST,
-                    targetPosition, currentFile.content, filePath, langClientPromise);
+                    targetPosition, content, filePath, langClientPromise);
                 if (diagnostics.length > 0) {
                     setDmFuncDiagnostic(diagnostics[0]?.message);
                 }

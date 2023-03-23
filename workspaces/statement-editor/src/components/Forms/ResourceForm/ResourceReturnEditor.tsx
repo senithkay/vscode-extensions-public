@@ -16,15 +16,16 @@ import React, { useState } from 'react';
 
 import { Button } from '@material-ui/core';
 import AddIcon from "@material-ui/icons/Add";
+import { responseCodes } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { connectorStyles } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { STNode } from '@wso2-enterprise/syntax-tree';
+import { ResourceAccessorDefinition, STNode } from '@wso2-enterprise/syntax-tree';
 import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 
 import { Param } from './ParamEditor/ParamEditor';
 import { ParameterConfig } from './ParamEditor/ParamItem';
-import { responseCodes, ResponseEditor } from './ResponseEditor/ResponseEditor';
+import { ResponseEditor } from './ResponseEditor/ResponseEditor';
 import { ResponseItem } from './ResponseEditor/ResponseItem';
 
 export interface QueryParamEditorProps {
@@ -34,6 +35,7 @@ export interface QueryParamEditorProps {
     syntaxDiag?: StatementSyntaxDiagnostics[];
     readonly?: boolean;
     onChangeInProgress?: (isInProgress: boolean) => void;
+    model: ResourceAccessorDefinition
 }
 
 export const RESOURCE_PAYLOAD_PREFIX = "@http:Payload";
@@ -43,7 +45,7 @@ export const RESOURCE_CALLER_TYPE = "http:Caller";
 export const RESOURCE_HEADER_MAP_TYPE = "http:Headers";
 
 export function ResourceReturnEditor(props: QueryParamEditorProps) {
-    const { returnSource, completions, onChange, syntaxDiag, readonly, onChangeInProgress } = props;
+    const { returnSource, completions, onChange, syntaxDiag, readonly, onChangeInProgress, model } = props;
     const connectorClasses = connectorStyles();
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState<boolean>(false);
@@ -68,8 +70,8 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         setIsNew(false);
     };
 
-    const onParamChange = (segmentId: number, responseCode: string, withType?: string) => {
-        const responseData = responseCodes.find(item => item.code.toString() === responseCode);
+    const onParamChange = (segmentId: number, responseCode: number, withType?: string) => {
+        const responseData = responseCodes.find(item => item.code === responseCode);
         const newReturn = withType ? withType : (responseData ? responseData.source : "");
         if (segmentId === -1) {
             responses.push(newReturn);
@@ -135,6 +137,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                     isTypeReadOnly={false}
                     onChange={onParamChange}
                     onCancel={onParamEditCancel}
+                    httpMethodName={model?.functionName?.value?.toUpperCase()}
                 />
             )
         }
@@ -153,6 +156,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             isTypeReadOnly={false}
             onChange={onParamChange}
             onCancel={onParamEditCancel}
+            httpMethodName={model?.functionName?.value?.toUpperCase()}
         />
     );
     // parameters

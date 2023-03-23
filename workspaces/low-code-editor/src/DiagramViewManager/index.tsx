@@ -14,6 +14,7 @@ import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 
 import { MuiThemeProvider } from "@material-ui/core";
+import { FileListEntry, Uri } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
@@ -29,7 +30,7 @@ import {
     getLowcodeST,
     getSyntaxTree
 } from "../DiagramGenerator/generatorUtil";
-import { EditorProps, FileListEntry, Uri, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
+import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
@@ -62,7 +63,8 @@ export function DiagramViewManager(props: EditorProps) {
     const classes = useGeneratorStyles();
 
     const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [history, historyPush, historyPop, historyClear, updateCurrentEntry] = useComponentHistory();
+    const [history, historyPush, historyPop, historyClearAndPopulateWith, historySelect, historyClear, updateCurrentEntry] =
+        useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
@@ -133,7 +135,7 @@ export function DiagramViewManager(props: EditorProps) {
                     setCurrentProject(currentProjectPath);
                     setFocusFile(currentFile.uri.path);
                 } else {
-                    historyPush({ file: filePath, position });
+                    historyClearAndPopulateWith({ file: filePath, position });
                 }
             })();
 
@@ -209,10 +211,11 @@ export function DiagramViewManager(props: EditorProps) {
     }
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
-        const { filePath, position } = componentDetails;
+        const { filePath, position, name } = componentDetails;
         historyPush({
             file: filePath,
             position,
+            name
         });
     }
 
@@ -222,86 +225,89 @@ export function DiagramViewManager(props: EditorProps) {
 
     const viewComponent: React.ReactElement[] = [];
 
-    if (history.length > 0 && history[history.length - 1].position && !focusedST) {
-        viewComponent.push(<TextPreLoader position={'absolute'} />);
-    } else if (!focusedST && fileList) {
-        const currentFileName = fileList.find(file => file.uri.path === focusFile)?.fileName;
-        viewComponent.push((
-            <OverviewDiagram
-                currentProject={currentProject}
-                currentFile={focusFile}
-                currentFileName={currentFileName}
-                notifyComponentSelection={updateSelectedComponent}
-                updateCurrentFile={setFocusFile}
-                fileList={fileList}
-                lastUpdatedAt={updatedTimeStamp}
-            />
-        ));
-    } else if (focusedST) {
-        if (STKindChecker.isServiceDeclaration(focusedST)) {
-            const listenerExpression = focusedST.expressions[0];
-            const typeData = listenerExpression.typeData;
-            const typeSymbol = typeData?.typeSymbol;
-            const signature = typeSymbol?.signature;
-            if (serviceTypeSignature && serviceTypeSignature.includes('http')) {
+    if (currentFileContent) {
+        if (history.length > 0 && history[history.length - 1].position && !focusedST) {
+            viewComponent.push(<TextPreLoader position={'absolute'} />);
+        } else if (!focusedST && fileList) {
+            const currentFileName = fileList.find(file => file.uri.path === focusFile)?.fileName;
+            viewComponent.push((
+                <OverviewDiagram
+                    currentProject={currentProject}
+                    currentFile={focusFile}
+                    currentFileName={currentFileName}
+                    notifyComponentSelection={updateSelectedComponent}
+                    updateCurrentFile={setFocusFile}
+                    fileList={fileList}
+                    lastUpdatedAt={updatedTimeStamp}
+                />
+            ));
+        } else if (focusedST) {
+            if (STKindChecker.isServiceDeclaration(focusedST)) {
+                const listenerExpression = focusedST.expressions[0];
+                const typeData = listenerExpression.typeData;
+                const typeSymbol = typeData?.typeSymbol;
+                const signature = typeSymbol?.signature;
+                if (serviceTypeSignature && serviceTypeSignature.includes('http')) {
+                    viewComponent.push((
+                        <ServiceDesignOverlay
+                            model={focusedST}
+                            targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                            onCancel={handleNavigationHome}
+                        />
+                    ));
+                } else if (experimentalEnabled && serviceTypeSignature && serviceTypeSignature.includes('graphql')) {
+                    viewComponent.push(
+                        <GraphqlDiagramOverlay
+                            model={focusedST}
+                            targetPosition={focusedST.position}
+                            ballerinaVersion={balVersion}
+                            onCancel={handleNavigationHome}
+                        />
+                    );
+                } else if (signature && signature === "$CompilationError$") {
+                    viewComponent.push((
+                        <ServiceInvalidOverlay />
+                    ));
+                } else {
+                    viewComponent.push(
+                        <ServiceUnsupportedOverlay />
+                    )
+                }
+            } else if (STKindChecker.isFunctionDefinition(focusedST)
+                && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
                 viewComponent.push((
-                    <ServiceDesignOverlay
-                        model={focusedST}
+                    <DataMapperOverlay
                         targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                        onCancel={handleNavigationHome}
-                    />
-                ));
-            } else if (experimentalEnabled && serviceTypeSignature && serviceTypeSignature.includes('graphql')) {
-                viewComponent.push(
-                    <GraphqlDiagramOverlay
                         model={focusedST}
-                        targetPosition={focusedST.position}
                         ballerinaVersion={balVersion}
                         onCancel={handleNavigationHome}
                         goToSource={gotoSource}
                     />
-                );
-            } else if (signature && signature === "$CompilationError$") {
-                viewComponent.push((
-                    <ServiceInvalidOverlay />
-                ));
+                ))
+            } else if (STKindChecker.isTypeDefinition(focusedST)
+                && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
+                // Navigate to record composition view
+                const recordST = { ...focusedST }; // Clone focusedST
+                const name = recordST.typeName.value;
+                const module = recordST.typeData?.symbol?.moduleID;
+                if (!(name && module)) {
+                    // TODO: Handle error properly
+                    // tslint:disable-next-line
+                    console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
+                } else {
+                    const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
+                    props.openArchitectureView(nodeId);
+                }
+                // Show file view, clear focus syntax tree
+                setFocusedST(undefined);
+                setFocusUid(undefined);
+                handleNavigationHome();
             } else {
-                viewComponent.push(
-                    <ServiceUnsupportedOverlay />
-                )
+                viewComponent.push(<Diagram />);
             }
-        } else if (STKindChecker.isFunctionDefinition(focusedST)
-            && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
-            viewComponent.push((
-                <DataMapperOverlay
-                    targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                    model={focusedST}
-                    ballerinaVersion={balVersion}
-                    onCancel={handleNavigationHome}
-                />
-            ))
-        } else if (STKindChecker.isTypeDefinition(focusedST)
-            && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
-            // Navigate to record composition view
-            const recordST = { ...focusedST }; // Clone focusedST
-            const name = recordST.typeName.value;
-            const module = recordST.typeData?.symbol?.moduleID;
-            if (!(name && module)) {
-                // TODO: Handle error properly
-                // tslint:disable-next-line
-                console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
-            } else {
-                const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
-                props.openArchitectureView(nodeId);
-            }
-            // Show file view, clear focus syntax tree
-            setFocusedST(undefined);
-            setFocusUid(undefined);
-            handleNavigationHome();
-        } else {
-            viewComponent.push(<Diagram />);
         }
     }
+
     const navigateUptoParent = (position: NodePosition) => {
         if (!position) {
             return;
@@ -358,6 +364,8 @@ export function DiagramViewManager(props: EditorProps) {
                                 history={history}
                                 historyPush={historyPush}
                                 historyPop={historyPop}
+                                historyClearAndPopulateWith={historyClearAndPopulateWith}
+                                historySelect={historySelect}
                                 historyReset={historyClear}
                             >
                                 <NavigationBar

@@ -405,6 +405,7 @@ export function ResourceForm(props: FunctionProps) {
                             completions={completions}
                             readonly={isEditInProgress} // todo: implement the disable logic
                             onChangeInProgress={setIsEditInProgress}
+                            model={model}
                         />
 
                         <div className={classes.serviceFooterWrapper}>
