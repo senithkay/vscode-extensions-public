@@ -11,11 +11,14 @@
  *  associated services.
  */
 import { GraphQLClient } from 'graphql-request';
-import { Component, Project, Repository } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams } from "./types";
+import { Component, Project, Repository, Environment, Deployments } from "@wso2-enterprise/choreo-core";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams } from "./types";
 import {
+    getComponentDeploymentQuery,
+    getComponentEnvsQuery,
     getComponentsByProjectIdQuery,
     getComponentsWithCellDiagramQuery,
+    getDeleteComponentQuery,
     getProjectsByOrgIdQuery,
     getRepoMetadataQuery
 } from './project-queries';
@@ -56,13 +59,66 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
     }
 
+    async deleteComponent(params: DeleteComponentParams): Promise<void> {
+        const query = getDeleteComponentQuery(params.orgHandler, params.componentId, params.projectId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.projects;
+        } catch (error) {
+            throw new Error("Error while deleting component ", { cause: error });
+        }
+
+    }
+
     async getComponents(params: GetComponentsParams): Promise<Component[]> {
         const { orgHandle, projId } = params;
         const query = getComponentsByProjectIdQuery(orgHandle, projId);
         try {
             const client = await this._getClient();
             const data = await client.request(query);
-            return data.components;
+
+            const envQuery = getComponentEnvsQuery(params.orgUuid, params.projId);
+            const envData = await client.request(envQuery);
+            const devEnv = envData?.environments?.find((env: Environment)=>env.name === 'Development');
+            const prodEnv = envData?.environments?.find((env: Environment)=>env.name === 'Production')
+
+            const components: Component[] = await Promise.all(data.components.map(async (component: Component)=>{
+                const deployments:Deployments ={}
+                const queryData = {
+                    componentId: component.id,
+                    orgHandler: orgHandle,
+                    versionId: component.apiVersions[component.apiVersions.length-1]?.id,
+                    orgUuid: params.orgUuid,
+                    environmentId: ""
+                }
+
+                try{
+                    if(devEnv){
+                        queryData.environmentId = devEnv.id;
+                        const deploymentQuery = getComponentDeploymentQuery(queryData);
+                        const deploymentData = await client.request(deploymentQuery);
+                        deployments.dev = deploymentData.componentDeployment
+                    }
+                } catch{
+                    console.error('Failed to get dev env deployment info for component', component)
+                }
+                
+                try{
+                    if(prodEnv){
+                        queryData.environmentId = prodEnv.id;
+                        const deploymentQuery = getComponentDeploymentQuery(queryData);
+                        const deploymentData = await client.request(deploymentQuery);
+                        deployments.prod = deploymentData.componentDeployment
+                    }
+                } catch{
+                    console.error('Failed to get prod env deployment info for component', component)
+                }
+                component.deployments = deployments;
+                return component;
+            }));           
+
+            return components;
         } catch (error) {
             throw new Error("Error while fetching components.", { cause: error });
         }
@@ -148,7 +204,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async getDiagramModel(params: GetComponentsParams): Promise<Component[]> {
+    async getDiagramModel(params: GetDiagramModelParams): Promise<Component[]> {
         const { orgHandle, projId } = params;
         const query = getComponentsWithCellDiagramQuery(orgHandle, projId);
         try {

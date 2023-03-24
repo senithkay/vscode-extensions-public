@@ -140,8 +140,8 @@ export async function createProjectWorkspaceFile(projectName: string, projectID:
 }
 
 
-async function getProjectRepositories(orgHandle: string, projId: string) {
-    const components = await projectClient.getComponents({ orgHandle, projId });
+async function getProjectRepositories(orgHandle: string, projId: string, orgUuid: string) {
+    const components = await projectClient.getComponents({ orgHandle, projId, orgUuid });
     const userManagedComponents = components.filter((cmp) => cmp.repository && cmp.repository.isUserManage);
     const repos = components.map((cmp) => cmp.repository);
 
@@ -221,7 +221,7 @@ export const cloneProject = async (project: Project) => {
                 getLogger().debug("Starting cloning project: " + project.name);
 
                 progress.report({ message: "Retrieving details on component repositories of project: " + projectName });
-                const { userManagedReposWithoutDuplicates, userManagedComponents, choreoManagedRepos } = await getProjectRepositories(selectedOrg.handle, id);
+                const { userManagedReposWithoutDuplicates, userManagedComponents, choreoManagedRepos } = await getProjectRepositories(selectedOrg.handle, id, selectedOrg.uuid);
 
                 getLogger().debug("Cloning " + userManagedReposWithoutDuplicates.length + " repositories without duplicates");
 

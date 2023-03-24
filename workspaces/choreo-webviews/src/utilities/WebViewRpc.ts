@@ -44,7 +44,8 @@ import {
     isSubpathAvailable,
     SubpathAvailableRequest,
     ComponentModel,
-    getDiagramComponentModel
+    getDiagramComponentModel,
+    DeleteComponent
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -88,6 +89,10 @@ export class ChoreoWebViewAPI {
 
     public async getComponents(projectId: string): Promise<Component[]> {
         return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
+    }
+
+    public async deleteComponent(params: {componentId: string; projectId: string}): Promise<void> {
+        return this._messenger.sendRequest(DeleteComponent, HOST_EXTENSION, params);
     }
 
     public async getProjectLocation(projectId: string): Promise<string | undefined> {

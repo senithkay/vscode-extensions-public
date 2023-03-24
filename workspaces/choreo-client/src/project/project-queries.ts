@@ -72,6 +72,80 @@ export function getComponentsByProjectIdQuery(orgHandle: string, projectId: stri
     `;
 }
 
+export function getComponentEnvsQuery(orgUuid: string, projectId: string) {
+    return gql`   
+        query { 
+            environments(orgUuid: "${orgUuid}", projectId: "${projectId}") {
+                name,
+                id,
+                choreoEnv,
+                vhost,
+                apiEnvName,
+                isMigrating,
+                apimEnvId,
+                namespace,
+                sandboxVhost,
+            }
+        }
+    `;
+}
+
+interface getComponentDeploymentArgs {
+    orgHandler: string;
+    orgUuid: string;
+    componentId: string;
+    versionId: string;
+    environmentId: string;
+}
+
+export function getComponentDeploymentQuery({ orgHandler, orgUuid, componentId, versionId, environmentId }:getComponentDeploymentArgs) {
+    return gql`   
+        query { 
+            componentDeployment( orgHandler: "${orgHandler}", orgUuid: "${orgUuid}", componentId: "${componentId}", versionId: "${versionId}", environmentId: "${environmentId}") {
+                environmentId
+                configCount
+                apiId
+                releaseId
+                apiRevision {
+                    id
+                    displayName
+                }
+                build{
+                    buildId
+                    deployedAt
+                    commit {
+                        author {
+                            name
+                            date
+                            email
+                            avatarUrl
+                        }
+                        sha
+                        message
+                        isLatest
+                    }
+                }
+                invokeUrl
+                versionId
+                deploymentStatus
+                deploymentStatusV2
+                version
+                cron
+            }
+        }
+    `;
+}
+
+export function getDeleteComponentQuery(orgHandler: string, componentId: string, projectId: string) {
+    return gql`   
+        mutation { 
+            deleteComponentV2(orgHandler: "${orgHandler}", componentId: "${componentId}", projectId: "${projectId}") {
+                status, canDelete, message
+            }
+        }
+    `;
+}
+
 export function getRepoMetadataQuery(organizationName: string, repoName: string, branch: string, subPath: string) {
     return gql`
         query {
