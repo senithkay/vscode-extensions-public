@@ -113,7 +113,7 @@ export class ProjectRegistry {
         } catch(e) {
             serializeError(e);
             const components: Component[] | undefined = this._dataComponents.get(projectId);
-            return this._addLocalComponents(projectId, components || [])
+            return this._addLocalComponents(projectId, components || []);
         }
     }
 
@@ -306,7 +306,7 @@ export class ProjectRegistry {
                 component.isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
             }
             return component;
-        })
+        });
         if (projectLocation !== undefined) {
             const localcomponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
             components = components.concat(localcomponents);
