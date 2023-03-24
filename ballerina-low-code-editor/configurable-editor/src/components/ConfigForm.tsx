@@ -46,6 +46,7 @@ export interface ConfigFormProps {
     primaryButtonText: string;
     onClickDefaultButton: () => void;
     onClickPrimaryButton: (configProperties: ConfigElementProps) => void;
+    isDisablePrimaryButton?: boolean;
     isLowCode?: boolean;
     isFeaturePreview?: boolean;
     env?: string;
@@ -96,6 +97,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
         primaryButtonText,
         onClickDefaultButton,
         onClickPrimaryButton,
+        isDisablePrimaryButton,
         isFeaturePreview,
         isLowCode,
     } = props;
@@ -205,14 +207,19 @@ export const ConfigForm = (props: ConfigFormProps) => {
                         >
                             {defaultButtonText}
                         </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            type="submit"
-                        >
-                            {primaryButtonText}
-                        </Button>
+                        {
+                            !isDisablePrimaryButton && (
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    type="submit"
+                                >
+                                    {primaryButtonText}
+                                </Button>
+                            )
+                        }
+
                     </ButtonContainer>
                 </CardActions>
             </form>
@@ -223,5 +230,6 @@ export const ConfigForm = (props: ConfigFormProps) => {
 export default ConfigForm;
 
 ConfigForm.defaultProps = {
+    isDisablePrimaryButton: false,
     isLowCode: false,
 };
