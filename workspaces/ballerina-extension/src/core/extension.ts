@@ -274,17 +274,6 @@ export class BallerinaExtension {
         }
     }
 
-    // onReady(): Promise<void> {
-    //     if (!this.langClient) {
-    //         const message = `Ballerina SDK: Error`;
-    //         this.sdkVersion.text = message;
-    //         sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, getMessageObject(message));
-    //         this.telemetryReporter.dispose();
-    //         return Promise.reject('BallerinaExtension is not initialized');
-    //     }
-    //     return this.langClient.start();
-    // }
-
     showPluginActivationError(): any {
         // message to display on Unknown errors.
         // ask to enable debug logs.
