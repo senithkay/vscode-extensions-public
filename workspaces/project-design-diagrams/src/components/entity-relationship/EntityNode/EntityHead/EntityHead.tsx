@@ -19,7 +19,7 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { DiagramContext, NodeMenuWidget } from '../../../common';
+import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { EntityModel } from '../EntityModel';
 import { EntityHead, EntityName } from '../styles';
@@ -54,33 +54,35 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     const isClickable = currentView === Views.TYPE;
 
     return (
-        <EntityHead
-            isAnonymous={node.entityObject.isAnonymous}
-            isSelected={isSelected}
-            onMouseOver={() => handleOnHover('SELECT')}
-            onMouseLeave={() => handleOnHover('UNSELECT')}
-        >
-            <EntityPortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-                <EntityName
-                    isClickable={isClickable}
-                    isAnonymous={node.entityObject.isAnonymous}
-                    onClick={isClickable ? () => { getTypeComposition(node.getID()) } : () => { }}
-                >
-                    {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
-                </EntityName>
-                {isHovered && node.entityObject.elementLocation && editingEnabled &&
-                    <NodeMenuWidget
-                        background={'white'}
-                        location={node.entityObject.elementLocation}
-                    />
-                }
-            <EntityPortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
-        </EntityHead>
+        <CtrlClickGo2Source location={node.entityObject.elementLocation}>
+            <EntityHead
+                isAnonymous={node.entityObject.isAnonymous}
+                isSelected={isSelected}
+                onMouseOver={() => handleOnHover('SELECT')}
+                onMouseLeave={() => handleOnHover('UNSELECT')}
+            >
+                <EntityPortWidget
+                    port={node.getPort(`left-${node.getID()}`)}
+                    engine={engine}
+                />
+                    <EntityName
+                        isClickable={isClickable}
+                        isAnonymous={node.entityObject.isAnonymous}
+                        onClick={isClickable ? () => { getTypeComposition(node.getID()) } : () => { }}
+                    >
+                        {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
+                    </EntityName>
+                    {isHovered && node.entityObject.elementLocation && editingEnabled &&
+                        <NodeMenuWidget
+                            background={'white'}
+                            location={node.entityObject.elementLocation}
+                        />
+                    }
+                <EntityPortWidget
+                    port={node.getPort(`right-${node.getID()}`)}
+                    engine={engine}
+                />
+            </EntityHead>
+        </CtrlClickGo2Source>
     )
 }
