@@ -22,12 +22,12 @@ import { existsSync } from "fs";
 import { join } from "path";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ExtendedLangClient } from "../../core";
+import { ExtendedLangClient, GetPackageComponentModelsResponse } from "../../core";
 import { terminateActivation } from "../activator";
-import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE } from "../resources";
+import { ComponentModel, ERROR_MESSAGE } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
 
-export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
+export function getComponentModel(langClient: ExtendedLangClient): Promise<GetPackageComponentModelsResponse> {
     return new Promise((resolve, reject) => {
         let ballerinaFiles: string[] = [];
         let workspaceFolders = workspace.workspaceFolders;
@@ -47,24 +47,12 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<s
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
         }).then(async (response) => {
-            let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
-            for (let [_key, packageModel] of packageModels) {
-                if (packageModel.hasCompilationErrors) {
-                    const action = 'View Problems';
-                    window.showInformationMessage(DIAGNOSTICS_WARNING, action).then((selection) => {
-                        if (action === selection) {
-                            commands.executeCommand('workbench.action.problems.focus');
-                        }
-                    });
-                    break;
-                }
-            }
-
             const choreoExt = await getChoreoExtAPI();
             if (choreoExt) {
+                let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
                 packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
             }
-            resolve(response.componentModels);
+            resolve(response);
         }).catch((error) => {
             reject(error);
             terminateActivation(ERROR_MESSAGE);

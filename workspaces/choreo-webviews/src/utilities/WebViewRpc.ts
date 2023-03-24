@@ -43,8 +43,8 @@ import {
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
-    ComponentModel,
-    getDiagramComponentModel
+    getDiagramComponentModel,
+    GetComponentModelResponse
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -134,7 +134,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
     }
 
-    public async getDiagramComponentModel(projId: string, orgHandler: string): Promise<ComponentModel[]> {
+    public async getDiagramComponentModel(projId: string, orgHandler: string): Promise<GetComponentModelResponse> {
         return this._messenger.sendRequest(getDiagramComponentModel, HOST_EXTENSION, { projId, orgHandler } );
     }
 

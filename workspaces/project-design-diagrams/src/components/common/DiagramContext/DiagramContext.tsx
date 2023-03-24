@@ -17,14 +17,16 @@
  *
  */
 
-import React, { createContext, ReactNode, useState } from 'react';
-import { EditLayerAPI, Service, Views } from '../../../resources';
+import React, { createContext, ReactNode, useEffect, useState } from 'react';
+import { ComponentModel, ComponentModelDiagnostics, EditLayerAPI, Service, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
     currentView: Views;
     editingEnabled: boolean;
     isChoreoProject: boolean;
+    projectComponents: Map<string, ComponentModel>;
+    projectDiagnostics: ComponentModelDiagnostics[];
     refreshDiagram: () => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
@@ -36,6 +38,7 @@ interface IDiagramContext {
     editingEnabled: boolean;
     isChoreoProject: boolean;
     currentView: Views;
+    componentDiagnostics: string[];
     refreshDiagram: () => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
@@ -65,15 +68,19 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview,
-        setConnectorTarget
+        setConnectorTarget,
+        projectComponents,
+        projectDiagnostics
     } = props;
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
+    const [componentDiagnostics, updateComponentDiagnostics] = useState<string[]>([]);
 
     let context: IDiagramContext = {
         currentView,
         editingEnabled,
         isChoreoProject,
+        componentDiagnostics,
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview
@@ -91,6 +98,23 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         }
     }
 
+    useEffect(() => {
+        if (projectComponents) {
+            if (!editingEnabled && projectDiagnostics.length > 0) {
+                updateComponentDiagnostics(projectDiagnostics.map(entry => entry.name));
+            } else if (editingEnabled) {
+                const errorComponents: string[] = [];
+                errorComponents.push(...projectDiagnostics.map(entry => entry.name));
+                projectComponents.forEach((component) => {
+                    if (component.hasCompilationErrors && !errorComponents.includes(component.packageId.name)) {
+                        errorComponents.push(`${component.packageId.name} Package`);
+                    }
+                });
+                updateComponentDiagnostics(errorComponents);
+            }
+        }
+    }, [projectComponents]);
+
     return (
         <DiagramContext.Provider value={{ ...context }}>
             {children}
@@ -99,4 +123,3 @@ export function DesignDiagramContext(props: DiagramContextProps) {
 }
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
-

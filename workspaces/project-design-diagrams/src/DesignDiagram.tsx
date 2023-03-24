@@ -23,7 +23,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
-import { Colors, ComponentModel, DagreLayout, EditLayerAPI, Service, Views } from './resources';
+import {
+    Colors, ComponentModel, DagreLayout, EditLayerAPI, GetComponentModelResponse, Service, Views, ComponentModelDiagnostics
+} from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { ControlsLayer, EditForm } from './editing';
 
@@ -50,7 +52,7 @@ interface DiagramProps {
     isChoreoProject: boolean;
     selectedNodeId?: string;
     editLayerAPI?: EditLayerAPI;
-    getComponentModel(): Promise<Map<string, ComponentModel>>;
+    getComponentModel(): Promise<GetComponentModelResponse>;
     showChoreoProjectOverview?: () => Promise<void>;
 }
 
@@ -70,6 +72,7 @@ export function DesignDiagram(props: DiagramProps) {
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
     const [connectorTarget, setConnectorTarget] = useState<Service>(undefined);
+    const [projectDiagnostics, setProjectDiagnostics] = useState<ComponentModelDiagnostics[]>([]);
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
@@ -99,10 +102,11 @@ export function DesignDiagram(props: DiagramProps) {
 
     const refreshDiagram = async () => {
         await getComponentModel().then((response) => {
-            const components: Map<string, ComponentModel> = new Map(Object.entries(response));
+            const components: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
             if (components && components.size > 0) {
                 defaultOrg.current = [...components][0][1].packageId.org;
             }
+            setProjectDiagnostics(response.diagnostics);
             setProjectPkgs(createRenderPackageObject(components.keys()));
             setProjectComponents(components);
         });
@@ -124,7 +128,9 @@ export function DesignDiagram(props: DiagramProps) {
         getTypeComposition,
         setConnectorTarget,
         showChoreoProjectOverview,
-        editLayerAPI
+        editLayerAPI,
+        projectComponents,
+        projectDiagnostics
     }
 
     return (

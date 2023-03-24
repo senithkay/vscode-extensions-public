@@ -23,11 +23,13 @@ import {
     ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo,
     OpenArchitectureView,
-    HasUnpushedComponents, Component, UpdateProjectOverview,
+    HasUnpushedComponents, UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
     getDiagramComponentModel,
-    ComponentModel
+    ComponentModel,
+    GetComponentModelResponse,
+    ComponentModelDiagnostics
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -127,23 +129,29 @@ export class WebViewRpc {
             commands.executeCommand("ballerina.view.architectureView");
         });
 
-        this._messenger.onRequest(getDiagramComponentModel, async (params): Promise<ComponentModel[]> => {
-            let componentModels: ComponentModel[] = [];
+        this._messenger.onRequest(getDiagramComponentModel, async (params): Promise<GetComponentModelResponse> => {
+            let componentModels: { [key: string]: ComponentModel } = {};
+            let diagnostics: ComponentModelDiagnostics[] = [];
             await ProjectRegistry.getInstance().getDiagramModel(params.projId, params.orgHandler)
                 .then(async (component) => {
-                    component.forEach((value, key) => {
+                    component.forEach((value, _key) => {
                         // Draw the cell diagram for the last version of the component
                         const finalVersion = value.apiVersions[value.apiVersions.length - 1];
-                        if (finalVersion.cellDiagram) {
+                        if (finalVersion.cellDiagram?.success) {
                             const decodedString = Buffer.from(finalVersion.cellDiagram.data, "base64");
                             const model: ComponentModel = JSON.parse(decodedString.toString());
                             enrichConsoleDeploymentData(model.services, finalVersion);
-                            componentModels.push(model);
+                            componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
+                        } else  {
+                            diagnostics.push({name: `${value.displayName} Component`});
                         }
                     });
-                })
-                .catch(serializeError);
-            return componentModels;
+                }) .catch(serializeError);
+
+            return {
+                componentModels: componentModels,
+                diagnostics: diagnostics
+            };
         });
 
         this._messenger.onRequest(UpdateProjectOverview, (projectId: string) => {
