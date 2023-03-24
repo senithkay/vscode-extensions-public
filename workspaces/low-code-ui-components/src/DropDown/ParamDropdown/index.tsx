@@ -48,7 +48,6 @@ export function ParamDropDown(props: FormElementProps<SelectDropdownProps>) {
                     disabled={!enabled?.includes(value)}
                     key={value}
                     value={value}
-                    className={`product-tour-payload-${value.toLowerCase()}`}
                     data-testid={`connector-payload-${value.toLowerCase()}`}
                 >
                     <span className="TextSpan">{value}</span>

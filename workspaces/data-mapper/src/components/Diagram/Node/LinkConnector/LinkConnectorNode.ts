@@ -37,6 +37,7 @@ import {
     getInputPortsForExpr,
     getOutputPortForField
 } from "../../utils/dm-utils";
+import { FnDefInfo } from "../../utils/fn-definition-store";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
@@ -66,6 +67,7 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         public parentNode: STNode,
         public fieldAccessNodes: (FieldAccess | OptionalFieldAccess | SimpleNameReference)[],
         public fields: STNode[],
+        public fnDefForFnCall?: FnDefInfo,
         public isPrimitiveTypeArrayElement?: boolean) {
         super(
             context,
@@ -78,8 +80,6 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             this.value = valueNode.value ? (valueNode.value as string).trim()  : valueNode.source.trim();
             this.diagnostics = filterDiagnostics(this.context.diagnostics, valueNode.position as NodePosition);
         }
-
-
     }
 
     initPorts(): void {

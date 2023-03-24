@@ -16,6 +16,9 @@ import React, { useEffect, useMemo, useReducer, useState } from "react";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    ComponentViewInfo,
+    ConfigOverlayFormStatus,
+    FileListEntry,
     LibraryDataResponse,
     LibraryDocResponse,
     LibrarySearchResponse,
@@ -35,6 +38,7 @@ import { useDMSearchStore, useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
 import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
+import { FunctionDefinitionStore } from "../Diagram/utils/fn-definition-store";
 import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
@@ -116,6 +120,8 @@ export interface DataMapperProps {
     importStatements: string[];
     recordPanel?: (props: { targetPosition: NodePosition, closeAddNewRecord: () => void }) => JSX.Element;
     syntaxTree?: STNode;
+    updateActiveFile?: (currentFile: FileListEntry) => void;
+    updateSelectedComponent?: (info: ComponentViewInfo) => void;
 }
 
 export enum ViewOption {
@@ -193,7 +199,9 @@ function DataMapperC(props: DataMapperProps) {
         onSave,
         importStatements,
         recordPanel,
-        syntaxTree
+        syntaxTree,
+        updateActiveFile,
+        updateSelectedComponent
     } = props;
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -324,11 +332,15 @@ function DataMapperC(props: DataMapperProps) {
                         handleFieldToBeEdited,
                         handleOverlay,
                         ballerinaVersion,
-                        handleLocalVarConfigPanel
+                        handleLocalVarConfigPanel,
+                        updateActiveFile,
+                        updateSelectedComponent
                     );
 
                     const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
                     await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
+                    const functionDefinitions = FunctionDefinitionStore.getInstance();
+                    await functionDefinitions.storeFunctionDefinitions(fnST, context);
 
                     setDmContext(context);
                 }
@@ -437,7 +449,6 @@ function DataMapperC(props: DataMapperProps) {
                                 selection={selection}
                                 dmSupported={dMSupported}
                                 changeSelection={handleSelectedST}
-                                onClose={onClose}
                                 onConfigOpen={onConfigOpen}
                             />
                         )}

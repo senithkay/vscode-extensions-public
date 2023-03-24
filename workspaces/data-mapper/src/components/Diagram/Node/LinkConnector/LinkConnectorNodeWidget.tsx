@@ -16,13 +16,16 @@ import * as React from 'react';
 import { CircularProgress } from "@material-ui/core";
 import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
 import TooltipBase from '@material-ui/core/Tooltip';
+import ChevronRight from "@material-ui/icons/ChevronRight";
 import CodeOutlinedIcon from '@material-ui/icons/CodeOutlined';
 import DeleteIcon from '@material-ui/icons/DeleteOutlineOutlined';
 import ExpressionIcon from '@material-ui/icons/ExplicitOutlined';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { ComponentViewInfo } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 import clsx from 'clsx';
 
+import FunctionIcon from "../../../../assets/icons/FuctionIcon";
 import { DiagnosticWidget } from '../../Diagnostic/Diagnostic';
 import { DataMapperPortWidget } from '../../Port';
 import { getFieldLabel } from '../../utils/dm-utils';
@@ -119,6 +122,9 @@ const styles = makeStyles((theme: Theme) => createStyles({
         height: "32px",
         width: "32px"
     },
+    functionIcon: {
+        padding: "3px"
+    },
     deleteIcon: {
         color: theme.palette.error.main
     },
@@ -141,27 +147,33 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
     const engine = props.engine;
     const hasError = node.hasError();
     const diagnostic = hasError ? node.diagnostics[0] : null;
+    const fnDef = node.fnDefForFnCall;
+    const isTnfFunctionCall = fnDef && fnDef.isExprBodiedFn;
 
+    const {
+        enableStatementEditor,
+        updateSelectedComponent
+    } = node.context;
     const [deleteInProgress, setDeleteInProgress] = React.useState(false);
 
     const onClickEdit = () => {
         const valueNode = props.node.valueNode;
         if (STKindChecker.isSpecificField(valueNode)) {
-            props.node.context.enableStatementEditor({
+            enableStatementEditor({
                 valuePosition: valueNode.valueExpr.position as NodePosition,
                 value: valueNode.valueExpr.source,
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.parentId)
                     : props.node.editorLabel)
             });
         } else if (STKindChecker.isBinaryExpression(valueNode)) {
-            props.node.context.enableStatementEditor({
+            enableStatementEditor({
                 valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
                 label: (props.node.isPrimitiveTypeArrayElement ? getFieldLabel(props.node.targetPort.portName)
                     : props.node.editorLabel)
             });
         } else {
-            props.node.context.enableStatementEditor({
+            enableStatementEditor({
                 valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
                 label: "Expression"
@@ -175,6 +187,19 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
             node.deleteLink();
         }
     };
+
+    const onClickOnGoToDef = async (evt: React.MouseEvent) => {
+        evt.stopPropagation();
+        const {fnDefPosition, fileUri, fnName} = fnDef;
+        const fnDefFilePath = fileUri.replace(/^file:\/\//, "");
+        const componentViewInfo: ComponentViewInfo = {
+            filePath: fnDefFilePath,
+            position: fnDefPosition,
+            name: fnName
+        }
+        updateSelectedComponent(componentViewInfo);
+    }
+
     const TooltipComponent = withStyles(tooltipBaseStyles)(TooltipBase);
 
     const loadingScreen = (
@@ -189,11 +214,26 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
         <div className={classes.root} data-testid={`link-connector-node-${node?.value}`}>
             <div className={classes.header}>
                 <DataMapperPortWidget engine={engine} port={node.inPort} dataTestId={`link-connector-node-${node?.value}-input`}/>
-                <TooltipComponent interactive={false} arrow={true} title={"Multi-Input Expression"}>
+                <TooltipComponent
+                    interactive={false}
+                    arrow={true}
+                    title={isTnfFunctionCall ? "Transformation Function Call" : "Multi-Input Expression"}
+                >
                     <span className={classes.editIcon} >
-                        <ExpressionIcon  />
+                        {isTnfFunctionCall ? (
+                            <div className={classes.functionIcon} >
+                                <FunctionIcon />
+                            </div>
+                        ) : <ExpressionIcon/>}
                     </span>
                 </TooltipComponent>
+                {isTnfFunctionCall && (
+                    <div className={classes.element} onClick={onClickOnGoToDef} data-testid={`go-to-tnf-fn-${node?.value}`}>
+                        <div className={classes.iconWrapper}>
+                            <ChevronRight className={clsx(classes.editIcon)}/>
+                        </div>
+                    </div>
+                )}
                 <div className={classes.element} onClick={onClickEdit} data-testid={`link-connector-edit-${node?.value}`}>
                     <div className={classes.iconWrapper}>
                         <CodeOutlinedIcon className={clsx(classes.icons, classes.editIcon)}/>

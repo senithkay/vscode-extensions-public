@@ -713,6 +713,7 @@ importers:
       typescript: ^4.9.4
       uuid: ^8.3.0
       vscode-languageserver-protocol: ^3.16.0
+      vscode-uri: ^3.0.7
       webpack: ^5.56.0
       webpack-cli: ^4.10.0
       webpack-dev-server: ^4.11.1
@@ -828,6 +829,7 @@ importers:
       tslint-react: 4.2.0_zmprxdwqpgzzlt6igyqeohu7hy
       tslint-react-hooks: 2.2.2_zmprxdwqpgzzlt6igyqeohu7hy
       typescript: 4.9.5
+      vscode-uri: 3.0.7
       webpack: 5.76.1_webpack-cli@4.10.0
       webpack-cli: 4.10.0_ddmenyhdwz6ocoybpsmzbonb6y
       webpack-dev-server: 4.11.1_mcbxwmiss5njtiqwgktfxc4sg4
@@ -34589,7 +34591,6 @@ packages:
 
   /vscode-uri/3.0.7:
     resolution: {integrity: sha512-eOpPHogvorZRobNqJGhapa0JdwaxpjVvyBp0QIUMRMSf8ZAlqOdEquKuRmw9Qwu0qXtJIWqFtMkmvJjUZmMjVA==}
-    dev: false
 
   /vscode-ws-jsonrpc/0.2.0:
     resolution: {integrity: sha512-NE9HNRgPjCaPyTJvIudcpyIWPImxwRDtuTX16yks7SAiZgSXigxAiZOvSvVBGmD1G/OMfrFo6BblOtjVR9DdVA==}

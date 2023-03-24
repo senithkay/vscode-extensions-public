@@ -159,4 +159,5 @@ const TextFieldStyled = styled(TextField)`
     border-radius: 5px;
     padding: 2px 6px;
     background-color: #ffffff;
+    height: 36.44px;
 `;

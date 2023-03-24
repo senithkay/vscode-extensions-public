@@ -64,7 +64,7 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
                 "returns error?", targetPosition));
         }
         case "Resource": {
-            return getSource(createResource("get", "greeting/hello", '', "error?", targetPosition));
+            return getSource(createResource("get", "path", '', "error?", targetPosition));
         }
         case "GraphqlResource": {
             return getSource(createResource("get", "hello", '', "string", targetPosition));

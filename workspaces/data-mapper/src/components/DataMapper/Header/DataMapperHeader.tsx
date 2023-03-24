@@ -34,37 +34,22 @@ export const headerStyles = {
     },
     arrow: {
         color: "#fdfdfd"
-    },
-    homeButton: {
-        cursor: "pointer",
-        marginRight: '10px'
     }
 };
-
-const useStyles = makeStyles((theme: Theme) => createStyles(headerStyles));
 
 export interface DataMapperHeaderProps {
     selection: SelectionState;
     dmSupported: boolean;
     changeSelection: (mode: ViewOption, selection?: SelectionState, navIndex?: number) => void;
-    onClose: () => void;
     onConfigOpen: () => void;
 }
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
-    const { selection, dmSupported, changeSelection, onClose, onConfigOpen } = props;
+    const { selection, dmSupported, changeSelection, onConfigOpen } = props;
     const TooltipComponent = withStyles(headerStyles)(TooltipBase);
 
     return (
         <HeaderContainer>
-            <IconButton
-                aria-label="home"
-                className={useStyles().homeButton}
-                onClick={onClose}
-                data-testid="dm-header-home-button"
-            >
-                <HomeIcon />
-            </IconButton>
             <BreadCrumb>
                 <Title> Data Mapper: </Title>
                 <HeaderBreadcrumb
