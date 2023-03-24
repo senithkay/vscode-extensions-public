@@ -12,14 +12,16 @@
  */
 
 import styled from '@emotion/styled';
+import React from "react";
+import { Coordinate } from "../CellDiagram/CellDiagram";
 
-export const CellContainer = styled.div`
+export const CellContainer: React.FC<any> = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   position: relative;
-  clip-path: ${(props: CellContainerProps) => props.isConsoleView ? 'polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%)' : 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)'};
+  clip-path: ${(props: CellContainerProps) => `polygon(${props.vertices[0].x}px ${props.vertices[0].y}px, ${props.vertices[1].x}px ${props.vertices[1].y}px, ${props.vertices[2].x}px ${props.vertices[2].y}px, ${props.vertices[3].x}px ${props.vertices[3].y}px, ${props.vertices[4].x}px ${props.vertices[4].y}px, ${props.vertices[5].x}px ${props.vertices[5].y}px, ${props.vertices[6].x}px ${props.vertices[6].y}px, ${props.vertices[7].x}px ${props.vertices[7].y}px)`};
   &:before {
     position: absolute;
     z-index: -1;
@@ -31,22 +33,23 @@ export const CellContainer = styled.div`
   overflow: hidden;
 `;
 
-export const CanvasWrapper = styled.div`
+export const CanvasWrapper: React.FC<any> = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-  top: 1px;
-  left: 1px;
-  width: calc(100% - 2px);
-  height: calc(100% - 2px);
-  clip-path: ${(props: CellContainerProps) => props.isConsoleView ? 'polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%)' : 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)'};
+  //top: 1px;
+  //left: 1px;
+  //width: calc(100% - 2px);
+  //height: calc(100% - 2px);
+  clip-path: ${(props: CellContainerProps) => `polygon(${props.vertices[0].x}px ${props.vertices[0].y + 1}px, ${props.vertices[1].x - 1}px ${props.vertices[1].y + 1}px, ${props.vertices[2].x - 1}px ${props.vertices[2].y}px, ${props.vertices[3].x - 1}px ${props.vertices[3].y}px, ${props.vertices[4].x - 1}px ${props.vertices[4].y - 1}px, ${props.vertices[5].x + 1}px ${props.vertices[5].y - 1}px, ${props.vertices[6].x + 1}px ${props.vertices[6].y}px, ${props.vertices[7].x + 1}px ${props.vertices[7].y}px)`};
 `;
 
 interface CellContainerProps {
   isConsoleView?: boolean;
+  vertices?: Coordinate[];
 }
 
-export const CellContainerWrapper = styled.div`
+export const CellContainerWrapper: React.FC<any> = styled.div`
   display: flex;
   position: relative;
   left: 50px;

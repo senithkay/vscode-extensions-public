@@ -17,13 +17,18 @@
  *
  */
 
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { CanvasWrapper, CellContainer, CellContainerWrapper } from "../DiagramContainer/style";
 import { Gateways } from "../../gateway/Gateways/Gateways";
 import { DiagramCanvasWidget } from "../DiagramCanvas/CanvasWidget";
 import { DagreLayout, Views } from "../../../resources";
 import { DiagramModel } from "@projectstorm/react-diagrams";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
+
+export interface Coordinate {
+    x: number;
+    y: number;
+}
 
 interface CellDiagramProps {
     currentView: Views;
@@ -35,12 +40,37 @@ export function CellDiagram(props: CellDiagramProps) {
     const { currentView, layout, cellModel } = props;
     const { isConsoleView } = useContext(DiagramContext);
 
+    const [viewWidth, setViewWidth] = useState(window.innerWidth);
+    const [viewHeight, setViewHeight] = useState(window.innerHeight);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setViewWidth(window.innerWidth);
+            setViewHeight(window.innerHeight);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const canvasW = (viewWidth - 100);
+    const canvasH = (viewHeight - 90);
+    const offset = 200;
+    const vertices: Coordinate[] = [
+        { x: offset, y: 0 },
+        { x: canvasW - offset, y: 0 },
+        { x: canvasW, y: offset },
+        { x: canvasW, y: canvasH - offset },
+        { x: canvasW - offset, y: canvasH },
+        { x: offset, y: canvasH },
+        { x: 0, y: canvasH - offset },
+        { x: 0, y: offset }
+    ];
     return (
         <div>
             <CellContainerWrapper isConsoleView={isConsoleView}>
                 <Gateways/>
-                <CellContainer isConsoleView={isConsoleView}>
-                    <CanvasWrapper isConsoleView={isConsoleView}>
+                <CellContainer vertices={vertices}>
+                    <CanvasWrapper vertices={vertices}>
                         <DiagramCanvasWidget
                             type={Views.CELL_VIEW}
                             model={cellModel}
