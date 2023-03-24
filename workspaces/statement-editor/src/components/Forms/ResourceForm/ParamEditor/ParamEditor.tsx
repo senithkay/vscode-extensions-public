@@ -14,8 +14,9 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { LiteExpressionEditor, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
+import { LiteExpressionEditor, LiteTextField, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
 import {
+    CheckBoxGroup,
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
@@ -83,6 +84,12 @@ export function ParamEditor(props: ParamProps) {
     const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
     const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
 
+    const [inputValue, setInputValue] = useState(model?.paramName?.value.trim());
+    const [typeValue, setTypeValue] = useState(model?.typeName?.source.trim());
+    const [defaultParamValue, setDefaultParamValue] = useState((STKindChecker.isDefaultableParam(model) && model.expression?.source.trim()) || "");
+
+    const [isRequired, setIsRequiredType] = useState(!STKindChecker.isOptionalTypeDesc(model?.typeName));
+
     // When a type is created and full ST is updated update the onChange to remove diagnostics
     useEffect(() => {
         if (newlyCreatedRecord) {
@@ -104,6 +111,7 @@ export function ParamEditor(props: ParamProps) {
 
     const handleTypeChange = (value: string) => {
         if (value) {
+            setTypeValue(value)
             const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
             const paramName = model.paramName.value;
             const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
@@ -113,6 +121,7 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleNameChange = (value: string) => {
+        setInputValue(value);
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const type = model.typeName.source.trim();
         const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
@@ -120,6 +129,7 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleDefaultValueChange = (value: string) => {
+        setDefaultParamValue(value);
         const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         const type = model.typeName.source.trim();
         const paramName = model.paramName.value
@@ -154,9 +164,19 @@ export function ParamEditor(props: ParamProps) {
         }
     }
 
+    const handleIsRequired = (mode: string[]) => {
+        if (mode.length > 0) {
+            handleTypeChange(`${typeValue.replace("?","")}`);
+            setIsRequiredType(true);
+        } else {
+            handleTypeChange(`${typeValue}?`);
+            setIsRequiredType(false);
+        }
+    }
+
     return (
         <div className={classes.paramContainer}>
-            {optionList && option !== "Payload" && (
+            {optionList && option !== PARAM_TYPES.PAYLOAD && (
                 <div className={classes.paramTypeWrapper}>
                     <ParamDropDown
                         dataTestId="param-type-selector"
@@ -168,7 +188,7 @@ export function ParamEditor(props: ParamProps) {
                     />
                 </div>
             )}
-            {option === "Payload" && <div className={classes.payload}>Payload </div>}
+            {option === PARAM_TYPES.PAYLOAD && <div className={classes.payload}>Payload </div>}
             <div className={classes.paramContent}>
                 {!(model.source.includes(RESOURCE_CALLER_TYPE)
                     || model.source.includes(RESOURCE_REQUEST_TYPE)
@@ -176,7 +196,7 @@ export function ParamEditor(props: ParamProps) {
                         <div className={classes.paramDataTypeWrapper}>
                             <FieldTitle title='Type' optional={false} />
                             <TypeBrowser
-                                type={model?.typeName?.source.trim()}
+                                type={typeValue}
                                 onChange={handleTypeChange}
                                 isLoading={false}
                                 recordCompletions={completions}
@@ -187,17 +207,14 @@ export function ParamEditor(props: ParamProps) {
                     )}
                 <div className={classes.paramNameWrapper}>
                     <FieldTitle title='Name' optional={false} />
-                    <LiteExpressionEditor
-                        testId="param-name"
+                    <LiteTextField
+                        onChange={handleNameChange}
+                        value={inputValue}
+                        isLoading={false}
                         diagnostics={
                             (currentComponentName === ParamEditorInputTypes.PARAM_NAME && syntaxDiagnostics) ||
                             model.paramName?.viewState?.diagnosticsInRange
                         }
-                        defaultValue={model?.paramName?.value.trim()}
-                        onChange={handleNameChange}
-                        onFocus={onNameEditorFocus}
-                        disabled={false}
-                        completions={currentComponentName === ParamEditorInputTypes.PARAM_NAME && completions}
                     />
                 </div>
                 {
@@ -206,35 +223,29 @@ export function ParamEditor(props: ParamProps) {
                         || model.source.includes(RESOURCE_HEADER_MAP_TYPE)) && (
                         <div className={classes.paramNameWrapper}>
                             <FieldTitle title='Default Value' optional={true} />
-                            <LiteExpressionEditor
-                                testId="param-default-val"
-                                diagnostics={
-                                    (currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && syntaxDiagnostics)
-                                    || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange
-                                    || []
-                                }
-                                defaultValue={
-                                    (STKindChecker.isDefaultableParam(model) && model.expression?.source.trim())
-                                    || ""
-                                }
+                            <LiteTextField
                                 onChange={handleDefaultValueChange}
-                                onFocus={onDefaultValueEditorFocus}
-                                disabled={false}
-                                completions={
-                                    currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && completions
+                                value={defaultParamValue}
+                                isLoading={false}
+                                diagnostics={
+                                    (currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && syntaxDiagnostics) ||
+                                    model.paramName?.viewState?.diagnosticsInRange
                                 }
                             />
                         </div>
                     )
                 }
             </div>
+            {option == PARAM_TYPES.DEFAULT &&
+                <div className={classes.paramContent}>
+                    <CheckBoxGroup
+                        values={["Is Required"]}
+                        defaultValues={isRequired ? ["Is Required"] : []}
+                        onChange={handleIsRequired}
+                    />
+                </div>
+            }
             <div className={classes.btnContainer}>
-                <SecondaryButton
-                    text="Cancel"
-                    fullWidth={false}
-                    onClick={handleOnCancel}
-                    className={classes.actionBtn}
-                />
                 <PrimaryButton
                     dataTestId={"path-segment-add-btn"}
                     text={"Save"}

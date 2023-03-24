@@ -12,3 +12,4 @@ export * from "./event";
 export * from "./performance";
 export * from "./sentry-config";
 export * from "./data-mapper";
+export * from "./http-response-types";

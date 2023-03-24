@@ -16,7 +16,7 @@ import { useIntl } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { Divider } from "@material-ui/core";
-import { BallerinaSTModifyResponse, ConfigOverlayFormStatus, DiagramEditorLangClientInterface, LabelEditIcon, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaSTModifyResponse, ConfigOverlayFormStatus, DiagramEditorLangClientInterface, LabelEditIcon, responseCodes, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConfigPanelSection, Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModulePart, NodePosition, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -132,18 +132,6 @@ export function ResourceBody(props: ResourceBodyProps) {
     });
 
     const responseArgs: any[] = [];
-
-    interface ResponseCode {
-        code: number;
-        source: string;
-    }
-
-    const responseCodes: ResponseCode[] = [
-        { code: 200, source: "http:Ok" },
-        { code: 201, source: "http:Created" },
-        { code: 404, source: "http:NotFound" },
-        { code: 500, source: "http:InternalServerError" }
-    ];
 
     traversNode(model, RecordsFinderVisitor);
     const records = RecordsFinderVisitor.getRecords();

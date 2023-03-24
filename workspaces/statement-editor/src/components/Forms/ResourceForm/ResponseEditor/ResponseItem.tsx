@@ -13,9 +13,8 @@
 // tslint:disable: jsx-no-multiline-js
 import React from "react";
 
-import { DeleteButton, ParamEditButton, QueryIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { DeleteButton, ParamEditButton, QueryIcon, responseCodes } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 
-import { responseCodes } from "./ResponseEditor";
 import { useStyles } from './style';
 
 export interface ParameterConfig {
@@ -49,7 +48,7 @@ export function ResponseItem(props: ParamItemProps) {
 
     const icon = (<QueryIcon />);
 
-    const responseCode = responseCodes.find(item => item.source === param.name.trim());
+    const responseCode = responseCodes.find(item => param.name.trim().includes(item.source));
     const staticCode = param.name.trim().includes("error") ? 500 : 200;
 
     return (

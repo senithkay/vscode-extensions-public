@@ -59,6 +59,7 @@ import {
 	getBalRecFieldName,
 	getExprBodyFromLetExpression,
 	getFieldName,
+	getFnDefForFnCall,
 	getInputNodes,
 	getOptionalRecordField,
 	isComplexExpression
@@ -232,9 +233,14 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 	protected getOtherMappings(node: STNode, currentFields: STNode[]) {
 		const valNode = STKindChecker.isSpecificField(node) ? node.valueExpr : node;
 		const inputNodes = getInputNodes(valNode);
-		if (inputNodes.length === 1 && !isComplexExpression(valNode) && !STKindChecker.isQueryExpression(valNode)) {
+		const isExprBodiedFunc = STKindChecker.isFunctionCall(valNode) && getFnDefForFnCall(valNode);
+		if (inputNodes.length === 1
+			&& !isComplexExpression(valNode)
+			&& !STKindChecker.isQueryExpression(valNode)
+			&& !isExprBodiedFunc
+		) {
 			return new FieldAccessToSpecificFied([...currentFields, node], inputNodes[0], valNode);
 		}
-		return new FieldAccessToSpecificFied([...currentFields, node], undefined , valNode);
+		return new FieldAccessToSpecificFied([...currentFields, node], undefined, valNode);
 	}
 }
