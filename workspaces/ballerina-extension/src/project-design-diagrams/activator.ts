@@ -44,20 +44,8 @@ export interface STResponse {
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance = ballerinaExtInstance;
     langClient = <ExtendedLangClient>extInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, (selectedNodeId = "") => {
-        ballerinaExtInstance.onReady()
-            .then(async () => {
-                if (isCompatible(2201.2, 2)) {
-                    await viewProjectDesignDiagrams(selectedNodeId);
-                } else {
-                    window.showErrorMessage(INCOMPATIBLE_VERSIONS_MESSAGE);
-                    return;
-                }
-            })
-            .catch((error) => {
-                console.log(`${ERROR_MESSAGE}: ${error}`);
-                ballerinaExtInstance.showPluginActivationError();
-            });
+    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW, async (selectedNodeId = "") => {
+        await viewProjectDesignDiagrams(selectedNodeId);
     });
 
     extInstance.context.subscriptions.push(designDiagramRenderer);
