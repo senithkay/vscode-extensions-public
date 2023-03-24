@@ -100,10 +100,7 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
             services.forEach((service) => {
                 if (!service.serviceId) {
                     service.serviceId = uuid();
-                    service.annotation = {
-                        label: generateLabels(packageModel.packageId.name, service.serviceId),
-                        id: service.serviceId
-                    };
+                    service.annotation = { id: service.serviceId, label: service.annotation?.label };
                 }
 
                 if (!service.path && (!service.annotation.label || validateUUID(service.annotation.label))
