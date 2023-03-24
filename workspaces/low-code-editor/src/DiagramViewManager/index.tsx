@@ -262,6 +262,7 @@ export function DiagramViewManager(props: EditorProps) {
                             targetPosition={focusedST.position}
                             ballerinaVersion={balVersion}
                             onCancel={handleNavigationHome}
+                            goToSource={gotoSource}
                         />
                     );
                 } else if (signature && signature === "$CompilationError$") {
@@ -281,7 +282,6 @@ export function DiagramViewManager(props: EditorProps) {
                         model={focusedST}
                         ballerinaVersion={balVersion}
                         onCancel={handleNavigationHome}
-                        goToSource={gotoSource}
                     />
                 ))
             } else if (STKindChecker.isTypeDefinition(focusedST)
