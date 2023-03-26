@@ -18,12 +18,21 @@
  */
 
 import React, { useContext, useEffect, useState } from 'react';
-import { CanvasWrapper, CellContainer, CellContainerWrapper } from "../DiagramContainer/style";
+import {
+    CellContainer,
+    CellContainerControls,
+    CellContainerWrapper,
+    CellDiagramWrapper
+} from "../DiagramContainer/style";
 import { Gateways } from "../../gateway/Gateways/Gateways";
 import { DiagramCanvasWidget } from "../DiagramCanvas/CanvasWidget";
 import { DagreLayout, Views } from "../../../resources";
 import { DiagramModel } from "@projectstorm/react-diagrams";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
+import { CanvasWrapper } from "../../../../lib/components/common/DiagramContainer/style";
+import { cellDiagramZoomToFit, createServicesEngine, positionGatewayNodes } from "../../../utils";
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { DiagramControls } from "../DiagramCanvas/DiagramControls";
 
 export interface Coordinate {
     x: number;
@@ -40,6 +49,7 @@ export function CellDiagram(props: CellDiagramProps) {
     const { currentView, layout, cellModel } = props;
     const { isConsoleView } = useContext(DiagramContext);
 
+    const [diagramEngine] = useState<DiagramEngine>(createServicesEngine);
     const [viewWidth, setViewWidth] = useState(window.innerWidth);
     const [viewHeight, setViewHeight] = useState(window.innerHeight);
 
@@ -51,6 +61,22 @@ export function CellDiagram(props: CellDiagramProps) {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    const redrawDiagram = () => {
+        positionGatewayNodes(diagramEngine);
+        diagramEngine.repaintCanvas();
+    };
+
+    const onZoom = (zoomIn: boolean) => {
+        let delta: number = zoomIn ? +5 : -5;
+        diagramEngine.getModel().setZoomLevel(diagramEngine.getModel().getZoomLevel() + delta);
+        redrawDiagram();
+    };
+
+    const zoomToFit = () => {
+        diagramEngine.zoomToFitNodes({ maxZoom: 1 });
+        cellDiagramZoomToFit(diagramEngine);
+    };
 
     const canvasW = (viewWidth - 100);
     const canvasH = (viewHeight - 90);
@@ -66,12 +92,13 @@ export function CellDiagram(props: CellDiagramProps) {
         { x: 0, y: offset }
     ];
     return (
-        <div>
+        <CellDiagramWrapper>
             <CellContainerWrapper isConsoleView={isConsoleView}>
                 <Gateways/>
                 <CellContainer vertices={vertices}>
                     <CanvasWrapper vertices={vertices}>
                         <DiagramCanvasWidget
+                            engine={diagramEngine}
                             type={Views.CELL_VIEW}
                             model={cellModel}
                             {...{currentView, layout}}
@@ -79,6 +106,13 @@ export function CellDiagram(props: CellDiagramProps) {
                     </CanvasWrapper>
                 </CellContainer>
             </CellContainerWrapper>
-        </div>
+            <CellContainerControls>
+                <DiagramControls
+                    showDownloadButton={false}
+                    zoomToFit={zoomToFit}
+                    onZoom={onZoom}
+                />
+            </CellContainerControls>
+        </CellDiagramWrapper>
     );
 }

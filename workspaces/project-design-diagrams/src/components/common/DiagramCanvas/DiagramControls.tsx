@@ -34,7 +34,7 @@ interface ControlProps {
     zoomToFit: () => void;
     showDownloadButton: boolean;
     onZoom: (zoomIn: boolean) => void;
-    onDownload: () => void;
+    onDownload?: () => void;
 }
 
 export function DiagramControls(props: ControlProps) {

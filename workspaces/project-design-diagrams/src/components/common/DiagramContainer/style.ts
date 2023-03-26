@@ -22,14 +22,7 @@ export const CellContainer: React.FC<any> = styled.div`
   height: 100%;
   position: relative;
   clip-path: ${(props: CellContainerProps) => `polygon(${props.vertices[0].x}px ${props.vertices[0].y}px, ${props.vertices[1].x}px ${props.vertices[1].y}px, ${props.vertices[2].x}px ${props.vertices[2].y}px, ${props.vertices[3].x}px ${props.vertices[3].y}px, ${props.vertices[4].x}px ${props.vertices[4].y}px, ${props.vertices[5].x}px ${props.vertices[5].y}px, ${props.vertices[6].x}px ${props.vertices[6].y}px, ${props.vertices[7].x}px ${props.vertices[7].y}px)`};
-  &:before {
-    position: absolute;
-    z-index: -1;
-    inset: 0;
-    background: #5567D5;
-    clip-path: inherit;
-    content: ''
-  }
+  background: #5567D5;
   overflow: hidden;
 `;
 
@@ -48,6 +41,18 @@ interface CellContainerProps {
   isConsoleView?: boolean;
   vertices?: Coordinate[];
 }
+
+export const CellContainerControls: React.FC<any> = styled.div`
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+  bottom: 120px;
+` ;
+
+export const CellDiagramWrapper: React.FC<any> = styled.div`
+  display: flex;
+  flex-direction: column;
+` ;
 
 export const CellContainerWrapper: React.FC<any> = styled.div`
   display: flex;

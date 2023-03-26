@@ -18,19 +18,24 @@
  */
 
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import {  DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import debounce from 'lodash.debounce';
-import { DiagramControls } from './DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { GatewayLinkModel } from '../../gateway/GatewayLink/GatewayLinkModel';
 import { GatewayNodeModel } from '../../gateway/GatewayNode/GatewayNodeModel';
 import { DagreLayout, Views } from '../../../resources';
 import {
-    addGWNodesModel, cellDiagramZoomToFit, createEntitiesEngine, createServicesEngine, positionGatewayNodes, removeGWLinks
+    addGWNodesModel,
+    cellDiagramZoomToFit,
+    createEntitiesEngine,
+    createServicesEngine,
+    positionGatewayNodes,
+    removeGWLinks
 } from '../../../utils';
+import { DiagramControls } from "./DiagramControls";
 import './styles/styles.css';
 
 interface DiagramCanvasProps {
@@ -38,6 +43,7 @@ interface DiagramCanvasProps {
     currentView: Views;
     type: Views;
     layout: DagreLayout;
+    engine?: DiagramEngine;
 }
 
 // Note: Dagre distribution spaces correctly only if the particular diagram screen is visible
@@ -54,14 +60,13 @@ let dagreEngine = new DagreEngine({
 });
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
-    const { model, currentView, layout, type } = props;
+    const { model, currentView, layout, type, engine } = props;
     const { editingEnabled, setNewLinkNodes, isConsoleView } = useContext(DiagramContext);
 
-    const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE || type === Views.TYPE_COMPOSITION ?
-        createEntitiesEngine : createServicesEngine);
+    const [diagramEngine] = useState<DiagramEngine>(engine || (type === Views.TYPE || type === Views.TYPE_COMPOSITION ?
+        createEntitiesEngine : createServicesEngine));
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
 
-    const consoleViewWestOffSet = isConsoleView ? 70 : 0;
     let diagramClass = 'diagram-container';
     if (type === Views.CELL_VIEW && !isConsoleView) {
         diagramClass = 'cell-diagram-container';
@@ -75,7 +80,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 link.fireEvent({ hide: true }, 'updateVisibility');
             }
         });
-        positionGatewayNodes(diagramEngine, consoleViewWestOffSet);
+        positionGatewayNodes(diagramEngine);
     };
 
     const showGWLinks = () => {
@@ -84,7 +89,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 link.fireEvent({ hide: false }, 'updateVisibility');
             }
         });
-        positionGatewayNodes(diagramEngine, consoleViewWestOffSet);
+        positionGatewayNodes(diagramEngine);
     };
 
     const onDiagramMoveStarted = debounce(() => {
@@ -155,7 +160,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 const hasGwNode = diagramEngine.getModel().getNodes().find(node => (node instanceof GatewayNodeModel));
                 // Adding GW links and nodes after dagre distribution
                 addGWNodesModel(diagramEngine, !hasGwNode);
-                positionGatewayNodes(diagramEngine, consoleViewWestOffSet);
+                positionGatewayNodes(diagramEngine);
             }
             zoomToFit();
         }, 30);
@@ -163,7 +168,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const redrawDiagram = () => {
         if (type === Views.CELL_VIEW) {
-            positionGatewayNodes(diagramEngine, consoleViewWestOffSet);
+            positionGatewayNodes(diagramEngine);
         }
         diagramEngine.repaintCanvas();
     };
@@ -177,7 +182,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
         if (type === Views.CELL_VIEW) {
-            cellDiagramZoomToFit(diagramEngine, consoleViewWestOffSet);
+            cellDiagramZoomToFit(diagramEngine);
         }
     };
 
@@ -210,12 +215,14 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 </div>
             }
 
-            <DiagramControls
-                showDownloadButton={type !== Views.CELL_VIEW}
-                zoomToFit={zoomToFit}
-                onZoom={onZoom}
-                onDownload={downloadDiagram}
-            />
+            {currentView !== Views.CELL_VIEW && (
+                <DiagramControls
+                    showDownloadButton={type !== Views.CELL_VIEW}
+                    zoomToFit={zoomToFit}
+                    onZoom={onZoom}
+                    onDownload={downloadDiagram}
+                />
+            )}
         </>
     );
 }
