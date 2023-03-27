@@ -22,7 +22,7 @@ interface StyleProps {
     awaitLinking?: boolean;
 }
 
-export const ServiceNode = styled.div`
+export const ServiceNode: React.FC<any> = styled.div`
   animation: ${(props: StyleProps) => props.isNew ? 'fadeIn 5s' : ''};
   background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
   border: ${(props: StyleProps) => props.awaitLinking ? `2px solid green` : `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED
@@ -39,7 +39,7 @@ export const ServiceNode = styled.div`
   min-width: 160px;
 `;
 
-export const ServiceHead = styled.div`
+export const ServiceHead: React.FC<any> = styled.div`
   align-items: center;
   border-bottom: ${(props: StyleProps) =>
           `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
@@ -55,11 +55,11 @@ export const ServiceHead = styled.div`
   white-space: nowrap;
 `;
 
-export const ServiceName = styled.span`
+export const ServiceName: React.FC<any> = styled.span`
   margin-left: 8px;
 `;
 
-export const FunctionContainer = styled.div`
+export const FunctionContainer: React.FC<any> = styled.div`
   align-items: center;
   background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
   border-bottom: 0.5px solid #cccde3;
@@ -76,7 +76,7 @@ export const FunctionContainer = styled.div`
   text-align: center;
 `;
 
-export const ResourceAction = styled.div`
+export const ResourceAction: React.FC<any> = styled.div`
   background-color: ${(props: { color: string }) => `${props.color}`};
   border-radius: 5px;
   height: 22px;
@@ -85,7 +85,7 @@ export const ResourceAction = styled.div`
   width: 50px;
 `;
 
-export const ResourceName = styled.div`
+export const ResourceName: React.FC<any> = styled.div`
   display: flex;
   flex: 1;
   height: 30px;
