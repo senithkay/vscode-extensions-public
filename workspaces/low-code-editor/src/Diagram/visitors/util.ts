@@ -52,26 +52,31 @@ export function generateServicePathString(serviceNode: ServiceDeclaration): stri
     return path;
 }
 
-export function generateConstructIdStub(construct: STNode, index: number): string {
+export function generateConstructIdStub(construct: STNode, index?: number): string {
+    let id: string = '';
     if (STKindChecker.isServiceDeclaration(construct)) {
-        return `${CONSTRUCT_KEYWORDS.SERVICE}${SUB_DELIMETER}${generateServicePathString(construct)}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.SERVICE}${SUB_DELIMETER}${generateServicePathString(construct)}${SUB_DELIMETER}${index}`;
     } else if (STKindChecker.isClassDefinition(construct)) {
-        return `${CONSTRUCT_KEYWORDS.class}${SUB_DELIMETER}${construct.className.value}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.class}${SUB_DELIMETER}${construct.className.value}${SUB_DELIMETER}${index}`;
     } else if (STKindChecker.isFunctionDefinition(construct)) {
-        return `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}${SUB_DELIMETER}${index}`;
     } else if (STKindChecker.isObjectMethodDefinition(construct)) {
-        return `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}${SUB_DELIMETER}${index}`;
     } else if (STKindChecker.isResourceAccessorDefinition(construct)) {
-        let id: string = `${CONSTRUCT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${construct.functionName.value}`;
+        id = `${CONSTRUCT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${construct.functionName.value}`;
         if (construct.relativeResourcePath && construct.relativeResourcePath.length > 0) {
             id = `${id}-${generateResourcePathString(construct.relativeResourcePath)}${SUB_DELIMETER}${index}`;
         } else {
             id = `${id}-/${SUB_DELIMETER}${index}`;
         }
-        return id;
     } else if (STKindChecker.isTypeDefinition(construct)) {
-        return `${CONSTRUCT_KEYWORDS.RECORD}${SUB_DELIMETER}${construct.typeName?.value}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.RECORD}${SUB_DELIMETER}${construct.typeName?.value}${SUB_DELIMETER}${index}`;
     }
-    return ''
+
+    if (id) {
+        id = `${id}${SUB_DELIMETER}${construct.source}`;
+    }
+
+    return id;
 }
 
