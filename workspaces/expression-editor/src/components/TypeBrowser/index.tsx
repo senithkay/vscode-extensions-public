@@ -2,10 +2,9 @@
 import React, { useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
-import { Button, FormHelperText, LinearProgress, TextField } from "@material-ui/core";
+import { FormHelperText, LinearProgress, TextField } from "@material-ui/core";
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete'
 import {
-    CheckBoxGroup,
     SecondaryButton,
     TooltipCodeSnippet
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -146,7 +145,7 @@ function TypeBrowserC(props: TypeBrowserProps) {
 
 enum ConstructType {
     RECORD_CONSTRUCT = "Create Record",
-    CLASS_CONSTRUCT = "Create Class"
+    CLASS_CONSTRUCT = "Create Service Class"
 }
 
 function DiagnosticView(props: { handleCreateNew: () => void, message: string, isGraphqlForm?: boolean, createNewConstruct?: (constructType: ConstructType) => void }) {
@@ -175,19 +174,13 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
                         <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
                             {truncateDiagnosticMsg(message + ". Do you want to create a new construct?")}
                         </FormHelperText>
-                        <SecondaryButton text={"Create Class"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.CLASS_CONSTRUCT)} />
+                        <SecondaryButton text={"Create Service Class"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.CLASS_CONSTRUCT)} />
                         <SecondaryButton text={"Create Record"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.RECORD_CONSTRUCT)} />
                     </>
                 </TooltipCodeSnippet>
                 )
             }
         </>
-        // <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
-        //     <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
-        //         {truncateDiagnosticMsg(message)}
-        //         <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>
-        //     </FormHelperText>
-        // </TooltipCodeSnippet>
     );
 }
 

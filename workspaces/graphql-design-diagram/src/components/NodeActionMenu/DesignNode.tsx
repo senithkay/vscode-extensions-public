@@ -12,13 +12,13 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
-import { IconButton, ListItemIcon, ListItemText, MenuItem, Tooltip } from "@material-ui/core";
+import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
-    DesignViewIcon, LabelEditIcon
+    DesignViewIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 

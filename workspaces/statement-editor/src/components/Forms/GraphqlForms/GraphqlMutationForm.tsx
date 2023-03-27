@@ -40,8 +40,7 @@ import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from "../../InputEditor/constants";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
-import { FunctionParam, FunctionParamItem } from "../FunctionForm/FunctionParamEditor/FunctionParamItem";
-import { FunctionParamSegmentEditor } from "../FunctionForm/FunctionParamEditor/FunctionSegmentEditor";
+import { FunctionParam } from "../FunctionForm/FunctionParamEditor/FunctionParamItem";
 import { createNewConstruct, generateParameterSectionString } from "../ResourceForm/util";
 
 import { ParameterEditor } from "./ParameterEditor/ParameterEditor";
@@ -330,17 +329,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         <ConfigPanelSection title={"Parameters"}>
                             {paramElements}
                             {addingNewParam ? (
-                                // <FunctionParamSegmentEditor
-                                //     param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
-                                //         RequiredParam | RestParam)}
-                                //     id={parameters.length}
-                                //     syntaxDiag={currentComponentSyntaxDiag}
-                                //     onCancel={closeParamView}
-                                //     onChange={onNewParamChange}
-                                //     onSave={onSaveNewParam}
-                                //     isEdit={false}
-                                //     completions={completions}
-                                // />
                                 <ParameterEditor
                                     param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
                                         RequiredParam | RestParam)}

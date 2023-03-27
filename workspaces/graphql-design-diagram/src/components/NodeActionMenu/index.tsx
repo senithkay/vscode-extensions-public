@@ -20,7 +20,6 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 
 import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../resources/model";
-import { getParentSTNodeFromRange } from "../utils/common-util";
 
 import { useStyles } from "./styles";
 

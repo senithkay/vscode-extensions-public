@@ -50,11 +50,6 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
                             <DeleteFunctionWidget position={location}/>
                         </MenuList>
                     </Paper>
-                    /*<>
-                        <DesignFunctionWidget position={location}/>
-                        <EditFunctionWidget position={location} functionType={functionType}/>
-                        <DeleteFunctionWidget position={location}/>
-                    </>*/
                 }
                 PopperProps={{
                     modifiers: [
@@ -89,8 +84,6 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
                     cursor="pointer"
                     onClick={() => setTooltipStatus(true)}
                     sx={{
-                        // backgroundColor: `${Colors.SECONDARY}`,
-                        // borderRadius: '30%',
                         fontSize: '18px',
                         margin: '0px',
                         position: 'absolute',

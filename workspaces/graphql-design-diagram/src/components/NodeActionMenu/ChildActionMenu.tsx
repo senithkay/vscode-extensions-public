@@ -81,8 +81,6 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
                     cursor="pointer"
                     onClick={() => setTooltipStatus(true)}
                     sx={{
-                        // backgroundColor: `${Colors.SECONDARY}`,
-                        // borderRadius: '30%',
                         fontSize: '18px',
                         margin: '0px',
                         position: 'absolute',

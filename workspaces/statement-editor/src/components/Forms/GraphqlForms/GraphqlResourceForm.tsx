@@ -244,13 +244,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
         if (param.name) {
             if (editingSegmentId !== index) {
                 paramElements.push(
-                    // <FunctionParamItem
-                    //     key={index}
-                    //     functionParam={param}
-                    //     readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}
-                    //     onDelete={onDeleteParam}
-                    //     onEditClick={handleOnEdit}
-                    // />
                     <ParameterField
                         param={param}
                         readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}
@@ -260,16 +253,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
                 );
             } else if (editingSegmentId === index) {
                 paramElements.push(
-                    // <FunctionParamSegmentEditor
-                    //     param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
-                    //         RestParam)}
-                    //     id={editingSegmentId}
-                    //     syntaxDiag={currentComponentSyntaxDiag}
-                    //     onCancel={closeNewParamView}
-                    //     onUpdate={handleOnUpdateParam}
-                    //     onChange={onUpdateParamChange}
-                    //     isEdit={true}
-                    // />
                     <ParameterEditor
                         param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
                             RestParam)}
@@ -381,18 +364,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title="Path" optional={false}/>
-                        {/*<TextField*/}
-                        {/*    variant="outlined"*/}
-                        {/*    fullWidth={true}*/}
-                        {/*    value={getResourcePath(model?.relativeResourcePath).trim()}*/}
-                        {/*    margin="none"*/}
-                        {/*    size="small"*/}
-                        {/*    onChange={(e) => { handlePathChange(e.target.value) }}*/}
-                        {/*    InputLabelProps={{ shrink: false }}*/}
-                        {/*    disabled={currentComponentName !== "Path" && isEditInProgress}*/}
-                        {/*    onFocus={onPathFocus}*/}
-                        {/*    // externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}*/}
-                        {/*/>*/}
                         <LiteExpressionEditor
                             testId="resource-path"
                             diagnostics={
@@ -421,17 +392,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
                                     isEdit={false}
                                     completions={completions}
                                 />
-                                /*<FunctionParamSegmentEditor
-                                    param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
-                                        RequiredParam | RestParam)}
-                                    id={parameters.length}
-                                    syntaxDiag={currentComponentSyntaxDiag}
-                                    onCancel={closeNewParamView}
-                                    onChange={onParamChange}
-                                    onSave={onSaveNewParam}
-                                    isEdit={false}
-                                    completions={completions}
-                                />*/
                             ) : (
                                 <Button
                                     data-test-id="param-add-button"
@@ -456,19 +416,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             isGraphqlForm={true}
                         />
-                        {/*<LiteExpressionEditor*/}
-                        {/*    testId={"return-type"}*/}
-                        {/*    diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}*/}
-                        {/*    defaultValue={returnType}*/}
-                        {/*    onChange={onReturnTypeChange}*/}
-                        {/*    completions={currentComponentCompletions}*/}
-                        {/*    onFocus={onReturnFocus}*/}
-                        {/*    disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}*/}
-                        {/*    customProps={{*/}
-                        {/*        index: 2,*/}
-                        {/*        optional: true*/}
-                        {/*    }}*/}
-                        {/*/>*/}
                     </div>
                 </div>
 

@@ -12,9 +12,9 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
-import { IconButton, ListItemIcon, ListItemText, MenuItem, Tooltip } from "@material-ui/core";
+import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
     LabelEditIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -45,7 +45,6 @@ export function EditFunctionWidget(props: EditFunctionWidgetProps) {
                 startColumn: position.startLine.offset,
                 startLine: position.startLine.line
             };
-            // console.log("===editingMODEL", getSTNodeFromRange(functionPosition, model));
             if (functionType === FunctionType.QUERY) {
                 functionPanel(functionPosition, "GraphqlResource", getSTNodeFromRange(functionPosition, model));
             } else if (functionType === FunctionType.MUTATION) {
@@ -60,37 +59,12 @@ export function EditFunctionWidget(props: EditFunctionWidgetProps) {
     return (
         <>
             {position &&
-            // <>
-            //     <Tooltip
-            //         open={isHovered}
-            //         onClose={() => setIsHovered(false)}
-            //         title={"Edit Operation"}
-            //         arrow={true}
-            //         placement="right"
-            //     >
-            //         <IconButton
-            //             onClick={() => openFunctionPanel()}
-            //             onMouseOver={() => setIsHovered(true)}
-            //             onMouseLeave={() => setIsHovered(false)}
-            //             style={{
-            //                 backgroundColor: isHovered ? '#ffaf4d' : '',
-            //                 borderRadius: '50%',
-            //                 color: isHovered ? 'whitesmoke' : '#ffaf4d',
-            //                 cursor: 'pointer',
-            //                 fontSize: '22px',
-            //                 padding: '2px'
-            //             }}
-            //         >
-            //             <LabelEditIcon/>
-            //         </IconButton>
-            //     </Tooltip>
-            // </>
-            <MenuItem onClick={() => openFunctionPanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
-                    <LabelEditIcon/>
-                </ListItemIcon>
-                <ListItemText className={classes.listItemText}>{"Edit Operation"}</ListItemText>
-            </MenuItem>
+                <MenuItem onClick={() => openFunctionPanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                    <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
+                        <LabelEditIcon/>
+                    </ListItemIcon>
+                    <ListItemText className={classes.listItemText}>{"Edit Operation"}</ListItemText>
+                </MenuItem>
             }
         </>
     );

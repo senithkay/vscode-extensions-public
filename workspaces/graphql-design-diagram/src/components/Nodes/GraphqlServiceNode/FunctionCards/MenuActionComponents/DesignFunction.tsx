@@ -14,9 +14,9 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
 import React, { useContext, useState } from "react";
 
-import { IconButton, ListItemIcon, ListItemText, MenuItem, Tooltip } from "@material-ui/core";
+import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
-    DesignViewIcon, LabelEditIcon
+    DesignViewIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
@@ -32,8 +32,6 @@ interface DesignFunctionWidgetProps {
 export function DesignFunctionWidget(props: DesignFunctionWidgetProps) {
     const { position } = props;
     const { operationDesignView } = useContext(DiagramContext);
-
-    const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const classes = useStyles();
 
@@ -52,37 +50,12 @@ export function DesignFunctionWidget(props: DesignFunctionWidgetProps) {
     return (
         <>
             {position &&
-            // <>
-            //     <Tooltip
-            //         open={isHovered}
-            //         onClose={() => setIsHovered(false)}
-            //         title={"Design Operation"}
-            //         arrow={true}
-            //         placement="right"
-            //     >
-            //         <IconButton
-            //             onClick={openFunctionDesignPanel}
-            //             onMouseOver={() => setIsHovered(true)}
-            //             onMouseLeave={() => setIsHovered(false)}
-            //             style={{
-            //                 backgroundColor: isHovered ? '#ffaf4d' : '',
-            //                 borderRadius: '50%',
-            //                 color: isHovered ? 'whitesmoke' : '#ffaf4d',
-            //                 cursor: 'pointer',
-            //                 fontSize: '22px',
-            //                 padding: '2px'
-            //             }}
-            //         >
-            //             <DesignViewIcon/>
-            //         </IconButton>
-            //     </Tooltip>
-            // </>
-            <MenuItem onClick={openFunctionDesignPanel} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
-                    <DesignViewIcon/>
-                </ListItemIcon>
-                <ListItemText className={classes.listItemText}>{"Design Operation"}</ListItemText>
-            </MenuItem>
+                <MenuItem onClick={openFunctionDesignPanel} style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                    <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
+                        <DesignViewIcon/>
+                    </ListItemIcon>
+                    <ListItemText className={classes.listItemText}>{"Design Operation"}</ListItemText>
+                </MenuItem>
             }
         </>
     );
