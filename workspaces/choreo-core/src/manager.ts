@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Project, Component, ChoreoComponentCreationParams } from "./types";
+import { Project, Component, ChoreoComponentCreationParams, ChoreoServiceComponentType } from "./types";
 
 export interface IProjectManager {
     createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
@@ -28,6 +28,8 @@ export interface BallerinaComponentCreationParams {
     org: string;
     package: string;
     directory: string;
+    type: ChoreoServiceComponentType;
+    triggerId?: string;
 }
 
 export interface IsRepoClonedRequestParams {

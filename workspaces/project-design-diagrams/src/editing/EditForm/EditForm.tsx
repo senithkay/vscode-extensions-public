@@ -23,10 +23,10 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
-import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
+import { BallerinaComponentCreationParams, ChoreoServiceComponentType } from '@wso2-enterprise/choreo-core';
 import { DiagramContext } from '../../components/common/';
 import { Colors } from '../../resources';
-import { AdvancedSettingsWidget, CreateButton, TextInputWidget } from './components';
+import { AdvancedSettingsWidget, CreateButton, TextInputWidget, TypeSelector } from './components';
 import { OrganizationRegex, PackageNameRegex, VersionRegex } from './resources/constants';
 import { ControlsContainer, Header, PrimaryContainer, TitleText } from './resources/styles';
 import { initBallerinaComponent, transformComponentName } from './resources/utils';
@@ -80,12 +80,19 @@ export function EditForm(props: EditFormProps) {
         editComponent({ ...component, directory: path });
     }
 
+    const setComponentType = (type: ChoreoServiceComponentType) => {
+        editComponent({ ...component, type: type });
+    }
+
+    const setTriggerId = (triggerId: string) => {
+        editComponent({ ...component, triggerId: triggerId });
+    }
+
     const verifyInputs = (): boolean => {
-        if (component && component.name && (component.package ? PackageNameRegex.test(component.package) : validatedComponentName) &&
-        (component.org ? OrganizationRegex.test(component.org) : defaultOrg) && VersionRegex.test(component.version) && component.directory) {
-            return true;
-        }
-        return false;
+        return Boolean(component && component.name && component.directory && component.type &&
+            (component.package ? PackageNameRegex.test(component.package) : validatedComponentName) &&
+            (component.org ? OrganizationRegex.test(component.org) : defaultOrg) && VersionRegex.test(component.version) &&
+            (component.type === ChoreoServiceComponentType.WEBHOOK ? component.triggerId : true));
     }
 
     const closeForm = () => {
@@ -113,7 +120,7 @@ export function EditForm(props: EditFormProps) {
         >
             <PrimaryContainer isLoading={generatingComponent}>
                 <Header>
-                    <TitleText>Add HTTP Component</TitleText>
+                    <TitleText>Add New Component</TitleText>
                     <IconButton size='small' onClick={() => { closeForm() }}>
                         <CloseIcon />
                     </IconButton>
@@ -124,6 +131,13 @@ export function EditForm(props: EditFormProps) {
                     value={component.name}
                     required={true}
                     onChange={updateName}
+                />
+
+                <TypeSelector
+                    type={component.type}
+                    triggerId={component.triggerId}
+                    setType={setComponentType}
+                    setTriggerId={setTriggerId}
                 />
 
                 <AdvancedSettingsWidget

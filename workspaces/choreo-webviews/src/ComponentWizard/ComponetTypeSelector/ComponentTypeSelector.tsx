@@ -48,8 +48,8 @@ export function ComponentTypeSelector(props: SelectorProps) {
                     REST
                 </VSCodeButton>
                 <VSCodeButton
-                    appearance={selectedType === ChoreoServiceComponentType.GQL_API ? "primary" : "secondary"}
-                    onClick={() => {onChange(ChoreoServiceComponentType.GQL_API)}}
+                    appearance={selectedType === ChoreoServiceComponentType.GRAPHQL ? "primary" : "secondary"}
+                    onClick={() => {onChange(ChoreoServiceComponentType.GRAPHQL)}}
                     className={cx(typeBtn)}
                 >
                     GraphQL

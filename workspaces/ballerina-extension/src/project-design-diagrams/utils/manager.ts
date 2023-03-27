@@ -17,23 +17,65 @@
  *
  */
 
-import { IProjectManager, Project, Component, BallerinaComponentCreationParams, IsRepoClonedRequestParams } from "@wso2-enterprise/choreo-core";
+import { IProjectManager, Project, Component, BallerinaComponentCreationParams, IsRepoClonedRequestParams, ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
-import { readFile, writeFile } from "fs";
 import path, { join } from "path";
 import { addToWorkspace } from "../../utils/project-utils";
-import { runCommand } from "../../testing/runner";
+import { addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate } from "./utils";
 
 export class BallerinaProjectManager implements IProjectManager {
-    isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
-        throw new Error("Method not implemented.");
-    }
-    cloneRepo(params: IsRepoClonedRequestParams): Promise<boolean> {
-        throw new Error("Method not implemented.");
-    }
-    createLocalComponent(componentDetails: BallerinaComponentCreationParams): Promise<string> {
-        return BallerinaProjectManager._createComponent(componentDetails);
+    async createLocalComponent(params: BallerinaComponentCreationParams): Promise<string> {
+        return new Promise((resolve) => {
+            const { directory: parentDirPath, package: packageName, name, version, org: orgName, type, triggerId } = params;
+            let serviceId: string = "";
+
+            window.withProgress({
+                location: ProgressLocation.Window,
+                title: "Creating component...",
+                cancellable: false
+            }, async (progress) => {
+                progress.report({ increment: 0, message: `Starting to create the component...` });
+
+                const createPkgResponse = await createBallerinaPackage(packageName, parentDirPath, type);
+                if (!createPkgResponse.error) {
+                    progress.report({ increment: 40, message: `Created the package ${packageName} in the workspace folder` });
+                    const pkgPath: string = join(parentDirPath, packageName);
+                    
+                    // Update TOML files
+                    const didProcessFail = processTomlFiles(pkgPath, orgName, version);
+                    if (didProcessFail === true) {
+                        progress.report({ increment: 50, message: `An error occurred while configuring TOML files` });
+                    } else {
+                        progress.report({ increment: 50, message: `Configured TOML files successfully` });
+                        progress.report({ increment: 60, message: `Configured version ${version} in package ${packageName}` });
+                    }
+
+                    if (type === ChoreoServiceComponentType.WEBHOOK && triggerId) {
+                        const webhookTemplate: string = await buildWebhookTemplate(pkgPath, triggerId);
+                        if (webhookTemplate) {
+                            writeWebhookTemplate(pkgPath, webhookTemplate);
+                            await runCommand(`bal format`, pkgPath);
+                        } else {
+                            throw new Error("Error: Could not create Webhook template.");
+                        }
+                    } else if (type === ChoreoServiceComponentType.GRAPHQL || type === ChoreoServiceComponentType.REST_API) {
+                        // Add Display annotation
+                        serviceId = `${name}-${randomUUID()}`;
+                        const didAnnotationFail = addDisplayAnnotation(pkgPath, name, serviceId, type);
+                        if (didAnnotationFail === true) {
+                            progress.report({ increment: 70, message: `An error occurred while annotating the service` });
+                        } else {
+                            progress.report({ increment: 80, message: `Added service annotation successfully` });
+                        }
+                    }
+                    
+                    addToWorkspace(pkgPath);
+                    progress.report({ increment: 100, message: `Added the service to the current workspace` });
+                }
+                return resolve(serviceId);
+            });
+        });
     }
 
     getProjectDetails(): Promise<Project> {
@@ -59,59 +101,15 @@ export class BallerinaProjectManager implements IProjectManager {
         return undefined;
     }
 
-    private static _createComponent(componentDetails: BallerinaComponentCreationParams): Promise<string> {
-        return new Promise((resolve) => {
-            const { directory: parentDirPath, package: packageName, name, version, org: orgName } = componentDetails;
-            let serviceId: string = "";
-
-            window.withProgress({
-                location: ProgressLocation.Window,
-                title: "Creating service...",
-                cancellable: false
-            }, async (progress) => {
-                progress.report({ increment: 0, message: "Starting to create the service..." });
-                // Run commands spawning a child process
-                const res = await runCommand('pwd', parentDirPath, true);
-                progress.report({ increment: 10, message: `Opened the workspace folder at ${res}` });
-                // Create the package
-                await runCommand(`bal new ${packageName} -t service`, parentDirPath);
-                progress.report({ increment: 40, message: `Created the package ${packageName} in the workspace folder` });
-                const newPkgRootPath = join(join(parentDirPath, packageName), 'Ballerina.toml');
-                serviceId = `${name}-${randomUUID()}`;
-                // Change toml conf
-                readFile(newPkgRootPath, 'utf-8', function (err, contents) {
-                    if (err) {
-                        progress.report({ increment: 50, message: `"Error while reading toml config " ${err}` });
-                        return;
-                    }
-                    let replaced = contents.replace(/org = "[a-z,A-Z,0-9,_]+"/, `org = \"${orgName}\"`);
-                    replaced = replaced.replace(/version = "[0-9].[0-9].[0-9]"/, `version = "${version}"`);
-                    writeFile(newPkgRootPath, replaced, 'utf-8', function (err) {
-                        progress.report({ increment: 50, message: `Configured toml file successfully` });
-                    });
-                });
-                progress.report({ increment: 60, message: `Configured version ${version} in package ${packageName}` });
-                const newServicePath = join(join(parentDirPath, packageName), 'service.bal');
-                // Add Display annotation
-                readFile(newServicePath, 'utf-8', function (err, contents) {
-                    if (err) {
-                        progress.report({ increment: 70, message: `"Error while reading service file " ${err}` });
-                        return;
-                    }
-                    const replaced = contents.replace(/service \/ on new http:Listener\(9090\) \{/, `@display {\n\tlabel: "${name}",\n\tid: "${serviceId}"\n}\nservice \/ on new http:Listener(9090) {`);
-                    writeFile(newServicePath, replaced, 'utf-8', function (err) {
-                        progress.report({ increment: 80, message: `Added service annotation successfully` });
-                        return;
-                    });
-                });
-                addToWorkspace(join(parentDirPath, packageName));
-                progress.report({ increment: 100, message: `Added the service to the current workspace` });
-                return resolve(serviceId);
-            });
-        });
-    }
-
     getLocalComponents(workspaceFilePath: string): Component[] {
         return [];
+    }
+
+    isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
+
+    cloneRepo(params: IsRepoClonedRequestParams): Promise<boolean> {
+        throw new Error("Method not implemented.");
     }
 }

@@ -51,6 +51,10 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     extInstance.context.subscriptions.push(designDiagramRenderer);
 }
 
+export function getLangClient(): ExtendedLangClient {
+    return langClient;
+}
+
 async function viewProjectDesignDiagrams(selectedNodeId: string) {
     await setupWebviewPanel();
 

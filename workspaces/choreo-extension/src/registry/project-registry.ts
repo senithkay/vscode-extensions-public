@@ -217,7 +217,7 @@ export class ProjectRegistry {
                         const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
                         failures = `${failures} ${errorMsg}`;
                         if (componentMetadata.displayType !== ChoreoServiceComponentType.REST_API
-                            && componentMetadata.displayType !== ChoreoServiceComponentType.GQL_API) {
+                            && componentMetadata.displayType !== ChoreoServiceComponentType.GRAPHQL) {
                             failures = `${failures} Component type is not supported.`;
                         }
                     });

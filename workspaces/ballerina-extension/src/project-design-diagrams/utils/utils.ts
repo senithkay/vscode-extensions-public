@@ -18,14 +18,17 @@
  */
 
 import { commands, window, workspace } from "vscode";
-import { existsSync } from "fs";
+import { existsSync, readFile, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 import _ from "lodash";
-import { Project } from "@wso2-enterprise/choreo-core";
+import child_process from "child_process";
+import { compile } from "handlebars";
+import { ChoreoServiceComponentType, Project } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient } from "../../core";
-import { terminateActivation } from "../activator";
-import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE } from "../resources";
+import { getLangClient, terminateActivation } from "../activator";
+import { CommandResponse, ComponentModel, DEFAULT_SERVICE_TEMPLATE_SUFFIX, DIAGNOSTICS_WARNING, ERROR_MESSAGE, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, triggerSource } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
+import { BallerinaTriggerResponse } from "@wso2-enterprise/ballerina-languageclient";
 
 export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
     return new Promise((resolve, reject) => {
@@ -88,4 +91,114 @@ export async function showChoreoProjectOverview(project: Project | undefined): P
         return commands.executeCommand('wso2.choreo.project.overview', project);
     }
     window.showErrorMessage('Error while loading Choreo project overview.');
+}
+
+export function processTomlFiles(pkgRoot: string, orgName: string, version: string): boolean {
+    let didFail: boolean;
+
+    // Remove Dependencies.toml
+    const dependenciesTomlPath = join(pkgRoot, 'Dependencies.toml');
+    if (existsSync(dependenciesTomlPath)) {
+        unlinkSync(dependenciesTomlPath);
+    }
+
+    // Update org and version in Ballerina.toml   
+    const balToml: string = join(pkgRoot, 'Ballerina.toml');
+    readFile(balToml, 'utf-8', function (err, contents) {
+        if (err) {
+            didFail = true;
+            return;
+        }
+        let replaced = contents.replace(/org = "[a-z,A-Z,0-9,_]+"/, `org = \"${orgName}\"`);
+        replaced = replaced.replace(/version = "[0-9].[0-9].[0-9]"/, `version = "${version}"`);
+        writeFileSync(balToml, replaced);
+    });
+    return didFail;
+}
+
+export function getAnnotatedContent(content: string, label: string, serviceId: string): string {
+    const preText = 'service / on new';
+    const processedText = `@display {\n\tlabel: "${label}",\n\tid: "${serviceId}"\n}\n${preText}`;
+    return content.replace(preText, processedText);
+}
+
+export function addDisplayAnnotation(pkgPath: string, label: string, id: string, type: ChoreoServiceComponentType): boolean {
+    let didFail: boolean;
+    const serviceFileName = type === ChoreoServiceComponentType.GRAPHQL ? 'sample.bal' : 'service.bal';
+    const serviceFilePath = join(pkgPath, serviceFileName);
+    readFile(serviceFilePath, 'utf-8', (err, contents) => {
+        if (err) {
+            didFail = true;
+            return;
+        }
+        const replaced = getAnnotatedContent(contents, label, id);
+        writeFileSync(serviceFilePath, replaced);
+    });
+    return didFail;
+}
+
+export function createBallerinaPackage(name: string, pkgRoot: string, type: ChoreoServiceComponentType): Promise<CommandResponse> {
+    const cmd = `bal new "${name}" ${getBalCommandSuffix(type)}`;
+    return runCommand(cmd, pkgRoot);
+}
+
+export function getBalCommandSuffix(componentType: ChoreoServiceComponentType): string {
+    switch (componentType) {
+        case ChoreoServiceComponentType.GRAPHQL:
+            return GRAPHQL_SERVICE_TEMPLATE_SUFFIX;
+        case ChoreoServiceComponentType.REST_API:
+        case ChoreoServiceComponentType.PROXY:
+        case ChoreoServiceComponentType.WEBHOOK:
+            return DEFAULT_SERVICE_TEMPLATE_SUFFIX;
+        default:
+            return '';
+    }
+}
+
+export async function runCommand(cmd: string, cwd?: string): Promise<CommandResponse> {
+    return new Promise(function (resolve) {
+        child_process.exec(`${cmd}`, { cwd: cwd }, async (err, stdout, stderror) => {
+            if (err) {
+                resolve({
+                    error: true,
+                    message: stderror
+                });
+            } else {
+                resolve({
+                    error: false,
+                    message: stdout
+                });
+            }
+        });
+    });
+}
+
+export async function buildWebhookTemplate(pkgPath: string, triggerId: string): Promise<string> {
+    const langClient: ExtendedLangClient = getLangClient();
+    const template = compile(triggerSource);
+    const triggerData: BallerinaTriggerResponse | {} = await langClient.getTrigger({ id: triggerId });
+    if ('serviceTypes' in triggerData && triggerData.serviceTypes.length) {
+        const moduleName = triggerData.moduleName;
+        const cmdResponse: CommandResponse = await runCommand(`bal pull ballerinax/${moduleName}`, pkgPath);
+        if (!cmdResponse.error || cmdResponse.message.includes('package already exists')) {
+            return template({
+                ...triggerData,
+                triggerType: moduleName.slice(moduleName.lastIndexOf('.') + 1)
+            });
+        }
+    }
+    return "";
+}
+
+export function writeWebhookTemplate(pkgPath: string, template: string): boolean {
+    let didFail: boolean;
+    const serviceFilePath = join(pkgPath, "service.bal");
+    readFile(serviceFilePath, 'utf-8', (err) => {
+        if (err) {
+            didFail = true;
+            return;
+        }
+        writeFileSync(serviceFilePath, template);
+    });
+    return didFail;
 }

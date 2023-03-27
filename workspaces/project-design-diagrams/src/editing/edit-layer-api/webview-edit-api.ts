@@ -21,7 +21,7 @@ import { Messenger } from 'vscode-messenger-webview';
 import { HOST_EXTENSION } from 'vscode-messenger-common';
 import { WebviewApi } from 'vscode-webview';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
-import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggersResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Location, Service, EditLayerAPI } from '../../resources';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
@@ -72,6 +72,10 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
 
     public async pickDirectory(): Promise<string | undefined> {
         return this._messenger.sendRequest({ method: 'pickDirectory' }, HOST_EXTENSION, '');
+    }
+
+    public async fetchTriggers(): Promise<BallerinaTriggersResponse> {
+        return this._messenger.sendRequest({ method: 'fetchTriggers' }, HOST_EXTENSION, '');
     }
 
     public async executeCommand(cmd: string): Promise<boolean> {

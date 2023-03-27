@@ -86,7 +86,7 @@ export class ChoreoProjectManager implements IProjectManager {
 
     private static _getTemplateComponent(componentType: ChoreoServiceComponentType): string {
         switch (componentType) {
-            case ChoreoServiceComponentType.GQL_API:
+            case ChoreoServiceComponentType.GRAPHQL:
                 return 'GraphQLComponent';
             case ChoreoServiceComponentType.GRPC_API:
                 return 'GRPCComponent';

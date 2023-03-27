@@ -167,9 +167,13 @@ export interface WorkspaceComponentMetadata {
 
 export enum ChoreoServiceComponentType {
     REST_API = 'restAPI',
-    GQL_API = 'graphql',
-    WEBSOCKET_API = 'WEBSOCKET_API',
-    GRPC_API = 'GRPC_API',
+    GRAPHQL = 'graphql',
+    MANUAL_TRIGGER = 'manualTrigger',
+    SCHEDULED_TASK = 'scheduledTask',
+    WEBHOOK = 'webhook',
+    PROXY = 'proxy',
+    GRPC_API = 'grpcAPI',
+    WEBSOCKET_API = 'websocketAPI'
 }
 
 export interface ChoreoComponentCreationParams {
