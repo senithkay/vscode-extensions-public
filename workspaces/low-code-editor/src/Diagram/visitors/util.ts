@@ -11,7 +11,19 @@
  * associated services.
  */
 
-import { DotToken, IdentifierToken, NodePosition, ResourcePathRestParam, ResourcePathSegmentParam, SlashToken } from "@wso2-enterprise/syntax-tree";
+import { DotToken, IdentifierToken, NodePosition, ResourcePathRestParam, ResourcePathSegmentParam, ServiceDeclaration, SlashToken, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+
+export const MODULE_DELIMETER = '#';
+export const SUB_DELIMETER = '%%';
+
+export enum CONSTRUCT_KEYWORDS {
+    SERVICE = 'service',
+    FUNCTION = 'function',
+    RESOURCE = 'resource',
+    RECORD = 'record',
+    REMOTE = 'remote',
+    class = 'class',
+}
 
 export function isPositionEqual(position1: NodePosition, position2: NodePosition): boolean {
     return position1.startLine === position2.startLine &&
@@ -19,6 +31,7 @@ export function isPositionEqual(position1: NodePosition, position2: NodePosition
         position1.endLine === position2.endLine &&
         position1.endColumn === position2.endColumn
 }
+
 export function generateResourcePathString(resourcePathSegments: (DotToken | IdentifierToken | ResourcePathRestParam | ResourcePathSegmentParam | SlashToken)[]): string {
     let path: string = '';
     resourcePathSegments.forEach(pathSegment => {
@@ -26,3 +39,39 @@ export function generateResourcePathString(resourcePathSegments: (DotToken | Ide
     });
     return path;
 }
+
+export function generateServicePathString(serviceNode: ServiceDeclaration): string {
+    let path: string = '';
+
+    if (serviceNode.absoluteResourcePath && serviceNode.absoluteResourcePath.length > 0) {
+        path = serviceNode.absoluteResourcePath.reduce((amulgamatedPath, pathSegment) => {
+            return `${amulgamatedPath}${pathSegment.value ? pathSegment.value : pathSegment.source}`;
+        }, '');
+    }
+
+    return path;
+}
+
+export function generateConstructIdStub(construct: STNode, index: number): string {
+    if (STKindChecker.isServiceDeclaration(construct)) {
+        return `${CONSTRUCT_KEYWORDS.SERVICE}${SUB_DELIMETER}${generateServicePathString(construct)}${SUB_DELIMETER}${index}`;
+    } else if (STKindChecker.isClassDefinition(construct)) {
+        return `${CONSTRUCT_KEYWORDS.class}${SUB_DELIMETER}${construct.className.value}${SUB_DELIMETER}${index}`;
+    } else if (STKindChecker.isFunctionDefinition(construct)) {
+        return `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}${SUB_DELIMETER}${index}`;
+    } else if (STKindChecker.isObjectMethodDefinition(construct)) {
+        return `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}${SUB_DELIMETER}${index}`;
+    } else if (STKindChecker.isResourceAccessorDefinition(construct)) {
+        let id: string = `${CONSTRUCT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${construct.functionName.value}`;
+        if (construct.relativeResourcePath && construct.relativeResourcePath.length > 0) {
+            id = `${id}-${generateResourcePathString(construct.relativeResourcePath)}${SUB_DELIMETER}${index}`;
+        } else {
+            id = `${id}-/${SUB_DELIMETER}${index}`;
+        }
+        return id;
+    } else if (STKindChecker.isTypeDefinition(construct)) {
+        return `${CONSTRUCT_KEYWORDS.RECORD}${SUB_DELIMETER}${construct.typeName?.value}${SUB_DELIMETER}${index}`;
+    }
+    return ''
+}
+
