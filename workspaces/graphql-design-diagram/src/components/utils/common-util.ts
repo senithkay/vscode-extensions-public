@@ -13,6 +13,7 @@
 
 import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
+import { Position } from "../resources/model";
 import {visitor as STNodeFindingVisitor } from "../visitors/STNodeFindingVisitor";
 
 export function getSTNodeFromRange(position: NodePosition, model: STNode): STNode {
@@ -25,4 +26,13 @@ export function getParentSTNodeFromRange(position: NodePosition, model: STNode):
     STNodeFindingVisitor.setPosition(position);
     traversNode(model, STNodeFindingVisitor);
     return STNodeFindingVisitor.getParent();
+}
+
+export function getFormattedPosition(position: Position): NodePosition {
+    return {
+        startLine: position.startLine.line,
+        endLine: position.endLine.line,
+        startColumn: position.startLine.offset,
+        endColumn: position.endLine.offset,
+    };
 }

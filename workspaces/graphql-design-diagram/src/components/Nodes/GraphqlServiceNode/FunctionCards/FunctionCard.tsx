@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 
+import { CtrlClickHandler } from '../../../CtrlClickHandler';
 import { FunctionType, RemoteFunction, ResourceFunction } from '../../../resources/model';
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { FunctionContainer } from '../styles/styles';
@@ -23,7 +24,7 @@ import { FunctionContainer } from '../styles/styles';
 import { FunctionMenuWidget } from "./FunctionMenuWidget";
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
-import { CtrlClickHandler } from '../../../CtrlClickHandler';
+import { getFormattedPosition } from "../../../utils/common-util";
 
 interface FunctionCardProps {
     engine: DiagramEngine;
@@ -69,16 +70,10 @@ export function FunctionCard(props: FunctionCardProps) {
     };
 
 
-    // TODO: create a common util for position generation
     return (
         <CtrlClickHandler
             filePath={functionElement.position.filePath}
-            position={{
-                startLine: functionElement.position.startLine.line,
-                endLine: functionElement.position.endLine.line,
-                startColumn: functionElement.position.startLine.offset,
-                endColumn: functionElement.position.endLine.offset,
-            }}
+            position={getFormattedPosition(functionElement.position)}
         >
             <FunctionContainer
                 onMouseOver={() => handleOnHover('SELECT')}

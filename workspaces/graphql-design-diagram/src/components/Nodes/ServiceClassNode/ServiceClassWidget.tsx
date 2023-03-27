@@ -38,7 +38,6 @@ export function ServiceClassNodeWidget(props: ServiceClassNodeWidgetProps) {
                     <ServiceField key={index} node={node} engine={engine} functionElement={classFunction}/>
                 );
             })}
-
         </ServiceNode>
     );
 }

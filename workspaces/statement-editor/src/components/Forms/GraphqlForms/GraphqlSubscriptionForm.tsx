@@ -81,7 +81,6 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
-    const [currentComponentCompletions, setCurrentComponentCompletions] = useState<SuggestionItem[]>(undefined);
 
     // States related parameters
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
@@ -90,11 +89,11 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
 
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
-    const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
+    const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
 
     useEffect(() => {
-        if (newlyCreatedRecord) {
-            onReturnTypeChange(newlyCreatedRecord);
+        if (newlyCreatedConstruct) {
+            onReturnTypeChange(newlyCreatedConstruct);
         }
     }, [fullST]);
 
@@ -109,11 +108,6 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
             model.functionSignature?.returnTypeDesc?.type,
             value
         );
-    };
-
-    const onReturnFocus = async () => {
-        setCurrentComponentCompletions([]);
-        setCurrentComponentName("Return");
     };
 
     // Param related functions
@@ -268,10 +262,6 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
                 }));
             setParameters(editParams);
         }
-
-        if (completions) {
-            setCurrentComponentCompletions(completions);
-        }
     }, [model, completions]);
 
     const getResourcePathDiagnostics = () => {
@@ -341,7 +331,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
     const createConstruct = (newCodeSnippet: string) => {
         if (newCodeSnippet) {
             createNewConstruct(newCodeSnippet, fullST, applyModifications)
-            setNewlyCreatedRecord(returnType);
+            setNewlyCreatedConstruct(returnType);
         }
     }
 

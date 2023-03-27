@@ -40,9 +40,7 @@ export const DiagramContext = createContext({
 
 export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
 
-    const { 
-        children, functionPanel, servicePanel, model, operationDesignView, onDelete, fullST, goToSource 
-    } = props;
+    const { children, functionPanel, servicePanel, model, operationDesignView, onDelete, fullST, goToSource } = props;
 
     return (
         <DiagramContext.Provider

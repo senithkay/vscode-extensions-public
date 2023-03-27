@@ -27,5 +27,13 @@ export const useStyles = makeStyles(() =>
                 fontFamily: "GilmerRegular",
             }
         },
+        menuItem: {
+            paddingTop: 0,
+            paddingBottom: 0,
+        },
+        menuIcon: {
+            marginRight: "10px",
+            minWidth: 0
+        }
     })
 );

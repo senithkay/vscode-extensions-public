@@ -12,7 +12,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
@@ -50,12 +50,12 @@ export function DesignFunctionWidget(props: DesignFunctionWidgetProps) {
     return (
         <>
             {position &&
-                <MenuItem onClick={openFunctionDesignPanel} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                    <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
-                        <DesignViewIcon/>
-                    </ListItemIcon>
-                    <ListItemText className={classes.listItemText}>{"Design Operation"}</ListItemText>
-                </MenuItem>
+            <MenuItem onClick={openFunctionDesignPanel} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
+                    <DesignViewIcon/>
+                </ListItemIcon>
+                <ListItemText className={classes.listItemText}>{"Design Operation"}</ListItemText>
+            </MenuItem>
             }
         </>
     );

@@ -15,11 +15,12 @@ import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
+import { CtrlClickHandler } from "../../../CtrlClickHandler";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIcon";
 import { HeaderName, InterfaceNodeHeader, InterfaceSubHeader } from "../../../resources/styles/styles";
+import { getFormattedPosition } from "../../../utils/common-util";
 import { InterfaceNodeModel } from "../InterfaceNodeModel";
-import { CtrlClickHandler } from "../../../CtrlClickHandler";
 
 interface InterfaceHeadProps {
     engine: DiagramEngine;
@@ -40,12 +41,7 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
     return (
         <CtrlClickHandler
             filePath={node.interfaceObject.position.filePath}
-            position={{
-                startLine: node.interfaceObject.position.startLine.line,
-                startColumn: node.interfaceObject.position.startLine.offset,
-                endLine: node.interfaceObject.position.endLine.line,
-                endColumn: node.interfaceObject.position.endLine.offset,
-            }}
+            position={getFormattedPosition(node.interfaceObject.position)}
         >
             <InterfaceNodeHeader>
                 <div>{"<<interface>>"}</div>

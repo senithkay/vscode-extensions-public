@@ -14,13 +14,11 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useState } from "react";
 
-import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
+import { MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
-import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { FunctionType, Position } from "../../../resources/model";
-import { AddFunctionWidget } from "../ServiceHead/ServiceMenuActions/AddFunctionWidget";
 
 import { DeleteFunctionWidget } from "./MenuActionComponents/DeleteFunction";
 import { DesignFunctionWidget } from "./MenuActionComponents/DesignFunction";

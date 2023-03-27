@@ -12,10 +12,14 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
-import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    GraphqlMutationIcon,
+    GraphqlQueryIcon,
+    GraphqlSubscriptionIcon
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
@@ -23,17 +27,17 @@ import { FunctionType, Position } from "../resources/model";
 
 import { useStyles } from "./styles";
 
-interface NodeActionMenuProps {
+interface NodeMenuItemProps {
     position: Position;
     model: STNode;
     functionType: FunctionType;
 }
 
-export function NodeActionMenu(props: NodeActionMenuProps) {
+export function NodeMenuItem(props: NodeMenuItemProps) {
     const { position, model, functionType } = props;
     const { functionPanel } = useContext(DiagramContext);
 
-    const classes = useStyles();
+    const menuStyles = useStyles();
 
     const openFunctionPanel = () => {
         if (model && STKindChecker.isClassDefinition(model)) {
@@ -76,11 +80,11 @@ export function NodeActionMenu(props: NodeActionMenuProps) {
     return (
         <>
             {position &&
-            <MenuItem onClick={() => openFunctionPanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
+            <MenuItem onClick={() => openFunctionPanel()} className={menuStyles.menuItem}>
+                <ListItemIcon className={menuStyles.menuIcon}>
                     {popupIcon()}
                 </ListItemIcon>
-                <ListItemText className={classes.listItemText}>{popupTitle()}</ListItemText>
+                <ListItemText className={menuStyles.listItemText}>{popupTitle()}</ListItemText>
             </MenuItem>
             }
         </>

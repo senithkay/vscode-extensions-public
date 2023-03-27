@@ -44,9 +44,7 @@ import { completionEditorTypeKinds } from "../../InputEditor/constants";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
 import {
     createNewConstruct,
-    createNewRecord,
     generateParameterSectionString,
-    getParamString,
     getResourcePath
 } from "../ResourceForm/util";
 
@@ -69,7 +67,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
         applyModifications,
         onCancel,
         getLangClient,
-        syntaxTree,
         fullST
     } = useContext(FormEditorContext);
 
@@ -83,7 +80,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
-    const [currentComponentCompletions, setCurrentComponentCompletions] = useState<SuggestionItem[]>(undefined);
 
     // States related parameters
     const [parameters, setParameters] = useState<FunctionParameter[]>([]);
@@ -92,13 +88,11 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
-    // TODO : These logic will be replaced with the record/class options
-    const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
+    const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
 
-    // When a type is created and full ST is updated update the onChange to remove diagnostics
     useEffect(() => {
-        if (newlyCreatedRecord) {
-            onReturnTypeChange(newlyCreatedRecord);
+        if (newlyCreatedConstruct) {
+            onReturnTypeChange(newlyCreatedConstruct);
         }
     }, [fullST]);
 
@@ -106,7 +100,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
     const onReturnTypeChange = async (value: string) => {
         setReturnType(value);
 
-        const returnTypeChange =  debounce(async () => {
+        const returnTypeChange = debounce(async () => {
             await handleResourceParamChange(
                 model.functionName.value,
                 getResourcePath(model.relativeResourcePath),
@@ -119,11 +113,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
         returnTypeChange();
 
-    };
-
-    const onReturnFocus = async () => {
-        setCurrentComponentCompletions([]);
-        setCurrentComponentName("Return");
     };
 
     // Param related functions
@@ -281,10 +270,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
                 }));
             setParameters(editParams);
         }
-
-        if (completions) {
-            setCurrentComponentCompletions(completions);
-        }
     }, [model, completions]);
 
     const getResourcePathDiagnostics = () => {
@@ -354,7 +339,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
     const createConstruct = (newCodeSnippet: string) => {
         if (newCodeSnippet) {
             createNewConstruct(newCodeSnippet, fullST, applyModifications)
-            setNewlyCreatedRecord(returnType);
+            setNewlyCreatedConstruct(returnType);
         }
     }
 

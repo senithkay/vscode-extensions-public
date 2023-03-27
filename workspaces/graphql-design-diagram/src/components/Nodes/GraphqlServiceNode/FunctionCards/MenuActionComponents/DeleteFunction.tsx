@@ -12,7 +12,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
@@ -49,12 +49,12 @@ export function DeleteFunctionWidget(props: DeleteFunctionWidgetProps) {
     return (
         <>
             {position &&
-                <MenuItem onClick={handleDeleteClick} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                    <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
-                        <LabelDeleteIcon/>
-                    </ListItemIcon>
-                    <ListItemText className={classes.listItemText}>{"Delete Operation"}</ListItemText>
-                </MenuItem>
+            <MenuItem onClick={handleDeleteClick} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
+                    <LabelDeleteIcon/>
+                </ListItemIcon>
+                <ListItemText className={classes.listItemText}>{"Delete Operation"}</ListItemText>
+            </MenuItem>
             }
         </>
     );

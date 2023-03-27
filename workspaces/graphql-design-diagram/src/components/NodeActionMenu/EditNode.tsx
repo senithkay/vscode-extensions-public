@@ -12,7 +12,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
@@ -34,9 +34,7 @@ export function EditNode(props: EditNodeProps) {
     const { model, functionType } = props;
     const { functionPanel } = useContext(DiagramContext);
 
-    const [isHovered, setIsHovered] = useState<boolean>(false);
-
-    const classes = useStyles();
+    const menuStyles = useStyles();
 
     const openFunctionPanel = () => {
         if (STKindChecker.isResourceAccessorDefinition(model)) {
@@ -54,12 +52,12 @@ export function EditNode(props: EditNodeProps) {
     return (
         <>
             {model &&
-                <MenuItem onClick={() => openFunctionPanel()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                    <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
-                        <LabelEditIcon/>
-                    </ListItemIcon>
-                    <ListItemText className={classes.listItemText}>{"Edit Operation"}</ListItemText>
-                </MenuItem>
+            <MenuItem onClick={() => openFunctionPanel()} className={menuStyles.menuItem}>
+                <ListItemIcon className={menuStyles.menuIcon}>
+                    <LabelEditIcon/>
+                </ListItemIcon>
+                <ListItemText className={menuStyles.listItemText}>{"Edit Operation"}</ListItemText>
+            </MenuItem>
             }
         </>
     );

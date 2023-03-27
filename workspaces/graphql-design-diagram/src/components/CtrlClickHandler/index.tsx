@@ -11,8 +11,10 @@
  * associated services.
  */
 import React from "react";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
 import { CtrlClickWrapper } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components"
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 
 interface CtrlClickHandlerProps {
@@ -33,4 +35,3 @@ export function CtrlClickHandler(props: React.PropsWithChildren<CtrlClickHandler
         </CtrlClickWrapper>
     )
 }
-

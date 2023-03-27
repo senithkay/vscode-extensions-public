@@ -42,7 +42,7 @@ interface ParameterEditorProps {
     isEdit?: boolean;
     completions?: SuggestionItem[];
 }
-
+// TODO : Add the logic to handle the syntax diagnostics and typeBrowser with suggestions for new constructs
 export function ParameterEditor(props: ParameterEditorProps) {
     const { param, segment, onSave, onUpdate, onChange, id, onCancel, syntaxDiag, isEdit, completions } = props;
     const classes = useStyles();

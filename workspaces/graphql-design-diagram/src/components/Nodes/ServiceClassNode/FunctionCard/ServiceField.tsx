@@ -60,6 +60,7 @@ export function ServiceField(props: ServiceFieldProps) {
             startLine: position.startLine.line
         };
 
+        // parent node is retrieved as the classObject.position only contains the position of the class name
         const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
         if (parentNode && STKindChecker.isClassDefinition(parentNode)) {
             parentNode.members.forEach((resource: any) => {

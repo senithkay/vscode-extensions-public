@@ -17,14 +17,15 @@ import React, { useEffect, useRef } from 'react';
 
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 
+import { CtrlClickHandler } from '../../../CtrlClickHandler';
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { GraphQLIcon } from "../../../resources/assets/icons/GraphQL";
 import { HeaderName } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { ServiceHead } from '../styles/styles';
 
+import { getFormattedPosition } from "../../../utils/common-util";
 import { ServiceHeaderMenu } from "./ServiceHeaderMenu";
-import { CtrlClickHandler } from '../../../CtrlClickHandler';
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -45,12 +46,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     return (
         <CtrlClickHandler
             filePath={node.serviceObject.position.filePath}
-            position={{ 
-                startLine: node.serviceObject.position.startLine.line,
-                startColumn: node.serviceObject.position.startLine.offset,
-                endLine: node.serviceObject.position.endLine.line,
-                endColumn: node.serviceObject.position.endLine.offset
-            }}
+            position={getFormattedPosition(node.serviceObject.position)}
         >
             <ServiceHead>
                 <GraphQLIcon />

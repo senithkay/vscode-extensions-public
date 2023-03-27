@@ -59,12 +59,12 @@ export function EditFunctionWidget(props: EditFunctionWidgetProps) {
     return (
         <>
             {position &&
-                <MenuItem onClick={() => openFunctionPanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                    <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
-                        <LabelEditIcon/>
-                    </ListItemIcon>
-                    <ListItemText className={classes.listItemText}>{"Edit Operation"}</ListItemText>
-                </MenuItem>
+            <MenuItem onClick={() => openFunctionPanel()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
+                    <LabelEditIcon/>
+                </ListItemIcon>
+                <ListItemText className={classes.listItemText}>{"Edit Operation"}</ListItemText>
+            </MenuItem>
             }
         </>
     );

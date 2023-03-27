@@ -41,8 +41,8 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <Paper style={{maxWidth: "100%"}}>
-                        <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                    <Paper style={{ maxWidth: "100%" }}>
+                        <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
                             <EditNode model={model} functionType={functionType}/>
                             <DesignNode model={model}/>
                         </MenuList>

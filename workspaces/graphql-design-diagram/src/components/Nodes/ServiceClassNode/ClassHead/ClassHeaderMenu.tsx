@@ -21,7 +21,7 @@ import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-common
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
-import { NodeActionMenu } from "../../../NodeActionMenu";
+import { NodeMenuItem } from "../../../NodeActionMenu/NodeMenuItem";
 import { useStyles } from "../../../NodeActionMenu/styles";
 import { Colors, FunctionType, Position } from "../../../resources/model";
 import { getParentSTNodeFromRange } from "../../../utils/common-util";
@@ -79,7 +79,7 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                                     <ListItemText className={classes.listItemText}>Edit Class</ListItemText>
                                 </MenuItem>
                                 <Divider />
-                                <NodeActionMenu position={location} model={model} functionType={FunctionType.QUERY}/>
+                                <NodeMenuItem position={location} model={model} functionType={FunctionType.QUERY}/>
                             </MenuList>
                         </Paper>
                     </>

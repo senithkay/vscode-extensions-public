@@ -24,15 +24,15 @@ import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 
 import { useStyles } from "./styles";
 
-interface DesignFunctionWidgetProps {
+interface DesignNodeProps {
     model: STNode;
 }
 
-export function DesignNode(props: DesignFunctionWidgetProps) {
+export function DesignNode(props: DesignNodeProps) {
     const { model } = props;
     const { operationDesignView } = useContext(DiagramContext);
 
-    const classes = useStyles();
+    const menuStyles = useStyles();
 
     const openFunctionDesignPanel = (evt: React.MouseEvent) => {
         evt.stopPropagation();
@@ -43,11 +43,11 @@ export function DesignNode(props: DesignFunctionWidgetProps) {
     return (
         <>
             {model &&
-            <MenuItem onClick={openFunctionDesignPanel} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
+            <MenuItem onClick={openFunctionDesignPanel} className={menuStyles.menuItem}>
+                <ListItemIcon className={menuStyles.menuIcon}>
                     <DesignViewIcon/>
                 </ListItemIcon>
-                <ListItemText className={classes.listItemText}>{"Design Operation"}</ListItemText>
+                <ListItemText className={menuStyles.listItemText}>{"Design Operation"}</ListItemText>
             </MenuItem>
             }
         </>

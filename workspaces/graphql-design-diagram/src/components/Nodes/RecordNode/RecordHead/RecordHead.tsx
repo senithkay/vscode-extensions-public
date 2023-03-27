@@ -21,6 +21,7 @@ import { HeaderName } from "../../../resources/styles/styles";
 import { RecordNodeModel } from "../RecordNodeModel";
 import { RecordHead } from "../styles";
 import { CtrlClickHandler } from "../../../CtrlClickHandler";
+import { getFormattedPosition } from "../../../utils/common-util";
 
 interface RecordHeadProps {
     engine: DiagramEngine;
@@ -41,12 +42,7 @@ export function RecordHeadWidget(props: RecordHeadProps) {
     return (
         <CtrlClickHandler
             filePath={node.recordObject.position.filePath}
-            position={{
-                startLine: node.recordObject.position.startLine.line,
-                startColumn: node.recordObject.position.startLine.offset,
-                endLine: node.recordObject.position.endLine.line,
-                endColumn: node.recordObject.position.endLine.offset,
-            }}
+            position={getFormattedPosition(node.recordObject.position)}
         >
             <RecordHead>
                 <RecordIcon />

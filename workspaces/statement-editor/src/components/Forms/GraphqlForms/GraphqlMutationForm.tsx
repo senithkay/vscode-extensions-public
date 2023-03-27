@@ -74,7 +74,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
-    const [currentComponentCompletions, setCurrentComponentCompletions] = useState<SuggestionItem[]>(undefined);
 
     // States related parameters
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
@@ -83,18 +82,18 @@ export function GraphqlMutationForm(props: FunctionProps) {
 
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
-    const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
+    const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
 
     useEffect(() => {
-        if (newlyCreatedRecord) {
-            onReturnTypeChange(newlyCreatedRecord);
+        if (newlyCreatedConstruct) {
+            onReturnTypeChange(newlyCreatedConstruct);
         }
     }, [fullST]);
 
     const createConstruct = (newCodeSnippet: string) => {
         if (newCodeSnippet) {
             createNewConstruct(newCodeSnippet, fullST, applyModifications)
-            setNewlyCreatedRecord(returnType);
+            setNewlyCreatedConstruct(returnType);
         }
     }
 
@@ -107,11 +106,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
             parametersStr,
             value
         );
-    };
-
-    const onReturnFocus = async () => {
-        setCurrentComponentCompletions([]);
-        setCurrentComponentName("Return");
     };
 
     // Param related functions
@@ -261,10 +255,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
                 }));
             setParameters(editParams);
         }
-
-        if (completions) {
-            setCurrentComponentCompletions(completions);
-        }
     }, [model, completions]);
 
 
@@ -278,7 +268,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
     };
 
     const onNameFocus = () => {
-        setCurrentComponentCompletions([]);
         setCurrentComponentName("MethodName");
     };
 
