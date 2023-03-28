@@ -203,7 +203,6 @@ export function DiagramViewManager(props: EditorProps) {
 
                     } else {
                         selectedST = nodeFindingVisitor.getNode();
-                        console.log('construct body >>>', getConstructBodyString(selectedST));
                     }
                 }
 

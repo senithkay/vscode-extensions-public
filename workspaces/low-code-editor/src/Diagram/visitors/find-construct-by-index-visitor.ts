@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { ClassDefinition, FunctionDefinition, STKindChecker, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
+import { ClassDefinition, FunctionDefinition, ObjectMethodDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
 import { generateConstructIdStub, MODULE_DELIMETER, SUB_DELIMETER } from "./util";
 
 export class FindConstructByIndexVisitor implements Visitor {
@@ -40,17 +40,66 @@ export class FindConstructByIndexVisitor implements Visitor {
     beginVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
         this.moduleClassIndex++;
         this.classMemberIndex = 0;
-        const constructIdStub = this.getCurrentUid(this.extractUidWithIndex(generateConstructIdStub(node, this.moduleClassIndex)));
+        const currentConstructIdStub = generateConstructIdStub(node, this.moduleClassIndex);
+        const constructIdStub = this.extractUidWithIndex(currentConstructIdStub);
+        const nextUid = this.getCurrentUid(currentConstructIdStub);
 
-        if (this.extractedUid === constructIdStub) {
+        if (this.extractedUid === this.getCurrentUid(constructIdStub)) {
             this.selectedNode = node;
-            this.updatedUid = `${constructIdStub}${SUB_DELIMETER}${this.moduleClassIndex}`;
+            this.updatedUid = nextUid;
         }
-
-        this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.moduleClassIndex}`);
     }
 
     endVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode): void {
+        this.moduleServiceIndex++;
+        this.classMemberIndex = 0;
+        const currentConstructIdStub = generateConstructIdStub(node, this.moduleServiceIndex);
+        const constructIdStub = this.extractUidWithIndex(currentConstructIdStub);
+        const nextUid = this.getCurrentUid(currentConstructIdStub);
+
+        if (this.extractedUid === this.getCurrentUid(constructIdStub)) {
+            this.selectedNode = node;
+            this.updatedUid = nextUid;
+        }
+    }
+
+    endVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode): void {
+        this.classMemberIndex++;
+        const currentConstructIdStub = generateConstructIdStub(node, this.classMemberIndex);
+        const constructIdStub = this.extractUidWithIndex(currentConstructIdStub);
+        const nextUid = this.getCurrentUid(currentConstructIdStub);
+
+        if (this.extractedUid === this.getCurrentUid(constructIdStub)) {
+            this.selectedNode = node;
+            this.updatedUid = nextUid;
+        }
+    }
+
+    endVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
+
+    beginVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
+        this.moduleTypeIndex++;
+        const currentConstructIdStub = generateConstructIdStub(node, this.moduleTypeIndex);
+        const constructIdStub = this.extractUidWithIndex(currentConstructIdStub);
+        const nextUid = this.getCurrentUid(currentConstructIdStub);
+
+        if (this.extractedUid === this.getCurrentUid(constructIdStub)) {
+            this.selectedNode = node;
+            this.updatedUid = nextUid;
+        }
+    }
+
+    endVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
         this.stack.pop();
     }
 
