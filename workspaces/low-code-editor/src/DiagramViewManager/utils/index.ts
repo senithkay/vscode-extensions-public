@@ -11,7 +11,7 @@ import {
     LowcodeEvent,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
@@ -270,3 +270,4 @@ export function getDiagramProviderProps(
         isReadOnly: false
     };
 }
+

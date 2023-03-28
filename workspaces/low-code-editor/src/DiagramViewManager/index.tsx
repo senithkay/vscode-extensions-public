@@ -43,6 +43,8 @@ import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps, getSTNodeForReference } from "./utils";
 import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
+import { getConstructBodyString } from "../Diagram/visitors/util";
+import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
@@ -179,18 +181,29 @@ export function DiagramViewManager(props: EditorProps) {
                     if (!nodeFindingVisitor.getNode()) {
                         const visitorToFindConstructByName = new FindConstructByNameVisitor(options.uid);
                         traversNode(visitedST, visitorToFindConstructByName);
-                        console.log('test >>>', visitorToFindConstructByName.getNode());
-                        if (visitorToFindConstructByName.getUid()) {
+                        if (visitorToFindConstructByName.getNode()) {
                             selectedST = visitorToFindConstructByName.getNode();
-                            console.log('new uid >>>', visitorToFindConstructByName.getUid());
                             setFocusUid(visitorToFindConstructByName.getUid());
                             updateCurrentEntry({
-
                                 ...history[history.length - 1], uid: visitorToFindConstructByName.getUid()
                             });
+                        } else {
+                            const visitorToFindConstructByIndex = new FindConstructByIndexVisitor(options.uid, getConstructBodyString(focusedST));
+                            traversNode(visitedST, visitorToFindConstructByIndex);
+                            if (visitorToFindConstructByIndex.getNode()) {
+                                selectedST = visitorToFindConstructByIndex.getNode();
+                                setFocusUid(visitorToFindConstructByIndex.getUid());
+                                updateCurrentEntry({
+                                    ...history[history.length - 1], uid: visitorToFindConstructByIndex.getUid()
+                                });
+                            } else {
+                                // TODO:  Add error message saying we can't find the construct
+                            }
                         }
+
                     } else {
                         selectedST = nodeFindingVisitor.getNode();
+                        console.log('construct body >>>', getConstructBodyString(selectedST));
                     }
                 }
 

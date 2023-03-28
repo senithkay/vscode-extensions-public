@@ -80,3 +80,26 @@ export function generateConstructIdStub(construct: STNode, index?: number): stri
     return id;
 }
 
+
+export function getConstructBodyString(construct: STNode): string {
+    let bodyString = "";
+
+    if (STKindChecker.isFunctionDefinition(construct)) {
+        bodyString = construct.functionBody.source;
+    } else if (STKindChecker.isServiceDeclaration(construct)) {
+        bodyString += construct.openBraceToken.value;
+        bodyString += construct.members.reduce((acc, member) => `${acc}${member.source}`, "");
+        bodyString += construct.closeBraceToken.value;
+    } else if (STKindChecker.isClassDefinition(construct)) {
+        bodyString += construct.openBrace.value;
+        bodyString += construct.members.reduce((acc, member) => `${acc}${member.source}`, "");
+        bodyString += construct.closeBrace.value;
+    } else if (STKindChecker.isObjectMethodDefinition(construct)) { 
+        bodyString = construct.functionBody.source;
+    } else if (STKindChecker.isResourceAccessorDefinition(construct)) {
+        bodyString += construct.functionBody.source;
+    }
+
+    return bodyString;
+}
+

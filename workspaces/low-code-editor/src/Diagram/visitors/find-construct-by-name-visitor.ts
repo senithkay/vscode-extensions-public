@@ -83,6 +83,7 @@ export class FindConstructByNameVisitor implements Visitor {
             this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`);
             uidNext = `${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`
         }
+
         if (this.extractedUid === constructIdStub) {
             this.selectedNode = node;
             this.updatedUid = uidNext;
@@ -93,7 +94,7 @@ export class FindConstructByNameVisitor implements Visitor {
         this.stack.pop();
     }
 
-    beginvisitresourceDefinition(node: FunctionDefinition, parent?: STNode): void {
+    beginVisitResourceAccessorDefinition(node: FunctionDefinition, parent?: STNode): void {
         this.classMemberIndex++;
         const constructIdStub = this.getCurrentUid(generateConstructIdStub(node));
 
@@ -105,7 +106,7 @@ export class FindConstructByNameVisitor implements Visitor {
         this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`);
     }
 
-    endvisitresourceDefinition(node: FunctionDefinition, parent?: STNode): void {
+    endVisitResourceAccessorDefinition(node: FunctionDefinition, parent?: STNode): void {
         this.stack.pop();
     }
 
