@@ -68,7 +68,6 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         } catch (error) {
             throw new Error("Error while deleting component ", { cause: error });
         }
-
     }
 
     async getComponents(params: GetComponentsParams): Promise<Component[]> {

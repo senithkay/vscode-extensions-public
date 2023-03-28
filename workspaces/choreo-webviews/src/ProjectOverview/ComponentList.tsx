@@ -63,6 +63,30 @@ export function ComponentList(props: ComponentListProps) {
         ChoreoWebViewAPI.getInstance().openExternal(url);
     }, []);
 
+    const pullComponent = useCallback(async (repository, selectedBranch, componentId) => {
+        if (projectId && repository && selectedBranch) {
+            const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+            if (projectPath) {
+                const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
+                    repository: `${repository.organizationApp}/${repository.nameApp}`,
+                    workspaceFilePath: projectPath,
+                    branch: selectedBranch
+                })
+                if (isCloned) {
+                    ChoreoWebViewAPI.getInstance().pullComponent({ componentId, projectId })
+                } else {
+                    await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
+                        repository: `${repository.organizationApp}/${repository.nameApp}`,
+                        workspaceFilePath: projectPath,
+                        branch: selectedBranch
+                    });
+                }
+            } else {
+                ChoreoWebViewAPI.getInstance().cloneChoreoProject(projectId);
+            }
+        }
+    }, [projectId]);
+
     return (
         <>
             <VSCodeDataGrid aria-label="Components">
@@ -168,6 +192,15 @@ export function ComponentList(props: ComponentListProps) {
                                 >
                                     <Codicon name="link-external" />
                                 </VSCodeButton>
+                                {component.isRemoteOnly && (
+                                    <VSCodeButton
+                                        appearance="icon"
+                                        onClick={() => pullComponent(component.repository, repo.branchApp, component.id)}
+                                        title="Pull code from remote repository"
+                                    >
+                                        <Codicon name="cloud-download" />
+                                    </VSCodeButton>
+                                )}
                             </VSCodeDataGridActionCell>
                         </VSCodeDataGridRow>
                     })

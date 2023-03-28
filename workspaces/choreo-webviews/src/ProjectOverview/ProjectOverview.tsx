@@ -211,12 +211,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, [project]);
 
     const handleDeleteComponentClick = useCallback(async (componentId) => {
-        try {
-            setComponentAction(ComponentAction.LOADING);
-            await ChoreoWebViewAPI.getInstance().deleteComponent({ componentId, projectId })
-        } finally {
-            setComponentAction(ComponentAction.NOTHING);
-        }
+        await ChoreoWebViewAPI.getInstance().deleteComponent({ componentId, projectId })
         fetchComponents(projectId);
     }, [projectId, project]);
 

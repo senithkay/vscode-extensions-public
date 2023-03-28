@@ -28,7 +28,8 @@ import {
     SubpathAvailableRequest,
     getDiagramComponentModel,
     ComponentModel,
-    DeleteComponent
+    DeleteComponent,
+    PullComponent
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -84,6 +85,10 @@ export class WebViewRpc {
                     await ProjectRegistry.getInstance().deleteComponent(params.componentId, ext.api.selectedOrg.handle, params.projectId);
                 }
             }
+        });
+
+        this._messenger.onRequest(PullComponent, async (params: {projectId: string, componentId: string}) => {
+            await ProjectRegistry.getInstance().pullComponent(params.componentId, params.projectId);
         });
 
         this._messenger.onRequest(GetProjectLocation, async (projectId: string) => {
