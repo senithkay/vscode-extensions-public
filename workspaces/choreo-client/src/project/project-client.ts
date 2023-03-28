@@ -79,43 +79,44 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
             const envQuery = getComponentEnvsQuery(params.orgUuid, params.projId);
             const envData = await client.request(envQuery);
-            const devEnv = envData?.environments?.find((env: Environment)=>env.name === 'Development');
-            const prodEnv = envData?.environments?.find((env: Environment)=>env.name === 'Production')
+            const devEnv = envData?.environments?.find((env: Environment) => env.name === 'Development');
+            const prodEnv = envData?.environments?.find((env: Environment) => env.name === 'Production')
 
-            const components: Component[] = await Promise.all(data.components.map(async (component: Component)=>{
-                const deployments:Deployments ={}
+            const components: Component[] = await Promise.all(data.components.map(async (component: Component) => {
+                const deployments: Deployments = {}
                 const queryData = {
                     componentId: component.id,
                     orgHandler: orgHandle,
-                    versionId: component.apiVersions[component.apiVersions.length-1]?.id,
+                    versionId: component.apiVersions[component.apiVersions.length - 1]?.id,
                     orgUuid: params.orgUuid,
                     environmentId: ""
                 }
 
-                try{
-                    if(devEnv){
-                        queryData.environmentId = devEnv.id;
-                        const deploymentQuery = getComponentDeploymentQuery(queryData);
-                        const deploymentData = await client.request(deploymentQuery);
-                        deployments.dev = deploymentData.componentDeployment
-                    }
-                } catch{
-                    console.error('Failed to get dev env deployment info for component', component)
+                const deploymentQueries: string[] = [];
+                if (devEnv) {
+                    queryData.environmentId = devEnv.id;
+                    deploymentQueries.push(getComponentDeploymentQuery(queryData))
                 }
-                
-                try{
-                    if(prodEnv){
-                        queryData.environmentId = prodEnv.id;
-                        const deploymentQuery = getComponentDeploymentQuery(queryData);
-                        const deploymentData = await client.request(deploymentQuery);
-                        deployments.prod = deploymentData.componentDeployment
-                    }
-                } catch{
-                    console.error('Failed to get prod env deployment info for component', component)
+
+                if (prodEnv) {
+                    queryData.environmentId = prodEnv.id;
+                    deploymentQueries.push(getComponentDeploymentQuery(queryData))
                 }
+
+                const deploymentRes = await Promise.allSettled(deploymentQueries.map(query => client.request(query)));
+                deploymentRes?.forEach(deploymentData => {
+                    if (deploymentData.status === 'fulfilled') {
+                        if (devEnv && deploymentData?.value?.componentDeployment?.environmentId === devEnv.id) {
+                            deployments.dev = deploymentData.value.componentDeployment;
+                        } else if (prodEnv && deploymentData?.value?.componentDeployment?.environmentId === prodEnv.id) {
+                            deployments.prod = deploymentData.value.componentDeployment
+                        }
+                    }
+                })
+
                 component.deployments = deployments;
                 return component;
-            }));           
+            }));
 
             return components;
         } catch (error) {
