@@ -11,6 +11,16 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
+        alias: {
+            handlebars: 'handlebars/dist/handlebars.min.js',
+            "vscode": require.resolve('monaco-languageclient/lib/vscode-compatibility'),
+            "crypto": false,
+            "net": false,
+            "os": false,
+            "path": false,
+            "fs": false,
+            "child_process": false
+        }
     },
     module: {
         rules: [
