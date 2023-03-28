@@ -27,26 +27,6 @@ import { ExtendedLangClient } from "../../core";
 import { getLangClient } from "../activator";
 import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX } from "../resources";
 
-
-const triggerSource =
-    "import ballerinax/{{moduleName}};\n\n" +
-    "configurable {{triggerType}}:ListenerConfig config = ?;\n\n" +
-    "listener {{triggerType}}:Listener webhookListener =  new(config);\n\n" +
-
-    "{{#each serviceTypes}}" +
-    "@display {\n" +
-    "label: \"{{ this.name }}\",\n" +
-    "id: \"{{ this.name }}\"\n" +
-    "}\n" +
-    "service {{../triggerType}}:{{ this.name }} on webhookListener {\n" +
-    "{{#each this.functions}}" +
-    "remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}}{{/each}}) returns error? {\n" +
-    "// Not Implemented\n" +
-    "}\n" +
-    "{{/each}}\n" +
-    "}\n\n" +
-    "{{/each}}\n";
-
 export function createBallerinaPackage(name: string, pkgRoot: string, type: ChoreoServiceComponentType): Promise<CommandResponse> {
     const cmd = `bal new "${name}" ${getBalCommandSuffix(type)}`;
     return runCommand(cmd, pkgRoot);
@@ -126,6 +106,25 @@ export function addDisplayAnnotation(pkgPath: string, label: string, id: string,
     });
     return didFail;
 }
+
+const triggerSource =
+    "import ballerinax/{{moduleName}};\n\n" +
+    "configurable {{triggerType}}:ListenerConfig config = ?;\n\n" +
+    "listener {{triggerType}}:Listener webhookListener =  new(config);\n\n" +
+
+    "{{#each serviceTypes}}" +
+    "@display {\n" +
+        "label: \"{{ this.name }}\",\n" +
+        "id: \"{{ this.name }}\"\n" +
+    "}\n" +
+    "service {{../triggerType}}:{{ this.name }} on webhookListener {\n" +
+        "{{#each this.functions}}" +
+        "remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}}{{/each}}) returns error? {\n" +
+            "// Not Implemented\n" +
+        "}\n" +
+        "{{/each}}\n" +
+    "}\n\n" +
+    "{{/each}}\n";
 
 export async function buildWebhookTemplate(pkgPath: string, triggerId: string): Promise<string> {
     const langClient: ExtendedLangClient = getLangClient();

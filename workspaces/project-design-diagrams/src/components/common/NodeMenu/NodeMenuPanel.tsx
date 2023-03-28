@@ -18,8 +18,8 @@
  */
 
 import React from "react";
-import { Location, RemoteFunction, ResourceFunction, Service } from "../../../resources";
-import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton } from "./components";
+import { Location, RemoteFunction, ResourceFunction, Service, ServiceAnnotation } from "../../../resources";
+import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton, EditLabelButton } from "./components";
 import { Paper, MenuList, Divider } from "@mui/material";
 
 interface MenuProps {
@@ -27,10 +27,12 @@ interface MenuProps {
     linkingEnabled: boolean;
     service?: Service;
     resource?: ResourceFunction | RemoteFunction; // TODO: figure out a way to merge service and resource
+    serviceAnnotation?: ServiceAnnotation;
+    handleDialogStatus: (status: boolean) => void;
 }
 
 export function NodeMenuPanel(props: MenuProps) {
-    const { location, linkingEnabled, service, resource } = props;
+    const { handleDialogStatus, location, linkingEnabled, service, serviceAnnotation, resource } = props;
 
     return (
         <>
@@ -39,6 +41,9 @@ export function NodeMenuPanel(props: MenuProps) {
                     <Go2SourceButton location={location} />
                     {service && <GoToDesign element={service} />}
                     {resource && <GoToDesign element={resource} />}
+                    {serviceAnnotation && (serviceAnnotation.elementLocation || service.elementLocation) &&
+                        <EditLabelButton handleDialogStatus={handleDialogStatus} />
+                    }
                     {linkingEnabled && service && (
                         <>
                             <Divider />

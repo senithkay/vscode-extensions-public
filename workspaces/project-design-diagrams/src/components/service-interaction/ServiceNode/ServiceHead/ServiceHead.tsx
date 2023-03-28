@@ -78,6 +78,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                         location={node.serviceObject.elementLocation}
                         linkingEnabled={currentView === Views.L1_SERVICES}
                         service={node.serviceObject}
+                        serviceAnnotation={node.serviceObject.annotation}
                     />
                 }
             <ServicePortWidget

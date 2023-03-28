@@ -34,6 +34,7 @@ export type {
     ResourceId,
     Parameter,
     Service,
+    ServiceAnnotation,
     ServiceModels
 } from './model';
 

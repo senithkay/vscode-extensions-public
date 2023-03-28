@@ -12,7 +12,7 @@ export interface ComponentModel {
 }
 
 export interface Service {
-    annotation: any;
+    annotation: ServiceAnnotation;
     path: string;
     serviceId: string;
     resources: any[];
@@ -21,6 +21,12 @@ export interface Service {
     dependencies: any[];
     deploymentMetadata: DeploymentMetadata;
     elementLocation: Location;
+}
+
+export interface ServiceAnnotation {
+    id: string;
+    label: string;
+    elementLocation?: Location;
 }
 
 export interface Entity {

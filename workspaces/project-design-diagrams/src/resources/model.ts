@@ -55,9 +55,10 @@ export interface Service {
     elementLocation: Location;
 }
 
-interface ServiceAnnotation {
+export interface ServiceAnnotation {
     id: string;
     label: string;
+    elementLocation?: Location;
 }
 
 export interface Dependency {
@@ -215,5 +216,6 @@ export interface EditLayerAPI {
     go2source: (location: Location) => void;
     goToDesign: (filePath: string, position: NodePosition) => void;
     showErrorMessage: (message: string) => void;
+    editDisplayLabel: (annotation: ServiceAnnotation) => Promise<boolean>;
     fetchTriggers: () => Promise<BallerinaTriggersResponse>;
 }

@@ -21,4 +21,5 @@ export { GoToDesign } from './GoToDesign';
 export { Go2SourceButton } from './Go2SourceButton';
 export { LinkingButton } from './LinkingButton';
 export { AddConnectorButton } from './AddConnectorButton';
-
+export { EditLabelButton } from './EditLabelButton';
+export { EditLabelDialog } from './EditLabelDialog';

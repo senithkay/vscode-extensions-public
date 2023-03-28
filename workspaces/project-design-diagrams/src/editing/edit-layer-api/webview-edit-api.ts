@@ -22,7 +22,7 @@ import { HOST_EXTENSION } from 'vscode-messenger-common';
 import { WebviewApi } from 'vscode-webview';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggersResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { Location, Service, EditLayerAPI } from '../../resources';
+import { Location, Service, EditLayerAPI, ServiceAnnotation } from '../../resources';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 export class WebviewEditLayerAPI implements EditLayerAPI {
@@ -80,6 +80,10 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
 
     public async executeCommand(cmd: string): Promise<boolean> {
         return this._messenger.sendRequest({ method: 'executeCommand' }, HOST_EXTENSION, cmd);
+    }
+
+    public async editDisplayLabel(annotation: ServiceAnnotation): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'editDisplayLabel' }, HOST_EXTENSION, annotation);
     }
 
     public showErrorMessage(msg: string): void {
