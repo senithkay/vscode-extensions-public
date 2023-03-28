@@ -11,4 +11,4 @@
  * associated services.
  */
 
-export * from "./CtrlClickWrapper";
+export * from "./CtrlClickWrapper/CtrlClickWrapper";
