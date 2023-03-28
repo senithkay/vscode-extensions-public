@@ -22,7 +22,7 @@ import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import path, { join } from "path";
 import { addToWorkspace } from "../../utils/project-utils";
-import { addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate } from "./utils";
+import { addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate } from "./component-creation-utils";
 
 export class BallerinaProjectManager implements IProjectManager {
     async createLocalComponent(params: BallerinaComponentCreationParams): Promise<string> {
@@ -41,7 +41,7 @@ export class BallerinaProjectManager implements IProjectManager {
                 if (!createPkgResponse.error) {
                     progress.report({ increment: 40, message: `Created the package ${packageName} in the workspace folder` });
                     const pkgPath: string = join(parentDirPath, packageName);
-                    
+
                     // Update TOML files
                     const didProcessFail = processTomlFiles(pkgPath, orgName, version);
                     if (didProcessFail === true) {
@@ -69,9 +69,11 @@ export class BallerinaProjectManager implements IProjectManager {
                             progress.report({ increment: 80, message: `Added service annotation successfully` });
                         }
                     }
-                    
+
                     addToWorkspace(pkgPath);
                     progress.report({ increment: 100, message: `Added the service to the current workspace` });
+                } else {
+                    window.showErrorMessage(`Error while creating package: ${createPkgResponse.message}`);
                 }
                 return resolve(serviceId);
             });

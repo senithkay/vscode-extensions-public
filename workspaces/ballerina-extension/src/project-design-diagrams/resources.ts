@@ -77,22 +77,3 @@ export const DIAGNOSTICS_WARNING = "Project Design Diagrams: Please resolve the 
 
 export const DEFAULT_SERVICE_TEMPLATE_SUFFIX = "-t service";
 export const GRAPHQL_SERVICE_TEMPLATE_SUFFIX = "-t choreo/graphql_service";
-
-export const triggerSource =
-    "import ballerinax/{{moduleName}};\n\n" +
-    "configurable {{triggerType}}:ListenerConfig config = ?;\n\n" +
-    "listener {{triggerType}}:Listener webhookListener =  new(config);\n\n" +
-
-    "{{#each serviceTypes}}" +
-    "@display {\n" +
-        "label: \"{{ this.name }}\",\n" +
-        "id: \"{{ this.name }}\"\n" +
-    "}\n" +
-    "service {{../triggerType}}:{{ this.name }} on webhookListener {\n" +
-        "{{#each this.functions}}" +
-        "remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}}{{/each}}) returns error? {\n" +
-            "// Not Implemented\n" +
-        "}\n" +
-        "{{/each}}\n" +
-    "}\n\n" +
-    "{{/each}}\n";
