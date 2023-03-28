@@ -36,6 +36,12 @@ export interface CreateComponentParams {
     repositoryBranch: string;
 }
 
+export interface DeleteComponentParams {
+    orgHandler: string;
+    componentId: string;
+    projectId: string;
+}
+
 export interface RepoParams {
     orgApp: string;
     repoApp: string;
@@ -63,6 +69,12 @@ export interface GetProjectsParams {
 export interface GetComponentsParams {
     orgHandle: string;
     projId: string;
+    orgUuid: string;
+}
+
+export interface GetDiagramModelParams {
+    orgHandle: string;
+    projId: string;
 }
 
 export interface IChoreoProjectClient {
@@ -74,5 +86,6 @@ export interface IChoreoProjectClient {
     // mutations
     createProject(params: CreateProjectParams): Promise<Project>;
     createComponent(params: ComponentMutationParams): Promise<Component>;
+    deleteComponent(params: DeleteComponentParams): Promise<void>;
     linkRepo(params: LinkRepoMutationParams): Promise<Repository>;
 }
