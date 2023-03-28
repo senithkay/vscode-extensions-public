@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { LiteExpressionEditor, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
 import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -25,7 +25,7 @@ import {
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../../models/definitions";
 import { FormEditorContext } from "../../../../store/form-editor-context";
 import { FieldTitle } from "../../components/FieldTitle/fieldTitle";
-import { createNewRecord } from "../../ResourceForm/util";
+import { createNewConstruct } from "../../ResourceForm/util";
 
 import { FunctionParameter } from "./ParameterField";
 import { useStyles } from './style';
@@ -60,7 +60,21 @@ export function ParameterEditor(props: ParameterEditorProps) {
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
 
     const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
-    const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
+
+    const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
+
+    useEffect(() => {
+        if (newlyCreatedConstruct) {
+            handleOnTypeChange(newlyCreatedConstruct);
+        }
+    }, [fullST]);
+
+    const createConstruct = (newCodeSnippet: string) => {
+        if (newCodeSnippet) {
+            createNewConstruct(newCodeSnippet, fullST, applyModifications)
+            setNewlyCreatedConstruct(segmentType);
+        }
+    }
 
     const handleOnSave = () => {
         onSave({
@@ -124,14 +138,6 @@ export function ParameterEditor(props: ParameterEditorProps) {
         });
     }
 
-    // TODO: logics must be changes according to the graphql requirement
-    const createRecord = (newRecord: string) => {
-        if (newRecord) {
-            createNewRecord(newRecord, syntaxTree, applyModifications)
-            setNewlyCreatedRecord(newRecord);
-        }
-    }
-
     return (
         <div className={classes.paramContainer} >
             <div className={classes.paramContent}>
@@ -141,9 +147,10 @@ export function ParameterEditor(props: ParameterEditorProps) {
                         type={segmentType}
                         onChange={handleOnTypeChange}
                         isLoading={false}
-                        recordCompletions={completions}
-                        createNew={createRecord}
+                        recordCompletions={completions ? completions : []}
+                        createNew={createConstruct}
                         diagnostics={syntaxDiag?.filter(diag => diag?.message.includes("unknown type"))}
+                        isGraphqlForm={true}
                     />
                 </div>
                 <div className={classes.paramNameWrapper}>
