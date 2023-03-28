@@ -68,6 +68,11 @@ export interface CellDiagram {
     success: boolean;
 }
 
+export interface Deployments {
+    dev?: Deployment;
+    prod?: Deployment
+}
+
 export interface Component {
     projectId: string;
     id: string;
@@ -84,6 +89,80 @@ export interface Component {
     // To store the accessibility of the component which are not created using Choreo
     accessibility?: string;
     local?: boolean;
+    isRemoteOnly?: boolean;
+    deployments?: Deployments;
+}
+
+export interface Environment {
+    id: string;
+    name: string;
+    organizationUuid: string;
+    projectId?: string;
+    description: string;
+    promoteFrom?: string[]
+    orgShared?: boolean;
+    choreoEnv: string;
+    critical: boolean;
+    apiEnvName: string;
+    internalApiEnvName: string;
+    externalApiEnvName: string;
+    sandboxApiEnvName: string;
+    namespace: string;
+    vhost?: string
+    sandboxVhost?: string
+    apimSandboxEnvId?: string
+    apimEnvId?: string
+    isMigrating: boolean;
+}
+
+export interface Deployment {
+    deploymentCount?: number
+    apiId?: string;
+    releaseId: string;
+    componentId: string;
+    environmentId: string;
+    environment?: Environment;
+    versionId: string;
+    version: string;
+    build: {
+        buildId: string;
+        deployedAt: string;
+        commitHash: string;
+        branch: string;
+        commit?: {
+            author: {
+                name: string;
+                email: string;
+                date: string;
+                avatarUrl?: string;
+            },
+            message: string;
+            sha: string;
+            isLatest: boolean;
+        }
+    }
+    deploymentStatus: string;
+    deploymentStatusV2: string;
+    cron: string;
+    invokeUrl?: string;
+    configCount?: number;
+    scheduleLastRun?: string;
+    lifecycleStatus?: string;
+    apiRevision?: {
+        displayName: string;
+        id: string;
+        description: string;
+        createdTime: number;
+        apiInfo: { id: string; }
+        deploymentInfo: {
+            revisionUuid: number;
+            name: string;
+            vhost: number;
+            displayOnDevportal: boolean
+            deployedTime?: number;
+            successDeployedTime?: number
+        }[]
+    };
 }
 
 export interface Repository {
@@ -243,4 +322,14 @@ export interface ComponentModel {
     services: Map<string, Service>;
     entities: Map<string, Entity>;
     hasCompilationErrors: boolean;
+}
+
+export enum DeploymentStatus {
+    NotDeployed = 'NOT_DEPLOYED',
+    Active = 'ACTIVE',
+    Suspended = 'SUSPENDED',
+    Error = 'ERROR',
+    InProgress = 'IN_PROGRESS',
+    LocalOnly = "LOCAL_ONLY",
+    UnavailableLocally= "NOT_AVAILABLE_LOCALLY"
 }

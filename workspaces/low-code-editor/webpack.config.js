@@ -92,6 +92,11 @@ module.exports = (env, argv) => ({
                 }
             }
         ],
+        parser: {
+            javascript: {
+                reexportExportsPresence: false,
+            },
+        }
     },
     ignoreWarnings: [/Failed to parse source map/],
     output: {

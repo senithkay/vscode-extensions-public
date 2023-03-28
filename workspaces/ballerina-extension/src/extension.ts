@@ -113,14 +113,12 @@ export function activate(context: ExtensionContext): Promise<any> {
         // Enable Choreo Related Features
         activateChoreoFeatures(ballerinaExtInstance);
 
-        ballerinaExtInstance.onReady().then(() => {
-            langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-            // Register showTextDocument listener
-            langClient.onNotification('window/showTextDocument', (location: Location) => {
-                if (location.uri !== undefined) {
-                    window.showTextDocument(Uri.parse(location.uri.toString()), { selection: location.range });
-                }
-            });
+        langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
+        // Register showTextDocument listener
+        langClient.onNotification('window/showTextDocument', (location: Location) => {
+            if (location.uri !== undefined) {
+                window.showTextDocument(Uri.parse(location.uri.toString()), { selection: location.range });
+            }
         });
         isPluginStartup = false;
     }).catch((e) => {

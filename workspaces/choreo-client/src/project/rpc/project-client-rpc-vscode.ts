@@ -13,7 +13,7 @@
 import { serializeError } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { IChoreoProjectClient } from "../types";
-import { CreateComponentRequest, CreateProjectRequest, GetComponentsRequest, GetProjectsRequest, LinkRepoRequest } from "./types";
+import { CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, LinkRepoRequest } from "./types";
 
 export function registerChoreoProjectRPCHandlers(messenger: Messenger, projectClient: IChoreoProjectClient) {
    messenger.onRequest(GetProjectsRequest, (params) => projectClient.getProjects(params).catch(serializeError));
@@ -21,4 +21,5 @@ export function registerChoreoProjectRPCHandlers(messenger: Messenger, projectCl
    messenger.onRequest(CreateProjectRequest, (params) => projectClient.createProject(params).catch(serializeError));
    messenger.onRequest(CreateComponentRequest, (params) => projectClient.createComponent(params).catch(serializeError));
    messenger.onRequest(LinkRepoRequest, (params) => projectClient.linkRepo(params).catch(serializeError));
+   messenger.onRequest(DeleteComponentRequest, (params) => projectClient.deleteComponent(params).catch(serializeError));
 }
