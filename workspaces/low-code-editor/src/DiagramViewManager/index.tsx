@@ -179,10 +179,19 @@ export function DiagramViewManager(props: EditorProps) {
                     if (!nodeFindingVisitor.getNode()) {
                         const visitorToFindConstructByName = new FindConstructByNameVisitor(options.uid);
                         traversNode(visitedST, visitorToFindConstructByName);
-                        selectedST = visitorToFindConstructByName.getNode();
+                        console.log('test >>>', visitorToFindConstructByName.getNode());
+                        if (visitorToFindConstructByName.getUid()) {
+                            selectedST = visitorToFindConstructByName.getNode();
+                            console.log('new uid >>>', visitorToFindConstructByName.getUid());
+                            setFocusUid(visitorToFindConstructByName.getUid());
+                            updateCurrentEntry({
+
+                                ...history[history.length - 1], uid: visitorToFindConstructByName.getUid()
+                            });
+                        }
                     } else {
                         selectedST = nodeFindingVisitor.getNode();
-                    } 
+                    }
                 }
 
                 // resolve the service type if the ST is a service

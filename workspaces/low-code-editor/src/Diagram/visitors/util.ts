@@ -55,26 +55,26 @@ export function generateServicePathString(serviceNode: ServiceDeclaration): stri
 export function generateConstructIdStub(construct: STNode, index?: number): string {
     let id: string = '';
     if (STKindChecker.isServiceDeclaration(construct)) {
-        id = `${CONSTRUCT_KEYWORDS.SERVICE}${SUB_DELIMETER}${generateServicePathString(construct)}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.SERVICE}${SUB_DELIMETER}${generateServicePathString(construct)}`;
     } else if (STKindChecker.isClassDefinition(construct)) {
-        id = `${CONSTRUCT_KEYWORDS.class}${SUB_DELIMETER}${construct.className.value}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.class}${SUB_DELIMETER}${construct.className.value}`;
     } else if (STKindChecker.isFunctionDefinition(construct)) {
-        id = `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}`;
     } else if (STKindChecker.isObjectMethodDefinition(construct)) {
-        id = `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}`;
     } else if (STKindChecker.isResourceAccessorDefinition(construct)) {
         id = `${CONSTRUCT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${construct.functionName.value}`;
         if (construct.relativeResourcePath && construct.relativeResourcePath.length > 0) {
-            id = `${id}-${generateResourcePathString(construct.relativeResourcePath)}${SUB_DELIMETER}${index}`;
+            id = `${id}-${generateResourcePathString(construct.relativeResourcePath)}`;
         } else {
-            id = `${id}-/${SUB_DELIMETER}${index}`;
+            id = `${id}-/`;
         }
     } else if (STKindChecker.isTypeDefinition(construct)) {
-        id = `${CONSTRUCT_KEYWORDS.RECORD}${SUB_DELIMETER}${construct.typeName?.value}${SUB_DELIMETER}${index}`;
+        id = `${CONSTRUCT_KEYWORDS.RECORD}${SUB_DELIMETER}${construct.typeName?.value}`;
     }
 
-    if (id) {
-        id = `${id}${SUB_DELIMETER}${construct.source}`;
+    if (index) {
+        id = `${id}${SUB_DELIMETER}${index}`;
     }
 
     return id;

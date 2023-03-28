@@ -59,9 +59,10 @@ export class FindConstructByNameVisitor implements Visitor {
 
         if (this.extractedUid === constructIdStub) {
             this.selectedNode = node;
+            this.updatedUid = `${constructIdStub}${SUB_DELIMETER}${this.moduleServiceIndex}`;
         }
 
-        this.stack.push(generateConstructIdStub(node, this.moduleServiceIndex));
+        this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.moduleServiceIndex}`);
     }
 
     endVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode): void {
@@ -71,16 +72,20 @@ export class FindConstructByNameVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
         const constructIdStub = this.getCurrentUid(generateConstructIdStub(node));
 
-        if (this.extractedUid === constructIdStub) {
-            this.selectedNode = node;
-        }
+        let uidNext: string;
 
         if (STKindChecker.isModulePart(parent)) {
             this.moduleFunctionIndex++;
-            this.stack.push(generateConstructIdStub(node, this.moduleFunctionIndex));
+            this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.moduleFunctionIndex}`);
+            uidNext = `${constructIdStub}${SUB_DELIMETER}${this.moduleFunctionIndex}`
         } else {
             this.classMemberIndex++;
-            this.stack.push(generateConstructIdStub(node, this.classMemberIndex));
+            this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`);
+            uidNext = `${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`
+        }
+        if (this.extractedUid === constructIdStub) {
+            this.selectedNode = node;
+            this.updatedUid = uidNext;
         }
     }
 
@@ -94,9 +99,10 @@ export class FindConstructByNameVisitor implements Visitor {
 
         if (this.extractedUid === constructIdStub) {
             this.selectedNode = node;
+            this.updatedUid = `${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`;
         }
 
-        this.stack.push(generateConstructIdStub(node, this.classMemberIndex));
+        this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`);
     }
 
     endvisitresourceDefinition(node: FunctionDefinition, parent?: STNode): void {
@@ -109,9 +115,10 @@ export class FindConstructByNameVisitor implements Visitor {
 
         if (this.extractedUid === constructIdStub) {
             this.selectedNode = node;
+            this.updatedUid = `${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`;
         }
 
-        this.stack.push(generateConstructIdStub(node, this.classMemberIndex));
+        this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.classMemberIndex}`);
     }
 
     endVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode): void {
@@ -124,9 +131,10 @@ export class FindConstructByNameVisitor implements Visitor {
 
         if (this.extractedUid === constructIdStub) {
             this.selectedNode = node;
+            this.updatedUid = `${constructIdStub}${SUB_DELIMETER}${this.moduleTypeIndex}`;
         }
 
-        this.stack.push(generateConstructIdStub(node, this.moduleTypeIndex));
+        this.stack.push(`${constructIdStub}${SUB_DELIMETER}${this.moduleTypeIndex}`);
     }
 
     endVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
@@ -134,19 +142,22 @@ export class FindConstructByNameVisitor implements Visitor {
     }
 
     private extractUidWithName(uid: string): string {
-        const uidStubs = uid.split(MODULE_DELIMETER);
+        const uidStubs = uid.split(SUB_DELIMETER);
         uidStubs.splice(uidStubs.length - 1, 1);
-        return uidStubs.join(MODULE_DELIMETER);
+        return uidStubs.join(SUB_DELIMETER);
     }
 
     private getCurrentUid(idStub: string): string {
-        const parentStub = this.stack.join(MODULE_DELIMETER);
-        return `${parentStub}${MODULE_DELIMETER}${idStub}`;
+        const parentStub = this.stack.reduce((acc, curr) => `${acc}${MODULE_DELIMETER}${curr}`, '');
+        return `${parentStub}${parentStub.length > 0 ? MODULE_DELIMETER : ''}${idStub}`;
     }
 
     public getNode(): STNode {
         return this.selectedNode;
     }
 
+    public getUid(): string {
+        return this.updatedUid;
+    }
 }
 
