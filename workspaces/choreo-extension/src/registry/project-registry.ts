@@ -14,11 +14,15 @@
 import { ChoreoServiceComponentType, Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
-import { existsSync } from 'fs';
-import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
+import { existsSync, rmdirSync } from 'fs';
 import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, join } from "path";
+import * as vscode from 'vscode';
+import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
+import { initGit, } from "../git/main";
+import { getLogger } from "../logger/logger";
+import { ProgressLocation, window } from "vscode";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -105,21 +109,82 @@ export class ProjectRegistry {
         }
     }
 
-    async getComponents(projectId: string, orgHandle: string): Promise<Component[]> {
-        if (!this._dataComponents.has(projectId)) {
-            return projectClient.getComponents({ projId: projectId, orgHandle: orgHandle })
-                .then((components) => {
-                    this._dataComponents.set(projectId, components);
-                    return this._addLocalComponents(projectId, components);
-                }).catch((e) => {
-                    serializeError(e);
-                    return this._addLocalComponents(projectId, []);
-                });
-        } else {
-            return new Promise((resolve) => {
-                const components: Component[] | undefined = this._dataComponents.get(projectId);
-                resolve(this._addLocalComponents(projectId, components ? components : []));
+    async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
+        try{
+            const components = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
+            this._dataComponents.set(projectId, components);
+            return this._addLocalComponents(projectId, components);
+        } catch(e) {
+            serializeError(e);
+            const components: Component[] | undefined = this._dataComponents.get(projectId);
+            return this._addLocalComponents(projectId, components || []);
+        }
+    }
+
+    async deleteComponent(componentId: string, orgHandler: string, projectId: string): Promise<void> {
+        try{
+            const allComponents = this._dataComponents.get(projectId);
+            const componentToBeDeleted = allComponents?.find(item=>item.id === componentId);
+
+            await window.withProgress({
+                title: `Deleting component ${componentToBeDeleted?.name}.`,
+                location: ProgressLocation.Notification,
+                cancellable: false
+            }, async () => {
+                let successMsg = "The component has been deleted successfully."
+                if(!componentToBeDeleted?.local){
+                    await projectClient.deleteComponent({componentId, orgHandler, projectId});
+                }
+    
+                if((!componentToBeDeleted?.isRemoteOnly || componentToBeDeleted.local) && componentToBeDeleted?.repository){
+                    const projectLocation = this.getProjectLocation(projectId);
+                    const { organizationApp, nameApp, appSubPath } = componentToBeDeleted.repository;
+                    if (projectLocation && appSubPath) {
+                        const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
+                        if (existsSync(repoPath)) {
+                            rmdirSync(repoPath, {recursive: true});
+                        }
+                    }
+                    successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
+                }
+                vscode.window.showInformationMessage(successMsg);
             });
+           
+        } catch(e) {
+            serializeError(e);
+        }
+    }
+
+    async pullComponent(componentId: string, projectId: string): Promise<void> {
+        try {
+            const allComponents = this._dataComponents.get(projectId);
+            const componentToBePulled = allComponents?.find(item => item.id === componentId);
+            const projectLocation = this.getProjectLocation(projectId);
+
+            if (componentToBePulled?.repository && projectLocation) {
+                const { organizationApp, nameApp } = componentToBePulled.repository;
+
+                await window.withProgress({
+                    title: `Pulling changes from  ${organizationApp}/${nameApp}.`,
+                    location: ProgressLocation.Notification,
+                    cancellable: false
+                }, async () => {
+                    const git = await initGit(ext.context);
+                    if (git) {
+                        if (git) {
+                            const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
+                            await git.pull(repoPath);
+                        } else {
+                            getLogger().error("Git was not initialized");
+                        }
+                    } else {
+                        throw new Error("Git was not initialized.");
+                    }
+                });
+
+            }
+        } catch (e) {
+            serializeError(e);
         }
     }
 
@@ -284,6 +349,13 @@ export class ProjectRegistry {
 
     private _addLocalComponents(projectId: string, components: Component[]): Component[] {
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
+        components = components.map((component: Component)=>{
+            if(component.repository?.appSubPath){
+                const { organizationApp, nameApp, appSubPath } = component.repository;
+                component.isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
+            }
+            return component;
+        });
         if (projectLocation !== undefined) {
             const localcomponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
             components = components.concat(localcomponents);

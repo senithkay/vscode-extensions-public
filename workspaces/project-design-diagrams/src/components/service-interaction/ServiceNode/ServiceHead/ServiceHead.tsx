@@ -22,7 +22,7 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
-import { DiagramContext, NodeMenuWidget } from '../../../common';
+import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
 import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes, Views } from '../../../../resources';
 import { ServiceHead, ServiceName } from '../styles/styles';
 
@@ -53,50 +53,51 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     }
 
     return (
-        <ServiceHead
-            level={node.level}
-            isSelected={isSelected}
-            onMouseOver={() => { handleOnHover('SELECT') }}
-            onMouseLeave={() => { handleOnHover('UNSELECT') }}
-        >
-            {node.serviceType === ServiceTypes.GRPC ?
-                <GrpcIcon /> :
-                node.serviceType === ServiceTypes.GRAPHQL ?
-                    <GraphQLIcon /> :
-                    node.serviceType === ServiceTypes.HTTP ?
-                        <HttpServiceIcon /> :
-                        <MiscellaneousServicesIcon fontSize='medium' />
-            }
-            <ServicePortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-                <ServiceName>{displayName}</ServiceName>
-                {isHovered && node.serviceObject.elementLocation && editingEnabled &&
-                    <NodeMenuWidget
-                        background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
-                        location={node.serviceObject.elementLocation}
-                        linkingEnabled={currentView === Views.L1_SERVICES}
-                        service={node.serviceObject}
-                        serviceAnnotation={node.serviceObject.annotation}
-                    />
+        <CtrlClickGo2Source location={node.serviceObject.elementLocation}>
+            <ServiceHead
+                level={node.level}
+                isSelected={isSelected}
+                onMouseOver={() => { handleOnHover('SELECT') }}
+                onMouseLeave={() => { handleOnHover('UNSELECT') }}
+            >
+                {node.serviceType === ServiceTypes.GRPC ?
+                    <GrpcIcon /> :
+                    node.serviceType === ServiceTypes.GRAPHQL ?
+                        <GraphQLIcon /> :
+                        node.serviceType === ServiceTypes.HTTP ?
+                            <HttpServiceIcon /> :
+                            <MiscellaneousServicesIcon fontSize='medium' />
                 }
-            <ServicePortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
-            {node.getPort(`top-${node.getID()}`) && (
                 <ServicePortWidget
-                    port={node.getPort(`top-${node.getID()}`)}
+                    port={node.getPort(`left-${node.getID()}`)}
                     engine={engine}
                 />
-            )}
-            {node.getPort(`left-gw-${node.getID()}`) && (
+                    <ServiceName>{displayName}</ServiceName>
+                    {isHovered && node.serviceObject.elementLocation && editingEnabled &&
+                        <NodeMenuWidget
+                            background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
+                            location={node.serviceObject.elementLocation}
+                            linkingEnabled={currentView === Views.L1_SERVICES}
+                            service={node.serviceObject}
+                        />
+                    }
                 <ServicePortWidget
-                    port={node.getPort(`left-gw-${node.getID()}`)}
+                    port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}
                 />
-            )}
-        </ServiceHead>
+                {node.getPort(`top-${node.getID()}`) && (
+                    <ServicePortWidget
+                        port={node.getPort(`top-${node.getID()}`)}
+                        engine={engine}
+                    />
+                )}
+                {node.getPort(`left-gw-${node.getID()}`) && (
+                    <ServicePortWidget
+                        port={node.getPort(`left-gw-${node.getID()}`)}
+                        engine={engine}
+                    />
+                )}
+            </ServiceHead>
+        </CtrlClickGo2Source>
     )
 }

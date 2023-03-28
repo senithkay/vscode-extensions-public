@@ -13,8 +13,8 @@
 import { Project, Component, Repository } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { ComponentMutationParams, CreateProjectParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "../types";
-import { CreateComponentRequest, CreateProjectRequest, GetComponentsRequest, GetProjectsRequest, LinkRepoRequest } from "./types";
+import { ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "../types";
+import { CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, LinkRepoRequest } from "./types";
 
 export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
 
@@ -32,6 +32,9 @@ export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
     }
     createComponent(params: ComponentMutationParams): Promise<Component> {
         return this._messenger.sendRequest(CreateComponentRequest, HOST_EXTENSION, params);
+    }
+    deleteComponent(params: DeleteComponentParams): Promise<void> {
+        return this._messenger.sendRequest(DeleteComponentRequest, HOST_EXTENSION, params);
     }
     linkRepo(params: LinkRepoMutationParams): Promise<Repository> {
         return this._messenger.sendRequest(LinkRepoRequest, HOST_EXTENSION, params);
