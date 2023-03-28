@@ -42,6 +42,7 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps, getSTNodeForReference } from "./utils";
+import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
@@ -175,7 +176,13 @@ export function DiagramViewManager(props: EditorProps) {
                 if (options && options.uid) {
                     const nodeFindingVisitor = new FindNodeByUidVisitor(options.uid);
                     traversNode(visitedST, nodeFindingVisitor);
-                    selectedST = nodeFindingVisitor.getNode();
+                    if (!nodeFindingVisitor.getNode()) {
+                        const visitorToFindConstructByName = new FindConstructByNameVisitor(options.uid);
+                        traversNode(visitedST, visitorToFindConstructByName);
+                        selectedST = visitorToFindConstructByName.getNode();
+                    } else {
+                        selectedST = nodeFindingVisitor.getNode();
+                    } 
                 }
 
                 // resolve the service type if the ST is a service
