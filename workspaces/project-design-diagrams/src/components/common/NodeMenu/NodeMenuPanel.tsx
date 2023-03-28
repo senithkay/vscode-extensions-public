@@ -19,7 +19,7 @@
 
 import React from "react";
 import { Location, RemoteFunction, ResourceFunction, Service, ServiceAnnotation } from "../../../resources";
-import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton, EditLabelButton } from "./components";
+import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton, EditLabelButton, DeleteComponentButton } from "./components";
 import { Paper, MenuList, Divider } from "@mui/material";
 
 interface MenuProps {
@@ -28,11 +28,20 @@ interface MenuProps {
     service?: Service;
     resource?: ResourceFunction | RemoteFunction; // TODO: figure out a way to merge service and resource
     serviceAnnotation?: ServiceAnnotation;
-    handleDialogStatus: (status: boolean) => void;
+    handleEditLabelDialog: (status: boolean) => void;
+    handleDeleteComponentDialog: (status: boolean) => void;
 }
 
 export function NodeMenuPanel(props: MenuProps) {
-    const { handleDialogStatus, location, linkingEnabled, service, serviceAnnotation, resource } = props;
+    const {
+        handleDeleteComponentDialog,
+        handleEditLabelDialog,
+        location,
+        linkingEnabled,
+        service,
+        serviceAnnotation,
+        resource
+    } = props;
 
     return (
         <>
@@ -42,7 +51,10 @@ export function NodeMenuPanel(props: MenuProps) {
                     {service && <GoToDesign element={service} />}
                     {resource && <GoToDesign element={resource} />}
                     {serviceAnnotation && (serviceAnnotation.elementLocation || service.elementLocation) &&
-                        <EditLabelButton handleDialogStatus={handleDialogStatus} />
+                        <EditLabelButton handleDialogStatus={handleEditLabelDialog} />
+                    }
+                    {service && location &&
+                        <DeleteComponentButton handleDialogStatus={handleDeleteComponentDialog} />
                     }
                     {linkingEnabled && service && (
                         <>

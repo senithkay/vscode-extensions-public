@@ -17,15 +17,17 @@
  *
  */
 
-import { existsSync, readFile, unlinkSync, writeFileSync } from "fs";
-import { join } from "path";
+import { Uri } from "vscode";
+import { existsSync, readFile, rmSync, unlinkSync, writeFileSync } from "fs";
+import { dirname, join } from "path";
 import child_process from "child_process";
 import { compile } from "handlebars";
-import { BallerinaTriggerResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggerResponse, STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient } from "../../core";
-import { getLangClient } from "../activator";
-import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX } from "../resources";
+import { getLangClient, STResponse } from "../activator";
+import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, Location } from "../resources";
+import { updateSourceFile } from "./code-generator";
 
 export function createBallerinaPackage(name: string, pkgRoot: string, type: ChoreoServiceComponentType): Promise<CommandResponse> {
     const cmd = `bal new "${name}" ${getBalCommandSuffix(type)}`;
@@ -145,7 +147,7 @@ export async function buildWebhookTemplate(pkgPath: string, triggerId: string): 
 
 export function writeWebhookTemplate(pkgPath: string, template: string): boolean {
     let didFail: boolean;
-    const serviceFilePath = join(pkgPath, "service.bal");
+    const serviceFilePath = join(pkgPath, 'service.bal');
     readFile(serviceFilePath, 'utf-8', (err) => {
         if (err) {
             didFail = true;
@@ -154,4 +156,36 @@ export function writeWebhookTemplate(pkgPath: string, template: string): boolean
         writeFileSync(serviceFilePath, template);
     });
     return didFail;
+}
+
+export function deleteBallerinaPackage(filePath: string): void {
+    let basePath: string = dirname(filePath);
+    while (!existsSync(join(basePath, 'Ballerina.toml'))) {
+        basePath = dirname(basePath);
+    }
+    rmSync(basePath, { recursive: true });
+}
+
+export async function deleteComponent(location: Location): Promise<boolean> {
+    const modifications: STModification[] = [];
+    modifications.push({
+        startLine: location.startPosition.line,
+        startColumn: location.startPosition.offset,
+        endLine: location.endPosition.line,
+        endColumn: location.endPosition.offset,
+        type: "DELETE"
+    });
+
+    const langClient: ExtendedLangClient = getLangClient();
+    const response: STResponse = (await langClient.stModify({
+        astModifications: modifications,
+        documentIdentifier: {
+            uri: Uri.file(location.filePath).toString(),
+        }
+    })) as STResponse;
+
+    if (response.parseSuccess && response.source) {
+        return await updateSourceFile(langClient, location.filePath, response.source);
+    }
+    return false;
 }

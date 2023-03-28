@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ChoreoComponentCreationParams, IsRepoClonedRequestParams, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentCreationParams, IsRepoClonedRequestParams, Location, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { RequestType } from "vscode-messenger-common";
 
 export const CreateLocalComponentRequest: RequestType<ChoreoComponentCreationParams, boolean> = { method: 'manager/createLocalComponent' };
@@ -18,5 +18,4 @@ export const GetProjectRoot: RequestType<string, string | undefined> = { method:
 export const GetProjectDetails: RequestType<string, Project> = { method: 'manager/getProjectDetails' };
 export const IsRepoClonedRequest: RequestType<IsRepoClonedRequestParams, boolean> = { method: 'manager/isRepoCloned' };
 export const CloneRepoRequeset: RequestType<RepoCloneRequestParams, boolean> = { method: 'manager/cloneRepo' };
-
-
+export const DeleteComponent: RequestType<Location, boolean> = { method: 'manager/deleteComponent' };

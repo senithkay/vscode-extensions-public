@@ -22,7 +22,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { RemoteFunction, ResourceFunction, Service } from '../../../../resources';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import { ListItemIcon, ListItemText, MenuItem } from '@mui/material';
-import { useStyles } from "./styles";
+import { useStyles } from "./styles/styles";
 import { useDiagramContext } from '../../DiagramContext/DiagramContext';
 
 export function GoToDesign(props: { element: Service | ResourceFunction | RemoteFunction }) {

@@ -107,6 +107,15 @@ export class EditLayerRPC {
             return editDisplayLabel(langClient, annotation);
         });
 
+        this._messenger.onRequest({ method: 'deleteComponent' }, async (args: Object): Promise<boolean> => {
+            const location = args["location"] as Location;
+            if (isChoreoProject) {
+                return this._projectManager.deleteComponent(location);
+            } else {
+                return this._projectManager.deleteComponent(location, args["deletePkg"] as boolean);
+            }
+        });
+
         this._messenger.onNotification({ method: 'go2source' }, (location: Location): void => {
             if (location && existsSync(location.filePath)) {
                 workspace.openTextDocument(location.filePath).then((sourceFile) => {

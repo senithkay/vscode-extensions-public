@@ -13,7 +13,7 @@
 
 import {
     ChoreoComponentCreationParams, ChoreoServiceComponentType, Component, IProjectManager,
-    Project, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams
+    Project, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams, Location
 } from "@wso2-enterprise/choreo-core";
 import { log } from "console";
 import { randomUUID } from "crypto";
@@ -28,7 +28,6 @@ interface CmdResponse {
 }
 
 export class ChoreoProjectManager implements IProjectManager {
-
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
         const { displayType, name, org, repositoryInfo } = args;
         if (workspace.workspaceFile) {
@@ -253,5 +252,10 @@ export class ChoreoProjectManager implements IProjectManager {
             content.folders[index].metadata = undefined;
             writeFileSync(workspaceFilePath, JSON.stringify(content, null, 4));
         }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    deleteComponent(_location: Location): Promise<boolean> {
+        throw new Error("Method not implemented.");
     }
 }

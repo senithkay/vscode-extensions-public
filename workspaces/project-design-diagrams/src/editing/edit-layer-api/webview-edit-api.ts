@@ -86,6 +86,10 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
         return this._messenger.sendRequest({ method: 'editDisplayLabel' }, HOST_EXTENSION, annotation);
     }
 
+    public async deleteComponent(location: Location, deletePkg: boolean): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'deleteComponent' }, HOST_EXTENSION, {location, deletePkg});
+    }
+
     public showErrorMessage(msg: string): void {
         this._messenger.sendNotification({ method: 'showErrorMsg' }, HOST_EXTENSION, msg);
     }

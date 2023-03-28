@@ -22,7 +22,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import { NodeMenuPanel } from './NodeMenuPanel';
 import { Location, RemoteFunction, ResourceFunction, Service, ServiceAnnotation } from '../../../resources';
-import { EditLabelDialog } from './components';
+import { DeleteComponentDialog, EditLabelDialog } from './components';
 
 interface NodeMenuProps {
     location: Location;
@@ -37,6 +37,7 @@ export function NodeMenuWidget(props: NodeMenuProps) {
     const { linkingEnabled, location, service, resourceFunction, serviceAnnotation, background } = props;
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
     const [showEditLabelDialog, updateShowEditLabelDialog] = useState<boolean>(false);
+    const [showDeleteDialog, updateShowDeleteDialog] = useState<boolean>(false);
 
     return (
         <>
@@ -51,7 +52,8 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                             service={service}
                             resource={resourceFunction}
                             serviceAnnotation={serviceAnnotation}
-                            handleDialogStatus={updateShowEditLabelDialog}
+                            handleEditLabelDialog={updateShowEditLabelDialog}
+                            handleDeleteComponentDialog={updateShowDeleteDialog}
                         />
                     }
                     PopperProps={{
@@ -103,6 +105,12 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                 serviceLocation={service?.elementLocation}
                 showDialog={showEditLabelDialog}
                 updateShowDialog={updateShowEditLabelDialog}
+            />
+
+            <DeleteComponentDialog
+                location={location}
+                showDialog={showDeleteDialog}
+                updateShowDialog={updateShowDeleteDialog}
             />
         </>
     );

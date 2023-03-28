@@ -18,6 +18,7 @@
  */
 
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { CSSProperties } from "react";
 
 export const useStyles = makeStyles(() =>
     createStyles({
@@ -30,3 +31,18 @@ export const useStyles = makeStyles(() =>
         },
     })
 );
+
+export const DefaultTextProps: CSSProperties = {
+    fontFamily: 'GilmerRegular',
+    fontSize: '14px'
+}
+
+export const ContentTextProps: CSSProperties = {
+    fontFamily: 'GilmerRegular',
+    fontSize: '15px'
+}
+
+export const TitleTextProps: CSSProperties = {
+    fontFamily: 'GilmerMedium',
+    fontSize: '16px'
+}

@@ -286,7 +286,7 @@ async function updateSyntaxTree(
     });
 }
 
-async function updateSourceFile(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
+export async function updateSourceFile(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
     const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
     if (doc) {
         const edit = new WorkspaceEdit();

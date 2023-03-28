@@ -22,4 +22,7 @@ export { Go2SourceButton } from './Go2SourceButton';
 export { LinkingButton } from './LinkingButton';
 export { AddConnectorButton } from './AddConnectorButton';
 export { EditLabelButton } from './EditLabelButton';
-export { EditLabelDialog } from './EditLabelDialog';
+export { DeleteComponentButton } from './DeleteComponentButton';
+
+export { EditLabelDialog } from './Dialogs/EditLabelDialog';
+export { DeleteComponentDialog } from './Dialogs/DeleteComponentDialog';

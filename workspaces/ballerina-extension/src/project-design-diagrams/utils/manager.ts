@@ -17,12 +17,12 @@
  *
  */
 
-import { IProjectManager, Project, Component, BallerinaComponentCreationParams, IsRepoClonedRequestParams, ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
+import { IProjectManager, Project, Component, BallerinaComponentCreationParams, IsRepoClonedRequestParams, ChoreoServiceComponentType, Location } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import path, { join } from "path";
 import { addToWorkspace } from "../../utils/project-utils";
-import { addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate } from "./component-creation-utils";
+import { addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, deleteBallerinaPackage, deleteComponent, processTomlFiles, runCommand, writeWebhookTemplate } from "./component-handler-utils";
 
 export class BallerinaProjectManager implements IProjectManager {
     async createLocalComponent(params: BallerinaComponentCreationParams): Promise<string> {
@@ -101,6 +101,15 @@ export class BallerinaProjectManager implements IProjectManager {
             return parentCandidate;
         }
         return undefined;
+    }
+    
+    async deleteComponent(location: Location, deletePackage?: boolean): Promise<boolean> {
+        if (deletePackage) {
+            deleteBallerinaPackage(location.filePath);
+            return true;
+        } else {
+            return deleteComponent(location);
+        }
     }
 
     getLocalComponents(workspaceFilePath: string): Component[] {

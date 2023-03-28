@@ -22,7 +22,7 @@ import LabelIcon from '@mui/icons-material/Label';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MenuItem from '@mui/material/MenuItem';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 interface EditLabelProps {
     handleDialogStatus: (status: boolean) => void;

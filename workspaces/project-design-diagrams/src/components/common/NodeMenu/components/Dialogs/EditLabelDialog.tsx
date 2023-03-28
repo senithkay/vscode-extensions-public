@@ -17,31 +17,22 @@
  *
  */
 
-import React, { CSSProperties, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { DiagramContext } from '../../DiagramContext/DiagramContext';
-import { Location, ServiceAnnotation } from '../../../../resources';
+import { DiagramContext } from '../../../DiagramContext/DiagramContext';
+import { Location, ServiceAnnotation } from '../../../../../resources';
+import { DefaultTextProps, TitleTextProps } from '../styles/styles';
 
 interface EditLabelDialogProps {
     serviceAnnotation: ServiceAnnotation;
     serviceLocation: Location;
     showDialog: boolean;
     updateShowDialog: (status: boolean) => void;
-}
-
-const DefaultTextProps: CSSProperties = {
-    fontFamily: 'GilmerRegular',
-    fontSize: '14px'
-}
-
-const TitleTextProps: CSSProperties = {
-    fontFamily: 'GilmerMedium',
-    fontSize: '15px'
 }
 
 export function EditLabelDialog(props: EditLabelDialogProps) {
