@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
  * This software is the property of WSO2 Inc. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
@@ -10,10 +10,5 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./lib";
-export * from "./types";
-export * from "./utils";
-export * from "./themes";
-export { default as templates } from "./templates/components"
-export * from "./assets";
-export * from "./components";
+
+export * from "./CtrlClickWrapper/CtrlClickWrapper";
