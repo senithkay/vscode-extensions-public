@@ -157,7 +157,7 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 			fieldFQN, parent, isCollapsed, hidden, isWithinSelectClause);
 		this.addPort(fieldPort);
 
-		if (field.type.typeName === PrimitiveBalType.Record || field.type.typeName === PrimitiveBalType.Union) {
+		if (field.type.typeName === PrimitiveBalType.Record) {
 			const fields = field?.childrenTypes;
 			if (fields && !!fields.length) {
 				fields.forEach((subField) => {
