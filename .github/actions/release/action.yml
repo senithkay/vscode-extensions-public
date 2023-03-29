@@ -32,6 +32,7 @@ runs:
             https://uploads.github.com/repos/${{ inputs.repo }}/releases/$id/assets?name=${{ steps.vsix.outputs.vsixName }}`         
 
     - name: "Release Notification"
+      shell: bash
       run: |
         body=$(cat << EOF
         {

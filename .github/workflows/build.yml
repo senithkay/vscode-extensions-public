@@ -9,12 +9,12 @@ on:
       ballerina:
         description: Update Ballerina extension version
         type: boolean
-        required: true
+        required: false
         default: false
       choreo:
         description: Update Choreo extension version
         type: boolean
-        required: true
+        required: false
         default: false      
       version:
         default: 'N/A'
