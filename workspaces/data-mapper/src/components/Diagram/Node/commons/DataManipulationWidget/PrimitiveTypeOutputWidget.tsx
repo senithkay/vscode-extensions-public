@@ -18,13 +18,11 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { OutputUnionTypeChangeMenu } from '../OutputUnionTypeChangeMenu';
 import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
@@ -112,7 +110,6 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	const type = typeName || field?.type?.typeName;
 	const fieldId = `${id}.${type}`;
 	const portIn = getPort(`${fieldId}.IN`);
-	const isUnion = field?.type?.typeName === PrimitiveBalType.Union || field?.type?.originalTypeName === PrimitiveBalType.Union;
 
 	let expanded = true;
 	if ((portIn && portIn.collapsed)) {
@@ -160,14 +157,6 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
 					</IconButton>
 					{label}
-					{isUnion && (
-						<OutputUnionTypeChangeMenu
-							context={context}
-							type={field.type}
-							value={field.value}
-							portName={portIn?.getName()}
-						/>
-					)}
 				</span>
 			</TreeHeader>
 			<TreeBody>
