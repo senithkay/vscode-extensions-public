@@ -16,29 +16,32 @@
  * under the License.
  *
  */
+import React from "react";
 
-import React, { PropsWithChildren, useContext } from 'react';
-import { CtrlClickWrapper } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { Location } from '../../../resources';
-
-interface CtrlClickProps {
-    location: Location;
+interface CtrlClickWrapperProps {
+    onClick: () => void;
 }
 
-export function CtrlClickGo2Source(props: PropsWithChildren<CtrlClickProps>) {
-    const { location, children } = props;
-    const { editingEnabled, editLayerAPI } = useContext(DiagramContext);
-
-    const handleClick = () => {
-        if (editingEnabled) {
-            editLayerAPI?.go2source(location);
+// Wrapper to capture ctrl click action of children and run an action that's passed through props
+export const CtrlClickWrapper = (props: React.PropsWithChildren<CtrlClickWrapperProps>) => {
+    const { children, onClick } = props;
+    const handleClick = (e: any) => {
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            onClick();
         }
     };
 
+    const mappedChildren = React.Children.map(children, (child) => {
+        return React.cloneElement(child as React.ReactElement, {
+            onClick: handleClick
+        });
+    });
+
     return (
-        <CtrlClickWrapper onClick={handleClick}>
-            {children}
-        </CtrlClickWrapper>
+        <>
+            {mappedChildren}
+        </>
     );
 }
