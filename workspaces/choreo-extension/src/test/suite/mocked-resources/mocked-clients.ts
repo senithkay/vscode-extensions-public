@@ -15,7 +15,7 @@ import { randomUUID } from "crypto";
 import { join } from "path";
 import {
     AccessToken, ChoreoTokenType, ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams,
-    GetProjectsParams, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams
+    GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams
 } from "@wso2-enterprise/choreo-client";
 import { Component, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
 import { ProjectRegistry } from "../../../registry/project-registry";
@@ -79,6 +79,10 @@ export class MockOrgClient implements IChoreoOrgClient {
 }
 
 export class MockProjectClient implements IChoreoProjectClient {
+    
+    getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
+        throw new Error("Method not implemented.");
+    }
     async getProjects(params: GetProjectsParams): Promise<Project[]> {
         // To mock a successfully cloned environment
         setProjectLocation();

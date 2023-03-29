@@ -13,11 +13,11 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption, VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { ChoreoComponentType, Component, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ErrorBanner, ErrorIcon } from "../Commons/ErrorBanner";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { RequiredFormInput } from "../Commons/RequiredInput";
-import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+// import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentWizardState } from "./types";
 
 const StepContainer = styled.div`
@@ -100,23 +100,23 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
                 return value !== undefined;
             }
         },
-        {
-            field: 'name',
-            message: 'Componet name is already taken',
-            rule: async (value: any, _formData, context) => {
-                const {  isChoreoProject, choreoProject }  = context;
-                if (isChoreoProject && choreoProject && choreoProject?.id) {
-                    const components = await ChoreoWebViewAPI.getInstance().getComponents(choreoProject?.id);
-                    if (components.length) {
-                        const component = components.find((component: Component) => component.name === value);
-                        if (component) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            }
-        },
+        // {
+        //     field: 'name',
+        //     message: 'Componet name is already taken',
+        //     rule: async (value: any, _formData, context) => {
+        //         const {  isChoreoProject, choreoProject }  = context;
+        //         if (isChoreoProject && choreoProject && choreoProject?.id) {
+        //             const components = await ChoreoWebViewAPI.getInstance().getComponents(choreoProject?.id);
+        //             if (components.length) {
+        //                 const component = components.find((component: Component) => component.name === value);
+        //                 if (component) {
+        //                     return false;
+        //                 }
+        //             }
+        //         }
+        //         return true;
+        //     }
+        // },
         {
             field: 'name',
             message: 'Name is required',

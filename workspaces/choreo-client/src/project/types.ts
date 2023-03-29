@@ -77,11 +77,39 @@ export interface GetDiagramModelParams {
     projId: string;
 }
 
+export interface GitHubRepoValidationResponse {
+    isBareRepo: boolean;
+    isSubPathValid: boolean;
+    isSubPathEmpty: boolean;
+    isValidRepo: boolean;
+    hasBallerinaTomlInPath: boolean;
+    hasBallerinaTomlInRoot: boolean;
+    isDockerfilePathValid: boolean;
+    hasDockerfileInPath: boolean;
+    isDockerContextPathValid: boolean;
+    isOpenApiFilePathValid: boolean;
+    hasOpenApiFileInPath: boolean;
+    hasPomXmlInPath: boolean;
+    hasPomXmlInRoot: boolean;
+  }
+  
+  export interface GitHubRepoValidationRequestParams {
+    organization: string;
+    repo: string;
+    branch: string;
+    path?: string;
+    dockerfile?: string;
+    dockerContextPath?: string;
+    openApiPath?: string;
+    componentId?: string;
+  }
+
 export interface IChoreoProjectClient {
     // queries
     getProjects(params: GetProjectsParams): Promise<Project[]>;
     getComponents(params: GetComponentsParams): Promise<Component[]>;
     getDiagramModel(params: GetComponentsParams): Promise<Component[]>;
+    getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse>;
 
     // mutations
     createProject(params: CreateProjectParams): Promise<Project>;

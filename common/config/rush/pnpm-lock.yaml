@@ -472,6 +472,7 @@ importers:
       '@emotion/css': ^11.10.5
       '@emotion/styled': ^11.10.5
       '@types/classnames': ~2.3.1
+      '@types/lodash.debounce': ~4.0.7
       '@types/node': ^18.11.19
       '@types/react': ^17.0.37
       '@types/react-dom': 17.0.14
@@ -483,6 +484,7 @@ importers:
       classnames: ~2.3.2
       clean-webpack-plugin: ^4.0.0
       css-loader: ^6.7.3
+      lodash.debounce: ~4.0.8
       node-loader: ^2.0.0
       node-sass: ^8.0.0
       path: ^0.12.7
@@ -504,11 +506,13 @@ importers:
     dependencies:
       '@emotion/css': 11.10.6
       '@emotion/styled': 11.10.6_h7fc2el62uaa77gho3xhys6ola
+      '@types/lodash.debounce': 4.0.7
       '@vscode/webview-ui-toolkit': 1.2.2_react@17.0.2
       '@wso2-enterprise/choreo-client': link:../choreo-client
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/project-design-diagrams': link:../project-design-diagrams
       classnames: 2.3.2
+      lodash.debounce: 4.0.8
       path: 0.12.7
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2

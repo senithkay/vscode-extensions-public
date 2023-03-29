@@ -12,7 +12,7 @@
  */
 
 import {
-    ChoreoComponentCreationParams, ChoreoServiceComponentType, Component, IProjectManager,
+    ChoreoComponentCreationParams, ChoreoComponentType, Component, IProjectManager,
     Project, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams
 } from "@wso2-enterprise/choreo-core";
 import { log } from "console";
@@ -58,7 +58,7 @@ export class ChoreoProjectManager implements IProjectManager {
         throw new Error("choreo getProjectRoot method not implemented.");
     }
 
-    private static _createBallerinaPackage(pkgPath: string, componentType: ChoreoServiceComponentType)
+    private static _createBallerinaPackage(pkgPath: string, componentType: ChoreoComponentType)
         : Promise<CmdResponse> {
         const pkgRoot = dirname(pkgPath);
         if (!existsSync(pkgRoot)) {
@@ -84,13 +84,11 @@ export class ChoreoProjectManager implements IProjectManager {
         });
     }
 
-    private static _getTemplateComponent(componentType: ChoreoServiceComponentType): string {
+    private static _getTemplateComponent(componentType: ChoreoComponentType): string {
         switch (componentType) {
-            case ChoreoServiceComponentType.GQL_API:
+            case ChoreoComponentType.GraphQL:
                 return 'GraphQLComponent';
-            case ChoreoServiceComponentType.GRPC_API:
-                return 'GRPCComponent';
-            case ChoreoServiceComponentType.WEBSOCKET_API:
+            case ChoreoComponentType.ScheduledTask:
                 return 'WebSocketComponent';
             default:
                 return 'HTTPComponent';
@@ -124,7 +122,7 @@ export class ChoreoProjectManager implements IProjectManager {
         });
     }
 
-    private static _addDisplayAnnotation(pkgPath: string, type: ChoreoServiceComponentType, name: string) {
+    private static _addDisplayAnnotation(pkgPath: string, type: ChoreoComponentType, name: string) {
         const serviceId = `${name}-${randomUUID()}`;
         const serviceFilePath = join(pkgPath, 'service.bal');
         readFile(serviceFilePath, 'utf-8', (err, contents) => {
@@ -234,10 +232,10 @@ export class ChoreoProjectManager implements IProjectManager {
        return commands.executeCommand('wso2.choreo.project.repo.clone', params);
     }
 
-    private static _getAnnotatedContent(content: string, name: string, serviceId: string, type: ChoreoServiceComponentType)
+    private static _getAnnotatedContent(content: string, name: string, serviceId: string, type: ChoreoComponentType)
         : string {
         let preText: string;
-        if (type !== ChoreoServiceComponentType.GRPC_API) {
+        if (type !== ChoreoComponentType.GraphQL) {
             preText = 'service / on new';
         } else {
             preText = 'service "HelloWorld" on new';

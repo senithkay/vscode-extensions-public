@@ -12,9 +12,12 @@
  */
 import React from "react";
 import styled from "@emotion/styled";
+
+import debounce from "lodash.debounce"
+
 import { cx } from "@emotion/css";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { useCallback, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { ErrorBanner, ErrorIcon } from "../../Commons/ErrorBanner";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
@@ -39,29 +42,58 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
 
     const { name, mode, repository, type } = props.formData;
 
-    const [folderName, setFolderName] = useState<string>(name || "");
+    const [folderName, setFolderName] = useState<string>(mode === "fromExisting" ? "" : (name || ""));
     const [folderNameError, setFolderNameError] = useState<string>("");
+    const [isValidationInProgress, setIsValidationInProgress] = useState<boolean>(false);
 
     const { choreoProject } = useContext(ChoreoWebViewContext);
 
-    const setSubFolderName = useCallback(async (fName: string) => {
+    const setSubFolderName = async (fName: string) => {
         setFolderName(fName);
-        if (repository?.org && repository.repo && choreoProject) {
-            const isSubpathAvailable = await ChoreoWebViewAPI.getInstance().isSubpathAvailable({
-                orgName: repository.org,
-                repoName: repository.repo,
-                subpath: fName,
-                projectID: choreoProject?.id
+        setFolderNameError("");
+        setIsValidationInProgress(true);
+        if (mode === "fromExisting" && !type?.startsWith("byoc")) {
+            const projClient = ChoreoWebViewAPI.getInstance().getProjectClient();
+            const repoMetaData = await projClient.getRepoMetadata({
+                organization: repository?.org,
+                repo:   repository?.repo,
+                branch: repository?.branch,
+                path: fName,
+                dockerfile: '',
+                dockerContextPath: '',
+                openApiPath: '',
+                componentId: ''
             });
-            if (!isSubpathAvailable) {
-                setFolderNameError("The folder name is already in use in the repository");
+            if (!repoMetaData.isSubPathValid) {
+                setFolderNameError("There isn't such a folder in the repository");
+            } else if (repoMetaData.isSubPathValid && !repoMetaData.hasBallerinaTomlInPath) {
+                setFolderNameError("Provide a path that contains a Ballerina project.")
             } else {
                 setFolderNameError("");
             }
+        } else if (mode === "fromExisting" && type?.startsWith("byoc")) {
+
+        } else if (mode === "fromScratch") {
+            if (repository?.org && repository.repo && choreoProject) {
+                const isSubpathAvailable = await ChoreoWebViewAPI.getInstance().isSubpathAvailable({
+                    orgName: repository.org,
+                    repoName: repository.repo,
+                    subpath: fName,
+                    projectID: choreoProject?.id
+                });
+                if (!isSubpathAvailable) {
+                    setFolderNameError("The folder name is already in use in the repository");
+                } else {
+                    setFolderNameError("");
+                }
+            } 
         } else {
             setFolderNameError("");
         }
-    }, [choreoProject, repository]);
+        setIsValidationInProgress(false);
+    }
+
+    const updateSubFolderName = debounce(setSubFolderName, 500);
 
     const isExistingBallerinaMode = mode === "fromExisting" && (
              type === ChoreoComponentType.Service
@@ -84,7 +116,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                 <StepContainer>
                     <VSCodeTextField
                         placeholder="Sub folder"
-                        onInput={(e: any) => setSubFolderName(e.target.value)}
+                        onInput={(e: any) => updateSubFolderName(e.target.value)}
                         value={folderName}
                     >
                         Sub Folder <RequiredFormInput />
@@ -92,12 +124,11 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                     </VSCodeTextField>
                 </StepContainer>
             )}
-            {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
             {isExistingBallerinaMode &&(
                 <StepContainer>
                     <VSCodeTextField
                         placeholder=""
-                        onInput={(e: any) => setSubFolderName(e.target.value)}
+                        onInput={(e: any) => updateSubFolderName(e.target.value)}
                         value={folderName}
                     >
                         Ballerina Package Path <RequiredFormInput />
@@ -105,6 +136,9 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                     </VSCodeTextField>
                 </StepContainer>
             )}
+
+            {isValidationInProgress && <div>validating...</div>}
+            {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
             {isExistingDockerMode &&(
                 <StepContainer>
                     <VSCodeTextField

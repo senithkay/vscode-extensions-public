@@ -170,7 +170,6 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
             </VSCodeRadio>
             {formData?.mode === "fromExisting" && (
                 <SubContainer>
-                    <label htmlFor="source-type-cards">Existing source or Dockerfile</label>
                     <CardContainer id="source-type-cards">
                         <SourceTypeCardContainer
                             className={cn({ "active": sourceType === "Ballerina"})}

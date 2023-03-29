@@ -12,7 +12,7 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployments } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse } from "./types";
 import {
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
@@ -199,6 +199,18 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             const client = await this._getClient();
             const data = await client.request(query);
             return data.repoMetadata.isSubPathValid;
+        } catch (error) {
+            throw new Error("Error while executing " + query, { cause: error, });
+        }
+    }
+
+    async getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
+        const { organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId } = params;
+        const query = getRepoMetadataQuery(organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.repoMetadata;
         } catch (error) {
             throw new Error("Error while executing " + query, { cause: error, });
         }

@@ -12,11 +12,13 @@
  */
 import { Component, Project, Repository } from '@wso2-enterprise/choreo-core';
 import { RequestType } from 'vscode-messenger-common';
-import { ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, LinkRepoMutationParams } from '../types';
+import { ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, LinkRepoMutationParams } from '../types';
 
 // queries
 export const GetProjectsRequest: RequestType<GetProjectsParams, Project[]> = { method: 'project/getProjects' };
 export const GetComponentsRequest: RequestType<GetComponentsParams, Component[]> = { method: 'project/getComponents' };
+export const GetRepoMetaDataRequest: RequestType<GitHubRepoValidationRequestParams, GitHubRepoValidationResponse> = { method: 'project/getRepoMetaData' };
+
 
 // mutations
 export const CreateProjectRequest: RequestType<CreateProjectParams, Project> = { method: 'project/createProject' };
