@@ -16,6 +16,7 @@ import {
     ExpressionFunctionBody,
     IdentifierToken,
     SelectClause,
+    STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
@@ -23,8 +24,10 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import {
+    getExprBodyFromLetExpression,
     getSearchFilteredOutput
 } from "../../utils/dm-utils";
+import { getResolvedType} from "../../utils/union-type-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const UNION_TYPE_NODE_TYPE = "data-mapper-node-union-type";
@@ -34,6 +37,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
+    public resolvedType: Type;
     public mappings: FieldAccessToSpecificFied[];
     public x: number;
     public y: number;
@@ -51,7 +55,8 @@ export class UnionTypeNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getSearchFilteredOutput(this.typeDef);
+        this.resolveType();
+        this.typeDef = getSearchFilteredOutput(this.resolvedType);
     }
 
     initLinks(): void {
@@ -63,6 +68,18 @@ export class UnionTypeNode extends DataMapperNodeModel {
         mappings.forEach((mapping) => {
             // TODO: Handle create links
         });
+    }
+
+    private resolveType() {
+        const bodyExpr = STKindChecker.isLetExpression(this.value.expression)
+            ? getExprBodyFromLetExpression(this.value.expression)
+            : this.value.expression;
+        if (STKindChecker.isTypeCastExpression(bodyExpr)) {
+            const type = bodyExpr.typeCastParam?.type;
+            this.resolvedType = this.typeDef.members.find((member) => {
+                return getResolvedType(member, type);
+            });
+        }
     }
 
     async deleteField(field: STNode) {

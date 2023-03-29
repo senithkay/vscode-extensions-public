@@ -1,0 +1,48 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
+
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+
+import { TypeDescriptor } from "../Node/commons/DataMapperNode";
+
+export function getResolvedType(type: Type, typeDesc: TypeDescriptor): Type {
+	if (type.typeName === PrimitiveBalType.Array && STKindChecker.isArrayTypeDesc(typeDesc)) {
+		const dimensions = typeDesc.dimensions.length;
+		let memberType = type;
+		for (let i = 0; i < dimensions; i++) {
+			memberType = memberType?.memberType ? memberType.memberType : undefined;
+		}
+		if (memberType && isTypesMatched(memberType, typeDesc, dimensions)) {
+			return type;
+		}
+	} else if (type.typeName === PrimitiveBalType.Union) {
+		for (const member of type.members) {
+			if (member.typeName === PrimitiveBalType.Union) {
+				getResolvedType(member, typeDesc);
+			} else if (isTypesMatched(member, typeDesc)) {
+				return member;
+			}
+		}
+	} else if (isTypesMatched(type, typeDesc)) {
+		return type;
+	}
+}
+
+function isTypesMatched(type: Type, typeDesc: TypeDescriptor, dimensions?: number): boolean {
+	const typeName = type?.name
+		? `${type.name}${dimensions ? '[]'.repeat(dimensions) : ''}`
+		: `${type.typeName}${dimensions ? '[]'.repeat(dimensions) : ''}`;
+
+	return typeName === typeDesc.source;
+}
