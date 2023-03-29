@@ -21,7 +21,11 @@ import { useDMSearchStore } from "../../../../../store/store";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
-import { getExprBodyFromLetExpression, isConnectedViaLink } from "../../../utils/dm-utils";
+import {
+	getExprBodyFromLetExpression,
+	getExprBodyFromTypeCastExpression,
+	isConnectedViaLink
+} from "../../../utils/dm-utils";
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
@@ -132,7 +136,9 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const body = field?.value && STKindChecker.isLetExpression(field.value)
 		? getExprBodyFromLetExpression(field.value)
-		: field.value;
+		: STKindChecker.isTypeCastExpression(field.value)
+			? getExprBodyFromTypeCastExpression(field.value)
+			: field.value;
 	const hasValue = field && field?.elements && field.elements.length > 0;
 	const isBodyListConstructor = body && STKindChecker.isListConstructor(body);
 	const isBodyQueryExpression = body && STKindChecker.isQueryExpression(body);
@@ -148,7 +154,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
 	const shouldPortVisible = (isBodyQueryExpression || !hasSyntaxDiagnostics)
 		&& (!hasValue || !expanded || !isBodyListConstructor || (
-			STKindChecker.isListConstructor(field.value) && field.value.expressions.length === 0
+			STKindChecker.isListConstructor(body) && body.expressions.length === 0
 	));
 
 	const hasElementConnectedViaLink = useMemo(() => {

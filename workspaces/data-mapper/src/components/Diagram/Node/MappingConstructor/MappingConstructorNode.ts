@@ -32,6 +32,8 @@ import {
     enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
+    getExprBodyFromLetExpression,
+    getExprBodyFromTypeCastExpression,
     getFilteredMappings,
     getFilteredUnionOutputTypes,
     getInputNodeExpr,
@@ -213,6 +215,16 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         }
 
         await this.context.applyModifications(modifications);
+    }
+
+    public getValueExpr(): STNode {
+        let valueExpr: STNode = this.value.expression;
+        if (STKindChecker.isLetExpression(valueExpr)) {
+            valueExpr = getExprBodyFromLetExpression(valueExpr);
+        } else if (STKindChecker.isTypeCastExpression(valueExpr)) {
+            valueExpr = getExprBodyFromTypeCastExpression(valueExpr);
+        }
+        return valueExpr;
     }
 
     public updatePosition() {

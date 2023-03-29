@@ -37,7 +37,8 @@ import {
 	SpecificField,
 	STKindChecker,
 	STNode,
-	traversNode
+	traversNode,
+	TypeCastExpression
 } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";
@@ -162,7 +163,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	}
 
 	if (targetNode instanceof MappingConstructorNode) {
-		const targetExpr = targetNode.value.expression;
+		const targetExpr = targetNode.getValueExpr();
 		if (STKindChecker.isMappingConstructor(targetExpr)) {
 			mappingConstruct = targetExpr;
 		} else if (STKindChecker.isLetExpression(targetExpr)) {
@@ -172,7 +173,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			}
 		}
 	} else if (targetNode instanceof ListConstructorNode) {
-		const targetExpr = targetNode.value.expression;
+		const targetExpr = targetNode.getValueExpr();
 		if (STKindChecker.isListConstructor(targetExpr) && fieldIndexes !== undefined && !!fieldIndexes.length) {
 			mappingConstruct = getNextMappingConstructor(targetExpr);
 		} else if (STKindChecker.isLetExpression(targetExpr)
@@ -258,7 +259,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			startColumn: targetPosition.endColumn
 		}
 	} else if (targetNode instanceof MappingConstructorNode) {
-		targetPosition = targetNode.value.expression.position as NodePosition;
+		targetPosition = targetNode.getValueExpr().position as NodePosition;
 		source = `{${getLinebreak()}${source}}`;
 	}
 
@@ -799,6 +800,8 @@ export function getEnrichedRecordType(type: Type,
 		valueNode = node;
 		if (STKindChecker.isLetExpression(node)) {
 			nextNode = getExprBodyFromLetExpression(node);
+		} else if (STKindChecker.isTypeCastExpression(node)) {
+			nextNode = getExprBodyFromTypeCastExpression(node);
 		} else if (
 			STKindChecker.isQueryExpression(node) &&
 			STKindChecker.isMappingConstructor(node.selectClause.expression)
@@ -1114,6 +1117,13 @@ export function getExprBodyFromLetExpression(letExpr: LetExpression): STNode {
 		return getExprBodyFromLetExpression(letExpr.expression);
 	}
 	return letExpr.expression;
+}
+
+export function getExprBodyFromTypeCastExpression(typeCastExpression: TypeCastExpression): STNode {
+	if (STKindChecker.isTypeCastExpression(typeCastExpression.expression)) {
+		return getExprBodyFromTypeCastExpression(typeCastExpression.expression);
+	}
+	return typeCastExpression.expression;
 }
 
 export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type {

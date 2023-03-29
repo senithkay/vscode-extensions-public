@@ -35,6 +35,7 @@ import {
     createSourceForUserInput,
     getDefaultValue,
     getExprBodyFromLetExpression,
+    getExprBodyFromTypeCastExpression,
     getFieldName,
     getLinebreak,
     getTypeName,
@@ -91,7 +92,9 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const portIn = getPort(`${fieldId}.IN`);
     const body = field.hasValue() && STKindChecker.isLetExpression(field.value)
         ? getExprBodyFromLetExpression(field.value)
-        : field.value;
+        : STKindChecker.isTypeCastExpression(field.value)
+            ? getExprBodyFromTypeCastExpression(field.value)
+            : field.value;
     const valExpr = body && STKindChecker.isSpecificField(body) ? body.valueExpr : body;
     const hasValue = valExpr && !!valExpr.source;
     const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);

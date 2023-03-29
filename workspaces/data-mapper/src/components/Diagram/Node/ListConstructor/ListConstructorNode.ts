@@ -34,6 +34,7 @@ import {
     getBalRecFieldName,
     getDefaultValue,
     getExprBodyFromLetExpression,
+    getExprBodyFromTypeCastExpression,
     getFilteredMappings,
     getFilteredUnionOutputTypes,
     getInputNodeExpr,
@@ -138,7 +139,9 @@ export class ListConstructorNode extends DataMapperNodeModel {
             let mappedOutPort: RecordFieldPortModel;
             const body = STKindChecker.isLetExpression(this.recordField.value)
                 ? getExprBodyFromLetExpression(this.recordField.value)
-                : this.recordField.value;
+                : STKindChecker.isTypeCastExpression(this.recordField.value)
+                    ? getExprBodyFromTypeCastExpression(this.recordField.value)
+                    : this.recordField.value;
             if (this.recordField.type.typeName === PrimitiveBalType.Array
                 && this.recordField?.value
                 && !STKindChecker.isListConstructor(body)
@@ -207,6 +210,15 @@ export class ListConstructorNode extends DataMapperNodeModel {
         await this.context.applyModifications(modifications);
     }
 
+    public getValueExpr(): STNode {
+        let valueExpr: STNode = this.value.expression;
+        if (STKindChecker.isLetExpression(valueExpr)) {
+            valueExpr = getExprBodyFromLetExpression(valueExpr);
+        } else if (STKindChecker.isTypeCastExpression(valueExpr)) {
+            valueExpr = getExprBodyFromTypeCastExpression(valueExpr);
+        }
+        return valueExpr;
+    }
 
     public updatePosition() {
         this.setPosition(this.position.x, this.position.y);

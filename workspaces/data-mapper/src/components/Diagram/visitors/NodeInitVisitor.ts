@@ -51,6 +51,7 @@ import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "
 import {
     constructTypeFromSTNode,
     getExprBodyFromLetExpression,
+    getExprBodyFromTypeCastExpression,
     getFilteredUnionOutputTypes,
     getFnDefForFnCall,
     getInputNodes,
@@ -100,6 +101,8 @@ export class NodeInitVisitor implements Visitor {
                 let bodyExpr: STNode = exprFuncBody.expression;
                 if (STKindChecker.isLetExpression(exprFuncBody.expression)) {
                     bodyExpr = getExprBodyFromLetExpression(exprFuncBody.expression);
+                } else if (STKindChecker.isTypeCastExpression(exprFuncBody.expression)) {
+                    bodyExpr = getExprBodyFromTypeCastExpression(exprFuncBody.expression);
                 } else if (
                     STKindChecker.isIndexedExpression(exprFuncBody.expression) &&
                     STKindChecker.isBracedExpression(exprFuncBody.expression.containerExpression) &&
@@ -592,7 +595,9 @@ export class NodeInitVisitor implements Visitor {
     beginVisitExpressionFunctionBody(node: ExpressionFunctionBody, parent?: STNode): void {
         const expr = STKindChecker.isLetExpression(node.expression)
             ? getExprBodyFromLetExpression(node.expression)
-            : node.expression;
+            : STKindChecker.isTypeCastExpression(node.expression)
+                ? getExprBodyFromTypeCastExpression(node.expression)
+                : node.expression;
         if (!STKindChecker.isMappingConstructor(expr)
             && !STKindChecker.isListConstructor(expr)
             && !STKindChecker.isExplicitAnonymousFunctionExpression(parent))

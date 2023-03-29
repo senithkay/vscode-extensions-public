@@ -16,7 +16,13 @@ import classnames from "classnames";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
-import { getDefaultValue, getExprBodyFromLetExpression, getFieldLabel, getFieldName } from "../../../utils/dm-utils";
+import {
+    getDefaultValue,
+    getExprBodyFromLetExpression,
+    getExprBodyFromTypeCastExpression,
+    getFieldLabel,
+    getFieldName
+} from "../../../utils/dm-utils";
 import { OutputSearchHighlight } from "../Search";
 
 import { useStyles } from "./styles";
@@ -63,13 +69,18 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     const portIn = getPort(`${fieldId}.IN`);
     let body: STNode;
 
-    if (field?.value && STKindChecker.isLetExpression(field.value)) {
-        body = getExprBodyFromLetExpression(field.value)
-    } else if (field?.value && STKindChecker.isQueryExpression(field.value)) {
-        body = field.value.selectClause.expression;
-    } else {
-        body = field.value;
+    if (field?.value) {
+        if (STKindChecker.isLetExpression(field.value)) {
+            body = getExprBodyFromLetExpression(field.value)
+        } else if (STKindChecker.isTypeCastExpression(field.value)) {
+            body = getExprBodyFromTypeCastExpression(field.value)
+        } else if (STKindChecker.isQueryExpression(field.value)) {
+            body = field.value.selectClause.expression;
+        } else {
+            body = field.value;
+        }
     }
+
     const value = body && body.source.trim();
 
     const [editable, setEditable] = useState<boolean>(false);
