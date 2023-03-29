@@ -80,6 +80,10 @@
   },
   "author": "wso2",
   "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+},
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   }
