@@ -45,6 +45,7 @@ import { createNewConstruct, generateParameterSectionString } from "../ResourceF
 
 import { ParameterEditor } from "./ParameterEditor/ParameterEditor";
 import { FunctionParameter, ParameterField } from "./ParameterEditor/ParameterField";
+import { getFilteredCompletions, getParametersAsString } from "./utils";
 
 export interface FunctionProps {
     model: ObjectMethodDefinition;
@@ -100,10 +101,10 @@ export function GraphqlMutationForm(props: FunctionProps) {
     // Return type related functions
     const onReturnTypeChange = (value: string) => {
         setReturnType(value);
-        const parametersStr = parameters.map((item) => `${item.type} ${item.name}`).join(", ");
+
         handleRemoteMethodDataChange(
             model.functionName.value,
-            parametersStr,
+            generateParameterSectionString(model?.functionSignature?.parameters),
             value,
             model.functionSignature?.returnTypeDesc?.type,
             value
@@ -116,9 +117,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
         setAddingNewParam(true);
         setEditingSegmentId(-1);
         const newParams = [...parameters, { type: "string", name: "name" }];
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
+        const parametersStr = getParametersAsString(newParams)
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
@@ -129,9 +128,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
     const onNewParamChange = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
         const newParams = [...parameters, parameter];
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
+        const parametersStr = getParametersAsString(newParams)
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
@@ -145,9 +142,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
         setCurrentComponentName("Param");
         const newParams = [...parameters];
         newParams[parameter.id] = parameter;
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
+        const parametersStr = getParametersAsString(newParams)
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
@@ -243,7 +238,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         onSave={handleOnUpdateParam}
                         onChange={onChangeExistingParameter}
                         isEdit={true}
-                        completions={completions ? completions.filter((completion) => completion.kind !== "Module") : []}
+                        completions={getFilteredCompletions(completions)}
                     />
                 );
             }
@@ -335,7 +330,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
                                     onChange={onNewParamChange}
                                     onSave={onSaveNewParam}
                                     isEdit={false}
-                                    completions={completions}
+                                    completions={getFilteredCompletions(completions)}
                                 />
                             ) : (
                                 <Button
@@ -356,7 +351,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
                             type={returnType}
                             onChange={onReturnTypeChange}
                             isLoading={false}
-                            recordCompletions={completions ? completions.filter((completion) => completion.kind !== "Module") : []}
+                            recordCompletions={getFilteredCompletions(completions)}
                             createNew={createConstruct}
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             isGraphqlForm={true}

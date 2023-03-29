@@ -50,6 +50,7 @@ import {
 
 import { ParameterEditor } from "./ParameterEditor/ParameterEditor";
 import { FunctionParameter, ParameterField } from "./ParameterEditor/ParameterField";
+import { getFilteredCompletions, getParametersAsString } from "./utils";
 
 export interface FunctionProps {
     model: ResourceAccessorDefinition;
@@ -121,9 +122,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
         setAddingNewParam(true);
         setEditingSegmentId(-1);
         const newParams = [...parameters, { type: "string", name: "name" }];
-        const parametersStr = newParams
-            .map((item: FunctionParameter) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ""}`)
-            .join(", ");
+        const parametersStr = getParametersAsString(newParams);
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
@@ -136,9 +135,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
     const onParamChange = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
         const newParams = [...parameters, parameter];
-        const parametersStr = newParams
-            .map((item: FunctionParameter) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ""}`)
-            .join(", ");
+        const parametersStr = getParametersAsString(newParams);
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
@@ -154,9 +151,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
         setCurrentComponentName("Param");
         const newParams = [...parameters];
         newParams[parameter.id] = parameter;
-        const parametersStr = newParams
-            .map((item: FunctionParameter) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ""}`)
-            .join(", ");
+        const parametersStr = getParametersAsString(newParams);
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
@@ -168,9 +163,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
     };
 
     const handleOnSave = () => {
-        const parametersStr = parameters
-            .map((item: FunctionParameter) => `${item.type} ${item.name} ${item.defaultValue ? `= ${item.defaultValue}` : ""}`)
-            .join(", ");
+        const parametersStr = getParametersAsString(parameters);
         if (isEdit) {
             applyModifications([
                 updateResourceSignature(
@@ -259,7 +252,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
                         onSave={handleOnUpdateParam}
                         onChange={onChangeExistingParameter}
                         isEdit={true}
-                        completions={completions ? completions.filter((completion) => completion.kind !== "Module") : []}
+                        completions={getFilteredCompletions(completions)}
                     />
                 );
             }
@@ -384,7 +377,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
                                     onChange={onParamChange}
                                     onSave={onSaveNewParam}
                                     isEdit={false}
-                                    completions={completions}
+                                    completions={getFilteredCompletions(completions)}
                                 />
                             ) : (
                                 <Button
@@ -405,7 +398,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
                             type={returnType}
                             onChange={onReturnTypeChange}
                             isLoading={false}
-                            recordCompletions={completions ? completions.filter((completion) => completion.kind !== "Module") : []}
+                            recordCompletions={getFilteredCompletions(completions)}
                             createNew={createConstruct}
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             isGraphqlForm={true}
