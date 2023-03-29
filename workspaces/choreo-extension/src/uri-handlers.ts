@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -11,20 +11,21 @@
  *  associated services.
  */
 
-import { ProviderResult, Uri, window } from "vscode";
+import { ProviderResult, Uri, commands, window } from "vscode";
 import { githubAppClient } from "./auth/auth";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
+import { STATUS_LOGGED_IN, choreoProjectOverview, choreoSignInCmdId } from "./constants";
 
 export function activateURIHandlers() {
     window.registerUriHandler({
         handleUri(uri: Uri): ProviderResult<void> {
             getLogger().debug(`Handling URI: ${uri.toString()}`);
 
-            if (uri.path === '/signin') {
-                getLogger().info('Choreo Login Callback hit');
+            if (uri.path === "/signin") {
+                getLogger().info("Choreo Login Callback hit");
                 const urlParams = new URLSearchParams(uri.query);
-                const authCode = urlParams.get('code');
+                const authCode = urlParams.get("code");
                 if (authCode) {
                     getLogger().debug("Initiating Choreo token exchange");
                     ext.api.signIn(authCode);
@@ -32,33 +33,48 @@ export function activateURIHandlers() {
                     getLogger().error(`Choreo Login Failed: Authorization code not found!`);
                     window.showErrorMessage(`Choreo Login Failed: Authorization code not found!`);
                 }
-
-            } else if (uri.path === '/ghapp') {
-
-                getLogger().info('Choreo Githup auth Callback hit');
+            } else if (uri.path === "/ghapp") {
+                getLogger().info("Choreo Githup auth Callback hit");
                 const urlParams = new URLSearchParams(uri.query);
-                const authCode = urlParams.get('code');
-                const installationId = urlParams.get('installationId');
+                const authCode = urlParams.get("code");
+                const installationId = urlParams.get("installationId");
                 if (authCode) {
                     getLogger().debug(`Github exchanging code for token`);
-                    githubAppClient.obatainAccessToken(authCode)
-                        .catch((err) => {
-                            getLogger().error(`Github App Auth Failed: ${err.message}`);
-                            window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
-                        });
+                    githubAppClient.obatainAccessToken(authCode).catch((err) => {
+                        getLogger().error(`Github App Auth Failed: ${err.message}`);
+                        window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
+                    });
                 } else if (installationId) {
                     getLogger().debug(`Github App installation id: ${installationId}`);
                     githubAppClient.fireGHAppAuthCallback({
-                        status: 'installed',
-                        installationId
+                        status: "installed",
+                        installationId,
                     });
                 } else {
                     githubAppClient.fireGHAppAuthCallback({
-                        status: 'error'
+                        status: "error",
                     });
                     window.showErrorMessage(`Choreo Github Auth Failed`);
                 }
+            } else if (uri.path === "/overview") {
+                getLogger().info("Choreo Project Overview callback hit");
+                const urlParams = new URLSearchParams(uri.query);
+                const projectId = urlParams.get("projectId");
+                commands.executeCommand("workbench.view.extension.wso2-choreo");
+                // if user logged then open the project overview
+                if (ext.api.status === STATUS_LOGGED_IN) {
+                    ext.api.waitForLogin().then((logged) => {
+                        getLogger().info(`User logged in: ${logged} projectId: ${projectId}`);
+                        if (logged && projectId) {
+                            ext.api.selectedProjectId = projectId;
+                            commands.executeCommand(choreoProjectOverview);
+                        }
+                    });
+                } else {
+                    // else open the login page
+                    commands.executeCommand(choreoSignInCmdId);
+                }
             }
-        }
+        },
     });
 }
