@@ -149,7 +149,7 @@ export class FindConstructByNameVisitor implements Visitor {
     }
 
     private getCurrentUid(idStub: string): string {
-        const parentStub = this.stack.reduce((acc, curr) => `${acc}${MODULE_DELIMETER}${curr}`, '');
+        const parentStub = this.stack.reduce((acc, curr) => `${acc}${acc.length > 0 ? MODULE_DELIMETER : ''}${curr}`, '');
         return `${parentStub}${parentStub.length > 0 ? MODULE_DELIMETER : ''}${idStub}`;
     }
 
