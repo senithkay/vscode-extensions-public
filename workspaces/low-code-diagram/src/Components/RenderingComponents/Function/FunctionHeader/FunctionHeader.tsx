@@ -15,7 +15,9 @@ import React from "react";
 
 import { SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    DefaultableParam,
     RequiredParam,
+    RestParam,
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -24,6 +26,7 @@ import { useDiagramContext } from "../../../../Context/diagram";
 import { useFunctionContext } from "../../../../Context/Function";
 
 import "./style.scss";
+import { isQueryParam } from "../util";
 
 
 export function FunctionHeader() {
@@ -39,16 +42,22 @@ export function FunctionHeader() {
     const handleConfigFormClick = async () => {
         const signature = await diagramContext.props.getListenerSignature(functionNode);
         if (signature && signature.includes('graphql')) {
-            if (STKindChecker.isObjectMethodDefinition(functionNode)){
-                renderEditForm(functionNode, functionNode.position, { formType: "GraphqlConfigForm",
-                                                                      formName: "GraphqlMutation", isLoading: false });
-            } else if (STKindChecker.isResourceAccessorDefinition(functionNode)){
-                if (functionNode.functionName.value === 'subscribe'){
-                    renderEditForm(functionNode, functionNode.position, { formType: "GraphqlConfigForm",
-                                                                          formName: "GraphqlSubscription", isLoading: false });
+            if (STKindChecker.isObjectMethodDefinition(functionNode)) {
+                renderEditForm(functionNode, functionNode.position, {
+                    formType: "GraphqlConfigForm",
+                    formName: "GraphqlMutation", isLoading: false
+                });
+            } else if (STKindChecker.isResourceAccessorDefinition(functionNode)) {
+                if (functionNode.functionName.value === 'subscribe') {
+                    renderEditForm(functionNode, functionNode.position, {
+                        formType: "GraphqlConfigForm",
+                        formName: "GraphqlSubscription", isLoading: false
+                    });
                 } else {
-                    renderEditForm(functionNode, functionNode.position, { formType: "GraphqlConfigForm",
-                                                                          formName: "GraphqlResource", isLoading: false });
+                    renderEditForm(functionNode, functionNode.position, {
+                        formType: "GraphqlConfigForm",
+                        formName: "GraphqlResource", isLoading: false
+                    });
                 }
             }
         } else {
@@ -78,6 +87,7 @@ export function FunctionHeader() {
             });
     } else if (STKindChecker.isResourceAccessorDefinition(functionNode)) {
         // TODO: handle resource function
+        console.log("resource function >>>", functionNode)
         const resourceTitleContent: React.ReactElement[] = [];
         resourceTitleContent.push(
             <span className={classNames("resource-badge", functionNode.functionName.value)}>
@@ -105,16 +115,7 @@ export function FunctionHeader() {
         });
 
         const queryParamComponents: React.ReactElement[] = functionNode.functionSignature.parameters
-            .filter((param) => !STKindChecker.isCommaToken(param))
-            .filter(
-                (param) =>
-                    STKindChecker.isRequiredParam(param) &&
-                    (STKindChecker.isStringTypeDesc(param.typeName) ||
-                        STKindChecker.isIntTypeDesc(param.typeName) ||
-                        STKindChecker.isBooleanTypeDesc(param.typeName) ||
-                        STKindChecker.isFloatTypeDesc(param.typeName) ||
-                        STKindChecker.isDecimalTypeDesc(param.typeName))
-            )
+            .filter((param) => isQueryParam(param))
             .map((param: RequiredParam, i) => (
                 <span key={i}>
                     {i !== 0 ? "&" : ""}
@@ -122,6 +123,18 @@ export function FunctionHeader() {
                     <sub className={'type-descriptor'}>{(param.typeName as any)?.name?.value}</sub>
                 </span>
             ));
+
+        functionNode.functionSignature.parameters
+            .filter((param) => !STKindChecker.isCommaToken(param))
+            .filter((param) => !isQueryParam(param))
+            .forEach((param: DefaultableParam | RequiredParam | RestParam, paramIndex) => {
+                argumentComponents.push(
+                    <div key={paramIndex} className={'argument-item'}>
+                        <span className="type-name">{param.typeName.source.trim()}</span>
+                        <span className="argument-name">{param.paramName.value}</span>
+                    </div>
+                );
+            });
 
         if (queryParamComponents.length > 0) {
             resourceTitleContent.push(<span>?</span>);
@@ -137,7 +150,7 @@ export function FunctionHeader() {
         )
     } else if (STKindChecker.isObjectMethodDefinition(functionNode)) {
         titleComponents.push(
-            <div  key={"title"} className="title-components">{`${functionNode.functionName.value}`}</div>
+            <div key={"title"} className="title-components">{`${functionNode.functionName.value}`}</div>
         );
 
         functionNode.functionSignature.parameters
