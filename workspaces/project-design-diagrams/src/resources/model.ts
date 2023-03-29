@@ -26,7 +26,7 @@ export interface ComponentModel {
     packageId: PackageID;
     services: Map<string, Service>;
     entities: Map<string, Entity>;
-    entryPoint: EntryPoint;
+    functionEntryPoint: EntryPoint;
     hasCompilationErrors: boolean;
 }
 
