@@ -114,7 +114,11 @@ export function DiagnosticsBanner(props: DiagnosticsBannerProps) {
                                     flexDirection: 'row'
                                 }
                             }}
-                            sx={{ fontFamily: 'GilmerRegular', top: viewType === Views.CELL_VIEW ? `${110 + (60 * (index + 1))}px !important` : `${60 + (60 * (index + 1))}px !important`  }}
+                            sx={{ 
+                                fontFamily: 'GilmerRegular',
+                                top: viewType === Views.CELL_VIEW ? `${110 + (60 * (index + 1))}px !important` :
+                                    `${50 + (60 * (index + 1))}px !important`
+                            }}
                         />
                     })}
                 </div>
