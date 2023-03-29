@@ -45,7 +45,7 @@ const DELETE_PKG_VALUE = 'deletePkg';
 
 export function DeleteComponentDialog(props: DeleteDialogProps) {
     const { location, showDialog, updateShowDialog } = props;
-    const { editLayerAPI, isChoreoProject } = useContext(DiagramContext);
+    const { deleteComponent, isChoreoProject } = useContext(DiagramContext);
 
     const [deletePkg, setDeletePkg] = useState<boolean>(true);
 
@@ -62,8 +62,8 @@ export function DeleteComponentDialog(props: DeleteDialogProps) {
     }
 
     const handleComponentDelete = async () => {
-        editLayerAPI?.deleteComponent(location, deletePkg).then(() => {
-            handleDialogClose();
+        await deleteComponent(location, deletePkg).then(() => {
+            updateShowDialog(false);
         });
     }
 

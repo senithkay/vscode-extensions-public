@@ -23,7 +23,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
-import { Colors, ComponentModel, DagreLayout, EditLayerAPI, Service, Views } from './resources';
+import { Colors, ComponentModel, DagreLayout, EditLayerAPI, Location, Service, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { ControlsLayer, EditForm } from './editing';
 
@@ -52,6 +52,7 @@ interface DiagramProps {
     editLayerAPI?: EditLayerAPI;
     getComponentModel(): Promise<Map<string, ComponentModel>>;
     showChoreoProjectOverview?: () => Promise<void>;
+    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void>;
 }
 
 export function DesignDiagram(props: DiagramProps) {
@@ -61,7 +62,8 @@ export function DesignDiagram(props: DiagramProps) {
         selectedNodeId,
         getComponentModel,
         showChoreoProjectOverview = undefined,
-        editLayerAPI = undefined
+        editLayerAPI = undefined,
+        deleteComponent = undefined
     } = props;
 
     const [currentView, setCurrentView] = useState<Views>(Views.L1_SERVICES);
@@ -124,7 +126,8 @@ export function DesignDiagram(props: DiagramProps) {
         getTypeComposition,
         setConnectorTarget,
         showChoreoProjectOverview,
-        editLayerAPI
+        editLayerAPI,
+        deleteComponent
     }
 
     return (

@@ -18,7 +18,7 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { EditLayerAPI, Service, Views } from '../../../resources';
+import { EditLayerAPI, Location, Service, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -30,6 +30,7 @@ interface DiagramContextProps {
     getTypeComposition: (entityID: string) => void;
     setConnectorTarget: (service: Service) => void;
     editLayerAPI: EditLayerAPI | undefined;
+    deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>;
 }
 
 interface IDiagramContext {
@@ -45,6 +46,7 @@ interface IDiagramContext {
     setNewComponentID?: (name: string | undefined) => void;
     setNewLinkNodes?: (nodes: LinkedNodes) => void;
     setConnectorTarget?: (service: Service) => void;
+    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void> | undefined;
 }
 
 interface LinkedNodes {
@@ -65,7 +67,8 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview,
-        setConnectorTarget
+        setConnectorTarget,
+        deleteComponent
     } = props;
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
@@ -87,7 +90,8 @@ export function DesignDiagramContext(props: DiagramContextProps) {
             setNewComponentID,
             newLinkNodes,
             setNewLinkNodes,
-            setConnectorTarget
+            setConnectorTarget,
+            deleteComponent
         }
     }
 

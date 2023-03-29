@@ -17,10 +17,11 @@
  *
  */
 
-import React from "react";
+import React, { useContext } from "react";
+import { Paper, MenuList, Divider } from "@mui/material";
 import { Location, RemoteFunction, ResourceFunction, Service, ServiceAnnotation } from "../../../resources";
 import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton, EditLabelButton, DeleteComponentButton } from "./components";
-import { Paper, MenuList, Divider } from "@mui/material";
+import { DiagramContext } from "../DiagramContext/DiagramContext";
 
 interface MenuProps {
     location: Location;
@@ -42,6 +43,7 @@ export function NodeMenuPanel(props: MenuProps) {
         serviceAnnotation,
         resource
     } = props;
+    const { deleteComponent } = useContext(DiagramContext);
 
     return (
         <>
@@ -53,7 +55,7 @@ export function NodeMenuPanel(props: MenuProps) {
                     {serviceAnnotation && (serviceAnnotation.elementLocation || service.elementLocation) &&
                         <EditLabelButton handleDialogStatus={handleEditLabelDialog} />
                     }
-                    {service && location &&
+                    {service && location && deleteComponent &&
                         <DeleteComponentButton handleDialogStatus={handleDeleteComponentDialog} />
                     }
                     {linkingEnabled && service && (

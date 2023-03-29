@@ -65,6 +65,18 @@ export function render(webView: Webview, isChoreoProject: boolean, selectedNodeI
                 })
             }
 
+            function deleteComponent(location, deletePkg) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'deleteComponent',
+                        [location, deletePkg],
+                        () => {
+                            resolve();
+                        }
+                    );
+                })
+            }
+
             function renderDiagrams() {
                 architectureView.renderDesignDiagrams(
                     true,
@@ -72,6 +84,7 @@ export function render(webView: Webview, isChoreoProject: boolean, selectedNodeI
                     "${selectedNodeId}",
                     getComponentModel,
                     showChoreoProjectOverview,
+                    deleteComponent,
                     document.getElementById("webview-container")
                 );
             }

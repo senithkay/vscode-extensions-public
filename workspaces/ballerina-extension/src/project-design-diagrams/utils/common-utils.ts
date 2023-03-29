@@ -24,8 +24,9 @@ import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient } from "../../core";
 import { terminateActivation } from "../activator";
-import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE } from "../resources";
+import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, Location } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
+import { deleteBallerinaPackage, deleteComponent } from "./component-handler-utils";
 
 export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
     return new Promise((resolve, reject) => {
@@ -88,4 +89,19 @@ export async function showChoreoProjectOverview(project: Project | undefined): P
         return commands.executeCommand('wso2.choreo.project.overview', project);
     }
     window.showErrorMessage('Error while loading Choreo project overview.');
+}
+
+export async function deleteProjectComponent(projectId: string, location: Location, deletePkg: boolean): Promise<void> {
+    if (projectId) {
+        const choreoExt = await getChoreoExtAPI();
+        if (choreoExt) {
+            await choreoExt.deleteComponent(projectId, location.filePath);
+        }
+    } else {
+        if (deletePkg) {
+            deleteBallerinaPackage(location.filePath);
+        } else {
+            await deleteComponent(location);
+        }
+    }
 }

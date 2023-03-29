@@ -218,5 +218,4 @@ export interface EditLayerAPI {
     showErrorMessage: (message: string) => void;
     editDisplayLabel: (annotation: ServiceAnnotation) => Promise<boolean>;
     fetchTriggers: () => Promise<BallerinaTriggersResponse>;
-    deleteComponent: (location: Location, deletePkg: boolean) => Promise<boolean>;
 }

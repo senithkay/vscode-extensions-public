@@ -10,10 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Location, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { CloneRepoRequeset, CreateLocalComponentRequest, DeleteComponent, IsRepoClonedRequest } from "./types";
+import { CloneRepoRequeset, CreateLocalComponentRequest, IsRepoClonedRequest } from "./types";
 
 export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     constructor (private _messenger: Messenger) {
@@ -25,11 +25,8 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
         return this._messenger.sendRequest(IsRepoClonedRequest, HOST_EXTENSION, params);
     }
-    createLocalComponent(args: ChoreoComponentCreationParams): Promise<string | boolean> {
-        return this._messenger.sendRequest(CreateLocalComponentRequest, HOST_EXTENSION, args);
-    }
-    deleteComponent(args: Location): Promise<boolean> {
-        return this._messenger.sendRequest(DeleteComponent, HOST_EXTENSION, args);
+    createLocalComponent(params: ChoreoComponentCreationParams): Promise<string | boolean> {
+        return this._messenger.sendRequest(CreateLocalComponentRequest, HOST_EXTENSION, params);
     }
     getProjectDetails(): Promise<Project> {
         throw new Error("Method not implemented.");

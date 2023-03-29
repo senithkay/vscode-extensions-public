@@ -17,7 +17,7 @@
  *
  */
 
-import { Uri } from "vscode";
+import { Uri, window } from "vscode";
 import { existsSync, readFile, rmSync, unlinkSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import child_process from "child_process";
@@ -164,9 +164,10 @@ export function deleteBallerinaPackage(filePath: string): void {
         basePath = dirname(basePath);
     }
     rmSync(basePath, { recursive: true });
+    window.showInformationMessage('Component was deleted successfully');
 }
 
-export async function deleteComponent(location: Location): Promise<boolean> {
+export async function deleteComponent(location: Location) {
     const modifications: STModification[] = [];
     modifications.push({
         startLine: location.startPosition.line,
@@ -185,7 +186,8 @@ export async function deleteComponent(location: Location): Promise<boolean> {
     })) as STResponse;
 
     if (response.parseSuccess && response.source) {
-        return await updateSourceFile(langClient, location.filePath, response.source);
+        await updateSourceFile(langClient, location.filePath, response.source).then(() => {
+            window.showInformationMessage('Component was deleted successfully');
+        })
     }
-    return false;
 }

@@ -27,6 +27,7 @@ import { render } from "./renderer";
 import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
 import { getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
 import { PALETTE_COMMANDS } from "../project/activator";
+import { deleteProjectComponent } from "./utils/common-utils";
 
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;
@@ -110,6 +111,15 @@ async function setupWebviewPanel() {
                         activeChoreoProject = await getActiveChoreoProject();
                     }
                     return showChoreoProjectOverview(activeChoreoProject);
+                }
+            },
+            {
+                methodName: "deleteComponent",
+                handler: async (args: any[]): Promise<void> => {
+                    if (isChoreoProject && !activeChoreoProject) {
+                        activeChoreoProject = await getActiveChoreoProject();
+                    }
+                    return deleteProjectComponent(isChoreoProject ? activeChoreoProject.id : undefined, args[0], args[1]);
                 }
             }
         ];
