@@ -7,12 +7,12 @@ on:
         default: true
         type: boolean  
       ballerina:
-        description: Release Ballerina extension
+        description: Update Ballerina extension version
         type: boolean
         required: true
         default: false
       choreo:
-        description: Release Choreo extension
+        description: Update Choreo extension version
         type: boolean
         required: true
         default: false      
