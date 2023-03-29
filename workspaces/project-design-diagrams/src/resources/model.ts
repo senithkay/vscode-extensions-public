@@ -71,7 +71,7 @@ export interface Service extends ModelAttributes {
     deploymentMetadata: DeploymentMetadata;
 }
 
-interface ServiceAnnotation extends ModelAttributes {
+export interface ServiceAnnotation extends ModelAttributes {
     id: string;
     label: string;
 }
