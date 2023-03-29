@@ -13,7 +13,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption, VSCodeTextArea, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { Component, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, Component, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 import { ErrorBanner, ErrorIcon } from "../Commons/ErrorBanner";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { RequiredFormInput } from "../Commons/RequiredInput";
@@ -50,6 +50,11 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
         onFormDataChange(prevFormData => ({ ...prevFormData, accessibility }));
     };
 
+    const showAccessibility = formData?.type === ChoreoComponentType.Service 
+        || formData?.type === ChoreoComponentType.ByocService
+        || formData?.type === ChoreoComponentType.RestApi
+        || formData?.type === ChoreoComponentType.ByocRestApi
+        || formData?.type === ChoreoComponentType.Proxy;
 
     return (
         <StepContainer>
@@ -71,7 +76,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
             >
                 Description
             </VSCodeTextArea>
-            {formData?.choreoType === "Service" && (
+            {showAccessibility && (
                 <DropDownContainer>
                     <label htmlFor="access-mode">Access Mode</label>
                     <VSCodeDropdown id="access-mode" onChange={(e: any) => setAccessibility(e.target.value)}>

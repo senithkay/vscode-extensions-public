@@ -232,7 +232,7 @@ export interface WorkspaceComponentMetadata {
         handle: string;
     };
     displayName: string;
-    displayType: ChoreoServiceComponentType;
+    displayType: ChoreoComponentType;
     description: string;
     projectId: string;
     accessibility: ComponentAccessibility;
@@ -244,11 +244,24 @@ export interface WorkspaceComponentMetadata {
     };
 }
 
-export enum ChoreoServiceComponentType {
-    REST_API = 'restAPI',
-    GQL_API = 'graphql',
-    WEBSOCKET_API = 'WEBSOCKET_API',
-    GRPC_API = 'GRPC_API',
+export enum ChoreoComponentType {
+    RestApi = 'restAPI',
+    ManualTrigger = 'manualTrigger',
+    ScheduledTask = 'scheduledTask',
+    Webhook = 'webhook',
+    Websocket = 'webSocket',
+    Proxy = 'proxy',
+    ByocMicroservice = 'byocMicroservice',
+    ByocCronjob = 'byocCronjob',
+    ByocJob = 'byocJob',
+    GraphQL = 'graphql',
+    ByocWebApp = 'byocWebApp',
+    ByocRestApi = 'byocRestApi',
+    ByocWebhook = 'byocWebhook',
+    MiRestApi = 'miRestApi',
+    MiEventHandler = 'miEventHandler',
+    Service = 'ballerinaService',
+    ByocService = 'byocService',
 }
 
 export interface ChoreoComponentCreationParams {
@@ -256,9 +269,10 @@ export interface ChoreoComponentCreationParams {
     projectId: string;
     org: Organization;
     description: string;
-    displayType: ChoreoServiceComponentType;
+    displayType: ChoreoComponentType;
     accessibility: ComponentAccessibility;
     repositoryInfo: RepositoryDetails;
+    triggerId?: string;
 }
 
 export interface RepositoryDetails {

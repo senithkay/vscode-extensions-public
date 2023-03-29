@@ -20,6 +20,7 @@ import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
+import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 
 const StepContainer = styled.div`
     display: flex;
@@ -61,6 +62,21 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
             setFolderNameError("");
         }
     }, [choreoProject, repository]);
+
+    const isExistingBallerinaMode = mode === "fromExisting" && (
+             type === ChoreoComponentType.Service
+            || type === ChoreoComponentType.ScheduledTask
+            || type === ChoreoComponentType.ManualTrigger
+            || type === ChoreoComponentType.RestApi
+            || type === ChoreoComponentType.Webhook
+            || type === ChoreoComponentType.GraphQL
+    );
+
+    const isExistingDockerMode = mode === "fromExisting" && (
+            type === ChoreoComponentType.ByocService
+        || type === ChoreoComponentType.ByocCronjob
+        || type === ChoreoComponentType.ByocJob
+    );
     
     return (
         <div>
@@ -77,7 +93,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                 </StepContainer>
             )}
             {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
-            {mode === "fromExisting" && type === "Ballerina Package" &&(
+            {isExistingBallerinaMode &&(
                 <StepContainer>
                     <VSCodeTextField
                         placeholder=""
@@ -89,7 +105,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                     </VSCodeTextField>
                 </StepContainer>
             )}
-            {mode === "fromExisting" && type === "Dockerfile" &&(
+            {isExistingDockerMode &&(
                 <StepContainer>
                     <VSCodeTextField
                         placeholder=""

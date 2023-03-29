@@ -14,8 +14,8 @@ import React from "react";
 import cn from "classnames";
 
 import styled from "@emotion/styled";
-import { ChoreoComponentType, ComponentType  } from "./types";
-import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
+import { ComponentWizardState } from "./types";
 
 
 const TypeCardContainer = styled.div`
@@ -42,20 +42,24 @@ const TypeCardContainer = styled.div`
 `;
 
 export interface ComponentTypeCardProps {
-    type: ComponentType;
-    subType?: ChoreoServiceComponentType;
-    choreoComponentType: ChoreoComponentType;
+    formData: Partial<ComponentWizardState>;
+    onFormDataChange: (updater: (prevFormData: Partial<ComponentWizardState>) => Partial<ComponentWizardState>) => void;
+    type: ChoreoComponentType;
     label: string;
     description: string;
-    isSelected: boolean;
-    onSelect: (type: ComponentType, choreoType: ChoreoComponentType, subType?: ChoreoServiceComponentType) => void;
 }
 
 export const ComponentTypeCard: React.FC<ComponentTypeCardProps> = (props) => {
-    const { type, subType, choreoComponentType, label, description, isSelected, onSelect } = props;
+    const { type, label, description, formData, onFormDataChange } = props;
 
+    const isSelected = formData.type === type;
+
+    const setSelectedType = (type: ChoreoComponentType) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, type }));
+    };
+    
     const onSelection = () => {
-        onSelect(type, choreoComponentType, subType);
+        setSelectedType(type);
     };
 
     return (

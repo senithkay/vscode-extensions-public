@@ -18,6 +18,7 @@ import { ConfigureRepoStep } from "./ConfigureRepoStep/ConfigureRepoStep";
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
+import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 
 export const ComponentWizard: React.FC = () => {
     const initialState: WizardState<Partial<ComponentWizardState>> = {
@@ -26,7 +27,7 @@ export const ComponentWizard: React.FC = () => {
             mode: "fromScratch",
             name: '',
             accessibility: "external",
-            choreoType: "Service",
+            type: ChoreoComponentType.Service,
             cache: {
                 authorizedOrgs: [],
             }

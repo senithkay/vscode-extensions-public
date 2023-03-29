@@ -11,14 +11,14 @@
  *  associated services.
  */
 import React from "react";
+import cn from "classnames";
 
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeOption, VSCodeRadio } from "@vscode/webview-ui-toolkit/react";
-import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
-import { useEffect } from "react";
+import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { ComponentTypeCard } from "./ComponentTypeCard";
-import { ChoreoComponentType, ComponentType, ComponentWizardState, ExistingChoreoComponentType } from "./types";
+import { ComponentWizardState } from "./types";
 
 const StepContainer = styled.div`
     display: flex;
@@ -45,31 +45,37 @@ const SubContainer = styled.div`
     gap: 20px;
 `;
 
+const SourceTypeCardContainer = styled.div`
+    // Flex Props
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    // End Flex Props
+    // Sizing Props
+    width: 120px;
+    padding: 5px;
+    // End Sizing Props
+    // Border Props
+    border-radius: 3px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--vscode-panel-border);
+    cursor: pointer;
+    &:hover, &.active {
+        border-color: var(--vscode-focusBorder);
+    }
+`;
+
 export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange } = props;
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const setSelectedType = (type: ComponentType, choreoType: ChoreoComponentType, subType?: ChoreoServiceComponentType) => {
-        onFormDataChange(prevFormData => ({ ...prevFormData, type, choreoType, subType }));
+    const [sourceType, setSourceType] = React.useState<"Ballerina" | "Dockerfile">("Ballerina");
+
+    const setSelectedType = (type: ChoreoComponentType) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, type }));
     };
-
-    useEffect(() => {
-        if (!formData?.type) {   
-            setSelectedType("Service", "Service", ChoreoServiceComponentType.REST_API);
-        }
-    }, []);
-
-    useEffect(() => {
-        // Make sure we select appropriate choreo type when we switch the mode
-        if (formData?.mode === "fromScratch"
-            && ["Dockerfile", "Ballerina Package" ].includes(formData?.type as ComponentType)) {
-            setSelectedType("Service", "Service", ChoreoServiceComponentType.REST_API);
-        } else if (formData?.mode === "fromExisting" 
-            && !["Dockerfile", "Ballerina Package" ].includes(formData?.type as ComponentType)) {
-            setSelectedType("Ballerina Package", (formData?.choreoType === undefined || formData?.choreoType === "REST API Proxy") ? "Service" : formData?.choreoType);
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formData?.mode]);
 
     const handleFromScrachCheckChange = (e: any) => {
        const mode = e.target.checked ? "fromScratch" : "fromExisting";
@@ -81,10 +87,10 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
         onFormDataChange(prevFormData => ({ ...prevFormData, mode }));
     };
 
-    const handleOnChoreoTypeChange = (e: any) => {
-        const choreoType = e.target.value as ExistingChoreoComponentType;
-        onFormDataChange(prevFormData => ({ ...prevFormData, choreoType }));
-    };
+    const handleExistingComponentTypeChange = (e: any) => { 
+        const type = e.target.value;
+        setSelectedType(type);
+    }
 
     return (
         <StepContainer>
@@ -98,72 +104,54 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                 <SubContainer>
                     <CardContainer>
                         <ComponentTypeCard
-                            type="Service"
-                            choreoComponentType="Service"
-                            subType={ChoreoServiceComponentType.REST_API}
-                            label="REST API"
+                            type={ChoreoComponentType.Service}
+                            label="Service"
                             description="Design, develop, test, and deploy your microservices"
-                            isSelected={formData?.type === "Service" && formData?.subType === ChoreoServiceComponentType.REST_API}
-                            onSelect={setSelectedType}
-                            key={ChoreoServiceComponentType.REST_API}
+                            formData={formData}
+                            onFormDataChange={onFormDataChange}
                         />
                         <ComponentTypeCard
-                            type="Service"
-                            choreoComponentType="Service"
-                            subType={ChoreoServiceComponentType.GQL_API}
-                            label="GraphQL API"
-                            description="Design, develop, test, and deploy your microservices"
-                            isSelected={formData?.type === "Service" && formData?.subType === ChoreoServiceComponentType.GQL_API}
-                            onSelect={setSelectedType}
-                            key={ChoreoServiceComponentType.GQL_API}
-                        />
-                        <ComponentTypeCard
-                            type="Service"
-                            choreoComponentType="Service"
-                            subType={ChoreoServiceComponentType.GRPC_API}
-                            label="GRPC API"
-                            description="Design, develop, test, and deploy your microservices"
-                            isSelected={formData?.type === "Service" && formData?.subType === ChoreoServiceComponentType.GRPC_API}
-                            onSelect={setSelectedType}
-                            key={ChoreoServiceComponentType.GRPC_API}
-                        />
-                        <ComponentTypeCard
-                            type="Service"
-                            choreoComponentType="Service"
-                            subType={ChoreoServiceComponentType.WEBSOCKET_API}
-                            label="Webscoket API"
-                            description="Design, develop, test, and deploy your microservices"
-                            isSelected={formData?.type === "Service" && formData?.subType === ChoreoServiceComponentType.WEBSOCKET_API}
-                            onSelect={setSelectedType}
-                            key={ChoreoServiceComponentType.WEBSOCKET_API}
-                        />
-                        <ComponentTypeCard
-                            type="Scheduled Trigger"
-                            choreoComponentType="Scheduled Trigger"
+                            type={ChoreoComponentType.ScheduledTask}
                             label="Scheduled Trigger"
                             description="Create programs that can execute on a schedule. E.g., Recurring integration tasks."
-                            isSelected={formData?.type === "Scheduled Trigger"}
-                            onSelect={setSelectedType}
-                            key="Scheduled Trigger"
+                            formData={formData}
+                            onFormDataChange={onFormDataChange}
                         />
                         <ComponentTypeCard
-                            type="Manual Trigger"
-                            choreoComponentType="Manual Trigger"
+                            type={ChoreoComponentType.ManualTrigger}
                             label="Manual Trigger"
                             description="Create programs that you can execute manually. E.g., One-time integration tasks."
-                            isSelected={formData?.type === "Manual Trigger"}
-                            onSelect={setSelectedType}
-                            key="Manual Trigger"
+                            formData={formData}
+                            onFormDataChange={onFormDataChange}
                         />
                         <ComponentTypeCard
-                            type="REST API Proxy"
-                            choreoComponentType="REST API Proxy"
+                            type={ChoreoComponentType.Proxy}
                             label="REST API Proxy"
                             description="Provide API management capabilities for existing APIs."
-                            onSelect={setSelectedType}
-                            isSelected={formData?.type === "REST API Proxy"}
-                            key="REST API Proxy"
+                            formData={formData}
+                            onFormDataChange={onFormDataChange}
                         />
+                        <ComponentTypeCard
+                            type={ChoreoComponentType.RestApi}
+                            label="REST API"
+                            description="Design, develop, test, and manage your REST APIs."
+                            formData={formData}
+                            onFormDataChange={onFormDataChange}
+                        />
+                        <ComponentTypeCard
+                            type={ChoreoComponentType.Webhook}
+                            label="Webhook"
+                            description="Create programs that trigger via events. E.g., Business automation tasks."
+                            formData={formData}
+                            onFormDataChange={onFormDataChange}
+                        />
+                        <ComponentTypeCard
+                            type={ChoreoComponentType.GraphQL}
+                            label="GraphQL"
+                            description="Design, develop, test, and manage your GraphQL endpoints."
+                            formData={formData}
+                            onFormDataChange={onFormDataChange}
+                        />                        
                     </CardContainer>
                 </SubContainer>
             )}
@@ -175,30 +163,47 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
             </VSCodeRadio>
             {formData?.mode === "fromExisting" && (
                 <SubContainer>
-                    <label>Existing source</label>
-                    <CardContainer>
-                        <ComponentTypeCard
-                            type="Ballerina Package"
-                            choreoComponentType={formData?.choreoType as ChoreoComponentType}
-                            label="Ballerina"
-                            description="Create a component from an existing Ballerina package."
-                            isSelected={formData?.type === "Ballerina Package"}
-                            onSelect={setSelectedType}
-                            key="Ballerina Package"
-                        />
-                        <ComponentTypeCard
-                            type="Dockerfile"
-                            choreoComponentType={formData?.choreoType as ChoreoComponentType}
-                            label="Dockerfile"
-                            description="Create a component from an existing Dockerfile."
-                            isSelected={formData?.type === "Dockerfile"}
-                            onSelect={setSelectedType}
-                            key="Dockerfile"
-                        />
+                    <label htmlFor="source-type-cards">Existing source or Dockerfile</label>
+                    <CardContainer id="source-type-cards">
+                        <SourceTypeCardContainer
+                            className={cn({ "active": sourceType === "Ballerina"})}
+                            onClick={() => setSourceType("Ballerina")}
+                            title="Create from an existing Ballerina package."
+                        >
+                            Ballerina Package
+                        </SourceTypeCardContainer>
+                        <SourceTypeCardContainer
+                            className={cn({ "active":  sourceType === "Dockerfile"})}
+                            onClick={() => setSourceType("Dockerfile")}
+                            title="Create from an existing Dockerfile."
+                        >
+                            Dockerfile
+                        </SourceTypeCardContainer>
                     </CardContainer>
-                    <label>Component type to create</label>
-                    <VSCodeDropdown id="existing-import-type-dropdown" value={formData?.choreoType} onChange={handleOnChoreoTypeChange}>
-                        {["Service", "Scheduled Trigger", "Manual Trigger"].map((type) => (<VSCodeOption selected={formData?.choreoType === type} value={type} key={type}>{type}</VSCodeOption>))}
+                    <label htmlFor="existing-import-type-dropdown">Component type to create</label>
+                    <VSCodeDropdown
+                        id="existing-import-type-dropdown"
+                        value={formData?.type}
+                        onChange={handleExistingComponentTypeChange}
+                    >
+                        {sourceType === "Ballerina" && (
+                            <VSCodeOption value={ChoreoComponentType.Service}>Service</VSCodeOption>)}
+                        {sourceType === "Ballerina" && (
+                            <VSCodeOption value={ChoreoComponentType.ScheduledTask}>Scheduled Trigger</VSCodeOption>)}
+                        {sourceType === "Ballerina" && (
+                            <VSCodeOption value={ChoreoComponentType.ManualTrigger}>Manual Trigger</VSCodeOption>)}
+                        {sourceType === "Ballerina" && (
+                            <VSCodeOption value={ChoreoComponentType.RestApi}>REST API</VSCodeOption>)}
+                        {sourceType === "Ballerina" && (
+                            <VSCodeOption value={ChoreoComponentType.Webhook}>Webhook</VSCodeOption>)}
+                        {sourceType === "Ballerina" && (
+                            <VSCodeOption value={ChoreoComponentType.GraphQL}>GraphQL</VSCodeOption>)}
+                        {sourceType === "Dockerfile" && (
+                            <VSCodeOption value={ChoreoComponentType.ByocService}>Service</VSCodeOption>)}
+                        {sourceType === "Dockerfile" && (
+                            <VSCodeOption value={ChoreoComponentType.ByocCronjob}>Scheduled Trigger</VSCodeOption>)}
+                        {sourceType === "Dockerfile" && (
+                            <VSCodeOption value={ChoreoComponentType.ByocJob}>Manual Trigger</VSCodeOption>)}
                     </VSCodeDropdown>
                 </SubContainer>
             )}

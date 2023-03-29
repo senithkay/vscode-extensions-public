@@ -12,21 +12,14 @@
  */
 
 import { GithubOrgnization } from "@wso2-enterprise/choreo-client/lib/github/types";
-import { ChoreoServiceComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 
-export type ChoreoComponentType = "Service" | "Scheduled Trigger" | "Manual Trigger" | "REST API Proxy";
-
-export type ExistingChoreoComponentType = Exclude<ChoreoComponentType, "REST API Proxy">;
-
-export type ComponentType =  ChoreoComponentType | "Dockerfile" | "Ballerina Package";
 
 export interface ComponentWizardState {
     mode: "fromScratch" | "fromExisting";
     name: string;
     description: string;
-    type: ComponentType;
-    subType?: ChoreoServiceComponentType;
-    choreoType: ChoreoComponentType;
+    type: ChoreoComponentType;
     accessibility: ComponentAccessibility;
     repository: {
         isCloned?: boolean;
