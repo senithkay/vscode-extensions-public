@@ -40,13 +40,15 @@ export function DiagnosticsBanner(props: DiagnosticsBannerProps) {
     const getAction = () => {
         if (editingEnabled) {
             return <>
-                <IconButton
-                    color='inherit'
-                    size='small'
-                    onClick={handleAction}
-                >
-                    {expandComponents ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </IconButton>
+                {viewType !== Views.CELL_VIEW &&
+                    <IconButton
+                        color='inherit'
+                        size='small'
+                        onClick={handleAction}
+                    >
+                        {expandComponents ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
+                }
                 <Button
                     color='inherit'
                     size='small'
@@ -84,7 +86,7 @@ export function DiagnosticsBanner(props: DiagnosticsBannerProps) {
             <Snackbar
                 open={visibility}
                 message={'Project contains errors.'}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                anchorOrigin={{ vertical: 'top', horizontal: viewType === Views.CELL_VIEW ? 'center' : 'right' }}
                 action={getAction()}
                 ContentProps={{
                     sx: {
@@ -97,7 +99,7 @@ export function DiagnosticsBanner(props: DiagnosticsBannerProps) {
                 sx={{ fontFamily: 'GilmerRegular', top: viewType === Views.CELL_VIEW ? '110px !important' : '50px !important' }}
             />
             {expandComponents &&
-                <div style={{ display: 'flex', flexDirection: 'column'}}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
                     {componentDiagnostics.map((component, index) => {
                         return <Snackbar
                             open={visibility}
@@ -114,7 +116,7 @@ export function DiagnosticsBanner(props: DiagnosticsBannerProps) {
                                     flexDirection: 'row'
                                 }
                             }}
-                            sx={{ 
+                            sx={{
                                 fontFamily: 'GilmerRegular',
                                 top: viewType === Views.CELL_VIEW ? `${110 + (60 * (index + 1))}px !important` :
                                     `${50 + (60 * (index + 1))}px !important`
