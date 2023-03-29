@@ -21,7 +21,7 @@ import { commands, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
 import { debounce } from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { BallerinaExtension, ExtendedLangClient } from "../core";
+import { BallerinaExtension, ExtendedLangClient, GetPackageComponentModelsResponse } from "../core";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../utils";
 import { render } from "./renderer";
 import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
@@ -100,7 +100,7 @@ async function setupWebviewPanel() {
         const remoteMethods: WebViewMethod[] = [
             {
                 methodName: "getComponentModel",
-                handler: (): Promise<Map<string, ComponentModel>> => {
+                handler: (): Promise<GetPackageComponentModelsResponse> => {
                     return getComponentModel(langClient);
                 }
             },
