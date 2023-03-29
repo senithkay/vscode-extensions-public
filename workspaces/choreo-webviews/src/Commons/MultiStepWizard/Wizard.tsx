@@ -11,7 +11,7 @@
  *  associated services.
  */
 import React from "react";
-import { VSCodeDivider, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDivider, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
 import styled from "@emotion/styled";
 import { createElement, useContext, useState } from "react";
@@ -41,35 +41,42 @@ const StepContainer = styled.div`
     padding: 15px;
 `;
 
-export const Wizard = <T extends {}>({ title, steps, initialState, validationRules, onSave }: WizardProps<T>) => {
+export const Wizard = <T extends {}>({ title, steps, initialState, onSave }: WizardProps<T>) => {
     const [state, setState] = useState(initialState);
     const context = useContext(ChoreoWebViewContext);
 
-    const allValidationRules: ValidationRule<T>[] = [steps.map((step) => step.validationRules).flat(), validationRules].flat();
+    // const allValidationRules: ValidationRule<T>[] = [steps.map((step) => step.validationRules).flat(), validationRules].flat();
     const currentStepValidationRules = steps[state.currentStep].validationRules;
 
     const handleFormDataChange = async (formDataUpdater: (prevFormData: T) => T) => {
-        const updatedData = formDataUpdater(state.formData);
-        const [isFormValid, validationErrors] = await validateForm(updatedData, allValidationRules, context); // validate the entire form data
-        const [isStepValid, stepValidationErrors] = await validateForm(updatedData, currentStepValidationRules, context); // validate the current step data
+        // Do update the form data in the state
         setState((prevState) => {
-            return { ...prevState, formData: formDataUpdater(prevState.formData), isFormValid, validationErrors, isStepValid, stepValidationErrors };
+            return { ...prevState, formData: formDataUpdater(prevState.formData), isStepValidating: true };
+        });
+        const updatedData = formDataUpdater(state.formData);
+        // const [isFormValid, validationErrors] = await validateForm(updatedData, allValidationRules, context); // validate the entire form data
+        const [isStepValid, stepValidationErrors] = await validateForm(updatedData, currentStepValidationRules, context); // validate the current step data
+        // Update the form validity and validation errors in the state
+        setState((prevState) => {
+            return { ...prevState, isStepValid, stepValidationErrors, isStepValidating: false };
         });
     };
 
     const handlePrevClick = async () => {
         const currentStep = state.currentStep - 1;
+        setState((prevState) => ({ ...prevState, currentStep, isStepValidating: true }));
         const [isStepValid, stepValidationErrors] = await validateForm(state.formData, steps[currentStep].validationRules, context);
-        setState((prevState) => ({ ...prevState, currentStep, isStepValid, stepValidationErrors }));
+        setState((prevState) => ({ ...prevState, isStepValid, stepValidationErrors, isStepValidating: false }));
     };
 
     const handleNextClick = async () => {
+        setState((prevState) => ({ ...prevState, isStepValidating: true }));
         const [isStepValid, stepValidationErrors] = await validateForm(state.formData, currentStepValidationRules, context);
         if (!isStepValid) {
-            setState({ ...state, isStepValid, stepValidationErrors });
+            setState((prevState) => ({ ...prevState, isStepValid, stepValidationErrors, isStepValidating: false }));
             return;
         }
-        setState((prevState) => ({ ...prevState, currentStep: prevState.currentStep + 1 }));
+        setState((prevState) => ({ ...prevState, currentStep: prevState.currentStep + 1, isStepValidating: false }));
     };
 
     const handleSaveClick = () => {
@@ -129,6 +136,7 @@ export const Wizard = <T extends {}>({ title, steps, initialState, validationRul
                         Save
                     </VSCodeButton>
                 )}
+                {state.isStepValidating && ( <VSCodeProgressRing /> )}
             </WizardActionsContainer>
         );
     };

@@ -35,7 +35,8 @@ export const ComponentWizard: React.FC = () => {
         isFormValid: false,
         isStepValid: false,
         validationErrors: {} as Record<keyof ComponentWizardState, string>,
-        stepValidationErrors: {} as Record<keyof ComponentWizardState, string>
+        stepValidationErrors: {} as Record<keyof ComponentWizardState, string>,
+        isStepValidating: false,
     };
 
     return (

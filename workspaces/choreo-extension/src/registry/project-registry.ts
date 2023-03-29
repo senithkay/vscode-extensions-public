@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { ChoreoServiceComponentType, Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync } from 'fs';
@@ -281,8 +281,8 @@ export class ProjectRegistry {
                     }).catch(() => {
                         const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
                         failures = `${failures} ${errorMsg}`;
-                        if (componentMetadata.displayType !== ChoreoServiceComponentType.REST_API
-                            && componentMetadata.displayType !== ChoreoServiceComponentType.GQL_API) {
+                        if (componentMetadata.displayType !== ChoreoComponentType.RestApi
+                            && componentMetadata.displayType !== ChoreoComponentType.GraphQL) {
                             failures = `${failures} Component type is not supported.`;
                         }
                     });

@@ -170,7 +170,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async getSwaggerExamples(data: any): Promise<AxiosResponse> {
+    async getSwaggerExamples(data: string): Promise<AxiosResponse> {
         const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
         if (!choreoToken) {
             throw new Error('User is not logged in');

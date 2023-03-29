@@ -19,6 +19,7 @@ export interface WizardState<T> {
     isStepValid: boolean;
     validationErrors: Record<keyof T, string>;
     stepValidationErrors: Record<keyof T, string>;
+    isStepValidating: boolean;
 }
 
 export interface StepProps<T> {

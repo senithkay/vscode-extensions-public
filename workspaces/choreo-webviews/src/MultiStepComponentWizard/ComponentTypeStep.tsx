@@ -71,7 +71,8 @@ const SourceTypeCardContainer = styled.div`
 export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange } = props;
 
-    const [sourceType, setSourceType] = React.useState<"Ballerina" | "Dockerfile">("Ballerina");
+    const [sourceType, setSourceType] = 
+        React.useState<"Ballerina" | "Dockerfile">(formData?.type?.startsWith("byoc") ? "Dockerfile" : "Ballerina");
 
     const setSelectedType = (type: ChoreoComponentType) => {
         onFormDataChange(prevFormData => ({ ...prevFormData, type }));
@@ -91,6 +92,12 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
         const type = e.target.value;
         setSelectedType(type);
     }
+
+    const handleSourceTypeChange = (type: "Ballerina" | "Dockerfile") => {
+        setSourceType(type);
+        // Reset type upon source type change
+        setSelectedType(type === "Ballerina" ? ChoreoComponentType.Service : ChoreoComponentType.ByocService);
+    };
 
     return (
         <StepContainer>
@@ -167,14 +174,14 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                     <CardContainer id="source-type-cards">
                         <SourceTypeCardContainer
                             className={cn({ "active": sourceType === "Ballerina"})}
-                            onClick={() => setSourceType("Ballerina")}
+                            onClick={() => handleSourceTypeChange("Ballerina")}
                             title="Create from an existing Ballerina package."
                         >
                             Ballerina Package
                         </SourceTypeCardContainer>
                         <SourceTypeCardContainer
                             className={cn({ "active":  sourceType === "Dockerfile"})}
-                            onClick={() => setSourceType("Dockerfile")}
+                            onClick={() => handleSourceTypeChange("Dockerfile")}
                             title="Create from an existing Dockerfile."
                         >
                             Dockerfile
