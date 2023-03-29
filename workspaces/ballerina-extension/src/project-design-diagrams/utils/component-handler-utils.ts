@@ -17,16 +17,16 @@
  *
  */
 
-import { Uri, window } from "vscode";
-import { existsSync, readFile, rmSync, unlinkSync, writeFileSync } from "fs";
-import { dirname, join } from "path";
+import { Uri, window, workspace } from "vscode";
+import { existsSync, readFile, rmSync, unlinkSync, writeFile, writeFileSync } from "fs";
+import { dirname, join, resolve } from "path";
 import child_process from "child_process";
 import { compile } from "handlebars";
 import { BallerinaTriggerResponse, STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient } from "../../core";
 import { getLangClient, STResponse } from "../activator";
-import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, Location } from "../resources";
+import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, Location, WorkspaceConfig, WorkspaceItem } from "../resources";
 import { updateSourceFile } from "./code-generator";
 
 export function createBallerinaPackage(name: string, pkgRoot: string, type: ChoreoServiceComponentType): Promise<CommandResponse> {
@@ -164,7 +164,11 @@ export function deleteBallerinaPackage(filePath: string): void {
         basePath = dirname(basePath);
     }
     rmSync(basePath, { recursive: true });
-    window.showInformationMessage('Component was deleted successfully');
+    updateWorkspaceFile(basePath).then(() => {
+        window.showInformationMessage('Component was deleted successfully');
+    }).catch(() => {
+        window.showErrorMessage('Error: Could not update workspace file');
+    });
 }
 
 export async function deleteComponent(location: Location) {
@@ -190,4 +194,27 @@ export async function deleteComponent(location: Location) {
             window.showInformationMessage('Component was deleted successfully');
         })
     }
+}
+
+async function updateWorkspaceFile(componentPath: string) {
+    const workspaceFile: string = workspace.workspaceFile?.fsPath;
+    readFile(workspaceFile, 'utf-8', function (err, contents) {
+        if (contents) {
+            const content: WorkspaceConfig = JSON.parse(contents);
+            const deletedFolder: WorkspaceItem = content.folders.find(folder => folder.name !== 'choreo-project-root'
+                && componentPath.includes(resolve(folder.path)));
+            const folderIndex: number = content.folders.indexOf(deletedFolder);
+
+            if (folderIndex > -1) {
+                content.folders.splice(folderIndex, 1);
+                writeFile(workspaceFile, JSON.stringify(content, null, 4), 'utf-8', function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                });
+            }
+        } else {
+            throw err;
+        }
+    });
 }
