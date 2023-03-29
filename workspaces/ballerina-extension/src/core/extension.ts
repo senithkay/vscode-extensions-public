@@ -213,7 +213,7 @@ export class BallerinaExtension {
 
             // Validate the ballerina version.
             const pluginVersion = this.extension.packageJSON.version.split('-')[0];
-            return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(runtimeVersion => {
+            return this.getBallerinaVersion(this.ballerinaHome, this.overrideBallerinaHome()).then(async runtimeVersion => {
                 this.ballerinaVersion = runtimeVersion.split('-')[0];
                 const { home } = this.autoDetectBallerinaHome();
                 this.ballerinaHome = home;
@@ -234,28 +234,24 @@ export class BallerinaExtension {
                 this.langClient = new ExtendedLangClient('ballerina-vscode', 'Ballerina LS Client', serverOptions,
                     this.clientOptions, this, false);
 
-                // Following was put in to handle server startup failures.
-                const disposeDidChange = this.langClient.onDidChangeState(async stateChangeEvent => {
-                    if (stateChangeEvent.newState === LS_STATE.Stopped) {
-                        const message = "Couldn't establish language server connection.";
-                        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, getMessageObject(message));
-                        log(message);
-                        this.showPluginActivationError();
-                    } else if (stateChangeEvent.newState === LS_STATE.Running) {
-                        await this.langClient?.registerExtendedAPICapabilities();
-                        this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
-                        sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
-                    }
-                });
+                await this.langClient.start();
 
-                let disposable = this.langClient.start();
-                this.langClient.onReady().then(() => {
-                    disposeDidChange.dispose();
-                    this.context!.subscriptions.push(disposable);
-                });
+                // Following was put in to handle server startup failures.
+                if (this.langClient.state === LS_STATE.Stopped) {
+                    const message = "Couldn't establish language server connection.";
+                    sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, getMessageObject(message));
+                    log(message);
+                    this.showPluginActivationError();
+                } else if (this.langClient.state === LS_STATE.Running) {
+                    await this.langClient?.registerExtendedAPICapabilities();
+                    this.sdkVersion.text = `Ballerina SDK: ${this.ballerinaVersion}`;
+                    sendTelemetryEvent(this, TM_EVENT_EXTENSION_INIT, CMP_EXTENSION_CORE);
+                }
+
                 commands.registerCommand('ballerina.stopLangServer', () => {
                     this.langClient.stop();
                 });
+
             }, (reason) => {
                 sendTelemetryException(this, reason, CMP_EXTENSION_CORE);
                 throw new Error(reason);
@@ -278,17 +274,6 @@ export class BallerinaExtension {
         }
     }
 
-    onReady(): Promise<void> {
-        if (!this.langClient) {
-            const message = `Ballerina SDK: Error`;
-            this.sdkVersion.text = message;
-            sendTelemetryEvent(this, TM_EVENT_EXTENSION_INI_FAILED, CMP_EXTENSION_CORE, getMessageObject(message));
-            this.telemetryReporter.dispose();
-            return Promise.reject('BallerinaExtension is not initialized');
-        }
-        return this.langClient.onReady();
-    }
-
     showPluginActivationError(): any {
         // message to display on Unknown errors.
         // ask to enable debug logs.
@@ -304,7 +289,7 @@ export class BallerinaExtension {
                 || params.affectsConfiguration(ENABLE_ALL_CODELENS) ||
                 params.affectsConfiguration(BALLERINA_LOW_CODE_MODE) || params.affectsConfiguration(ENABLE_DEBUG_LOG)
                 || params.affectsConfiguration(ENABLE_BALLERINA_LS_DEBUG) ||
-                params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES) || 
+                params.affectsConfiguration(ENABLE_EXPERIMENTAL_FEATURES) ||
                 params.affectsConfiguration(ENABLE_NOTEBOOK_DEBUG)) {
                 this.showMsgAndRestart(CONFIG_CHANGED);
             }
@@ -620,7 +605,7 @@ export class BallerinaExtension {
             loginStatus: false
         };
     }
-    
+
     public getCodeServerContext(): CodeServerContext {
         return this.codeServerContext;
     }

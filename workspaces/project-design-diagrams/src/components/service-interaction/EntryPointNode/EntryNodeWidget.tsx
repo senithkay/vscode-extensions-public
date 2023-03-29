@@ -23,7 +23,7 @@ import { EntryNodeModel } from './EntryNodeModel';
 import { Container, DisplayName } from './styles';
 import { Colors, EntryPointIcon, Level } from '../../../resources';
 import { ServicePortWidget } from '../ServicePort/ServicePortWidget';
-import { DiagramContext, NodeMenuWidget } from '../../common';
+import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../common';
 
 interface EntryNodeProps {
     engine: DiagramEngine;
@@ -60,28 +60,30 @@ export function EntryNodeWidget(props: EntryNodeProps) {
     const displayName: string = node.entryPoint.annotation?.label || processPackageName();
 
     return (
-        <Container
-            isSelected={isSelected}
-            level={node.level}
-            onMouseOver={() => { handleOnHover('SELECT') }}
-            onMouseLeave={() => { handleOnHover('UNSELECT') }}
-        >
-            <ServicePortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-            <EntryPointIcon />
-            <DisplayName>{displayName}</DisplayName>
-                {isHovered && node.entryPoint.elementLocation && editingEnabled &&
-                    <NodeMenuWidget
-                        background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
-                        location={node.entryPoint.elementLocation}
-                    />
-                }
-            <ServicePortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
-        </Container>
+        <CtrlClickGo2Source location={node.elementLocation}>
+            <Container
+                isSelected={isSelected}
+                level={node.level}
+                onMouseOver={() => { handleOnHover('SELECT') }}
+                onMouseLeave={() => { handleOnHover('UNSELECT') }}
+            >
+                <ServicePortWidget
+                    port={node.getPort(`left-${node.getID()}`)}
+                    engine={engine}
+                />
+                    <EntryPointIcon />
+                    <DisplayName>{displayName}</DisplayName>
+                    {isHovered && node.elementLocation && editingEnabled &&
+                        <NodeMenuWidget
+                            background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
+                            location={node.elementLocation}
+                        />
+                    }
+                <ServicePortWidget
+                    port={node.getPort(`right-${node.getID()}`)}
+                    engine={engine}
+                />
+            </Container>
+        </CtrlClickGo2Source>
     );
 }

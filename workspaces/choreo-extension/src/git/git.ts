@@ -484,6 +484,10 @@ export class Git {
 		return folderPath;
 	}
 
+	async pull(repositoryPath: string): Promise<void> {
+		await this.exec(repositoryPath, ['pull']);
+	}
+
 	async getRepositoryRoot(repositoryPath: string): Promise<string> {
 		const result = await this.exec(repositoryPath, ['rev-parse', '--show-toplevel']);
 

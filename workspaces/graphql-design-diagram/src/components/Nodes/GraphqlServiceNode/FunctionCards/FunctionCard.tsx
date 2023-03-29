@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 
+import { CtrlClickHandler } from '../../../CtrlClickHandler';
 import { FunctionType, RemoteFunction, ResourceFunction } from '../../../resources/model';
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { FunctionContainer } from '../styles/styles';
@@ -23,6 +24,7 @@ import { FunctionContainer } from '../styles/styles';
 import { FunctionMenuWidget } from "./FunctionMenuWidget";
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
+import { getFormattedPosition } from "../../../utils/common-util";
 
 interface FunctionCardProps {
     engine: DiagramEngine;
@@ -52,16 +54,16 @@ export function FunctionCard(props: FunctionCardProps) {
     const addFunctionMenu = () => {
         if (!isResourceFunction) {
             return (
-                <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.MUTATION}/>
+                <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.MUTATION} />
             );
         } else {
             if (isSubscription) {
                 return (
-                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.SUBSCRIPTION}/>
+                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.SUBSCRIPTION} />
                 );
             } else {
                 return (
-                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.QUERY}/>
+                    <FunctionMenuWidget location={functionElement.position} functionType={FunctionType.QUERY} />
                 );
             }
         }
@@ -69,11 +71,15 @@ export function FunctionCard(props: FunctionCardProps) {
 
 
     return (
-        <FunctionContainer
-            onMouseOver={() => handleOnHover('SELECT')}
-            onMouseLeave={() => handleOnHover('UNSELECT')}
+        <CtrlClickHandler
+            filePath={functionElement.position.filePath}
+            position={getFormattedPosition(functionElement.position)}
         >
-            {isResourceFunction ? (
+            <FunctionContainer
+                onMouseOver={() => handleOnHover('SELECT')}
+                onMouseLeave={() => handleOnHover('UNSELECT')}
+            >
+                {isResourceFunction ? (
                     <ResourceFunctionWidget
                         engine={engine}
                         node={node}
@@ -81,16 +87,17 @@ export function FunctionCard(props: FunctionCardProps) {
                         resourcePath={path}
                     />
                 )
-                : (
-                    <RemoteFunctionWidget
-                        engine={engine}
-                        node={node}
-                        remoteFunc={functionElement}
-                        remotePath={path}
-                    />
-                )
-            }
-            {isHovered && addFunctionMenu()}
-        </FunctionContainer>
+                    : (
+                        <RemoteFunctionWidget
+                            engine={engine}
+                            node={node}
+                            remoteFunc={functionElement}
+                            remotePath={path}
+                        />
+                    )
+                }
+                {isHovered && addFunctionMenu()}
+            </FunctionContainer>
+        </CtrlClickHandler>
     );
 }

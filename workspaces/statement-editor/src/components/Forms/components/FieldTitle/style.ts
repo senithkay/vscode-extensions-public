@@ -209,10 +209,9 @@ export const useStyles = makeStyles((theme: Theme) =>
       fontSize: '12px',
       textTransform: 'capitalize',
       display: 'inline-block',
-      lineHeight: '40px',
       marginBottom: '0.06rem',
       marginLeft: '0.25rem',
-      marginTop: '0.094375rem'
+      marginTop: '0px'
     }
   }),
   { index: 1 }

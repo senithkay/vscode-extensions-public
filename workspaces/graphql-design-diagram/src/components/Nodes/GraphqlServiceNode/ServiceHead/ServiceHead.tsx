@@ -17,12 +17,14 @@ import React, { useEffect, useRef } from 'react';
 
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 
+import { CtrlClickHandler } from '../../../CtrlClickHandler';
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { GraphQLIcon } from "../../../resources/assets/icons/GraphQL";
 import { HeaderName } from "../../../resources/styles/styles";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { ServiceHead } from '../styles/styles';
 
+import { getFormattedPosition } from "../../../utils/common-util";
 import { ServiceHeaderMenu } from "./ServiceHeaderMenu";
 
 interface ServiceHeadProps {
@@ -33,7 +35,6 @@ interface ServiceHeadProps {
 export function ServiceHeadWidget(props: ServiceHeadProps) {
     const { engine, node } = props;
     const headPorts = useRef<PortModel[]>([]);
-
     const displayName: string = node.serviceObject.serviceName ? node.serviceObject.serviceName : "/root";
 
     useEffect(() => {
@@ -43,22 +44,27 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
 
 
     return (
-        <ServiceHead>
-            <GraphQLIcon/>
-            <GraphqlBasePortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-            <HeaderName>{displayName}</HeaderName>
-            <ServiceHeaderMenu location={node.serviceObject.position}/>
-            <GraphqlBasePortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
-            <GraphqlBasePortWidget
-                port={node.getPort(`top-${node.getID()}`)}
-                engine={engine}
-            />
-        </ServiceHead>
+        <CtrlClickHandler
+            filePath={node.serviceObject.position.filePath}
+            position={getFormattedPosition(node.serviceObject.position)}
+        >
+            <ServiceHead>
+                <GraphQLIcon />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`left-${node.getID()}`)}
+                    engine={engine}
+                />
+                <HeaderName>{displayName}</HeaderName>
+                <ServiceHeaderMenu location={node.serviceObject.position} />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`right-${node.getID()}`)}
+                    engine={engine}
+                />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`top-${node.getID()}`)}
+                    engine={engine}
+                />
+            </ServiceHead>
+        </CtrlClickHandler>
     );
 }

@@ -136,8 +136,9 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginLeft: -200
         },
         subType: {
-            marginBottom: -14,
-            marginTop: 10
+            marginBottom: -5,
+            marginTop: 10,
+            width: 350
         }
     }),
 );

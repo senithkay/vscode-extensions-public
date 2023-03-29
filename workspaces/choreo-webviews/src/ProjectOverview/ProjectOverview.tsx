@@ -95,9 +95,18 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
     }, [projectId, orgName]);
 
+    const fetchComponents = useCallback(async (projectId) => {
+        setComponentAction(ComponentAction.LOADING);
+        try {
+            ChoreoWebViewAPI.getInstance().getComponents(projectId).then(setComponents)
+        } finally {
+            setComponentAction(ComponentAction.NOTHING);
+        }
+    }, []);
+
     // Set the components of the project
     useEffect(() => {
-        ChoreoWebViewAPI.getInstance().getComponents(projectId).then(setComponents);
+        fetchComponents(projectId);
     }, [projectId, orgName]);
 
     useEffect(() => {
@@ -135,12 +144,14 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     // Listen to changes in project selection
     ChoreoWebViewAPI.getInstance().onSelectedProjectChanged((newProjectId) => {
-        setComponents(undefined);
+        if (projectId !== newProjectId) {
+            setComponents(undefined);
+        }
         // setProject(undefined); will not remove project to fix the glitch
         ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
             setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
         });
-        ChoreoWebViewAPI.getInstance().getComponents(newProjectId).then(setComponents);
+        fetchComponents(newProjectId);
         ChoreoWebViewAPI.getInstance().getProjectLocation(newProjectId).then(setLocation);
         ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
             if (p && p.id === newProjectId) {
@@ -192,21 +203,24 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().triggerCmd('workbench.scm.focus');
     }, []);
 
-    const handleRefreshComponentsClick = useCallback(() => {
+    const handleRefreshComponentsClick = useCallback(async () => {
         setComponentAction(ComponentAction.LOADING);
-        ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.projects.registry.refresh').then(() => {
-            ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then((components) => {
-                setComponents(components);
-            });
-        });
+        await ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.projects.registry.refresh')
+        const components = await ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '')
+        setComponents(components);
     }, [project]);
+
+    const handleDeleteComponentClick = useCallback(async (componentId) => {
+        await ChoreoWebViewAPI.getInstance().deleteComponent({ componentId, projectId })
+        fetchComponents(projectId);
+    }, [projectId, project]);
 
     return (
         <>
             <WizardContainer>
                 <HeaderContainer>
                     <h1>{project?.name}</h1>
-                    <VSCodeButton appearance="icon" title={"Open in Choreo Console"} onClick={onOpenConsoleClick}><Codicon name="link" /></VSCodeButton>
+                    <VSCodeButton appearance="icon" title="Open in Choreo Console" onClick={onOpenConsoleClick}><Codicon name="link-external" /></VSCodeButton>
                     {isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}
                 </HeaderContainer>
                 {location === undefined &&
@@ -244,8 +258,22 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 <ComponentsHeader>
                     <h2>Components</h2>
                     <VSCodeButton appearance="icon" onClick={handleCreateComponentClick} disabled={!isActive} title="Add Component"><Codicon name="plus" /></VSCodeButton>
+                    <VSCodeButton
+                        appearance="icon"
+                        title="Open in Choreo Console"
+                        onClick={onOpenConsoleClick}
+                    >
+                        <Codicon name="link-external" />
+                    </VSCodeButton>
                 </ComponentsHeader>
-                <ComponentList components={components} />
+                <ComponentList
+                    components={components}
+                    projectId={projectId}
+                    orgName={orgName}
+                    openSourceControl={handleOpenSourceControlClick}
+                    onComponentDeleteClick={handleDeleteComponentClick}
+                    loading={componentAction === ComponentAction.LOADING}
+                />                
                 {componentAction === ComponentAction.CHOREO_SYNC &&
                     <>
                         <p>

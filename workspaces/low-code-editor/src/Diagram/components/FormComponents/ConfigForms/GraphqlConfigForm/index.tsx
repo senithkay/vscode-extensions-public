@@ -17,8 +17,9 @@ import React, { useContext } from "react";
 import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import {
+    ClassDefinition,
     FunctionDefinition,
-    NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition, STNode
+    NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition, STKindChecker, STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
@@ -26,7 +27,7 @@ import { DiagramOverlayPosition } from "../../../Portals/Overlay";
 
 interface GraphqlConfigFormProps {
     position: DiagramOverlayPosition;
-    model?: ResourceAccessorDefinition | ObjectMethodDefinition,
+    model?: ResourceAccessorDefinition | ObjectMethodDefinition | ClassDefinition,
     targetPosition?: NodePosition,
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     onCancel: () => void;
@@ -45,16 +46,22 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
             ls: { getExpressionEditorLangClient }
         },
         props: {
-            currentFile
+            currentFile,
+            syntaxTree,
+            fullST
         }
     } = useContext(Context);
 
-    const position = model ? ({
-        startLine: model.functionName.position.startLine,
-        startColumn: model.functionName.position.startColumn,
-        endLine: model.functionSignature.position.endLine,
-        endColumn: model.functionSignature.position.endColumn
-    }) : targetPosition;
+    let position = targetPosition;
+
+    if (model && !STKindChecker.isClassDefinition(model)) {
+        position = {
+            startLine: model.functionName.position.startLine,
+            startColumn: model.functionName.position.startColumn,
+            endLine: model.functionSignature.position.endLine,
+            endColumn: model.functionSignature.position.endColumn,
+        };
+    }
 
     return (
         <>
@@ -69,6 +76,8 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
                 getLangClient={getExpressionEditorLangClient}
                 applyModifications={modifyDiagram}
                 topLevelComponent={true} // todo: Remove this
+                syntaxTree={syntaxTree}
+                fullST={fullST}
             />
         </>
     );

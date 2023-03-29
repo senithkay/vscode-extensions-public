@@ -15,7 +15,7 @@ import styled from "@emotion/styled";
 
 import { Colors } from "../model";
 
-export const FieldType = styled.span`
+export const FieldType: React.FC<any> = styled.span`
   background-color: ${Colors.SECONDARY};
   border-radius: 3px;
   color: #000000;
@@ -28,7 +28,7 @@ export const FieldType = styled.span`
   text-align: center;
 `;
 
-export const FieldName = styled.span`
+export const FieldName: React.FC<any> = styled.span`
   align-items: center;
   color: #000000;
   display: flex;
@@ -40,11 +40,11 @@ export const FieldName = styled.span`
   text-align: left;
 `;
 
-export const HeaderName = styled.span`
+export const HeaderName: React.FC<any> = styled.span`
   margin-left: 8px;
 `;
 
-export const NodeContainer = styled.div`
+export const NodeContainer: React.FC<any> = styled.div`
   background-color: ${Colors.SECONDARY};
   border: ${`1px solid ${Colors.PRIMARY}`};
   border-top-left-radius: 2px;
@@ -58,7 +58,7 @@ export const NodeContainer = styled.div`
   min-height: 32px;
 `;
 
-export const NodeHeader = styled.div`
+export const NodeHeader: React.FC<any> = styled.div`
   align-items: center;
   border-bottom: ${`1px solid ${Colors.PRIMARY}`};
   display: flex;
@@ -68,12 +68,39 @@ export const NodeHeader = styled.div`
   justify-content: center;
   line-height: 24px;
   padding-inline: 8px;
-  min-width: calc(100% - 16px);
+  min-width: 160px;
   text-align: center;
   white-space: nowrap;
 `;
 
-export const NodeFieldContainer = styled.div`
+export const InterfaceNodeHeader: React.FC<any> = styled.div`
+  align-items: center;
+  display: flex;
+  font-family: GilmerRegular;
+  border-bottom: ${`1px solid ${Colors.PRIMARY}`};
+  font-size: 13px;
+  justify-content: center;
+  line-height: 24px;
+  padding-inline: 8px;
+  min-width: 160px;
+  text-align: center;
+  white-space: nowrap;
+  flex-direction: column;
+`;
+
+export const InterfaceSubHeader: React.FC<any> = styled.div`
+  align-items: center;
+  display: flex;
+  font-family: GilmerRegular;
+  font-size: 13px;
+  justify-content: center;
+  line-height: 24px;
+  min-width: 160px;
+  text-align: center;
+  white-space: nowrap;
+`;
+
+export const NodeFieldContainer: React.FC<any> = styled.div`
   align-items: center;
   background-color: #FFFFFF;
   border-bottom: 0.5px solid #cccde3;

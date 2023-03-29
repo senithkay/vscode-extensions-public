@@ -58,8 +58,8 @@ importers:
       vscode-debugprotocol: ^1.44.0
       vscode-extension-telemetry: ^0.1.7
       vscode-extension-tester: ^5.4.0
-      vscode-languageclient: ^7.0.0
-      vscode-languageserver-protocol: ^3.16.0
+      vscode-languageclient: ^8.0.2
+      vscode-languageserver-protocol: ^3.17.2
       vscode-messenger: ^0.4.4
       vscode-test: ^1.6.1
       webpack: ^5.56.0
@@ -89,7 +89,7 @@ importers:
       toml: 3.0.0
       vscode-debugprotocol: 1.51.0
       vscode-extension-telemetry: 0.1.7
-      vscode-languageclient: 7.0.0
+      vscode-languageclient: 8.1.0
       vscode-languageserver-protocol: 3.17.3
       vscode-messenger: 0.4.4
       vscode-test: 1.6.1
@@ -713,6 +713,7 @@ importers:
       typescript: ^4.9.4
       uuid: ^8.3.0
       vscode-languageserver-protocol: ^3.16.0
+      vscode-uri: ^3.0.7
       webpack: ^5.56.0
       webpack-cli: ^4.10.0
       webpack-dev-server: ^4.11.1
@@ -828,6 +829,7 @@ importers:
       tslint-react: 4.2.0_zmprxdwqpgzzlt6igyqeohu7hy
       tslint-react-hooks: 2.2.2_zmprxdwqpgzzlt6igyqeohu7hy
       typescript: 4.9.5
+      vscode-uri: 3.0.7
       webpack: 5.76.1_webpack-cli@4.10.0
       webpack-cli: 4.10.0_ddmenyhdwz6ocoybpsmzbonb6y
       webpack-dev-server: 4.11.1_mcbxwmiss5njtiqwgktfxc4sg4
@@ -2288,6 +2290,7 @@ importers:
       '@types/react': ^17.0.37
       '@types/react-dom': 17.0.14
       '@types/react-lottie': ^1.2.5
+      '@types/uuid': ^8.3.0
       '@types/vscode-webview': ^1.57.0
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
@@ -2311,6 +2314,7 @@ importers:
       style-loader: ^3.3.1
       ts-loader: ^9.4.1
       typescript: ^4.9.4
+      uuid: ^8.3.0
       vscode-messenger-common: ^0.4.3
       vscode-messenger-webview: ^0.4.3
       webpack: ^5.73.0
@@ -2348,6 +2352,7 @@ importers:
       react-lottie: 1.2.3_react@17.0.2
       resize-observer-polyfill: 1.5.1
       typescript: 4.9.5
+      uuid: 8.3.2
       vscode-messenger-common: 0.4.3
       vscode-messenger-webview: 0.4.3
     devDependencies:
@@ -2363,6 +2368,7 @@ importers:
       '@types/react': 17.0.53
       '@types/react-dom': 17.0.14
       '@types/react-lottie': 1.2.6
+      '@types/uuid': 8.3.4
       '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
       '@wso2-enterprise/choreo-core': link:../choreo-core
       babel-loader: 8.3.0_olvwa26bkc7sescpzrxlktjrvi
@@ -25327,7 +25333,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       brace-expansion: 2.0.1
-    dev: true
 
   /minimatch/7.3.0:
     resolution: {integrity: sha512-WaMDuhKa7a6zKiwplR1AOz+zGvJba24k5VU1Cy6NhEguavT2YRlHxuINUgTas4wiS6fwBpYq4TcA1XIECSntyw==}
@@ -34524,6 +34529,15 @@ packages:
       vscode-languageserver-protocol: 3.16.0
     dev: false
 
+  /vscode-languageclient/8.1.0:
+    resolution: {integrity: sha512-GL4QdbYUF/XxQlAsvYWZRV3V34kOkpRlvV60/72ghHfsYFnS/v2MANZ9P6sHmxFcZKOse8O+L9G7Czg0NUWing==}
+    engines: {vscode: ^1.67.0}
+    dependencies:
+      minimatch: 5.1.6
+      semver: 7.3.8
+      vscode-languageserver-protocol: 3.17.3
+    dev: false
+
   /vscode-languageserver-protocol/3.16.0:
     resolution: {integrity: sha512-sdeUoAawceQdgIfTI+sdcwkiK2KU+2cbEYA0agzM2uqaUy2UpnnGHtWTHVEtS0ES4zHU0eMFRGN+oQgDxlD66A==}
     dependencies:
@@ -34581,7 +34595,6 @@ packages:
 
   /vscode-uri/3.0.7:
     resolution: {integrity: sha512-eOpPHogvorZRobNqJGhapa0JdwaxpjVvyBp0QIUMRMSf8ZAlqOdEquKuRmw9Qwu0qXtJIWqFtMkmvJjUZmMjVA==}
-    dev: false
 
   /vscode-ws-jsonrpc/0.2.0:
     resolution: {integrity: sha512-NE9HNRgPjCaPyTJvIudcpyIWPImxwRDtuTX16yks7SAiZgSXigxAiZOvSvVBGmD1G/OMfrFo6BblOtjVR9DdVA==}

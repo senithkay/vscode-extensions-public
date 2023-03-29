@@ -62,7 +62,7 @@ function isSupportedType(node: STNode,
         return [false, TypeNature.NOT_FOUND];
     }
 
-    const isUnionType = type?.typeName === PrimitiveBalType.Union;
+    const isUnionType = STKindChecker.isUnionTypeDesc(node);
     const isArrayType = STKindChecker.isArrayTypeDesc(node);
     const isMapType = STKindChecker.isMapTypeDesc(node);
     const isRecordType = STKindChecker.isRecordTypeDesc(node);
@@ -86,7 +86,7 @@ function isSupportedType(node: STNode,
 
     const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
 
-    if (isUnionType && kind === 'output') {
+    if ((isUnionType || isOptionalType) && kind === 'output' && getFilteredUnionOutputTypes(type)?.length === 1) {
         return [true];
     } else if (isUnionType || isMapType || isOptionalType) {
         return [false, TypeNature.YET_TO_SUPPORT];

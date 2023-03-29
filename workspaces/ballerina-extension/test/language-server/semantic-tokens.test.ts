@@ -55,21 +55,19 @@ export async function runSemanticTokensTestCases(langClient: ExtendedLangClient)
 
         const uri = Uri.file(filePath);
         await commands.executeCommand('vscode.open', uri).then(() => {
-            langClient.onReady().then(async () => {
-                const start = new Date();
-                langClient.sendRequest("textDocument/semanticTokens/full", {
-                    textDocument: {
-                        uri: uri.toString()
-                    }
-                }).then((response: any) => {
-                    const result: boolean = response.data.length > 0;
-                    status = status ? result : false;
-                    assert.equal(result, true, `Semantic tokens API resulted in an incorrect response for ${filePath}`);
-                    const end = new Date();
-                    const diff = end.getTime() - start.getTime();
-                    log(`Time taken for ${filePath}: ${diff}`);
-                    assert.equal(diff < 5000, true, `Semantic token response took more than 5 seconds for ${filePath}.`)
-                });
+            const start = new Date();
+            langClient.sendRequest("textDocument/semanticTokens/full", {
+                textDocument: {
+                    uri: uri.toString()
+                }
+            }).then((response: any) => {
+                const result: boolean = response.data.length > 0;
+                status = status ? result : false;
+                assert.equal(result, true, `Semantic tokens API resulted in an incorrect response for ${filePath}`);
+                const end = new Date();
+                const diff = end.getTime() - start.getTime();
+                log(`Time taken for ${filePath}: ${diff}`);
+                assert.equal(diff < 5000, true, `Semantic token response took more than 5 seconds for ${filePath}.`)
             });
         });
     }

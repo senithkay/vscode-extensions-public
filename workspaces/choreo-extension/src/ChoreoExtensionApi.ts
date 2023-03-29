@@ -166,7 +166,7 @@ export class ChoreoExtensionApi {
 
                 if (workspaceFileConfig?.folders && projectRoot) {
                     const choreoComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
-                        (this._selectedOrg as Organization).handle);
+                        (this._selectedOrg as Organization).handle, (this._selectedOrg as Organization).uuid);
 
                     choreoComponents.forEach(({ name, apiVersions, accessibility, local = false }) => {
                         const wsConfig = workspaceFileConfig.folders.find(component => component.name === name);

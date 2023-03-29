@@ -73,7 +73,7 @@ suite('Choreo Project Tests', () => {
 
     test('Generate Project Overview', async () => {
         await showChoreoProjectOverview();
-        const actualComponents: Component[] = await ProjectRegistry.getInstance().getComponents(FOO_PROJECT_1.id, FOO_ORG.handle);
+        const actualComponents: Component[] = await ProjectRegistry.getInstance().getComponents(FOO_PROJECT_1.id, FOO_ORG.handle, FOO_ORG.uuid);
         const localComponents: Component[] = new ChoreoProjectManager().getLocalComponents(workspaceFileURI.fsPath);
         const expectedComponents: Component[] = [FOO_P1_COMPONENT].concat(localComponents);
         assert.deepStrictEqual(actualComponents, expectedComponents, 'Failed to detect FooProject1 components.');

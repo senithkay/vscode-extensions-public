@@ -877,7 +877,7 @@ export const dynamicConnectorStyles = makeStyles((theme: Theme) =>
         resourcePathWrapper: {
             width: '70%',
             marginLeft: theme.spacing(1.25),
-            marginTop: -6
+            marginTop: -1
         },
         methodTypeContainer: {
             display: 'block',
