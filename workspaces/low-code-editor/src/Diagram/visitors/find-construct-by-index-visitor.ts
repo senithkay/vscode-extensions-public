@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { ClassDefinition, FunctionDefinition, ObjectMethodDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
+import { ClassDefinition, FunctionDefinition, ObjectMethodDefinition, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
 import { generateConstructIdStub, MODULE_DELIMETER, SUB_DELIMETER } from "./util";
 
 export class FindConstructByIndexVisitor implements Visitor {
@@ -48,6 +48,8 @@ export class FindConstructByIndexVisitor implements Visitor {
             this.selectedNode = node;
             this.updatedUid = nextUid;
         }
+
+        this.stack.push(nextUid);
     }
 
     endVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
@@ -65,6 +67,8 @@ export class FindConstructByIndexVisitor implements Visitor {
             this.selectedNode = node;
             this.updatedUid = nextUid;
         }
+
+        this.stack.push(nextUid);
     }
 
     endVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode): void {
@@ -81,6 +85,8 @@ export class FindConstructByIndexVisitor implements Visitor {
             this.selectedNode = node;
             this.updatedUid = nextUid;
         }
+
+        this.stack.push(nextUid);
     }
 
     endVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode): void {
@@ -97,6 +103,8 @@ export class FindConstructByIndexVisitor implements Visitor {
             this.selectedNode = node;
             this.updatedUid = nextUid;
         }
+
+        this.stack.push(nextUid);
     }
 
     endVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
@@ -130,6 +138,24 @@ export class FindConstructByIndexVisitor implements Visitor {
         this.stack.pop();
     }
 
+    beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
+        this.classMemberIndex++;
+        const currentConstructIdStub = generateConstructIdStub(node, this.classMemberIndex);
+        const constructIdStub = this.extractUidWithIndex(currentConstructIdStub);
+        const nextUid = this.getCurrentUid(currentConstructIdStub);
+
+        if (this.extractedUid === this.getCurrentUid(constructIdStub)) {
+            this.selectedNode = node;
+            this.updatedUid = nextUid;
+        }
+
+        this.stack.push(nextUid);
+    }
+
+    endVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
+
     public getNode(): STNode {
         return this.selectedNode;
     }
@@ -148,7 +174,7 @@ export class FindConstructByIndexVisitor implements Visitor {
 
 
     private getCurrentUid(idStub: string) {
-        const parentStub = this.stack.reduce((acc, curr) => `${acc}${MODULE_DELIMETER}${curr}`, '');
+        const parentStub = this.stack.reduce((acc, curr) => `${acc}${acc.length > 0 ? MODULE_DELIMETER : ''}${curr}`, '');
         return `${parentStub}${parentStub.length > 0 ? MODULE_DELIMETER : ''}${idStub}`;
     }
 }

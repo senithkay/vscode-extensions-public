@@ -49,7 +49,7 @@ export function generateServicePathString(serviceNode: ServiceDeclaration): stri
         }, '');
     }
 
-    return path;
+    return path.length > 0 ? path : '/';
 }
 
 export function generateConstructIdStub(construct: STNode, index?: number): string {
