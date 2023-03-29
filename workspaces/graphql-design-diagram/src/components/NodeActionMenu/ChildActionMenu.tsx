@@ -17,35 +17,34 @@ import React, { useState } from "react";
 import { MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { FunctionType, Position } from "../../../resources/model";
+import { FunctionType } from "../resources/model";
 
-import { DeleteFunctionWidget } from "./MenuActionComponents/DeleteFunction";
-import { DesignFunctionWidget } from "./MenuActionComponents/DesignFunction";
-import { EditFunctionWidget } from "./MenuActionComponents/EditFunction";
+import { DesignNode } from "./DesignNode";
+import { EditNode } from "./EditNode";
 
-interface FunctionMenuWidgetProps {
-    location: Position;
+interface ChildActionMenuProps {
+    model: STNode;
     functionType: FunctionType;
 }
 
-export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
-    const { location, functionType } = props;
+export function ChildActionMenu(props: ChildActionMenuProps) {
+    const { model, functionType } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
     return (
         <>
-            {location &&
+            {model &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <Paper style={{maxWidth: "100%"}}>
-                        <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                            <DesignFunctionWidget position={location}/>
-                            <EditFunctionWidget position={location} functionType={functionType}/>
-                            <DeleteFunctionWidget position={location}/>
+                    <Paper style={{ maxWidth: "100%" }}>
+                        <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                            <EditNode model={model} functionType={functionType}/>
+                            <DesignNode model={model}/>
                         </MenuList>
                     </Paper>
                 }

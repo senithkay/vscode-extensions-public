@@ -17,8 +17,6 @@ import { ServiceInvalidImg } from "@wso2-enterprise/ballerina-low-code-edtior-co
 
 import { GraphqlUnsupportedStyles } from "./styles";
 
-
-
 export function GraphqlUnsupportedOverlay() {
     const graphqlUnsupportedClasses = GraphqlUnsupportedStyles();
 

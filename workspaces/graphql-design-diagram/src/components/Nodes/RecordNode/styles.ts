@@ -19,7 +19,7 @@ interface StyleProps {
     isSelected?: boolean;
 }
 
-export const RecordNode = styled.div`
+export const RecordNode: React.FC<any> = styled.div`
   background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
   border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
   border-radius: 2px !important;
@@ -28,10 +28,11 @@ export const RecordNode = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 32px;
+  min-width: 160px;
   opacity: 1;
 `;
 
-export const RecordHead = styled.div`
+export const RecordHead: React.FC<any> = styled.div`
   align-items: center;
   border-bottom: ${(props: StyleProps) =>
           `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
@@ -47,7 +48,7 @@ export const RecordHead = styled.div`
   white-space: nowrap;
 `;
 
-export const RecordFieldContainer = styled.div`
+export const RecordFieldContainer: React.FC<any> = styled.div`
   align-items: center;
   background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
   border-bottom: 0.5px solid #cccde3;
@@ -64,7 +65,7 @@ export const RecordFieldContainer = styled.div`
   text-align: center;
 `;
 
-export const RecordName = styled.div`
+export const RecordName: React.FC<any> = styled.div`
   display: flex;
   flex: 1;
   height: 30px;

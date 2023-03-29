@@ -15,32 +15,37 @@
 import React, { useContext } from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
-import { GraphqlMutationIcon, GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+    GraphqlMutationIcon,
+    GraphqlQueryIcon,
+    GraphqlSubscriptionIcon
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
-import { FunctionType, Position } from "../../../../resources/model";
+import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
+import { FunctionType, Position } from "../resources/model";
 
 import { useStyles } from "./styles";
 
-interface AddFunctionWidgetProps {
+interface NodeMenuItemProps {
     position: Position;
+    model: STNode;
     functionType: FunctionType;
 }
 
-export function AddFunctionWidget(props: AddFunctionWidgetProps) {
-    const { position, functionType } = props;
-    const { functionPanel, model } = useContext(DiagramContext);
+export function NodeMenuItem(props: NodeMenuItemProps) {
+    const { position, model, functionType } = props;
+    const { functionPanel } = useContext(DiagramContext);
 
-    const classes = useStyles();
+    const menuStyles = useStyles();
 
     const openFunctionPanel = () => {
-        if (STKindChecker.isServiceDeclaration(model)) {
+        if (model && STKindChecker.isClassDefinition(model)) {
             const lastMemberPosition: NodePosition = {
-                endColumn: model.closeBraceToken.position.endColumn,
-                endLine: model.closeBraceToken.position.endLine,
-                startColumn: model.closeBraceToken.position.startColumn,
-                startLine: model.closeBraceToken.position.startLine
+                endColumn: model.closeBrace.position.endColumn,
+                endLine: model.closeBrace.position.endLine,
+                startColumn: model.closeBrace.position.startColumn,
+                startLine: model.closeBrace.position.startLine
             };
             if (functionType === FunctionType.QUERY) {
                 functionPanel(lastMemberPosition, "GraphqlResource");
@@ -75,12 +80,12 @@ export function AddFunctionWidget(props: AddFunctionWidgetProps) {
     return (
         <>
             {position &&
-                <MenuItem onClick={() => openFunctionPanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                    <ListItemIcon style={{marginRight: "10px", minWidth: "0px"}}>
-                        {popupIcon()}
-                    </ListItemIcon>
-                    <ListItemText className={classes.listItemText}>{popupTitle()}</ListItemText>
-                </MenuItem>
+            <MenuItem onClick={() => openFunctionPanel()} className={menuStyles.menuItem}>
+                <ListItemIcon className={menuStyles.menuIcon}>
+                    {popupIcon()}
+                </ListItemIcon>
+                <ListItemText className={menuStyles.listItemText}>{popupTitle()}</ListItemText>
+            </MenuItem>
             }
         </>
     );

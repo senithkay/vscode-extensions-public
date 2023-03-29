@@ -18,43 +18,36 @@ import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
     DesignViewIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
-import { Position } from "../../../../resources/model";
+import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 
 import { useStyles } from "./styles";
 
-interface DesignFunctionWidgetProps {
-    position: Position;
+interface DesignNodeProps {
+    model: STNode;
 }
 
-export function DesignFunctionWidget(props: DesignFunctionWidgetProps) {
-    const { position } = props;
+export function DesignNode(props: DesignNodeProps) {
+    const { model } = props;
     const { operationDesignView } = useContext(DiagramContext);
 
-    const classes = useStyles();
+    const menuStyles = useStyles();
 
     const openFunctionDesignPanel = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        const functionPosition: NodePosition = {
-            endColumn: position.endLine.offset,
-            endLine: position.endLine.line,
-            startColumn: position.startLine.offset,
-            startLine: position.startLine.line
-        };
-        operationDesignView(functionPosition);
+        operationDesignView(model.position);
     };
 
 
     return (
         <>
-            {position &&
-            <MenuItem onClick={openFunctionDesignPanel} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
+            {model &&
+            <MenuItem onClick={openFunctionDesignPanel} className={menuStyles.menuItem}>
+                <ListItemIcon className={menuStyles.menuIcon}>
                     <DesignViewIcon/>
                 </ListItemIcon>
-                <ListItemText className={classes.listItemText}>{"Design Operation"}</ListItemText>
+                <ListItemText className={menuStyles.listItemText}>{"Design Operation"}</ListItemText>
             </MenuItem>
             }
         </>

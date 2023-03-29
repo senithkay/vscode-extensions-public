@@ -16,6 +16,7 @@ import { NodePosition, STNode, Visitor } from "@wso2-enterprise/syntax-tree";
 export class STNodeFindingVisitor implements Visitor {
     private position: NodePosition;
     private stNode: STNode;
+    private parent: STNode;
 
     public beginVisitSTNode(node: STNode, parent?: STNode) {
         if (!this.stNode) {
@@ -25,6 +26,7 @@ export class STNodeFindingVisitor implements Visitor {
                 node.position?.endColumn === this.position?.endColumn
             if (isPositionsEquals) {
                 this.stNode = node;
+                this.parent = parent;
             }
         }
     }
@@ -32,7 +34,15 @@ export class STNodeFindingVisitor implements Visitor {
     getSTNode(): STNode {
         const newModel = this.stNode;
         this.stNode = undefined;
+        this.parent = undefined;
         return newModel;
+    }
+
+    getParent(): STNode {
+        const currentParent = this.parent;
+        this.parent = undefined;
+        this.stNode = undefined;
+        return currentParent;
     }
 
     setPosition(position: NodePosition) {

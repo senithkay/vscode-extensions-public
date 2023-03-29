@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteExpressionEditor, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createRemoteFunction,
     getSource, updateRemoteFunctionSignature,
@@ -40,9 +40,11 @@ import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from "../../InputEditor/constants";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
-import { FunctionParam, FunctionParamItem } from "../FunctionForm/FunctionParamEditor/FunctionParamItem";
-import { FunctionParamSegmentEditor } from "../FunctionForm/FunctionParamEditor/FunctionSegmentEditor";
-import { generateParameterSectionString } from "../ResourceForm/util";
+import { FunctionParam } from "../FunctionForm/FunctionParamEditor/FunctionParamItem";
+import { createNewConstruct, generateParameterSectionString } from "../ResourceForm/util";
+
+import { ParameterEditor } from "./ParameterEditor/ParameterEditor";
+import { ParameterField } from "./ParameterEditor/ParameterField";
 
 export interface FunctionProps {
     model: ObjectMethodDefinition;
@@ -58,7 +60,8 @@ export function GraphqlMutationForm(props: FunctionProps) {
         onChange,
         applyModifications,
         onCancel,
-        getLangClient
+        getLangClient,
+        fullST
     } = useContext(FormEditorContext);
 
     const connectorClasses = connectorStyles();
@@ -71,7 +74,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>(undefined);
-    const [currentComponentCompletions, setCurrentComponentCompletions] = useState<SuggestionItem[]>(undefined);
 
     // States related parameters
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
@@ -80,19 +82,30 @@ export function GraphqlMutationForm(props: FunctionProps) {
 
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
+    const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
+
+    useEffect(() => {
+        if (newlyCreatedConstruct) {
+            onReturnTypeChange(newlyCreatedConstruct);
+        }
+    }, [fullST]);
+
+    const createConstruct = (newCodeSnippet: string) => {
+        if (newCodeSnippet) {
+            createNewConstruct(newCodeSnippet, fullST, applyModifications)
+            setNewlyCreatedConstruct(returnType);
+        }
+    }
+
     // Return type related functions
     const onReturnTypeChange = (value: string) => {
+        setReturnType(value);
         const parametersStr = parameters.map((item) => `${item.type} ${item.name}`).join(", ");
         handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
             value
         );
-    };
-
-    const onReturnFocus = async () => {
-        setCurrentComponentCompletions([]);
-        setCurrentComponentName("Return");
     };
 
     // Param related functions
@@ -206,9 +219,8 @@ export function GraphqlMutationForm(props: FunctionProps) {
         if (param.name) {
             if (editingSegmentId !== index) {
                 paramElements.push(
-                    <FunctionParamItem
-                        key={index}
-                        functionParam={param}
+                    <ParameterField
+                        param={param}
                         readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}
                         onDelete={onDeleteParam}
                         onEditClick={handleOnEdit}
@@ -216,7 +228,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
                 );
             } else if (editingSegmentId === index) {
                 paramElements.push(
-                    <FunctionParamSegmentEditor
+                    <ParameterEditor
                         param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
                             RestParam)}
                         id={editingSegmentId}
@@ -232,7 +244,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
     });
 
     useEffect(() => {
-        setReturnType(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
         setFunctionName(model ? model.functionName.value : "");
 
         if (currentComponentName === "") {
@@ -243,10 +254,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
                     type: param.typeName.source.trim(),
                 }));
             setParameters(editParams);
-        }
-
-        if (completions) {
-            setCurrentComponentCompletions(completions);
         }
     }, [model, completions]);
 
@@ -261,7 +268,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
     };
 
     const onNameFocus = () => {
-        setCurrentComponentCompletions([]);
         setCurrentComponentName("MethodName");
     };
 
@@ -312,7 +318,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         <ConfigPanelSection title={"Parameters"}>
                             {paramElements}
                             {addingNewParam ? (
-                                <FunctionParamSegmentEditor
+                                <ParameterEditor
                                     param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
                                         RequiredParam | RestParam)}
                                     id={parameters.length}
@@ -338,18 +344,15 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <FieldTitle title="Return Type" optional={false}/>
-                        <LiteExpressionEditor
-                            testId={"return-type"}
-                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
-                            defaultValue={returnType}
+                        {/*TODO: not getting completions for mutation return*/}
+                        <TypeBrowser
+                            type={returnType}
                             onChange={onReturnTypeChange}
-                            completions={currentComponentCompletions}
-                            onFocus={onReturnFocus}
-                            disabled={addingNewParam || (currentComponentSyntaxDiag && currentComponentName !== "Return")}
-                            customProps={{
-                                index: 2,
-                                optional: true
-                            }}
+                            isLoading={false}
+                            recordCompletions={completions.filter((completion) => completion.kind !== "Module")}
+                            createNew={createConstruct}
+                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                            isGraphqlForm={true}
                         />
                     </div>
                 </div>

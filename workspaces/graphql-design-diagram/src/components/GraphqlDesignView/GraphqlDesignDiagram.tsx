@@ -13,7 +13,6 @@
 
 import React, { useEffect, useState } from "react";
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     GraphqlDesignServiceRequest, GraphqlDesignServiceResponse
@@ -43,17 +42,9 @@ export interface GraphqlDesignDiagramProps {
     servicePanel?: () => void;
     operationDesignView?: (functionPosition: NodePosition) => void;
     onDelete?: (position: NodePosition) => void;
+    fullST?: STNode;
+    goToSource?: (filePath: string, position: NodePosition) => void;
 }
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            flexGrow: 1,
-            height: "100%",
-            overflow: "hidden"
-        }
-    }),
-);
 
 export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     const {
@@ -64,13 +55,13 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         functionPanel,
         servicePanel,
         operationDesignView,
-        onDelete
+        onDelete,
+        fullST,
+        goToSource
     } = props;
 
     const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
     const [isIncompleteModel, setModelStatus] = useState(false);
-
-    const classes = useStyles();
 
     useEffect(() => {
         (async () => {
@@ -94,7 +85,9 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         functionPanel,
         servicePanel,
         operationDesignView,
-        onDelete
+        onDelete,
+        fullST,
+        goToSource
     };
 
     return (
