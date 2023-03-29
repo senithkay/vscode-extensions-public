@@ -12,16 +12,18 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
-import { IconButton, Tooltip } from "@material-ui/core";
+import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
-    LabelDeleteIcon,
+    LabelDeleteIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { Position } from "../../../../resources/model";
+
+import { useStyles } from "./styles";
 
 interface DeleteFunctionWidgetProps {
     position: Position;
@@ -31,7 +33,7 @@ export function DeleteFunctionWidget(props: DeleteFunctionWidgetProps) {
     const { position } = props;
     const { onDelete } = useContext(DiagramContext);
 
-    const [isHovered, setIsHovered] = useState<boolean>(false);
+    const classes = useStyles();
 
     const handleDeleteClick = (evt: React.MouseEvent) => {
         evt.stopPropagation();
@@ -47,31 +49,12 @@ export function DeleteFunctionWidget(props: DeleteFunctionWidgetProps) {
     return (
         <>
             {position &&
-            <>
-                <Tooltip
-                    open={isHovered}
-                    onClose={() => setIsHovered(false)}
-                    title={"Delete Operation"}
-                    arrow={true}
-                    placement="right"
-                >
-                    <IconButton
-                        onClick={handleDeleteClick}
-                        onMouseOver={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                        style={{
-                            backgroundColor: isHovered ? '#ffaf4d' : '',
-                            borderRadius: '50%',
-                            color: isHovered ? 'whitesmoke' : '#ffaf4d',
-                            cursor: 'pointer',
-                            fontSize: '22px',
-                            padding: '2px'
-                        }}
-                    >
-                        <LabelDeleteIcon/>
-                    </IconButton>
-                </Tooltip>
-            </>
+            <MenuItem onClick={handleDeleteClick} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
+                    <LabelDeleteIcon/>
+                </ListItemIcon>
+                <ListItemText className={classes.listItemText}>{"Delete Operation"}</ListItemText>
+            </MenuItem>
             }
         </>
     );

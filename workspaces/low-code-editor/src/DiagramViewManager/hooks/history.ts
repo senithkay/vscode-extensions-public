@@ -19,15 +19,24 @@ export interface HistoryEntry {
     file: string;
     position?: NodePosition;
     uid?: string;
+    name?: string;
 }
 
 type historyPushFnType = (info: HistoryEntry) => void;
 type historyPopFnType = () => void;
+type historyClearAndPopulateWithFnType = (info: HistoryEntry) => void;
+type historySelectFnType = (index: number) => void;
 type historyClearFnType = () => void;
 type updateCurrentEntryFnType = (info: HistoryEntry) => void;
 
 export function useComponentHistory():
-    [HistoryEntry[], historyPushFnType, historyPopFnType, historyClearFnType, updateCurrentEntryFnType] {
+        [HistoryEntry[],
+        historyPushFnType,
+        historyPopFnType,
+        historyClearAndPopulateWithFnType,
+        historySelectFnType,
+        historyClearFnType,
+        updateCurrentEntryFnType] {
     const [history, updateHistory] = useState<HistoryEntry[]>([]);
 
     const historyPush = (historyEntry: HistoryEntry) => {
@@ -37,6 +46,14 @@ export function useComponentHistory():
     const historyPop = () => {
         if (history.length === 0) return;
         updateHistory(history.slice(0, history.length - 1));
+    }
+
+    const historyClearAndPopulateWith = (historyEntry: HistoryEntry) => {
+        updateHistory([historyEntry]);
+    }
+
+    const historySelect = (index: number) => {
+        updateHistory(history.slice(0, index + 1));
     }
 
     const historyClear = () => {
@@ -50,6 +67,5 @@ export function useComponentHistory():
         updateHistory(newHistory);
     }
 
-    return [history, historyPush, historyPop, historyClear, updateCurrentEntry];
+    return [history, historyPush, historyPop, historyClearAndPopulateWith, historySelect, historyClear, updateCurrentEntry];
 }
-

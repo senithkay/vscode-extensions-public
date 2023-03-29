@@ -1,4 +1,24 @@
-import { CaptureBindingPattern, LetExpression, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { LinePosition } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    CaptureBindingPattern,
+    LetExpression,
+    ModulePart,
+    NodePosition,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
+import {
+    Location,
+    LocationLink
+} from "vscode-languageserver-protocol";
+
+import { FnDefInfo } from "../components/Diagram/utils/fn-definition-store";
+
+export interface FunctionInfo {
+    fnDefInfo: FnDefInfo;
+    fnNamePosition: NodePosition;
+}
 
 export function isObject(item: unknown) {
     return (typeof item === "object" && !Array.isArray(item) && item !== null);
@@ -50,4 +70,92 @@ export function genLetExpressionVariableName(letExpressions: LetExpression[]): s
         }
     }
     return varName;
+}
+
+export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
+                                          fileUri: string,
+                                          langClientPromise: Promise<IBallerinaLangClient>): Promise<FnDefInfo[]> {
+    const langClient = await langClientPromise;
+    const fnDefs: FnDefInfo[] = [];
+    const fnInfo: Map<string, FunctionInfo[]> = new Map();
+    for (const position of fnCallPositions) {
+        const reply = await langClient.definition({
+            position: {
+                line: position.line,
+                character: position.offset
+            },
+            textDocument: {
+                uri: fileUri
+            }
+        });
+        let defLoc: Location;
+        if (Array.isArray(reply)) {
+            if (isLocationLink(reply[0])) {
+                defLoc = {
+                    uri: reply[0].targetUri,
+                    range: reply[0].targetRange
+                };
+            } else {
+                defLoc = reply[0];
+            }
+        } else {
+            defLoc = reply;
+        }
+        const fnNamePosition: NodePosition = {
+            startLine: defLoc.range.start.line,
+            startColumn: defLoc.range.start.character,
+            endLine: defLoc.range.end.line,
+            endColumn: defLoc.range.end.character
+        }
+
+        const fnEntry: FunctionInfo = {
+            fnDefInfo: {
+                fnCallPosition: position,
+                fnDefPosition: undefined,
+                fnName: "",
+                fileUri: defLoc.uri,
+                isExprBodiedFn: false,
+            },
+            fnNamePosition
+        }
+        if (fnInfo.has(defLoc.uri)) {
+            const existingDefs = fnInfo.get(defLoc.uri);
+            existingDefs.push(fnEntry);
+            fnInfo.set(defLoc.uri, existingDefs);
+        } else {
+            fnInfo.set(defLoc.uri, [fnEntry]);
+        }
+    }
+
+    for (const [key, value] of fnInfo) {
+        const stResp = await langClient.getSyntaxTree({
+            documentIdentifier: {
+                uri: key
+            }
+        });
+
+        if (stResp.parseSuccess) {
+            const modPart = stResp.syntaxTree as ModulePart;
+            modPart.members.forEach((mem) => {
+                if (STKindChecker.isFunctionDefinition(mem)) {
+                    const fnNamePosition = mem.functionName.position as NodePosition;
+                    const filteredFnDef = value.find(v => {
+                        return isPositionsEquals(v.fnNamePosition, fnNamePosition)
+                    });
+                    if (filteredFnDef) {
+                        filteredFnDef.fnDefInfo.isExprBodiedFn = STKindChecker.isExpressionFunctionBody(mem.functionBody);
+                        filteredFnDef.fnDefInfo.fnDefPosition = mem.position;
+                        filteredFnDef.fnDefInfo.fnName = mem.functionName.value;
+                        fnDefs.push(filteredFnDef.fnDefInfo);
+                    }
+                }
+            });
+        }
+    }
+
+    return fnDefs;
+}
+
+function isLocationLink(obj: any): obj is LocationLink {
+    return obj.targetUri !== undefined && obj.targetRange !== undefined;
 }

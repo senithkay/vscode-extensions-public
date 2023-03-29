@@ -16,15 +16,28 @@
 
 import { BlockViewState } from "@wso2-enterprise/ballerina-low-code-diagram";
 import {
-    BallerinaConnectorInfo, CommandResponse, ConditionConfig, ConfigOverlayFormStatus, ConfigPanelStatus, Connector,
-    CurrentFile, DiagramEditorLangClientInterface, ExpressionEditorLangClientInterface, FunctionDef, LibraryDataResponse, LibraryDocResponse, LibrarySearchResponse,
-    STModification, STSymbolInfo, WizardType
+    BallerinaConnectorInfo,
+    CommandResponse,
+    ConditionConfig,
+    ConfigOverlayFormStatus,
+    ConfigPanelStatus,
+    Connector,
+    CurrentFile,
+    DiagramEditorLangClientInterface,
+    ExpressionEditorLangClientInterface,
+    FileListEntry,
+    FunctionDef,
+    LibraryDataResponse,
+    LibraryDocResponse,
+    LibrarySearchResponse,
+    STModification,
+    STSymbolInfo,
+    WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import { Warning } from "../Diagram/utils/st-util";
-import { FileListEntry } from "../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
 
 export interface ZoomStatus {
@@ -79,7 +92,7 @@ export interface LowCodeEditorAPI {
         onMutate?: (type: string, options: any) => void;
         // Reuse go-to-def from LangServer?
         setCodeLocationToHighlight?: (position: NodePosition) => void;
-        gotoSource: (position: { startLine: number, startColumn: number }) => void;
+        gotoSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
         getFunctionDef: (lineRange: Range, defFilePath: string) => Promise<FunctionDef>;
         updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
         // isMutationInProgress: boolean;

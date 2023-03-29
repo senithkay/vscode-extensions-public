@@ -15,9 +15,8 @@ import React, { useState } from "react";
 
 import { FormControl, Input, InputAdornment, InputLabel, OutlinedInput, Select, TextField } from "@material-ui/core";
 import SearchIcon from '@material-ui/icons/Search';
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaProjectComponents, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { FileListEntry } from "../../../../DiagramGenerator/vscode/Diagram";
 import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
 import { ComponentView } from "../ComponentView";
 

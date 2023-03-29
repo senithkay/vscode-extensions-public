@@ -59,7 +59,7 @@ export interface WebViewOptions {
     bodyCss?: string;
 }
 
-export function getLibraryWebViewContent(options: WebViewOptions, webView: Webview) {
+export function getLibraryWebViewContent(options: WebViewOptions, webView: Webview, background: string ="#fff", padding: string="0px"): string {
     const {
         jsFiles,
         cssFiles,
@@ -128,7 +128,7 @@ export function getLibraryWebViewContent(options: WebViewOptions, webView: Webvi
                 </style>
             </head>
             
-            <body class="${bodyCss}" style="background: #fff; padding: 0px;">
+            <body class="${bodyCss}" style="background: ${background}; padding: ${padding};">
                 ${body}
                 <script>
                     ${scripts}

@@ -58,6 +58,7 @@ import {
     getAssignedUnionType,
     getExprBodyFromLetExpression,
     getFilteredUnionOutputTypes,
+    getFnDefForFnCall,
     getInputNodes,
     getModuleVariables,
     getPrevOutputType,
@@ -549,15 +550,17 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isListConstructor(node.valueExpr)
         ) {
             const inputNodes = getInputNodes(node.valueExpr);
+            const fnDefForFnCall = STKindChecker.isFunctionCall(node.valueExpr) && getFnDefForFnCall(node.valueExpr);
             if (inputNodes.length > 1
-                || (inputNodes.length === 1 && isComplexExpression(node.valueExpr))) {
+                || (inputNodes.length === 1 && (isComplexExpression(node.valueExpr) || fnDefForFnCall))) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
                     node.fieldName.value as string,
                     parent,
                     inputNodes,
-                    this.mapIdentifiers.slice(0)
+                    this.mapIdentifiers.slice(0),
+                    fnDefForFnCall
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
@@ -570,8 +573,9 @@ export class NodeInitVisitor implements Visitor {
             node.expressions.forEach((expr) => {
                 if (!STKindChecker.isMappingConstructor(expr) && !STKindChecker.isListConstructor(expr)) {
                     const inputNodes = getInputNodes(expr);
+                    const fnDefForFnCall = STKindChecker.isFunctionCall(expr) && getFnDefForFnCall(expr);
                     if (inputNodes.length > 1
-                        || (inputNodes.length === 1 && isComplexExpression(expr))) {
+                        || (inputNodes.length === 1 && (isComplexExpression(expr) || fnDefForFnCall))) {
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
                             expr,
@@ -579,6 +583,7 @@ export class NodeInitVisitor implements Visitor {
                             parent,
                             inputNodes,
                             [...this.mapIdentifiers, expr],
+                            fnDefForFnCall,
                             true
                         );
                         this.intermediateNodes.push(linkConnectorNode);

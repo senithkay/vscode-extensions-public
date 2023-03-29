@@ -14,10 +14,10 @@ import React from 'react';
 
 // tslint:disable-next-line: no-submodule-imports
 import { Story } from '@storybook/react/types-6-0';
+import { FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 import { Provider as LowCodeEditorProvider } from "../../../../../../../Contexts/Diagram";
-import { FileListEntry } from '../../../../../../../DiagramGenerator/vscode/Diagram';
 import { ComponentViewInfo } from '../../../../../../../OverviewDiagram/util';
 
 import { AddWhileForm, WhileProps } from "./index";

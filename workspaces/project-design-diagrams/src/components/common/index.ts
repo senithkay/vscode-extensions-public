@@ -19,6 +19,7 @@
 export { DiagramContainer } from './DiagramContainer/DiagramContainer';
 export { DiagramHeader } from './Header/HeaderWidget';
 export { PromptScreen } from './NewPromptScreen/PromptScreen';
+export { CtrlClickGo2Source } from './CtrlClickHandler/CtrlClickGo2Source';
 
 export { DesignDiagramContext, DiagramContext } from './DiagramContext/DiagramContext';
 

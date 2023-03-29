@@ -24,7 +24,7 @@ import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
 import { ResourceFunction, RemoteFunction, Colors, ServiceTypes } from '../../../../resources';
 import { FunctionContainer } from '../styles/styles';
-import { DiagramContext, NodeMenuWidget } from '../../../common';
+import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
 
 interface FunctionCardProps {
     engine: DiagramEngine;
@@ -53,33 +53,35 @@ export function FunctionCard(props: FunctionCardProps) {
     }
 
     return (
-        <FunctionContainer
-            alignStart={isResource(functionElement) || node.serviceType === ServiceTypes.GRAPHQL}
-            isSelected={isHovered || isSelected}
-            onMouseOver={() => handleOnHover('SELECT')}
-            onMouseLeave={() => handleOnHover('UNSELECT')}
-        >
-            {isResource(functionElement) ?
-                <ResourceFunctionWidget
-                    engine={engine}
-                    node={node}
-                    resource={functionElement}
-                    resourcePath={path}
-                /> :
-                <RemoteFunctionWidget
-                    engine={engine}
-                    node={node}
-                    remoteFunc={functionElement}
-                />
-            }
-            {isHovered && functionElement.elementLocation && editingEnabled &&
-                <NodeMenuWidget
-                    background={Colors.SECONDARY}
-                    location={functionElement.elementLocation}
-                    resourceFunction={functionElement}
-                />
-            }
-        </FunctionContainer>
+        <CtrlClickGo2Source location={functionElement.elementLocation}>
+            <FunctionContainer
+                alignStart={isResource(functionElement) || node.serviceType === ServiceTypes.GRAPHQL}
+                isSelected={isHovered || isSelected}
+                onMouseOver={() => handleOnHover('SELECT')}
+                onMouseLeave={() => handleOnHover('UNSELECT')}
+            >
+                {isResource(functionElement) ?
+                    <ResourceFunctionWidget
+                        engine={engine}
+                        node={node}
+                        resource={functionElement}
+                        resourcePath={path}
+                    /> :
+                    <RemoteFunctionWidget
+                        engine={engine}
+                        node={node}
+                        remoteFunc={functionElement}
+                    />
+                }
+                {isHovered && functionElement.elementLocation && editingEnabled &&
+                    <NodeMenuWidget
+                        background={Colors.SECONDARY}
+                        location={functionElement.elementLocation}
+                        resourceFunction={functionElement}
+                    />
+                }
+            </FunctionContainer>
+        </CtrlClickGo2Source>
     )
 }
 

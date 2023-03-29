@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		buttonWrap: {
 			position: 'absolute',
-			bottom: 10,
+			bottom: 50,
 			right: 20
 		},
 		iconWrap: {

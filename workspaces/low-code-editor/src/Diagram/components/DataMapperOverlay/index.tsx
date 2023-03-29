@@ -39,6 +39,7 @@ export interface DataMapperProps {
     targetPosition?: NodePosition;
     ballerinaVersion?: string;
     onCancel?: () => void;
+    configOverlayFormStatus?: ConfigOverlayFormStatus;
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
@@ -52,7 +53,11 @@ export function DataMapperOverlay(props: DataMapperProps) {
             code: { modifyDiagram, updateFileContent },
             ls: { getDiagramEditorLangClient },
             library,
-        },
+            navigation: {
+                updateActiveFile,
+                updateSelectedComponent
+            }
+    }
     } = useContext(Context);
 
     const [functionST, setFunctionST] =
@@ -121,33 +126,29 @@ export function DataMapperOverlay(props: DataMapperProps) {
 
     return (
         <DiagramOverlayContainer>
-            <DiagramOverlay
-                position={{ x: 0, y: 0 }}
-                stylePosition={"absolute"}
-                className={dataMapperClasses.overlay}
-            >
-                <div className={dataMapperClasses.dataMapperContainer}>
-                    <DataMapper
-                        library={library}
-                        targetPosition={targetPosition}
-                        fnST={functionST}
-                        langClientPromise={
-                            getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-                        }
-                        filePath={currentFile.path}
-                        currentFile={currentFile}
-                        stSymbolInfo={stSymbolInfo}
-                        ballerinaVersion={ballerinaVersion}
-                        applyModifications={modifyDiagram}
-                        updateFileContent={updateFileContent}
-                        onClose={onClose}
-                        onSave={onSave}
-                        importStatements={importStatements}
-                        recordPanel={renderRecordPanel}
-                        syntaxTree={fullST}
-                    />
-                </div>
-            </DiagramOverlay>
+            <div className={dataMapperClasses.dataMapperContainer}>
+                <DataMapper
+                    library={library}
+                    targetPosition={targetPosition}
+                    fnST={functionST}
+                    langClientPromise={
+                        getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                    }
+                    filePath={currentFile.path}
+                    currentFile={currentFile}
+                    stSymbolInfo={stSymbolInfo}
+                    ballerinaVersion={ballerinaVersion}
+                    applyModifications={modifyDiagram}
+                    updateFileContent={updateFileContent}
+                    onClose={onClose}
+                    onSave={onSave}
+                    importStatements={importStatements}
+                    recordPanel={renderRecordPanel}
+                    syntaxTree={fullST}
+                    updateActiveFile={updateActiveFile}
+                    updateSelectedComponent={updateSelectedComponent}
+                />
+            </div>
         </DiagramOverlayContainer>
     );
 }

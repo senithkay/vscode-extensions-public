@@ -28,6 +28,8 @@ import {
     SubpathAvailableRequest,
     getDiagramComponentModel,
     ComponentModel,
+    DeleteComponent,
+    PullComponent,
     GetComponentModelResponse,
     ComponentModelDiagnostics
 } from "@wso2-enterprise/choreo-core";
@@ -74,8 +76,21 @@ export class WebViewRpc {
 
         this._messenger.onRequest(GetComponents, async (projectId: string) => {
             if (ext.api.selectedOrg) {
-                return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle);
+                return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
             }
+        });
+
+        this._messenger.onRequest(DeleteComponent, async (params: {projectId: string, componentId: string}) => {
+            if (ext.api.selectedOrg) {
+                const answer = await vscode.window.showInformationMessage("Are you sure you want to remove the component? This action will be irreversible and all related details will be lost.", "Delete Component", "Cancel");
+                if(answer === "Delete Component"){
+                    await ProjectRegistry.getInstance().deleteComponent(params.componentId, ext.api.selectedOrg.handle, params.projectId);
+                }
+            }
+        });
+
+        this._messenger.onRequest(PullComponent, async (params: {projectId: string, componentId: string}) => {
+            await ProjectRegistry.getInstance().pullComponent(params.componentId, params.projectId);
         });
 
         this._messenger.onRequest(GetProjectLocation, async (projectId: string) => {

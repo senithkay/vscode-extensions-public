@@ -10,26 +10,27 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { LinePosition } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    FunctionCall,
+    Visitor
+} from "@wso2-enterprise/syntax-tree";
 
-import styled from "@emotion/styled";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+export class FunctionCallFindingVisitor implements Visitor {
+    private readonly fnCallPositions: LinePosition[];
 
-export const Canvas = styled.div`
-  position: relative;
-  cursor: move;
-  overflow: hidden;
+    constructor() {
+        this.fnCallPositions = []
+    }
 
-  & > svg {
-    overflow: visible;
-  }
-`;
+    public beginVisitFunctionCall(node: FunctionCall) {
+        this.fnCallPositions.push({
+            line: node.position.startLine,
+            offset: node.position.startColumn
+        });
+    }
 
-export const useDiagramStyles = makeStyles(() =>
-    createStyles({
-        diagramContainer: {
-            minWidth: '100%',
-            padding: '15px',
-            height: '100px'
-        }
-    }),
-);
+    public getFunctionCallPositions(){
+        return this.fnCallPositions;
+    }
+}

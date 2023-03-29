@@ -108,14 +108,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     const examplesListRenderer = commands.registerCommand('ballerina.showExamples', () => {
         sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_OPEN_EXAMPLES, CMP_EXAMPLES_VIEW);
-        ballerinaExtInstance.onReady()
-            .then(() => {
-                showExamples(context, langClient);
-            })
-            .catch((e) => {
-                ballerinaExtInstance.showPluginActivationError();
-                sendTelemetryException(ballerinaExtInstance, e, CMP_EXAMPLES_VIEW);
-            });
+        showExamples(context, langClient);
     });
 
     context.subscriptions.push(examplesListRenderer);
