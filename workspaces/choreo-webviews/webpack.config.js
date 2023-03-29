@@ -3,6 +3,7 @@ const webpack = require('webpack');
 module.exports = {
     entry: './src/index.tsx',
     target: "web",
+    devtool: 'source-map',
     mode: "development",
     output: {
         path: path.resolve(__dirname, 'build'),
