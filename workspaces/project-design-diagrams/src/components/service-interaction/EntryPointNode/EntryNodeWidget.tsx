@@ -60,7 +60,7 @@ export function EntryNodeWidget(props: EntryNodeProps) {
     const displayName: string = node.entryPoint.annotation?.label || processPackageName();
 
     return (
-        <CtrlClickGo2Source location={node.elementLocation}>
+        <CtrlClickGo2Source location={node.entryPoint.elementLocation}>
             <Container
                 isSelected={isSelected}
                 level={node.level}
@@ -73,10 +73,10 @@ export function EntryNodeWidget(props: EntryNodeProps) {
                 />
                     <EntryPointIcon />
                     <DisplayName>{displayName}</DisplayName>
-                    {isHovered && node.elementLocation && editingEnabled &&
+                    {isHovered && node.entryPoint.elementLocation && editingEnabled &&
                         <NodeMenuWidget
                             background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
-                            location={node.elementLocation}
+                            location={node.entryPoint.elementLocation}
                         />
                     }
                 <ServicePortWidget
