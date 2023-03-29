@@ -64,22 +64,6 @@ runs:
                           }
                         }
                       }
-                    },
-                    {
-                      "keyValue": {
-                        "topLabel": "Pull Request",
-                        "content": "${{ steps.commit.outputs.prURL }}",
-                        "button": {
-                          "textButton": {
-                            "text": "Merge",
-                            "onClick": {
-                              "openLink": {
-                                "url": "${{ steps.commit.outputs.prURL }}"
-                              }
-                            }
-                          }
-                        }
-                      }
                     }
                   ]
                 }
