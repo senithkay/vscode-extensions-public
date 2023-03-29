@@ -68,6 +68,7 @@ export function DeleteComponentDialog(props: DeleteDialogProps) {
     }
 
     return (
+        // Todo: Fix selected node handling on dialog open/close
         <Dialog open={showDialog} onClose={handleDialogClose}>
             <DialogTitle sx={TitleTextProps}>Delete Component</DialogTitle>
             <DialogContent>

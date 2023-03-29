@@ -46,27 +46,25 @@ export function NodeMenuPanel(props: MenuProps) {
     const { deleteComponent } = useContext(DiagramContext);
 
     return (
-        <>
-            <Paper sx={{ maxWidth: "100%" }}>
-                <MenuList>
-                    <Go2SourceButton location={location} />
-                    {service && <GoToDesign element={service} />}
-                    {resource && <GoToDesign element={resource} />}
-                    {serviceAnnotation && (serviceAnnotation.elementLocation || service.elementLocation) &&
-                        <EditLabelButton handleDialogStatus={handleEditLabelDialog} />
-                    }
-                    {service && location && deleteComponent &&
-                        <DeleteComponentButton handleDialogStatus={handleDeleteComponentDialog} />
-                    }
-                    {linkingEnabled && service && (
-                        <>
-                            <Divider />
-                            <LinkingButton service={service} />
-                            <AddConnectorButton service={service} />
-                        </>
-                    )}
-                </MenuList>
-            </Paper>
-        </>
+        <Paper sx={{ maxWidth: "100%" }}>
+            <MenuList>
+                <Go2SourceButton location={location} />
+                {service && <GoToDesign element={service} />}
+                {resource && <GoToDesign element={resource} />}
+                {serviceAnnotation && (serviceAnnotation.elementLocation || service.elementLocation) &&
+                    <EditLabelButton handleDialogStatus={handleEditLabelDialog} />
+                }
+                {service && location && deleteComponent &&
+                    <DeleteComponentButton handleDialogStatus={handleDeleteComponentDialog} />
+                }
+                {linkingEnabled && service && (
+                    <>
+                        <Divider />
+                        <LinkingButton service={service} />
+                        <AddConnectorButton service={service} />
+                    </>
+                )}
+            </MenuList>
+        </Paper>
     );
 }
