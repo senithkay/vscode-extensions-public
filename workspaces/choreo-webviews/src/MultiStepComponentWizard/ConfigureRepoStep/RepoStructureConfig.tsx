@@ -23,6 +23,7 @@ import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
+import { BYOCRepoConfig } from "./BYOCRepoConfig"
 import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 
 const StepContainer = styled.div`
@@ -56,7 +57,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
             const projClient = ChoreoWebViewAPI.getInstance().getProjectClient();
             const repoMetaData = await projClient.getRepoMetadata({
                 organization: repository?.org,
-                repo:   repository?.repo,
+                repo: repository?.repo,
                 branch: repository?.branch,
                 path: fName,
                 dockerfile: '',
@@ -140,24 +141,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
             {isValidationInProgress && <div>validating...</div>}
             {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
             {isExistingDockerMode &&(
-                <StepContainer>
-                    <VSCodeTextField
-                        placeholder=""
-                        onInput={(e: any) => setSubFolderName(e.target.value)}
-                        value={folderName}
-                    >
-                        Docker File Path <RequiredFormInput />
-                        {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
-                    </VSCodeTextField>
-                    <VSCodeTextField
-                        placeholder=""
-                        onInput={(e: any) => setSubFolderName(e.target.value)}
-                        value={"/"}
-                    >
-                        Docker Context Path <RequiredFormInput />
-                        {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
-                    </VSCodeTextField>
-                </StepContainer>
+                <BYOCRepoConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />
              )}
         </div>
     );
