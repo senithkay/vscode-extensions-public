@@ -43,8 +43,7 @@ import {
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
-    GetComponentModelResponse
-    ComponentModel,
+    GetComponentModelResponse,
     getDiagramComponentModel,
     DeleteComponent,
     PullComponent
