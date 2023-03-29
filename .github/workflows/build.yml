@@ -5,7 +5,17 @@ on:
     inputs: 
       isPreRelease:
         default: true
-        type: boolean      
+        type: boolean  
+      ballerina:
+        description: Release Ballerina extension
+        type: boolean
+        required: true
+        default: false
+      choreo:
+        description: Release Choreo extension
+        type: boolean
+        required: true
+        default: false      
       version:
         default: 'N/A'
         type: string
@@ -43,12 +53,16 @@ jobs:
         with:
           version: ${{ env.ballerina_version }}
 
-      - name: Update versions
-        if: ${{ inputs.version != 'N/A' }}
+      - name: Update ballerina extension versions
+        if: ${{ inputs.version != 'N/A' && inputs.ballerina }}
         run: |
-          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
-          npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspace=workspaces/choreo-extension
-          
+          pnpm --filter=ballerina version ${{ inputs.version }} --preid beta --no-git-tag-version
+
+      - name: Update choreo extension versions
+        if: ${{ inputs.version != 'N/A' && inputs.choreo }}
+        run: |
+          pnpm --filter=choreo version ${{ inputs.version }} --preid beta --no-git-tag-version
+
       - name: Get timestamp
         id: timestamp
         run: |
