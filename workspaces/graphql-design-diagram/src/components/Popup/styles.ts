@@ -14,7 +14,7 @@
 import styled from "@emotion/styled";
 import { makeStyles } from "@material-ui/core/styles";
 
-export const Container = styled.div`
+export const Container: React.FC<any> = styled.div`
   display: flex;
   flex-direction: row;
   font-family: GilmerRegular;

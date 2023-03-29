@@ -700,6 +700,14 @@ export function createNewRecord(newRecord: string, stNode: STNode, applyModifica
     ]);
 }
 
+export function createNewConstruct(codeSnippet: string, stNode: STNode, applyModifications: (modifications: STModification[]) => void) {
+    const stNodeValue = (stNode as ModulePart);
+    const nodePosition: NodePosition = stNodeValue.eofToken.position;
+    applyModifications([
+        createPropertyStatement(codeSnippet, nodePosition, false)
+    ]);
+}
+
 export function createPropertyStatement(property: string, targetPosition?: NodePosition, isLastMember?: boolean): STModification {
     const propertyStatement: STModification = {
         startLine: targetPosition ? targetPosition.startLine : 0,

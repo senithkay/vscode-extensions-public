@@ -38,17 +38,18 @@ export interface GraphqlDesignOverlayProps {
     ballerinaVersion?: string;
     onCancel?: () => void;
     configOverlayFormStatus?: ConfigOverlayFormStatus;
+    goToSource: (filePath: string, position: NodePosition) => void;
 }
 
 export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
-    const { targetPosition, ballerinaVersion, onCancel: onClose, model } = props;
+    const { targetPosition, ballerinaVersion, onCancel: onClose, model, goToSource } = props;
 
     const graphQLStyleClasses = graphQLOverlayStyles();
 
     const {
-        props: { currentFile, syntaxTree: lowcodeST },
+        props: { currentFile, syntaxTree: lowcodeST, fullST },
         api: {
-            code: { modifyDiagram },
+            code: { modifyDiagram,  },
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
@@ -61,7 +62,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
 
     const renderFunctionForm = (position: NodePosition, functionType: string, functionModel?: STNode) => {
-        if (STKindChecker.isServiceDeclaration(model)) {
+        if (STKindChecker.isServiceDeclaration(model) || STKindChecker.isClassDefinition(model)) {
             setFormConfig({
                 model: functionModel,
                 configOverlayFormStatus: { formType: "GraphqlConfigForm", formName: functionType, isLoading: false },
@@ -108,7 +109,6 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
         modifyDiagram(modifications);
     }
 
-
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
             <GraphqlDesignDiagram
@@ -125,6 +125,8 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 servicePanel={renderServicePanel}
                 operationDesignView={handleDesignOperationClick}
                 onDelete={handleDeleteBtnClick}
+                fullST={fullST}
+                goToSource={goToSource}
             />
             {enableFunctionForm &&
             <FormGenerator {...formConfig}/>

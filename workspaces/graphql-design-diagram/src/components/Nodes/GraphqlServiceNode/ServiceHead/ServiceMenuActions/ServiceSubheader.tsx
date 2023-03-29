@@ -12,15 +12,16 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline no-implicit-dependencies no-submodule-imports
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 
-import Button from "@material-ui/core/Button";
-import Tooltip from "@mui/material/Tooltip";
+import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
+import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../../../../resources/model";
 
 import { AddFunctionWidget } from "./AddFunctionWidget";
+import { useStyles } from "./styles";
 
 interface ServiceSubheaderProps {
     location: Position;
@@ -29,67 +30,24 @@ interface ServiceSubheaderProps {
 export function ServiceSubheader(props: ServiceSubheaderProps) {
     const { location } = props;
     const { servicePanel } = useContext(DiagramContext);
-
-    const [showTooltip, setTooltipStatus] = useState<boolean>(false);
+    const classes = useStyles();
 
     return (
         <>
-            <Button
-                onClick={() => servicePanel()}
-                onMouseOver={() => setTooltipStatus(false)}
-                color="primary"
-                data-testid="add-operation"
-                style={{ textTransform: 'none', padding: '0px', justifyContent: "flex-start" }}
-            >
-                Edit Service
-            </Button>
-            <Tooltip
-                open={showTooltip}
-                title={
-                    <>
-                        <AddFunctionWidget position={location} functionType={FunctionType.QUERY}/>
-                        <AddFunctionWidget position={location} functionType={FunctionType.MUTATION}/>
-                        <AddFunctionWidget position={location} functionType={FunctionType.SUBSCRIPTION}/>
-                    </>
-                }
-                PopperProps={{
-                    modifiers: [
-                        {
-                            name: 'offset',
-                            options: {
-                                offset: [0, 0],
-                            },
-                        },
-                    ]
-                }}
-                componentsProps={{
-                    tooltip: {
-                        sx: {
-                            backgroundColor: '#efeeee',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center'
-                        }
-                    },
-                    arrow: {
-                        sx: {
-                            color: '#efeeee',
-                            marginLeft: '5px'
-                        }
-                    }
-                }}
-                arrow={true}
-                placement="right"
-            >
-                <Button
-                    onMouseOver={() => setTooltipStatus(true)}
-                    color="primary"
-                    data-testid="add-operation"
-                    style={{ textTransform: 'none', padding: '0px', justifyContent: "flex-start" }}
-                >
-                    Add Operation
-                </Button>
-            </Tooltip>
+            <Paper style={{maxWidth: "100%"}}>
+                <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                    <MenuItem onClick={() => servicePanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                        <ListItemIcon  style={{marginRight: "10px", minWidth: "0px"}}>
+                            <LabelEditIcon/>
+                        </ListItemIcon>
+                        <ListItemText className={classes.listItemText}>Edit Service</ListItemText>
+                    </MenuItem>
+                    <Divider />
+                    <AddFunctionWidget position={location} functionType={FunctionType.QUERY}/>
+                    <AddFunctionWidget position={location} functionType={FunctionType.MUTATION}/>
+                    <AddFunctionWidget position={location} functionType={FunctionType.SUBSCRIPTION}/>
+                </MenuList>
+            </Paper>
         </>
     );
 }
