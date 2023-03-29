@@ -19,7 +19,7 @@ import {
     DefaultableParam,
     IncludedRecordParam,
     RequiredParam,
-    RestParam, STKindChecker
+    RestParam, STKindChecker, STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../../models/definitions";
@@ -33,10 +33,8 @@ import { useStyles } from './style';
 interface ParameterEditorProps {
     param?: (DefaultableParam | IncludedRecordParam | RequiredParam | RestParam);
     id?: number;
-    segment?: FunctionParameter,
-    onSave?: (segment: FunctionParameter) => void;
-    onUpdate?: (segment: FunctionParameter) => void;
-    onChange?: (segment: FunctionParameter) => void;
+    onSave?: (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => void;
+    onChange?: (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => void;
     syntaxDiag?: StatementSyntaxDiagnostics[];
     onCancel?: () => void;
     isEdit?: boolean;
@@ -44,13 +42,8 @@ interface ParameterEditorProps {
 }
 // TODO : Add the logic to handle the syntax diagnostics and typeBrowser with suggestions for new constructs
 export function ParameterEditor(props: ParameterEditorProps) {
-    const { param, segment, onSave, onUpdate, onChange, id, onCancel, syntaxDiag, isEdit, completions } = props;
+    const { param, onSave, onChange, id, onCancel, syntaxDiag, isEdit, completions } = props;
     const classes = useStyles();
-    const initValue: FunctionParameter = segment ? { ...segment } : {
-        id: id ? id : 0,
-        name: "name",
-        type: "string"
-    }
 
     const [segmentType, setSegmentType] = useState<string>(param?.typeName?.source.trim() || "string");
     const [segmentName, setSegmentName] = useState<string>(param?.paramName?.value.trim() || "name");
@@ -59,7 +52,7 @@ export function ParameterEditor(props: ParameterEditorProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
 
-    const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
+    const { applyModifications, fullST } = useContext(FormEditorContext);
 
     const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
 
@@ -77,21 +70,15 @@ export function ParameterEditor(props: ParameterEditorProps) {
     }
 
     const handleOnSave = () => {
-        onSave({
-            ...initValue,
-            name: segmentName,
-            type: segmentType,
-            defaultValue
-        });
-    };
-
-    const handleOnUpdate = () => {
-        onUpdate({
-            ...initValue,
-            name: segmentName,
-            type: segmentType,
-            defaultValue
-        });
+        onSave(
+            {
+                id,
+                type: segmentType,
+                name: segmentName,
+                defaultValue
+            },
+            param,
+        );
     };
 
     const onTypeEditorFocus = () => {
@@ -99,13 +86,18 @@ export function ParameterEditor(props: ParameterEditorProps) {
     }
 
     const handleOnTypeChange = (value: string) => {
+        onTypeEditorFocus();
         setSegmentType(value);
-        onChange({
-            ...initValue,
-            name: segmentName,
-            type: value,
-            defaultValue
-        });
+        onChange(
+            {
+                id,
+                type: value,
+                name: segmentName,
+                defaultValue
+            },
+            param,
+            value
+            )
     };
 
     const onNameEditorFocus = () => {
@@ -114,12 +106,16 @@ export function ParameterEditor(props: ParameterEditorProps) {
 
     const handleOnNameChange = (value: string) => {
         setSegmentName(value);
-        onChange({
-            ...initValue,
-            name: value,
-            type: segmentType,
-            defaultValue
-        });
+        onChange(
+            {
+                id,
+                type: segmentType,
+                name: value,
+                defaultValue
+            },
+            param,
+            value
+        )
     };
 
     const onDefaultValueEditorFocus = () => {
@@ -128,14 +124,16 @@ export function ParameterEditor(props: ParameterEditorProps) {
 
     const handleDefaultValueChange = (value: string) => {
         setDefaultValue(value);
-        const type = param.typeName.source.trim();
-        const paramName = param.paramName.value;
-        onChange({
-            ...initValue,
-            name: paramName,
-            type,
-            defaultValue: value
-        });
+        onChange(
+            {
+                id,
+                type: segmentType,
+                name: segmentName,
+                defaultValue: value
+            },
+            param,
+            value
+        )
     }
 
     return (
@@ -147,7 +145,7 @@ export function ParameterEditor(props: ParameterEditorProps) {
                         type={segmentType}
                         onChange={handleOnTypeChange}
                         isLoading={false}
-                        recordCompletions={completions ? completions : []}
+                        recordCompletions={completions ? completions : []} // TODO handle empty completions from top level
                         createNew={createConstruct}
                         diagnostics={syntaxDiag?.filter(diag => diag?.message.includes("unknown type"))}
                         isGraphqlForm={true}
@@ -198,7 +196,7 @@ export function ParameterEditor(props: ParameterEditorProps) {
                 />
                 <PrimaryButton
                     dataTestId={"param-save-btn"}
-                    text={onUpdate ? "Update" : " Add"}
+                    text={isEdit ? "Update" : " Add"}
                     disabled={
                         (syntaxDiag?.length > 0)
                         || (param?.viewState?.diagnosticsInRange?.length > 0)
@@ -206,7 +204,7 @@ export function ParameterEditor(props: ParameterEditorProps) {
                         || segmentType?.length === 0
                     }
                     fullWidth={false}
-                    onClick={onUpdate ? handleOnUpdate : handleOnSave}
+                    onClick={handleOnSave}
                 />
             </div>
         </div>

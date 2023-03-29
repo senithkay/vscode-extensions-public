@@ -44,7 +44,7 @@ import { FunctionParam } from "../FunctionForm/FunctionParamEditor/FunctionParam
 import { createNewConstruct, generateParameterSectionString } from "../ResourceForm/util";
 
 import { ParameterEditor } from "./ParameterEditor/ParameterEditor";
-import { ParameterField } from "./ParameterEditor/ParameterField";
+import { FunctionParameter, ParameterField } from "./ParameterEditor/ParameterField";
 
 export interface FunctionProps {
     model: ObjectMethodDefinition;
@@ -104,6 +104,8 @@ export function GraphqlMutationForm(props: FunctionProps) {
         handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
+            value,
+            model.functionSignature?.returnTypeDesc?.type,
             value
         );
     };
@@ -124,30 +126,34 @@ export function GraphqlMutationForm(props: FunctionProps) {
         );
     };
 
-    const onNewParamChange = async (param: FunctionParam) => {
+    const onNewParamChange = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
-        const newParams = [...parameters, param];
+        const newParams = [...parameters, parameter];
         const parametersStr = newParams
             .map((item) => `${item.type} ${item.name}`)
             .join(", ");
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
-            model.functionSignature?.returnTypeDesc?.type?.source
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            focusedModel,
+            typedInValue
         );
     };
 
-    const onUpdateParamChange = async (param: FunctionParam) => {
+    const onChangeExistingParameter = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
         const newParams = [...parameters];
-        newParams[param.id] = param;
+        newParams[parameter.id] = parameter;
         const parametersStr = newParams
             .map((item) => `${item.type} ${item.name}`)
             .join(", ");
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
-            model.functionSignature?.returnTypeDesc?.type?.source
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            focusedModel,
+            typedInValue
         );
     };
 
@@ -234,9 +240,10 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         id={editingSegmentId}
                         syntaxDiag={currentComponentSyntaxDiag}
                         onCancel={closeParamView}
-                        onUpdate={handleOnUpdateParam}
-                        onChange={onUpdateParamChange}
+                        onSave={handleOnUpdateParam}
+                        onChange={onChangeExistingParameter}
                         isEdit={true}
+                        completions={completions ? completions.filter((completion) => completion.kind !== "Module") : []}
                     />
                 );
             }
@@ -248,6 +255,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
 
         if (currentComponentName === "") {
             const editParams: FunctionParam[] = model?.functionSignature.parameters
+                .filter((param) => !STKindChecker.isCommaToken(param))
                 .map((param: any, index) => ({
                     id: index,
                     name: param.paramName.value,
@@ -255,7 +263,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
                 }));
             setParameters(editParams);
         }
-    }, [model, completions]);
+    }, [model]);
 
 
     const handleNameChange = async (value: string) => {
@@ -344,12 +352,11 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <FieldTitle title="Return Type" optional={false}/>
-                        {/*TODO: not getting completions for mutation return*/}
                         <TypeBrowser
                             type={returnType}
                             onChange={onReturnTypeChange}
                             isLoading={false}
-                            recordCompletions={completions.filter((completion) => completion.kind !== "Module")}
+                            recordCompletions={completions ? completions.filter((completion) => completion.kind !== "Module") : []}
                             createNew={createConstruct}
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             isGraphqlForm={true}
