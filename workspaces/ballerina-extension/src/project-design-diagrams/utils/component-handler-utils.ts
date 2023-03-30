@@ -19,7 +19,7 @@
 
 import { Uri, window, workspace } from "vscode";
 import { existsSync, readFile, rmSync, unlinkSync, writeFile, writeFileSync } from "fs";
-import { dirname, join, resolve } from "path";
+import * as path from "path";
 import child_process from "child_process";
 import { compile } from "handlebars";
 import { BallerinaTriggerResponse, STModification } from "@wso2-enterprise/ballerina-languageclient";
@@ -69,13 +69,13 @@ export function processTomlFiles(pkgRoot: string, orgName: string, version: stri
     let didFail: boolean;
 
     // Remove Dependencies.toml
-    const dependenciesTomlPath = join(pkgRoot, 'Dependencies.toml');
+    const dependenciesTomlPath = path.join(pkgRoot, 'Dependencies.toml');
     if (existsSync(dependenciesTomlPath)) {
         unlinkSync(dependenciesTomlPath);
     }
 
     // Update org and version in Ballerina.toml   
-    const balToml: string = join(pkgRoot, 'Ballerina.toml');
+    const balToml: string = path.join(pkgRoot, 'Ballerina.toml');
     readFile(balToml, 'utf-8', function (err, contents) {
         if (err) {
             didFail = true;
@@ -97,7 +97,7 @@ export function getAnnotatedContent(content: string, label: string, serviceId: s
 export function addDisplayAnnotation(pkgPath: string, label: string, id: string, type: ChoreoServiceComponentType): boolean {
     let didFail: boolean;
     const serviceFileName = type === ChoreoServiceComponentType.GRAPHQL ? 'sample.bal' : 'service.bal';
-    const serviceFilePath = join(pkgPath, serviceFileName);
+    const serviceFilePath = path.join(pkgPath, serviceFileName);
     readFile(serviceFilePath, 'utf-8', (err, contents) => {
         if (err) {
             didFail = true;
@@ -147,7 +147,7 @@ export async function buildWebhookTemplate(pkgPath: string, triggerId: string): 
 
 export function writeWebhookTemplate(pkgPath: string, template: string): boolean {
     let didFail: boolean;
-    const serviceFilePath = join(pkgPath, 'service.bal');
+    const serviceFilePath = path.join(pkgPath, 'service.bal');
     readFile(serviceFilePath, 'utf-8', (err) => {
         if (err) {
             didFail = true;
@@ -159,14 +159,15 @@ export function writeWebhookTemplate(pkgPath: string, template: string): boolean
 }
 
 export function deleteBallerinaPackage(filePath: string): void {
-    let basePath: string = dirname(filePath);
-    while (!existsSync(join(basePath, 'Ballerina.toml'))) {
-        basePath = dirname(basePath);
+    let basePath: string = path.dirname(filePath);
+    while (!existsSync(path.join(basePath, 'Ballerina.toml'))) {
+        basePath = path.dirname(basePath);
     }
     rmSync(basePath, { recursive: true });
     updateWorkspaceFile(basePath).then(() => {
         window.showInformationMessage('Component was deleted successfully');
-    }).catch(() => {
+    }).catch((err) => {
+        console.log(err);
         window.showErrorMessage('Error: Could not update workspace file');
     });
 }
@@ -196,25 +197,31 @@ export async function deleteComponent(location: Location) {
     }
 }
 
-async function updateWorkspaceFile(componentPath: string) {
-    const workspaceFile: string = workspace.workspaceFile?.fsPath;
-    readFile(workspaceFile, 'utf-8', function (err, contents) {
-        if (contents) {
-            const content: WorkspaceConfig = JSON.parse(contents);
-            const deletedFolder: WorkspaceItem = content.folders.find(folder => folder.name !== 'choreo-project-root'
-                && componentPath.includes(resolve(folder.path)));
-            const folderIndex: number = content.folders.indexOf(deletedFolder);
+async function updateWorkspaceFile(componentPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const workspaceFile: string = workspace.workspaceFile?.fsPath;
+        readFile(workspaceFile, 'utf-8', function (err, contents) {
+            if (contents) {
+                const content: WorkspaceConfig = JSON.parse(contents);
+                const deletedFolder: WorkspaceItem = content.folders.find(folder =>
+                    componentPath === path.resolve(path.dirname(workspaceFile), folder.path));
+                const folderIndex: number = content.folders.indexOf(deletedFolder);
 
-            if (folderIndex > -1) {
-                content.folders.splice(folderIndex, 1);
-                writeFile(workspaceFile, JSON.stringify(content, null, 4), 'utf-8', function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                });
+                if (folderIndex > -1) {
+                    content.folders.splice(folderIndex, 1);
+                    writeFile(workspaceFile, JSON.stringify(content, null, 4), 'utf-8', function (err) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                } else {
+                    reject(new Error('Could not find the component in the workspace file'));
+                }
+            } else if (err) {
+                reject(err);
             }
-        } else {
-            throw err;
-        }
+        });
     });
 }
