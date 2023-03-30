@@ -68,6 +68,7 @@ function isSupportedType(node: STNode,
     const isRecordType = STKindChecker.isRecordTypeDesc(node);
     const isOptionalType = STKindChecker.isOptionalTypeDesc(node);
     const isTypeMissing = STKindChecker.isSimpleNameReference(node) && node.name.isMissing;
+    const isParenthesisedType = STKindChecker.isParenthesisedTypeDesc(node);
 
     if (!type && isRecordType) {
         return [false, TypeNature.WHITELISTED];
@@ -96,6 +97,8 @@ function isSupportedType(node: STNode,
         return [true];
     } else if (isUnionType || isMapType || isOptionalType) {
         return [false, TypeNature.YET_TO_SUPPORT];
+    } else if (isArrayType || isParenthesisedType) {
+        return [getUnsupportedTypes(node).length === 0, TypeNature.BLACKLISTED]
     } else if (isInvalid) {
         return [false, TypeNature.INVALID];
     } else if (isAlreadySupportedType || (!isUnsupportedType && isArraysSupported(balVersion))) {

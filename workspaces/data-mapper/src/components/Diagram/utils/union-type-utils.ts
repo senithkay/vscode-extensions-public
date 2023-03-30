@@ -49,10 +49,13 @@ export function getUnsupportedTypes(typeDesc: STNode): string[] {
 	if (STKindChecker.isUnionTypeDesc(typeDesc)) {
 		const { leftTypeDesc, rightTypeDesc } = typeDesc;
 		unsupportedTypes.push(...getUnsupportedTypes(leftTypeDesc), ...getUnsupportedTypes(rightTypeDesc));
-	} else {
-		if (isUnsupportedType(typeDesc)) {
-			unsupportedTypes.push(typeDesc.source);
-		}
+	} else if (STKindChecker.isArrayTypeDesc(typeDesc)) {
+		const filteredTypes = getUnsupportedTypes(typeDesc.memberTypeDesc).map(type => `${type}[]`);
+		unsupportedTypes.push(...filteredTypes);
+	} else if (STKindChecker.isParenthesisedTypeDesc(typeDesc)) {
+		unsupportedTypes.push(...getUnsupportedTypes(typeDesc.typedesc));
+	} else if (isUnsupportedType(typeDesc)) {
+		unsupportedTypes.push(typeDesc.source);
 	}
 	return unsupportedTypes;
 }
