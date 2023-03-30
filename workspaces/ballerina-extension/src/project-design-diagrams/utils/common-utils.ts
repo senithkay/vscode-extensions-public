@@ -24,7 +24,7 @@ import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient, GetPackageComponentModelsResponse } from "../../core";
 import { terminateActivation } from "../activator";
-import { ComponentModel, ERROR_MESSAGE, Location } from "../resources";
+import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, Location } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
 import { deleteBallerinaPackage, deleteComponent } from "./component-handler-utils";
 
@@ -50,14 +50,25 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<GetPa
         langClient.getPackageComponentModels({
             documentUris: ballerinaFiles
         }).then(async (response) => {
+            let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
+            if (response.diagnostics?.length) {
+                showDiagnosticsWarning();
+            } else {
+                for (let [_key, packageModel] of packageModels) {
+                    if (packageModel.hasCompilationErrors) {
+                        showDiagnosticsWarning();
+                        break;
+                    }
+                }
+            }
             response.diagnostics.map((diagnostic) => {
                 if (diagnostic.message.includes(`/${ballerinaToml}`)) {
                     diagnostic.name = diagnostic.message.split(`/${ballerinaToml}`)[0].split("/").pop();
                 }
             });
+
             const choreoExt = await getChoreoExtAPI();
             if (choreoExt) {
-                let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
                 packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
             }
             resolve(response);
@@ -66,6 +77,10 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<GetPa
             terminateActivation(ERROR_MESSAGE);
         });
     });
+}
+
+function showDiagnosticsWarning() {
+    window.showInformationMessage(DIAGNOSTICS_WARNING);
 }
 
 export async function checkIsChoreoProject(): Promise<boolean> {
