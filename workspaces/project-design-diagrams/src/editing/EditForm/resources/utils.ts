@@ -17,7 +17,7 @@
  *
  */
 
-import { BallerinaComponentCreationParams, ChoreoServiceComponentType } from '@wso2-enterprise/choreo-core';
+import { BallerinaComponentCreationParams, BallerinaComponentTypes } from '@wso2-enterprise/choreo-core';
 import { PackageNameAntiRegex } from './constants';
 
 export function transformComponentName(componentName: string): string {
@@ -34,6 +34,6 @@ export function initBallerinaComponent(): BallerinaComponentCreationParams {
         package: '',
         org: '',
         version: '0.1.0',
-        type: ChoreoServiceComponentType.REST_API
+        type: BallerinaComponentTypes.REST_API
     };
 }

@@ -17,7 +17,7 @@
  *
  */
 
-import { IProjectManager, Project, Component, BallerinaComponentCreationParams, IsRepoClonedRequestParams, ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
+import { IProjectManager, Project, Component, BallerinaComponentCreationParams, BallerinaComponentTypes, IsRepoClonedRequestParams } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import path, { join } from "path";
@@ -51,7 +51,7 @@ export class BallerinaProjectManager implements IProjectManager {
                         progress.report({ increment: 60, message: `Configured version ${version} in package ${packageName}` });
                     }
 
-                    if (type === ChoreoServiceComponentType.WEBHOOK && triggerId) {
+                    if (type === BallerinaComponentTypes.WEBHOOK && triggerId) {
                         const webhookTemplate: string = await buildWebhookTemplate(pkgPath, triggerId);
                         if (webhookTemplate) {
                             writeWebhookTemplate(pkgPath, webhookTemplate);
@@ -59,7 +59,7 @@ export class BallerinaProjectManager implements IProjectManager {
                         } else {
                             throw new Error("Error: Could not create Webhook template.");
                         }
-                    } else if (type === ChoreoServiceComponentType.GRAPHQL || type === ChoreoServiceComponentType.REST_API) {
+                    } else if (type === BallerinaComponentTypes.GRAPHQL || type === BallerinaComponentTypes.REST_API) {
                         // Add Display annotation
                         serviceId = `${name}-${randomUUID()}`;
                         const didAnnotationFail = addDisplayAnnotation(pkgPath, name, serviceId, type);

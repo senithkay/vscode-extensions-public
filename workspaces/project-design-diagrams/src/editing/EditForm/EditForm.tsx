@@ -23,7 +23,7 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
-import { BallerinaComponentCreationParams, ChoreoServiceComponentType } from '@wso2-enterprise/choreo-core';
+import { BallerinaComponentCreationParams, BallerinaComponentTypes } from '@wso2-enterprise/choreo-core';
 import { DiagramContext } from '../../components/common/';
 import { Colors } from '../../resources';
 import { AdvancedSettingsWidget, CreateButton, TextInputWidget, TypeSelector } from './components';
@@ -80,7 +80,7 @@ export function EditForm(props: EditFormProps) {
         editComponent({ ...component, directory: path });
     }
 
-    const setComponentType = (type: ChoreoServiceComponentType) => {
+    const setComponentType = (type: BallerinaComponentTypes) => {
         editComponent({ ...component, type: type });
     }
 
@@ -92,7 +92,7 @@ export function EditForm(props: EditFormProps) {
         return Boolean(component && component.name && component.directory && component.type &&
             (component.package ? PackageNameRegex.test(component.package) : validatedComponentName) &&
             (component.org ? OrganizationRegex.test(component.org) : defaultOrg) && VersionRegex.test(component.version) &&
-            (component.type === ChoreoServiceComponentType.WEBHOOK ? component.triggerId : true));
+            (component.type === BallerinaComponentTypes.WEBHOOK ? component.triggerId : true));
     }
 
     const closeForm = () => {

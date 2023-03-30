@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Project, Component, ChoreoComponentCreationParams, ChoreoServiceComponentType } from "./types";
+import { Project, Component, ChoreoComponentCreationParams } from "./types";
 
 export interface IProjectManager {
     createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
@@ -22,13 +22,22 @@ export interface IProjectManager {
     cloneRepo(params: RepoCloneRequestParams): Promise<boolean>;
 }
 
+export enum BallerinaComponentTypes {
+    REST_API = 'restAPI',
+    GRAPHQL = 'graphql',
+    MAIN = 'main',
+    WEBHOOK = 'webhook',
+    GRPC_API = 'grpcAPI',
+    WEBSOCKET_API = 'websocketAPI'
+}
+
 export interface BallerinaComponentCreationParams {
     name: string;
     version: string;
     org: string;
     package: string;
     directory: string;
-    type: ChoreoServiceComponentType;
+    type: BallerinaComponentTypes;
     triggerId?: string;
 }
 

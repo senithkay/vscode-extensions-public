@@ -23,24 +23,23 @@ import * as path from "path";
 import child_process from "child_process";
 import { compile } from "handlebars";
 import { BallerinaTriggerResponse, STModification } from "@wso2-enterprise/ballerina-languageclient";
-import { ChoreoServiceComponentType } from "@wso2-enterprise/choreo-core";
+import { BallerinaComponentTypes } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient } from "../../core";
 import { getLangClient, STResponse } from "../activator";
 import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, Location, WorkspaceConfig, WorkspaceItem } from "../resources";
 import { updateSourceFile } from "./code-generator";
 
-export function createBallerinaPackage(name: string, pkgRoot: string, type: ChoreoServiceComponentType): Promise<CommandResponse> {
+export function createBallerinaPackage(name: string, pkgRoot: string, type: BallerinaComponentTypes): Promise<CommandResponse> {
     const cmd = `bal new "${name}" ${getBalCommandSuffix(type)}`;
     return runCommand(cmd, pkgRoot);
 }
 
-export function getBalCommandSuffix(componentType: ChoreoServiceComponentType): string {
+export function getBalCommandSuffix(componentType: BallerinaComponentTypes): string {
     switch (componentType) {
-        case ChoreoServiceComponentType.GRAPHQL:
+        case BallerinaComponentTypes.GRAPHQL:
             return GRAPHQL_SERVICE_TEMPLATE_SUFFIX;
-        case ChoreoServiceComponentType.REST_API:
-        case ChoreoServiceComponentType.PROXY:
-        case ChoreoServiceComponentType.WEBHOOK:
+        case BallerinaComponentTypes.REST_API:
+        case BallerinaComponentTypes.WEBHOOK:
             return DEFAULT_SERVICE_TEMPLATE_SUFFIX;
         default:
             return '';
@@ -94,9 +93,9 @@ export function getAnnotatedContent(content: string, label: string, serviceId: s
     return content.replace(preText, processedText);
 }
 
-export function addDisplayAnnotation(pkgPath: string, label: string, id: string, type: ChoreoServiceComponentType): boolean {
+export function addDisplayAnnotation(pkgPath: string, label: string, id: string, type: BallerinaComponentTypes): boolean {
     let didFail: boolean;
-    const serviceFileName = type === ChoreoServiceComponentType.GRAPHQL ? 'sample.bal' : 'service.bal';
+    const serviceFileName = type === BallerinaComponentTypes.GRAPHQL ? 'sample.bal' : 'service.bal';
     const serviceFilePath = path.join(pkgPath, serviceFileName);
     readFile(serviceFilePath, 'utf-8', (err, contents) => {
         if (err) {

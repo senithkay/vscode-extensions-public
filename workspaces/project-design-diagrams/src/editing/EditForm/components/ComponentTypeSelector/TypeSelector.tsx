@@ -20,15 +20,15 @@
 import React from 'react';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { ChoreoServiceComponentType } from '@wso2-enterprise/choreo-core';
+import { BallerinaComponentTypes } from '@wso2-enterprise/choreo-core';
 import { TriggerSelector } from './TriggerSelector';
 import { InputComponent, SelectLabel } from '../../resources/styles';
 import { DefaultTextProps, SelectBoxStyles } from '../../resources/constants';
 
 interface TypeSelectorProps {
-    type: ChoreoServiceComponentType;
+    type: BallerinaComponentTypes;
     triggerId: string;
-    setType: (type: ChoreoServiceComponentType) => void;
+    setType: (type: BallerinaComponentTypes) => void;
     setTriggerId: (id: string) => void;
 }
 
@@ -36,7 +36,7 @@ export function TypeSelector(props: TypeSelectorProps) {
     const { type, triggerId, setTriggerId, setType } = props;
 
     const handleTypeChange = (event: SelectChangeEvent) => {
-        setType(event.target.value as ChoreoServiceComponentType);
+        setType(event.target.value as BallerinaComponentTypes);
     }
 
     return (
@@ -49,15 +49,14 @@ export function TypeSelector(props: TypeSelectorProps) {
                     onChange={handleTypeChange}
                     sx={SelectBoxStyles}
                 >
-                    <MenuItem sx={DefaultTextProps} value={ChoreoServiceComponentType.REST_API}>HTTP</MenuItem>
-                    <MenuItem sx={DefaultTextProps} value={ChoreoServiceComponentType.GRAPHQL}>GraphQL</MenuItem>
-                    <MenuItem sx={DefaultTextProps} value={ChoreoServiceComponentType.WEBHOOK}>Webhook</MenuItem>
-                    <MenuItem sx={DefaultTextProps} value={ChoreoServiceComponentType.MANUAL_TRIGGER}>Manual Trigger</MenuItem>
-                    <MenuItem sx={DefaultTextProps} value={ChoreoServiceComponentType.SCHEDULED_TASK}>Scheduled Task</MenuItem>
+                    <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.REST_API}>HTTP</MenuItem>
+                    <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.GRAPHQL}>GraphQL</MenuItem>
+                    <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.WEBHOOK}>Webhook</MenuItem>
+                    <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.MAIN}>Main</MenuItem>
                 </Select>
             </InputComponent>
 
-            {type === ChoreoServiceComponentType.WEBHOOK &&
+            {type === BallerinaComponentTypes.WEBHOOK &&
                 <TriggerSelector triggerId={triggerId} setTriggerId={setTriggerId} />
             }
         </>
