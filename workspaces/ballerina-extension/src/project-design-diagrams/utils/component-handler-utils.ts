@@ -225,3 +225,7 @@ async function updateWorkspaceFile(componentPath: string): Promise<void> {
         });
     });
 }
+
+export async function deleteLink(langClient: ExtendedLangClient, location: Location): Promise<boolean> {
+    throw new Error("Method not implemented.");
+}

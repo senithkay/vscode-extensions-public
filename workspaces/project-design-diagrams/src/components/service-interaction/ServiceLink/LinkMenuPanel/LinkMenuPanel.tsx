@@ -21,19 +21,21 @@ import React from 'react';
 import MenuList from '@mui/material/MenuList';
 import Paper from '@mui/material/Paper';
 import Popover from '@mui/material/Popover';
-import { Location } from '../../../../resources';
 import { Go2SourceButton } from '../../../common/NodeMenu/components';
+import { DeleteLinkButton } from './DeleteLinkButton';
+import { Location } from '../../../../resources';
 
 interface ServiceLinkMenuProps {
-    anchorElement: SVGPathElement | HTMLDivElement;
     location: Location;
+    anchorElement: SVGPathElement | HTMLDivElement;
     position: { x: any, y: any };
     onMouseOver: (event: React.MouseEvent<SVGPathElement | HTMLDivElement>) => void;
     onMouseLeave: () => void;
+    isL2?: boolean;
 }
 
 export function ServiceLinkMenu(props: ServiceLinkMenuProps) {
-    const { anchorElement, location, position, onMouseLeave, onMouseOver } = props;
+    const { anchorElement, isL2 = false, location, position, onMouseLeave, onMouseOver } = props;
 
     return (
         <Popover
@@ -52,12 +54,13 @@ export function ServiceLinkMenu(props: ServiceLinkMenuProps) {
             }}
             transformOrigin={{
                 vertical: 'top',
-                horizontal: 'center'
+                horizontal: isL2 ? 'left' : 'center'
             }}
         >
             <Paper sx={{ maxWidth: "100%" }}>
                 <MenuList>
                     <Go2SourceButton location={location} />
+                    <DeleteLinkButton handleClose={onMouseLeave} location={location} />
                 </MenuList>
             </Paper>
         </Popover>

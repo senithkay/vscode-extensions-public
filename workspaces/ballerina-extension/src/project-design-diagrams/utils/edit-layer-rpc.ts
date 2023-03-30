@@ -23,13 +23,14 @@ import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languagecl
 import { Messenger } from "vscode-messenger";
 import { existsSync } from "fs";
 import { commands, OpenDialogOptions, Position, Range, Selection, TextEditorRevealType, WebviewPanel, window, workspace } from "vscode";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { BallerinaProjectManager } from "./manager";
 import { Location, Service, ServiceAnnotation } from "../resources";
 import { ExtendedLangClient } from "../../core";
 import { addConnector, editDisplayLabel, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PALETTE_COMMANDS } from "../../project/cmds/cmd-runner";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { deleteLink } from "./component-handler-utils";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -84,8 +85,12 @@ export class EditLayerRPC {
             return pullConnector(langClient, args[0], args[1]);
         });
 
-        this._messenger.onRequest({ method: 'addLinks' }, (args: Service[]): Promise<boolean> => {
+        this._messenger.onRequest({ method: 'addLink' }, (args: Service[]): Promise<boolean> => {
             return linkServices(langClient, args[0], args[1]);
+        });
+
+        this._messenger.onRequest({ method: 'deleteLink' }, (location: Location): Promise<boolean> => {
+            return deleteLink(langClient, location);
         });
 
         this._messenger.onRequest({ method: 'pickDirectory' }, async (): Promise<string | undefined> => {

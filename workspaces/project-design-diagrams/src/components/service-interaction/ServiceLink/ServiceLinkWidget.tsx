@@ -17,9 +17,10 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import Popover from '@mui/material/Popover';
+import { DiagramContext } from '../../common';
 import { ServiceLinkModel } from './ServiceLinkModel';
 import { DataTypesPopup } from './data-types-popup/DataTypePopup';
 import { findCallingFunction } from './link-utils';
@@ -33,6 +34,7 @@ interface WidgetProps {
 
 export function ServiceLinkWidget(props: WidgetProps) {
 	const { link, engine } = props;
+	const { editingEnabled } = useContext(DiagramContext);
 
 	const [isSelected, setIsSelected] = useState<boolean>(false);
 	const [position, setPosition] = useState({ x: undefined, y: undefined });
@@ -116,14 +118,13 @@ export function ServiceLinkWidget(props: WidgetProps) {
 					}}
 				>
 					<DataTypesPopup
-						inputParams={callingFunction.parameters}
-						returnType={callingFunction.returns}
+						callingFunction={callingFunction}
 						location={link.location}
 					/>
 				</Popover>
 			}
 
-			{link.level === Level.ONE && link.location && position &&
+			{link.level === Level.ONE && editingEnabled && link.location && position &&
 				<ServiceLinkMenu
 					anchorElement={anchorElement}
 					location={link.location}
