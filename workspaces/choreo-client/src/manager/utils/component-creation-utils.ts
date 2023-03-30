@@ -15,7 +15,7 @@ import child_process from "child_process";
 import { log } from "console";
 import { ChoreoComponentCreationParams, ChoreoComponentType, RepositoryDetails, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { join } from "path";
-import { existsSync, readFile, unlink, writeFile } from "fs";
+import { existsSync, mkdirSync, readFile, unlink, writeFile } from "fs";
 import { randomUUID } from "crypto";
 
 export interface CommandResponse {
@@ -67,6 +67,9 @@ export function getBalCommandSuffix(componentType: ChoreoComponentType): string 
 
 export function createBallerinaPackage(pkgName: string, pkgRoot: string, componentType: ChoreoComponentType)
     : Promise<CommandResponse> {
+    if (!existsSync(pkgRoot)) {
+        mkdirSync(pkgRoot, { recursive: true });
+    }
     const cmd = `${BAL_NEW_PREFIX} "${pkgName}" ${getBalCommandSuffix(componentType)}`;
     return runCommand(cmd, pkgRoot);
 }

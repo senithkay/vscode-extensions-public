@@ -35,11 +35,31 @@ const DropDownContainer = styled.div`
     flex-direction: column;
 `;
 
+function sanitizeFolderName(folderName: string): string {
+    // Replace any characters that are not letters, numbers, spaces, or underscores with an empty string
+    const sanitized = folderName.replace(/[^a-zA-Z0-9\s_]/g, '');
+
+    // Remove any leading or trailing spaces
+    const trimmed = sanitized.trim();
+  
+    // Replace any consecutive spaces with a single space
+    const final = trimmed.replace(/\s+/g, ' ');
+  
+    return final;
+}
+
 export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange, stepValidationErrors } = props;
 
     const setComponentName = (name: string) => {
-        onFormDataChange(prevFormData => ({ ...prevFormData, name }));
+        onFormDataChange(prevFormData =>
+        ({
+            ...prevFormData, name,
+            repository: {
+                ...prevFormData.repository,
+                subPath: prevFormData.mode === "fromScratch" ? sanitizeFolderName(name) : prevFormData.repository.subPath
+            }
+        }));
     };
 
     const setDescription = (description: string) => {

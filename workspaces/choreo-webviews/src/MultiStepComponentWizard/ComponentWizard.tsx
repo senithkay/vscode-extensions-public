@@ -75,7 +75,7 @@ export const ComponentWizard: React.FC = () => {
             onSave={handleComponentCreation}
             onCancel={() => {}}
             saveButtonText="Create"
-            closeOnSave={false}
+            closeOnSave={true}
         />
     );
 };

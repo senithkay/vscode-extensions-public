@@ -31,7 +31,7 @@ export class ChoreoProjectManager implements IProjectManager {
     private balVersion: string | undefined;
 
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
-        const { displayType, name, org, repositoryInfo, triggerId } = args;
+        const { displayType, org, repositoryInfo, triggerId } = args;
         if (workspace.workspaceFile) {
             const workspaceFilePath = workspace.workspaceFile.fsPath;
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
@@ -121,19 +121,6 @@ export class ChoreoProjectManager implements IProjectManager {
 
     public async cloneRepo(params: RepoCloneRequestParams): Promise<boolean> {
        return commands.executeCommand('wso2.choreo.project.repo.clone', params);
-    }
-
-    private static _getAnnotatedContent(content: string, name: string, serviceId: string, type: ChoreoComponentType)
-        : string {
-        let preText: string;
-        if (type !== ChoreoComponentType.GraphQL) {
-            preText = 'service / on new';
-        } else {
-            preText = 'service "HelloWorld" on new';
-        }
-
-        const processedText = `@display {\n\tlabel: "${name}",\n\tid: "${serviceId}"\n}\n${preText}`;
-        return content.replace(preText, processedText);
     }
 
     removeLocalComponent(workspaceFilePath: string, component: WorkspaceComponentMetadata): void {

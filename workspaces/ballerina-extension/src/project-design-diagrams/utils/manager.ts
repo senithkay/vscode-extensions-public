@@ -24,8 +24,15 @@ import { readFile, writeFile } from "fs";
 import path, { join } from "path";
 import { addToWorkspace } from "../../utils/project-utils";
 import { runCommand } from "../../testing/runner";
+import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 
 export class BallerinaProjectManager implements IProjectManager {
+    fetchTriggers(): Promise<BallerinaTriggersResponse> {
+        throw new Error("Method not implemented.");
+    }
+    getBalVersion(): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
     isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
         throw new Error("Method not implemented.");
     }
