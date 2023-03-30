@@ -116,6 +116,8 @@ jobs:
         with:
           repo: wso2/ballerina-plugin-vscode
           name: ballerina
+          token: ${{ secrets.PUBLISH_PAT }}
+          threadId: ${{ github.run_id }}
 
       - name: Create a release in wso2/choreo-vscode repo
         if: ${{ github.event.inputs.choreo == 'true' }}
@@ -123,6 +125,8 @@ jobs:
         with:
           repo: wso2/choreo-vscode
           name: choreo
+          token: ${{ secrets.PUBLISH_PAT }}
+          threadId: ${{ github.run_id }}
 
       - name: Commit version
         id: commit
