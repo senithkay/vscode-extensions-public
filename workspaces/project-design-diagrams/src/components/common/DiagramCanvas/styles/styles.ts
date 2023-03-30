@@ -27,7 +27,7 @@ export const ControlPanel: React.FC<any> = styled.div`
     bottom: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 15 : 120}px`};
     display: flex;
     flex-direction: column;
-    height: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 150 : 110}px`};
+    gap: 5px;
     justify-content: space-between;
     position: absolute;
     right: 15px;

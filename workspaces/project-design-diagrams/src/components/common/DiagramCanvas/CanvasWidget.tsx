@@ -23,8 +23,7 @@ import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import debounce from 'lodash.debounce';
-import { DiagnosticsBanner } from '../DiagnosticsBanner/DiagnosticsBanner';
-import { DiagramControls } from './DiagramControls';
+import { DiagramControls } from './ControlLayer/DiagramControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { GatewayLinkModel } from '../../gateway/GatewayLink/GatewayLinkModel';
 import { GatewayNodeModel } from '../../gateway/GatewayNode/GatewayNodeModel';
@@ -56,7 +55,7 @@ let dagreEngine = new DagreEngine({
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const { model, currentView, layout, type } = props;
-    const { componentDiagnostics, editingEnabled, setNewLinkNodes } = useContext(DiagramContext);
+    const { editingEnabled, setNewLinkNodes } = useContext(DiagramContext);
 
     const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE || type === Views.TYPE_COMPOSITION ?
         createEntitiesEngine : createServicesEngine);
@@ -199,7 +198,6 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                     onMouseDown={type === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
                     onMouseUp={type === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
                 >
-                    {componentDiagnostics.length > 0 && <DiagnosticsBanner viewType={type} />}
                     <CanvasWidget engine={diagramEngine} className={'diagram-container'} />
                 </div>
             }

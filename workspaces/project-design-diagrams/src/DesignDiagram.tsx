@@ -74,9 +74,9 @@ export function DesignDiagram(props: DiagramProps) {
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
     const [connectorTarget, setConnectorTarget] = useState<Service>(undefined);
-    const [projectDiagnostics, setProjectDiagnostics] = useState<ComponentModelDiagnostics[]>([]);
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
+    const projectDiagnostics = useRef<ComponentModelDiagnostics[]>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     const diagramBGColor = currentView === Views.CELL_VIEW ? Colors.CELL_DIAGRAM_BACKGROUND : Colors.DIAGRAM_BACKGROUND;
@@ -108,7 +108,7 @@ export function DesignDiagram(props: DiagramProps) {
             if (components && components.size > 0) {
                 defaultOrg.current = [...components][0][1].packageId.org;
             }
-            setProjectDiagnostics(response.diagnostics);
+            projectDiagnostics.current = response.diagnostics;
             setProjectPkgs(createRenderPackageObject(components.keys()));
             setProjectComponents(components);
         });
@@ -126,14 +126,14 @@ export function DesignDiagram(props: DiagramProps) {
         editingEnabled,
         isChoreoProject,
         currentView,
+        projectDiagnostics: projectDiagnostics.current,
+        projectComponents,
         refreshDiagram,
         getTypeComposition,
         setConnectorTarget,
         showChoreoProjectOverview,
         editLayerAPI,
-        deleteComponent,
-        projectComponents,
-        projectDiagnostics
+        deleteComponent
     }
 
     return (

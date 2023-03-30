@@ -39,7 +39,7 @@ interface IDiagramContext {
     editingEnabled: boolean;
     isChoreoProject: boolean;
     currentView: Views;
-    componentDiagnostics: string[];
+    hasDiagnostics: boolean;
     refreshDiagram: () => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
@@ -67,23 +67,23 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         editingEnabled,
         isChoreoProject,
         editLayerAPI,
+        projectComponents,
+        projectDiagnostics,
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview,
         setConnectorTarget,
-        deleteComponent,
-        projectComponents,
-        projectDiagnostics
+        deleteComponent
     } = props;
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
-    const [componentDiagnostics, updateComponentDiagnostics] = useState<string[]>([]);
+    const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
 
     let context: IDiagramContext = {
         currentView,
         editingEnabled,
         isChoreoProject,
-        componentDiagnostics,
+        hasDiagnostics,
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview
@@ -103,21 +103,17 @@ export function DesignDiagramContext(props: DiagramContextProps) {
     }
 
     useEffect(() => {
-        if (projectComponents) {
-            if (!editingEnabled && projectDiagnostics.length > 0) {
-                updateComponentDiagnostics(projectDiagnostics.map(entry => entry.name));
-            } else if (editingEnabled) {
-                const errorComponents: string[] = [];
-                errorComponents.push(...projectDiagnostics.map(entry => entry.name));
-                projectComponents.forEach((component) => {
-                    if (component.hasCompilationErrors && !errorComponents.includes(component.packageId.name)) {
-                        errorComponents.push(`${component.packageId.name} Package`);
-                    }
-                });
-                updateComponentDiagnostics(errorComponents);
+        if (projectDiagnostics?.length > 0) {
+            setHasDiagnostics(true);
+        } else if (projectComponents?.size > 0) {
+            for (const component of projectComponents) {
+                if (component[1].hasCompilationErrors) {
+                    setHasDiagnostics(true);
+                    break;
+                }
             }
         }
-    }, [projectComponents]);
+    }, [projectDiagnostics, projectComponents]);
 
     return (
         <DiagramContext.Provider value={{ ...context }}>
