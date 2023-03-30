@@ -6,6 +6,9 @@ on:
       isPreRelease:
         default: true
         type: boolean  
+      enableCache:
+        default: true
+        type: boolean  
       ballerina:
         description: Update Ballerina extension version
         type: boolean
@@ -45,7 +48,7 @@ jobs:
         with:
           pnpm: 7.26.3
           node: 16.x
-          set-env: true
+          set-env: ${{ inputs.enableCache }}
           rush-install: true
 
       - uses: ballerina-platform/setup-ballerina@v1
