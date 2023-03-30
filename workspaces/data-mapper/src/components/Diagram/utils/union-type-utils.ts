@@ -12,7 +12,10 @@
  */
 
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import {
+	STKindChecker,
+	STNode
+} from "@wso2-enterprise/syntax-tree";
 
 import { TypeDescriptor } from "../Node/commons/DataMapperNode";
 
@@ -36,6 +39,33 @@ export function getResolvedType(type: Type, typeDesc: TypeDescriptor): Type {
 		}
 	} else if (isTypesMatched(type, typeDesc)) {
 		return type;
+	}
+}
+
+export function hasUnsupportedTypes(typeDesc: STNode): boolean {
+	if (STKindChecker.isUnionTypeDesc(typeDesc)) {
+		const { leftTypeDesc, rightTypeDesc } = typeDesc;
+		return hasUnsupportedTypes(leftTypeDesc) || hasUnsupportedTypes(rightTypeDesc);
+	} else {
+		return STKindChecker.isByteTypeDesc(typeDesc)
+			|| STKindChecker.isDistinctTypeDesc(typeDesc)
+			|| STKindChecker.isFunctionTypeDesc(typeDesc)
+			|| STKindChecker.isFutureTypeDesc(typeDesc)
+			|| STKindChecker.isHandleTypeDesc(typeDesc)
+			|| STKindChecker.isIntersectionTypeDesc(typeDesc)
+			|| STKindChecker.isJsonTypeDesc(typeDesc)
+			|| STKindChecker.isMapTypeDesc(typeDesc)
+			|| STKindChecker.isNeverTypeDesc(typeDesc)
+			|| STKindChecker.isNilTypeDesc(typeDesc)
+			|| STKindChecker.isObjectTypeDesc(typeDesc)
+			|| STKindChecker.isReadonlyTypeDesc(typeDesc)
+			|| STKindChecker.isSingletonTypeDesc(typeDesc)
+			|| STKindChecker.isStreamTypeDesc(typeDesc)
+			|| STKindChecker.isTableTypeDesc(typeDesc)
+			|| STKindChecker.isTupleTypeDesc(typeDesc)
+			|| STKindChecker.isTypedescTypeDesc(typeDesc)
+			|| STKindChecker.isXmlTypeDesc(typeDesc)
+			|| typeDesc?.typeData?.symbol?.definition?.kind === "ENUM";
 	}
 }
 

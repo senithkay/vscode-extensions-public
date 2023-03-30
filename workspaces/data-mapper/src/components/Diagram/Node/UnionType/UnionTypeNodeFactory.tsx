@@ -42,7 +42,13 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
 		return (
-			<></>
+			<>
+				{!event.model.resolvedType && (
+					<div>
+						Select a type
+					</div>
+				)}
+			</>
 		);
 	}
 

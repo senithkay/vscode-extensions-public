@@ -24,7 +24,6 @@ export const DM_UNSUPPORTED_TYPES = [
     PrimitiveBalType.Enum,
     PrimitiveBalType.Error,
     PrimitiveBalType.Json,
-    PrimitiveBalType.Union,
     PrimitiveBalType.Xml,
     PrimitiveBalType.Var,
     PrimitiveBalType.Nil,
