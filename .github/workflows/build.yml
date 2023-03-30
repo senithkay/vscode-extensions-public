@@ -44,12 +44,34 @@ jobs:
           fetch-depth: 2
 
       - name: Setup
-        uses: gigara/rush-cache@v1
+        if: ${{ github.event.inputs.enableCache == 'true' }}
+        uses: gigara/rush-cache@v2
+
+      - uses: actions/setup-node@v3
         with:
-          pnpm: 7.26.3
-          node: 16.x
-          set-env: ${{ inputs.enableCache }}
-          rush-install: true
+          node-version: 16.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.26.3
+
+      - name: Cache Rush
+        if: ${{ github.event.inputs.enableCache == 'true' }}
+        uses: actions/cache@v2
+        with:
+          path: |
+            common/temp/install-run
+            ~/.rush 
+          key: Rush-cache-${{ hashFiles('rush.json') }}
+
+      - name: Cache pnpm
+        if: ${{ github.event.inputs.enableCache == 'true' }}
+        uses: actions/cache@v3
+        with:
+          path: |
+            common/temp/pnpm-store
+            ~/.cache/Cypress   
+          key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - uses: ballerina-platform/setup-ballerina@v1
         name: Install Ballerina
