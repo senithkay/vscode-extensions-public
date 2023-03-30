@@ -116,6 +116,8 @@ jobs:
         with:
           repo: wso2/ballerina-plugin-vscode
           name: ballerina
+          token: ${{ secrets.PUBLISH_PAT }}
+          threadId: ${{ github.run_id }}
 
       - name: Create a release in wso2/choreo-vscode repo
         if: ${{ github.event.inputs.choreo == 'true' }}
@@ -123,13 +125,15 @@ jobs:
         with:
           repo: wso2/choreo-vscode
           name: choreo
+          token: ${{ secrets.PUBLISH_PAT }}
+          threadId: ${{ github.run_id }}
 
       - name: Commit version
         id: commit
         run: |
           git config --global user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
           git config --global user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
-          git add *.json
+          git add workspaces/*/*.json
           git commit -m "Update version to v${{ steps.vsix.outputs.version }}"
           git checkout -b "v${{ steps.vsix.outputs.version }}"
           git remote set-url origin https://${{ secrets.BALLERINA_BOT_USERNAME }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git

@@ -5,7 +5,13 @@ inputs:
     required: true
   name:
     description: 'File name'
-    required: true       
+    required: true
+  token:
+    description: 'Publish token'
+    required: true 
+  threadId:
+    description: 'Google chat thread ID'
+    required: true   
 
 runs:
   using: "composite"
@@ -21,13 +27,14 @@ runs:
         echo "version=$version" >> $GITHUB_OUTPUT
 
     - name: Create a release in ${{ inputs.repo }} repo
+      shell: bash
       run: |
         createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
-        -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -d '{"tag_name":"v${{ steps.vsix.outputs.version }}", \
+        -H "Authorization:token ${{ inputs.token }}" -d '{"tag_name":"v${{ steps.vsix.outputs.version }}", \
         "draft":false, "name": "Release v${{ steps.vsix.outputs.version }}", "prerelease":true}' \
         https://api.github.com/repos/${{ inputs.repo }}/releases` \
           && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
-          uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.PUBLISH_PAT }}" -H "Content-Type:application/octet-stream" \
+          uploadResponse=`curl -X POST -H "Authorization:token ${{ inputs.token }}" -H "Content-Type:application/octet-stream" \
           --data-binary @${{ steps.vsix.outputs.vsixName }} \
           https://uploads.github.com/repos/${{ inputs.repo }}/releases/$id/assets?name=${{ steps.vsix.outputs.vsixName }}`         
 
@@ -77,5 +84,5 @@ runs:
         curl \
           -X POST \
           -H 'Content-Type: application/json' \
-          "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ github.run_id }}" \
+          "https://chat.googleapis.com/v1/spaces/AAAAtkMpL8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=GmcsSshpc6BD68bOPu4wadJ0WjQLbDQBag3zwYPBoZ0%3D&threadKey=${{ inputs.threadId }}" \
           -d "$body"
