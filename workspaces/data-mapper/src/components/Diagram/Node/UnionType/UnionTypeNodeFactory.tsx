@@ -54,6 +54,8 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						engine={this.engine}
 						context={event.model.context}
 						typeName={event.model.typeName}
+						typeIdentifier={event.model.typeIdentifier}
+						typeDef={event.model.typeDef}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 					/>
 				)}

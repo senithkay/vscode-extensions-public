@@ -19,6 +19,8 @@ import {
 
 import { TypeDescriptor } from "../Node/commons/DataMapperNode";
 
+import { getTypeName } from "./dm-utils";
+
 export function getResolvedType(type: Type, typeDesc: TypeDescriptor): Type {
 	if (type.typeName === PrimitiveBalType.Array && STKindChecker.isArrayTypeDesc(typeDesc)) {
 		const dimensions = typeDesc.dimensions.length;
@@ -42,31 +44,51 @@ export function getResolvedType(type: Type, typeDesc: TypeDescriptor): Type {
 	}
 }
 
-export function hasUnsupportedTypes(typeDesc: STNode): boolean {
+export function getUnsupportedTypes(typeDesc: STNode): string[] {
+	const unsupportedTypes: string[] = [];
 	if (STKindChecker.isUnionTypeDesc(typeDesc)) {
 		const { leftTypeDesc, rightTypeDesc } = typeDesc;
-		return hasUnsupportedTypes(leftTypeDesc) || hasUnsupportedTypes(rightTypeDesc);
+		unsupportedTypes.push(...getUnsupportedTypes(leftTypeDesc), ...getUnsupportedTypes(rightTypeDesc));
 	} else {
-		return STKindChecker.isByteTypeDesc(typeDesc)
-			|| STKindChecker.isDistinctTypeDesc(typeDesc)
-			|| STKindChecker.isFunctionTypeDesc(typeDesc)
-			|| STKindChecker.isFutureTypeDesc(typeDesc)
-			|| STKindChecker.isHandleTypeDesc(typeDesc)
-			|| STKindChecker.isIntersectionTypeDesc(typeDesc)
-			|| STKindChecker.isJsonTypeDesc(typeDesc)
-			|| STKindChecker.isMapTypeDesc(typeDesc)
-			|| STKindChecker.isNeverTypeDesc(typeDesc)
-			|| STKindChecker.isNilTypeDesc(typeDesc)
-			|| STKindChecker.isObjectTypeDesc(typeDesc)
-			|| STKindChecker.isReadonlyTypeDesc(typeDesc)
-			|| STKindChecker.isSingletonTypeDesc(typeDesc)
-			|| STKindChecker.isStreamTypeDesc(typeDesc)
-			|| STKindChecker.isTableTypeDesc(typeDesc)
-			|| STKindChecker.isTupleTypeDesc(typeDesc)
-			|| STKindChecker.isTypedescTypeDesc(typeDesc)
-			|| STKindChecker.isXmlTypeDesc(typeDesc)
-			|| typeDesc?.typeData?.symbol?.definition?.kind === "ENUM";
+		if (isUnsupportedType(typeDesc)) {
+			unsupportedTypes.push(typeDesc.source);
+		}
 	}
+	return unsupportedTypes;
+}
+
+export function getSupportedUnionTypes(typeDesc: STNode, typeDef: Type): string[] {
+	const unsupportedTypes = getUnsupportedTypes(typeDesc);
+	const allUnionTypes = getTypeName(typeDef).split("|");
+
+	return allUnionTypes.filter(unionType => {
+		const type = unionType.trim();
+		return !unsupportedTypes.includes(type)
+			&& type !== "()"
+			&& type !== "error"
+	});
+}
+
+function isUnsupportedType(typeDesc: STNode): boolean {
+	return STKindChecker.isByteTypeDesc(typeDesc)
+		|| STKindChecker.isDistinctTypeDesc(typeDesc)
+		|| STKindChecker.isFunctionTypeDesc(typeDesc)
+		|| STKindChecker.isFutureTypeDesc(typeDesc)
+		|| STKindChecker.isHandleTypeDesc(typeDesc)
+		|| STKindChecker.isIntersectionTypeDesc(typeDesc)
+		|| STKindChecker.isJsonTypeDesc(typeDesc)
+		|| STKindChecker.isMapTypeDesc(typeDesc)
+		|| STKindChecker.isNeverTypeDesc(typeDesc)
+		|| STKindChecker.isNilTypeDesc(typeDesc)
+		|| STKindChecker.isObjectTypeDesc(typeDesc)
+		|| STKindChecker.isReadonlyTypeDesc(typeDesc)
+		|| STKindChecker.isSingletonTypeDesc(typeDesc)
+		|| STKindChecker.isStreamTypeDesc(typeDesc)
+		|| STKindChecker.isTableTypeDesc(typeDesc)
+		|| STKindChecker.isTupleTypeDesc(typeDesc)
+		|| STKindChecker.isTypedescTypeDesc(typeDesc)
+		|| STKindChecker.isXmlTypeDesc(typeDesc)
+		|| typeDesc?.typeData?.symbol?.definition?.kind === "ENUM";
 }
 
 function isTypesMatched(type: Type, typeDesc: TypeDescriptor, dimensions?: number): boolean {

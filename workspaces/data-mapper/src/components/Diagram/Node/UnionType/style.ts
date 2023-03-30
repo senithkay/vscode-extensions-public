@@ -51,6 +51,40 @@ export const useStyles = makeStyles((theme: Theme) =>
                 background: "#F7F8FB",
                 borderRadius: "4px",
             },
+            unionTypesList: {
+                columnGap: '5%',
+                display: 'grid',
+                gridTemplateColumns: '100%',
+                width: 'inherit',
+                "& .MuiListItem-root": {
+                    marginBottom: '8px',
+                    padding: '0 10px'
+                },
+            },
+            unionTypeListItem: {
+                "& .MuiListItemText-root": {
+                    margin: '0'
+                },
+                ...hoverColor1,
+                ...activeColour
+            },
+            unionTypeValue: {
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+            },
         }),
     { index: 1 }
 );
+
+const hoverColor1 = {
+    '&:hover': {
+        backgroundColor: '#F0F1FB',
+    }
+}
+
+const activeColour = {
+    '&:active': {
+        backgroundColor: 'rgba(204,209,242,0.61)'
+    },
+}

@@ -60,7 +60,9 @@ export class UnionTypeNode extends DataMapperNodeModel {
         this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
         this.typeName = getTypeName(this.typeDef);
         this.resolveType();
-        this.typeDef = getSearchFilteredOutput(this.resolvedType);
+        if (this.resolvedType) {
+            this.typeDef = getSearchFilteredOutput(this.resolvedType);
+        }
 
         if (this.typeDef) {
             // TODO: Handle init ports
