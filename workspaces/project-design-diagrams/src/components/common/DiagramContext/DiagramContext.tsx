@@ -27,6 +27,7 @@ interface DiagramContextProps {
     isChoreoProject: boolean;
     projectComponents: Map<string, ComponentModel>;
     projectDiagnostics: ComponentModelDiagnostics[];
+    setCurrentView: (view: Views) => void;
     refreshDiagram: () => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
@@ -41,6 +42,7 @@ interface IDiagramContext {
     currentView: Views;
     hasDiagnostics: boolean;
     refreshDiagram: () => void;
+    setCurrentView: (view: Views) => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
     editLayerAPI?: EditLayerAPI;
@@ -69,6 +71,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         editLayerAPI,
         projectComponents,
         projectDiagnostics,
+        setCurrentView,
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview,
@@ -84,6 +87,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         editingEnabled,
         isChoreoProject,
         hasDiagnostics,
+        setCurrentView,
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview
