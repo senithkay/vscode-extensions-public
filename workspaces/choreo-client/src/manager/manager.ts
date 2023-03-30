@@ -15,12 +15,12 @@ import {
     ChoreoComponentCreationParams, ChoreoComponentType, Component, IProjectManager,
     Project, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams
 } from "@wso2-enterprise/choreo-core";
-import { log } from "console";
-import { randomUUID } from "crypto";
-import child_process from "child_process";
-import { existsSync, readFile, writeFile, unlink, readFileSync, mkdirSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import path, { basename, dirname, join } from "path";
 import { commands, workspace } from "vscode";
+import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { BAL_FORMAT_SERVICE_CMD, buildWebhookTemplate, getBallerinaExtensionInstance, writeWebhookTemplate } from "./utils/webhook-utils";
+import { addDisplayAnnotation, addToWorkspace, createBallerinaPackage, processTomlFiles, runCommand } from "./utils/component-creation-utils";
 
 interface CmdResponse {
     error: boolean;
@@ -28,20 +28,34 @@ interface CmdResponse {
 }
 
 export class ChoreoProjectManager implements IProjectManager {
+    private balVersion: string | undefined;
 
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
-        const { displayType, name, org, repositoryInfo } = args;
+        const { displayType, name, org, repositoryInfo, triggerId } = args;
         if (workspace.workspaceFile) {
             const workspaceFilePath = workspace.workspaceFile.fsPath;
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
-            const pkgRoot = join(join(join(projectRoot, 'repos'), repositoryInfo.org), repositoryInfo.repo);
+            const repoRoot = join(join(join(projectRoot, 'repos'), repositoryInfo.org), repositoryInfo.repo);
 
-            const pkgPath = join(pkgRoot, repositoryInfo.subPath);
-            const resp: CmdResponse = await ChoreoProjectManager._createBallerinaPackage(pkgPath, displayType);
+            const pkgPath = join(repoRoot, repositoryInfo.subPath);
+            const resp: CmdResponse = await createBallerinaPackage(basename(pkgPath), dirname(pkgPath), displayType);
             if (!resp.error) {
-                ChoreoProjectManager._processTomlFiles(pkgPath, org.name);
-                ChoreoProjectManager._addDisplayAnnotation(pkgPath, displayType, name);
-                return await ChoreoProjectManager._addToWorkspace(workspaceFilePath, args);
+                processTomlFiles(pkgPath, org.name);
+                if (displayType === ChoreoComponentType.Webhook && triggerId) {
+                    const webhookTemplate: string = await buildWebhookTemplate(pkgPath, triggerId, await this.getBalVersion());
+                    if (webhookTemplate) {
+                        writeWebhookTemplate(pkgPath, webhookTemplate);
+                        await runCommand(BAL_FORMAT_SERVICE_CMD, pkgPath);
+                    } else {
+                        throw new Error("Error: Could not create Webhook template.");
+                    }
+                }
+                if (displayType === ChoreoComponentType.GraphQL
+                    || displayType === ChoreoComponentType.Service
+                    || displayType === ChoreoComponentType.Proxy) {
+                    addDisplayAnnotation(pkgPath, displayType, repositoryInfo);
+                }
+                return await addToWorkspace(workspaceFilePath, args);
             } else {
                 throw new Error(resp.message);
             }
@@ -56,129 +70,6 @@ export class ChoreoProjectManager implements IProjectManager {
 
     getProjectRoot(): Promise<string | undefined> {
         throw new Error("choreo getProjectRoot method not implemented.");
-    }
-
-    private static _createBallerinaPackage(pkgPath: string, componentType: ChoreoComponentType)
-        : Promise<CmdResponse> {
-        const pkgRoot = dirname(pkgPath);
-        if (!existsSync(pkgRoot)) {
-            mkdirSync(pkgRoot, { recursive: true });
-        }
-        const cmd =
-            `bal new "${basename(pkgPath)}" -t architecturecomponents/${ChoreoProjectManager._getTemplateComponent(componentType)}:1.1.0`;
-        return new Promise(function (resolve) {
-            child_process.exec(`${cmd}`, { cwd: pkgRoot }, async (err, stdout, stderror) => {
-                if (err) {
-                    log(`error: ${err}`);
-                    resolve({
-                        error: true,
-                        message: stderror
-                    });
-                } else {
-                    resolve({
-                        error: false,
-                        message: stdout
-                    });
-                }
-            });
-        });
-    }
-
-    private static _getTemplateComponent(componentType: ChoreoComponentType): string {
-        switch (componentType) {
-            case ChoreoComponentType.GraphQL:
-                return 'GraphQLComponent';
-            case ChoreoComponentType.ScheduledTask:
-                return 'WebSocketComponent';
-            default:
-                return 'HTTPComponent';
-        }
-    }
-
-    private static _processTomlFiles(pkgPath: string, orgName: string) {
-        // Remove Dependencies.toml
-        unlink(join(pkgPath, 'Dependencies.toml'), (err) => {
-            if (err) {
-                log("Error: Could not delete Dependencies.toml.");
-            }
-        });
-
-        // Update org and version in Ballerina.toml
-        const balOrgName = orgName.split(/[^a-zA-Z0-9_]/g).reduce((composedName: string, subname: string) =>
-            composedName + subname.charAt(0).toUpperCase() + subname.substring(1).toLowerCase(), '');
-        const balTomlPath = join(pkgPath, 'Ballerina.toml');
-        readFile(balTomlPath, 'utf-8', function (err, contents) {
-            if (err) {
-                log("Error: Could not read Ballerina.toml.");
-                return;
-            }
-            let replaced = contents.replace(/org = "[a-z,A-Z,0-9,_]+"/, `org = "${balOrgName}"`);
-            replaced = replaced.replace(/version = "[0-9].[0-9].[0-9]"/, `version = "1.0.0"`);
-            writeFile(balTomlPath, replaced, 'utf-8', (err) => {
-                if (err) {
-                    log("Error: Could not configure Ballerina.toml.");
-                }
-            });
-        });
-    }
-
-    private static _addDisplayAnnotation(pkgPath: string, type: ChoreoComponentType, name: string) {
-        const serviceId = `${name}-${randomUUID()}`;
-        const serviceFilePath = join(pkgPath, 'service.bal');
-        readFile(serviceFilePath, 'utf-8', (err, contents) => {
-            if (err) {
-                log("Error: Could not read service.bal file.");
-                return;
-            }
-            const replaced = ChoreoProjectManager._getAnnotatedContent(contents, name, serviceId, type);
-            writeFile(serviceFilePath, replaced, 'utf-8', function (err) {
-                if (err) {
-                    log("Error: Could not annotate component.");
-                }
-            });
-        });
-    }
-
-    private static _addToWorkspace(workspaceFilePath: string, args: ChoreoComponentCreationParams): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            const { org, repositoryInfo, name, displayType, description, projectId, accessibility } = args;
-
-            readFile(workspaceFilePath, 'utf-8', function (err, contents) {
-                if (err) {
-                    reject(new Error("Error: Could not read workspace file."));
-                }
-                const content: WorkspaceConfig = JSON.parse(contents);
-                content.folders.push({
-                    path: join(join(join('repos', repositoryInfo.org), repositoryInfo.repo), repositoryInfo.subPath),
-                    name: name,
-                    metadata: {
-                        org: {
-                            id: org.id,
-                            handle: org.handle
-                        },
-                        displayName: name,
-                        displayType: displayType,
-                        description: description,
-                        projectId: projectId,
-                        accessibility: accessibility,
-                        repository: {
-                            appSubPath: repositoryInfo.subPath,
-                            orgApp: repositoryInfo.org,
-                            nameApp: repositoryInfo.repo,
-                            branchApp: repositoryInfo.branch
-                        }
-                    }
-                });
-
-                writeFile(workspaceFilePath, JSON.stringify(content, null, 4), 'utf-8', function (err) {
-                    if (err) {
-                        reject(new Error("Error: Could not add component to project workspace."));
-                    } else {
-                        resolve(true);
-                    }
-                });
-            });
-        })
     }
 
     public getComponentMetadata(workspaceFilePath: string): WorkspaceComponentMetadata[] {
@@ -253,5 +144,25 @@ export class ChoreoProjectManager implements IProjectManager {
             content.folders[index].metadata = undefined;
             writeFileSync(workspaceFilePath, JSON.stringify(content, null, 4));
         }
+    }
+
+    async fetchTriggers(): Promise<BallerinaTriggersResponse | undefined> {
+        const ballerinaExtInstance = await getBallerinaExtensionInstance();
+        if (ballerinaExtInstance && ballerinaExtInstance.langClient) {
+            return ballerinaExtInstance.langClient.getTriggers({ query: "" });
+        }
+        return undefined;
+    }
+
+    async getBalVersion(): Promise<string> {
+        if (!this.balVersion) {
+            const cmdResponse = await runCommand("bal -v");
+            if (cmdResponse.error) {
+                this.balVersion = "2201.3.2";
+            } else {
+                this.balVersion = cmdResponse.message.split(" ")[1];
+            }
+        }
+        return this.balVersion;
     }
 }

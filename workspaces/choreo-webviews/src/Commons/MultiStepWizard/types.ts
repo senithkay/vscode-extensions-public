@@ -20,6 +20,8 @@ export interface WizardState<T> {
     validationErrors: Record<keyof T, string>;
     stepValidationErrors: Record<keyof T, string>;
     isStepValidating: boolean;
+    isSaving?: boolean;
+    saveError?: string;
 }
 
 export interface StepProps<T> {
@@ -39,8 +41,10 @@ export interface WizardProps<T> {
     steps: Step<T>[];
     initialState: WizardState<T>;
     validationRules: ValidationRule<T>[];
-    onSave: (formData: T) => void;
+    saveButtonText?: string;
+    onSave: (formData: T, context: IChoreoWebViewContext) => Promise<void>;
     onCancel: () => void;
+    closeOnSave?: boolean;
 }
 
 export type ValidationRule<T> = {

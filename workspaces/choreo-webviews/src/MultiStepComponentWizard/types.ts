@@ -30,6 +30,7 @@ export interface ComponentWizardState {
         dockerContext?: string;
         dockerFile?: string;
     };
+    trigger?: string;
     version: string;
     cache: {
         authorizedOrgs?: GithubOrgnization[],

@@ -26,7 +26,8 @@
     "url": "~0.11.0",
     "classnames": "~2.3.2",
     "lodash.debounce": "~4.0.8",
-    "@types/lodash.debounce": "~4.0.7"
+    "@types/lodash.debounce": "~4.0.7",
+    "@wso2-enterprise/ballerina-languageclient": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^18.11.19",

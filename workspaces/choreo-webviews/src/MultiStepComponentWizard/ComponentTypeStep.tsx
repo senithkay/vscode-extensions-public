@@ -112,7 +112,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                     <CardContainer>
                         <ComponentTypeCard
                             type={ChoreoComponentType.Service}
-                            label="Service"
+                            label="REST API"
                             description="Design, develop, test, and deploy your microservices"
                             formData={formData}
                             onFormDataChange={onFormDataChange}
@@ -131,20 +131,20 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                             formData={formData}
                             onFormDataChange={onFormDataChange}
                         />
-                        <ComponentTypeCard
+                        {/* <ComponentTypeCard
                             type={ChoreoComponentType.Proxy}
                             label="REST API Proxy"
                             description="Provide API management capabilities for existing APIs."
                             formData={formData}
                             onFormDataChange={onFormDataChange}
-                        />
-                        <ComponentTypeCard
+                        /> */}
+                        {/* <ComponentTypeCard
                             type={ChoreoComponentType.RestApi}
                             label="REST API"
                             description="Design, develop, test, and manage your REST APIs."
                             formData={formData}
                             onFormDataChange={onFormDataChange}
-                        />
+                        /> */}
                         <ComponentTypeCard
                             type={ChoreoComponentType.Webhook}
                             label="Webhook"
@@ -154,7 +154,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         />
                         <ComponentTypeCard
                             type={ChoreoComponentType.GraphQL}
-                            label="GraphQL"
+                            label="GraphQL API"
                             description="Design, develop, test, and manage your GraphQL endpoints."
                             formData={formData}
                             onFormDataChange={onFormDataChange}
@@ -193,19 +193,19 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         onChange={handleExistingComponentTypeChange}
                     >
                         {sourceType === "Ballerina" && (
-                            <VSCodeOption value={ChoreoComponentType.Service}>Service</VSCodeOption>)}
+                            <VSCodeOption value={ChoreoComponentType.Service}>REST API</VSCodeOption>)}
                         {sourceType === "Ballerina" && (
                             <VSCodeOption value={ChoreoComponentType.ScheduledTask}>Scheduled Trigger</VSCodeOption>)}
                         {sourceType === "Ballerina" && (
                             <VSCodeOption value={ChoreoComponentType.ManualTrigger}>Manual Trigger</VSCodeOption>)}
-                        {sourceType === "Ballerina" && (
-                            <VSCodeOption value={ChoreoComponentType.RestApi}>REST API</VSCodeOption>)}
+                        {/* {sourceType === "Ballerina" && (
+                            <VSCodeOption value={ChoreoComponentType.RestApi}>REST API</VSCodeOption>)} */}
                         {sourceType === "Ballerina" && (
                             <VSCodeOption value={ChoreoComponentType.Webhook}>Webhook</VSCodeOption>)}
                         {sourceType === "Ballerina" && (
-                            <VSCodeOption value={ChoreoComponentType.GraphQL}>GraphQL</VSCodeOption>)}
+                            <VSCodeOption value={ChoreoComponentType.GraphQL}>GraphQL API</VSCodeOption>)}
                         {sourceType === "Dockerfile" && (
-                            <VSCodeOption value={ChoreoComponentType.ByocService}>Service</VSCodeOption>)}
+                            <VSCodeOption value={ChoreoComponentType.ByocService}>REST API</VSCodeOption>)}
                         {sourceType === "Dockerfile" && (
                             <VSCodeOption value={ChoreoComponentType.ByocCronjob}>Scheduled Trigger</VSCodeOption>)}
                         {sourceType === "Dockerfile" && (

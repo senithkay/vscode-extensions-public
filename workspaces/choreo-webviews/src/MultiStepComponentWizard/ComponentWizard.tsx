@@ -19,6 +19,33 @@ import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
 import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+
+const handleComponentCreation = async (formData: Partial<ComponentWizardState>, context: IChoreoWebViewContext) => {
+    const { name, type, repository: { org, repo, branch, subPath }, description, accessibility, trigger  } = formData;
+    const { choreoProject, selectedOrg } = context;
+    const componentParams = {
+        name: name,
+        projectId: choreoProject?.id,
+        org: selectedOrg,
+        displayType: type,
+        accessibility,
+        triggerId: trigger,
+        description: description ?? '',
+        repositoryInfo: {
+            org,
+            repo,
+            branch,
+            subPath
+        }
+    };
+
+    const response: any = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent(componentParams);
+    if (response !== true) {
+        throw new Error("Failed to create component. Error: " + response.message);
+    }
+};
 
 export const ComponentWizard: React.FC = () => {
     const initialState: WizardState<Partial<ComponentWizardState>> = {
@@ -45,8 +72,10 @@ export const ComponentWizard: React.FC = () => {
             steps={[ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep, ]}
             initialState={initialState}
             validationRules={[]}
-            onSave={() => {}}
+            onSave={handleComponentCreation}
             onCancel={() => {}}
+            saveButtonText="Create"
+            closeOnSave={false}
         />
     );
 };

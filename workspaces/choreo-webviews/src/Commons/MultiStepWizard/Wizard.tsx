@@ -17,6 +17,7 @@ import styled from "@emotion/styled";
 import { createElement, useContext, useState } from "react";
 import { ValidationRule, WizardProps } from "./types";
 import { ChoreoWebViewContext, IChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 const WizardContainer = styled.div`
     display: flex;
@@ -41,7 +42,7 @@ const StepContainer = styled.div`
     padding: 15px;
 `;
 
-export const Wizard = <T extends {}>({ title, steps, initialState, onSave }: WizardProps<T>) => {
+export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveButtonText, closeOnSave }: WizardProps<T>) => {
     const [state, setState] = useState(initialState);
     const context = useContext(ChoreoWebViewContext);
 
@@ -79,8 +80,17 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave }: Wiz
         setState((prevState) => ({ ...prevState, currentStep: prevState.currentStep + 1, isStepValidating: false }));
     };
 
-    const handleSaveClick = () => {
-        onSave(state.formData);
+    const handleSaveClick = async () => {
+        setState((prevState) => ({ ...prevState, isSaving: true, saveError: undefined }));
+        try {
+            await onSave(state.formData, context);
+            if (closeOnSave) {
+                ChoreoWebViewAPI.getInstance().closeWebView();
+            }
+        } catch (error: any) {
+            setState((prevState) => ({ ...prevState, isSaving: false, saveError: error.message }));
+            ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
+        }
     };
 
     const validateForm = async <T extends Record<string, any>>(
@@ -132,8 +142,8 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave }: Wiz
                     </VSCodeButton>
                 )}
                 {isLastStep && (
-                    <VSCodeButton onClick={handleSaveClick} disabled={!state.isStepValid || !state.isFormValid}>
-                        Save
+                    <VSCodeButton onClick={handleSaveClick} disabled={!state.isStepValid}>
+                        {saveButtonText ? saveButtonText : "Save"}
                     </VSCodeButton>
                 )}
                 {state.isStepValidating && ( <VSCodeProgressRing /> )}
