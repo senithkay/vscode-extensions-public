@@ -1,5 +1,10 @@
 name: cleanup caches by a branch
 on:
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: 'The number of the pull request'
+        required: true
   pull_request:
     types:
       - closed
@@ -15,8 +20,14 @@ jobs:
         run: |
           gh extension install actions/gh-actions-cache
           
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            PR_NUMBER="${{ github.event.inputs.pull_request_number }}"
+          else
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+          fi
+
           REPO=${{ github.repository }}
-          BRANCH="refs/pull/${{ github.event.pull_request.number }}/merge"
+          BRANCH="refs/pull/$PR_NUMBER/merge"
 
           echo "Fetching list of cache key"
           cacheKeysForPR=$(gh actions-cache list -R $REPO -B $BRANCH | cut -f 1 )
@@ -30,4 +41,4 @@ jobs:
           done
           echo "Done"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}

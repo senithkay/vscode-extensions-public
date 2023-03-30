@@ -14,6 +14,7 @@ import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 
 import { MuiThemeProvider } from "@material-ui/core";
+import { FileListEntry, Uri } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
@@ -29,7 +30,7 @@ import {
     getLowcodeST,
     getSyntaxTree
 } from "../DiagramGenerator/generatorUtil";
-import { EditorProps, FileListEntry, Uri, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
+import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
@@ -56,12 +57,14 @@ export function DiagramViewManager(props: EditorProps) {
         getEnv,
         getBallerinaVersion,
         workspaceName,
-        getAllFiles
+        getAllFiles,
+        gotoSource
     } = props;
     const classes = useGeneratorStyles();
 
     const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [history, historyPush, historyPop, historyClear, updateCurrentEntry] = useComponentHistory();
+    const [history, historyPush, historyPop, historyClearAndPopulateWith, historySelect, historyClear, updateCurrentEntry] =
+        useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
@@ -132,7 +135,7 @@ export function DiagramViewManager(props: EditorProps) {
                     setCurrentProject(currentProjectPath);
                     setFocusFile(currentFile.uri.path);
                 } else {
-                    historyPush({ file: filePath, position });
+                    historyClearAndPopulateWith({ file: filePath, position });
                 }
             })();
 
@@ -208,10 +211,11 @@ export function DiagramViewManager(props: EditorProps) {
     }
 
     const updateSelectedComponent = (componentDetails: ComponentViewInfo) => {
-        const { filePath, position } = componentDetails;
+        const { filePath, position, name } = componentDetails;
         historyPush({
             file: filePath,
             position,
+            name
         });
     }
 
@@ -258,6 +262,7 @@ export function DiagramViewManager(props: EditorProps) {
                             targetPosition={focusedST.position}
                             ballerinaVersion={balVersion}
                             onCancel={handleNavigationHome}
+                            goToSource={gotoSource}
                         />
                     );
                 } else if (signature && signature === "$CompilationError$") {
@@ -359,6 +364,8 @@ export function DiagramViewManager(props: EditorProps) {
                                 history={history}
                                 historyPush={historyPush}
                                 historyPop={historyPop}
+                                historyClearAndPopulateWith={historyClearAndPopulateWith}
+                                historySelect={historySelect}
                                 historyReset={historyClear}
                             >
                                 <NavigationBar

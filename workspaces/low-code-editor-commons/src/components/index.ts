@@ -11,25 +11,4 @@
  * associated services.
  */
 
-import styled from "@emotion/styled";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
-
-export const Canvas = styled.div`
-  position: relative;
-  cursor: move;
-  overflow: hidden;
-
-  & > svg {
-    overflow: visible;
-  }
-`;
-
-export const useDiagramStyles = makeStyles(() =>
-    createStyles({
-        diagramContainer: {
-            minWidth: '100%',
-            padding: '15px',
-            height: '100px'
-        }
-    }),
-);
+export * from "./CtrlClickWrapper/CtrlClickWrapper";

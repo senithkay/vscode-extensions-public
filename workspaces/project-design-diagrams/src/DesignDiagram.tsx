@@ -146,7 +146,7 @@ export function DesignDiagram(props: DiagramProps) {
                 {projectComponents && projectComponents.size < 1 ? <PromptScreen setShowEditForm={setShowEditForm} /> :
                     projectComponents ?
                         <>
-                            {editingEnabled && currentView === Views.L1_SERVICES &&
+                            {editingEnabled && (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES) &&
                                 <ControlsLayer setShowEditForm={setShowEditForm} />
                             }
                             {connectorTarget &&

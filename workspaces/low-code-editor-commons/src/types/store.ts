@@ -165,3 +165,24 @@ export interface PlusWidgetProps {
     offset?: any;
     hasWorkerDecl?: boolean;
 }
+
+export interface Uri {
+    fsPath: string
+    external: string
+    path: string;
+    sheme: string;
+}
+
+export interface FileListEntry {
+    fileName: string;
+    uri: Uri;
+}
+
+export interface ComponentViewInfo {
+    filePath: string;
+    position: NodePosition;
+    fileName?: string;
+    moduleName?: string;
+    uid?: string;
+    name?: string;
+}

@@ -46,6 +46,6 @@ export function render(_context: ExtensionContext, _langClient: ExtendedLangClie
         body, scripts, styles, bodyCss
     };
 
-    return getLibraryWebViewContent(webViewOptions, webView);
+    return getLibraryWebViewContent(webViewOptions, webView, "", "");
 }
 

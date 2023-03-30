@@ -14,11 +14,11 @@
 import React, { useEffect, useState } from "react";
 
 import { Box, List, ListItem, ListItemText } from "@material-ui/core";
+import { FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModulePart, NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { FileListEntry } from "../../../../../DiagramGenerator/vscode/Diagram";
 import { TextPreLoader } from "../../../../../PreLoader/TextPreLoader";
 import { FormGeneratorProps } from "../../FormGenerator";
 

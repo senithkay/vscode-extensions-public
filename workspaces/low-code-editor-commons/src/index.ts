@@ -16,3 +16,4 @@ export * from "./utils";
 export * from "./themes";
 export { default as templates } from "./templates/components"
 export * from "./assets";
+export * from "./components";

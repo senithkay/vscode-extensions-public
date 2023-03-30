@@ -20,6 +20,8 @@ import { RecordIcon } from "../../../resources/assets/icons/RecordIcon";
 import { HeaderName } from "../../../resources/styles/styles";
 import { RecordNodeModel } from "../RecordNodeModel";
 import { RecordHead } from "../styles";
+import { CtrlClickHandler } from "../../../CtrlClickHandler";
+import { getFormattedPosition } from "../../../utils/common-util";
 
 interface RecordHeadProps {
     engine: DiagramEngine;
@@ -38,21 +40,26 @@ export function RecordHeadWidget(props: RecordHeadProps) {
     }, [node]);
 
     return (
-        <RecordHead>
-            <RecordIcon/>
-            <GraphqlBasePortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-            <HeaderName>{displayName}</HeaderName>
-            <GraphqlBasePortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
-            <GraphqlBasePortWidget
-                port={node.getPort(`top-${node.getID()}`)}
-                engine={engine}
-            />
-        </RecordHead>
+        <CtrlClickHandler
+            filePath={node.recordObject.position.filePath}
+            position={getFormattedPosition(node.recordObject.position)}
+        >
+            <RecordHead>
+                <RecordIcon />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`left-${node.getID()}`)}
+                    engine={engine}
+                />
+                <HeaderName>{displayName}</HeaderName>
+                <GraphqlBasePortWidget
+                    port={node.getPort(`right-${node.getID()}`)}
+                    engine={engine}
+                />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`top-${node.getID()}`)}
+                    engine={engine}
+                />
+            </RecordHead>
+        </CtrlClickHandler>
     );
 }

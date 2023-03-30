@@ -55,9 +55,9 @@ import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel"
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
     constructTypeFromSTNode,
-    getAssignedUnionType,
     getExprBodyFromLetExpression,
     getFilteredUnionOutputTypes,
+    getFnDefForFnCall,
     getInputNodes,
     getModuleVariables,
     getPrevOutputType,
@@ -112,45 +112,8 @@ export class NodeInitVisitor implements Visitor {
                     bodyExpr = exprFuncBody.expression.containerExpression.expression;
                 }
 
-                if (returnType?.typeName === PrimitiveBalType.Union) {
-                    const matchingType = getAssignedUnionType(returnType, bodyExpr)
-                    if (matchingType){
-                        if (matchingType.typeName === PrimitiveBalType.Array && matchingType.memberType) {
-                            matchingType.memberType.members = returnType.members
-                        }
-                        returnType = matchingType;
-                    } else if (STKindChecker.isMappingConstructor(bodyExpr)) {
-                        returnType = {
-                            typeName: PrimitiveBalType.Record,
-                            name: null,
-                            fields: [],
-                            members: returnType.members
-                        };
-                    }
-                    returnType.originalTypeName = PrimitiveBalType.Union;
-                }
-
                 if (STKindChecker.isQueryExpression(bodyExpr)) {
                     if (this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY) {
-
-                        if (returnType?.typeName === PrimitiveBalType.Array && returnType?.memberType?.typeName === PrimitiveBalType.Union) {
-                            const matchingType = getAssignedUnionType(returnType.memberType, bodyExpr.selectClause?.expression)
-                            if (matchingType){
-                                returnType.memberType = matchingType;
-                            } else if (STKindChecker.isMappingConstructor(bodyExpr.selectClause?.expression)) {
-                                returnType = {
-                                    ...returnType,
-                                    memberType: {
-                                        typeName: PrimitiveBalType.Record,
-                                        name: null,
-                                        members: returnType?.memberType?.members,
-                                        originalTypeName: PrimitiveBalType.Union
-                                    }
-                                };
-                            }
-                            returnType.originalTypeName = PrimitiveBalType.Union;
-                        }
-
                         isFnBodyQueryExpr = true;
                         const selectClause = bodyExpr.selectClause;
                         const intermediateClausesHeight = 100 + bodyExpr.queryPipeline.intermediateClauses.length * OFFSETS.INTERMEDIATE_CLAUSE_HEIGHT;
@@ -263,6 +226,35 @@ export class NodeInitVisitor implements Visitor {
                         typeDesc,
                         returnType
                     );
+                } else if (returnType.typeName === PrimitiveBalType.Union) {
+                    const acceptedTypes = getFilteredUnionOutputTypes(returnType);
+                    // If union type, remove error/nil types and proceed if only one type is remaining
+                    if (acceptedTypes.length === 1){
+                        const unionReturnType = acceptedTypes[0];
+                        if (unionReturnType.typeName === PrimitiveBalType.Record){
+                            this.outputNode = new MappingConstructorNode(
+                                this.context,
+                                exprFuncBody,
+                                typeDesc,
+                                returnType
+                            );
+                        } else if (unionReturnType.typeName === PrimitiveBalType.Array) {
+                            this.outputNode = new ListConstructorNode(
+                                this.context,
+                                exprFuncBody,
+                                typeDesc,
+                                returnType
+                            );
+                        } else {
+                            this.outputNode = new PrimitiveTypeNode(
+                                this.context,
+                                exprFuncBody,
+                                typeDesc,
+                                returnType
+                            );
+                        }
+                    }
+
                 } else if (returnType.typeName === PrimitiveBalType.Array) {
                     this.outputNode = new ListConstructorNode(
                         this.context,
@@ -549,15 +541,17 @@ export class NodeInitVisitor implements Visitor {
             && !STKindChecker.isListConstructor(node.valueExpr)
         ) {
             const inputNodes = getInputNodes(node.valueExpr);
+            const fnDefForFnCall = STKindChecker.isFunctionCall(node.valueExpr) && getFnDefForFnCall(node.valueExpr);
             if (inputNodes.length > 1
-                || (inputNodes.length === 1 && isComplexExpression(node.valueExpr))) {
+                || (inputNodes.length === 1 && (isComplexExpression(node.valueExpr) || fnDefForFnCall))) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
                     node.fieldName.value as string,
                     parent,
                     inputNodes,
-                    this.mapIdentifiers.slice(0)
+                    this.mapIdentifiers.slice(0),
+                    fnDefForFnCall
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
@@ -570,8 +564,9 @@ export class NodeInitVisitor implements Visitor {
             node.expressions.forEach((expr) => {
                 if (!STKindChecker.isMappingConstructor(expr) && !STKindChecker.isListConstructor(expr)) {
                     const inputNodes = getInputNodes(expr);
+                    const fnDefForFnCall = STKindChecker.isFunctionCall(expr) && getFnDefForFnCall(expr);
                     if (inputNodes.length > 1
-                        || (inputNodes.length === 1 && isComplexExpression(expr))) {
+                        || (inputNodes.length === 1 && (isComplexExpression(expr) || fnDefForFnCall))) {
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
                             expr,
@@ -579,6 +574,7 @@ export class NodeInitVisitor implements Visitor {
                             parent,
                             inputNodes,
                             [...this.mapIdentifiers, expr],
+                            fnDefForFnCall,
                             true
                         );
                         this.intermediateNodes.push(linkConnectorNode);

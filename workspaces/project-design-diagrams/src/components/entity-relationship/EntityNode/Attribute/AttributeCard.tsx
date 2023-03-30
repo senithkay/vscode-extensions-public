@@ -21,7 +21,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
-import { DiagramContext, NodeMenuWidget } from '../../../common';
+import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
 import { Attribute, Colors } from '../../../../resources';
 import { extractAttributeType } from '../entity-util';
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
@@ -53,32 +53,34 @@ export function AttributeWidget(props: AttributeProps) {
     }
 
     return (
-        <AttributeContainer
-            isSelected={isSelected || isHovered}
-            onMouseOver={() => handleOnHover('SELECT')}
-            onMouseLeave={() => handleOnHover('UNSELECT')}
-        >
-            <EntityPortWidget
-                port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
-                engine={engine}
-            />
-                <AttributeName>{attribute.name}</AttributeName>
-                <AttributeType
-                    isAnonymous={node.entityObject.isAnonymous}
-                    isSelected={isSelected || isHovered}
-                >
-                    {attributeType}
-                </AttributeType>
-                {isHovered && attribute.elementLocation && editingEnabled &&
-                    <NodeMenuWidget
-                        background={Colors.SECONDARY}
-                        location={attribute.elementLocation}
-                    />
-                }
-            <EntityPortWidget
-                port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
-                engine={engine}
-            />
-        </AttributeContainer>
+        <CtrlClickGo2Source location={attribute.elementLocation}>
+            <AttributeContainer
+                isSelected={isSelected || isHovered}
+                onMouseOver={() => handleOnHover('SELECT')}
+                onMouseLeave={() => handleOnHover('UNSELECT')}
+            >
+                <EntityPortWidget
+                    port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
+                    engine={engine}
+                />
+                    <AttributeName>{attribute.name}</AttributeName>
+                    <AttributeType
+                        isAnonymous={node.entityObject.isAnonymous}
+                        isSelected={isSelected || isHovered}
+                    >
+                        {attributeType}
+                    </AttributeType>
+                    {isHovered && attribute.elementLocation && editingEnabled &&
+                        <NodeMenuWidget
+                            background={Colors.SECONDARY}
+                            location={attribute.elementLocation}
+                        />
+                    }
+                <EntityPortWidget
+                    port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
+                    engine={engine}
+                />
+            </AttributeContainer>
+        </CtrlClickGo2Source>
     );
 }
