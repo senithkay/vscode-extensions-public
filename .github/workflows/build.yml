@@ -119,6 +119,7 @@ jobs:
       - name: Build repo
         id: build
         run: |
+          node common/scripts/install-run-rush.js install
           node common/scripts/install-run-rush.js build --verbose
         env:
           isPreRelease: ${{ inputs.isPreRelease  }}
