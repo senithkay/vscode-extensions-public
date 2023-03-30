@@ -24,9 +24,9 @@ import classNames from "classnames";
 
 import { useDiagramContext } from "../../../../Context/diagram";
 import { useFunctionContext } from "../../../../Context/Function";
+import { isQueryParam } from "../util";
 
 import "./style.scss";
-import { isQueryParam } from "../util";
 
 
 export function FunctionHeader() {
@@ -87,7 +87,6 @@ export function FunctionHeader() {
             });
     } else if (STKindChecker.isResourceAccessorDefinition(functionNode)) {
         // TODO: handle resource function
-        console.log("resource function >>>", functionNode)
         const resourceTitleContent: React.ReactElement[] = [];
         resourceTitleContent.push(
             <span className={classNames("resource-badge", functionNode.functionName.value)}>
