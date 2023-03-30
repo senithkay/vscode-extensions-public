@@ -41,6 +41,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       isPreRelease: ${{ inputs.isPreRelease }}
+      enableCache: false
       ballerina: ${{ inputs.ballerina }}
       choreo: ${{ inputs.choreo }}
       version: ${{ inputs.version }}
@@ -73,7 +74,7 @@ jobs:
       - name: Get version
         id: vsix
         run: |
-          if [ "${{ github.event.inputs.ballerina }}" == "true" && "${{ github.event.inputs.choreo }}" == "true" ]; then
+          if [[ "${{ github.event.inputs.ballerina }}" == "true" && "${{ github.event.inputs.choreo }}" == "true" ]]; then
             ballerinaFile=$(ls ballerina*.vsix)
             ballerinaFileName=${ballerinaFile#*-}
             ballerinaVersion=${ballerinaFileName%.*}
@@ -81,18 +82,18 @@ jobs:
             choreoFileName=${choreoFile#*-}
             choreoVersion=${choreoFileName%.*}
             version=ballerina-$ballerinaVersion-choreo-$choreoVersion
-          else if [ "${{ github.event.inputs.ballerina }}" == "true" ]; then
+          elif [[ "${{ github.event.inputs.ballerina }}" == "true" ]]; then
             file=$(ls ballerina*.vsix)
             fileName=${file#*-}
             version=ballerina-${fileName%.*}
-          else if [ "${{ github.event.inputs.choreo }}" == "true" ]; then
+          elif [[ "${{ github.event.inputs.choreo }}" == "true" ]]; then
             file=$(ls choreo*.vsix)
             fileName=${file#*-}
             version=choreo-${fileName%.*}  
           fi
           echo "version=$version" >> $GITHUB_OUTPUT
 
-          if [ "${{ github.event.inputs.isPreRelease }}" == "true" ]; then
+          if [[ "${{ github.event.inputs.isPreRelease }}" == "true" ]]; then
             echo "releaseMode=next" >> $GITHUB_OUTPUT
           else
             echo "releaseMode=latest" >> $GITHUB_OUTPUT
