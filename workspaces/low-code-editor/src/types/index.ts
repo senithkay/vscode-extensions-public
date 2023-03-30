@@ -92,7 +92,7 @@ export interface LowCodeEditorAPI {
         onMutate?: (type: string, options: any) => void;
         // Reuse go-to-def from LangServer?
         setCodeLocationToHighlight?: (position: NodePosition) => void;
-        gotoSource: (position: { startLine: number, startColumn: number }) => void;
+        gotoSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
         getFunctionDef: (lineRange: Range, defFilePath: string) => Promise<FunctionDef>;
         updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
         // isMutationInProgress: boolean;

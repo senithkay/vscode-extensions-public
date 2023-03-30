@@ -91,7 +91,7 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     }, [editable, body]);
 
     const label = (
-        <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn ? portIn.getName() : ''}`}>
+        <span style={{marginRight: "auto"}} data-testid={`primitive-array-element-${portIn.getName()}`}>
             <span className={classes.valueLabel}>
                 <OutputSearchHighlight>{value}</OutputSearchHighlight>
             </span>

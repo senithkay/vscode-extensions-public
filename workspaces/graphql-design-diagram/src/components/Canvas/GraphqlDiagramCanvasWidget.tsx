@@ -12,7 +12,7 @@
  */
 
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
@@ -50,10 +50,15 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
 
     }, [model]);
 
+    const zoomToFit = () => {
+        diagramEngine.zoomToFitNodes({ maxZoom: 1 });
+    };
+
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
             diagramEngine.repaintCanvas();
+            zoomToFit();
         }, 30);
     };
 

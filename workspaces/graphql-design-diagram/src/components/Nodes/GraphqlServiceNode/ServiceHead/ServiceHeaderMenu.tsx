@@ -54,10 +54,11 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                 componentsProps={{
                     tooltip: {
                         sx: {
-                            backgroundColor: '#efeeee',
+                            backgroundColor: 'none',
                             display: 'flex',
                             flexDirection: 'column',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            padding: 0
                         }
                     },
                     arrow: {

@@ -18,7 +18,6 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 
@@ -29,7 +28,6 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../
 import { getExprBodyFromLetExpression, isConnectedViaLink } from "../../../utils/dm-utils";
 import { SearchType } from "../../Search";
 import { SearchNodeWidget } from "../../Search/SearchNodeWidget";
-import { OutputUnionTypeChangeMenu } from "../OutputUnionTypeChangeMenu";
 import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainerWithTopMargin, TreeHeader } from "../Tree/Tree";
 
@@ -135,7 +133,6 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
 	const dmStore = useDMSearchStore();
-	const isUnion = field?.type?.originalTypeName === PrimitiveBalType.Union;
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
@@ -230,14 +227,6 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 							{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
 						</IconButton>
 						{label}
-						{isUnion && (
-							<OutputUnionTypeChangeMenu
-								context={context}
-								type={field.type}
-								value={field.value}
-								portName={portIn?.getName()}
-							/>
-						)}
 					</span>
 				</TreeHeader>
 				<TreeBody>

@@ -20,6 +20,7 @@ import { FunctionCard } from "./FunctionCards/FunctionCard";
 import { GraphqlServiceNodeModel } from "./GraphqlServiceNodeModel";
 import { ServiceHeadWidget } from "./ServiceHead/ServiceHead";
 import { ServiceNode } from './styles/styles';
+import { CtrlClickHandler } from "../../CtrlClickHandler";
 
 interface ServiceNodeWidgetProps {
     node: GraphqlServiceNodeModel;
