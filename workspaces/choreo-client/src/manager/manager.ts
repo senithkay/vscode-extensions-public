@@ -214,7 +214,16 @@ export class ChoreoProjectManager implements IProjectManager {
                     displayName: folder.metadata.displayName,
                     version: "1.0.0",// TODO: get version from main form
                     createdAt: undefined,
-                    repository: undefined,
+                    repository: {
+                        branch: folder.metadata.repository.branchApp,
+                        branchApp: folder.metadata.repository.branchApp,
+                        isUserManage: true,
+                        nameApp: folder.metadata.repository.nameApp,
+                        nameConfig: "",
+                        organizationApp: folder.metadata.repository.orgApp,
+                        organizationConfig:"",
+                        appSubPath: folder.metadata.repository.appSubPath
+                    },
                     apiVersions: []
                 });
             }

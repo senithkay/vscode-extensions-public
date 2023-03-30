@@ -39,14 +39,14 @@ import {
     getChoreoProject,
     PushLocalComponentsToChoreo,
     OpenArchitectureView,
-    HasUnpushedComponents,
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
     ComponentModel,
     getDiagramComponentModel,
     DeleteComponent,
-    PullComponent
+    PullComponent,
+    PushLocalComponentToChoreo
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -92,7 +92,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
     }
 
-    public async deleteComponent(params: {componentId: string; projectId: string}): Promise<void> {
+    public async deleteComponent(params: {component: Component; projectId: string}): Promise<void> {
         return this._messenger.sendRequest(DeleteComponent, HOST_EXTENSION, params);
     }
 
@@ -138,6 +138,10 @@ export class ChoreoWebViewAPI {
 
     public async pushLocalComponentsToChoreo(projectId: string): Promise<void> {
         return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, projectId);
+    }
+
+    public async pushLocalComponentToChoreo(params: {projectId: string, componentName: string}): Promise<void> {
+        return this._messenger.sendRequest(PushLocalComponentToChoreo, HOST_EXTENSION, params);
     }
 
     public async openArchitectureView(): Promise<void> {
@@ -189,10 +193,6 @@ export class ChoreoWebViewAPI {
             this._instance = new ChoreoWebViewAPI(vscode);
         }
         return this._instance;
-    }
-
-    public async hasUnpushedComponents(projectId: string): Promise<boolean> {
-        return this._messenger.sendRequest(HasUnpushedComponents, HOST_EXTENSION, projectId);
     }
 
     public updateProjectOverview(projectId: string) {

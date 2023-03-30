@@ -89,6 +89,8 @@ export interface Component {
     // To store the accessibility of the component which are not created using Choreo
     accessibility?: string;
     local?: boolean;
+    hasUnPushedLocalCommits?: boolean;
+    hasDirtyLocalRepo?: boolean;
     isRemoteOnly?: boolean;
     deployments?: Deployments;
 }
@@ -329,7 +331,11 @@ export enum DeploymentStatus {
     Active = 'ACTIVE',
     Suspended = 'SUSPENDED',
     Error = 'ERROR',
-    InProgress = 'IN_PROGRESS',
+    InProgress = 'IN_PROGRESS'
+}
+
+export enum Status {
     LocalOnly = "LOCAL_ONLY",
-    UnavailableLocally= "NOT_AVAILABLE_LOCALLY"
+    UnavailableLocally= "NOT_AVAILABLE_LOCALLY",
+    ChoreoAndLocal= "CHOREO_AND_LOCAL"
 }

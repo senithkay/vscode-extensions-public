@@ -110,47 +110,58 @@ export class ProjectRegistry {
     }
 
     async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
-        try{
+        try {
             const components = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
             this._dataComponents.set(projectId, components);
             return this._addLocalComponents(projectId, components);
-        } catch(e) {
+        } catch (e) {
             serializeError(e);
             const components: Component[] | undefined = this._dataComponents.get(projectId);
             return this._addLocalComponents(projectId, components || []);
         }
     }
 
-    async deleteComponent(componentId: string, orgHandler: string, projectId: string): Promise<void> {
-        try{
-            const allComponents = this._dataComponents.get(projectId);
-            const componentToBeDeleted = allComponents?.find(item=>item.id === componentId);
-
+    async deleteComponent(component: Component, orgHandler: string, projectId: string): Promise<void> {
+        try {
             await window.withProgress({
-                title: `Deleting component ${componentToBeDeleted?.name}.`,
+                title: `Deleting component ${component?.name}.`,
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
-                let successMsg = "The component has been deleted successfully."
-                if(!componentToBeDeleted?.local){
-                    await projectClient.deleteComponent({componentId, orgHandler, projectId});
+                let successMsg = "The component has been deleted successfully.";
+                if (!component?.local && component.id) {
+                    await projectClient.deleteComponent({ component, orgHandler, projectId });
                 }
-    
-                if((!componentToBeDeleted?.isRemoteOnly || componentToBeDeleted.local) && componentToBeDeleted?.repository){
-                    const projectLocation = this.getProjectLocation(projectId);
-                    const { organizationApp, nameApp, appSubPath } = componentToBeDeleted.repository;
+
+                const projectLocation = this.getProjectLocation(projectId);
+
+                if (component.local) {
+                    const choreoPM = new ChoreoProjectManager();
+                    if (projectLocation) {
+                        const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
+                        const componentMetadata = localComponentMeta?.find(item => item.displayName === component.name);
+                        if (componentMetadata) {
+                            const { orgApp, nameApp, appSubPath } = componentMetadata.repository;
+                            const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, appSubPath);
+                            if (existsSync(repoPath)) {
+                                rmdirSync(repoPath, { recursive: true });
+                                choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+                            }
+                        }
+                    }
+                } else if (!component?.isRemoteOnly && component?.repository) {
+                    const { organizationApp, nameApp, appSubPath } = component.repository;
                     if (projectLocation && appSubPath) {
                         const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
                         if (existsSync(repoPath)) {
-                            rmdirSync(repoPath, {recursive: true});
+                            rmdirSync(repoPath, { recursive: true });
+                            successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
                         }
                     }
-                    successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
                 }
                 vscode.window.showInformationMessage(successMsg);
             });
-           
-        } catch(e) {
+        } catch (e) {
             serializeError(e);
         }
     }
@@ -171,14 +182,10 @@ export class ProjectRegistry {
                 }, async () => {
                     const git = await initGit(ext.context);
                     if (git) {
-                        if (git) {
-                            const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
-                            await git.pull(repoPath);
-                        } else {
-                            getLogger().error("Git was not initialized");
-                        }
+                        const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
+                        await git.pull(repoPath);
                     } else {
-                        throw new Error("Git was not initialized.");
+                        getLogger().error("Git was not initialized");
                     }
                 });
 
@@ -261,34 +268,17 @@ export class ProjectRegistry {
                 const choreoPM = new ChoreoProjectManager();
                 const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
                 await Promise.all(localComponentMeta.map(async componentMetadata => {
-                    const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
-                    const componentRequest: CreateComponentParams = {
-                        name: componentMetadata.displayName,
-                        displayName: componentMetadata.displayName,
-                        displayType: componentMetadata.displayType,
-                        description: componentMetadata.description,
-                        orgId: componentMetadata.org.id,
-                        orgHandle: componentMetadata.org.handle,
-                        projectId: projectId,
-                        accessibility: componentMetadata.accessibility,
-                        srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
-                        repositorySubPath: appSubPath,
-                        repositoryType: "UserManagedNonEmpty",
-                        repositoryBranch: branchApp
-                    };
-                    await projectClient.createComponent(componentRequest).then((component) => {
-                        choreoPM.removeLocalComponent(projectLocation, componentMetadata);
-                    }).catch(() => {
+                    try {
+                        await this.createComponent(componentMetadata, projectId);
+                    } catch {
                         const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
                         failures = `${failures} ${errorMsg}`;
                         if (componentMetadata.displayType !== ChoreoServiceComponentType.REST_API
                             && componentMetadata.displayType !== ChoreoServiceComponentType.GQL_API) {
                             failures = `${failures} Component type is not supported.`;
                         }
-                    });
+                    }
                 }));
-                // Delete the components so they resolve from choreo
-                this._dataComponents.delete(projectId);
             }
             if (failures) {
                 reject(new Error(failures));
@@ -297,44 +287,91 @@ export class ProjectRegistry {
         });
     }
 
-    async hasUnpushedComponents(projectId: string): Promise<boolean> {
+    async pushLocalComponentToChoreo(projectId: string, componentName: string): Promise<void> {
+        const choreoPM = new ChoreoProjectManager();
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
         if (projectLocation !== undefined) {
-            // Get local components
-            const choreoPM = new ChoreoProjectManager();
             const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
-            if (localComponentMeta.length === 0) {
-                return true;
+            const componentMetadata = localComponentMeta?.find(component => component.displayName === componentName);
+            if (componentMetadata) {
+                try {
+                    await this.createComponent(componentMetadata, projectId);
+                    vscode.window.showInformationMessage(`The component ${componentMetadata.displayName} has been successfully pushed to Choreo.`);
+                } catch (e) {
+                    serializeError(e);
+                    throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo.`);
+                }
             }
-            const hasPushed = await Promise.all(localComponentMeta.map(async componentMetadata => {
-                const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
-                return projectClient.isComponentInRepo({
-                    branchApp: branchApp,
-                    orgApp: orgApp,
-                    repoApp: nameApp,
-                    subPath: appSubPath
-                });
-            })).then((results) => {
-                return results.some((result) => {
-                    return result === false;
-                });
-            }).catch((e) => {
-                return false;
-            });
-            return hasPushed;
-        } else {
-            return true;
         }
     }
-    
+
+    private createComponent = async (componentMetadata: WorkspaceComponentMetadata, projectId: string) => {
+        const choreoPM = new ChoreoProjectManager();
+        const projectLocation: string | undefined = this.getProjectLocation(projectId);
+        if (projectLocation) {
+            const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+            const componentRequest: CreateComponentParams = {
+                name: componentMetadata.displayName,
+                displayName: componentMetadata.displayName,
+                displayType: componentMetadata.displayType,
+                description: componentMetadata.description,
+                orgId: componentMetadata.org.id,
+                orgHandle: componentMetadata.org.handle,
+                projectId: projectId,
+                accessibility: componentMetadata.accessibility,
+                srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+                repositorySubPath: appSubPath,
+                repositoryType: "UserManagedNonEmpty",
+                repositoryBranch: branchApp
+            };
+            await projectClient.createComponent(componentRequest);
+            choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+        }
+    };
+
+    async hasDirtyLocalRepo(projectId: string, component: Component): Promise<boolean> {
+        const projectLocation: string | undefined = this.getProjectLocation(projectId);
+        if (projectLocation && component.repository) {
+            const { nameApp, organizationApp, appSubPath } = component.repository;
+
+            const git = await initGit(ext.context);
+            if (git) {
+                const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
+                const gitRepo = git.open(repoPath, { path: repoPath });
+                const status = await gitRepo.getStatus({ untrackedChanges: 'separate', subDirectory: appSubPath });
+                return status.statusLength > 0;
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+
+    async hasUnPushedLocalCommit(projectId: string, component: Component): Promise<boolean> {
+        const projectLocation: string | undefined = this.getProjectLocation(projectId);
+        if (projectLocation && component.repository) {
+            const { nameApp, organizationApp, appSubPath } = component.repository;
+
+            const git = await initGit(ext.context);
+            if (git) {
+                const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
+                const commits = await git.getUnPushedCommits(repoPath, appSubPath);
+                return commits.length > 0;
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+
     public isSubpathAvailable(projectId: string, orgName: string, repoName: string, subPath: string): boolean {
-          const projectLocation = this.getProjectLocation(projectId);
-          if (projectLocation && orgName && repoName && subPath) {
-              const repoPath = join(dirname(projectLocation), "repos", orgName, repoName, subPath);
-              return !existsSync(repoPath);
-          }
-          // TODO Handle subpath check for non cloned repos
-          return true;
+        const projectLocation = this.getProjectLocation(projectId);
+        if (projectLocation && orgName && repoName && subPath) {
+            const repoPath = join(dirname(projectLocation), "repos", orgName, repoName, subPath);
+            return !existsSync(repoPath);
+        }
+        // TODO Handle subpath check for non cloned repos
+        return true;
     }
 
     private _removeLocation(projectId: string) {
@@ -347,19 +384,28 @@ export class ProjectRegistry {
         ext.context.globalState.update(PROJECT_LOCATIONS, projectLocations);
     }
 
-    private _addLocalComponents(projectId: string, components: Component[]): Component[] {
+    private async _addLocalComponents(projectId: string, components: Component[]): Promise<Component[]> {
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
-        components = components.map((component: Component)=>{
-            if(component.repository?.appSubPath){
+        components = components.map((component: Component) => {
+            if (component.repository?.appSubPath) {
                 const { organizationApp, nameApp, appSubPath } = component.repository;
                 component.isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
             }
             return component;
         });
         if (projectLocation !== undefined) {
-            const localcomponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
-            components = components.concat(localcomponents);
+            const localComponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
+            components = components.concat(localComponents);
         }
+        components = await Promise.all(
+            components.map(async (component) => {
+                const [hasUnPushedLocalCommits, hasDirtyLocalRepo] = await Promise.all([
+                    this.hasUnPushedLocalCommit(projectId, component),
+                    this.hasDirtyLocalRepo(projectId, component),
+                ]);
+                return { ...component, hasUnPushedLocalCommits, hasDirtyLocalRepo };
+            })
+        );
         return components;
     }
 }

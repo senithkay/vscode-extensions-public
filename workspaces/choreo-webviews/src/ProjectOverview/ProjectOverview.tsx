@@ -13,7 +13,7 @@
 
 import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Component, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
@@ -61,30 +61,13 @@ export interface ProjectOverviewProps {
     orgName?: string;
 }
 
-
-function hasLocal(components: Component[]) {
-    return components.some((component) => {
-        return component.repository === undefined;
-    });
-}
-
-enum ComponentAction {
-    NOTHING,
-    LOADING,
-    REPO_SYNC, // components are not pushed to github repo
-    CHOREO_SYNC // components are not pushed to choreo
-}
-
-
 export function ProjectOverview(props: ProjectOverviewProps) {
     const [project, setProject] = useState<Project | undefined>(undefined);
-    const [components, setComponents] = useState<Component[] | undefined>(undefined);
+    const [components, setComponents] = useState<Component[]>([]);
     const [location, setLocation] = useState<string | undefined>(undefined);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [, setProjectRepo] = useState<string | undefined>(undefined);
     const [isActive, setActive] = useState<boolean>(false);
     const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
-    const [componentAction, setComponentAction] = useState<ComponentAction>(ComponentAction.NOTHING);
+    const [loadingComponents, setLoadingComponents] = useState(false);
     const projectId = props.projectId ? props.projectId : '';
     const orgName = props.orgName ? props.orgName : '';
 
@@ -96,11 +79,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, [projectId, orgName]);
 
     const fetchComponents = useCallback(async (projectId) => {
-        setComponentAction(ComponentAction.LOADING);
+        setLoadingComponents(true);
         try {
-            ChoreoWebViewAPI.getInstance().getComponents(projectId).then(setComponents)
+            const components = await ChoreoWebViewAPI.getInstance().getComponents(projectId);
+            setComponents(components);
         } finally {
-            setComponentAction(ComponentAction.NOTHING);
+            setLoadingComponents(false);
         }
     }, []);
 
@@ -122,23 +106,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     // Get project location & repo
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().getProjectLocation(projectId).then(setLocation);
-        ChoreoWebViewAPI.getInstance().getProjectRepository(projectId).then(setProjectRepo);
     }, [projectId, orgName]);
 
-    useEffect(() => {
-        if (components !== undefined && hasLocal(components)) {
-            setComponentAction(ComponentAction.LOADING);
-            ChoreoWebViewAPI.getInstance().hasUnpushedComponents(projectId).then((status: boolean) => {
-                if (status) {
-                    setComponentAction(ComponentAction.REPO_SYNC);
-                } else {
-                    setComponentAction(ComponentAction.CHOREO_SYNC);
-                }
-            });
-        } else {
-            setComponentAction(ComponentAction.NOTHING);
-        }
-    }, [components, projectId]);
 
 
 
@@ -172,14 +141,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     const handlePushToChoreoClick = useCallback(async () => {
         setCreatingComponents(true);
-        await ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(project ? project.id : '').catch(((error) => {
-            ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
-        }));
-        await ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '').then((components) => {
-            setComponents(components);
+        try {
+            await ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(projectId)
+        } catch (error) {
+            ChoreoWebViewAPI.getInstance().showErrorMsg((error as Error)?.message);
+        } finally {
             setCreatingComponents(false);
-        });
-    }, [project]);
+            fetchComponents(projectId);
+        }
+    }, [projectId]);
 
     const handleOpenArchitectureViewClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openArchitectureView();
@@ -204,66 +174,145 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, []);
 
     const handleRefreshComponentsClick = useCallback(async () => {
-        setComponentAction(ComponentAction.LOADING);
-        await ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.projects.registry.refresh')
-        const components = await ChoreoWebViewAPI.getInstance().getComponents(project ? project.id : '')
-        setComponents(components);
+        try{
+            setLoadingComponents(true);
+            await ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.projects.registry.refresh');
+        } finally {
+            setLoadingComponents(false);
+        }
+        fetchComponents(projectId);
     }, [project]);
 
-    const handleDeleteComponentClick = useCallback(async (componentId) => {
-        await ChoreoWebViewAPI.getInstance().deleteComponent({ componentId, projectId })
+    const handleDeleteComponentClick = useCallback(async (component: Component) => {
+        await ChoreoWebViewAPI.getInstance().deleteComponent({ component, projectId })
         fetchComponents(projectId);
     }, [projectId, project]);
+
+    const handlePushComponentClick = useCallback(async (componentName) => {
+        await ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({ projectId, componentName })
+        fetchComponents(projectId);
+    }, [projectId]);
+
+    const hasLocalComponents = useMemo(() => components?.some(component => component.local), [components])
+
+    /** Has components with local changes or unpushed commits */
+    const componentsOutOfSync = useMemo(() => {
+        return components?.some(component => component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits);
+    }, [components])
+
+    /** Every local components is without any local git changes to commit/push. These components can be pushed to Choreo */
+    const hasPushableComponents = useMemo(() => {
+        const localOnlyComponents = components.filter(component => component.local);
+        if (localOnlyComponents.length === 0) {
+            return false;
+        }
+        return localOnlyComponents?.every(component => !component.hasDirtyLocalRepo && !component.hasUnPushedLocalCommits);
+    }, [components])
+
 
     return (
         <>
             <WizardContainer>
                 <HeaderContainer>
                     <h1>{project?.name}</h1>
-                    <VSCodeButton appearance="icon" title="Open in Choreo Console" onClick={onOpenConsoleClick}><Codicon name="link-external" /></VSCodeButton>
-                    {isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}
-                </HeaderContainer>
-                {location === undefined &&
-                    <>
-                        <p><InlineIcon><Codicon name="info" /></InlineIcon> To open the project clone in to your local machine</p>
-                        <ActionContainer>
-                            <VSCodeButton appearance="primary" onClick={handleCloneProjectClick}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={(components?.length <= 0)} onClick={handleOpenChoreoArchitectureViewClick}>Architecture View</VSCodeButton>
-                        </ActionContainer>
-                    </>
-                }
-                {location !== undefined && !isActive &&
-                    <>
-                        <p><InlineIcon><Codicon name="info" /></InlineIcon> Found a local copy of the project at `{location}`. </p>
-                        <ActionContainer>
-                            <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
-                            <VSCodeButton appearance="primary" onClick={handleOpenProjectClick}>Open Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>Architecture View</VSCodeButton>
-                        </ActionContainer>
-                    </>
-                }
-                {isActive &&
-                    <>
-                        <p><InlineIcon><Codicon name="info" /></InlineIcon> Open the architecture view to add components. </p>
-                        <ActionContainer>
-                            <VSCodeButton appearance="secondary" disabled={true}><Codicon name="cloud-download" />&nbsp;Clone Project</VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>Open Project</VSCodeButton>
-                            <VSCodeButton appearance="primary" onClick={handleOpenArchitectureViewClick}>Architecture View</VSCodeButton>
-                        </ActionContainer>
-                    </>
-                }
-
-
-                <ComponentsHeader>
-                    <h2>Components</h2>
-                    <VSCodeButton appearance="icon" onClick={handleCreateComponentClick} disabled={!isActive} title="Add Component"><Codicon name="plus" /></VSCodeButton>
                     <VSCodeButton
                         appearance="icon"
                         title="Open in Choreo Console"
                         onClick={onOpenConsoleClick}
                     >
                         <Codicon name="link-external" />
+                    </VSCodeButton>
+                    {isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}
+                </HeaderContainer>
+                {location === undefined && (
+                    <>
+                        <p>
+                            <InlineIcon>
+                                <Codicon name="info" />
+                            </InlineIcon>{" "}
+                            To open the project clone in to your local machine
+                        </p>
+                        <ActionContainer>
+                            <VSCodeButton
+                                appearance="primary"
+                                onClick={handleCloneProjectClick}
+                            >
+                                <Codicon name="cloud-download" />
+                                &nbsp;Clone Project
+                            </VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>
+                                Open Project
+                            </VSCodeButton>
+                            <VSCodeButton
+                                appearance="secondary"
+                                disabled={components?.length <= 0}
+                                onClick={handleOpenChoreoArchitectureViewClick}
+                            >
+                                Architecture View
+                            </VSCodeButton>
+                        </ActionContainer>
+                    </>
+                )}
+                {location !== undefined && !isActive && (
+                    <>
+                        <p>
+                            <InlineIcon>
+                                <Codicon name="info" />
+                            </InlineIcon>{" "}
+                            Found a local copy of the project at `{location}`.{" "}
+                        </p>
+                        <ActionContainer>
+                            <VSCodeButton appearance="secondary" disabled={true}>
+                                <Codicon name="cloud-download" />
+                                &nbsp;Clone Project
+                            </VSCodeButton>
+                            <VSCodeButton
+                                appearance="primary"
+                                onClick={handleOpenProjectClick}
+                            >
+                                Open Project
+                            </VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>
+                                Architecture View
+                            </VSCodeButton>
+                        </ActionContainer>
+                    </>
+                )}
+                {isActive && (
+                    <>
+                        <p>
+                            <InlineIcon>
+                                <Codicon name="info" />
+                            </InlineIcon>{" "}
+                            Open the architecture view to add components.{" "}
+                        </p>
+                        <ActionContainer>
+                            <VSCodeButton appearance="secondary" disabled={true}>
+                                <Codicon name="cloud-download" />
+                                &nbsp;Clone Project
+                            </VSCodeButton>
+                            <VSCodeButton appearance="secondary" disabled={true}>
+                                Open Project
+                            </VSCodeButton>
+                            <VSCodeButton
+                                appearance="primary"
+                                onClick={handleOpenArchitectureViewClick}
+                            >
+                                Architecture View
+                            </VSCodeButton>
+                        </ActionContainer>
+                    </>
+                )}
+
+                <ComponentsHeader>
+                    <h2>Components</h2>
+                    <VSCodeButton
+                        appearance="icon"
+                        onClick={handleCreateComponentClick}
+                        disabled={!isActive}
+                        title="Add Component"
+                    >
+                        <Codicon name="plus" />
                     </VSCodeButton>
                 </ComponentsHeader>
                 <ComponentList
@@ -272,52 +321,69 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     orgName={orgName}
                     openSourceControl={handleOpenSourceControlClick}
                     onComponentDeleteClick={handleDeleteComponentClick}
-                    loading={componentAction === ComponentAction.LOADING}
-                />                
-                {componentAction === ComponentAction.CHOREO_SYNC &&
-                    <>
-                        <p>
-                            <InlineIcon><Codicon name="lightbulb" /></InlineIcon>&nbsp;
-                            Some components are not created in Choreo. Click `Push to Choreo` to create them.
-                        </p>
-                        <ActionContainer>
-                            {creatingComponents && <VSCodeProgressRing />}
-                            <VSCodeButton
-                                appearance="primary"
-                                disabled={creatingComponents}
-                                onClick={handlePushToChoreoClick}>
-                                <Codicon name="cloud-upload" />&nbsp;
-                                Push to Choreo
-                            </VSCodeButton>
-                        </ActionContainer>
-                    </>
-                }
-                {componentAction === ComponentAction.REPO_SYNC &&
-                    <>
-                        <p>
-                            <InlineIcon><Codicon name="lightbulb" /></InlineIcon>&nbsp;
-                            Some components are not committed to the github repo. Please commit and push them before pushing to Choreo.
-                        </p>
-                        <ActionContainer>
-                            {creatingComponents && <VSCodeProgressRing />}
-                            <VSCodeButton
-                                appearance="secondary"
-                                onClick={handleOpenSourceControlClick}>
-                                <Codicon name="source-control" />&nbsp;
-                                Open Source Control
-                            </VSCodeButton>
-                            <VSCodeButton
-                                appearance="secondary"
-                                onClick={handleRefreshComponentsClick}>
-                                <Codicon name="refresh" />&nbsp;
-                                Recheck
-                            </VSCodeButton>
-                        </ActionContainer>
-                    </>
-                }
-                {componentAction === ComponentAction.LOADING &&
+                    handlePushComponentClick={handlePushComponentClick}
+                    loading={loadingComponents || creatingComponents}
+                />
+
+                {loadingComponents ? (
                     <VSCodeProgressRing />
-                }
+                ) : (
+                    <>
+                        {hasPushableComponents && (
+                            <>
+                                <p>
+                                    <InlineIcon>
+                                        <Codicon name="lightbulb" />
+                                    </InlineIcon>
+                                    &nbsp; Some components are not created in Choreo. Click `Push
+                                    to Choreo` to create them.
+                                </p>
+                                <ActionContainer>
+                                    {creatingComponents && <VSCodeProgressRing />}
+                                    <VSCodeButton
+                                        appearance="primary"
+                                        disabled={creatingComponents}
+                                        onClick={handlePushToChoreoClick}
+                                    >
+                                        <Codicon name="cloud-upload" />
+                                        &nbsp; Push to Choreo
+                                    </VSCodeButton>
+                                </ActionContainer>
+                            </>
+                        )}
+                        {!hasPushableComponents && componentsOutOfSync && (
+                            <>
+                                <p>
+                                    <InlineIcon>
+                                        <Codicon name="lightbulb" />
+                                    </InlineIcon>
+                                    &nbsp; Some components are not committed and pushed to the
+                                    upstream github repository.
+                                    {hasLocalComponents &&
+                                        ` Please commit and push them before pushing to Choreo.`}
+                                </p>
+                                <ActionContainer>
+                                    {creatingComponents && <VSCodeProgressRing />}
+                                    <VSCodeButton
+                                        appearance="secondary"
+                                        onClick={handleOpenSourceControlClick}
+                                    >
+                                        <Codicon name="source-control" />
+                                        &nbsp; Open Source Control
+                                    </VSCodeButton>
+                                    <VSCodeButton
+                                        appearance="secondary"
+                                        onClick={handleRefreshComponentsClick}
+                                        disabled={loadingComponents}
+                                    >
+                                        <Codicon name="refresh" />
+                                        &nbsp; Recheck
+                                    </VSCodeButton>
+                                </ActionContainer>
+                            </>
+                        )}
+                    </>
+                )}
             </WizardContainer>
         </>
     );

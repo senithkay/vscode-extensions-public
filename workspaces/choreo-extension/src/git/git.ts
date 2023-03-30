@@ -403,7 +403,7 @@ export class Git {
 		return Versions.compare(Versions.fromString(this.version), Versions.fromString(version));
 	}
 
-	open(repository: string, dotGit: { path: string; commonPath?: string }, logger: LogOutputChannel): Repository {
+	open(repository: string, dotGit: { path: string; commonPath?: string }, logger?: LogOutputChannel): Repository {
 		return new Repository(this, repository, dotGit, logger);
 	}
 
@@ -486,6 +486,18 @@ export class Git {
 
 	async pull(repositoryPath: string): Promise<void> {
 		await this.exec(repositoryPath, ['pull']);
+	}
+
+	async getUnPushedCommits(repositoryPath: string, subDirectory = '.'): Promise<Commit[]> {
+		const args = ['log', `-n32`, `--format=${COMMIT_FORMAT}`, '-z', '@{upstream}..', '--', subDirectory];
+
+		const result = await this.exec(repositoryPath, args);
+		if (result.exitCode) {
+			return [];
+		}
+
+		const commits =  parseGitCommits(result.stdout);
+		return commits;
 	}
 
 	async getRepositoryRoot(repositoryPath: string): Promise<string> {
@@ -956,7 +968,7 @@ export class Repository {
 		private _git: Git,
 		private repositoryRoot: string,
 		readonly dotGit: { path: string; commonPath?: string },
-		private logger: LogOutputChannel
+		private logger?: LogOutputChannel
 	) { }
 
 	get git(): Git {
@@ -2010,7 +2022,7 @@ export class Repository {
 		}
 	}
 
-	async getStatus(opts?: { limit?: number; ignoreSubmodules?: boolean; untrackedChanges?: 'mixed' | 'separate' | 'hidden'; cancellationToken?: CancellationToken }): Promise<{ status: IFileStatus[]; statusLength: number; didHitLimit: boolean }> {
+	async getStatus(opts?: { limit?: number; ignoreSubmodules?: boolean; untrackedChanges?: 'mixed' | 'separate' | 'hidden'; cancellationToken?: CancellationToken, subDirectory?: string }): Promise<{ status: IFileStatus[]; statusLength: number; didHitLimit: boolean }> {
 		if (opts?.cancellationToken && opts?.cancellationToken.isCancellationRequested) {
 			throw new CancellationError();
 		}
@@ -2018,7 +2030,7 @@ export class Repository {
 		const disposables: IDisposable[] = [];
 
 		const env = { GIT_OPTIONAL_LOCKS: '0' };
-		const args = ['status', '-z'];
+		const args = ['status', `${opts?.subDirectory || '.'}`,'-z'];
 
 		if (opts?.untrackedChanges === 'hidden') {
 			args.push('-uno');
@@ -2132,7 +2144,7 @@ export class Repository {
 			return result;
 		}
 		catch (err: any) {
-			this.logger.warn(err.message);
+			this.logger?.warn(err.message);
 		}
 
 		try {
@@ -2287,11 +2299,11 @@ export class Repository {
 			remotes.push(...await this.getRemotesFS());
 
 			if (remotes.length === 0) {
-				this.logger.info('No remotes found in the git config file.');
+				this.logger?.info('No remotes found in the git config file.');
 			}
 		}
 		catch (err: any) {
-			this.logger.warn(`getRemotes() - ${err.message}`);
+			this.logger?.warn(`getRemotes() - ${err.message}`);
 
 			// Fallback to using git to get the remotes
 			remotes.push(...await this.getRemotesGit());

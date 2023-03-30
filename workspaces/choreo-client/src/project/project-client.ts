@@ -12,7 +12,7 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployments } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams } from "./types";
 import {
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
@@ -20,7 +20,6 @@ import {
     getComponentsWithCellDiagramQuery,
     getDeleteComponentQuery,
     getProjectsByOrgIdQuery,
-    getRepoMetadataQuery
 } from './project-queries';
 import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
@@ -60,7 +59,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async deleteComponent(params: DeleteComponentParams): Promise<void> {
-        const query = getDeleteComponentQuery(params.orgHandler, params.componentId, params.projectId);
+        const query = getDeleteComponentQuery(params.orgHandler, params.component?.id, params.projectId);
         try {
             const client = await this._getClient();
             const data = await client.request(query);
@@ -103,14 +102,21 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                     deploymentQueries.push(getComponentDeploymentQuery(queryData))
                 }
 
-                const deploymentRes = await Promise.allSettled(deploymentQueries.map(query => client.request(query)));
+                const deploymentRes = await Promise.all(deploymentQueries.map(async query => {
+                    try{
+                        const deploymentData = await client.request(query);
+                        return deploymentData;
+                    } catch {
+                        // If the component has never been deployed, this call would return a 404
+                        console.error(`Failed to get component deployment details for ${component.displayName}`);
+                        return;
+                    }
+                }));
                 deploymentRes?.forEach(deploymentData => {
-                    if (deploymentData.status === 'fulfilled') {
-                        if (devEnv && deploymentData?.value?.componentDeployment?.environmentId === devEnv.id) {
-                            deployments.dev = deploymentData.value.componentDeployment;
-                        } else if (prodEnv && deploymentData?.value?.componentDeployment?.environmentId === prodEnv.id) {
-                            deployments.prod = deploymentData.value.componentDeployment
-                        }
+                    if (devEnv && deploymentData?.componentDeployment?.environmentId === devEnv.id) {
+                        deployments.dev = deploymentData.componentDeployment;
+                    } else if (prodEnv && deploymentData?.componentDeployment?.environmentId === prodEnv.id) {
+                        deployments.prod = deploymentData.componentDeployment
                     }
                 })
 
@@ -189,18 +195,6 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                 });
         } catch (err) {
             throw new Error(API_CALL_ERROR, { cause: err });
-        }
-    }
-
-    async isComponentInRepo(params: RepoParams): Promise<boolean> {
-        const { orgApp, repoApp, branchApp, subPath } = params;
-        const query = getRepoMetadataQuery(orgApp, repoApp, branchApp, subPath);
-        try {
-            const client = await this._getClient();
-            const data = await client.request(query);
-            return data.repoMetadata.isSubPathValid;
-        } catch (error) {
-            throw new Error("Error while executing " + query, { cause: error, });
         }
     }
 

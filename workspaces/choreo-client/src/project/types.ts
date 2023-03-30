@@ -38,7 +38,7 @@ export interface CreateComponentParams {
 
 export interface DeleteComponentParams {
     orgHandler: string;
-    componentId: string;
+    component: Component;
     projectId: string;
 }
 
