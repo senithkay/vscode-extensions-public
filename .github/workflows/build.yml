@@ -43,8 +43,8 @@ jobs:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
 
-      - name: Setup
-        if: ${{ github.event.inputs.enableCache == 'true' }}
+      - name: Cache env
+        if: ${{ inputs.enableCache }}
         uses: gigara/rush-cache@v2
 
       - uses: actions/setup-node@v3
@@ -56,7 +56,7 @@ jobs:
           version: 7.26.3
 
       - name: Cache Rush
-        if: ${{ github.event.inputs.enableCache == 'true' }}
+        if: ${{ inputs.enableCache }}
         uses: actions/cache@v2
         with:
           path: |
@@ -65,7 +65,7 @@ jobs:
           key: Rush-cache-${{ hashFiles('rush.json') }}
 
       - name: Cache pnpm
-        if: ${{ github.event.inputs.enableCache == 'true' }}
+        if: ${{ inputs.enableCache }}
         uses: actions/cache@v3
         with:
           path: |
