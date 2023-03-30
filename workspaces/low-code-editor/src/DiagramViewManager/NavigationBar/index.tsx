@@ -19,6 +19,7 @@ import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
 import { Apps, ArrowBack, ArrowDropDown, Home } from "@material-ui/icons";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import { CtrlClickWrapper } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { PackageIcon } from "../../assets/icons";
@@ -28,7 +29,6 @@ import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
-import { CtrlClickWrapper } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 interface NavigationBarProps {
     workspaceName: string;

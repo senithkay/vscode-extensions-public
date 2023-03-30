@@ -94,7 +94,7 @@ export function getConstructBodyString(construct: STNode): string {
         bodyString += construct.openBrace.value;
         bodyString += construct.members.reduce((acc, member) => `${acc}${member.source}`, "");
         bodyString += construct.closeBrace.value;
-    } else if (STKindChecker.isObjectMethodDefinition(construct)) { 
+    } else if (STKindChecker.isObjectMethodDefinition(construct)) {
         bodyString = construct.functionBody.source;
     } else if (STKindChecker.isResourceAccessorDefinition(construct)) {
         bodyString += construct.functionBody.source;

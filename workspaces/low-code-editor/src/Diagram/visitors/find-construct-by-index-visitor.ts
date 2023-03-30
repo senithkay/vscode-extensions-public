@@ -12,6 +12,7 @@
  */
 
 import { ClassDefinition, FunctionDefinition, ObjectMethodDefinition, ResourceAccessorDefinition, ServiceDeclaration, STKindChecker, STNode, TypeDefinition, Visitor } from "@wso2-enterprise/syntax-tree";
+
 import { generateConstructIdStub, MODULE_DELIMETER, SUB_DELIMETER } from "./util";
 
 export class FindConstructByIndexVisitor implements Visitor {

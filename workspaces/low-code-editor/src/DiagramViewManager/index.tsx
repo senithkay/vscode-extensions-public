@@ -24,8 +24,11 @@ import { GraphqlDiagramOverlay } from "../Diagram/components/GraphqlDiagramOverl
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 import { ServiceInvalidOverlay } from "../Diagram/components/ServiceInvalidOverlay";
 import { ServiceUnsupportedOverlay } from "../Diagram/components/ServiceUnsupported";
+import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
+import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
+import { getConstructBodyString } from "../Diagram/visitors/util";
 import {
     getLowcodeST,
     getSyntaxTree
@@ -42,9 +45,6 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { getDiagramProviderProps, getSTNodeForReference } from "./utils";
-import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
-import { getConstructBodyString } from "../Diagram/visitors/util";
-import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
