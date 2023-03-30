@@ -13,12 +13,12 @@ on:
         description: Update Ballerina extension version
         type: boolean
         required: false
-        default: false
+        default: true
       choreo:
         description: Update Choreo extension version
         type: boolean
         required: false
-        default: false      
+        default: true      
       version:
         default: 'N/A'
         type: string
@@ -95,7 +95,7 @@ jobs:
           echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
 
       - name: Set prerelase version - ballerina
-        if: ${{ inputs.isPreRelease }}
+        if: ${{ inputs.isPreRelease && inputs.ballerina }}
         run: |
           cd workspaces/ballerina-extension
           currentVersion=$(node -p "require('./package.json').version")
@@ -106,7 +106,7 @@ jobs:
           npm version $newVersion --preid beta --no-git-tag-version
           
       - name: Set prerelase version - choreo
-        if: ${{ inputs.isPreRelease }}
+        if: ${{ inputs.isPreRelease && inputs.choreo }}
         run: |
           cd workspaces/choreo-extension
           currentVersion=$(node -p "require('./package.json').version")
