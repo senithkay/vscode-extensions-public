@@ -21,7 +21,7 @@ export const CellContainer: React.FC<any> = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
-  clip-path: ${(props: CellContainerProps) => `polygon(${props.vertices[0].x}px ${props.vertices[0].y}px, ${props.vertices[1].x}px ${props.vertices[1].y}px, ${props.vertices[2].x}px ${props.vertices[2].y}px, ${props.vertices[3].x}px ${props.vertices[3].y}px, ${props.vertices[4].x}px ${props.vertices[4].y}px, ${props.vertices[5].x}px ${props.vertices[5].y}px, ${props.vertices[6].x}px ${props.vertices[6].y}px, ${props.vertices[7].x}px ${props.vertices[7].y}px)`};
+  clip-path: ${(props: CellContainerProps) => props.path };
   background: #5567D5;
   overflow: hidden;
 `;
@@ -30,15 +30,13 @@ export const CanvasWrapper: React.FC<any> = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-  //top: 1px;
-  //left: 1px;
-  //width: calc(100% - 2px);
-  //height: calc(100% - 2px);
-  clip-path: ${(props: CellContainerProps) => `polygon(${props.vertices[0].x}px ${props.vertices[0].y + 1}px, ${props.vertices[1].x - 1}px ${props.vertices[1].y + 1}px, ${props.vertices[2].x - 1}px ${props.vertices[2].y}px, ${props.vertices[3].x - 1}px ${props.vertices[3].y}px, ${props.vertices[4].x - 1}px ${props.vertices[4].y - 1}px, ${props.vertices[5].x + 1}px ${props.vertices[5].y - 1}px, ${props.vertices[6].x + 1}px ${props.vertices[6].y}px, ${props.vertices[7].x + 1}px ${props.vertices[7].y}px)`};
+  clip-path: ${(props: CellContainerProps) => props.path };
 `;
 
 interface CellContainerProps {
   isConsoleView?: boolean;
+  canvasHeight?: number;
+  path: string;
   vertices?: Coordinate[];
 }
 
@@ -46,12 +44,14 @@ export const CellContainerControls: React.FC<any> = styled.div`
   display: flex;
   align-items: flex-end;
   position: relative;
-  bottom: 120px;
+  left: ${(props: CellContainerProps) => `${props.isConsoleView ? 72 : 102}px`};
+  margin-top: ${(props: CellContainerProps) => `${props.isConsoleView ? props.canvasHeight : '0'}px`};
 ` ;
 
 export const CellDiagramWrapper: React.FC<any> = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: ${(props: CellContainerProps) => props.isConsoleView ? 'flex-start' : 'normal'};
 ` ;
 
 export const CellContainerWrapper: React.FC<any> = styled.div`
@@ -63,7 +63,7 @@ export const CellContainerWrapper: React.FC<any> = styled.div`
   padding-top: 30px;
   padding-bottom: 10px;
   z-index: 1;
-  height: ${(props: CellContainerProps) => props.isConsoleView ? 'calc(100vh - 250px)' : 'calc(100vh - 90px)'};
+  min-height: ${(props: CellContainerProps) => props.isConsoleView ? 'calc(100vh - 250px)' : 'calc(100vh - 90px)'};
 `;
 
 interface GatewayContainerProps {

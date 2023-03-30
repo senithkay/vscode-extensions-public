@@ -33,7 +33,7 @@
 .choreo-cell-diagram-container {
     background-image: url('../../../../resources/assets/PatternBg.svg');
     background-repeat: repeat;
-    min-height: calc(100vh - 90px);
+    min-height: calc(100vh - 260px);
     min-width: 86vw;
 }
 

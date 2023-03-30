@@ -31,6 +31,7 @@ import './resources/assets/font/fonts.css';
 
 interface ContainerStyleProps {
     backgroundColor?: string;
+    isConsoleView?: string;
 }
 
 const Container: React.FC<any> = styled.div`
@@ -139,7 +140,7 @@ export function DesignDiagram(props: DiagramProps) {
 
     return (
         <DesignDiagramContext {...ctx}>
-            <Container backgroundColor={diagramBGColor}>
+            <Container isConsoleView={isConsoleView} backgroundColor={diagramBGColor}>
                 {showEditForm &&
                     <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
                 {projectComponents && projectComponents.size < 1 ? <PromptScreen setShowEditForm={setShowEditForm} /> :

@@ -39,10 +39,10 @@ import { GatewayPortModel } from "../components/gateway/GatewayPort/GatewayPortM
 import { GatewayLinkModel } from "../components/gateway/GatewayLink/GatewayLinkModel";
 
 export const defaultZoomLevel = 100;
-export const diagramTopXOffset = 585;
+export const diagramTopXOffset = 580;
 export const diagramTopYOffset = 190;
 export const diagramLeftXOffset = 30;
-export const diagramLeftYOffset = 30;
+export const diagramLeftYOffset = 10;
 export const CELL_DIAGRAM_MARGIN_X = 300;
 export const CELL_DIAGRAM_MARGIN_Y = 100;
 

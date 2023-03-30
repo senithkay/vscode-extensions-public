@@ -21,6 +21,7 @@ import styled from '@emotion/styled';
 
 interface ControlPanelProps {
     showDownloadButton?: boolean;
+    isCellView?: boolean;
 }
 
 export const ControlPanel: React.FC<any> = styled.div`

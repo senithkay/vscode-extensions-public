@@ -41,8 +41,10 @@ export function DiagramControls(props: ControlProps) {
     const { onDownload, onZoom, zoomToFit, showDownloadButton = true } = props;
     const { isConsoleView, refreshDiagram } = useContext(DiagramContext);
 
+    const isCellView = !showDownloadButton // We are hide download button form cell view. Hence deriving from that
+
     return (
-        <ControlPanel showDownloadButton={showDownloadButton} >
+        <ControlPanel isCellView={isCellView} showDownloadButton={showDownloadButton} >
             {showDownloadButton && (
                 <IconButton
                     className={'control-button'}
