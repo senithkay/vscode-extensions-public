@@ -17,7 +17,8 @@
  *
  */
 
-import React, { Children, cloneElement, PropsWithChildren, ReactElement, useContext } from 'react';
+import React, { PropsWithChildren, useContext } from 'react';
+import { CtrlClickWrapper } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { Location } from '../../../resources';
 
@@ -29,23 +30,15 @@ export function CtrlClickGo2Source(props: PropsWithChildren<CtrlClickProps>) {
     const { location, children } = props;
     const { editingEnabled, editLayerAPI } = useContext(DiagramContext);
 
-    const handleClick = (e: any) => {
-        if (editingEnabled && (e.ctrlKey || e.metaKey)) {
-            e.preventDefault();
-            e.stopPropagation();
+    const handleClick = () => {
+        if (editingEnabled) {
             editLayerAPI?.go2source(location);
         }
     };
 
-    const mappedChildren = Children.map(children, (child) => {
-        return cloneElement(child as ReactElement, {
-            onClick: handleClick
-        });
-    });
-
     return (
-        <>
-            {mappedChildren}
-        </>
+        <CtrlClickWrapper onClick={handleClick}>
+            {children}
+        </CtrlClickWrapper>
     );
 }

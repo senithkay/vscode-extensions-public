@@ -19,7 +19,7 @@ interface StyleProps {
     isSelected?: boolean;
 }
 
-export const EnumNode = styled.div`
+export const EnumNode: React.FC<any> = styled.div`
   background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
   border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
   border-radius: 2px !important;
@@ -31,7 +31,7 @@ export const EnumNode = styled.div`
   opacity: 1;
 `;
 
-export const EnumHead = styled.div`
+export const EnumHead: React.FC<any> = styled.div`
   align-items: center;
   border-bottom: ${(props: StyleProps) =>
           `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
@@ -47,11 +47,11 @@ export const EnumHead = styled.div`
   white-space: nowrap;
 `;
 
-export const EnumName = styled.span`
+export const EnumName: React.FC<any> = styled.span`
   margin-left: 8px;
 `;
 
-export const EnumFieldContainer = styled.div`
+export const EnumFieldContainer: React.FC<any> = styled.div`
   align-items: center;
   background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
   border-bottom: 0.5px solid #cccde3;
