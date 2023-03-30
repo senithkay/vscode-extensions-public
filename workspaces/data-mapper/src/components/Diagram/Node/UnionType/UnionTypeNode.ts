@@ -24,8 +24,10 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import {
+    getBalRecFieldName,
     getExprBodyFromLetExpression,
-    getSearchFilteredOutput
+    getSearchFilteredOutput,
+    getTypeName
 } from "../../utils/dm-utils";
 import { getResolvedType} from "../../utils/union-type-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
@@ -55,8 +57,14 @@ export class UnionTypeNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
+        this.typeName = getTypeName(this.typeDef);
         this.resolveType();
         this.typeDef = getSearchFilteredOutput(this.resolvedType);
+
+        if (this.typeDef) {
+            // TODO: Handle init ports
+        }
     }
 
     initLinks(): void {
