@@ -358,7 +358,7 @@ class DiagramPanel {
 		const fileName: string | undefined = getCurrentFileName();
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
-			fileName ? `${fileName} Diagram` : `Ballerina Diagram`,
+			`Overview Diagram`,
 			{ viewColumn, preserveFocus: false },
 			getCommonWebViewOptions()
 		);
