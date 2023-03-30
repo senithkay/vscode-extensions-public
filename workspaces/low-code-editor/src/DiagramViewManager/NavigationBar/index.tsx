@@ -19,7 +19,6 @@ import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
 import { Apps, ArrowBack, ArrowDropDown, Home } from "@material-ui/icons";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
-import { CtrlClickWrapper } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { PackageIcon } from "../../assets/icons";
@@ -51,7 +50,7 @@ export function NavigationBar(props: NavigationBarProps) {
     const [isProjectSelectorOpen, setIsProjectSelectorOpen] = React.useState(false);
     const popoverRef = React.useRef<HTMLDivElement>(null);
 
-    const isWorkspace = projectList.length > 1;
+    const isWorkspace = projectList && projectList.length > 1;
 
     const isRootDataMapper = syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)
         && STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody);
@@ -118,21 +117,29 @@ export function NavigationBar(props: NavigationBarProps) {
     }
 
     const renderWorkspaceNameComponent = () => (
-        <div className="btn-container" onClick={historyReset} >
+        <div className="btn-container" onClick={projectList && historyReset} >
             {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
-            <span className="icon-text">{`${workspaceName}`}</span>
+            <span className="icon-text">{`${projectList ? workspaceName : '.'}`}</span>
         </div>
     );
 
-    const buttonsDisabled = history.length === 0;
+    const buttonsDisabled = !projectList || history.length === 0;
 
     const renderNavigationButtons = () => {
         return (
             <>
-                <div className="btn-container" aria-disabled={buttonsDisabled} onClick={historyPop}>
+                <div
+                    className="btn-container"
+                    aria-disabled={buttonsDisabled}
+                    onClick={!buttonsDisabled && historyPop}
+                >
                     <ArrowBack className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
-                <div className="btn-container" aria-disabled={buttonsDisabled} onClick={historyReset}>
+                <div
+                    className="btn-container"
+                    aria-disabled={buttonsDisabled}
+                    onClick={!buttonsDisabled && historyReset}
+                >
                     <Home className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
             </>
@@ -188,17 +195,17 @@ export function NavigationBar(props: NavigationBarProps) {
             {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
             {isWorkspace && renderProjectSelectorComponent()}
             {isRootDataMapper ? (
-                    <Breadcrumbs
-                        maxItems={3}
-                        separator={<NavigateNextIcon fontSize="small" />}
-                        className={classes.breadcrumb}
-                    >
-                        {links}
-                        {activeLink}
-                    </Breadcrumbs>
-                ) :
+                <Breadcrumbs
+                    maxItems={3}
+                    separator={<NavigateNextIcon fontSize="small" />}
+                    className={classes.breadcrumb}
+                >
+                    {links}
+                    {activeLink}
+                </Breadcrumbs>
+            ) :
                 (
-                    <div className="component-details"/>
+                    <div className="component-details" />
                 )
             }
         </div>

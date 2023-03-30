@@ -94,7 +94,7 @@ export function DiagramViewManager(props: EditorProps) {
             const { file, position, uid } = history[history.length - 1];
             fetchST(file, uid ? { uid } : { position });
 
-            const currentProjectPath = projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
+            const currentProjectPath = projectPaths && projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
 
             if (!currentProject || (currentProjectPath && currentProject.name !== currentProjectPath.name)) {
                 setCurrentProject(currentProjectPath);
@@ -124,7 +124,7 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (diagramFocus) {
             const { filePath, position } = diagramFocus;
-            const currentProjectPath = projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
+            const currentProjectPath = projectPaths && projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
 
             (async () => {
                 if (!position) {
