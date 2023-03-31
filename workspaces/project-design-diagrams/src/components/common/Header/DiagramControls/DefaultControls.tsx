@@ -29,6 +29,7 @@ import { PackagesPopup } from '../PackagesPopup/PackagesPopup';
 import { DiagramLayoutPopup } from '../DiagramLayoutPopup/DiagramLayoutPopup';
 import { DagreLayout } from '../../../../resources';
 import { AddButton } from '../../../../editing';
+import { CentralControls } from '../styles/styles';
 import '../styles/styles.css';
 
 interface DefaultControlProps {
@@ -60,7 +61,7 @@ export function DefaultControls(props: DefaultControlProps) {
 
     return (
         <>
-            <div>
+            <CentralControls isChoreoProject={isChoreoProject}>
                 {isChoreoProject && showChoreoProjectOverview &&
                     <Button
                         variant='outlined'
@@ -99,7 +100,7 @@ export function DefaultControls(props: DefaultControlProps) {
                 >
                     <CachedIcon fontSize='small' />
                 </IconButton>
-            </div>
+            </CentralControls>
 
             {editingEnabled && <AddButton setShowEditForm={setShowEditForm} />}
 

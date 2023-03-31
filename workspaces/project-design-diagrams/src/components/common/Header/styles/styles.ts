@@ -18,6 +18,7 @@
  */
 
 import styled from '@emotion/styled';
+import React from 'react';
 import { Colors } from '../../../../resources';
 
 export const HeaderContainer = styled.div`
@@ -32,13 +33,12 @@ export const HeaderContainer = styled.div`
     width: calc(100vw - 30px);
 `;
 
-export const DiagramTitle: React.FC<any> = styled.div`
+export const DiagramTitle = styled.div`
     font-size: 13px;
     height: 20px;
     line-height: 20px;
     padding-right: 5px;
     text-align: left;
-    min-width: ${(props: {editingEnabled: boolean}) => props.editingEnabled ? '160px' : ''};
 `;
 
 export const TypeContainer = styled.div`
@@ -76,8 +76,16 @@ export const PackageLabel = styled.span`
     line-height: 20px;
 `;
 
-export const HeaderLeftPane = styled.div`
+export const HeaderLeftPane: React.FC<any> = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    min-width: ${(props: { isEditable: boolean }) => props.isEditable ? '150px' : '300px'};
+`;
+
+export const CentralControls: React.FC<any> = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    min-width: ${(props: { isChoreoProject: boolean }) => props.isChoreoProject ? '550px' : '350px'};
 `;
