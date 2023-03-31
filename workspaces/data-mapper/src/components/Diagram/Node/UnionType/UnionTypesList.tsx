@@ -24,11 +24,13 @@ import { UnionTypeListItem } from "./UnionTypeListItem";
 export interface UnionTypesListProps {
     unionTypes: string[];
     context: IDataMapperContext;
+    hasInvalidTypeCast: boolean;
     getValueExpr: () => STNode;
+    getTypeCastExpr: () => STNode;
 }
 
 export function UnionTypesList(props: UnionTypesListProps) {
-    const { unionTypes, context, getValueExpr } = props;
+    const { unionTypes, context, hasInvalidTypeCast, getValueExpr, getTypeCastExpr } = props;
     const classes = useStyles();
 
     return (
@@ -40,7 +42,9 @@ export function UnionTypesList(props: UnionTypesListProps) {
                             key={index}
                             context={context}
                             type={type}
+                            hasInvalidTypeCast={hasInvalidTypeCast}
                             getValueExpr={getValueExpr}
+                            getTypeCastExpr={getTypeCastExpr}
                         />
                     ))
                 }

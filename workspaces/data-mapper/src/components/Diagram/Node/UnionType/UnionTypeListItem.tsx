@@ -27,11 +27,13 @@ export interface UnionTypeListItemProps {
     key: number;
     context: IDataMapperContext;
     type: string;
+    hasInvalidTypeCast: boolean;
     getValueExpr: () => STNode;
+    getTypeCastExpr: () => STNode;
 }
 
 export function UnionTypeListItem(props: UnionTypeListItemProps) {
-    const { key, context, type, getValueExpr } = props;
+    const { key, context, type, hasInvalidTypeCast, getValueExpr, getTypeCastExpr } = props;
     const { applyModifications } = context;
     const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
     const classes = useStyles();
@@ -39,14 +41,23 @@ export function UnionTypeListItem(props: UnionTypeListItemProps) {
     const onClickOnListItem = async () => {
         setIsAddingTypeCast(true)
         try {
+            let targetPosition: NodePosition;
             const valueExprPosition: NodePosition = getValueExpr().position;
-
-            const modification = [getModification(`<${type}>`, {
-                startLine: valueExprPosition.startLine,
-                startColumn: valueExprPosition.startColumn,
-                endLine: valueExprPosition.startLine,
-                endColumn: valueExprPosition.startColumn
-            })];
+            if (hasInvalidTypeCast) {
+                const typeCastExprPosition: NodePosition = getTypeCastExpr().position;
+                targetPosition = {
+                    ...typeCastExprPosition,
+                    endLine: valueExprPosition.startLine,
+                    endColumn: valueExprPosition.startColumn
+                };
+            } else {
+                targetPosition = {
+                    ...valueExprPosition,
+                    endLine: valueExprPosition.startLine,
+                    endColumn: valueExprPosition.startColumn
+                };
+            }
+            const modification = [getModification(`<${type}>`, targetPosition)];
             await applyModifications(modification);
         } finally {
             setIsAddingTypeCast(false);

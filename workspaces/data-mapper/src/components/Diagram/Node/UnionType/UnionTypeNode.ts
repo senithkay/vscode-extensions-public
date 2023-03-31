@@ -41,6 +41,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
     public typeName: string;
     public rootName: string;
     public resolvedType: Type;
+    public hasInvalidTypeCast: boolean;
     public mappings: FieldAccessToSpecificFied[];
     public x: number;
     public y: number;
@@ -90,6 +91,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             this.resolvedType = this.typeDef.members.find((member) => {
                 return getResolvedType(member, type);
             });
+            this.hasInvalidTypeCast = !this.resolvedType;
         }
     }
 
@@ -97,10 +99,19 @@ export class UnionTypeNode extends DataMapperNodeModel {
         let valueExpr: STNode = this.value.expression;
         if (STKindChecker.isLetExpression(valueExpr)) {
             valueExpr = getExprBodyFromLetExpression(valueExpr);
-        } else if (STKindChecker.isTypeCastExpression(valueExpr)) {
+        }
+        if (STKindChecker.isTypeCastExpression(valueExpr)) {
             valueExpr = getExprBodyFromTypeCastExpression(valueExpr);
         }
         return valueExpr;
+    }
+
+    public getTypeCastExpr(): STNode {
+        let valueExpr: STNode = this.value.expression;
+        if (STKindChecker.isLetExpression(valueExpr)) {
+            valueExpr = getExprBodyFromLetExpression(valueExpr);
+        }
+        return STKindChecker.isTypeCastExpression(valueExpr) ? valueExpr : undefined;
     }
 
     async deleteField(field: STNode) {

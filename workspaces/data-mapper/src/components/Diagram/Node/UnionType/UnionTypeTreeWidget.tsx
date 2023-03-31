@@ -34,12 +34,26 @@ export interface UnionTypeTreeWidgetProps {
     typeIdentifier: TypeDescriptor | IdentifierToken;
     typeDef: Type;
     valueLabel?: string;
+    hasInvalidTypeCast: boolean;
     getValueExpr: () => STNode;
+    getTypeCastExpr: () => STNode;
     getPort: (portId: string) => RecordFieldPortModel;
 }
 
 export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
-    const { id, engine, context, typeName, typeIdentifier, typeDef, valueLabel, getValueExpr, getPort } = props;
+    const {
+        id,
+        engine,
+        context,
+        typeName,
+        typeIdentifier,
+        typeDef,
+        valueLabel,
+        hasInvalidTypeCast,
+        getValueExpr,
+        getTypeCastExpr,
+        getPort
+    } = props;
     const classes = useStyles();
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -97,7 +111,9 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                     context={context}
                     typeIdentifier={typeIdentifier}
                     typeDef={typeDef}
+                    hasInvalidTypeCast={hasInvalidTypeCast}
                     getValueExpr={getValueExpr}
+                    getTypeCastExpr={getTypeCastExpr}
                 />
             </TreeBody>
         </TreeContainer>
