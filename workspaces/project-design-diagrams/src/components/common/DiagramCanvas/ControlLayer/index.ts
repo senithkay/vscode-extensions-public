@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,16 +17,5 @@
  *
  */
 
-import { createStyles, makeStyles } from "@material-ui/core/styles";
-
-export const useStyles = makeStyles(() =>
-    createStyles({
-        listItemText: {
-            color: "#595959",
-            "& .MuiListItemText-primary": {
-                fontSize: 14,
-                fontFamily: "GilmerRegular",
-            },
-        },
-    })
-);
+export * from './DiagramControls';
+export * from './ViewSwitcher';

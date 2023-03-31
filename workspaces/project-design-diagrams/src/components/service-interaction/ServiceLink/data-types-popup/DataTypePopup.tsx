@@ -17,29 +17,41 @@
  *
  */
 
-import React, { useContext } from 'react';
-import { DiagramContext, NodeMenuWidget } from '../../../common';
-import { Colors, Location, Parameter } from '../../../../resources';
+import React, { useContext, useState } from 'react';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { DiagramContext } from '../../../common';
+import { ServiceLinkMenu } from '../LinkMenuPanel/LinkMenuPanel';
 import { mapUnionTypes } from '../link-utils';
+import { Colors, Location, RemoteFunction, ResourceFunction } from '../../../../resources';
 import { Container, clickableType, defaultType, MenuButton } from './styles';
 
 interface DataTypeProps {
-    inputParams: Parameter[];
-    returnType: string[];
-    location: Location;
+    callingFunction: ResourceFunction | RemoteFunction;
+    location: Location
 }
 
 export function DataTypesPopup(props: DataTypeProps) {
-    const { inputParams, location, returnType } = props;
+    const { callingFunction, location } = props;
     const { getTypeComposition, editingEnabled } = useContext(DiagramContext);
+
+    const [position, setPosition] = useState({ x: undefined, y: undefined });
+    const [anchorElement, setAnchorElement] = useState<SVGPathElement | HTMLDivElement>(null);
+
+    const onMouseOver = (event: React.MouseEvent<SVGPathElement | HTMLDivElement>) => {
+		setAnchorElement(event.currentTarget);
+	}
+
+	const onMouseLeave = () => {
+		setAnchorElement(null);
+	}
 
     return (
         <Container>
             <div>
                 <b>Input Types:</b>
                 <ul>
-                    {inputParams.length === 0 ? <li>None</li> :
-                        inputParams.map((param, index) => {
+                    {callingFunction.parameters.length === 0 ? <li>None</li> :
+                        callingFunction.parameters.map((param, index) => {
                             let displayParam: Map<string[], boolean> = mapUnionTypes(param);
 
                             return (
@@ -65,8 +77,8 @@ export function DataTypesPopup(props: DataTypeProps) {
 
                 <b>Return Types:</b>
                 <ul>
-                    {returnType.length === 0 ? <li>None</li> :
-                        returnType.map((returnType, index) => {
+                    {callingFunction.returns.length === 0 ? <li>None</li> :
+                        callingFunction.returns.map((returnType, index) => {
                             if (returnType) {
                                 let paramName: string = returnType.slice(returnType.lastIndexOf(':') + 1);
                                 let isClickable: boolean = returnType.includes(':');
@@ -91,12 +103,32 @@ export function DataTypesPopup(props: DataTypeProps) {
             </div>
 
             {location && editingEnabled &&
-                <MenuButton>
-                    <NodeMenuWidget
-                        background={Colors.SECONDARY}
+                <>
+                    <MenuButton>
+                        <MoreVertIcon
+                            cursor='pointer'
+                            onClick={onMouseOver}
+                            onMouseOver={(e: { pageX: number; pageY: number; }) => setPosition({ x: e.pageX, y: e.pageY })}
+                            sx={{
+                                backgroundColor: Colors.SECONDARY,
+                                borderRadius: '30%',
+                                fontSize: '18px',
+                                margin: '0px',
+                                position: 'absolute',
+                                right: 2.5
+                            }}
+                        />
+                    </MenuButton>
+
+                    <ServiceLinkMenu
                         location={location}
+                        anchorElement={anchorElement}
+                        position={position}
+                        onMouseLeave={onMouseLeave}
+                        onMouseOver={onMouseOver}
+                        isL2={true}
                     />
-                </MenuButton>
+                </>
             }
         </Container>
     );

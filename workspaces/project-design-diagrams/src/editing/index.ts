@@ -17,7 +17,7 @@
  *
  */
 
-export { ControlsLayer } from './ControlsLayer/Controls';
+export { AddButton } from './Controls/AddButton';
 export { EditForm } from './EditForm/EditForm';
 
 export { WebviewEditLayerAPI } from './edit-layer-api/webview-edit-api';

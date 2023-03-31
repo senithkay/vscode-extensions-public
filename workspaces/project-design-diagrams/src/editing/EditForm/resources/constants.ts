@@ -53,3 +53,11 @@ export const DefaultTextProps: CSSProperties = {
     fontFamily: 'GilmerRegular',
     fontSize: '13px'
 }
+
+export const SelectBoxStyles: SxProps = {
+    ...DefaultTextProps,
+    height: '40px',
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+        border: `1px solid ${Colors.PRIMARY}`
+    }
+}

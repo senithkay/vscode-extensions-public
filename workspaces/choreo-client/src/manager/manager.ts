@@ -28,7 +28,6 @@ interface CmdResponse {
 }
 
 export class ChoreoProjectManager implements IProjectManager {
-
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
         const { displayType, name, org, repositoryInfo } = args;
         if (workspace.workspaceFile) {
@@ -86,7 +85,7 @@ export class ChoreoProjectManager implements IProjectManager {
 
     private static _getTemplateComponent(componentType: ChoreoServiceComponentType): string {
         switch (componentType) {
-            case ChoreoServiceComponentType.GQL_API:
+            case ChoreoServiceComponentType.GRAPHQL:
                 return 'GraphQLComponent';
             case ChoreoServiceComponentType.GRPC_API:
                 return 'GRPCComponent';

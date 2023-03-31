@@ -32,12 +32,13 @@ export const HeaderContainer = styled.div`
     width: calc(100vw - 30px);
 `;
 
-export const DiagramTitle = styled.div`
+export const DiagramTitle: React.FC<any> = styled.div`
     font-size: 13px;
     height: 20px;
     line-height: 20px;
-    text-align: right;
-    width: 160px;
+    padding-right: 5px;
+    text-align: left;
+    min-width: ${(props: {editingEnabled: boolean}) => props.editingEnabled ? '160px' : ''};
 `;
 
 export const TypeContainer = styled.div`
@@ -73,4 +74,10 @@ export const PackageLabel = styled.span`
     font-family: GilmerRegular;
     font-size: 13px;
     line-height: 20px;
+`;
+
+export const HeaderLeftPane = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 `;

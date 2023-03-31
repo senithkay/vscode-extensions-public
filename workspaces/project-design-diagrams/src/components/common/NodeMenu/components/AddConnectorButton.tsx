@@ -22,7 +22,7 @@ import AddLinkIcon from "@mui/icons-material/AddLink";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { Service } from "../../../../resources";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { useStyles } from "./styles";
+import { useStyles } from "./styles/styles";
 
 export function AddConnectorButton(props: { service: Service }) {
     const { service } = props;

@@ -12,7 +12,7 @@ export interface ComponentModel {
 }
 
 export interface Service {
-    annotation: any;
+    annotation: ServiceAnnotation;
     path: string;
     serviceId: string;
     resources: any[];
@@ -21,6 +21,12 @@ export interface Service {
     dependencies: any[];
     deploymentMetadata: DeploymentMetadata;
     elementLocation: Location;
+}
+
+export interface ServiceAnnotation {
+    id: string;
+    label: string;
+    elementLocation?: Location;
 }
 
 export interface Entity {
@@ -65,7 +71,23 @@ export enum ServiceTypes {
     OTHER = "other"
 }
 
+export interface CommandResponse {
+    error: boolean;
+    message: string;
+}
+
+export interface WorkspaceItem {
+    name: string;
+    path: string;
+}
+export interface WorkspaceConfig {
+    folders: WorkspaceItem[]
+}
+
 export const ERROR_MESSAGE = "Project Design Diagrams: Failed to generate view.";
 export const USER_TIP = "Project Design Diagrams: If you want to generate the diagrams for multiple packages, add them to your workspace.";
 export const INCOMPATIBLE_VERSIONS_MESSAGE = "Project Design Diagrams: Incompatible Ballerina version. Update to Ballerina version 2201.2.2 or above to activate the feature.";
 export const DIAGNOSTICS_WARNING = "Project Design Diagrams: Please resolve the diagnostics in your workspace for a better representation of your project.";
+
+export const DEFAULT_SERVICE_TEMPLATE_SUFFIX = "-t service";
+export const GRAPHQL_SERVICE_TEMPLATE_SUFFIX = "-t choreo/graphql_service";
