@@ -12,10 +12,11 @@
  */
 import { IProjectManager, serializeError } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
-import { CloneRepoRequeset, CreateLocalComponentRequest, FetchBallerinaTriggers, GetBallerinaVersion, GetProjectDetails, GetProjectRoot, IsRepoClonedRequest } from "./types";
+import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTriggers, GetBallerinaVersion, GetProjectDetails, GetProjectRoot, IsRepoClonedRequest } from "./types";
 
 export function registerChoreoProjectManagerRPCHandlers(messenger: Messenger, manager: IProjectManager) {
     messenger.onRequest(CreateLocalComponentRequest, (params) => manager.createLocalComponent(params).catch(serializeError));
+    messenger.onRequest(CreateLocalComponentFromExistingSourceRequest, (params) => manager.createLocalComponentFromExistingSource(params).catch(serializeError));
     messenger.onRequest(FetchBallerinaTriggers, () => manager.fetchTriggers().catch(serializeError))
     messenger.onRequest(GetProjectRoot, () => manager.getProjectRoot().catch(serializeError));
     messenger.onRequest(GetProjectDetails, () => manager.getProjectDetails().catch(serializeError));

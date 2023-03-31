@@ -28,6 +28,15 @@ interface CmdResponse {
 }
 
 export class ChoreoProjectManager implements IProjectManager {
+
+    async createLocalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
+        if (workspace.workspaceFile) {
+            return await addToWorkspace(workspace.workspaceFile.fsPath, componentDetails);
+        } else {
+            throw new Error("Error: Could not detect a project workspace.");
+        }
+    }
+
     private balVersion: string | undefined;
 
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {

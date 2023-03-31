@@ -13,7 +13,7 @@
 
 import child_process from "child_process";
 import { log } from "console";
-import { ChoreoComponentCreationParams, ChoreoComponentType, RepositoryDetails, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, RepositoryDetails, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { join } from "path";
 import { existsSync, mkdirSync, readFile, unlink, writeFile } from "fs";
 import { randomUUID } from "crypto";
@@ -131,26 +131,36 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                 reject(new Error("Error: Could not read workspace file."));
             }
             const content: WorkspaceConfig = JSON.parse(contents);
+            const metadata: WorkspaceComponentMetadata = {
+                org: {
+                    id: org.id,
+                    handle: org.handle
+                },
+                displayName: name,
+                displayType: displayType,
+                description: description,
+                projectId: projectId,
+                accessibility: accessibility,
+                repository: {
+                    appSubPath: repositoryInfo.subPath,
+                    orgApp: repositoryInfo.org,
+                    nameApp: repositoryInfo.repo,
+                    branchApp: repositoryInfo.branch
+                }
+            };
+            if (args.displayType.startsWith("byoc")) {
+                const repoInfo = args.repositoryInfo as BYOCRepositoryDetails;
+                metadata.byocConfig = {
+                    dockerfilePath: repoInfo.dockerFile,
+                    dockerContext: repoInfo.dockerContext,
+                    srcGitRepoBranch: repoInfo.branch,
+                    srcGitRepoUrl: `https://github.com/${repoInfo.org}/${repoInfo.repo}`,
+                }
+            }
             content.folders.push({
                 path: join(join(join('repos', repositoryInfo.org), repositoryInfo.repo), repositoryInfo.subPath),
                 name: repositoryInfo.subPath,
-                metadata: {
-                    org: {
-                        id: org.id,
-                        handle: org.handle
-                    },
-                    displayName: name,
-                    displayType: displayType,
-                    description: description,
-                    projectId: projectId,
-                    accessibility: accessibility,
-                    repository: {
-                        appSubPath: repositoryInfo.subPath,
-                        orgApp: repositoryInfo.org,
-                        nameApp: repositoryInfo.repo,
-                        branchApp: repositoryInfo.branch
-                    }
-                }
+                metadata,
             });
 
             writeFile(workspaceFilePath, JSON.stringify(content, null, 4), 'utf-8', function (err) {

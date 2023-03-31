@@ -41,13 +41,22 @@ export interface RepoStructureConfigProps {
 
 export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
 
-    const { name, mode, repository, type } = props.formData;
+    const { mode, repository, type } = props.formData;
 
-    const [folderName, setFolderName] = useState<string>(mode === "fromExisting" ? "" : (name || ""));
     const [folderNameError, setFolderNameError] = useState<string>("");
     const [isValidationInProgress, setIsValidationInProgress] = useState<boolean>(false);
 
     const { choreoProject } = useContext(ChoreoWebViewContext);
+
+    const setFolderName = (fName: string) => {
+        props.onFormDataChange(prevFormData => ({
+            ...prevFormData,
+            repository: {
+                ...prevFormData.repository,
+                subPath: fName
+            }
+        }));
+    };
 
     const setSubFolderName = async (fName: string) => {
         setFolderName(fName);
@@ -118,7 +127,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                     <VSCodeTextField
                         placeholder="Sub folder"
                         onInput={(e: any) => updateSubFolderName(e.target.value)}
-                        value={folderName}
+                        value={repository?.subPath}
                     >
                         Sub Folder <RequiredFormInput />
                         {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
@@ -130,7 +139,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                     <VSCodeTextField
                         placeholder=""
                         onInput={(e: any) => updateSubFolderName(e.target.value)}
-                        value={folderName}
+                        value={repository?.subPath}
                     >
                         Ballerina Package Path <RequiredFormInput />
                         {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}

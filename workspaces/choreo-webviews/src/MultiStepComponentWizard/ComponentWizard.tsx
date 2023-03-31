@@ -20,14 +20,15 @@ import { TriggerConfigStep  } from "./WebhookTriggerSelectorStep/WebhookTriggerS
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
-import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>, context: IChoreoWebViewContext) => {
-    const { name, type, repository: { org, repo, branch, subPath }, description, accessibility, trigger  } = formData;
+    const { mode, name, type, repository: { org, repo, branch, subPath, dockerContext, dockerFile }, description, accessibility, trigger  } = formData;
     const { choreoProject, selectedOrg } = context;
-    const componentParams = {
+
+    const componentParams: ChoreoComponentCreationParams = {
         name: name,
         projectId: choreoProject?.id,
         org: selectedOrg,
@@ -43,10 +44,27 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>, 
         }
     };
 
-    const response: any = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent(componentParams);
-    if (response !== true) {
-        throw new Error("Failed to create component. Error: " + response.message);
+    if (mode === "fromScratch") {
+       
+        const response: any = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent(componentParams);
+        if (response !== true) {
+            throw new Error("Failed to create component. Error: " + response.message);
+        }
+    } else {
+        if (type.startsWith("byoc")) {
+           const repoDetails: BYOCRepositoryDetails = {
+                ...componentParams.repositoryInfo,
+                dockerFile,
+                dockerContext
+           }
+           componentParams.repositoryInfo = repoDetails;
+        }
+        const response: any = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponentFromExistingSource(componentParams);
+        if (response !== true) {
+            throw new Error("Failed to create component. Error: " + response.message);
+        }
     }
+
 };
 
 export const ComponentWizard: React.FC = () => {

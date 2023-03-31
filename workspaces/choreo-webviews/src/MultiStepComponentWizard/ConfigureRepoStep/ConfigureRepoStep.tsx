@@ -228,13 +228,13 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                     </GhRepoSelectorRepoContainer>
                 </GhRepoSelectorContainer>
             )}
-            {selectedRepoString && !isFetchingRepos && (
+            {!showAuthorizeButton && selectedRepoString && !isFetchingRepos && (
                 <GithubRepoBranchSelector 
                     formData={formData}
                     onFormDataChange={onFormDataChange}
                 />
             )}
-            {(selectedRepoString && !formData?.repository?.isCloned) &&
+            {(!showAuthorizeButton && selectedRepoString && !formData?.repository?.isCloned) &&
                 <>
                     Selected Repository is not available locally in Project folder. Clone the repository to continue.
                     {!isCloneInProgress &&
@@ -251,7 +251,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
                 </>
             }
-            {formData?.repository?.isCloned && (
+            {!showAuthorizeButton && formData?.repository?.isCloned && (
                 <RepoStructureConfig
                     formData={formData}
                     onFormDataChange={onFormDataChange}

@@ -40,12 +40,30 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
 
     const { repository } = props.formData;
 
-    const [dockerFile, setDockerFile] = useState<string>("");
-    const [dockerFileCtx, setDockerFileCtx] = useState<string>("/");
     const [dockerFileError, setDockerFileError] = useState<string>("");
     const [isValidationInProgress, setIsValidationInProgress] = useState<boolean>(false);
 
     const { choreoProject } = useContext(ChoreoWebViewContext);
+
+    const setDockerFile = (fName: string) => {
+        props.onFormDataChange(prevFormData => ({
+            ...prevFormData,
+            repository: {
+                ...prevFormData.repository,
+                dockerfile: fName
+            }
+        }));
+    }
+
+    const setDockerFileCtx = (ctxPath: string) => {
+        props.onFormDataChange(prevFormData => ({
+            ...prevFormData,
+            repository: {
+                ...prevFormData.repository,
+                dockerContextPath: ctxPath
+            }
+        }));
+    }
 
     const setDockerFileName = async (fName: string, ctxPath: string) => {
         setDockerFile(fName);
@@ -84,16 +102,16 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
             <StepContainer>
                 <VSCodeTextField
                     placeholder=""
-                    onInput={(e: any) => updateDockerFilePath(e.target.value, dockerFileCtx)}
-                    value={dockerFile}
+                    onInput={(e: any) => updateDockerFilePath(e.target.value, repository?.dockerContext)}
+                    value={repository?.dockerFile}
                 >
                     Docker File Path <RequiredFormInput />
                     {dockerFileError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                 </VSCodeTextField>
                 <VSCodeTextField
                     placeholder=""
-                    onInput={(e: any) => updateDockerFilePath(dockerFile, e.target.value)}
-                    value={dockerFileCtx}
+                    onInput={(e: any) => updateDockerFilePath(repository?.dockerFile, e.target.value)}
+                    value={repository?.dockerContext}
                 >
                     Docker Context Path <RequiredFormInput />
                     {dockerFileError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}

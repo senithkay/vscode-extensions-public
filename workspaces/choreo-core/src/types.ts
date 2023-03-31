@@ -242,6 +242,12 @@ export interface WorkspaceComponentMetadata {
         branchApp: string;
         appSubPath: string;
     };
+    byocConfig?: {
+        dockerfilePath: string;
+        dockerContext: string;
+        srcGitRepoUrl: string;
+        srcGitRepoBranch: string;
+    }
 }
 
 export enum ChoreoComponentType {
@@ -271,7 +277,7 @@ export interface ChoreoComponentCreationParams {
     description: string;
     displayType: ChoreoComponentType;
     accessibility: ComponentAccessibility;
-    repositoryInfo: RepositoryDetails;
+    repositoryInfo: RepositoryDetails|BYOCRepositoryDetails;
     triggerId?: string;
 }
 
@@ -280,6 +286,11 @@ export interface RepositoryDetails {
     repo: string;
     branch: string;
     subPath: string;
+}
+
+export interface BYOCRepositoryDetails extends RepositoryDetails {
+    dockerFile: string;
+    dockerContext: string;
 }
 
 export interface Location {
