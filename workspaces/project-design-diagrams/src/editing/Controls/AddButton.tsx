@@ -30,7 +30,7 @@ const ButtonStyles: SxProps = {
     color: 'white',
     fontSize: '12px',
     marginInline: '2.5px',
-    width: '125px',
+    minWidth: '140px',
     '&:hover': {
         backgroundColor: '#4958ba'
     }
