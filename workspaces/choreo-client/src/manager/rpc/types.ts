@@ -18,5 +18,3 @@ export const GetProjectRoot: RequestType<string, string | undefined> = { method:
 export const GetProjectDetails: RequestType<string, Project> = { method: 'manager/getProjectDetails' };
 export const IsRepoClonedRequest: RequestType<IsRepoClonedRequestParams, boolean> = { method: 'manager/isRepoCloned' };
 export const CloneRepoRequeset: RequestType<RepoCloneRequestParams, boolean> = { method: 'manager/cloneRepo' };
-
-

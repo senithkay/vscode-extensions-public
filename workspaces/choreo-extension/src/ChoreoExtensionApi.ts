@@ -20,6 +20,7 @@ import {
     ChoreoLoginStatus,
     WorkspaceConfig,
     ComponentModel,
+    Component
 } from "@wso2-enterprise/choreo-core";
 import { exchangeAuthToken } from "./auth/auth";
 import { readFileSync } from 'fs';
@@ -38,6 +39,7 @@ export interface IChoreoExtensionAPI {
     isChoreoProject(): Promise<boolean>;
     getChoreoProject(): Promise<Project | undefined>;
     enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined>;
+    deleteComponent(projectId: string, componentPath: string): Promise<void>;
 }
 
 export class ChoreoExtensionApi {
@@ -184,5 +186,20 @@ export class ChoreoExtensionApi {
             }
         }
         return Promise.resolve(model);
+    }
+
+    public async deleteComponent(projectId: string, componentPath: string) {
+        const workspaceFilepath = ProjectRegistry.getInstance().getProjectLocation(projectId);
+        if (workspaceFilepath && ext.api.selectedOrg) {
+            const { handle, uuid } = ext.api.selectedOrg;
+            const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, handle, uuid);
+            const workspaceFileConfig: WorkspaceConfig = JSON.parse(readFileSync(workspaceFilepath).toString());
+            const wsResponse = workspaceFileConfig.folders.find(wsEntry => wsEntry.name !== 'choreo-project-root' && 
+                componentPath.includes(wsEntry.path));
+            const toDelete = components.find(component => component.name === wsResponse?.name);
+            if (toDelete) {
+                await ProjectRegistry.getInstance().deleteComponent(toDelete.id, handle, projectId);
+            }
+        }
     }
 }

@@ -25,8 +25,8 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
         return this._messenger.sendRequest(IsRepoClonedRequest, HOST_EXTENSION, params);
     }
-    createLocalComponent(args: ChoreoComponentCreationParams): Promise<string | boolean> {
-        return this._messenger.sendRequest(CreateLocalComponentRequest, HOST_EXTENSION, args);
+    createLocalComponent(params: ChoreoComponentCreationParams): Promise<string | boolean> {
+        return this._messenger.sendRequest(CreateLocalComponentRequest, HOST_EXTENSION, params);
     }
     getProjectDetails(): Promise<Project> {
         throw new Error("Method not implemented.");

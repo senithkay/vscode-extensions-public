@@ -246,9 +246,13 @@ export interface WorkspaceComponentMetadata {
 
 export enum ChoreoServiceComponentType {
     REST_API = 'restAPI',
-    GQL_API = 'graphql',
-    WEBSOCKET_API = 'WEBSOCKET_API',
-    GRPC_API = 'GRPC_API',
+    GRAPHQL = 'graphql',
+    MANUAL_TRIGGER = 'manualTrigger',
+    SCHEDULED_TASK = 'scheduledTask',
+    WEBHOOK = 'webhook',
+    PROXY = 'proxy',
+    GRPC_API = 'grpcAPI',
+    WEBSOCKET_API = 'websocketAPI'
 }
 
 export interface ChoreoComponentCreationParams {
@@ -313,6 +317,30 @@ export interface Entity {
     isAnonymous: boolean;
 }
 
+export interface GetComponentModelResponse {
+    componentModels: {
+        [key: string]: ComponentModel;
+    };
+    diagnostics?: ComponentModelDiagnostics[];
+}
+
+export interface ComponentModelDiagnostics {
+    name: string;
+    message?: string;
+    severity?: string;
+}
+
+interface EntryPoint {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    annotation: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    parameters: any[];
+    returns: string[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    interactions: any[];
+    elementLocation: Location;
+}
+
 export interface ComponentModel {
     packageId: {
         name: string,
@@ -321,6 +349,7 @@ export interface ComponentModel {
     };
     services: Map<string, Service>;
     entities: Map<string, Entity>;
+    functionEntryPoint: EntryPoint;
     hasCompilationErrors: boolean;
 }
 

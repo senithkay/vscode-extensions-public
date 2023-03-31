@@ -34,6 +34,7 @@ importers:
       express: ^4.17.2
       file-uri-to-path: ^2.0.0
       glob: ^7.2.0
+      handlebars: ^4.7.7
       istanbul: ^0.4.5
       js-yaml: ^4.1.0
       jwt-decode: ^3.1.2
@@ -81,6 +82,7 @@ importers:
       del-cli: 5.0.0
       file-uri-to-path: 2.0.0
       glob: 7.2.3
+      handlebars: 4.7.7
       lodash: 4.17.21
       monaco-languageclient: 0.13.1-next.9
       node-schedule: 2.1.1

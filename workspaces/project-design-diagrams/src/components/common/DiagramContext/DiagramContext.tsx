@@ -17,26 +17,32 @@
  *
  */
 
-import React, { createContext, ReactNode, useState } from 'react';
-import { EditLayerAPI, Service, Views } from '../../../resources';
+import React, { createContext, ReactNode, useEffect, useState } from 'react';
+import { ComponentModel, ComponentModelDiagnostics, EditLayerAPI, Location, Service, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
     currentView: Views;
     editingEnabled: boolean;
     isChoreoProject: boolean;
+    projectComponents: Map<string, ComponentModel>;
+    projectDiagnostics: ComponentModelDiagnostics[];
+    setCurrentView: (view: Views) => void;
     refreshDiagram: () => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
     setConnectorTarget: (service: Service) => void;
     editLayerAPI: EditLayerAPI | undefined;
+    deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>;
 }
 
 interface IDiagramContext {
     editingEnabled: boolean;
     isChoreoProject: boolean;
     currentView: Views;
+    hasDiagnostics: boolean;
     refreshDiagram: () => void;
+    setCurrentView: (view: Views) => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
     editLayerAPI?: EditLayerAPI;
@@ -45,6 +51,7 @@ interface IDiagramContext {
     setNewComponentID?: (name: string | undefined) => void;
     setNewLinkNodes?: (nodes: LinkedNodes) => void;
     setConnectorTarget?: (service: Service) => void;
+    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void> | undefined;
 }
 
 interface LinkedNodes {
@@ -62,18 +69,25 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         editingEnabled,
         isChoreoProject,
         editLayerAPI,
+        projectComponents,
+        projectDiagnostics,
+        setCurrentView,
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview,
-        setConnectorTarget
+        setConnectorTarget,
+        deleteComponent
     } = props;
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
+    const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
 
     let context: IDiagramContext = {
         currentView,
         editingEnabled,
         isChoreoProject,
+        hasDiagnostics,
+        setCurrentView,
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview
@@ -87,9 +101,23 @@ export function DesignDiagramContext(props: DiagramContextProps) {
             setNewComponentID,
             newLinkNodes,
             setNewLinkNodes,
-            setConnectorTarget
+            setConnectorTarget,
+            deleteComponent
         }
     }
+
+    useEffect(() => {
+        if (projectDiagnostics?.length > 0) {
+            setHasDiagnostics(true);
+        } else if (projectComponents?.size > 0) {
+            for (const component of projectComponents) {
+                if (component[1].hasCompilationErrors) {
+                    setHasDiagnostics(true);
+                    break;
+                }
+            }
+        }
+    }, [projectDiagnostics, projectComponents]);
 
     return (
         <DiagramContext.Provider value={{ ...context }}>
@@ -99,4 +127,3 @@ export function DesignDiagramContext(props: DiagramContextProps) {
 }
 
 export const useDiagramContext = () => React.useContext(DiagramContext);
-

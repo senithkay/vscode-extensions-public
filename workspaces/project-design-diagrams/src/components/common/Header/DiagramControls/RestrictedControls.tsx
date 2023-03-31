@@ -18,8 +18,7 @@
  */
 
 import React, { useContext } from 'react';
-import Chip from '@mui/material/Chip';
-import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
 import ReplyAllIcon from '@mui/icons-material/ReplyAll';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { Views } from '../../../../resources';
@@ -27,30 +26,27 @@ import '../styles/styles.css';
 
 interface RestrictedControlsProps {
     previousScreen: Views;
-    switchView: (view: Views) => void;
 }
 
 export function RestrictedControls(props: RestrictedControlsProps) {
-    const { previousScreen, switchView } = props;
-    const { editingEnabled } = useContext(DiagramContext);
+    const { previousScreen } = props;
+    const { setCurrentView } = useContext(DiagramContext);
 
     const goBack = () => {
-        switchView(previousScreen);
+        setCurrentView(previousScreen);
     }
 
     return (
         <div>
-            <IconButton
-                className={'iconButton'}
+            <Button
+                variant='outlined'
                 size='small'
-                onClick={() => { goBack() }}
+                className={'button'}
+                startIcon={<ReplyAllIcon fontSize='small' />}
+                onClick={goBack}
             >
-                <ReplyAllIcon fontSize='small' />
-            </IconButton>
-
-            {!editingEnabled &&
-                <Chip label={'Read-Only Mode'} sx={{ fontSize: '11px', fontFamily: 'GilmerRegular', marginLeft: '5px' }} />
-            }
+                Go Back
+            </Button>
         </div>
     );
 }

@@ -23,10 +23,12 @@ export type {
     Attribute,
     Cardinality,
     ComponentModel,
-    ConnectorProps,
+    ComponentModelDiagnostics,
+    ElementDiagnostics,
     Dependency,
     EditLayerAPI,
     Entity,
+    GetComponentModelResponse,
     EntryPoint,
     Interaction,
     Location,
@@ -35,6 +37,7 @@ export type {
     ResourceId,
     Parameter,
     Service,
+    ServiceAnnotation,
     ServiceModels
 } from './model';
 

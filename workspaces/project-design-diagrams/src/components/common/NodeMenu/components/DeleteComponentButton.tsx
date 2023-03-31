@@ -17,25 +17,25 @@
  *
  */
 
-import React, { useContext } from "react";
-import AddLinkIcon from "@mui/icons-material/AddLink";
-import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { Service } from "../../../../resources";
+import React from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { useStyles } from "./styles/styles";
 
-export function AddConnectorButton(props: { service: Service }) {
-    const { service } = props;
+interface DeleteComponentProps {
+    handleDialogStatus: (status: boolean) => void;
+}
+
+export function DeleteComponentButton(props: DeleteComponentProps) {
+    const { handleDialogStatus } = props;
     const classes = useStyles();
 
-    const { setConnectorTarget } = useContext(DiagramContext);
-
     return (
-        <MenuItem onClick={() => setConnectorTarget(service)}>
+        <MenuItem onClick={() => handleDialogStatus(true)}>
             <ListItemIcon>
-                <AddLinkIcon fontSize="small" />
+                <DeleteIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText className={classes.listItemText}>Link externally</ListItemText>
+            <ListItemText className={classes.listItemText}>Delete Component</ListItemText>
         </MenuItem>
     );
 }

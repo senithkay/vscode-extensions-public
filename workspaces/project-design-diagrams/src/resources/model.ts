@@ -17,10 +17,28 @@
  *
  */
 
-import { DiagramModel, PointModel } from '@projectstorm/react-diagrams';
-import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { DiagramModel } from '@projectstorm/react-diagrams';
+import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
+
+export interface GetComponentModelResponse {
+    componentModels: {
+        [key: string]: ComponentModel;
+    };
+    diagnostics?: ComponentModelDiagnostics[];
+}
+
+interface ModelAttributes {
+    elementLocation: Location;
+    diagnostics?: ElementDiagnostics[];
+}
+
+export interface ComponentModelDiagnostics {
+    name: string;
+    message?: string;
+    severity?: string;
+}
 
 export interface ComponentModel {
     packageId: PackageID;
@@ -36,16 +54,15 @@ interface PackageID {
     version: string
 }
 
-export interface EntryPoint {
-    annotation: DisplayAnnotation;
+export interface EntryPoint extends ModelAttributes {
+    annotation: ServiceAnnotation;
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
-    elementLocation: Location;
 }
 
-export interface Service {
-    annotation: DisplayAnnotation;
+export interface Service extends ModelAttributes {
+    annotation: ServiceAnnotation;
     path: string;
     serviceId: string;
     resources: ResourceFunction[];
@@ -53,44 +70,39 @@ export interface Service {
     serviceType: string;
     dependencies: Dependency[];
     deploymentMetadata: DeploymentMetadata;
-    elementLocation: Location;
 }
 
-interface DisplayAnnotation {
+export interface ServiceAnnotation extends ModelAttributes {
     id: string;
     label: string;
 }
 
-export interface Dependency {
+export interface Dependency extends ModelAttributes {
     serviceId: string;
     connectorType: string;
-    elementLocation: Location;
 }
 
-export interface ResourceFunction {
+export interface ResourceFunction extends ModelAttributes {
     identifier: string;
     resourceId: ResourceId;
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
-    elementLocation: Location;
 }
 
-export interface RemoteFunction {
+export interface RemoteFunction extends ModelAttributes {
     name: string;
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];
-    elementLocation: Location;
 }
 
-export interface Interaction {
+export interface Interaction extends ModelAttributes {
     resourceId: ResourceId;
     connectorType: string;
-    elementLocation: Location;
 }
 
-export interface Parameter {
+export interface Parameter extends ModelAttributes {
     name: string;
     type: string[];
     in?: string;
@@ -103,21 +115,19 @@ export interface ResourceId {
     action: string;
 }
 
-export interface Entity {
+export interface Entity extends ModelAttributes {
     attributes: Attribute[];
     inclusions: string[];
-    elementLocation: Location;
     isAnonymous: boolean;
 }
 
-export interface Attribute {
+export interface Attribute extends ModelAttributes {
     name: string;
     type: string;
     defaultValue: string;
     required: boolean;
     nillable: boolean;
     associations: Association[];
-    elementLocation: Location;
 }
 
 interface Association {
@@ -141,13 +151,6 @@ export interface DeploymentMetadata {
     }
 }
 
-export interface ConnectorProps {
-    point: PointModel;
-    previousPoint: PointModel;
-    cardinality: string;
-    color: string;
-}
-
 export interface ServiceModels {
     levelOne: DiagramModel;
     levelTwo: DiagramModel;
@@ -163,6 +166,12 @@ export interface Location {
 interface LinePosition {
     line: number;
     offset: number;
+}
+
+export interface ElementDiagnostics {
+    message: string;
+    location?: Location;
+    severity?: string;
 }
 
 export enum Views {
@@ -211,9 +220,12 @@ export interface EditLayerAPI {
     pullConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
     addConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
     addLink: (source: Service, target: Service) => Promise<boolean>;
+    deleteLink: (location: Location) => Promise<boolean>;
     pickDirectory: () => Promise<string | undefined>;
     executeCommand: (cmd: string) => Promise<boolean>;
     go2source: (location: Location) => void;
     goToDesign: (filePath: string, position: NodePosition) => void;
     showErrorMessage: (message: string) => void;
+    editDisplayLabel: (annotation: ServiceAnnotation) => Promise<boolean>;
+    fetchTriggers: () => Promise<BallerinaTriggersResponse>;
 }
