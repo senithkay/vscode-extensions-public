@@ -17,12 +17,14 @@
  *
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import Popover from '@mui/material/Popover';
+import { DiagramContext } from '../../common';
 import { ServiceLinkModel } from './ServiceLinkModel';
 import { DataTypesPopup } from './data-types-popup/DataTypePopup';
 import { findCallingFunction } from './link-utils';
+import { ServiceLinkMenu } from './LinkMenuPanel/LinkMenuPanel';
 import { Colors, Level, RemoteFunction, ResourceFunction } from '../../../resources';
 
 interface WidgetProps {
@@ -32,6 +34,7 @@ interface WidgetProps {
 
 export function ServiceLinkWidget(props: WidgetProps) {
 	const { link, engine } = props;
+	const { editingEnabled } = useContext(DiagramContext);
 
 	const [isSelected, setIsSelected] = useState<boolean>(false);
 	const [position, setPosition] = useState({ x: undefined, y: undefined });
@@ -52,16 +55,12 @@ export function ServiceLinkWidget(props: WidgetProps) {
 	}, [link])
 
 	const onMouseOver = (event: React.MouseEvent<SVGPathElement | HTMLDivElement>) => {
-		if (callingFunction) {
-			setAnchorElement(event.currentTarget);
-		}
+		setAnchorElement(event.currentTarget);
 		selectPath();
 	}
 
 	const onMouseLeave = () => {
-		if (callingFunction) {
-			setAnchorElement(null);
-		}
+		setAnchorElement(null);
 		unselectPath();
 	}
 
@@ -90,7 +89,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 					fill='none'
 					pointerEvents='all'
 					onMouseLeave={onMouseLeave}
-					onMouseMove={e => callingFunction ? setPosition({ x: e.pageX, y: e.pageY }) : {}}
+					onMouseMove={e => setPosition({ x: e.pageX, y: e.pageY })}
 					onMouseOver={onMouseOver}
 					stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
 					strokeWidth={1}
@@ -98,6 +97,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 			</g>
 
 			{link.level === Level.TWO && callingFunction && position &&
+				// Todo: Move to separate component
 				<Popover
 					id='mouse-over-popover'
 					open={Boolean(anchorElement)}
@@ -118,11 +118,20 @@ export function ServiceLinkWidget(props: WidgetProps) {
 					}}
 				>
 					<DataTypesPopup
-						inputParams={callingFunction.parameters}
-						returnType={callingFunction.returns}
+						callingFunction={callingFunction}
 						location={link.location}
 					/>
 				</Popover>
+			}
+
+			{link.level === Level.ONE && editingEnabled && link.location && position &&
+				<ServiceLinkMenu
+					anchorElement={anchorElement}
+					location={link.location}
+					position={position}
+					onMouseLeave={onMouseLeave}
+					onMouseOver={onMouseOver}
+				/>
 			}
 		</>
 	)

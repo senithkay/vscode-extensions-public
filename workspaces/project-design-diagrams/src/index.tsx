@@ -20,15 +20,17 @@
 import React from "react";
 import { render } from "react-dom";
 import { DesignDiagram } from "./DesignDiagram";
-import { ComponentModel } from "./resources";
+import { Location } from "./resources";
 import { WebviewEditLayerAPI } from "./editing";
+import { GetComponentModelResponse } from "./resources";
 
 export function renderDesignDiagrams(
     isEditable: boolean,
     isChoreoProject: boolean,
     selectedNodeId: string,
-    getComponentModel: () => Promise<Map<string, ComponentModel>>,
+    getComponentModel: () => Promise<GetComponentModelResponse>,
     showChoreoProjectOverview: () => Promise<void>,
+    deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>,
     target: HTMLElement
 ) {
     render(
@@ -39,6 +41,7 @@ export function renderDesignDiagrams(
             getComponentModel={getComponentModel}
             showChoreoProjectOverview={showChoreoProjectOverview}
             editLayerAPI={WebviewEditLayerAPI.getInstance()}
+            deleteComponent={deleteComponent}
         />,
         target
     );

@@ -5,7 +5,20 @@ on:
     inputs: 
       isPreRelease:
         default: true
-        type: boolean      
+        type: boolean  
+      enableCache:
+        default: true
+        type: boolean  
+      ballerina:
+        description: Update Ballerina extension version
+        type: boolean
+        required: false
+        default: true
+      choreo:
+        description: Update Choreo extension version
+        type: boolean
+        required: false
+        default: true      
       version:
         default: 'N/A'
         type: string
@@ -30,25 +43,51 @@ jobs:
           token: ${{ secrets.BALLERINA_BOT_TOKEN }}
           fetch-depth: 2
 
-      - name: Setup
-        uses: gigara/rush-cache@v1
+      - name: Cache env
+        if: ${{ inputs.enableCache }}
+        uses: gigara/rush-cache@v2
+
+      - uses: actions/setup-node@v3
         with:
-          pnpm: 7.26.3
-          node: 16.x
-          set-env: true
-          rush-install: true
+          node-version: 16.x
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.26.3
+
+      - name: Cache Rush
+        if: ${{ inputs.enableCache }}
+        uses: actions/cache@v2
+        with:
+          path: |
+            common/temp/install-run
+            ~/.rush 
+          key: Rush-cache-${{ hashFiles('rush.json') }}
+
+      - name: Cache pnpm
+        if: ${{ inputs.enableCache }}
+        uses: actions/cache@v3
+        with:
+          path: |
+            common/temp/pnpm-store
+            ~/.cache/Cypress   
+          key: pnpm-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - uses: ballerina-platform/setup-ballerina@v1
         name: Install Ballerina
         with:
           version: ${{ env.ballerina_version }}
 
-      - name: Update versions
-        if: ${{ inputs.version != 'N/A' }}
+      - name: Update ballerina extension versions
+        if: ${{ inputs.version != 'N/A' && inputs.ballerina }}
         run: |
-          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
-          npm version ${{ inputs.version }} --preid beta --no-git-tag-version --workspace=workspaces/choreo-extension
-          
+          pnpm --filter=ballerina version ${{ inputs.version }} --preid beta --no-git-tag-version
+
+      - name: Update choreo extension versions
+        if: ${{ inputs.version != 'N/A' && inputs.choreo }}
+        run: |
+          pnpm --filter=choreo version ${{ inputs.version }} --preid beta --no-git-tag-version
+
       - name: Get timestamp
         id: timestamp
         run: |
@@ -56,7 +95,7 @@ jobs:
           echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
 
       - name: Set prerelase version - ballerina
-        if: ${{ inputs.isPreRelease }}
+        if: ${{ inputs.isPreRelease && inputs.ballerina }}
         run: |
           cd workspaces/ballerina-extension
           currentVersion=$(node -p "require('./package.json').version")
@@ -67,7 +106,7 @@ jobs:
           npm version $newVersion --preid beta --no-git-tag-version
           
       - name: Set prerelase version - choreo
-        if: ${{ inputs.isPreRelease }}
+        if: ${{ inputs.isPreRelease && inputs.choreo }}
         run: |
           cd workspaces/choreo-extension
           currentVersion=$(node -p "require('./package.json').version")
@@ -80,6 +119,7 @@ jobs:
       - name: Build repo
         id: build
         run: |
+          node common/scripts/install-run-rush.js install
           node common/scripts/install-run-rush.js build --verbose
         env:
           isPreRelease: ${{ inputs.isPreRelease  }}

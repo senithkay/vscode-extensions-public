@@ -18,12 +18,12 @@
  */
 
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import {  DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import debounce from 'lodash.debounce';
-import { DiagramControls } from './DiagramControls';
+import { DiagramControls, ViewSwitcher } from './ControlLayer';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { GatewayLinkModel } from '../../gateway/GatewayLink/GatewayLinkModel';
 import { GatewayNodeModel } from '../../gateway/GatewayNode/GatewayNodeModel';
@@ -201,7 +201,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                     <CanvasWidget engine={diagramEngine} className={'diagram-container'} />
                 </div>
             }
-
+            {type !== Views.TYPE_COMPOSITION && <ViewSwitcher />}
             <DiagramControls
                 showDownloadButton={type !== Views.CELL_VIEW}
                 zoomToFit={zoomToFit}
