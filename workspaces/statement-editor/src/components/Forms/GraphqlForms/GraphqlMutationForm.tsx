@@ -306,17 +306,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title="Name" optional={false}/>
-                        {/*<LiteExpressionEditor*/}
-                        {/*    testId="method-name"*/}
-                        {/*    diagnostics={*/}
-                        {/*        (currentComponentName === "MethodName" && currentComponentSyntaxDiag)*/}
-                        {/*        || model?.functionName?.viewState?.diagnosticsInRange*/}
-                        {/*    }*/}
-                        {/*    defaultValue={functionName}*/}
-                        {/*    onChange={handleNameChange}*/}
-                        {/*    onFocus={onNameFocus}*/}
-                        {/*    disabled={currentComponentName !== "MethodName" && isEditInProgress}*/}
-                        {/*/>*/}
                         <LiteTextField
                             value={functionName}
                             onChange={handleNameChange}

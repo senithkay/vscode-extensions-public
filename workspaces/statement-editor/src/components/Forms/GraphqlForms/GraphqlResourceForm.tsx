@@ -76,7 +76,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
     // States related to component model
     const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
     const [resourceName, setResourceName] = useState<string>(model ? getResourcePath(model?.relativeResourcePath).trim() : "");
-    // const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
 
     // States related to syntax diagnostics
@@ -275,26 +274,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
         }
     }, [model]);
 
-    // const getResourcePathDiagnostics = () => {
-    //     const diagPath = model.relativeResourcePath?.find(
-    //         resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
-    //
-    //     let resourcePathDiagnostics = [];
-    //
-    //     if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
-    //         resourcePathDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.viewState?.diagnosticsInRange || [];
-    //         resourcePathDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.typeDescriptor?.viewState?.diagnosticsInRange || [];
-    //     } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
-    //         resourcePathDiagnostics = diagPath?.viewState?.diagnostics || [];
-    //     }
-    //
-    //     return resourcePathDiagnostics;
-    // };
-
     const handlePathChange = async (value: string) => {
         setResourceName(value);
-        // setShouldUpdatePath(false);
-        // setResourcePath(value);
         await handleResourceParamChange(
             model.functionName.value,
             value,

@@ -75,7 +75,6 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
     // States related to component model
     const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
     const [resourceName, setResourceName] = useState<string>(model ? getResourcePath(model?.relativeResourcePath).trim() : "");
-    // const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
 
     // States related to syntax diagnostics
@@ -281,8 +280,6 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
 
     const handlePathChange = async (value: string) => {
         setResourceName(value);
-        // setShouldUpdatePath(false);
-        // setResourcePath(value);
         await handleResourceParamChange(
             model.functionName.value,
             value,
