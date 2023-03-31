@@ -198,7 +198,7 @@ export class ChoreoExtensionApi {
                 componentPath.includes(wsEntry.path));
             const toDelete = components.find(component => component.name === wsResponse?.name);
             if (toDelete) {
-                await ProjectRegistry.getInstance().deleteComponent(toDelete.id, handle, projectId);
+                await ProjectRegistry.getInstance().deleteComponent(toDelete, handle, projectId);
             }
         }
     }
