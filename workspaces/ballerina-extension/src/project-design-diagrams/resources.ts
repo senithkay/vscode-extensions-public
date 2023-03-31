@@ -84,10 +84,10 @@ export interface WorkspaceConfig {
     folders: WorkspaceItem[]
 }
 
-export const ERROR_MESSAGE = "Project Design Diagrams: Failed to generate view.";
-export const USER_TIP = "Project Design Diagrams: If you want to generate the diagrams for multiple packages, add them to your workspace.";
-export const INCOMPATIBLE_VERSIONS_MESSAGE = "Project Design Diagrams: Incompatible Ballerina version. Update to Ballerina version 2201.2.2 or above to activate the feature.";
-export const DIAGNOSTICS_WARNING = "Project Design Diagrams: Please resolve the diagnostics in your workspace for a better representation of your project.";
+export const ERROR_MESSAGE = "Architecture View: Failed to generate view.";
+export const USER_TIP = "Architecture View: If you want to generate the diagrams for multiple packages, add them to your workspace.";
+export const INCOMPATIBLE_VERSIONS_MESSAGE = "Architecture View: Incompatible Ballerina version. Update to Ballerina version 2201.2.2 or above to activate the feature.";
+export const DIAGNOSTICS_WARNING = "Architecture View: Please resolve the diagnostics in your workspace for a better representation of your project.";
 
 export const DEFAULT_SERVICE_TEMPLATE_SUFFIX = "-t service";
 export const GRAPHQL_SERVICE_TEMPLATE_SUFFIX = "-t choreo/graphql_service";

@@ -61,11 +61,6 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<GetPa
                     }
                 }
             }
-            response.diagnostics.map((diagnostic) => {
-                if (diagnostic.message.includes(`/${ballerinaToml}`)) {
-                    diagnostic.name = diagnostic.message.split(`/${ballerinaToml}`)[0].split("/").pop();
-                }
-            });
 
             const choreoExt = await getChoreoExtAPI();
             if (choreoExt) {
@@ -80,7 +75,12 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<GetPa
 }
 
 function showDiagnosticsWarning() {
-    window.showInformationMessage(DIAGNOSTICS_WARNING);
+    const action = 'View Problems';
+    window.showInformationMessage(DIAGNOSTICS_WARNING, action).then((selection) => {
+        if (action === selection) {
+            commands.executeCommand('workbench.action.problems.focus');
+        }
+    });
 }
 
 export async function checkIsChoreoProject(): Promise<boolean> {
