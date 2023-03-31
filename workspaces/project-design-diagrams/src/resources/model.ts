@@ -44,7 +44,7 @@ export interface ComponentModel {
     packageId: PackageID;
     services: Map<string, Service>;
     entities: Map<string, Entity>;
-    entryPoint: EntryPoint;
+    functionEntryPoint: EntryPoint;
     hasCompilationErrors: boolean;
 }
 
@@ -55,6 +55,7 @@ interface PackageID {
 }
 
 export interface EntryPoint extends ModelAttributes {
+    annotation: ServiceAnnotation;
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];

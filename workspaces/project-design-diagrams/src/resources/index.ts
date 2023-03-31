@@ -29,6 +29,7 @@ export type {
     EditLayerAPI,
     Entity,
     GetComponentModelResponse,
+    EntryPoint,
     Interaction,
     Location,
     RemoteFunction,

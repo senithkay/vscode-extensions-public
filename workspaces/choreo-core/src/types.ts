@@ -331,6 +331,8 @@ export interface ComponentModelDiagnostics {
 }
 
 interface EntryPoint {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    annotation: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     parameters: any[];
     returns: string[];
@@ -347,7 +349,7 @@ export interface ComponentModel {
     };
     services: Map<string, Service>;
     entities: Map<string, Entity>;
-    entryPoint: EntryPoint;
+    functionEntryPoint: EntryPoint;
     hasCompilationErrors: boolean;
 }
 
