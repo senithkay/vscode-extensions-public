@@ -12,7 +12,7 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployments } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams, GetComponentDeploymentStatusParams, RepoParams } from "./types";
 import {
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
@@ -20,6 +20,7 @@ import {
     getComponentsWithCellDiagramQuery,
     getDeleteComponentQuery,
     getProjectsByOrgIdQuery,
+    getRepoMetadataQuery,
 } from './project-queries';
 import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
@@ -75,13 +76,26 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         try {
             const client = await this._getClient();
             const data = await client.request(query);
+            return data.components;
 
+        } catch (error) {
+            throw new Error("Error while fetching components.", { cause: error });
+        }
+    }
+
+    async getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]> {
+        const { orgHandle } = params;
+        try {
+            const client = await this._getClient();
             const envQuery = getComponentEnvsQuery(params.orgUuid, params.projId);
             const envData = await client.request(envQuery);
             const devEnv = envData?.environments?.find((env: Environment) => env.name === 'Development');
             const prodEnv = envData?.environments?.find((env: Environment) => env.name === 'Production')
 
-            const components: Component[] = await Promise.all(data.components.map(async (component: Component) => {
+            const components: Component[] = await Promise.all(params.components.map(async (component: Component) => {
+                if (component.local) {
+                    return component;
+                }
                 const deployments: Deployments = {}
                 const queryData = {
                     componentId: component.id,
@@ -126,7 +140,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
             return components;
         } catch (error) {
-            throw new Error("Error while fetching components.", { cause: error });
+            throw new Error("Error while getting component deployment details.", { cause: error });
         }
     }
 
@@ -195,6 +209,18 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                 });
         } catch (err) {
             throw new Error(API_CALL_ERROR, { cause: err });
+        }
+    }
+
+    async isComponentInRepo(params: RepoParams): Promise<boolean> {
+        const { orgApp, repoApp, branchApp, subPath } = params;
+        const query = getRepoMetadataQuery(orgApp, repoApp, branchApp, subPath);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.repoMetadata.isSubPathValid;
+        } catch (error) {
+            throw new Error("Error while executing " + query, { cause: error, });
         }
     }
 

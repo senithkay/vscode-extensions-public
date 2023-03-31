@@ -46,7 +46,8 @@ import {
     getDiagramComponentModel,
     DeleteComponent,
     PullComponent,
-    PushLocalComponentToChoreo
+    PushLocalComponentToChoreo,
+    GetEnrichedComponents
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -90,6 +91,10 @@ export class ChoreoWebViewAPI {
 
     public async getComponents(projectId: string): Promise<Component[]> {
         return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
+    }
+
+    public async getEnrichedComponents(projectId: string): Promise<Component[]> {
+        return this._messenger.sendRequest(GetEnrichedComponents, HOST_EXTENSION, projectId);
     }
 
     public async deleteComponent(params: {component: Component; projectId: string}): Promise<void> {

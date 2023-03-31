@@ -83,6 +83,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         try {
             const components = await ChoreoWebViewAPI.getInstance().getComponents(projectId);
             setComponents(components);
+            const enrichedComponents = await ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
+            setComponents(enrichedComponents);
         } finally {
             setLoadingComponents(false);
         }
@@ -107,9 +109,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().getProjectLocation(projectId).then(setLocation);
     }, [projectId, orgName]);
-
-
-
 
     // Listen to changes in project selection
     ChoreoWebViewAPI.getInstance().onSelectedProjectChanged((newProjectId) => {
@@ -174,7 +173,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, []);
 
     const handleRefreshComponentsClick = useCallback(async () => {
-        try{
+        try {
             setLoadingComponents(true);
             await ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.projects.registry.refresh');
         } finally {
@@ -200,14 +199,21 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         return components?.some(component => component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits);
     }, [components])
 
-    /** Every local components is without any local git changes to commit/push. These components can be pushed to Choreo */
+    /** Every local components is without any local git changes to commit/push & valid path in remote repo. These components can be pushed to Choreo */
     const hasPushableComponents = useMemo(() => {
-        const localOnlyComponents = components.filter(component => component.local);
+        const localOnlyComponents = components.filter(
+            (component) => component.local
+        );
         if (localOnlyComponents.length === 0) {
             return false;
         }
-        return localOnlyComponents?.every(component => !component.hasDirtyLocalRepo && !component.hasUnPushedLocalCommits);
-    }, [components])
+        return localOnlyComponents?.every(
+            (component) =>
+                !component.hasDirtyLocalRepo &&
+                !component.hasUnPushedLocalCommits &&
+                component.isInRemoteRepo
+        );
+    }, [components]);
 
 
     return (

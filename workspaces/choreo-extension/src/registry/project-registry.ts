@@ -111,13 +111,81 @@ export class ProjectRegistry {
 
     async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
-            const components = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
+            const previousComponents = this._dataComponents.get(projectId) || [];
+            let components = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
+            components = this._addLocalComponents(projectId, components);
+            components = components.map(component => {
+                const matchingComponent = previousComponents.find(item => {
+                    if (component.local && component.name === item.name) {
+                        return true;
+                    }
+                    if (!component.local && component.id === item.id) {
+                        return true;
+                    }
+                    return false;
+                });
+                return {
+                    ...component,
+                    deployments: matchingComponent?.deployments,
+                    isRemoteOnly: matchingComponent?.isRemoteOnly,
+                    hasUnPushedLocalCommits: matchingComponent?.hasUnPushedLocalCommits,
+                    hasDirtyLocalRepo: matchingComponent?.hasDirtyLocalRepo
+                };
+            });
+
             this._dataComponents.set(projectId, components);
-            return this._addLocalComponents(projectId, components);
+
+            return components;
         } catch (e) {
             serializeError(e);
-            const components: Component[] | undefined = this._dataComponents.get(projectId);
-            return this._addLocalComponents(projectId, components || []);
+            return this._dataComponents.get(projectId) || [];
+        }
+    }
+
+    async getEnrichedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
+        try {
+            const components = this._dataComponents.get(projectId) || [];
+
+            let enrichedComponents = await projectClient.getComponentDeploymentStatus({ projId: projectId, orgHandle: orgHandle, orgUuid, components });
+
+            enrichedComponents = await Promise.all(
+                enrichedComponents.map(async (component) => {
+                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo] = await Promise.all([
+                        this.hasUnPushedLocalCommit(projectId, component),
+                        this.hasDirtyLocalRepo(projectId, component),
+                    ]);
+
+                    let isInRemoteRepo = true;
+                    if(component.local && component.repository){
+                        const { appSubPath, branchApp, nameApp, organizationApp } = component.repository;
+                        try {
+                            isInRemoteRepo = await projectClient.isComponentInRepo({
+                                branchApp: branchApp,
+                                orgApp: organizationApp,
+                                repoApp: nameApp,
+                                subPath: appSubPath || ""
+                            });
+                        } catch (e) {
+                            console.error(`Failed to check isComponentInRepo for ${component.name}`);
+                            isInRemoteRepo = false;
+                        }
+                    }
+                    
+                    let isRemoteOnly = true;
+                    if (component.repository?.appSubPath) {
+                        const { organizationApp, nameApp, appSubPath } = component.repository;
+                        isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
+                    }
+                    return { ...component, hasUnPushedLocalCommits, hasDirtyLocalRepo, isRemoteOnly, isInRemoteRepo };
+                })
+            );
+
+            this._dataComponents.set(projectId, enrichedComponents);
+
+            return enrichedComponents;
+        } catch (e) {
+            serializeError(e);
+            return this._dataComponents.get(projectId) || [];
         }
     }
 
@@ -384,28 +452,14 @@ export class ProjectRegistry {
         ext.context.globalState.update(PROJECT_LOCATIONS, projectLocations);
     }
 
-    private async _addLocalComponents(projectId: string, components: Component[]): Promise<Component[]> {
+    private _addLocalComponents(projectId: string, components: Component[]): Component[] {
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
-        components = components.map((component: Component) => {
-            if (component.repository?.appSubPath) {
-                const { organizationApp, nameApp, appSubPath } = component.repository;
-                component.isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
-            }
-            return component;
-        });
+
         if (projectLocation !== undefined) {
             const localComponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
             components = components.concat(localComponents);
         }
-        components = await Promise.all(
-            components.map(async (component) => {
-                const [hasUnPushedLocalCommits, hasDirtyLocalRepo] = await Promise.all([
-                    this.hasUnPushedLocalCommit(projectId, component),
-                    this.hasDirtyLocalRepo(projectId, component),
-                ]);
-                return { ...component, hasUnPushedLocalCommits, hasDirtyLocalRepo };
-            })
-        );
+        
         return components;
     }
 }

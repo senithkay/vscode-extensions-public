@@ -72,6 +72,13 @@ export interface GetComponentsParams {
     orgUuid: string;
 }
 
+export interface GetComponentDeploymentStatusParams {
+    orgHandle: string;
+    projId: string;
+    orgUuid: string;
+    components: Component[];
+}
+
 export interface GetDiagramModelParams {
     orgHandle: string;
     projId: string;
@@ -81,6 +88,7 @@ export interface IChoreoProjectClient {
     // queries
     getProjects(params: GetProjectsParams): Promise<Project[]>;
     getComponents(params: GetComponentsParams): Promise<Component[]>;
+    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]>;
     getDiagramModel(params: GetComponentsParams): Promise<Component[]>;
 
     // mutations

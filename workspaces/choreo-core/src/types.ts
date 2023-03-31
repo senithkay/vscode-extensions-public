@@ -92,6 +92,7 @@ export interface Component {
     hasUnPushedLocalCommits?: boolean;
     hasDirtyLocalRepo?: boolean;
     isRemoteOnly?: boolean;
+    isInRemoteRepo?: boolean;
     deployments?: Deployments;
 }
 

@@ -219,7 +219,8 @@ export function ComponentList(props: ComponentListProps) {
                                 )}
                                 {component.local &&
                                     !component.hasDirtyLocalRepo &&
-                                    !component.hasUnPushedLocalCommits && (
+                                    !component.hasUnPushedLocalCommits &&
+                                    component.isInRemoteRepo && (
                                         <VSCodeButton
                                             appearance="icon"
                                             onClick={() => handlePushComponentClick(component.name)}

@@ -13,8 +13,8 @@
 import { Project, Component, Repository } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "../types";
-import { CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, LinkRepoRequest } from "./types";
+import { ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetComponentDeploymentStatusParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams } from "../types";
+import { CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetComponentDeploymentStatus, GetProjectsRequest, LinkRepoRequest } from "./types";
 
 export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
 
@@ -26,6 +26,9 @@ export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
     }
     getComponents(params: GetComponentsParams): Promise<Component[]> {
         return this._messenger.sendRequest(GetComponentsRequest, HOST_EXTENSION, params);
+    }
+    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]> {
+        return this._messenger.sendRequest(GetComponentDeploymentStatus, HOST_EXTENSION, params);
     }
     createProject(params: CreateProjectParams): Promise<Project> {
         return this._messenger.sendRequest(CreateProjectRequest, HOST_EXTENSION, params);
