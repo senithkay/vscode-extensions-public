@@ -57,7 +57,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
             ...prevFormData, name,
             repository: {
                 ...prevFormData.repository,
-                subPath: prevFormData.mode === "fromScratch" ? sanitizeFolderName(name) : prevFormData.repository.subPath
+                subPath: prevFormData.mode === "fromScratch" ? sanitizeFolderName(name) : prevFormData?.repository?.subPath
             }
         }));
     };

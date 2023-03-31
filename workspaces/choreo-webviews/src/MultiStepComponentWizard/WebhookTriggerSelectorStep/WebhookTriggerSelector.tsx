@@ -18,18 +18,46 @@ import { useEffect, useState } from 'react';
 import { ErrorBanner } from '../../Commons/ErrorBanner';
 import { ChoreoWebViewAPI } from '../../utilities/WebViewRpc';
 
-interface WebhookTriggerProps {
-    selectedTrigger: string | undefined;
-    setSelectedTrigger: (id: string | undefined) => void;
-}
+import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
+import { ComponentWizardState } from "../types";
+import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
+import styled from "@emotion/styled";
+
 
 const DEFAULT_ERROR_MSG = "Could not load the Webhook triggers.";
 const GET_TRIGGERS_PATH = "https://api.central.ballerina.io/2.0/registry/triggers";
 
-export function WebhookTriggerSelector(props: WebhookTriggerProps) {
-    const { selectedTrigger, setSelectedTrigger } = props;
+const StepContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 20px;
+`;
+
+export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardState>>) => {
+
+    const { formData, onFormDataChange } = props;
     const [triggers, setTriggers] = useState<Trigger[] | undefined>(undefined);
     const [error, setError] = useState<string | undefined>(undefined);
+
+    const setSelectedTrigger = (id: string | undefined) => {
+        onFormDataChange((prevFormData) => {
+            return {
+                ...prevFormData,
+                trigger: id
+            };
+        });
+    };
+
+    const setDefaultTrigger = () => {
+        if (!formData?.trigger && triggers && triggers.length) {
+            setSelectedTrigger(triggers[0].id);
+        }
+    };
+
+    useEffect(() => {
+        setDefaultTrigger();
+    }, [triggers]);
 
     useEffect(() => {
         // Attempts to fetch triggers via the Ballerina Extension Instance's language client
@@ -37,7 +65,6 @@ export function WebhookTriggerSelector(props: WebhookTriggerProps) {
         ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTriggers().then(async (response) => {
             if (response && response.central?.length) {
                 setTriggers(response.central);
-                setSelectedTrigger(response.central[0].id);
             } else {
                 fetch(GET_TRIGGERS_PATH, {
                     headers: {
@@ -47,7 +74,6 @@ export function WebhookTriggerSelector(props: WebhookTriggerProps) {
                     .then((data) => {
                         if (data && data.triggers?.length) {
                             setTriggers(data.triggers);
-                            setSelectedTrigger(data.triggers[0].id);
                         } else {
                             setError(DEFAULT_ERROR_MSG);
                         }
@@ -61,19 +87,37 @@ export function WebhookTriggerSelector(props: WebhookTriggerProps) {
     }, []);
 
     return (
-        <>
+        <StepContainer>
             <label htmlFor="trigger-dropdown">Select Trigger</label>
             {!triggers && !error && <VSCodeProgressRing />}
             {triggers && triggers.length > 0 && (
-                <VSCodeDropdown id="trigger-dropdown" onChange={(e: any) => { setSelectedTrigger(e.target.value) }}>
+                <VSCodeDropdown id="trigger-dropdown" value={formData?.trigger} onChange={(e: any) => { setSelectedTrigger(e.target.value) }}>
                     {triggers.map((trigger: Trigger) => (
-                        <VSCodeOption id={trigger.id} value={trigger.id} selected={trigger.id === selectedTrigger}>
+                        <VSCodeOption id={trigger.id} value={trigger.id} key={trigger.id}>
                             {trigger.displayAnnotation?.label || trigger.moduleName}
                         </VSCodeOption>
                     ))}
                 </VSCodeDropdown>
             )}
             {error && <ErrorBanner errorMsg={error} />}
-        </>
+        </StepContainer>
     );
 }
+
+
+export const TriggerConfigStep: Step<Partial<ComponentWizardState>> = {
+    title: 'Configure Webhook Trigger',
+    component: WebhookTriggerSelector,
+    shouldSkip: (formData) => {
+        return formData?.type !== ChoreoComponentType.Webhook;
+    },
+    validationRules: [
+        {
+            field: "trigger",
+            message: 'Please select a trigger type',
+            rule: async (value: any) => {
+                return value !== undefined;
+            }
+        }
+    ]
+};

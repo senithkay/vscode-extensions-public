@@ -15,12 +15,14 @@ import React from "react";
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
 import { ConfigureRepoStep } from "./ConfigureRepoStep/ConfigureRepoStep";
+import { TriggerConfigStep  } from "./WebhookTriggerSelectorStep/WebhookTriggerSelector";
+
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
 import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
-import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>, context: IChoreoWebViewContext) => {
     const { name, type, repository: { org, repo, branch, subPath }, description, accessibility, trigger  } = formData;
@@ -69,7 +71,7 @@ export const ComponentWizard: React.FC = () => {
     return (
         <Wizard 
             title="Create New Choreo Component"
-            steps={[ComponentTypeStep, ComponentDetailsStep, ConfigureRepoStep, ]}
+            steps={[ComponentTypeStep, ComponentDetailsStep, TriggerConfigStep, ConfigureRepoStep, ]}
             initialState={initialState}
             validationRules={[]}
             onSave={handleComponentCreation}

@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
+import React, { useEffect } from "react";
 import { VSCodeDivider, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
 import styled from "@emotion/styled";
@@ -49,6 +49,18 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
     // const allValidationRules: ValidationRule<T>[] = [steps.map((step) => step.validationRules).flat(), validationRules].flat();
     const currentStepValidationRules = steps[state.currentStep].validationRules;
 
+    useEffect(() => {
+        const validateStep = async () => {
+            setState((prevState) => { return { ...prevState, isStepValidating: true }; });
+            const [isStepValid, stepValidationErrors] = await validateForm(state.formData, currentStepValidationRules, context); // validate the current step data
+            // Update the form validity and validation errors in the state
+            setState((prevState) => {
+                return { ...prevState, isStepValid, stepValidationErrors, isStepValidating: false };
+            });
+        };
+        validateStep();
+    }, [state.currentStep]);
+
     const handleFormDataChange = async (formDataUpdater: (prevFormData: T) => T) => {
         // Do update the form data in the state
         setState((prevState) => {
@@ -64,10 +76,15 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
     };
 
     const handlePrevClick = async () => {
-        const currentStep = state.currentStep - 1;
-        setState((prevState) => ({ ...prevState, currentStep, isStepValidating: true }));
-        const [isStepValid, stepValidationErrors] = await validateForm(state.formData, steps[currentStep].validationRules, context);
-        setState((prevState) => ({ ...prevState, isStepValid, stepValidationErrors, isStepValidating: false }));
+        let prevStep = state.currentStep - 1;
+        setState((prevState) => {
+            const shouldSkip = steps[prevStep]?.shouldSkip;
+            const shouldSkipPrevStep = shouldSkip && shouldSkip(prevState.formData, context) && prevStep >= 0;
+            if (shouldSkipPrevStep) {
+                prevStep = prevStep - 1;
+            }
+            return ({ ...prevState, currentStep: prevStep });
+        });
     };
 
     const handleNextClick = async () => {
@@ -77,7 +94,15 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
             setState((prevState) => ({ ...prevState, isStepValid, stepValidationErrors, isStepValidating: false }));
             return;
         }
-        setState((prevState) => ({ ...prevState, currentStep: prevState.currentStep + 1, isStepValidating: false }));
+        setState((prevState) =>{
+            let nextStep = prevState.currentStep + 1;
+            const shouldSkip = steps[nextStep]?.shouldSkip;
+            const shouldSkipNextStep = shouldSkip && shouldSkip(prevState.formData, context);
+            if (shouldSkipNextStep) {
+                nextStep = nextStep + 1;
+            }
+            return ({ ...prevState, currentStep: nextStep, isStepValidating: false })
+        });
     };
 
     const handleSaveClick = async () => {
@@ -146,7 +171,7 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
                         {saveButtonText ? saveButtonText : "Save"}
                     </VSCodeButton>
                 )}
-                {state.isStepValidating && ( <VSCodeProgressRing /> )}
+                {(state.isStepValidating || state.isSaving ) && ( <VSCodeProgressRing /> )}
             </WizardActionsContainer>
         );
     };

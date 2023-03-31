@@ -112,7 +112,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                     <CardContainer>
                         <ComponentTypeCard
                             type={ChoreoComponentType.Service}
-                            label="REST API"
+                            label="Service"
                             description="Design, develop, test, and deploy your microservices"
                             formData={formData}
                             onFormDataChange={onFormDataChange}
@@ -193,7 +193,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         onChange={handleExistingComponentTypeChange}
                     >
                         {sourceType === "Ballerina" && (
-                            <VSCodeOption value={ChoreoComponentType.Service}>REST API</VSCodeOption>)}
+                            <VSCodeOption value={ChoreoComponentType.Service}>Service</VSCodeOption>)}
                         {sourceType === "Ballerina" && (
                             <VSCodeOption value={ChoreoComponentType.ScheduledTask}>Scheduled Trigger</VSCodeOption>)}
                         {sourceType === "Ballerina" && (

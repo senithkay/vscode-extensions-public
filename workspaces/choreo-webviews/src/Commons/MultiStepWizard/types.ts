@@ -34,6 +34,7 @@ export interface Step<T> {
     title: string;
     component: React.FC<StepProps<T>>;
     validationRules: ValidationRule<T>[];
+    shouldSkip?: (formData: T, context: IChoreoWebViewContext) => boolean;
 }
 
 export interface WizardProps<T> {
