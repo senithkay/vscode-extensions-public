@@ -33,6 +33,7 @@ import {
     getExprBodyFromTypeCastExpression,
     getFilteredMappings,
     getFilteredUnionOutputTypes,
+    getInnermostExpressionBody,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
@@ -174,14 +175,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     public getValueExpr(): STNode {
-        let valueExpr: STNode = this.queryExpr || this.value.expression;
-        if (STKindChecker.isLetExpression(valueExpr)) {
-            valueExpr = getExprBodyFromLetExpression(valueExpr);
-        }
-        if (STKindChecker.isTypeCastExpression(valueExpr)) {
-            valueExpr = getExprBodyFromTypeCastExpression(valueExpr);
-        }
-        return valueExpr;
+        return getInnermostExpressionBody(this.queryExpr || this.value.expression);
     }
 
     public updatePosition() {

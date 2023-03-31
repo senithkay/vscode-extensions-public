@@ -1348,6 +1348,21 @@ export function getFilteredMappings(mappings: FieldAccessToSpecificFied[], searc
 	});
 }
 
+export function getInnermostExpressionBody(expr: STNode): STNode {
+	let innerExpr =	expr;
+	if (STKindChecker.isLetExpression(innerExpr)) {
+		innerExpr = getExprBodyFromLetExpression(innerExpr);
+	}
+	if (STKindChecker.isTypeCastExpression(innerExpr)) {
+		innerExpr = getExprBodyFromTypeCastExpression(innerExpr);
+	}
+	return innerExpr;
+}
+
+export function isTypesIdentical(type1: Type, type2: Type): boolean {
+	return JSON.stringify(type1) === JSON.stringify(type2);
+}
+
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)
 		&& targetPort?.editableRecordField?.value

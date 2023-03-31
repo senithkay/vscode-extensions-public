@@ -35,14 +35,15 @@ import {
     enrichAndProcessType,
     getBalRecFieldName,
     getExprBodyFromLetExpression,
-    getExprBodyFromTypeCastExpression,
+    getInnermostExpressionBody,
     getInputNodeExpr,
     getInputPortsForExpr,
     getSearchFilteredOutput,
+    getTypeFromStore,
     getTypeName
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
-import { getResolvedType} from "../../utils/union-type-utils";
+import { getResolvedType, getSupportedUnionTypes } from "../../utils/union-type-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const UNION_TYPE_NODE_TYPE = "data-mapper-node-union-type";
@@ -189,18 +190,19 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 return getResolvedType(member, type);
             });
             this.hasInvalidTypeCast = !this.resolvedType;
+        } else {
+            const typeFromStore = getTypeFromStore(this.getValueExpr().position as NodePosition);
+            const typeName = getTypeName(typeFromStore);
+            const supportedTypes = getSupportedUnionTypes(this.typeIdentifier, this.typeDef);
+            this.resolvedType = !!typeFromStore
+                && typeFromStore.typeName !== '$CompilationError$'
+                && supportedTypes.includes(typeName)
+                && typeFromStore;
         }
     }
 
     public getValueExpr(): STNode {
-        let valueExpr: STNode = this.value.expression;
-        if (STKindChecker.isLetExpression(valueExpr)) {
-            valueExpr = getExprBodyFromLetExpression(valueExpr);
-        }
-        if (STKindChecker.isTypeCastExpression(valueExpr)) {
-            valueExpr = getExprBodyFromTypeCastExpression(valueExpr);
-        }
-        return valueExpr;
+        return getInnermostExpressionBody(this.value.expression);
     }
 
     public getTypeCastExpr(): STNode {
