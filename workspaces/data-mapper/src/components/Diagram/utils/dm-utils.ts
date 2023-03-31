@@ -798,18 +798,8 @@ export function getEnrichedRecordType(type: Type,
 		}
 	} else {
 		valueNode = node;
-		if (STKindChecker.isLetExpression(node)) {
-			nextNode = getExprBodyFromLetExpression(node);
-		} else if (STKindChecker.isTypeCastExpression(node)) {
-			nextNode = getExprBodyFromTypeCastExpression(node);
-		} else if (
-			STKindChecker.isQueryExpression(node) &&
-			STKindChecker.isMappingConstructor(node.selectClause.expression)
-		) {
-			nextNode = node.selectClause.expression;
-		} else {
-			nextNode = node;
-		}
+		nextNode = STKindChecker.isQueryExpression(node)
+			&& STKindChecker.isMappingConstructor(node.selectClause.expression) ? node.selectClause.expression : node;
 	}
 
 	editableRecordField = new EditableRecordField(type, valueNode, parentType);

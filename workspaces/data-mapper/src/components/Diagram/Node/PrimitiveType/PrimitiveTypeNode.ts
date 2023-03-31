@@ -29,6 +29,8 @@ import { OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constant
 import {
     getDefaultValue,
     getEnrichedRecordType,
+    getExprBodyFromLetExpression,
+    getExprBodyFromTypeCastExpression,
     getFilteredMappings,
     getFilteredUnionOutputTypes,
     getInputNodeExpr,
@@ -74,7 +76,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 }
             }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
+                this.getValueExpr(), this.context.selection.selectedST.stNode);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
@@ -169,6 +171,17 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             }];
 
         await this.context.applyModifications(modifications);
+    }
+
+    public getValueExpr(): STNode {
+        let valueExpr: STNode = this.queryExpr || this.value.expression;
+        if (STKindChecker.isLetExpression(valueExpr)) {
+            valueExpr = getExprBodyFromLetExpression(valueExpr);
+        }
+        if (STKindChecker.isTypeCastExpression(valueExpr)) {
+            valueExpr = getExprBodyFromTypeCastExpression(valueExpr);
+        }
+        return valueExpr;
     }
 
     public updatePosition() {

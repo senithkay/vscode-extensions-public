@@ -89,7 +89,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
                     this.typeDef = acceptedMembers[0];
                 }
             }
-            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
+            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.getValueExpr(),
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
             this.hasNoMatchingFields = hasNoMatchFound(originalTypeDef, valueEnrichedType);
@@ -211,7 +211,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     public getValueExpr(): STNode {
-        let valueExpr: STNode = this.value.expression;
+        let valueExpr: STNode = this.queryExpr || this.value.expression;
         if (STKindChecker.isLetExpression(valueExpr)) {
             valueExpr = getExprBodyFromLetExpression(valueExpr);
         }
