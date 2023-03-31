@@ -79,7 +79,8 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                         fontSize: '18px',
                         margin: '0px',
                         position: 'absolute',
-                        right: 2.5
+                        right: 2.5,
+                        marginLeft: '5px',
                     }}
                 />
             </Tooltip>
