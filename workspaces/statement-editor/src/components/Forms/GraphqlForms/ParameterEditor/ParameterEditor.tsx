@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { LiteExpressionEditor, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteTextField, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
 import { PrimaryButton, SecondaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     DefaultableParam,
@@ -47,7 +47,7 @@ export function ParameterEditor(props: ParameterEditorProps) {
 
     const [segmentType, setSegmentType] = useState<string>(param?.typeName?.source.trim() || "string");
     const [segmentName, setSegmentName] = useState<string>(param?.paramName?.value.trim() || "name");
-    const [defaultValue, setDefaultValue] = useState<string>(param && STKindChecker.isDefaultableParam(param) && param?.expression?.source.trim() || "");
+    const [defaultValue, setDefaultValue] = useState<string>((param && STKindChecker.isDefaultableParam(param) && param?.expression?.source.trim()) || "");
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
@@ -124,6 +124,7 @@ export function ParameterEditor(props: ParameterEditorProps) {
 
     const handleDefaultValueChange = (value: string) => {
         setDefaultValue(value);
+        const focusedModel = (param && STKindChecker.isDefaultableParam(param)) ? param.expression : undefined;
         onChange(
             {
                 id,
@@ -131,10 +132,47 @@ export function ParameterEditor(props: ParameterEditorProps) {
                 name: segmentName,
                 defaultValue: value
             },
-            param,
+            focusedModel,
             value
         )
     }
+
+    const getDefaultComponentDiagnostic = () => {
+        if (param) {
+            if (currentComponentName === "DefaultValue" || currentComponentName === "") {
+                if (STKindChecker.isDefaultableParam(param) && param.expression?.viewState?.diagnosticsInRange?.length > 0) {
+                    return param.expression?.viewState?.diagnosticsInRange;
+                } else if (param.parent?.viewState?.diagnosticsInRange?.length > 0) {
+                    return param.parent?.viewState?.diagnosticsInRange;
+                } else if (param.syntaxDiagnostics.length > 0) {
+                    return param.syntaxDiagnostics;
+                } else {
+                    return syntaxDiag;
+                }
+            }
+        } else {
+            return syntaxDiag;
+        }
+    }
+
+    const getNameComponentDiagnostic = () => {
+        if (param) {
+            if (currentComponentName === "Name" || currentComponentName === "") {
+                if (param.paramName?.viewState?.diagnosticsInRange?.length > 0) {
+                    return param.paramName?.viewState?.diagnosticsInRange;
+                } else if (param.parent?.viewState?.diagnosticsInRange?.length > 0) {
+                    return param.parent?.viewState?.diagnosticsInRange;
+                } else if (param.syntaxDiagnostics.length > 0) {
+                    return param.syntaxDiagnostics;
+                } else {
+                    return syntaxDiag;
+                }
+            }
+        } else {
+            return syntaxDiag;
+        }
+    }
+
 
     return (
         <div className={classes.paramContainer} >
@@ -145,46 +183,32 @@ export function ParameterEditor(props: ParameterEditorProps) {
                         type={segmentType}
                         onChange={handleOnTypeChange}
                         isLoading={false}
-                        recordCompletions={completions ? completions : []} // TODO handle empty completions from top level
+                        recordCompletions={completions ? completions : []}
                         createNew={createConstruct}
-                        diagnostics={syntaxDiag?.filter(diag => diag?.message.includes("unknown type"))}
+                        diagnostics={param?.typeName?.viewState?.diagnosticsInRange?.length > 0 ?
+                            param?.typeName?.viewState?.diagnosticsInRange :
+                            (param?.viewState?.diagnosticsInRange)}
                         isGraphqlForm={true}
                     />
                 </div>
                 <div className={classes.paramNameWrapper}>
                     <FieldTitle title='Name' optional={false} />
-                    <LiteExpressionEditor
-                        testId="param-name"
-                        diagnostics={
-                            (syntaxDiag && currentComponentName === "Name" && syntaxDiag) ||
-                            param?.paramName?.viewState?.diagnosticsInRange
-                        }
-                        defaultValue={segmentName}
+                    <LiteTextField
+                        value={segmentName}
                         onChange={handleOnNameChange}
+                        diagnostics={getNameComponentDiagnostic()}
+                        isLoading={false}
                         onFocus={onNameEditorFocus}
-                        disabled={false}
-                        completions={completions}
                     />
                 </div>
                 <div className={classes.paramNameWrapper}>
                     <FieldTitle title='Default Value' optional={true} />
-                    <LiteExpressionEditor
-                        testId="param-default-val"
-                        diagnostics={
-                            (currentComponentName === "DefaultValue" && syntaxDiag)
-                            || param && STKindChecker.isDefaultableParam(param) && param.expression?.viewState?.diagnosticInRange
-                            || []
-                        }
-                        defaultValue={
-                            (param && STKindChecker.isDefaultableParam(param) && param.expression?.source.trim())
-                            || ""
-                        }
+                    <LiteTextField
                         onChange={handleDefaultValueChange}
+                        isLoading={false}
+                        diagnostics={getDefaultComponentDiagnostic()}
+                        value={defaultValue}
                         onFocus={onDefaultValueEditorFocus}
-                        disabled={false}
-                        completions={
-                            currentComponentName === "DefaultValue" && completions
-                        }
                     />
                 </div>
             </div>
@@ -197,11 +221,14 @@ export function ParameterEditor(props: ParameterEditorProps) {
                 <PrimaryButton
                     dataTestId={"param-save-btn"}
                     text={isEdit ? "Update" : " Add"}
-                    disabled={
-                        (syntaxDiag?.length > 0)
-                        || (param?.viewState?.diagnosticsInRange?.length > 0)
+                    disabled={syntaxDiag?.length > 0
+                        || param?.typeName?.viewState?.diagnosticsInRange?.length > 0
+                        || param?.paramName?.viewState?.diagnosticsInRange?.length > 0
+                        || (param && STKindChecker.isDefaultableParam(param) && param?.expression?.viewState?.diagnosticInRange?.length > 0)
+                        || param?.viewState?.diagnosticsInRange?.length > 0
                         || segmentName?.length === 0
                         || segmentType?.length === 0
+                        || param?.parent?.viewState?.diagnosticsInRange?.length > 0
                     }
                     fullWidth={false}
                     onClick={handleOnSave}

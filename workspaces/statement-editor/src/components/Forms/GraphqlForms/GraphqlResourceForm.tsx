@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { LiteExpressionEditor, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteTextField, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createResource,
     getSource,
@@ -75,7 +75,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     // States related to component model
     const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
-    const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
+    const [resourceName, setResourceName] = useState<string>(model ? getResourcePath(model?.relativeResourcePath).trim() : "");
+    // const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
 
     // States related to syntax diagnostics
@@ -259,8 +260,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
         }
     });
 
+    // TODO : check if we can remove this useeffect
     useEffect(() => {
-
         if (currentComponentName === "") {
             const editParams: FunctionParameter[] = model?.functionSignature.parameters
                 .filter((param) => !STKindChecker.isCommaToken(param))
@@ -274,24 +275,25 @@ export function GraphqlResourceForm(props: FunctionProps) {
         }
     }, [model]);
 
-    const getResourcePathDiagnostics = () => {
-        const diagPath = model.relativeResourcePath?.find(
-            resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
-
-        let resourcePathDiagnostics = [];
-
-        if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
-            resourcePathDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.viewState?.diagnosticsInRange || [];
-            resourcePathDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.typeDescriptor?.viewState?.diagnosticsInRange || [];
-        } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
-            resourcePathDiagnostics = diagPath?.viewState?.diagnostics || [];
-        }
-
-        return resourcePathDiagnostics;
-    };
+    // const getResourcePathDiagnostics = () => {
+    //     const diagPath = model.relativeResourcePath?.find(
+    //         resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
+    //
+    //     let resourcePathDiagnostics = [];
+    //
+    //     if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
+    //         resourcePathDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.viewState?.diagnosticsInRange || [];
+    //         resourcePathDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.typeDescriptor?.viewState?.diagnosticsInRange || [];
+    //     } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
+    //         resourcePathDiagnostics = diagPath?.viewState?.diagnostics || [];
+    //     }
+    //
+    //     return resourcePathDiagnostics;
+    // };
 
     const handlePathChange = async (value: string) => {
-        setShouldUpdatePath(false);
+        setResourceName(value);
+        // setShouldUpdatePath(false);
         // setResourcePath(value);
         await handleResourceParamChange(
             model.functionName.value,
@@ -312,7 +314,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
         returnStr: string,
         stModel?: STNode,
         currentValue?: string) => {
-        const pathString = pathStr ? pathStr : ".";
+        const pathString = pathStr ? pathStr : "";
         const codeSnippet = getSource(
             updateResourceSignature(resMethod, pathString, paramStr, returnStr, targetPosition));
         const position = model ? ({
@@ -345,24 +347,41 @@ export function GraphqlResourceForm(props: FunctionProps) {
         }
     }
 
+    const getPathDiagnostic = () => {
+        if (currentComponentSyntaxDiag){
+            // TODO : we could reorder diagnostics here based on the code - "BCE0600" used for invalid token (if reserved word)
+            return currentComponentSyntaxDiag;
+        } else {
+            const diagPath = model.relativeResourcePath?.find(
+                resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
+
+            let resourcePathDiagnostics = [];
+
+            if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
+                // TODO : check the logic here
+                resourcePathDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.viewState?.diagnosticsInRange || [];
+                resourcePathDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.typeDescriptor?.viewState?.diagnosticsInRange || [];
+            } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
+                resourcePathDiagnostics = diagPath?.viewState?.diagnostics;
+            }
+
+            return resourcePathDiagnostics;
+        }
+    }
+
     const formContent = () => {
         return (
             <>
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title="Path" optional={false}/>
-                        <LiteExpressionEditor
-                            testId="resource-path"
-                            diagnostics={
-                                (currentComponentName === "Path" && currentComponentSyntaxDiag)
-                                || getResourcePathDiagnostics()
-                            }
-                            defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
-                            externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}
+                        <LiteTextField
+                            value={resourceName}
                             onChange={handlePathChange}
-                            completions={completions}
                             onFocus={onPathFocus}
-                            disabled={currentComponentName !== "Path" && isEditInProgress}
+                            isLoading={currentComponentName !== "Path" && isEditInProgress}
+                            diagnostics={(currentComponentName === "Path")
+                            && getPathDiagnostic()}
                         />
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <ConfigPanelSection title={"Parameters"}>

@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { LiteExpressionEditor, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteExpressionEditor, LiteTextField, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createRemoteFunction,
     getSource, updateRemoteFunctionSignature,
@@ -306,16 +306,26 @@ export function GraphqlMutationForm(props: FunctionProps) {
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title="Name" optional={false}/>
-                        <LiteExpressionEditor
-                            testId="method-name"
+                        {/*<LiteExpressionEditor*/}
+                        {/*    testId="method-name"*/}
+                        {/*    diagnostics={*/}
+                        {/*        (currentComponentName === "MethodName" && currentComponentSyntaxDiag)*/}
+                        {/*        || model?.functionName?.viewState?.diagnosticsInRange*/}
+                        {/*    }*/}
+                        {/*    defaultValue={functionName}*/}
+                        {/*    onChange={handleNameChange}*/}
+                        {/*    onFocus={onNameFocus}*/}
+                        {/*    disabled={currentComponentName !== "MethodName" && isEditInProgress}*/}
+                        {/*/>*/}
+                        <LiteTextField
+                            value={functionName}
+                            onChange={handleNameChange}
+                            onFocus={onNameFocus}
+                            isLoading={currentComponentName !== "MethodName" && isEditInProgress}
                             diagnostics={
                                 (currentComponentName === "MethodName" && currentComponentSyntaxDiag)
                                 || model?.functionName?.viewState?.diagnosticsInRange
                             }
-                            defaultValue={functionName}
-                            onChange={handleNameChange}
-                            onFocus={onNameFocus}
-                            disabled={currentComponentName !== "MethodName" && isEditInProgress}
                         />
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <ConfigPanelSection title={"Parameters"}>
