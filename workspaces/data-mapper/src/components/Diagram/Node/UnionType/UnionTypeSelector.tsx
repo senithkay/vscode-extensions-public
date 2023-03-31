@@ -14,8 +14,9 @@
 import React from "react";
 
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { IdentifierToken } from "@wso2-enterprise/syntax-tree";
+import { IdentifierToken, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { getSupportedUnionTypes } from "../../utils/union-type-utils";
 import { TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -23,12 +24,14 @@ import { useStyles } from "./style";
 import { UnionTypesList } from "./UnionTypesList";
 
 export interface UnionTypeSelectorProps {
+    context: IDataMapperContext;
     typeIdentifier: TypeDescriptor | IdentifierToken;
     typeDef: Type;
+    getValueExpr: () => STNode;
 }
 
 export function UnionTypeSelector(props: UnionTypeSelectorProps) {
-    const { typeIdentifier, typeDef } = props;
+    const { typeIdentifier, context, typeDef, getValueExpr } = props;
     const supportedUnionTypes = getSupportedUnionTypes(typeIdentifier, typeDef);
     const classes = useStyles();
 
@@ -39,8 +42,9 @@ export function UnionTypeSelector(props: UnionTypeSelectorProps) {
         >
             <span>Types are ambiguous. Please select a type to continue.</span>
             <UnionTypesList
+                context={context}
                 unionTypes={supportedUnionTypes}
-                onClickType={undefined}
+                getValueExpr={getValueExpr}
             />
         </div>
     );

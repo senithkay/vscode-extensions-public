@@ -11,26 +11,46 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useState } from "react";
 import { VscSymbolStructure } from "react-icons/vsc";
 
-import { ListItem, ListItemText, Typography } from "@material-ui/core";
+import { CircularProgress, ListItem, ListItemText, Typography } from "@material-ui/core";
 import { StatementEditorHint } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+
+import { IDataMapperContext} from "../../../../utils/DataMapperContext/DataMapperContext";
+import { getModification } from "../../utils/modifications";
 
 import { useStyles } from "./style";
 
 export interface UnionTypeListItemProps {
     key: number;
+    context: IDataMapperContext;
     type: string;
-    onClickType: (type: string) => void;
+    getValueExpr: () => STNode;
 }
 
 export function UnionTypeListItem(props: UnionTypeListItemProps) {
-    const { key, type, onClickType } = props;
+    const { key, context, type, getValueExpr } = props;
+    const { applyModifications } = context;
+    const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
     const classes = useStyles();
 
-    const onClickOnListItem = () => {
-        onClickType(type);
+    const onClickOnListItem = async () => {
+        setIsAddingTypeCast(true)
+        try {
+            const valueExprPosition: NodePosition = getValueExpr().position;
+
+            const modification = [getModification(`<${type}>`, {
+                startLine: valueExprPosition.startLine,
+                startColumn: valueExprPosition.startColumn,
+                endLine: valueExprPosition.startLine,
+                endColumn: valueExprPosition.startColumn
+            })];
+            await applyModifications(modification);
+        } finally {
+            setIsAddingTypeCast(false);
+        }
     };
 
     return (
@@ -45,9 +65,13 @@ export function UnionTypeListItem(props: UnionTypeListItemProps) {
                 className={classes.unionTypeListItem}
                 disableRipple={true}
             >
-                <VscSymbolStructure
-                    style={{ minWidth: '22px', textAlign: 'left', color: '#000' }}
-                />
+                {isAddingTypeCast ? (
+                    <CircularProgress size={16} />
+                ) : (
+                    <VscSymbolStructure
+                        style={{ minWidth: '22px', textAlign: 'left', color: '#000' }}
+                    />
+                )}
                 <ListItemText
                     data-testid="suggestion-value"
                     style={{ flex: 'none', maxWidth: '80%' }}

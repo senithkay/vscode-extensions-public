@@ -15,7 +15,7 @@ import React, { useState } from "react";
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { IdentifierToken } from "@wso2-enterprise/syntax-tree";
+import { IdentifierToken, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
@@ -34,11 +34,12 @@ export interface UnionTypeTreeWidgetProps {
     typeIdentifier: TypeDescriptor | IdentifierToken;
     typeDef: Type;
     valueLabel?: string;
+    getValueExpr: () => STNode;
     getPort: (portId: string) => RecordFieldPortModel;
 }
 
 export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
-    const { id, engine, typeName, typeIdentifier, typeDef, valueLabel, getPort } = props;
+    const { id, engine, context, typeName, typeIdentifier, typeDef, valueLabel, getValueExpr, getPort } = props;
     const classes = useStyles();
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -93,8 +94,10 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
             </TreeHeader>
             <TreeBody>
                 <UnionTypeSelector
+                    context={context}
                     typeIdentifier={typeIdentifier}
                     typeDef={typeDef}
+                    getValueExpr={getValueExpr}
                 />
             </TreeBody>
         </TreeContainer>

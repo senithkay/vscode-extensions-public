@@ -14,17 +14,21 @@
 import React from "react";
 
 import { List } from "@material-ui/core";
+import { STNode } from "@wso2-enterprise/syntax-tree";
+
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 
 import { useStyles } from "./style";
 import { UnionTypeListItem } from "./UnionTypeListItem";
 
 export interface UnionTypesListProps {
     unionTypes: string[];
-    onClickType: (type: string) => void;
+    context: IDataMapperContext;
+    getValueExpr: () => STNode;
 }
 
 export function UnionTypesList(props: UnionTypesListProps) {
-    const { unionTypes, onClickType } = props;
+    const { unionTypes, context, getValueExpr } = props;
     const classes = useStyles();
 
     return (
@@ -34,8 +38,9 @@ export function UnionTypesList(props: UnionTypesListProps) {
                     unionTypes.map((type: string, index: number) => (
                         <UnionTypeListItem
                             key={index}
+                            context={context}
                             type={type}
-                            onClickType={onClickType}
+                            getValueExpr={getValueExpr}
                         />
                     ))
                 }

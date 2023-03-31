@@ -26,6 +26,7 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import {
     getBalRecFieldName,
     getExprBodyFromLetExpression,
+    getExprBodyFromTypeCastExpression,
     getSearchFilteredOutput,
     getTypeName
 } from "../../utils/dm-utils";
@@ -90,6 +91,16 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 return getResolvedType(member, type);
             });
         }
+    }
+
+    public getValueExpr(): STNode {
+        let valueExpr: STNode = this.value.expression;
+        if (STKindChecker.isLetExpression(valueExpr)) {
+            valueExpr = getExprBodyFromLetExpression(valueExpr);
+        } else if (STKindChecker.isTypeCastExpression(valueExpr)) {
+            valueExpr = getExprBodyFromTypeCastExpression(valueExpr);
+        }
+        return valueExpr;
     }
 
     async deleteField(field: STNode) {
