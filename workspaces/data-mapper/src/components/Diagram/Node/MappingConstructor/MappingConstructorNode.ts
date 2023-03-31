@@ -221,7 +221,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         let valueExpr: STNode = this.value.expression;
         if (STKindChecker.isLetExpression(valueExpr)) {
             valueExpr = getExprBodyFromLetExpression(valueExpr);
-        } else if (STKindChecker.isTypeCastExpression(valueExpr)) {
+        }
+        if (STKindChecker.isTypeCastExpression(valueExpr)) {
             valueExpr = getExprBodyFromTypeCastExpression(valueExpr);
         }
         return valueExpr;

@@ -15,15 +15,18 @@ import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
 import { DiagramEngine } from '@projectstorm/react-diagrams-core';
-import { STKindChecker } from '@wso2-enterprise/syntax-tree';
+import { PrimitiveBalType } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 import "reflect-metadata";
 import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from "../../Port";
 import {
 	FUNCTION_BODY_QUERY,
+	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	UNION_TYPE_TARGET_PORT_PREFIX
 } from '../../utils/constants';
+import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import {
@@ -41,14 +44,16 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 
 	generateReactWidget(event: { model: UnionTypeNode; }): JSX.Element {
 		let valueLabel: string;
+		const resolvedType = event.model.resolvedType;
 		if (STKindChecker.isSelectClause(event.model.value)
 			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
 		{
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
+		const mappingConstruct = event.model.getValueExpr();
 		return (
 			<>
-				{!event.model.resolvedType && (
+				{!resolvedType && (
 					<UnionTypeTreeWidget
 						id={`${UNION_TYPE_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 						engine={this.engine}
@@ -60,6 +65,21 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						getValueExpr={() => event.model.getValueExpr()}
 						getTypeCastExpr={() => event.model.getTypeCastExpr()}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+					/>
+				)}
+				{resolvedType && resolvedType.typeName === PrimitiveBalType.Record && (
+					<EditableMappingConstructorWidget
+						engine={this.engine}
+						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
+						editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
+						typeName={event.model.typeName}
+						value={mappingConstruct}
+						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+						context={event.model.context}
+						mappings={event.model.mappings}
+						valueLabel={valueLabel}
+						deleteField={(node: STNode) => event.model.deleteField(node)}
+						originalTypeName={event.model.typeDef.originalTypeName}
 					/>
 				)}
 			</>

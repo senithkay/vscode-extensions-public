@@ -11,25 +11,37 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ExpressionFunctionBody,
     IdentifierToken,
+    NodePosition,
     SelectClause,
     STKindChecker,
     STNode,
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
+import { ExpressionLabelModel } from "../../Label";
+import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
+import { RecordFieldPortModel } from "../../Port";
 import {
+    MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+    UNION_TYPE_TARGET_PORT_PREFIX
+} from "../../utils/constants";
+import {
+    enrichAndProcessType,
     getBalRecFieldName,
     getExprBodyFromLetExpression,
     getExprBodyFromTypeCastExpression,
+    getInputNodeExpr,
+    getInputPortsForExpr,
     getSearchFilteredOutput,
     getTypeName
 } from "../../utils/dm-utils";
+import { filterDiagnostics } from "../../utils/ls-utils";
 import { getResolvedType} from "../../utils/union-type-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -64,10 +76,38 @@ export class UnionTypeNode extends DataMapperNodeModel {
         this.resolveType();
         if (this.resolvedType) {
             this.typeDef = getSearchFilteredOutput(this.resolvedType);
-        }
-
-        if (this.typeDef) {
-            // TODO: Handle init ports
+            if (this.typeDef) {
+                const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.value.expression,
+                    this.context.selection.selectedST.stNode);
+                this.typeDef = type;
+                this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
+                const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
+                    MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, false, valueEnrichedType);
+                if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
+                    this.recordField = valueEnrichedType;
+                    if (this.recordField.childrenTypes.length) {
+                        this.recordField.childrenTypes.forEach((field) => {
+                            this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
+                                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
+                                this.context.collapsedFields, parentPort.collapsed);
+                        });
+                    }
+                } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
+                    && STKindChecker.isSelectClause(this.value)
+                ) {
+                    // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
+                    this.recordField = valueEnrichedType.elements[0].member;
+                    if (this.recordField.childrenTypes.length) {
+                        this.recordField.childrenTypes.forEach((field) => {
+                            this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
+                                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
+                                this.context.collapsedFields, parentPort.collapsed, true);
+                        });
+                    }
+                }
+            }
+        } else {
+            this.addPortsForHeaderField(this.typeDef, this.rootName, "IN", UNION_TYPE_TARGET_PORT_PREFIX);
         }
     }
 
@@ -78,7 +118,64 @@ export class UnionTypeNode extends DataMapperNodeModel {
 
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
         mappings.forEach((mapping) => {
-            // TODO: Handle create links
+            const { fields, value, otherVal } = mapping;
+            const field = fields[fields.length - 1];
+            if (!value || !value.source) {
+                // Unsupported mapping
+                return;
+            }
+            const inputNode = getInputNodeExpr(value, this);
+            let inPort: RecordFieldPortModel;
+            if (inputNode) {
+                inPort = getInputPortsForExpr(inputNode, value);
+            }
+            let outPort: RecordFieldPortModel;
+            let mappedOutPort: RecordFieldPortModel;
+            if (!this.resolvedType) {
+                outPort = this.getPort(`${UNION_TYPE_TARGET_PORT_PREFIX}.IN`) as RecordFieldPortModel;
+                mappedOutPort = outPort;
+            } else {
+                // [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+            }
+            const diagnostics = filterDiagnostics(
+                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
+            const lm = new DataMapperLinkModel(value, diagnostics, true);
+            if (inPort && mappedOutPort) {
+                const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
+                const keepDefault = ((mappedField && !mappedField?.name
+                        && mappedField.typeName !== PrimitiveBalType.Array
+                        && mappedField.typeName !== PrimitiveBalType.Record)
+                    || !STKindChecker.isMappingConstructor(this.value.expression)
+                );
+                lm.addLabel(new ExpressionLabelModel({
+                    value: otherVal?.source || value.source,
+                    valueNode: otherVal || value,
+                    context: this.context,
+                    link: lm,
+                    field: STKindChecker.isSpecificField(field)
+                        ? field.valueExpr
+                        : field,
+                    editorLabel: STKindChecker.isSpecificField(field)
+                        ? field.fieldName.value as string
+                        : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
+                    deleteLink: () => this.deleteField(field, keepDefault),
+                }));
+                lm.setTargetPort(mappedOutPort);
+                lm.setSourcePort(inPort);
+                inPort.addLinkedPort(mappedOutPort);
+                lm.registerListener({
+                    selectionChanged(event) {
+                        if (event.isSelected) {
+                            inPort.fireEvent({}, "link-selected");
+                            mappedOutPort.fireEvent({}, "link-selected");
+                        } else {
+                            inPort.fireEvent({}, "link-unselected");
+                            mappedOutPort.fireEvent({}, "link-unselected");
+                        }
+                    },
+                })
+                this.getModel().addAll(lm);
+            }
         });
     }
 
@@ -114,7 +211,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
         return STKindChecker.isTypeCastExpression(valueExpr) ? valueExpr : undefined;
     }
 
-    async deleteField(field: STNode) {
+    async deleteField(field: STNode, keepDefault?: boolean) {
         // TODO: Handle delete
     }
 

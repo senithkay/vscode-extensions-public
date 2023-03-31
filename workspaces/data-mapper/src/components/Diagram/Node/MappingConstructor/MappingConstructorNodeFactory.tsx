@@ -38,9 +38,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 		{
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
-		const mappingConstruct = STKindChecker.isLetExpression(event.model.value.expression)
-			? getExprBodyFromLetExpression(event.model.value.expression)
-			: event.model.value.expression;
+		const mappingConstruct = event.model.getValueExpr();
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
