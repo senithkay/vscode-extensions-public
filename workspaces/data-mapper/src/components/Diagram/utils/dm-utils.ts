@@ -60,6 +60,7 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
+import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
@@ -140,6 +141,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	} else if (isMappedToSelectClauseExprConstructor(targetPort)) {
 		const exprPosition = (targetPort.editableRecordField.value as QueryExpression)
 			.selectClause.expression.position as NodePosition;
+		return updateValueExprSource(rhs, exprPosition, applyModifications);
+	} else if (isMappedToRootUnionType(targetPort)) {
+		const exprPosition = (targetPort.getParent() as UnionTypeNode).getValueExpr().position as NodePosition;
 		return updateValueExprSource(rhs, exprPosition, applyModifications);
 	}
 
@@ -1363,6 +1367,12 @@ function isMappedToRootMappingConstructor(targetPort: RecordFieldPortModel): boo
 		&& targetPort.field.typeName === PrimitiveBalType.Record
 		&& targetPort?.editableRecordField?.value
 		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value);
+}
+
+function isMappedToRootUnionType(targetPort: RecordFieldPortModel): boolean {
+	return !targetPort.parentModel
+		&& targetPort.field.typeName === PrimitiveBalType.Union
+		&& !targetPort?.editableRecordField;
 }
 
 function isMappedToExprFuncBody(targetPort: RecordFieldPortModel, selectedSTNode: STNode): boolean {
