@@ -45,6 +45,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 	generateReactWidget(event: { model: UnionTypeNode; }): JSX.Element {
 		let valueLabel: string;
 		const resolvedType = event.model.resolvedType;
+		const shouldRenderUnionType = event.model.shouldRenderUnionType();
 		if (STKindChecker.isSelectClause(event.model.value)
 			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
 		{
@@ -53,7 +54,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 		const mappingConstruct = event.model.getValueExpr();
 		return (
 			<>
-				{!resolvedType && (
+				{shouldRenderUnionType && (
 					<UnionTypeTreeWidget
 						id={`${UNION_TYPE_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 						engine={this.engine}
@@ -62,12 +63,13 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						typeIdentifier={event.model.typeIdentifier}
 						typeDef={event.model.typeDef}
 						hasInvalidTypeCast={event.model.hasInvalidTypeCast}
+						hasResolvedType={!!resolvedType}
 						getValueExpr={() => event.model.getValueExpr()}
 						getTypeCastExpr={() => event.model.getTypeCastExpr()}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 					/>
 				)}
-				{resolvedType && resolvedType.typeName === PrimitiveBalType.Record && (
+				{!shouldRenderUnionType && resolvedType && resolvedType.typeName === PrimitiveBalType.Record && (
 					<EditableMappingConstructorWidget
 						engine={this.engine}
 						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}

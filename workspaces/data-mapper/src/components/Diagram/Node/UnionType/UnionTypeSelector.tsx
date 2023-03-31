@@ -38,18 +38,12 @@ export function UnionTypeSelector(props: UnionTypeSelectorProps) {
     const classes = useStyles();
 
     return (
-        <div
-            className={classes.selectTypeWrap}
-            data-testid={"union-type-selector-list"}
-        >
-            <span>Types are ambiguous. Please select a type to continue.</span>
-            <UnionTypesList
-                context={context}
-                unionTypes={supportedUnionTypes}
-                hasInvalidTypeCast={hasInvalidTypeCast}
-                getValueExpr={getValueExpr}
-                getTypeCastExpr={getTypeCastExpr}
-            />
-        </div>
+        <UnionTypesList
+            context={context}
+            unionTypes={supportedUnionTypes}
+            hasInvalidTypeCast={hasInvalidTypeCast}
+            getValueExpr={getValueExpr}
+            getTypeCastExpr={getTypeCastExpr}
+        />
     );
 }

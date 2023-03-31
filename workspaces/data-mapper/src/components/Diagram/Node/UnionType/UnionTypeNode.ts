@@ -75,7 +75,8 @@ export class UnionTypeNode extends DataMapperNodeModel {
         this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
         this.typeName = getTypeName(this.typeDef);
         this.resolveType();
-        if (this.resolvedType) {
+        const renderResolvedTypes = !this.shouldRenderUnionType();
+        if (this.resolvedType && renderResolvedTypes) {
             this.typeDef = getSearchFilteredOutput(this.resolvedType);
             if (this.typeDef) {
                 const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.value.expression,
@@ -132,7 +133,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             }
             let outPort: RecordFieldPortModel;
             let mappedOutPort: RecordFieldPortModel;
-            if (!this.resolvedType) {
+            if (this.shouldRenderUnionType()) {
                 outPort = this.getPort(`${UNION_TYPE_TARGET_PORT_PREFIX}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
             } else {
@@ -199,6 +200,12 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 && supportedTypes.includes(typeName)
                 && typeFromStore;
         }
+    }
+
+    public shouldRenderUnionType() {
+        return !this.resolvedType
+            || !STKindChecker.isMappingConstructor(this.getValueExpr()) && this.resolvedType.typeName === PrimitiveBalType.Record
+            || !STKindChecker.isListConstructor(this.getValueExpr()) && this.resolvedType.typeName === PrimitiveBalType.Array;
     }
 
     public getValueExpr(): STNode {

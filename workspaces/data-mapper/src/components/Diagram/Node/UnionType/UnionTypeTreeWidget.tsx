@@ -35,6 +35,7 @@ export interface UnionTypeTreeWidgetProps {
     typeDef: Type;
     valueLabel?: string;
     hasInvalidTypeCast: boolean;
+    hasResolvedType: boolean;
     getValueExpr: () => STNode;
     getTypeCastExpr: () => STNode;
     getPort: (portId: string) => RecordFieldPortModel;
@@ -50,6 +51,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         typeDef,
         valueLabel,
         hasInvalidTypeCast,
+        hasResolvedType,
         getValueExpr,
         getTypeCastExpr,
         getPort
@@ -106,16 +108,24 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                     {label}
                 </span>
             </TreeHeader>
-            <TreeBody>
-                <UnionTypeSelector
-                    context={context}
-                    typeIdentifier={typeIdentifier}
-                    typeDef={typeDef}
-                    hasInvalidTypeCast={hasInvalidTypeCast}
-                    getValueExpr={getValueExpr}
-                    getTypeCastExpr={getTypeCastExpr}
-                />
-            </TreeBody>
+            {!hasResolvedType && (
+                <TreeBody>
+                    <div
+                        className={classes.selectTypeWrap}
+                        data-testid={"union-type-selector-list"}
+                    >
+                        <span>Types are ambiguous. Please select a type to continue.</span>
+                        <UnionTypeSelector
+                            context={context}
+                            typeIdentifier={typeIdentifier}
+                            typeDef={typeDef}
+                            hasInvalidTypeCast={hasInvalidTypeCast}
+                            getValueExpr={getValueExpr}
+                            getTypeCastExpr={getTypeCastExpr}
+                        />
+                    </div>
+                </TreeBody>
+            )}
         </TreeContainer>
     );
 }
