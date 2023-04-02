@@ -66,8 +66,15 @@ export function DiagramViewManager(props: EditorProps) {
     const classes = useGeneratorStyles();
 
     const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [history, historyPush, historyPop, historyClearAndPopulateWith, historySelect, historyClear, updateCurrentEntry] =
-        useComponentHistory();
+    const [
+        history,
+        historyPush,
+        historyPop,
+        historyClearAndPopulateWith,
+        historySelect,
+        historyClear,
+        updateCurrentEntry
+    ] = useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();

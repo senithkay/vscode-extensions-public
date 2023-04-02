@@ -116,29 +116,50 @@ export function NavigationBar(props: NavigationBarProps) {
         )
     }
 
-    const renderWorkspaceNameComponent = () => (
-        <div className="btn-container" onClick={projectList && historyReset} >
-            {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
-            <span className="icon-text">{`${projectList ? workspaceName : '.'}`}</span>
-        </div>
-    );
+    const renderWorkspaceNameComponent = () => {
+        const handleOnClick = () => {
+            if (projectList && currentProject) {
+                historyReset();
+            }
+        }
 
-    const buttonsDisabled = !projectList || history.length === 0;
+        return (
+            <div className="btn-container" onClick={handleOnClick} >
+                {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
+                <span className="icon-text">{`${projectList ? workspaceName : '.'}`}</span>
+            </div>
+        )
+    };
+
 
     const renderNavigationButtons = () => {
+        const buttonsDisabled = !projectList || !currentProject || history.length === 0;
+
+        const handleBackButtonClick = () => {
+            if (!buttonsDisabled) {
+                historyPop();
+            }
+        }
+
+        const handleHomeButtonClick = () => {
+            if (!buttonsDisabled) {
+                historyReset();
+            }
+        }
+
         return (
             <>
                 <div
                     className="btn-container"
                     aria-disabled={buttonsDisabled}
-                    onClick={!buttonsDisabled && historyPop}
+                    onClick={handleBackButtonClick}
                 >
                     <ArrowBack className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
                 <div
                     className="btn-container"
                     aria-disabled={buttonsDisabled}
-                    onClick={!buttonsDisabled && historyReset}
+                    onClick={handleHomeButtonClick}
                 >
                     <Home className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
