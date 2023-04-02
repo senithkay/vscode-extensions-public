@@ -166,16 +166,9 @@ export class WebViewRpc {
         });
 
         this._messenger.onRequest(PushLocalComponentsToChoreo, async (projectId: string): Promise<void> => {
-            return window.withProgress({
-                title: `Pushing local components to Choreo.`,
-                location: ProgressLocation.Notification,
-                cancellable: true
-            }, async (_progress, cancellationToken) => {
-                // TODO Make the cancellation token work
-                if (ext.api.selectedOrg) {
-                    await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
-                }
-            });
+            if (ext.api.selectedOrg) {
+                await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
+            }
         });
 
         this._messenger.onRequest(HasUnpushedComponents, async (projectID: string): Promise<boolean> => {

@@ -12,7 +12,7 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployments } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, CreateByocComponentParams } from "./types";
 import {
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
@@ -22,7 +22,7 @@ import {
     getProjectsByOrgIdQuery,
     getRepoMetadataQuery
 } from './project-queries';
-import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
+import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
 import { AxiosResponse } from 'axios';
@@ -138,6 +138,19 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async createComponent(params: CreateComponentParams): Promise<Component> {
         const mutation = getCreateComponentMutation(params);
+        console.log(mutation);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            console.log(data);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async createByocComponent(params: CreateByocComponentParams): Promise<Component> {
+        const mutation = getCreateByocComponentMutation(params);
         console.log(mutation);
         try {
             const client = await this._getClient();

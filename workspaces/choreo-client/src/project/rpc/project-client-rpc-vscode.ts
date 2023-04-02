@@ -13,7 +13,7 @@
 import { serializeError } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
 import { IChoreoProjectClient } from "../types";
-import { CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, GetRepoMetaDataRequest, LinkRepoRequest } from "./types";
+import { CreateByocComponentRequest, CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, GetRepoMetaDataRequest, LinkRepoRequest } from "./types";
 
 export function registerChoreoProjectRPCHandlers(messenger: Messenger, projectClient: IChoreoProjectClient) {
    messenger.onRequest(GetProjectsRequest, (params) => projectClient.getProjects(params).catch(serializeError));
@@ -21,6 +21,7 @@ export function registerChoreoProjectRPCHandlers(messenger: Messenger, projectCl
    messenger.onRequest(GetRepoMetaDataRequest, (params) => projectClient.getRepoMetadata(params).catch(serializeError));
    messenger.onRequest(CreateProjectRequest, (params) => projectClient.createProject(params).catch(serializeError));
    messenger.onRequest(CreateComponentRequest, (params) => projectClient.createComponent(params).catch(serializeError));
+   messenger.onRequest(CreateByocComponentRequest, (params) => projectClient.createByocComponent(params).catch(serializeError));
    messenger.onRequest(LinkRepoRequest, (params) => projectClient.linkRepo(params).catch(serializeError));
    messenger.onRequest(DeleteComponentRequest, (params) => projectClient.deleteComponent(params).catch(serializeError));
 }

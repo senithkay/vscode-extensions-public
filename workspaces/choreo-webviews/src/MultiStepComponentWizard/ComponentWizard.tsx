@@ -75,6 +75,10 @@ export const ComponentWizard: React.FC = () => {
             name: '',
             accessibility: "external",
             type: ChoreoComponentType.Service,
+            repository: {
+                dockerContext: '',
+                dockerFile: '',
+            },
             cache: {
                 authorizedOrgs: [],
             }

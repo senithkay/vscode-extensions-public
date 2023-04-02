@@ -14,7 +14,7 @@
 import { randomUUID } from "crypto";
 import { join } from "path";
 import {
-    AccessToken, ChoreoTokenType, ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams,
+    AccessToken, ChoreoTokenType, ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams,
     GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams
 } from "@wso2-enterprise/choreo-client";
 import { Component, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
@@ -79,6 +79,9 @@ export class MockOrgClient implements IChoreoOrgClient {
 }
 
 export class MockProjectClient implements IChoreoProjectClient {
+    createByocComponent(params: CreateByocComponentParams): Promise<Component> {
+        throw new Error("Method not implemented.");
+    }
     
     getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
         throw new Error("Method not implemented.");

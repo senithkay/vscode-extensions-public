@@ -10,10 +10,8 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "@emotion/styled";
-
-import debounce from "lodash.debounce"
 
 import { cx } from "@emotion/css";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
@@ -23,6 +21,7 @@ import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
+import debounce from "lodash.debounce";
 
 const StepContainer = styled.div`
     display: flex;
@@ -50,7 +49,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
             ...prevFormData,
             repository: {
                 ...prevFormData.repository,
-                dockerfile: fName
+                dockerFile: fName
             }
         }));
     }
@@ -60,14 +59,12 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
             ...prevFormData,
             repository: {
                 ...prevFormData.repository,
-                dockerContextPath: ctxPath
+                dockerContext: ctxPath
             }
         }));
     }
 
-    const setDockerFileName = async (fName: string, ctxPath: string) => {
-        setDockerFile(fName);
-        setDockerFileCtx(ctxPath);
+    const validate = async () => {
         setDockerFileError("");
         setIsValidationInProgress(true);
         if (repository?.org && repository?.repo && repository?.branch && choreoProject) {
@@ -77,8 +74,8 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
                 repo:   repository?.repo,
                 branch: repository?.branch,
                 path: '',
-                dockerfile: fName,
-                dockerContextPath: ctxPath,
+                dockerfile: repository?.dockerFile,
+                dockerContextPath: repository?.dockerContext,
                 openApiPath: '',
                 componentId: ''
             });
@@ -95,14 +92,18 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
         setIsValidationInProgress(false);
     }
 
-    const updateDockerFilePath = debounce(setDockerFileName, 500);
+    const debouncedValidate = debounce(validate, 500);
+
+    useEffect(() => {
+        debouncedValidate();
+    }, [repository?.dockerFile, repository?.dockerContext])
     
     return (
         <div>
             <StepContainer>
                 <VSCodeTextField
                     placeholder=""
-                    onInput={(e: any) => updateDockerFilePath(e.target.value, repository?.dockerContext)}
+                    onInput={(e: any) => setDockerFile(e.target.value)}
                     value={repository?.dockerFile}
                 >
                     Docker File Path <RequiredFormInput />
@@ -110,7 +111,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
                 </VSCodeTextField>
                 <VSCodeTextField
                     placeholder=""
-                    onInput={(e: any) => updateDockerFilePath(repository?.dockerFile, e.target.value)}
+                    onInput={(e: any) => setDockerFileCtx(e.target.value)}
                     value={repository?.dockerContext}
                 >
                     Docker Context Path <RequiredFormInput />

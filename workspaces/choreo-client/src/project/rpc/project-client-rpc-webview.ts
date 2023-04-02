@@ -13,8 +13,8 @@
 import { Project, Component, Repository } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IChoreoProjectClient, LinkRepoMutationParams } from "../types";
-import { CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, GetRepoMetaDataRequest, LinkRepoRequest } from "./types";
+import { ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IChoreoProjectClient, LinkRepoMutationParams } from "../types";
+import { CreateByocComponentRequest, CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, GetRepoMetaDataRequest, LinkRepoRequest } from "./types";
 
 export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
 
@@ -37,6 +37,10 @@ export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
     createComponent(params: ComponentMutationParams): Promise<Component> {
         return this._messenger.sendRequest(CreateComponentRequest, HOST_EXTENSION, params);
     }
+    createByocComponent(params: CreateByocComponentParams): Promise<Component> {
+        return this._messenger.sendRequest(CreateByocComponentRequest, HOST_EXTENSION, params);
+    }
+
     deleteComponent(params: DeleteComponentParams): Promise<void> {
         return this._messenger.sendRequest(DeleteComponentRequest, HOST_EXTENSION, params);
     }

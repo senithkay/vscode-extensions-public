@@ -14,7 +14,7 @@
 import child_process from "child_process";
 import { log } from "console";
 import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, RepositoryDetails, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
-import { join } from "path";
+import { dirname, join } from "path";
 import { existsSync, mkdirSync, readFile, unlink, writeFile } from "fs";
 import { randomUUID } from "crypto";
 
@@ -148,6 +148,8 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                     branchApp: repositoryInfo.branch
                 }
             };
+            let componentPath = join('repos', repositoryInfo.org, repositoryInfo.repo);
+            
             if (args.displayType.startsWith("byoc")) {
                 const repoInfo = args.repositoryInfo as BYOCRepositoryDetails;
                 metadata.byocConfig = {
@@ -156,9 +158,17 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                     srcGitRepoBranch: repoInfo.branch,
                     srcGitRepoUrl: `https://github.com/${repoInfo.org}/${repoInfo.repo}`,
                 }
+                if (repoInfo.dockerContext) {
+                    componentPath = join(componentPath, repoInfo.dockerContext);
+                } else {
+                    componentPath = dirname(join(componentPath, repoInfo.dockerFile))
+                }
+            } else {
+                componentPath = join(componentPath, repositoryInfo.subPath);
             }
+
             content.folders.push({
-                path: join(join(join('repos', repositoryInfo.org), repositoryInfo.repo), repositoryInfo.subPath),
+                path: componentPath,
                 name: repositoryInfo.subPath,
                 metadata,
             });
