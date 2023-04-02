@@ -399,7 +399,7 @@ function renderDiagram(
                     experimentalEnabled: ${experimental},
                     openInDiagram: args[0].openInDiagram,
                     projectPaths: ${JSON.stringify(workspace.workspaceFolders)},
-                    diagramFocus: args[0].filePath && args[0].openInDiagram ? {
+                    diagramFocus: args[0].filePath ? {
                         filePath: args[0].filePath,
                         position: args[0].openInDiagram
                     }: undefined,
