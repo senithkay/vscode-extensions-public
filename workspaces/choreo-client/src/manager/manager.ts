@@ -128,6 +128,14 @@ export class ChoreoProjectManager implements IProjectManager {
         return existsSync(join(projectDir, 'repos', repository));
     }
 
+    public async getRepoPath(repository: string): Promise<string> {
+        if (workspace.workspaceFile) {
+            const projectDir = path.dirname(workspace.workspaceFile.fsPath);
+            return join(projectDir, 'repos', repository);
+        }
+        return "";
+    }
+
     public async cloneRepo(params: RepoCloneRequestParams): Promise<boolean> {
        return commands.executeCommand('wso2.choreo.project.repo.clone', params);
     }

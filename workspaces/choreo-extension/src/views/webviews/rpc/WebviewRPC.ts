@@ -29,7 +29,8 @@ import {
     getDiagramComponentModel,
     ComponentModel,
     DeleteComponent,
-    PullComponent
+    PullComponent,
+    showOpenDialogRequest
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -41,6 +42,7 @@ import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData} from "../../../utils";
+import { getLogger } from "../../../logger/logger";
 
 export class WebViewRpc {
 
@@ -196,6 +198,16 @@ export class WebViewRpc {
         });
         this._messenger.onNotification(CloseWebViewNotification, () => {
             view.dispose();
+        });
+
+        this._messenger.onRequest(showOpenDialogRequest, async (options: vscode.OpenDialogOptions) => {
+            try {
+                const result = await window.showOpenDialog(options);
+                return result?.map((file) => file.fsPath);
+            } catch (error: any) {
+                getLogger().error(error.message);
+                return [];
+            }
         });
 
         // Register RPC handlers for Choreo project client

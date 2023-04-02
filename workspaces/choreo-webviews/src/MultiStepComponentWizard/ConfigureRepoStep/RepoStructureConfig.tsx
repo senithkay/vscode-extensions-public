@@ -25,6 +25,7 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import { BYOCRepoConfig } from "./BYOCRepoConfig"
 import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
+import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
 
 const StepContainer = styled.div`
     display: flex;
@@ -144,6 +145,17 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                         Ballerina Package Path <RequiredFormInput />
                         {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                     </VSCodeTextField>
+                    <RepoFileOpenDialogInput
+                        label="Select Ballerina Package"
+                        repo={`${repository?.org}/${repository?.repo}`}
+                        path={repository?.subPath}
+                        onOpen={updateSubFolderName}
+                        canSelectFiles={false}
+                        canSelectFolders={true}
+                        canSelectMany={false}
+                        title="Select Ballerina Package"
+                        filters={{}}
+                    />
                 </StepContainer>
             )}
 

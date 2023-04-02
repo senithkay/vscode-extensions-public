@@ -14,7 +14,7 @@ import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languagecl
 import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTriggers, GetBallerinaVersion, IsRepoClonedRequest } from "./types";
+import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTriggers, GetBallerinaVersion, GetRepoPathRequest, IsRepoClonedRequest } from "./types";
 
 export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     constructor (private _messenger: Messenger) {
@@ -25,6 +25,9 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     }
     isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
         return this._messenger.sendRequest(IsRepoClonedRequest, HOST_EXTENSION, params);
+    }
+    getRepoPath(repository: string): Promise<string> {
+        return this._messenger.sendRequest(GetRepoPathRequest, HOST_EXTENSION, repository);
     }
     createLocalComponent(args: ChoreoComponentCreationParams): Promise<string | boolean> {
         return this._messenger.sendRequest(CreateLocalComponentRequest, HOST_EXTENSION, args);

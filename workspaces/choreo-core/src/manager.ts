@@ -21,6 +21,7 @@ export interface IProjectManager {
     getProjectRoot(): Promise<string | undefined>;
     getLocalComponents(workspaceFilePath: string): Component[];
     isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean>;
+    getRepoPath(repository: string): Promise<string>;
     cloneRepo(params: RepoCloneRequestParams): Promise<boolean>;
     fetchTriggers(): Promise<BallerinaTriggersResponse | undefined>;
     getBalVersion(): Promise<string>;
