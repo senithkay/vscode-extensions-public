@@ -49,7 +49,7 @@ export function DiagramHeader(props: HeaderProps) {
 
     return (
         <HeaderContainer>
-            <HeaderLeftPane>
+            <HeaderLeftPane isEditable={editingEnabled}>
                 <DiagramTitle> {headings.get(currentView)} </DiagramTitle>
                 {!editingEnabled &&
                     <Chip label={'Read-Only Mode'} sx={{ fontSize: '11px', fontFamily: 'GilmerRegular', marginLeft: '5px' }} />
