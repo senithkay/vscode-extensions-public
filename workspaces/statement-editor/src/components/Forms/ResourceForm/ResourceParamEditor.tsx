@@ -46,6 +46,8 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
     const { parameters, completions, onChange, syntaxDiag, readonly, onChangeInProgress } = props;
     const connectorClasses = connectorStyles();
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
+    const [isNew, setIsNew] = useState(false);
+
     const onEdit = (param: Param) => {
         setEditingSegmentId(param.id);
         onChangeInProgress(true);
@@ -92,11 +94,16 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
         onChange(newParamString);
         setEditingSegmentId(segmentId);
         onChangeInProgress(true);
+        setIsNew(true);
     };
 
-    const onParamEditCancel = () => {
+    const onParamEditCancel = (id?: number) => {
         setEditingSegmentId(-1);
         onChangeInProgress(false);
+        if (id && id >= 0 && isNew) {
+            onDelete({ id, name:"" });
+            setIsNew(false);
+        }
     };
 
 

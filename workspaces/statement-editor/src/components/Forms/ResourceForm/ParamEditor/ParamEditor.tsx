@@ -60,7 +60,7 @@ export interface ParamProps {
     option?: string;
     isTypeReadOnly?: boolean;
     onChange: (segmentId: number, paramString: string, focusedModel?: STNode, typedInValue?: string) => void;
-    onCancel?: () => void;
+    onCancel?: (id?: number) => void;
 }
 
 enum ParamEditorInputTypes {
@@ -154,7 +154,7 @@ export function ParamEditor(props: ParamProps) {
 
     const handleOnCancel = () => {
         onChange(segmentId, originalSource);
-        onCancel();
+        onCancel(segmentId);
     }
 
     const createRecord = (newRecord: string) => {
@@ -246,6 +246,12 @@ export function ParamEditor(props: ParamProps) {
                 </div>
             }
             <div className={classes.btnContainer}>
+                <SecondaryButton
+                        text="Cancel"
+                        fullWidth={false}
+                        onClick={handleOnCancel}
+                        className={classes.actionBtn}
+                />
                 <PrimaryButton
                     dataTestId={"path-segment-add-btn"}
                     text={"Save"}
@@ -256,7 +262,7 @@ export function ParamEditor(props: ParamProps) {
                         || model.typeName?.viewState?.diagnosticsInRange?.length > 0
                     }
                     fullWidth={false}
-                    onClick={onCancel}
+                    onClick={() => onCancel()}
                     className={classes.actionBtn}
                 />
             </div>
