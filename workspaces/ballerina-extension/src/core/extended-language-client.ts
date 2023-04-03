@@ -40,8 +40,6 @@ import {
     DidOpenParams, DidCloseParams, DidChangeParams
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { BallerinaExtension } from "./index";
-import { showChoreoPushMessage } from "../editor-support/git-status";
-import { showChoreoSigninMessage } from "../forecaster";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 import { DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
