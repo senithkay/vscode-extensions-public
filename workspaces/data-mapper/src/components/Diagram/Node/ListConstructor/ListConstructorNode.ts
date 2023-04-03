@@ -138,11 +138,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
             }
             let outPort: RecordFieldPortModel;
             let mappedOutPort: RecordFieldPortModel;
-            const body = STKindChecker.isLetExpression(this.recordField.value)
-                ? getExprBodyFromLetExpression(this.recordField.value)
-                : STKindChecker.isTypeCastExpression(this.recordField.value)
-                    ? getExprBodyFromTypeCastExpression(this.recordField.value)
-                    : this.recordField.value;
+            const body = getInnermostExpressionBody(this.recordField.value);
             if (this.recordField.type.typeName === PrimitiveBalType.Array
                 && this.recordField?.value
                 && !STKindChecker.isListConstructor(body)

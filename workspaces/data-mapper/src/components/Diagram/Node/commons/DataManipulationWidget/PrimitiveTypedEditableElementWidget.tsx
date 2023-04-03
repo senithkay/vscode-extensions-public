@@ -18,10 +18,9 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
     getDefaultValue,
-    getExprBodyFromLetExpression,
-    getExprBodyFromTypeCastExpression,
     getFieldLabel,
-    getFieldName
+    getFieldName,
+    getInnermostExpressionBody
 } from "../../../utils/dm-utils";
 import { OutputSearchHighlight } from "../Search";
 
@@ -70,14 +69,9 @@ export function PrimitiveTypedEditableElementWidget(props: PrimitiveTypedEditabl
     let body: STNode;
 
     if (field?.value) {
-        if (STKindChecker.isLetExpression(field.value)) {
-            body = getExprBodyFromLetExpression(field.value)
-        } else if (STKindChecker.isTypeCastExpression(field.value)) {
-            body = getExprBodyFromTypeCastExpression(field.value)
-        } else if (STKindChecker.isQueryExpression(field.value)) {
+        body = getInnermostExpressionBody(field.value);
+        if (STKindChecker.isQueryExpression(field.value)) {
             body = field.value.selectClause.expression;
-        } else {
-            body = field.value;
         }
     }
 

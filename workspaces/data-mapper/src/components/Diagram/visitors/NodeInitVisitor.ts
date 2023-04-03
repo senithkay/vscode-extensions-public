@@ -52,8 +52,8 @@ import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "
 import {
     constructTypeFromSTNode,
     getExprBodyFromLetExpression,
-    getExprBodyFromTypeCastExpression,
     getFnDefForFnCall,
+    getInnermostExpressionBody,
     getInputNodes,
     getModuleVariables,
     getPrevOutputType,
@@ -98,12 +98,8 @@ export class NodeInitVisitor implements Visitor {
 
             if (returnType) {
 
-                let bodyExpr: STNode = exprFuncBody.expression;
-                if (STKindChecker.isLetExpression(exprFuncBody.expression)) {
-                    bodyExpr = getExprBodyFromLetExpression(exprFuncBody.expression);
-                } else if (STKindChecker.isTypeCastExpression(exprFuncBody.expression)) {
-                    bodyExpr = getExprBodyFromTypeCastExpression(exprFuncBody.expression);
-                } else if (
+                let bodyExpr: STNode = getInnermostExpressionBody(exprFuncBody.expression);
+                if (
                     STKindChecker.isIndexedExpression(exprFuncBody.expression) &&
                     STKindChecker.isBracedExpression(exprFuncBody.expression.containerExpression) &&
                     STKindChecker.isQueryExpression(exprFuncBody.expression.containerExpression.expression)
@@ -572,11 +568,7 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitExpressionFunctionBody(node: ExpressionFunctionBody, parent?: STNode): void {
-        const expr = STKindChecker.isLetExpression(node.expression)
-            ? getExprBodyFromLetExpression(node.expression)
-            : STKindChecker.isTypeCastExpression(node.expression)
-                ? getExprBodyFromTypeCastExpression(node.expression)
-                : node.expression;
+        const expr = getInnermostExpressionBody(node.expression);
         if (!STKindChecker.isMappingConstructor(expr)
             && !STKindChecker.isListConstructor(expr)
             && !STKindChecker.isExplicitAnonymousFunctionExpression(parent))

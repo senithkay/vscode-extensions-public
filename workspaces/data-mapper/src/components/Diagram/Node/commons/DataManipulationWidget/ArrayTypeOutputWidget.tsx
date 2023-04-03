@@ -22,8 +22,7 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
-	getExprBodyFromLetExpression,
-	getExprBodyFromTypeCastExpression,
+	getInnermostExpressionBody,
 	isConnectedViaLink
 } from "../../../utils/dm-utils";
 import { OutputSearchHighlight } from '../Search';
@@ -139,11 +138,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
-	const body = field?.value && STKindChecker.isLetExpression(field.value)
-		? getExprBodyFromLetExpression(field.value)
-		: STKindChecker.isTypeCastExpression(field.value)
-			? getExprBodyFromTypeCastExpression(field.value)
-			: field.value;
+	const body = getInnermostExpressionBody(field.value);
 	const hasValue = field && field?.elements && field.elements.length > 0;
 	const isBodyListConstructor = body && STKindChecker.isListConstructor(body);
 	const isBodyQueryExpression = body && STKindChecker.isQueryExpression(body);
