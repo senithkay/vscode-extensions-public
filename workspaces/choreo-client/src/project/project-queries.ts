@@ -146,10 +146,10 @@ export function getDeleteComponentQuery(orgHandler: string, componentId: string,
     `;
 }
 
-export function getRepoMetadataQuery(organizationName: string, repoName: string, branch: string, subPath: string) {
+export function getRepoMetadataQuery(organizationName: string, repoName: string, branch: string, subPath?: string, dockerFilePath?: string, dockerContextPath?: string, openAPIPath?: string, componentId?: string) {
     return gql`
         query {
-            repoMetadata (organizationName: "${organizationName}", repoName: "${repoName}", branch: "${branch}", subPath: "${subPath}", dockerFilePath: "", dockerContextPath: "", openAPIPath: "", componentId: "") {
+            repoMetadata (organizationName: "${organizationName}", repoName: "${repoName}", branch: "${branch}", subPath: "${subPath}", dockerFilePath: "${dockerFilePath}", dockerContextPath: "${dockerContextPath}", openAPIPath: "${openAPIPath}", componentId: "${componentId}") {
                  isBareRepo,
                  isSubPathEmpty
                  isSubPathValid

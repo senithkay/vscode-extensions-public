@@ -13,7 +13,7 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { ComponentWizard } from "./ComponentWizard/ComponentWizard";
+import { ComponentWizard } from "./MultiStepComponentWizard/ComponentWizard";
 import { ChoreoWebViewContext } from "./context/choreo-web-view-ctx";
 import { usePopulateContext } from "./hooks/context-populate";
 import { ProjectWizard } from "./ProjectWizard/ProjectWizard";

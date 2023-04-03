@@ -2,7 +2,7 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.2023040307",
   "publisher": "wso2",
   "icon": "resources/icons/choreo.png",
   "repository": {
@@ -134,7 +134,8 @@
         {
           "command": "wso2.choreo.architecture.view",
           "when": "false"
-        }]
+        }
+      ]
     },
     "configuration": {
       "type": "object",
