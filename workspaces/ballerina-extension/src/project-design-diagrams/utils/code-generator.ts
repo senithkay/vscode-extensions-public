@@ -234,7 +234,7 @@ function getServiceDeclaration(members: any[], service: Service, checkEnd: boole
     ));
 }
 
-function getInitFunction(serviceDeclaration: any): any {
+export function getInitFunction(serviceDeclaration: any): any {
     const serviceNodeMembers: any[] = serviceDeclaration.members;
     return serviceNodeMembers.find((member) =>
         (member.kind === "ObjectMethodDefinition" && member.functionName.value === "init")

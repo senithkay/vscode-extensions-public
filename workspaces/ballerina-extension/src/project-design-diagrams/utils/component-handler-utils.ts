@@ -24,10 +24,16 @@ import child_process from "child_process";
 import { compile } from "handlebars";
 import { BallerinaTriggerResponse, STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { BallerinaComponentTypes } from "@wso2-enterprise/choreo-core";
+import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { ExtendedLangClient } from "../../core";
 import { getLangClient, STResponse } from "../activator";
-import { CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, Location, WorkspaceConfig, WorkspaceItem } from "../resources";
-import { updateSourceFile } from "./code-generator";
+import {
+    CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, DeleteLinkArgs, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, Location,
+    SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION, WorkspaceConfig, WorkspaceItem
+} from "../resources";
+import { getInitFunction, updateSourceFile } from "./code-generator";
+import { go2source } from "./common-utils";
+import { visitor as STNodeFindingVisitor } from "./node-visitor";
 
 export function createBallerinaPackage(name: string, pkgRoot: string, type: BallerinaComponentTypes): Promise<CommandResponse> {
     const cmd = `bal new "${name}" ${getBalCommandSuffix(type)}`;
@@ -225,6 +231,78 @@ async function updateWorkspaceFile(componentPath: string): Promise<void> {
     });
 }
 
-export async function deleteLink(langClient: ExtendedLangClient, location: Location): Promise<boolean> {
-    throw new Error("Method not implemented.");
+export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLinkArgs): Promise<void> {
+    const { linkLocation, serviceLocation } = args;
+    let userFeedback = UNSUPPORTED_LINK_DELETION;
+    const stResponse: STResponse = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(linkLocation.filePath).toString()
+        }
+    }) as STResponse;
+    if (stResponse.parseSuccess) {
+        STNodeFindingVisitor.setPosition({
+            startColumn: linkLocation.startPosition.offset,
+            startLine: linkLocation.startPosition.line,
+            endColumn: linkLocation.endPosition.offset,
+            endLine: linkLocation.endPosition.line
+        });
+        traversNode(stResponse.syntaxTree, STNodeFindingVisitor);
+        const node: STNode = STNodeFindingVisitor.getSTNode();
+        if (STKindChecker.isObjectField(node) && node.typeData.isEndpoint) {
+            const identifierName: string = node.fieldName.value;
+            STNodeFindingVisitor.setPosition({
+                startColumn: serviceLocation.startPosition.offset,
+                startLine: serviceLocation.startPosition.line,
+                endColumn: serviceLocation.endPosition.offset,
+                endLine: serviceLocation.endPosition.line
+            });
+            traversNode(stResponse.syntaxTree, STNodeFindingVisitor);
+            const serviceNode: STNode = STNodeFindingVisitor.getSTNode();
+            const initFunction = getInitFunction(serviceNode);
+            const initStatement: AssignmentStatement = initFunction?.functionBody?.statements?.find((statement: STNode) =>
+                STKindChecker.isAssignmentStatement(statement) && STKindChecker.isFieldAccess(statement.varRef) &&
+                STKindChecker.isSimpleNameReference(statement.varRef.fieldName) &&
+                statement.varRef.fieldName.name.value === identifierName
+            );
+
+            if (initStatement) {
+                const modifications: STModification[] = [
+                    {
+                        startLine: linkLocation.startPosition.line,
+                        startColumn: linkLocation.startPosition.offset,
+                        endLine: linkLocation.endPosition.line,
+                        endColumn: linkLocation.endPosition.offset,
+                        type: "DELETE"
+                    },
+                    {
+                        type: "DELETE",
+                        ...initStatement.position
+                    }
+                ];
+
+                const updatedST: STResponse = (await langClient.stModify({
+                    astModifications: modifications,
+                    documentIdentifier: {
+                        uri: Uri.file(linkLocation.filePath).toString(),
+                    }
+                })) as STResponse;
+
+                if (updatedST.parseSuccess && updatedST.source) {
+                    await updateSourceFile(langClient, linkLocation.filePath, updatedST.source).then(() => {
+                        userFeedback = SUCCESSFUL_LINK_DELETION;
+                    })
+                }
+            }
+        }
+    }
+    showActionableMessage(userFeedback, linkLocation);
+}
+
+function showActionableMessage(message: string, location: Location) {
+    const action = 'Go to source';
+    window.showInformationMessage(message, action).then((selection) => {
+        if (action === selection) {
+            go2source(location);
+        }
+    });
 }
