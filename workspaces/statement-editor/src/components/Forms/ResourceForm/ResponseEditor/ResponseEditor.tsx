@@ -132,7 +132,7 @@ export function ResponseEditor(props: ParamProps) {
         onChange(segmentId, 200, value);
     }
 
-    const debouncedOnChange = debounce(handleTypeChange, 800);
+    const debouncedOnChange = debounce(handleTypeChange, 500);
 
     const handleNameChange = (value: string) => {
         setAnonymousValue(value.replace(/\s/g, ''));

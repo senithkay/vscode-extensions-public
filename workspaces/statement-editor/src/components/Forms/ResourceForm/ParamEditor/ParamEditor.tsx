@@ -148,7 +148,7 @@ export function ParamEditor(props: ParamProps) {
         );
     }
 
-    const debouncedTypeChange = debounce(handleTypeChange, 800);
+    const debouncedTypeChange = debounce(handleTypeChange, 500);
     // const debouncedNameChange = debounce(handleNameChange, 800);
     // const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
 
