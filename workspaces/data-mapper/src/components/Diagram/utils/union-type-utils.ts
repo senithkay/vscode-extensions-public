@@ -17,6 +17,7 @@ import {
 	STNode
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMStore } from "../../../store/store";
 import { TypeDescriptor } from "../Node/commons/DataMapperNode";
 
 import { getTypeName } from "./dm-utils";
@@ -97,8 +98,15 @@ function isUnsupportedType(typeDesc: STNode): boolean {
 }
 
 function isTypesMatched(type: Type, typeDesc: TypeDescriptor, dimensions?: number): boolean {
-	const typeName = type?.name
-		? `${type.name}${dimensions ? '[]'.repeat(dimensions) : ''}`
+	const importStatements = useDMStore.getState().imports;
+	let typeName = type?.typeInfo?.name;
+	if (type?.typeInfo && importStatements.some(item => item.includes(`${type?.typeInfo?.orgName}/${type.typeInfo.moduleName}`))){
+		// If record is from an imported package
+		typeName = `${type?.typeInfo?.moduleName}:${type.typeInfo.name}`;
+	}
+
+	typeName = typeName
+		? `${typeName}${dimensions ? '[]'.repeat(dimensions) : ''}`
 		: `${type.typeName}${dimensions ? '[]'.repeat(dimensions) : ''}`;
 
 	return typeName === typeDesc.source;

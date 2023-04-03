@@ -96,6 +96,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 this.addPorts(valueEnrichedType, isSelectClause);
             }
         } else {
+            this.rootName = undefined;
             this.addPortsForHeaderField(this.typeDef, this.rootName, "IN", UNION_TYPE_TARGET_PORT_PREFIX);
         }
     }

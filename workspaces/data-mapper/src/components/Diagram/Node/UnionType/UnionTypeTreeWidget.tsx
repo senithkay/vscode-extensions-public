@@ -35,10 +35,10 @@ export interface UnionTypeTreeWidgetProps {
     typeDef: Type;
     valueLabel?: string;
     hasInvalidTypeCast: boolean;
-    hasResolvedType: boolean;
     getValueExpr: () => STNode;
     getTypeCastExpr: () => STNode;
     getPort: (portId: string) => RecordFieldPortModel;
+    resolvedTypeName?: string;
 }
 
 export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
@@ -51,10 +51,10 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         typeDef,
         valueLabel,
         hasInvalidTypeCast,
-        hasResolvedType,
         getValueExpr,
         getTypeCastExpr,
-        getPort
+        getPort,
+        resolvedTypeName
     } = props;
     const classes = useStyles();
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
@@ -74,6 +74,22 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         setIsHovered(false);
     };
 
+    const TypeSpan = () => {
+        const typeText: JSX.Element[] = [];
+        const types = typeName.split('|');
+        types.forEach((type) => {
+            if (type.trim() === resolvedTypeName) {
+                typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
+            } else {
+                typeText.push(<>{type}</>);
+            }
+            if (type !== types[types.length - 1]) {
+                typeText.push(<>|</>);
+            }
+        });
+        return <span className={classes.typeLabel}>{typeText}</span>;
+    };
+
     const label = (
         <span style={{ marginRight: "auto" }}>
 			{valueLabel && (
@@ -82,12 +98,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                     {typeName && ":"}
 				</span>
             )}
-            {typeName && (
-                <span className={classes.typeLabel}>
-					{typeName}
-				</span>
-            )}
-
+            {typeName && TypeSpan()}
 		</span>
     );
 
@@ -108,7 +119,7 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                     {label}
                 </span>
             </TreeHeader>
-            {!hasResolvedType && (
+            {!resolvedTypeName && (
                 <TreeBody>
                     <div
                         className={classes.selectTypeWrap}

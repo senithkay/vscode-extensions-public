@@ -69,10 +69,10 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						typeIdentifier={event.model.typeIdentifier}
 						typeDef={event.model.typeDef}
 						hasInvalidTypeCast={event.model.hasInvalidTypeCast}
-						hasResolvedType={!!resolvedType}
 						getValueExpr={() => event.model.getValueExpr()}
 						getTypeCastExpr={() => event.model.getTypeCastExpr()}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+						resolvedTypeName={resolvedTypeName}
 					/>
 				)}
 				{!shouldRenderUnionType && resolvedType && resolvedType.typeName === PrimitiveBalType.Record && (

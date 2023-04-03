@@ -25,6 +25,10 @@ export const useStyles = makeStyles((theme: Theme) =>
                 minWidth: "100px",
                 marginRight: "24px"
             },
+            boldedTypeLabel: {
+                fontFamily: "GilmerBold",
+                fontSize: "14px",
+            },
             treeLabelInPort: {
                 float: "left",
                 // marginRight: "5px",
