@@ -37,7 +37,8 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
         onChange(input)
     }
 
-    const handleOnFocus = () => {
+    const handleOnFocus = (e?: any) => {
+        e.target.select();
         onFocus();
     }
 
@@ -65,7 +66,7 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
                 onChange={(e) => { handleValueChange(e.target.value) }}
                 InputLabelProps={{ shrink: false }}
                 disabled={isLoading}
-                onFocus={handleOnFocus}
+                onFocus={event => handleOnFocus(event)}
             />
             {expressionDiagnosticMsg && (
                 <>

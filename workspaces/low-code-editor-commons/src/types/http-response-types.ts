@@ -52,7 +52,6 @@ export const responseCodes: ResponseCode[] = [
     { code: 429, title: "429 - Too Many Requests", source: "http:TooManyRequests" },
     { code: 431, title: "431 - Request Header Fields Too Large", source: "http:RequestHeaderFieldsTooLarge" },
     { code: 451, title: "451 - Unavailable Due To Legal Reasons", source: "http:UnavailableDueToLegalReasons" },
-    { code: 500, title: "500 - Internal Server Error", source: "http:InternalServerError" },
     { code: 501, title: "501 - Not Implemented", source: "http:NotImplemented" },
     { code: 502, title: "502 - Bad Gateway", source: "http:BadGateway" },
     { code: 503, title: "503 - Service Unavailable", source: "http:ServiceUnavailable" },

@@ -14,7 +14,7 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { LiteExpressionEditor, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
+import { LiteExpressionEditor, LiteTextField, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
 import { ResponseCode } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
@@ -28,6 +28,8 @@ import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
 import { createNewRecord, createPropertyStatement } from '../util';
 
 import { useStyles } from "./style";
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { TextField } from '@material-ui/core';
 
 export interface Param {
     id: number;
@@ -66,7 +68,6 @@ export function ResponseEditor(props: ParamProps) {
         onCancel, completions, httpMethodName
     } = props;
     const classes = useStyles();
-    
     const subTypeText = "Define a name record for the return type";
 
     const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
@@ -128,10 +129,8 @@ export function ResponseEditor(props: ParamProps) {
         // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
         // const paramName = model.paramName.value;
         // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        if (value) {
-            setTypeValue(value);
-            onChange(segmentId, 200, value);
-        }
+        setTypeValue(value);
+        onChange(segmentId, 200, value);
     }
 
     const handleNameChange = (value: string) => {
@@ -214,12 +213,11 @@ export function ResponseEditor(props: ParamProps) {
 
     const subTypeEditor = (
         <>
-            <LiteExpressionEditor
-                testId="anonymous-record-name"
-                defaultValue={anonymousValue}
+            <LiteTextField
+                value={anonymousValue}
+                isLoading={false}
                 onChange={handleNameChange}
-                disabled={false}
-                completions={[]}
+                diagnostics={[]}
             />
         </>
     )
@@ -236,18 +234,19 @@ export function ResponseEditor(props: ParamProps) {
             <div className={classes.paramContent}>
 
                 <div className={classes.paramDataTypeWrapper}>
-                    <ParamDropDown
-                        dataTestId="param-type-selector"
-                        placeholder={"Select Code"}
-                        customProps={{ values: optionsListString }}
+                    <FieldTitle title='Select Code' optional={false} />
+                    <Autocomplete
+                        disablePortal
+                        id="param-type-selector"
+                        options={optionsListString}
                         defaultValue={response}
-                        onChange={handleOnSelect}
-                        label="HTTP Response Code"
+                        onChange={(_, value) => handleOnSelect(value)}
+                        renderInput={(params) => <TextField className={classes.searchList} {...params} />}
                     />
                 </div>
 
                 <div className={classes.paramTypeWrapper}>
-                    <FieldTitle title='Type' optional={false} />
+                    <FieldTitle title='Type' optional={true} />
                     <TypeBrowser
                         type={typeValue}
                         onChange={handleTypeChange}
