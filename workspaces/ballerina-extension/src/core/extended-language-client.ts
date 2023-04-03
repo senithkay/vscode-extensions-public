@@ -595,12 +595,6 @@ export class ExtendedLangClient extends LanguageClient {
             Promise.resolve(NOT_SUPPORTED);
     }
     async stModify(params: BallerinaSTModifyRequest): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
-        if (this.ballerinaExtInstance) {
-            showChoreoPushMessage(this.ballerinaExtInstance);
-            if (!this.ballerinaExtInstance.getChoreoSession().loginStatus) {
-                showChoreoSigninMessage(this.ballerinaExtInstance);
-            }
-        }
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_ST_MODIFY);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DOCUMENT_ST_MODIFY, params) :
             Promise.resolve(NOT_SUPPORTED);
