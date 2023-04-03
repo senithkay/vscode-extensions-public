@@ -23,10 +23,14 @@ import { container, injectable, singleton } from "tsyringe";
 import { RecordFieldPortModel } from "../../Port";
 import {
 	FUNCTION_BODY_QUERY,
+	LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+	PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
 	UNION_TYPE_TARGET_PORT_PREFIX
 } from '../../utils/constants';
+import { ArrayTypeOutputWidget } from "../commons/DataManipulationWidget/ArrayTypeOutputWidget";
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
+import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import {
@@ -82,6 +86,34 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
 						originalTypeName={event.model.typeDef.originalTypeName}
+					/>
+				)}
+				{!shouldRenderUnionType && resolvedType && resolvedType.typeName === PrimitiveBalType.Array && (
+					<ArrayTypeOutputWidget
+						id={`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
+						engine={this.engine}
+						field={event.model.recordField}
+						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+						context={event.model.context}
+						typeName={event.model.typeName}
+						valueLabel={valueLabel}
+						deleteField={(node: STNode) => event.model.deleteField(node)}
+					/>
+				)}
+				{!shouldRenderUnionType
+					&& resolvedType
+					&& resolvedType.typeName !== PrimitiveBalType.Record
+					&& resolvedType.typeName !== PrimitiveBalType.Array
+					&& (
+					<PrimitiveTypeOutputWidget
+						id={PRIMITIVE_TYPE_TARGET_PORT_PREFIX}
+						engine={this.engine}
+						field={event.model.recordField}
+						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+						context={event.model.context}
+						typeName={event.model.typeName}
+						valueLabel={valueLabel}
+						deleteField={(node: STNode) => event.model.deleteField(node)}
 					/>
 				)}
 			</>
