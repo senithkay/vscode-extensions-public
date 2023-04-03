@@ -24,4 +24,4 @@ export {
     getActiveChoreoProject,
     getComponentModel,
     showChoreoProjectOverview
-} from './utils';
+} from './common-utils';

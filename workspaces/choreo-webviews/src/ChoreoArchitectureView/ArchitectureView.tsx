@@ -13,7 +13,7 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { ComponentModel } from "@wso2-enterprise/choreo-core";
+import { GetComponentModelResponse } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { DesignDiagram } from "@wso2-enterprise/project-design-diagrams";
 
@@ -27,21 +27,13 @@ export interface ArchitectureViewProps {
     orgName?: string;
 }
 
-interface ComponentModelResponse {
-    [key: string]: ComponentModel;
-}
-
 export function ChoreoArchitectureView(props: ArchitectureViewProps) {
     const { orgName, projectId } = props;
 
-    const getComponentModel = async (): Promise<any> => {
+    const getComponentModel = async (): Promise<GetComponentModelResponse> => {
         if (projectId && orgName) {
-            let componentModels: ComponentModelResponse = {};
-            const response: ComponentModel[] = await ChoreoWebViewAPI.getInstance().getDiagramComponentModel(projectId, orgName);
-            for (const model of response) {
-                componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
-            }
-            return componentModels;
+            const response: GetComponentModelResponse = await ChoreoWebViewAPI.getInstance().getDiagramComponentModel(projectId, orgName);
+            return response;
         }
         throw new Error("Error while loading project resources.");
     }

@@ -338,6 +338,30 @@ export interface Entity {
     isAnonymous: boolean;
 }
 
+export interface GetComponentModelResponse {
+    componentModels: {
+        [key: string]: ComponentModel;
+    };
+    diagnostics?: ComponentModelDiagnostics[];
+}
+
+export interface ComponentModelDiagnostics {
+    name: string;
+    message?: string;
+    severity?: string;
+}
+
+interface EntryPoint {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    annotation: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    parameters: any[];
+    returns: string[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    interactions: any[];
+    elementLocation: Location;
+}
+
 export interface ComponentModel {
     packageId: {
         name: string,
@@ -346,6 +370,7 @@ export interface ComponentModel {
     };
     services: Map<string, Service>;
     entities: Map<string, Entity>;
+    functionEntryPoint: EntryPoint;
     hasCompilationErrors: boolean;
 }
 

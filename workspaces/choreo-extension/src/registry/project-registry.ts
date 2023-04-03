@@ -110,11 +110,11 @@ export class ProjectRegistry {
     }
 
     async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
-        try{
+        try {
             const components = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
             this._dataComponents.set(projectId, components);
             return this._addLocalComponents(projectId, components);
-        } catch(e) {
+        } catch (e) {
             serializeError(e);
             const components: Component[] | undefined = this._dataComponents.get(projectId);
             return this._addLocalComponents(projectId, components || []);
@@ -122,35 +122,35 @@ export class ProjectRegistry {
     }
 
     async deleteComponent(componentId: string, orgHandler: string, projectId: string): Promise<void> {
-        try{
+        try {
             const allComponents = this._dataComponents.get(projectId);
-            const componentToBeDeleted = allComponents?.find(item=>item.id === componentId);
+            const componentToBeDeleted = allComponents?.find(item => item.id === componentId);
 
             await window.withProgress({
                 title: `Deleting component ${componentToBeDeleted?.name}.`,
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async () => {
-                let successMsg = "The component has been deleted successfully."
-                if(!componentToBeDeleted?.local){
-                    await projectClient.deleteComponent({componentId, orgHandler, projectId});
+                let successMsg = "The component has been deleted successfully.";
+                if (!componentToBeDeleted?.local) {
+                    await projectClient.deleteComponent({ componentId, orgHandler, projectId });
                 }
-    
-                if((!componentToBeDeleted?.isRemoteOnly || componentToBeDeleted.local) && componentToBeDeleted?.repository){
+
+                if ((!componentToBeDeleted?.isRemoteOnly || componentToBeDeleted.local) && componentToBeDeleted?.repository) {
                     const projectLocation = this.getProjectLocation(projectId);
                     const { organizationApp, nameApp, appSubPath } = componentToBeDeleted.repository;
                     if (projectLocation && appSubPath) {
                         const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
                         if (existsSync(repoPath)) {
-                            rmdirSync(repoPath, {recursive: true});
+                            rmdirSync(repoPath, { recursive: true });
                         }
                     }
                     successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
                 }
                 vscode.window.showInformationMessage(successMsg);
             });
-           
-        } catch(e) {
+
+        } catch (e) {
             serializeError(e);
         }
     }
@@ -367,15 +367,15 @@ export class ProjectRegistry {
             return true;
         }
     }
-    
+
     public isSubpathAvailable(projectId: string, orgName: string, repoName: string, subPath: string): boolean {
-          const projectLocation = this.getProjectLocation(projectId);
-          if (projectLocation && orgName && repoName && subPath) {
-              const repoPath = join(dirname(projectLocation), "repos", orgName, repoName, subPath);
-              return !existsSync(repoPath);
-          }
-          // TODO Handle subpath check for non cloned repos
-          return true;
+        const projectLocation = this.getProjectLocation(projectId);
+        if (projectLocation && orgName && repoName && subPath) {
+            const repoPath = join(dirname(projectLocation), "repos", orgName, repoName, subPath);
+            return !existsSync(repoPath);
+        }
+        // TODO Handle subpath check for non cloned repos
+        return true;
     }
 
     private _removeLocation(projectId: string) {
@@ -390,8 +390,8 @@ export class ProjectRegistry {
 
     private _addLocalComponents(projectId: string, components: Component[]): Component[] {
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
-        components = components.map((component: Component)=>{
-            if(component.repository?.appSubPath){
+        components = components.map((component: Component) => {
+            if (component.repository?.appSubPath) {
                 const { organizationApp, nameApp, appSubPath } = component.repository;
                 component.isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
             }

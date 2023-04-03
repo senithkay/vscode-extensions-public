@@ -27,12 +27,23 @@ export interface IProjectManager {
     getBalVersion(): Promise<string>;
 }
 
+export enum BallerinaComponentTypes {
+    REST_API = 'restAPI',
+    GRAPHQL = 'graphql',
+    MAIN = 'main',
+    WEBHOOK = 'webhook',
+    GRPC_API = 'grpcAPI',
+    WEBSOCKET_API = 'websocketAPI'
+}
+
 export interface BallerinaComponentCreationParams {
     name: string;
     version: string;
     org: string;
     package: string;
     directory: string;
+    type: BallerinaComponentTypes;
+    triggerId?: string;
 }
 
 export interface IsRepoClonedRequestParams {

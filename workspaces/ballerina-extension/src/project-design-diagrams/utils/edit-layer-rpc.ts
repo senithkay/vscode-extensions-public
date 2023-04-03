@@ -19,16 +19,18 @@
 
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { BallerinaComponentCreationParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
+import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { Messenger } from "vscode-messenger";
 import { existsSync } from "fs";
 import { commands, OpenDialogOptions, Position, Range, Selection, TextEditorRevealType, WebviewPanel, window, workspace } from "vscode";
+import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { BallerinaProjectManager } from "./manager";
-import { Location, Service } from "../resources";
+import { Location, Service, ServiceAnnotation } from "../resources";
 import { ExtendedLangClient } from "../../core";
-import { addConnector, linkServices, pullConnector } from "./code-generator";
+import { addConnector, editDisplayLabel, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PALETTE_COMMANDS } from "../../project/cmds/cmd-runner";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { deleteLink } from "./component-handler-utils";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -83,8 +85,12 @@ export class EditLayerRPC {
             return pullConnector(langClient, args[0], args[1]);
         });
 
-        this._messenger.onRequest({ method: 'addLinks' }, (args: Service[]): Promise<boolean> => {
+        this._messenger.onRequest({ method: 'addLink' }, (args: Service[]): Promise<boolean> => {
             return linkServices(langClient, args[0], args[1]);
+        });
+
+        this._messenger.onRequest({ method: 'deleteLink' }, (location: Location): Promise<boolean> => {
+            return deleteLink(langClient, location);
         });
 
         this._messenger.onRequest({ method: 'pickDirectory' }, async (): Promise<string | undefined> => {
@@ -96,6 +102,14 @@ export class EditLayerRPC {
 
         this._messenger.onRequest({ method: 'executeCommand' }, async (cmd: string): Promise<boolean> => {
             return commands.executeCommand(cmd);
+        });
+
+        this._messenger.onRequest({ method: 'fetchTriggers' }, async (): Promise<BallerinaTriggersResponse | {}> => {
+            return langClient.getTriggers({ query: '' });
+        });
+
+        this._messenger.onRequest({ method: 'editDisplayLabel' }, async (annotation: ServiceAnnotation): Promise<boolean> => {
+            return editDisplayLabel(langClient, annotation);
         });
 
         this._messenger.onNotification({ method: 'go2source' }, (location: Location): void => {
@@ -113,15 +127,6 @@ export class EditLayerRPC {
         });
 
         this._messenger.onNotification({ method: 'goToDesign' }, (args: { filePath: string, position: NodePosition }): void => {
-            // workspace.openTextDocument(location.filePath).then((sourceFile) => {
-            //     window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
-            //         const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
-            //         const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
-            //         const range: Range = new Range(startPosition, endPosition);
-            //         textEditor.revealRange(range, TextEditorRevealType.InCenter);
-            //         textEditor.selection = new Selection(range.start, range.start);
-            //     });
-            // });
             commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, args.filePath, args.position, true);
         });
 

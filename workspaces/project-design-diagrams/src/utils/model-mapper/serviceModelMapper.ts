@@ -100,7 +100,7 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
             services.forEach((service) => {
                 if (!service.serviceId) {
                     service.serviceId = uuid();
-                    service.annotation = { id: service.serviceId, label: service.annotation?.label };
+                    service.annotation = { ...service.annotation, id: service.serviceId };
                 }
 
                 if (!service.path && (!service.annotation.label || validateUUID(service.annotation.label))
@@ -121,18 +121,15 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
                 l2Nodes.set(service.serviceId, l2Node);
             });
 
-            if (packageModel.entryPoint) {
-                const { interactions, elementLocation } = packageModel.entryPoint;
-                const l1EntryNode = new EntryNodeModel(packageName, Level.ONE, elementLocation);
+            if (packageModel.functionEntryPoint) {
+                const l1EntryNode = new EntryNodeModel(packageName, packageModel.functionEntryPoint, Level.ONE);
                 l1EntryNodes.set(packageName, l1EntryNode);
 
-                const cellEntryNode = new EntryNodeModel(packageName, Level.ONE, elementLocation);
+                const cellEntryNode = new EntryNodeModel(packageName, packageModel.functionEntryPoint, Level.ONE);
                 cellEntryNodes.set(packageName, cellEntryNode);
 
-                const l2EntryNode = new EntryNodeModel(packageName, Level.TWO, elementLocation);
+                const l2EntryNode = new EntryNodeModel(packageName, packageModel.functionEntryPoint, Level.TWO);
                 l2EntryNodes.set(packageName, l2EntryNode);
-
-                mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, interactions);
             }
         }
     });
@@ -156,6 +153,13 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                     }
                 }
             });
+            if (projectComponents.get(packageName).functionEntryPoint) {
+                const l1EntryNode: EntryNodeModel = l1EntryNodes.get(packageName);
+                const l2EntryNode: EntryNodeModel = l2EntryNodes.get(packageName);
+                const cellEntryNode: EntryNodeModel = cellEntryNodes.get(packageName);
+                const { interactions } = projectComponents.get(packageName).functionEntryPoint;
+                mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, interactions);
+            }
         }
     });
 }

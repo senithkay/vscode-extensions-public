@@ -17,22 +17,22 @@
  *
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
+import Chip from '@mui/material/Chip';
 import { RestrictedControls } from './DiagramControls/RestrictedControls';
 import { DefaultControls } from './DiagramControls/DefaultControls';
+import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { DagreLayout, Views } from '../../../resources';
-import { HeaderContainer, DiagramTitle } from './styles/styles';
+import { HeaderLeftPane, DiagramTitle, HeaderContainer } from './styles/styles';
 import './styles/styles.css';
 
 interface HeaderProps {
-    currentView: Views;
     layout: DagreLayout;
     prevView: Views;
     projectPackages: Map<string, boolean>;
     changeLayout: () => void;
-    switchView: (viewType: Views) => void;
+    setShowEditForm: (show: boolean) => void;
     updateProjectPkgs: (packages: Map<string, boolean>) => void;
-    onRefresh: () => void;
 }
 
 const headings: Map<Views, string> = new Map<Views, string>([
@@ -44,25 +44,27 @@ const headings: Map<Views, string> = new Map<Views, string>([
 ]);
 
 export function DiagramHeader(props: HeaderProps) {
-    const { currentView, layout, prevView, projectPackages, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
+    const { layout, prevView, projectPackages, changeLayout, setShowEditForm, updateProjectPkgs } = props;
+    const { currentView, editingEnabled } = useContext(DiagramContext);
 
     return (
         <HeaderContainer>
+            <HeaderLeftPane isEditable={editingEnabled}>
+                <DiagramTitle> {headings.get(currentView)} </DiagramTitle>
+                {!editingEnabled &&
+                    <Chip label={'Read-Only Mode'} sx={{ fontSize: '11px', fontFamily: 'GilmerRegular', marginLeft: '5px' }} />
+                }
+            </HeaderLeftPane>
             {currentView === Views.TYPE_COMPOSITION ?
-                <RestrictedControls
-                    previousScreen={prevView}
-                    switchView={switchView}
-                /> :
+                <RestrictedControls previousScreen={prevView} /> :
                 <DefaultControls
                     projectPackages={projectPackages}
                     layout={layout}
                     updateProjectPkgs={updateProjectPkgs}
                     changeLayout={changeLayout}
-                    switchView={switchView}
-                    onRefresh={onRefresh}
+                    setShowEditForm={setShowEditForm}
                 />
             }
-            <DiagramTitle> {headings.get(currentView)} </DiagramTitle>
         </HeaderContainer>
     );
 }

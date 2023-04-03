@@ -20,3 +20,4 @@
 export { AdvancedSettingsWidget } from './AdvancedSettings/AdvancedSettingsWidget';
 export { CreateButton } from './Controls/CreateButton';
 export { TextInputWidget } from './InputWidget/TextInput';
+export { TypeSelector } from './ComponentTypeSelector/TypeSelector';

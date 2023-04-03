@@ -283,6 +283,7 @@ export interface GetPackageComponentModelsResponse {
 }
 
 export interface ComponentModelDiagnostics {
+    name?: string;
     message: string;
     severity?: DIAGNOSTIC_SEVERITY;
 }

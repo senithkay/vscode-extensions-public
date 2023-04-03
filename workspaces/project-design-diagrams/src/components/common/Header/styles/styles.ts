@@ -18,6 +18,7 @@
  */
 
 import styled from '@emotion/styled';
+import React from 'react';
 import { Colors } from '../../../../resources';
 
 export const HeaderContainer = styled.div`
@@ -36,8 +37,8 @@ export const DiagramTitle = styled.div`
     font-size: 13px;
     height: 20px;
     line-height: 20px;
-    text-align: right;
-    width: 160px;
+    padding-right: 5px;
+    text-align: left;
 `;
 
 export const TypeContainer = styled.div`
@@ -73,4 +74,18 @@ export const PackageLabel = styled.span`
     font-family: GilmerRegular;
     font-size: 13px;
     line-height: 20px;
+`;
+
+export const HeaderLeftPane: React.FC<any> = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-width: ${(props: { isEditable: boolean }) => props.isEditable ? '150px' : '300px'};
+`;
+
+export const CentralControls: React.FC<any> = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    min-width: ${(props: { isChoreoProject: boolean }) => props.isChoreoProject ? '550px' : '350px'};
 `;

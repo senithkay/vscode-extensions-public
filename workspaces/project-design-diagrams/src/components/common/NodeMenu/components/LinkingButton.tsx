@@ -22,7 +22,7 @@ import TurnRightIcon from "@mui/icons-material/TurnRight";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { Service } from "../../../../resources";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { useStyles } from "./styles";
+import { useStyles } from "./styles/styles";
 
 export function LinkingButton(props: { service: Service }) {
     const { service } = props;

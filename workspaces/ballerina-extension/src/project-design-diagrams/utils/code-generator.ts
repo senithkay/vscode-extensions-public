@@ -20,13 +20,13 @@
 import { writeFileSync } from "fs";
 import { randomUUID } from "crypto";
 import { ExtendedLangClient } from "src/core";
-import { Position, Range, Uri, workspace, WorkspaceEdit } from "vscode";
+import { Position, Range, Uri, window, workspace, WorkspaceEdit } from "vscode";
 import {
     BallerinaConnectorInfo, Connector, GetSyntaxTreeResponse, STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
 import { STResponse } from "../activator";
-import { Service, ServiceTypes } from "../resources";
+import { Service, ServiceAnnotation, ServiceTypes } from "../resources";
 import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "./connector-code-gen-utils";
 import { runBackgroundTerminalCommand } from "../../utils/runCommand";
 
@@ -93,7 +93,7 @@ export async function pullConnector(langClient: ExtendedLangClient, connector: C
     if (!(stResponse?.parseSuccess && connector.moduleName)) {
         return false;
     }
-    
+
     const imports = getConnectorImports(stResponse.syntaxTree, connector.package.organization, connector.moduleName);
     if (imports && imports?.size > 0) {
         let pullCommand = "";
@@ -114,7 +114,7 @@ export async function pullConnector(langClient: ExtendedLangClient, connector: C
 }
 
 export async function addConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {
-    const filePath: string = targetService.elementLocation.filePath;    
+    const filePath: string = targetService.elementLocation.filePath;
     const stResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(filePath).toString(),
@@ -123,7 +123,7 @@ export async function addConnector(langClient: ExtendedLangClient, connector: Co
     if (!stResponse?.parseSuccess) {
         return false;
     }
-    
+
     clientName = genClientName(stResponse.syntaxTree.source, "Ep", connector);
     const members: any[] = (stResponse as GetSyntaxTreeResponse).syntaxTree.members;
     const serviceDecl = getServiceDeclaration(members, targetService, true);
@@ -183,6 +183,32 @@ async function fetchConnectorInfo(langClient: ExtendedLangClient, connector: Con
     return undefined;
 }
 
+export async function editDisplayLabel(langClient: ExtendedLangClient, annotation: ServiceAnnotation): Promise<boolean> {
+    const stObject = {
+        position: {
+            startLine: annotation.elementLocation.startPosition.line,
+            startColumn: annotation.elementLocation.startPosition.offset,
+            endLine: annotation.elementLocation.endPosition.line,
+            endColumn: annotation.elementLocation.endPosition.offset
+        }
+    }
+
+    const displayAnnotation: string = `
+        @display {
+            label: "${annotation.label}",
+            id: "${annotation.id}"
+        }
+    `;
+
+    const response: STResponse = await updateSyntaxTree(
+        langClient, annotation.elementLocation.filePath, stObject, displayAnnotation, undefined, true) as STResponse;
+    if (response.parseSuccess && response.source) {
+        return updateSourceFile(langClient, annotation.elementLocation.filePath, response.source);
+    }
+    window.showErrorMessage('Architecture View: Failed to update display annotation.');
+    return false;
+}
+
 function getServiceType(serviceType: string): ServiceTypes {
     if (serviceType.includes('ballerina/grpc:')) {
         return ServiceTypes.GRPC;
@@ -220,7 +246,8 @@ async function updateSyntaxTree(
     filePath: string,
     stObject: any,
     generatedCode: string,
-    imports?: Set<string>
+    imports?: Set<string>,
+    isReplace: boolean = false
 ): Promise<STResponse | {}> {
     const modifications: STModification[] = [];
 
@@ -241,8 +268,8 @@ async function updateSyntaxTree(
     }
 
     modifications.push({
-        startLine: stObject.position.endLine,
-        startColumn: stObject.position.endColumn,
+        startLine: isReplace ? stObject.position.startLine : stObject.position.endLine,
+        startColumn: isReplace ? stObject.position.startColumn : stObject.position.endColumn,
         endLine: stObject.position.endLine,
         endColumn: stObject.position.endColumn,
         type: "INSERT",
@@ -259,7 +286,7 @@ async function updateSyntaxTree(
     });
 }
 
-async function updateSourceFile(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
+export async function updateSourceFile(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
     const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
     if (doc) {
         const edit = new WorkspaceEdit();
@@ -331,7 +358,7 @@ function generateConnectorClientInit(connector: BallerinaConnectorInfo): string 
 
     const initFunction = connector.functions?.find((func) => func.name === "init");
     let returnType;
-    
+
     const defaultParameters = getDefaultParams(initFunction.parameters);
     if (initFunction.returnType) {
         returnType = getFormFieldReturnType(initFunction.returnType);
@@ -354,7 +381,7 @@ function getMissingImports(source: string, imports: Set<string>) {
 
 function genClientName(source: string, prefix: string, connector?: Connector) {
     if (connector && !connector.moduleName) {
-        return prefix; 
+        return prefix;
     }
 
     let moduleName: string = "";

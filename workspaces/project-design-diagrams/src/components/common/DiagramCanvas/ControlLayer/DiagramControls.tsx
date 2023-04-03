@@ -17,15 +17,16 @@
  *
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
-import { ControlPanel } from './styles/styles';
-import './styles/styles.css';
-
+import { DiagramContext } from '../../DiagramContext/DiagramContext';
+import { DiagnosticsWarning } from './DiagnosticsWarning';
+import { ControlPanel } from '../styles/styles';
+import '../styles/styles.css';
 
 interface ControlProps {
     zoomToFit: () => void;
@@ -36,9 +37,13 @@ interface ControlProps {
 
 export function DiagramControls(props: ControlProps) {
     const { onDownload, onZoom, zoomToFit, showDownloadButton = true } = props;
+    const { hasDiagnostics } = useContext(DiagramContext);
 
     return (
         <ControlPanel showDownloadButton={showDownloadButton} >
+            {hasDiagnostics && 
+                <DiagnosticsWarning />
+            }
             {showDownloadButton && (
                 <IconButton
                     className={'control-button'}

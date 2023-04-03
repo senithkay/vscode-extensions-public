@@ -22,20 +22,23 @@ import { existsSync } from "fs";
 import { join } from "path";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ExtendedLangClient } from "../../core";
+import { ExtendedLangClient, GetPackageComponentModelsResponse } from "../../core";
 import { terminateActivation } from "../activator";
-import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE } from "../resources";
+import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, Location } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
+import { deleteBallerinaPackage, deleteComponent } from "./component-handler-utils";
 
-export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<string, ComponentModel>> {
+const ballerinaToml = "Ballerina.toml";
+
+export function getComponentModel(langClient: ExtendedLangClient): Promise<GetPackageComponentModelsResponse> {
     return new Promise((resolve, reject) => {
         let ballerinaFiles: string[] = [];
         let workspaceFolders = workspace.workspaceFolders;
         if (workspaceFolders !== undefined) {
             workspaceFolders.forEach(folder => {
-                const isBalProject = existsSync(join(folder.uri.fsPath, "Ballerina.toml"));
+                const isBalProject = existsSync(join(folder.uri.fsPath, ballerinaToml));
                 if (isBalProject) {
-                    ballerinaFiles.push(join(folder.uri.fsPath, "Ballerina.toml"));
+                    ballerinaFiles.push(join(folder.uri.fsPath, ballerinaToml));
                 }
             });
         } else {
@@ -48,10 +51,14 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<s
             documentUris: ballerinaFiles
         }).then(async (response) => {
             let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
-            for (let [_key, packageModel] of packageModels) {
-                if (packageModel.hasCompilationErrors) {
-                    window.showInformationMessage(DIAGNOSTICS_WARNING);
-                    break;
+            if (response.diagnostics?.length) {
+                showDiagnosticsWarning();
+            } else {
+                for (let [_key, packageModel] of packageModels) {
+                    if (packageModel.hasCompilationErrors) {
+                        showDiagnosticsWarning();
+                        break;
+                    }
                 }
             }
 
@@ -59,11 +66,20 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<Map<s
             if (choreoExt) {
                 packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
             }
-            resolve(response.componentModels);
+            resolve(response);
         }).catch((error) => {
             reject(error);
             terminateActivation(ERROR_MESSAGE);
         });
+    });
+}
+
+function showDiagnosticsWarning() {
+    const action = 'View Problems';
+    window.showInformationMessage(DIAGNOSTICS_WARNING, action).then((selection) => {
+        if (action === selection) {
+            commands.executeCommand('workbench.action.problems.focus');
+        }
     });
 }
 
@@ -88,4 +104,19 @@ export async function showChoreoProjectOverview(project: Project | undefined): P
         return commands.executeCommand('wso2.choreo.project.overview', project);
     }
     window.showErrorMessage('Error while loading Choreo project overview.');
+}
+
+export async function deleteProjectComponent(projectId: string, location: Location, deletePkg: boolean): Promise<void> {
+    if (projectId) {
+        const choreoExt = await getChoreoExtAPI();
+        if (choreoExt) {
+            await choreoExt.deleteComponent(projectId, location.filePath);
+        }
+    } else {
+        if (deletePkg) {
+            deleteBallerinaPackage(location.filePath);
+        } else {
+            await deleteComponent(location);
+        }
+    }
 }

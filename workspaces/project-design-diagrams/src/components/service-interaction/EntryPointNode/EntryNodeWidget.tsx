@@ -52,11 +52,15 @@ export function EntryNodeWidget(props: EntryNodeProps) {
         setIsHovered(task === 'SELECT' ? true : false);
     }
 
-    const packageNameWithVersion: string = node.getID().slice(node.getID().lastIndexOf('/') + 1);
-    const displayName = packageNameWithVersion.slice(0, packageNameWithVersion.lastIndexOf(':'));
+    const processPackageName = (): string => {
+        const packageNameWithVersion: string = node.getID().slice(node.getID().indexOf('/') + 1);
+        return packageNameWithVersion.slice(0, packageNameWithVersion.lastIndexOf(':'));
+    }
+
+    const displayName: string = node.entryPoint.annotation?.label || processPackageName();
 
     return (
-        <CtrlClickGo2Source location={node.elementLocation}>
+        <CtrlClickGo2Source location={node.entryPoint.elementLocation}>
             <Container
                 isSelected={isSelected}
                 level={node.level}
@@ -69,10 +73,10 @@ export function EntryNodeWidget(props: EntryNodeProps) {
                 />
                     <EntryPointIcon />
                     <DisplayName>{displayName}</DisplayName>
-                    {isHovered && node.elementLocation && editingEnabled &&
+                    {isHovered && node.entryPoint.elementLocation && editingEnabled &&
                         <NodeMenuWidget
                             background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
-                            location={node.elementLocation}
+                            location={node.entryPoint.elementLocation}
                         />
                     }
                 <ServicePortWidget

@@ -87,3 +87,7 @@ export const Required = styled.span`
     color: red;
     font-size: 14px;
 `;
+
+export const SelectLabel = styled.span`
+    margin-bottom: 5px;
+`;

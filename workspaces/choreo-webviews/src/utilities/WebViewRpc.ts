@@ -43,7 +43,7 @@ import {
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
-    ComponentModel,
+    GetComponentModelResponse,
     getDiagramComponentModel,
     DeleteComponent,
     PullComponent,
@@ -146,7 +146,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(OpenArchitectureView, HOST_EXTENSION, undefined);
     }
 
-    public async getDiagramComponentModel(projId: string, orgHandler: string): Promise<ComponentModel[]> {
+    public async getDiagramComponentModel(projId: string, orgHandler: string): Promise<GetComponentModelResponse> {
         return this._messenger.sendRequest(getDiagramComponentModel, HOST_EXTENSION, { projId, orgHandler } );
     }
 
