@@ -44,8 +44,8 @@ export const CellContainerControls: React.FC<any> = styled.div`
   display: flex;
   align-items: flex-end;
   position: relative;
-  left: ${(props: CellContainerProps) => `${props.isConsoleView ? 72 : 102}px`};
-  margin-top: ${(props: CellContainerProps) => `${props.isConsoleView ? props.canvasHeight : '0'}px`};
+  left: ${(props: CellContainerProps) => `${props.isConsoleView ? 92 : 102}px`};
+  margin-top: ${(props: CellContainerProps) => `${props.isConsoleView ? props.canvasHeight + 216 : '0'}px`};
 ` ;
 
 export const CellDiagramWrapper: React.FC<any> = styled.div`
