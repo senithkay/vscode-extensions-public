@@ -214,7 +214,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                     <CanvasWidget engine={diagramEngine} className={diagramClass} />
                 </div>
             }
-            {type !== Views.TYPE_COMPOSITION && <ViewSwitcher />}
+            {type !== Views.TYPE_COMPOSITION && currentView !== Views.CELL_VIEW && <ViewSwitcher />}
             {currentView !== Views.CELL_VIEW && (
                 <DiagramControls
                     showDownloadButton={type !== Views.CELL_VIEW}

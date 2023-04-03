@@ -32,7 +32,7 @@ import { DiagramModel } from "@projectstorm/react-diagrams";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { cellDiagramZoomToFit, createServicesEngine, positionGatewayNodes } from "../../../utils";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { DiagramControls } from "../DiagramCanvas/ControlLayer";
+import { DiagramControls, ViewSwitcher } from "../DiagramCanvas/ControlLayer";
 
 export interface Coordinate {
     x: number;
@@ -97,6 +97,9 @@ export function CellDiagram(props: CellDiagramProps) {
 
     return (
         <CellDiagramWrapper isConsoleView={isConsoleView}>
+            {!isConsoleView && (
+                <ViewSwitcher />
+            )}
             <CellContainerWrapper isConsoleView={isConsoleView}>
                 <Gateways/>
                 <CellContainer path={borderPath} vertices={vertices}>
