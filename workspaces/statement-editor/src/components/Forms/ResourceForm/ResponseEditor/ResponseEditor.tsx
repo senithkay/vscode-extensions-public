@@ -77,7 +77,8 @@ export function ResponseEditor(props: ParamProps) {
     // When a type is created and full ST is updated update the onChange to remove diagnostics
     useEffect(() => {
         if (newlyCreatedRecord) {
-            handleTypeChange(newlyCreatedRecord);
+            const newRecord = `${newlyCreatedRecord}${isArrayType ? '[]' : ''}`
+            handleTypeChange(newRecord);
         }
     }, [fullST]);
 
@@ -111,6 +112,7 @@ export function ResponseEditor(props: ParamProps) {
 
     const [anonymousValue, setAnonymousValue] = useState<string>("");
     const [subType, setSubType] = useState<boolean>(false);
+    const [isArrayType, setIsArrayType] = useState<boolean>(false);
 
 
     const onTypeEditorFocus = () => {
@@ -130,6 +132,7 @@ export function ResponseEditor(props: ParamProps) {
         // const paramName = model.paramName.value;
         // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
         setTypeValue(value);
+        setIsArrayType(value.includes("[]"));
         onChange(segmentId, 200, value);
     }
 
@@ -203,7 +206,7 @@ export function ResponseEditor(props: ParamProps) {
             const responseCode = optionList.find(item => item.title === response);
             const responseName = responseCode.source.split(":")[1];
             const nameValue = `${responseName}${typeValue}`;
-            setAnonymousValue(nameValue);
+            setAnonymousValue(nameValue.replace(/\[\]/g, ""));
             setSubType(true);
         } else {
             setSubType(false);
