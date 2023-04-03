@@ -12,9 +12,9 @@
  */
 import React from "react";
 
-import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { Trigger } from '@wso2-enterprise/ballerina-languageclient';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { ErrorBanner } from '../../Commons/ErrorBanner';
 import { ChoreoWebViewAPI } from '../../utilities/WebViewRpc';
 
@@ -22,6 +22,7 @@ import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
 import { ComponentWizardState } from "../types";
 import { ChoreoComponentType } from "@wso2-enterprise/choreo-core";
 import styled from "@emotion/styled";
+import { useQuery } from "@tanstack/react-query";
 
 
 const DEFAULT_ERROR_MSG = "Could not load the Webhook triggers.";
@@ -34,11 +35,39 @@ const StepContainer = styled.div`
     gap: 20px;
 `;
 
+const TriggerSelectorContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+`
+
 export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardState>>) => {
 
     const { formData, onFormDataChange } = props;
-    const [triggers, setTriggers] = useState<Trigger[] | undefined>(undefined);
-    const [error, setError] = useState<string | undefined>(undefined);
+
+    const { isLoading, error, data: triggers, refetch } = useQuery({
+        queryKey: ['availableTriggers'],
+        queryFn: () =>
+            ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTriggers().then(async (response) => {
+                if (response && response.central?.length) {
+                    return response.central;
+                } else {
+                    return fetch(GET_TRIGGERS_PATH, {
+                        headers: {
+                            'User-Agent': await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().getBalVersion()
+                        }
+                    }).then((res) => res.json())
+                        .then((data) => {
+                            if (data && data.triggers?.length) {
+                                return data.triggers;
+                            } else {
+                                throw new Error(DEFAULT_ERROR_MSG);
+                            }
+                        })
+                }
+            })
+      })
 
     const setSelectedTrigger = (id: string | undefined) => {
         onFormDataChange((prevFormData) => {
@@ -59,47 +88,24 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
         setDefaultTrigger();
     }, [triggers]);
 
-    useEffect(() => {
-        // Attempts to fetch triggers via the Ballerina Extension Instance's language client
-        // If the attempt fails, retrieves the triggers via the public API.
-        ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTriggers().then(async (response) => {
-            if (response && response.central?.length) {
-                setTriggers(response.central);
-            } else {
-                fetch(GET_TRIGGERS_PATH, {
-                    headers: {
-                        'User-Agent': await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().getBalVersion()
-                    }
-                }).then((res) => res.json())
-                    .then((data) => {
-                        if (data && data.triggers?.length) {
-                            setTriggers(data.triggers);
-                        } else {
-                            setError(DEFAULT_ERROR_MSG);
-                        }
-                    })
-                    .catch((err) => {
-                        setError(err.message);
-                    });
-            }
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     return (
         <StepContainer>
             <label htmlFor="trigger-dropdown">Select Trigger</label>
-            {!triggers && !error && <VSCodeProgressRing />}
+            {isLoading && <VSCodeProgressRing />}
             {triggers && triggers.length > 0 && (
-                <VSCodeDropdown id="trigger-dropdown" value={formData?.trigger} onChange={(e: any) => { setSelectedTrigger(e.target.value) }}>
-                    {triggers.map((trigger: Trigger) => (
-                        <VSCodeOption id={trigger.id} value={trigger.id} key={trigger.id}>
-                            {trigger.displayAnnotation?.label || trigger.moduleName}
-                        </VSCodeOption>
-                    ))}
-                </VSCodeDropdown>
+                <TriggerSelectorContainer>
+                    <VSCodeDropdown id="trigger-dropdown" value={formData?.trigger} onChange={(e: any) => { setSelectedTrigger(e.target.value) }}>
+                        {triggers.map((trigger: Trigger) => (
+                            <VSCodeOption id={trigger.id} value={trigger.id} key={trigger.id}>
+                                {trigger.displayAnnotation?.label || trigger.moduleName}
+                            </VSCodeOption>
+                        ))}
+                    </VSCodeDropdown>
+                    <VSCodeLink onClick={() => refetch()}>Refresh</VSCodeLink>
+                </TriggerSelectorContainer>
             )}
-            {error && <ErrorBanner errorMsg={error} />}
+            {error && <ErrorBanner errorMsg={error as any} />}
         </StepContainer>
     );
 }
