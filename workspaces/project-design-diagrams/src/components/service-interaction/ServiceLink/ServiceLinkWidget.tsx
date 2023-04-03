@@ -119,7 +119,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 				>
 					<DataTypesPopup
 						callingFunction={callingFunction}
-						location={link.location}
+						link={link}
 					/>
 				</Popover>
 			}
@@ -127,7 +127,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 			{link.level === Level.ONE && editingEnabled && link.location && position &&
 				<ServiceLinkMenu
 					anchorElement={anchorElement}
-					location={link.location}
+					link={link}
 					position={position}
 					onMouseLeave={onMouseLeave}
 					onMouseOver={onMouseOver}

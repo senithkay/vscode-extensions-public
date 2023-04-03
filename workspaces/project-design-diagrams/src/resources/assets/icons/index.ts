@@ -26,3 +26,8 @@ export { GraphQLSubscriptionIcon } from './GraphQLSubscription';
 export { GrpcIcon } from './GrpcIcon';
 export { HttpServiceIcon } from './HttpIcon';
 export { ShortGrpcIcon } from './ShortGrpcIcon';
+
+export { CellViewIcon } from './CellView';
+export { L1ServicesIcon } from './L1Services';
+export { L2ServicesIcon } from './L2Services';
+export { TypesDiagramIcon } from './TypesDiagram';
