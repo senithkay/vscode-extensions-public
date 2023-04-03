@@ -105,7 +105,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                 checked={formData?.mode === "fromScratch"}
                 onChange={handleFromScrachCheckChange}
             >
-                Create from scratch (Recommended)
+                Create from scratch
             </VSCodeRadio>
             {formData?.mode  === "fromScratch" && (
                 <SubContainer>
@@ -176,17 +176,17 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                             onClick={() => handleSourceTypeChange("Ballerina")}
                             title="Create from an existing Ballerina package."
                         >
-                            Ballerina Package
+                            <h4>Ballerina Package</h4>
                         </SourceTypeCardContainer>
                         <SourceTypeCardContainer
                             className={cn({ "active":  sourceType === "Dockerfile"})}
                             onClick={() => handleSourceTypeChange("Dockerfile")}
                             title="Create from an existing Dockerfile."
                         >
-                            Dockerfile
+                            <h4>Dockerfile</h4> 
                         </SourceTypeCardContainer>
                     </CardContainer>
-                    <label htmlFor="existing-import-type-dropdown">Component type to create</label>
+                    <label htmlFor="existing-import-type-dropdown">Component type</label>
                     <VSCodeDropdown
                         id="existing-import-type-dropdown"
                         value={formData?.type}
