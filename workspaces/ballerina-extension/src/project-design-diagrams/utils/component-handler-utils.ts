@@ -233,6 +233,7 @@ async function updateWorkspaceFile(componentPath: string): Promise<void> {
 
 export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLinkArgs): Promise<void> {
     const { linkLocation, serviceLocation } = args;
+    let userFeedback = UNSUPPORTED_LINK_DELETION;
     const stResponse: STResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
             uri: Uri.file(linkLocation.filePath).toString()
@@ -276,26 +277,25 @@ export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLin
                     }
                 ];
 
-                const response: STResponse = (await langClient.stModify({
+                const updatedST: STResponse = (await langClient.stModify({
                     astModifications: modifications,
                     documentIdentifier: {
                         uri: Uri.file(linkLocation.filePath).toString(),
                     }
                 })) as STResponse;
 
-                if (response.parseSuccess && response.source) {
-                    await updateSourceFile(langClient, linkLocation.filePath, response.source).then(() => {
-                        window.showInformationMessage(SUCCESSFUL_LINK_DELETION);
-                        return;
+                if (updatedST.parseSuccess && updatedST.source) {
+                    await updateSourceFile(langClient, linkLocation.filePath, updatedST.source).then(() => {
+                        userFeedback = SUCCESSFUL_LINK_DELETION;
                     })
                 }
             }
         }
     }
-    showActionableWarnings(UNSUPPORTED_LINK_DELETION, linkLocation);
+    showActionableMessage(userFeedback, linkLocation);
 }
 
-function showActionableWarnings(message: string, location: Location) {
+function showActionableMessage(message: string, location: Location) {
     const action = 'Go to source';
     window.showInformationMessage(message, action).then((selection) => {
         if (action === selection) {
