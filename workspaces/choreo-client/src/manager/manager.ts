@@ -62,7 +62,7 @@ export class ChoreoProjectManager implements IProjectManager {
                 if (displayType === ChoreoComponentType.GraphQL
                     || displayType === ChoreoComponentType.Service
                     || displayType === ChoreoComponentType.Proxy) {
-                    addDisplayAnnotation(pkgPath, displayType, repositoryInfo);
+                    addDisplayAnnotation(pkgPath, displayType);
                 }
                 return await addToWorkspace(workspaceFilePath, args);
             } else {

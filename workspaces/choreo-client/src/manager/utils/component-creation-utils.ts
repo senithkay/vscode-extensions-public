@@ -13,8 +13,8 @@
 
 import child_process from "child_process";
 import { log } from "console";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, RepositoryDetails, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
-import { dirname, join } from "path";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { basename, dirname, join } from "path";
 import { existsSync, mkdirSync, readFile, unlink, writeFile } from "fs";
 import { randomUUID } from "crypto";
 
@@ -104,8 +104,8 @@ export function processTomlFiles(pkgPath: string, orgName: string) {
     });
 }
 
-export function addDisplayAnnotation(pkgPath: string, type: ChoreoComponentType, repositoryInfo: RepositoryDetails) {
-    const serviceId = `${repositoryInfo.subPath}-${randomUUID()}`;
+export function addDisplayAnnotation(pkgPath: string, type: ChoreoComponentType) {
+    const serviceId = `${basename(pkgPath)}-${randomUUID()}`;
     const serviceFileName = type === ChoreoComponentType.GraphQL ? 'sample.bal' : 'service.bal';
     const serviceFilePath = join(pkgPath, serviceFileName);
     readFile(serviceFilePath, 'utf-8', (err, contents) => {
@@ -113,7 +113,7 @@ export function addDisplayAnnotation(pkgPath: string, type: ChoreoComponentType,
             log(`Error: Could not read ${serviceFileName} file.`);
             return;
         }
-        const replaced = getAnnotatedContent(contents, repositoryInfo.subPath, serviceId);
+        const replaced = getAnnotatedContent(contents, basename(pkgPath), serviceId);
         writeFile(serviceFilePath, replaced, 'utf-8', function (err) {
             if (err) {
                 log("Error: Could not annotate component.");
