@@ -69,7 +69,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const { orgName, projectId } = props;
     const queryClient = useQueryClient();
 
-    const { data: project, refetch: refetchGetAllProjects } = useQuery({
+    const { data: project } = useQuery({
         queryKey: ["overview_project", projectId, orgName],
         queryFn: () => ChoreoWebViewAPI.getInstance().getAllProjects(),
         select: (fetchedProjects) =>
