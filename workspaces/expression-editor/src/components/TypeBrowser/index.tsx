@@ -8,7 +8,6 @@ import {
     SecondaryButton,
     TooltipCodeSnippet
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import debounce from "lodash.debounce";
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import { useStyles as useFormStyles } from "../../themes";
@@ -47,8 +46,6 @@ function TypeBrowserC(props: TypeBrowserProps) {
     useEffect(() => {
         setSelectedTypeStr(type ? type : '')
     }, [type])
-
-    const debouncedOnChange = debounce(onChange, 1000);
 
     // Create new record and add it to the list
     const handleCreateNew = () => {
@@ -101,7 +98,7 @@ function TypeBrowserC(props: TypeBrowserProps) {
     });
 
     const handleOnChange = (_: any, value: CompletionResponseWithModule) => {
-        debouncedOnChange(value?.module ? `${value.module}:${value.insertText}` : value?.insertText)
+        onChange(value?.module ? `${value.module}:${value.insertText}` : value?.insertText)
     }
 
     return (
@@ -117,7 +114,7 @@ function TypeBrowserC(props: TypeBrowserProps) {
                 onInputChange={(_, value) => {
                     if (!isLoading) {
                         setSelectedTypeStr(value)
-                        debouncedOnChange(value);
+                        onChange(value);
                     }
                 }}
                 defaultValue={selectedTypeStr}

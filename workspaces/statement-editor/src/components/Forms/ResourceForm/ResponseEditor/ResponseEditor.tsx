@@ -14,6 +14,8 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { TextField } from '@material-ui/core';
 import { LiteExpressionEditor, LiteTextField, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
 import { ResponseCode } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
@@ -21,6 +23,7 @@ import {
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ModulePart, NodePosition } from '@wso2-enterprise/syntax-tree';
+import debounce from 'lodash.debounce';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
 import { FormEditorContext } from '../../../../store/form-editor-context';
@@ -28,8 +31,6 @@ import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
 import { createNewRecord, createPropertyStatement } from '../util';
 
 import { useStyles } from "./style";
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { TextField } from '@material-ui/core';
 
 export interface Param {
     id: number;
@@ -131,6 +132,8 @@ export function ResponseEditor(props: ParamProps) {
         onChange(segmentId, 200, value);
     }
 
+    const debouncedOnChange = debounce(handleTypeChange, 800);
+
     const handleNameChange = (value: string) => {
         setAnonymousValue(value.replace(/\s/g, ''));
     }
@@ -224,7 +227,7 @@ export function ResponseEditor(props: ParamProps) {
                     <FieldTitle title='Type' optional={true} />
                     <TypeBrowser
                         type={typeValue}
-                        onChange={handleTypeChange}
+                        onChange={debouncedOnChange}
                         isLoading={false}
                         recordCompletions={completions}
                         createNew={createRecord}
