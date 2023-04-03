@@ -24,7 +24,7 @@ interface TriggerResponse extends BallerinaTriggerResponse {
     moduleName: string;
 }
 
-export const BAL_FORMAT_SERVICE_CMD = "bal format service.bal";
+export const BAL_FORMAT_SERVICE_CMD = "bal format";
 const BAL_PULL_PREFIX = "bal pull";
 const GET_TRIGGERS_API = 'https://api.central.ballerina.io/2.0/registry/triggers';
 
