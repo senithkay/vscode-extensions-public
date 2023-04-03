@@ -78,6 +78,7 @@ export const ComponentWizard: React.FC = () => {
             repository: {
                 dockerContext: '',
                 dockerFile: '',
+                subPath: '',
             },
             cache: {
                 authorizedOrgs: [],

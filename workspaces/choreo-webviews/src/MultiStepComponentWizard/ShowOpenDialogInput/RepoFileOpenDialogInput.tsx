@@ -13,14 +13,12 @@
 import React from "react";
 import { OpenDialogOptions } from "@wso2-enterprise/choreo-core";
 import styled from "@emotion/styled";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { Codicon } from "../../Codicon/Codicon";
 
-const Container =  styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 20px;
+const Container =  styled.span`
+    margin-left: 10px;
 `;
 
 export interface ShowOpenDialogInputProps extends Omit<OpenDialogOptions, "defaultUri"> {
@@ -51,12 +49,10 @@ export const RepoFileOpenDialogInput = (props: ShowOpenDialogInputProps) => {
     };
 
     return <Container>
-        <VSCodeButton onClick={handleClick}>
-                {label}
-        </VSCodeButton>
-        <div>
-            {path}
-        </div>
-    </Container>;
+        <VSCodeLink onClick={handleClick}>
+            <i className={`codicon codicon-folder-opened`} style={{ verticalAlign: "bottom", marginRight: "5px"}} />
+            {label}
+        </VSCodeLink>
+    </Container>
 
 };

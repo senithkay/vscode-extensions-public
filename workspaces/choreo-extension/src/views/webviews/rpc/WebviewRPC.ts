@@ -30,7 +30,8 @@ import {
     ComponentModel,
     DeleteComponent,
     PullComponent,
-    showOpenDialogRequest
+    showOpenDialogRequest,
+    OpenDialogOptions
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -200,9 +201,9 @@ export class WebViewRpc {
             view.dispose();
         });
 
-        this._messenger.onRequest(showOpenDialogRequest, async (options: vscode.OpenDialogOptions) => {
+        this._messenger.onRequest(showOpenDialogRequest, async (options: OpenDialogOptions) => {
             try {
-                const result = await window.showOpenDialog(options);
+                const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri)});
                 return result?.map((file) => file.fsPath);
             } catch (error: any) {
                 getLogger().error(error.message);

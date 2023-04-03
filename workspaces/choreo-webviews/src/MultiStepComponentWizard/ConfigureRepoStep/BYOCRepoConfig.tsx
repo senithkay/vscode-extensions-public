@@ -22,6 +22,7 @@ import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import debounce from "lodash.debounce";
+import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
 
 const StepContainer = styled.div`
     display: flex;
@@ -108,14 +109,37 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
                 >
                     Docker File Path <RequiredFormInput />
                     {dockerFileError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
+                    <RepoFileOpenDialogInput
+                        label="Browse"
+                        repo={`${repository?.org}/${repository?.repo}`}
+                        path={repository?.dockerFile}
+                        onOpen={setDockerFile}
+                        canSelectFiles={true}
+                        canSelectFolders={false}
+                        canSelectMany={false}
+                        title="Select Dockerfile"
+                        filters={{ "Dockerfile": ["Dockerfile"]}}
+                    />
                 </VSCodeTextField>
                 <VSCodeTextField
                     placeholder=""
                     onInput={(e: any) => setDockerFileCtx(e.target.value)}
                     value={repository?.dockerContext}
                 >
-                    Docker Context Path <RequiredFormInput />
+                    Docker Context Path
                     {dockerFileError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
+                    <RepoFileOpenDialogInput
+                        label="Browse"
+                        repo={`${repository?.org}/${repository?.repo}`}
+                        path={repository?.dockerContext}
+                        onOpen={setDockerFileCtx}
+                        canSelectFiles={false}
+                        canSelectFolders={true}
+                        canSelectMany={false}
+                        title="Select Docker Context"
+                        filters={{}}
+                    />
+
                 </VSCodeTextField>
             </StepContainer>
             {isValidationInProgress && <div>validating...</div>}

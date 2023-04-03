@@ -34,7 +34,6 @@ const StepContainer = styled.div`
     gap: 20px;
 `;
 
-
 export interface RepoStructureConfigProps {
     formData: Partial<ComponentWizardState>;
     onFormDataChange: (updater: (prevFormData: Partial<ComponentWizardState>) => Partial<ComponentWizardState>) => void;
@@ -143,19 +142,19 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                         value={repository?.subPath}
                     >
                         Ballerina Package Path <RequiredFormInput />
-                        {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
+                        {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}  
+                        <RepoFileOpenDialogInput
+                            label="Browse"
+                            repo={`${repository?.org}/${repository?.repo}`}
+                            path={repository?.subPath}
+                            onOpen={updateSubFolderName}
+                            canSelectFiles={false}
+                            canSelectFolders={true}
+                            canSelectMany={false}
+                            title="Select Ballerina Package root folder"
+                            filters={{}}
+                        />
                     </VSCodeTextField>
-                    <RepoFileOpenDialogInput
-                        label="Select Ballerina Package"
-                        repo={`${repository?.org}/${repository?.repo}`}
-                        path={repository?.subPath}
-                        onOpen={updateSubFolderName}
-                        canSelectFiles={false}
-                        canSelectFolders={true}
-                        canSelectMany={false}
-                        title="Select Ballerina Package"
-                        filters={{}}
-                    />
                 </StepContainer>
             )}
 
