@@ -24,7 +24,7 @@ import child_process from "child_process";
 import { compile } from "handlebars";
 import { BallerinaTriggerResponse, STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { BallerinaComponentTypes } from "@wso2-enterprise/choreo-core";
-import { AssignmentStatement, ObjectField, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { ExtendedLangClient } from "../../core";
 import { getLangClient, STResponse } from "../activator";
 import {
@@ -248,8 +248,8 @@ export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLin
         });
         traversNode(stResponse.syntaxTree, STNodeFindingVisitor);
         const node: STNode = STNodeFindingVisitor.getSTNode();
-        if (node.kind === 'ObjectField' && (node as ObjectField).typeData.isEndpoint) {
-            const identifierName: string = (node as ObjectField).fieldName.value;
+        if (STKindChecker.isObjectField(node) && node.typeData.isEndpoint) {
+            const identifierName: string = node.fieldName.value;
             STNodeFindingVisitor.setPosition({
                 startColumn: serviceLocation.startPosition.offset,
                 startLine: serviceLocation.startPosition.line,
@@ -259,9 +259,12 @@ export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLin
             traversNode(stResponse.syntaxTree, STNodeFindingVisitor);
             const serviceNode: STNode = STNodeFindingVisitor.getSTNode();
             const initFunction = getInitFunction(serviceNode);
-            const initStatement: AssignmentStatement = initFunction?.functionBody?.statements?.find(statement =>
-                statement.kind === "AssignmentStatement" && statement?.varRef?.fieldName.name.value === identifierName
+            const initStatement: AssignmentStatement = initFunction?.functionBody?.statements?.find((statement: STNode) =>
+                STKindChecker.isAssignmentStatement(statement) && STKindChecker.isFieldAccess(statement.varRef) &&
+                STKindChecker.isSimpleNameReference(statement.varRef.fieldName) &&
+                statement.varRef.fieldName.name.value === identifierName
             );
+
             if (initStatement) {
                 const modifications: STModification[] = [
                     {
