@@ -11,11 +11,11 @@
  *  associated services.
  */
 
-import { ChoreoServiceComponentType, Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync } from 'fs';
-import { CreateComponentParams } from "@wso2-enterprise/choreo-client";
+import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, join } from "path";
 import * as vscode from 'vscode';
@@ -327,32 +327,90 @@ export class ProjectRegistry {
         return projectRepositories ? projectRepositories[projectId] : undefined;
     }
 
-    pushLocalComponentsToChoreo(projectId: string, org: Organization): Promise<void> {
-        return new Promise(async (resolve, reject) => {
+    pushLocalComponentsToChoreo(projectId: string, org: Organization): Thenable<void> {
+        return window.withProgress({
+            title: `Pushing local components to Choreo.`,
+            location: ProgressLocation.Notification,
+            cancellable: true
+        }, async (_progress, cancellationToken) => {
+
+            cancellationToken.onCancellationRequested(async () => {
+                getLogger().debug("Pushing to Choreo cancelled for project: " + projectId);
+            });
+            
             const projectLocation: string | undefined = this.getProjectLocation(projectId);
             let failures: string = "";
             if (projectLocation !== undefined) {
                 // Get local components
                 const choreoPM = new ChoreoProjectManager();
                 const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
-                await Promise.all(localComponentMeta.map(async componentMetadata => {
+                for (const componentMetadata of localComponentMeta) {
+                    if (cancellationToken.isCancellationRequested) {
+                        break;
+                    }
+                    _progress.report({ message: `Pushing ${componentMetadata.displayName} to Choreo.`});
                     try {
-                        await this.createComponent(componentMetadata, projectId);
-                    } catch {
+                        if (componentMetadata.displayType.startsWith("byoc")) {
+                            await this._createByoComponent(componentMetadata);
+                        } else {
+                            await this._createComponent(componentMetadata);
+                        }
+                        choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+                    } catch (error) {
                         const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
                         failures = `${failures} ${errorMsg}`;
-                        if (componentMetadata.displayType !== ChoreoServiceComponentType.REST_API
-                            && componentMetadata.displayType !== ChoreoServiceComponentType.GRAPHQL) {
-                            failures = `${failures} Component type is not supported.`;
-                        }
                     }
-                }));
+                    _progress.report({ increment: 100 / localComponentMeta.length });
+                }
+                if (failures !== "") {
+                    getLogger().error(failures);
+                    window.showErrorMessage(failures);
+                }
+                // Delete the components so they resolve from choreo
+                this._dataComponents.delete(projectId);
             }
-            if (failures) {
-                reject(new Error(failures));
-            }
-            resolve();
         });
+        
+    }
+
+    private async _createComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
+            const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+            const componentRequest: CreateComponentParams = {
+                name: componentMetadata.displayName,
+                displayName: componentMetadata.displayName,
+                displayType: componentMetadata.displayType,
+                description: componentMetadata.description,
+                orgId: componentMetadata.org.id,
+                orgHandle: componentMetadata.org.handle,
+                projectId: componentMetadata.projectId,
+                accessibility: componentMetadata.accessibility,
+                srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+                repositorySubPath: appSubPath,
+                repositoryType: "UserManagedNonEmpty",
+                repositoryBranch: branchApp
+            };
+            await projectClient.createComponent(componentRequest);
+    }
+
+    private async _createByoComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
+        if (componentMetadata.byocConfig === undefined) {
+            throw new Error("BYOC config is undefined");
+        }
+        const componentRequest: CreateByocComponentParams = {
+            name: componentMetadata.displayName,
+            displayName: componentMetadata.displayName,
+            componentType: componentMetadata.displayType,
+            description: componentMetadata.description,
+            orgId: componentMetadata.org.id,
+            orgHandler: componentMetadata.org.handle,
+            projectId: componentMetadata.projectId,
+            accessibility: componentMetadata.accessibility,
+            byocConfig: componentMetadata.byocConfig,
+            labels: "",
+            oasFilePath: "",
+            port: 8090, // Check if this is mandoatory
+        };
+        await projectClient.createByocComponent(componentRequest);
     }
 
     async pushLocalComponentToChoreo(projectId: string, componentName: string): Promise<void> {
@@ -363,7 +421,12 @@ export class ProjectRegistry {
             const componentMetadata = localComponentMeta?.find(component => component.displayName === componentName);
             if (componentMetadata) {
                 try {
-                    await this.createComponent(componentMetadata, projectId);
+                    if (componentMetadata.displayType.startsWith("byoc")) {
+                        await this._createByoComponent(componentMetadata);
+                    } else {
+                        await this._createComponent(componentMetadata);
+                    }
+                    choreoPM.removeLocalComponent(projectLocation, componentMetadata);
                     vscode.window.showInformationMessage(`The component ${componentMetadata.displayName} has been successfully pushed to Choreo.`);
                 } catch (e) {
                     serializeError(e);
@@ -373,29 +436,29 @@ export class ProjectRegistry {
         }
     }
 
-    private createComponent = async (componentMetadata: WorkspaceComponentMetadata, projectId: string) => {
-        const choreoPM = new ChoreoProjectManager();
-        const projectLocation: string | undefined = this.getProjectLocation(projectId);
-        if (projectLocation) {
-            const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
-            const componentRequest: CreateComponentParams = {
-                name: componentMetadata.displayName,
-                displayName: componentMetadata.displayName,
-                displayType: componentMetadata.displayType,
-                description: componentMetadata.description,
-                orgId: componentMetadata.org.id,
-                orgHandle: componentMetadata.org.handle,
-                projectId: projectId,
-                accessibility: componentMetadata.accessibility,
-                srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
-                repositorySubPath: appSubPath,
-                repositoryType: "UserManagedNonEmpty",
-                repositoryBranch: branchApp
-            };
-            await projectClient.createComponent(componentRequest);
-            choreoPM.removeLocalComponent(projectLocation, componentMetadata);
-        }
-    };
+    // private createComponent = async (componentMetadata: WorkspaceComponentMetadata, projectId: string) => {
+    //     const choreoPM = new ChoreoProjectManager();
+    //     const projectLocation: string | undefined = this.getProjectLocation(projectId);
+    //     if (projectLocation) {
+    //         const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+    //         const componentRequest: CreateComponentParams = {
+    //             name: componentMetadata.displayName,
+    //             displayName: componentMetadata.displayName,
+    //             displayType: componentMetadata.displayType,
+    //             description: componentMetadata.description,
+    //             orgId: componentMetadata.org.id,
+    //             orgHandle: componentMetadata.org.handle,
+    //             projectId: projectId,
+    //             accessibility: componentMetadata.accessibility,
+    //             srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+    //             repositorySubPath: appSubPath,
+    //             repositoryType: "UserManagedNonEmpty",
+    //             repositoryBranch: branchApp
+    //         };
+    //         await projectClient.createComponent(componentRequest);
+    //         choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+    //     }
+    // };
 
     async hasDirtyLocalRepo(projectId: string, component: Component): Promise<boolean> {
         const projectLocation: string | undefined = this.getProjectLocation(projectId);

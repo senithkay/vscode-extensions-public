@@ -47,7 +47,9 @@ import {
     DeleteComponent,
     PullComponent,
     PushLocalComponentToChoreo,
-    GetEnrichedComponents
+    GetEnrichedComponents,
+    OpenDialogOptions,
+    showOpenDialogRequest
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -191,6 +193,10 @@ export class ChoreoWebViewAPI {
 
     public closeWebView() {
         this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
+    }
+
+    public async showOpenDialog(options: OpenDialogOptions): Promise<string[] | undefined> {
+        return this._messenger.sendRequest(showOpenDialogRequest, HOST_EXTENSION, options);
     }
 
     public static getInstance() {

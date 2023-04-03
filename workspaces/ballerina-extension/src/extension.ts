@@ -18,7 +18,7 @@
  */
 
 import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
-import { ballerinaExtInstance } from './core';
+import { ballerinaExtInstance, BallerinaExtension } from './core';
 import { activate as activateDiagram } from './diagram';
 import { activate as activateBBE } from './bbe';
 import {
@@ -82,11 +82,11 @@ function onBeforeInit(langClient: ExtendedLangClient) {
     langClient.registerFeature(new ShowFileFeature());
 }
 
-export function activate(context: ExtensionContext): Promise<any> {
+export async function activate(context: ExtensionContext): Promise<BallerinaExtension> {
     debug('Active the Ballerina VS Code extension.');
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_EXTENSION_ACTIVATE, CMP_EXTENSION_CORE);
     ballerinaExtInstance.setContext(context);
-    return ballerinaExtInstance.init(onBeforeInit).then(() => {
+    await ballerinaExtInstance.init(onBeforeInit).then(() => {
         // start the features.
         // Enable package overview
         activatePackageOverview(ballerinaExtInstance);
@@ -147,6 +147,7 @@ export function activate(context: ExtensionContext): Promise<any> {
             });
         }
     });
+    return ballerinaExtInstance;
 }
 
 export function deactivate(): Thenable<void> | undefined {

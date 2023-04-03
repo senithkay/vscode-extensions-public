@@ -45,7 +45,16 @@ export const OpenArchitectureView: RequestType<string, void> = { method: 'openAr
 export const getDiagramComponentModel: RequestType<{ projId: string, orgHandler: string }, GetComponentModelResponse> = { method: 'getDiagramComponentModel' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
+export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };
 
+export interface OpenDialogOptions {
+   title: string,
+   canSelectFiles: boolean, 
+   canSelectFolders: boolean, 
+   canSelectMany: boolean, 
+   defaultUri: string, 
+   filters: { [name: string]: string[] }
+}
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };

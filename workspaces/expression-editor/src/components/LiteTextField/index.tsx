@@ -24,16 +24,21 @@ export interface LiteTextFieldProps {
     value?: string;
     onChange: (newType: string) => void;
     isLoading: boolean;
-    diagnostics: StatementSyntaxDiagnostics[]
+    diagnostics: StatementSyntaxDiagnostics[];
+    onFocus?: () => void;
 }
 
 function LiteTextFieldC(props: LiteTextFieldProps) {
-    const { value, diagnostics, onChange, isLoading } = props;
+    const { value, diagnostics, onChange, isLoading, onFocus } = props;
 
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState("");
 
     const handleValueChange = (input: string) => {
         onChange(input)
+    }
+
+    const handleOnFocus = () => {
+        onFocus();
     }
 
     // When diagnostics are hit push the error message
@@ -60,6 +65,7 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
                 onChange={(e) => { handleValueChange(e.target.value) }}
                 InputLabelProps={{ shrink: false }}
                 disabled={isLoading}
+                onFocus={handleOnFocus}
             />
             {expressionDiagnosticMsg && (
                 <>
