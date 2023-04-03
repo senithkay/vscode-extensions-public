@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -11,13 +11,17 @@
  *  associated services.
  */
 
-import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import {
+    VSCodeButton,
+    VSCodeProgressRing,
+} from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Component, Project } from "@wso2-enterprise/choreo-core";
+import React, { useCallback, useMemo } from "react";
+import { Component } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
 import { Codicon } from "../Codicon/Codicon";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -62,93 +66,73 @@ export interface ProjectOverviewProps {
 }
 
 export function ProjectOverview(props: ProjectOverviewProps) {
-    const [project, setProject] = useState<Project | undefined>(undefined);
-    const [components, setComponents] = useState<Component[]>([]);
-    const [location, setLocation] = useState<string | undefined>(undefined);
-    const [isActive, setActive] = useState<boolean>(false);
-    const [creatingComponents, setCreatingComponents] = useState<boolean>(false);
-    const [loadingComponents, setLoadingComponents] = useState(false);
-    const projectId = props.projectId ? props.projectId : '';
-    const orgName = props.orgName ? props.orgName : '';
+    const { orgName, projectId } = props;
+    const queryClient = useQueryClient();
 
-    // Set the starting project with the project id passed by props
-    useEffect(() => {
-        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
-            setProject(fetchedProjects.find((i) => { return i.id === projectId; }));
-        });
-    }, [projectId, orgName]);
-
-    const fetchComponents = useCallback(async (projectId) => {
-        setLoadingComponents(true);
-        try {
-            const components = await ChoreoWebViewAPI.getInstance().getComponents(projectId);
-            setComponents(components);
-            const enrichedComponents = await ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
-            setComponents(enrichedComponents);
-        } finally {
-            setLoadingComponents(false);
-        }
-    }, []);
-
-    // Set the components of the project
-    useEffect(() => {
-        fetchComponents(projectId);
-    }, [projectId, orgName]);
-
-    useEffect(() => {
-        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
-            if (p && p.id === projectId) {
-                setActive(true);
-            } else {
-                setActive(false);
-            }
-        });
-    }, [projectId, orgName]);
-
-    // Get project location & repo
-    useEffect(() => {
-        ChoreoWebViewAPI.getInstance().getProjectLocation(projectId).then(setLocation);
-    }, [projectId, orgName]);
-
-    // Listen to changes in project selection
-    ChoreoWebViewAPI.getInstance().onSelectedProjectChanged((newProjectId) => {
-        if (projectId !== newProjectId) {
-            setComponents(undefined);
-        }
-        // setProject(undefined); will not remove project to fix the glitch
-        ChoreoWebViewAPI.getInstance().getAllProjects().then((fetchedProjects) => {
-            setProject(fetchedProjects.find((i) => { return i.id === newProjectId; }));
-        });
-        fetchComponents(newProjectId);
-        ChoreoWebViewAPI.getInstance().getProjectLocation(newProjectId).then(setLocation);
-        ChoreoWebViewAPI.getInstance().getChoreoProject().then((p) => {
-            if (p && p.id === newProjectId) {
-                setActive(true);
-            } else {
-                setActive(false);
-            }
-        });
+    const { data: project, refetch: refetchGetAllProjects } = useQuery({
+        queryKey: ["overview_project", projectId, orgName],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getAllProjects(),
+        select: (fetchedProjects) =>
+            fetchedProjects.find((i) => i.id === projectId),
     });
 
+    const {
+        data: components = [],
+        isLoading: loadingComponents,
+        refetch: refetchComponents,
+    } = useQuery({
+        queryKey: ["overview_component_list", projectId, orgName],
+        queryFn: async () => {
+            const components = await ChoreoWebViewAPI.getInstance().getComponents(projectId);
+            queryClient.setQueryData(["overview_component_list", projectId, orgName], components);
+            return ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
+        },
+        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
+        refetchInterval: 15000, // Refetch component list every 15 seconds
+    });
+
+    const { data: isActive } = useQuery({
+        queryKey: ["overview_project_isActive", projectId, orgName],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
+        select: (p) => p?.id === projectId,
+    });
+
+    const { data: location } = useQuery({
+        queryKey: ["overview_project_location", projectId, orgName],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getProjectLocation(projectId),
+    });
+
+    const { mutate: handleDeleteComponentClick, isLoading: deletingComponent } = useMutation({
+        mutationFn: (component: Component) => ChoreoWebViewAPI.getInstance().deleteComponent({ component, projectId }),
+        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
+        onSuccess: () => refetchComponents(),
+    });
+
+    const { mutate: handlePushComponentClick, isLoading: pushingSingleComponent } = useMutation({
+        mutationFn: (componentName: string) => ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({ projectId, componentName }),
+        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
+        onSuccess: () => refetchComponents(),
+    });
+
+    const { mutate: handleRefreshComponentsClick, isLoading: reloadingRegistry } = useMutation({
+        mutationFn: () => ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.projects.registry.refresh"),
+        onSuccess: () => refetchComponents(),
+    });
+
+    const { mutate: handlePushToChoreoClick, isLoading: pushingComponent } =
+        useMutation({
+            mutationFn: () => ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(projectId),
+            onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
+            onSuccess: () => refetchComponents(),
+        });
+
     const handleCloneProjectClick = useCallback(() => {
-        ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : '');
+        ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : "");
     }, [project]);
 
     const handleOpenProjectClick = useCallback(() => {
-        ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : '');
+        ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : "");
     }, [project]);
-
-    const handlePushToChoreoClick = useCallback(async () => {
-        setCreatingComponents(true);
-        try {
-            await ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(projectId)
-        } catch (error) {
-            ChoreoWebViewAPI.getInstance().showErrorMsg((error as Error)?.message);
-        } finally {
-            setCreatingComponents(false);
-            fetchComponents(projectId);
-        }
-    }, [projectId]);
 
     const handleOpenArchitectureViewClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openArchitectureView();
@@ -165,39 +149,24 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, [consoleLink]);
 
     const handleCreateComponentClick = useCallback(() => {
-        ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.component.create');
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.component.create");
     }, []);
 
     const handleOpenSourceControlClick = useCallback(() => {
-        ChoreoWebViewAPI.getInstance().triggerCmd('workbench.scm.focus');
+        ChoreoWebViewAPI.getInstance().triggerCmd("workbench.scm.focus");
     }, []);
 
-    const handleRefreshComponentsClick = useCallback(async () => {
-        try {
-            setLoadingComponents(true);
-            await ChoreoWebViewAPI.getInstance().triggerCmd('wso2.choreo.projects.registry.refresh');
-        } finally {
-            setLoadingComponents(false);
-        }
-        fetchComponents(projectId);
-    }, [project]);
-
-    const handleDeleteComponentClick = useCallback(async (component: Component) => {
-        await ChoreoWebViewAPI.getInstance().deleteComponent({ component, projectId })
-        fetchComponents(projectId);
-    }, [projectId, project]);
-
-    const handlePushComponentClick = useCallback(async (componentName) => {
-        await ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({ projectId, componentName })
-        fetchComponents(projectId);
-    }, [projectId]);
-
-    const hasLocalComponents = useMemo(() => components?.some(component => component.local), [components])
+    const hasLocalComponents = useMemo(
+        () => components?.some((component) => component.local),
+        [components]
+    );
 
     /** Has components with local changes or unpushed commits */
     const componentsOutOfSync = useMemo(() => {
-        return components?.some(component => component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits);
-    }, [components])
+        return components?.some(
+            (component) => component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits
+        );
+    }, [components]);
 
     /** Every local components is without any local git changes to commit/push & valid path in remote repo. These components can be pushed to Choreo */
     const hasPushableComponents = useMemo(() => {
@@ -214,7 +183,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 component.isInRemoteRepo
         );
     }, [components]);
-
 
     return (
         <>
@@ -328,10 +296,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     openSourceControl={handleOpenSourceControlClick}
                     onComponentDeleteClick={handleDeleteComponentClick}
                     handlePushComponentClick={handlePushComponentClick}
-                    loading={loadingComponents || creatingComponents}
+                    loading={reloadingRegistry || loadingComponents || pushingComponent || pushingSingleComponent || deletingComponent}
                 />
 
-                {loadingComponents ? (
+                {(reloadingRegistry || loadingComponents) ? (
                     <VSCodeProgressRing />
                 ) : (
                     <>
@@ -345,11 +313,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                     to Choreo` to create them.
                                 </p>
                                 <ActionContainer>
-                                    {creatingComponents && <VSCodeProgressRing />}
+                                    {pushingComponent && <VSCodeProgressRing />}
                                     <VSCodeButton
                                         appearance="primary"
-                                        disabled={creatingComponents}
-                                        onClick={handlePushToChoreoClick}
+                                        disabled={pushingComponent}
+                                        onClick={() => handlePushToChoreoClick()}
                                     >
                                         <Codicon name="cloud-upload" />
                                         &nbsp; Push to Choreo
@@ -369,7 +337,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                         ` Please commit and push them before pushing to Choreo.`}
                                 </p>
                                 <ActionContainer>
-                                    {creatingComponents && <VSCodeProgressRing />}
+                                    {pushingComponent && <VSCodeProgressRing />}
                                     <VSCodeButton
                                         appearance="secondary"
                                         onClick={handleOpenSourceControlClick}
@@ -379,7 +347,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                     </VSCodeButton>
                                     <VSCodeButton
                                         appearance="secondary"
-                                        onClick={handleRefreshComponentsClick}
+                                        onClick={() => handleRefreshComponentsClick()}
                                         disabled={loadingComponents}
                                     >
                                         <Codicon name="refresh" />
