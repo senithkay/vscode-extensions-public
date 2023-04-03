@@ -189,16 +189,24 @@ export class UnionTypeNode extends DataMapperNodeModel {
         const bodyExpr = STKindChecker.isLetExpression(this.value.expression)
             ? getExprBodyFromLetExpression(this.value.expression)
             : this.value.expression;
+        const supportedTypes = getSupportedUnionTypes(this.typeIdentifier, this.typeDef);
         if (STKindChecker.isTypeCastExpression(bodyExpr)) {
+            // when the expr is wrapped with a type cast
             const type = bodyExpr.typeCastParam?.type;
             this.resolvedType = this.typeDef.members.find((member) => {
                 return getResolvedType(member, type);
             });
             this.hasInvalidTypeCast = !this.resolvedType;
+        } else if (supportedTypes.length === 1) {
+            // when the specified union type is narrowed down to a single type
+            this.resolvedType = this.typeDef.members.find(member => {
+                const typeName = getTypeName(member);
+                return typeName === supportedTypes[0];
+            });
         } else {
+            // when the type is derivable from the expr
             const typeFromStore = getTypeFromStore(this.getValueExpr().position as NodePosition);
             const typeName = getTypeName(typeFromStore);
-            const supportedTypes = getSupportedUnionTypes(this.typeIdentifier, this.typeDef);
             this.resolvedType = !!typeFromStore
                 && typeFromStore.typeName !== '$CompilationError$'
                 && supportedTypes.includes(typeName)

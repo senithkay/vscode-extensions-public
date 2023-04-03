@@ -64,12 +64,14 @@ export function getSupportedUnionTypes(typeDesc: STNode, typeDef: Type): string[
 	const unsupportedTypes = getUnsupportedTypes(typeDesc);
 	const allUnionTypes = getTypeName(typeDef).split("|");
 
-	return allUnionTypes.map(unionType => {
+	const filteredTypes = allUnionTypes.map(unionType => {
 		const type = unionType.trim();
 		if (!unsupportedTypes.includes(type) && type !== "()" && type !== "error") {
 			return type;
 		}
 	}).filter(type => type !== undefined);
+
+	return Array.from(new Set(filteredTypes));
 }
 
 function isUnsupportedType(typeDesc: STNode): boolean {
