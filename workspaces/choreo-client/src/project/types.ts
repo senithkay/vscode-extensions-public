@@ -58,7 +58,7 @@ export interface CreateByocComponentParams {
 
 export interface DeleteComponentParams {
     orgHandler: string;
-    componentId: string;
+    component: Component;
     projectId: string;
 }
 
@@ -90,6 +90,13 @@ export interface GetComponentsParams {
     orgHandle: string;
     projId: string;
     orgUuid: string;
+}
+
+export interface GetComponentDeploymentStatusParams {
+    orgHandle: string;
+    projId: string;
+    orgUuid: string;
+    components: Component[];
 }
 
 export interface GetDiagramModelParams {
@@ -128,6 +135,7 @@ export interface IChoreoProjectClient {
     // queries
     getProjects(params: GetProjectsParams): Promise<Project[]>;
     getComponents(params: GetComponentsParams): Promise<Component[]>;
+    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]>;
     getDiagramModel(params: GetComponentsParams): Promise<Component[]>;
     getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse>;
 
