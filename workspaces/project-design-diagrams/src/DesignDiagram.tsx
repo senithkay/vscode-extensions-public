@@ -66,7 +66,7 @@ export function DesignDiagram(props: DiagramProps) {
         getComponentModel,
         showChoreoProjectOverview = undefined,
         editLayerAPI = undefined,
-        isConsoleView = false
+        isConsoleView = false,
         deleteComponent = undefined
     } = props;
 

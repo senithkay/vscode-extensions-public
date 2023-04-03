@@ -42,7 +42,7 @@ interface DefaultControlProps {
 
 export function DefaultControls(props: DefaultControlProps) {
     const { projectPackages, layout, changeLayout, setShowEditForm, updateProjectPkgs } = props;
-    const { isChoreoProject, isConsoleView, editingEnabled, refreshDiagram, showChoreoProjectOverview } = useContext(DiagramContext);
+    const { isChoreoProject, editingEnabled, refreshDiagram, showChoreoProjectOverview } = useContext(DiagramContext);
 
     const [pkgAnchorElement, setPkgAnchorElement] = useState<HTMLButtonElement>(null);
     const [layoutAnchorElement, setLayoutAnchorElement] = useState<HTMLButtonElement>(null);
