@@ -17,7 +17,7 @@ import { monaco } from 'react-monaco-editor';
 
 import { Button, Divider, FormControl, TextField } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
-import { LiteExpressionEditor } from '@wso2-enterprise/ballerina-expression-editor';
+import { LiteTextField } from '@wso2-enterprise/ballerina-expression-editor';
 import {
     createResource,
     getSource,
@@ -318,7 +318,7 @@ export function ResourceForm(props: FunctionProps) {
                                 <SelectDropdownWithButton
                                     dataTestId='api-method'
                                     defaultValue={model?.functionName?.value?.toUpperCase() || ""}
-                                    customProps={{ values: SERVICE_METHODS, disableCreateNew: true }}
+                                    customProps={{ values: SERVICE_METHODS, disableCreateNew: true, autoFocus: true }}
                                     onChange={handleMethodChange}
                                     label={httpMethodTitle}
                                     disabled={false}
@@ -326,15 +326,11 @@ export function ResourceForm(props: FunctionProps) {
                             </div>
                             <div className={connectorClasses.resourcePathWrapper}>
                                 <FieldTitle title='Resource Path' optional={true} />
-                                <TextField
-                                    variant="outlined"
-                                    fullWidth={true}
+                                <LiteTextField
                                     value={resourcePath}
-                                    margin="none"
-                                    size="small"
-                                    onChange={(e) => { handlePathChange(e.target.value) }}
-                                    InputLabelProps={{ shrink: false }}
-                                    disabled={currentComponentName !== "Path" && isEditInProgress}
+                                    isLoading={false}
+                                    onChange={handlePathChange}
+                                    diagnostics={currentComponentName === "Path" && currentComponentSyntaxDiag}
                                     onFocus={onPathFocus}
                                 />
                             </div>
@@ -397,17 +393,17 @@ export function ResourceForm(props: FunctionProps) {
                             />
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR} />
-                        <FieldTitle title='Responses' optional={false} />
-                        <ResourceReturnEditor
-                            returnSource={model.functionSignature?.returnTypeDesc?.source}
-                            syntaxDiag={currentComponentSyntaxDiag}
-                            onChange={onReturnTypeChange}
-                            completions={completions}
-                            readonly={isEditInProgress} // todo: implement the disable logic
-                            onChangeInProgress={setIsEditInProgress}
-                            model={model}
-                        />
-
+                        <ConfigPanelSection title='Responses'>
+                            <ResourceReturnEditor
+                                returnSource={model.functionSignature?.returnTypeDesc?.source}
+                                syntaxDiag={currentComponentSyntaxDiag}
+                                onChange={onReturnTypeChange}
+                                completions={completions}
+                                readonly={isEditInProgress} // todo: implement the disable logic
+                                onChangeInProgress={setIsEditInProgress}
+                                model={model}
+                            />
+                        </ConfigPanelSection>
                         <div className={classes.serviceFooterWrapper}>
                             <SecondaryButton
                                 text="Cancel"

@@ -139,6 +139,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginBottom: -5,
             marginTop: 10,
             width: 350
+        },
+        searchList: {
+            width: "100%",
+            border: "1px solid #DEE0E7",
+            borderRadius: "5px",
+            padding: "4px 10px",
+            backgroundColor: "#ffffff",
+            height: "36.44px"
         }
     }),
 );

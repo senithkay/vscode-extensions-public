@@ -32,7 +32,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontFamily: 'Gilmer',
             lineHeight: '1rem',
             paddingBottom: '0.6rem',
-            fontWeight: 700
+            fontWeight: 600
         },
         titleContent: {
             display: "flex",

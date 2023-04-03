@@ -60,7 +60,7 @@ export interface ParamProps {
     option?: string;
     isTypeReadOnly?: boolean;
     onChange: (segmentId: number, paramString: string, focusedModel?: STNode, typedInValue?: string) => void;
-    onCancel?: () => void;
+    onCancel?: (id?: number) => void;
 }
 
 enum ParamEditorInputTypes {
@@ -97,6 +97,12 @@ export function ParamEditor(props: ParamProps) {
         }
     }, [fullST]);
 
+    useEffect(() => {
+        if (model) {
+            setIsRequiredType(!STKindChecker.isOptionalTypeDesc(model?.typeName));
+        }
+    }, [model]);
+
     const onTypeEditorFocus = () => {
         setCurrentComponentName(ParamEditorInputTypes.TYPE)
     }
@@ -111,6 +117,7 @@ export function ParamEditor(props: ParamProps) {
 
     const handleTypeChange = (value: string) => {
         if (value) {
+            setIsRequiredType(!value.includes("?"));
             setTypeValue(value)
             const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
             const paramName = model.paramName.value;
@@ -141,7 +148,7 @@ export function ParamEditor(props: ParamProps) {
         );
     }
 
-    // const debouncedTypeChange = debounce(handleTypeChange, 800);
+    const debouncedTypeChange = debounce(handleTypeChange, 500);
     // const debouncedNameChange = debounce(handleNameChange, 800);
     // const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
 
@@ -154,7 +161,7 @@ export function ParamEditor(props: ParamProps) {
 
     const handleOnCancel = () => {
         onChange(segmentId, originalSource);
-        onCancel();
+        onCancel(segmentId);
     }
 
     const createRecord = (newRecord: string) => {
@@ -166,12 +173,16 @@ export function ParamEditor(props: ParamProps) {
 
     const handleIsRequired = (mode: string[]) => {
         if (mode.length > 0) {
-            handleTypeChange(`${typeValue.replace("?","")}`);
+            handleTypeChange(`${typeValue.replace("?", "")}`);
             setIsRequiredType(true);
         } else {
-            handleTypeChange(`${typeValue}?`);
+            handleTypeChange(`${typeValue.replace("?", "")}?`);
             setIsRequiredType(false);
         }
+    }
+
+    const handleOnSave = () => {
+        onCancel();
     }
 
     return (
@@ -197,7 +208,7 @@ export function ParamEditor(props: ParamProps) {
                             <FieldTitle title='Type' optional={false} />
                             <TypeBrowser
                                 type={typeValue}
-                                onChange={handleTypeChange}
+                                onChange={debouncedTypeChange}
                                 isLoading={false}
                                 recordCompletions={completions}
                                 createNew={createRecord}
@@ -246,6 +257,12 @@ export function ParamEditor(props: ParamProps) {
                 </div>
             }
             <div className={classes.btnContainer}>
+                <SecondaryButton
+                    text="Cancel"
+                    fullWidth={false}
+                    onClick={handleOnCancel}
+                    className={classes.actionBtn}
+                />
                 <PrimaryButton
                     dataTestId={"path-segment-add-btn"}
                     text={"Save"}
@@ -256,7 +273,7 @@ export function ParamEditor(props: ParamProps) {
                         || model.typeName?.viewState?.diagnosticsInRange?.length > 0
                     }
                     fullWidth={false}
-                    onClick={onCancel}
+                    onClick={handleOnSave}
                     className={classes.actionBtn}
                 />
             </div>

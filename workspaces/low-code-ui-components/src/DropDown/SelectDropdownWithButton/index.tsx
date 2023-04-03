@@ -35,6 +35,7 @@ export interface SelectDropdownProps {
     tooltipActionText?: string;
     tooltipActionLink?: string;
     interactive?: boolean;
+    autoFocus?: boolean;
 }
 
 export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownProps>) {
@@ -45,7 +46,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
         onChange, onClick, defaultValue, label, hideLabel, placeholder, customProps = {}, disabled, dataTestId = ''
     } = props;
     const {
-        values, disableCreateNew, optional, className, enabledValues, clearSelection, onOpenSelect, onCloseSelect
+        autoFocus, values, disableCreateNew, optional, className, enabledValues, clearSelection, onOpenSelect, onCloseSelect
     } = customProps;
 
     const handleChange = (event: any) => {
@@ -103,6 +104,7 @@ export function SelectDropdownWithButton(props: FormElementProps<SelectDropdownP
             <Select
                 data-testid={placeholder + values[0]}
                 value={defaultValue}
+                autoFocus={autoFocus}
                 disableUnderline={true}
                 onChange={handleChange}
                 onOpen={onOpenSelect}
