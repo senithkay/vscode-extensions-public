@@ -75,13 +75,17 @@ export class UnionTypeNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.rootName = this.typeDef?.name ? getBalRecFieldName(this.typeDef.name) : this.typeDef.typeName;
         this.typeName = getTypeName(this.typeDef);
         this.resolveType();
         const renderResolvedTypes = !this.shouldRenderUnionType();
         if (this.resolvedType && renderResolvedTypes) {
             this.typeDef = getSearchFilteredOutput(this.resolvedType);
             if (this.typeDef) {
+                this.rootName = this.typeDef?.name
+                    ? getBalRecFieldName(this.typeDef.name)
+                    : this.resolvedType.typeName === PrimitiveBalType.Array
+                        ? this.typeDef.typeName
+                        : undefined;
                 const isSelectClause = STKindChecker.isSelectClause(this.value);
                 if (isSelectClause) {
                     this.rootName = this.resolvedType.typeName === PrimitiveBalType.Array
