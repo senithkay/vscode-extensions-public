@@ -13,10 +13,11 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-import { useEffect, useState } from "react";
+import { VSCodeDropdown, VSCodeLink, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { useEffect } from "react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
+import { useQuery } from "@tanstack/react-query";
 
 const GhRepoBranhSelectorContainer = styled.div`
     display  : flex;
@@ -24,6 +25,13 @@ const GhRepoBranhSelectorContainer = styled.div`
     gap: 5px;
     width: 200px;
 `;
+
+const BranchListContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+`
 
 function getDefaultBranch(branches: string[], branch?: string): string {
     if (!branch) {
@@ -45,47 +53,31 @@ export interface GithubRepoBranchSelectorProps {
 export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
     const { formData, onFormDataChange } = props;
     const { org, repo, branch } = formData?.repository || {};
-
-    const [updatingBranchList, setUpdatingBranchList] = useState<boolean>(false);
-
     const repoId = `${org}/${repo}`;
 
-    const repoBranchList = formData?.cache?.branches?.get(repoId) || [];
+    const {isLoading: updatingBranchList, data: repoBranches, refetch } = useQuery({
+        queryKey: [`branchData-${repoId}`], 
+        queryFn: async () => {
+            try {
+                return ChoreoWebViewAPI.getInstance()
+                .getChoreoGithubAppClient()
+                .getRepoBranches(org, repo);
+            } catch (error: any) {
+                ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching branches. Please authorize with GitHub.");
+                throw error;
+            }
+        }
+    });
 
-    const refreshBranchList = async (forceReload: boolean = false) => {
-        setUpdatingBranchList(true);
-        const branchesCache: Map<string, string[]> = formData?.cache?.branches || new Map();
-        if (org && repo) {
-            let repoBranches = branchesCache.get(repoId);
-            if (forceReload || !repoBranches || repoBranches.length === 0) {
-                try {
-                    repoBranches = await ChoreoWebViewAPI.getInstance()
-                        .getChoreoGithubAppClient()
-                        .getRepoBranches(org, repo);
-                    branchesCache.set(repoId, repoBranches);
-                } catch (error: any) {
-                    ChoreoWebViewAPI.getInstance().showErrorMsg(error.message);
-                }
-            }
-            if (!repoBranches) {
-                return;
-            }
+    useEffect(() => {
+        if (repoBranches) {
             const defaultBranch = getDefaultBranch(repoBranches, branch);
             onFormDataChange((prevFormData) => ({
                 ...prevFormData,
-                repository: { ...prevFormData.repository, branch: defaultBranch },
-                cache: { 
-                    ...prevFormData.cache,
-                    branches: branchesCache
-                }
+                repository: { ...prevFormData.repository, branch: defaultBranch }
             }));
         }
-        setUpdatingBranchList(false);
-    };
-
-    useEffect(() => {
-        refreshBranchList();
-    }, [repoId]);
+    }, [repoBranches]);
 
     const handleBranchChange = (event: any) => {
         onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, branch: event.target.value } }));
@@ -94,17 +86,20 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
     return (
         <GhRepoBranhSelectorContainer>
             <label htmlFor="branch-drop-down">Branch</label>
-            {!updatingBranchList && repoBranchList.length > 0 && (
-                <VSCodeDropdown id="branch-drop-down" value={branch} onChange={handleBranchChange}>
-                    {repoBranchList.map((branch) => (
-                        <VSCodeOption
-                            key={branch}
-                            value={branch}
-                        >
-                            {branch}
-                        </VSCodeOption>
-                    ))}
-                </VSCodeDropdown>
+            {!updatingBranchList && repoBranches && repoBranches.length > 0 && (
+                <BranchListContainer>
+                    <VSCodeDropdown id="branch-drop-down" value={branch} onChange={handleBranchChange}>
+                        {repoBranches.map((branch) => (
+                            <VSCodeOption
+                                key={branch}
+                                value={branch}
+                            >
+                                {branch}
+                            </VSCodeOption>
+                        ))}
+                    </VSCodeDropdown>
+                    <VSCodeLink onClick={() => refetch()}>Refresh</VSCodeLink>
+                </BranchListContainer>
             )}
             {updatingBranchList && <span>Updating branch list...</span>}
         </GhRepoBranhSelectorContainer>

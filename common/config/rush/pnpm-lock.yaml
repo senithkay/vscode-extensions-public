@@ -481,6 +481,8 @@ importers:
     specifiers:
       '@emotion/css': ^11.10.5
       '@emotion/styled': ^11.10.5
+      '@tanstack/react-query': ~4.28.0
+      '@tanstack/react-query-persist-client': ~4.28.0
       '@types/classnames': ~2.3.1
       '@types/lodash.debounce': ~4.0.7
       '@types/node': ^18.11.19
@@ -495,6 +497,7 @@ importers:
       classnames: ~2.3.2
       clean-webpack-plugin: ^4.0.0
       css-loader: ^6.7.3
+      idb-keyval: ~6.2.0
       lodash.debounce: ~4.0.8
       node-loader: ^2.0.0
       node-sass: ^8.0.0
@@ -517,6 +520,8 @@ importers:
     dependencies:
       '@emotion/css': 11.10.6
       '@emotion/styled': 11.10.6_h7fc2el62uaa77gho3xhys6ola
+      '@tanstack/react-query': 4.28.0_sfoxds7t5ydpegc3knd667wn6m
+      '@tanstack/react-query-persist-client': 4.28.0_qfusmmwykmcbgdy37sd3cqxiry
       '@types/lodash.debounce': 4.0.7
       '@vscode/webview-ui-toolkit': 1.2.2_react@17.0.2
       '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
@@ -524,6 +529,7 @@ importers:
       '@wso2-enterprise/choreo-core': link:../choreo-core
       '@wso2-enterprise/project-design-diagrams': link:../project-design-diagrams
       classnames: 2.3.2
+      idb-keyval: 6.2.0
       lodash.debounce: 4.0.8
       path: 0.12.7
       react: 17.0.2
@@ -10738,6 +10744,43 @@ packages:
       defer-to-connect: 2.0.1
     dev: true
 
+  /@tanstack/query-core/4.27.0:
+    resolution: {integrity: sha512-sm+QncWaPmM73IPwFlmWSKPqjdTXZeFf/7aEmWh00z7yl2FjqophPt0dE1EHW9P1giMC5rMviv7OUbSDmWzXXA==}
+    dev: false
+
+  /@tanstack/query-persist-client-core/4.27.0:
+    resolution: {integrity: sha512-A+dPA7zG0MJOMDeBc/2WcKXW4wV2JMkeBVydobPW9G02M4q0yAj7vI+7SmM2dFuXyIvxXp4KulCywN6abRKDSQ==}
+    dependencies:
+      '@tanstack/query-core': 4.27.0
+    dev: false
+
+  /@tanstack/react-query-persist-client/4.28.0_qfusmmwykmcbgdy37sd3cqxiry:
+    resolution: {integrity: sha512-xNpi3YdPOQIyYkKhByYDqTlyCeqICWFhV5PWkoVxYfzlRK6HYX4s+9Int407jEvhBz9cGC4OaL7rd6bynCFrYg==}
+    peerDependencies:
+      '@tanstack/react-query': 4.28.0
+    dependencies:
+      '@tanstack/query-persist-client-core': 4.27.0
+      '@tanstack/react-query': 4.28.0_sfoxds7t5ydpegc3knd667wn6m
+    dev: false
+
+  /@tanstack/react-query/4.28.0_sfoxds7t5ydpegc3knd667wn6m:
+    resolution: {integrity: sha512-8cGBV5300RHlvYdS4ea+G1JcZIt5CIuprXYFnsWggkmGoC0b5JaqG0fIX3qwDL9PTNkKvG76NGThIWbpXivMrQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 4.27.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      use-sync-external-store: 1.2.0_react@17.0.2
+    dev: false
+
   /@testing-library/cypress/8.0.7_cypress@10.11.0:
     resolution: {integrity: sha512-3HTV725rOS+YHve/gD9coZp/UcPK5xhr4H0GMnq/ni6USdtzVtSOG9WBFtd8rYnrXk8rrGD+0toRFYouJNIG0Q==}
     engines: {node: '>=12', npm: '>=6'}
@@ -20694,6 +20737,12 @@ packages:
       postcss: ^8.1.0
     dependencies:
       postcss: 8.4.21
+
+  /idb-keyval/6.2.0:
+    resolution: {integrity: sha512-uw+MIyQn2jl3+hroD7hF8J7PUviBU7BPKWw4f/ISf32D4LoGu98yHjrzWWJDASu9QNrX10tCJqk9YY0ClWm8Ng==}
+    dependencies:
+      safari-14-idb-fix: 3.0.0
+    dev: false
 
   /idb/7.1.1:
     resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
@@ -30917,6 +30966,10 @@ packages:
     resolution: {integrity: sha512-F2+gxDshqmIub1KdvZkaEfGDwLNpPvk9Fs6LD/MyQxNgMds/WH9OdDDXOmxUZpME+iSK3rQCctkL0DYyytUqMg==}
     dependencies:
       tslib: 2.5.0
+
+  /safari-14-idb-fix/3.0.0:
+    resolution: {integrity: sha512-eBNFLob4PMq8JA1dGyFn6G97q3/WzNtFK4RnzT1fnLq+9RyrGknzYiM/9B12MnKAxuj1IXr7UKYtTNtjyKMBog==}
+    dev: false
 
   /safe-buffer/5.1.1:
     resolution: {integrity: sha512-kKvNJn6Mm93gAczWVJg7wH+wGYWNrDHdWvpUmHyEsgCtIwwo3bqPtV4tR5tuPaUhTOo/kvhVwd8XwwOllGYkbg==}

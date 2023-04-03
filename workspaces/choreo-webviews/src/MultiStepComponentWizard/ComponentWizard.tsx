@@ -79,9 +79,6 @@ export const ComponentWizard: React.FC = () => {
                 dockerContext: '',
                 dockerFile: '',
                 subPath: '',
-            },
-            cache: {
-                authorizedOrgs: [],
             }
         },
         isFormValid: false,

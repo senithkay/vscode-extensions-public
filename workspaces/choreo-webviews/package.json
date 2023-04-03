@@ -27,7 +27,10 @@
     "classnames": "~2.3.2",
     "lodash.debounce": "~4.0.8",
     "@types/lodash.debounce": "~4.0.7",
-    "@wso2-enterprise/ballerina-languageclient": "workspace:*"
+    "@wso2-enterprise/ballerina-languageclient": "workspace:*",
+    "idb-keyval": "~6.2.0",
+    "@tanstack/react-query-persist-client": "~4.28.0",
+    "@tanstack/react-query": "~4.28.0"
   },
   "devDependencies": {
     "@types/node": "^18.11.19",
