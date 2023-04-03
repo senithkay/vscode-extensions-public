@@ -144,6 +144,10 @@ export class ChoreoExtensionApi {
         }
     }
 
+    public async getProject(projectId: string, orgId: number): Promise<Project | undefined> {
+        return ProjectRegistry.getInstance().getProject(projectId, orgId);
+    }
+
     public getProjectManager(projectId: string): Promise<IProjectManager | undefined> {
         return Promise.resolve(undefined);
     }

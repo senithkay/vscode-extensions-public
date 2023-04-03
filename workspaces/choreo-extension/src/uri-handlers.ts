@@ -60,21 +60,31 @@ export function activateURIHandlers() {
                 getLogger().info("Choreo Project Overview callback hit");
                 const urlParams = new URLSearchParams(uri.query);
                 const projectId = urlParams.get("projectId");
+                const orgId = urlParams.get("orgId");
                 commands.executeCommand("workbench.view.extension.wso2-choreo");
+                if (!projectId || !orgId) {
+                    return;
+                }
                 // if user logged then open the project overview
                 if (ext.api.status === STATUS_LOGGED_IN) {
-                    ext.api.waitForLogin().then((logged) => {
-                        getLogger().info(`User logged in: ${logged} projectId: ${projectId}`);
-                        if (logged && projectId) {
-                            ext.api.selectedProjectId = projectId;
-                            commands.executeCommand(choreoProjectOverview);
-                        }
-                    });
+                    switchToProjectOverview(projectId, +orgId);
                 } else {
                     // else open the login page
-                    commands.executeCommand(choreoSignInCmdId);
+                    commands.executeCommand(choreoSignInCmdId).then(() => {
+                        switchToProjectOverview(projectId, +orgId);
+                    });
                 }
             }
         },
     });
+}
+
+async function switchToProjectOverview(projectId: string, orgId: number) {
+    const logged = await ext.api.waitForLogin();
+    if (logged) {
+        const project = await ext.api.getProject(projectId, orgId);
+        if (project) {
+            commands.executeCommand(choreoProjectOverview, project);
+        }
+    }
 }
