@@ -173,12 +173,16 @@ export function ParamEditor(props: ParamProps) {
 
     const handleIsRequired = (mode: string[]) => {
         if (mode.length > 0) {
-            handleTypeChange(`${typeValue.replace("?","")}`);
+            handleTypeChange(`${typeValue.replace("?", "")}`);
             setIsRequiredType(true);
         } else {
-            handleTypeChange(`${typeValue.replace("?","")}?`);
+            handleTypeChange(`${typeValue.replace("?", "")}?`);
             setIsRequiredType(false);
         }
+    }
+
+    const handleOnSave = () => {
+        onCancel();
     }
 
     return (
@@ -254,10 +258,10 @@ export function ParamEditor(props: ParamProps) {
             }
             <div className={classes.btnContainer}>
                 <SecondaryButton
-                        text="Cancel"
-                        fullWidth={false}
-                        onClick={handleOnCancel}
-                        className={classes.actionBtn}
+                    text="Cancel"
+                    fullWidth={false}
+                    onClick={handleOnCancel}
+                    className={classes.actionBtn}
                 />
                 <PrimaryButton
                     dataTestId={"path-segment-add-btn"}
@@ -269,7 +273,7 @@ export function ParamEditor(props: ParamProps) {
                         || model.typeName?.viewState?.diagnosticsInRange?.length > 0
                     }
                     fullWidth={false}
-                    onClick={() => onCancel()}
+                    onClick={handleOnSave}
                     className={classes.actionBtn}
                 />
             </div>

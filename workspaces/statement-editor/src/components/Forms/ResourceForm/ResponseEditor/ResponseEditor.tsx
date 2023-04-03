@@ -101,8 +101,6 @@ export function ResponseEditor(props: ParamProps) {
 
     const defaultValue = optionList.find(item => withTypeModelValue ? item.source === withTypeModelValue : item.source === model);
 
-    // const [originalSource] = useState<string>(defaultValue ? `${defaultValue.code}-${defaultValue.source}` : "");
-
     const selectedMethodResponse = httpMethodName && httpMethodName === "POST" ? optionsListString[3] : optionsListString[0];
 
     const [response, setResponse] = useState<string>(defaultValue ? `${defaultValue.title}` : selectedMethodResponse);
@@ -128,9 +126,6 @@ export function ResponseEditor(props: ParamProps) {
     }
 
     const handleTypeChange = (value: string) => {
-        // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-        // const paramName = model.paramName.value;
-        // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
         setTypeValue(value);
         setIsArrayType(value.includes("[]"));
         onChange(segmentId, 200, value);
@@ -138,32 +133,9 @@ export function ResponseEditor(props: ParamProps) {
 
     const handleNameChange = (value: string) => {
         setAnonymousValue(value.replace(/\s/g, ''));
-        // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-        // const type = model.typeName.source.trim();
-        // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        // onChange(segmentId, `${annotation} ${type} ${value} ${defaultValue}`, model.paramName, value);
     }
 
-    const handleDefaultValueChange = (value: string) => {
-        // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-        // const type = model.typeName.source.trim();
-        // const paramName = model.paramName.value
-        // onChange(
-        //     segmentId,
-        //     `${annotation} ${type} ${paramName} = ${value}`,
-        //     STKindChecker.isDefaultableParam(model) ? model.expression : undefined,
-        //     value
-        // );
-    }
-
-    // const debouncedTypeChange = debounce(handleTypeChange, 800);
-    // const debouncedNameChange = debounce(handleNameChange, 800);
-    // const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
-
-    const handleOnSelect = (value: string) => {
-        // const newParamString = value ?
-        //     `${RESOURCE_HEADER_PREFIX} ${model.typeName.source} ${model.paramName.value}`
-        //     : `${model.typeName.source} ${model.paramName.value}`;
+    const handleOnSelect = (_: any, value: string) => {
         setResponse(value);
     };
 
@@ -243,7 +215,7 @@ export function ResponseEditor(props: ParamProps) {
                         id="param-type-selector"
                         options={optionsListString}
                         defaultValue={response}
-                        onChange={(_, value) => handleOnSelect(value)}
+                        onChange={handleOnSelect}
                         renderInput={(params) => <TextField className={classes.searchList} {...params} />}
                     />
                 </div>
@@ -259,10 +231,6 @@ export function ResponseEditor(props: ParamProps) {
                         diagnostics={syntaxDiagnostics?.filter(diag => diag?.message.includes("unknown type"))}
                     />
                 </div>
-
-
-
-
             </div>
 
             <div className={classes.paramContent}>
