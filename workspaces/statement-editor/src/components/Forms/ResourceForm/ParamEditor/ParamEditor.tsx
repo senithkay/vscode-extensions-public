@@ -97,6 +97,12 @@ export function ParamEditor(props: ParamProps) {
         }
     }, [fullST]);
 
+    useEffect(() => {
+        if (model) {
+            setIsRequiredType(!STKindChecker.isOptionalTypeDesc(model?.typeName));
+        }
+    }, [model]);
+
     const onTypeEditorFocus = () => {
         setCurrentComponentName(ParamEditorInputTypes.TYPE)
     }
@@ -111,6 +117,7 @@ export function ParamEditor(props: ParamProps) {
 
     const handleTypeChange = (value: string) => {
         if (value) {
+            setIsRequiredType(!value.includes("?"));
             setTypeValue(value)
             const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
             const paramName = model.paramName.value;
@@ -169,7 +176,7 @@ export function ParamEditor(props: ParamProps) {
             handleTypeChange(`${typeValue.replace("?","")}`);
             setIsRequiredType(true);
         } else {
-            handleTypeChange(`${typeValue}?`);
+            handleTypeChange(`${typeValue.replace("?","")}?`);
             setIsRequiredType(false);
         }
     }
