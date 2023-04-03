@@ -28,7 +28,9 @@ import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
 import {
+    LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
     MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+    PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
     UNION_TYPE_TARGET_PORT_PREFIX
 } from "../../utils/constants";
 import {
@@ -73,41 +75,25 @@ export class UnionTypeNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
+        this.rootName = this.typeDef?.name ? getBalRecFieldName(this.typeDef.name) : this.typeDef.typeName;
         this.typeName = getTypeName(this.typeDef);
         this.resolveType();
         const renderResolvedTypes = !this.shouldRenderUnionType();
         if (this.resolvedType && renderResolvedTypes) {
             this.typeDef = getSearchFilteredOutput(this.resolvedType);
             if (this.typeDef) {
+                const isSelectClause = STKindChecker.isSelectClause(this.value);
+                if (isSelectClause) {
+                    this.rootName = this.resolvedType.typeName === PrimitiveBalType.Array
+                        && this.resolvedType?.memberType
+                        && this.resolvedType.memberType.typeName === PrimitiveBalType.Record
+                            ? this.resolvedType.memberType?.name
+                            : this.typeIdentifier.value || this.typeIdentifier.source;
+                }
                 const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.getValueExpr(),
                     this.context.selection.selectedST.stNode);
                 this.typeDef = type;
-                this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
-                const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
-                    MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, false, valueEnrichedType);
-                if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
-                    this.recordField = valueEnrichedType;
-                    if (this.recordField.childrenTypes.length) {
-                        this.recordField.childrenTypes.forEach((field) => {
-                            this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
-                                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
-                                this.context.collapsedFields, parentPort.collapsed);
-                        });
-                    }
-                } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
-                    && STKindChecker.isSelectClause(this.value)
-                ) {
-                    // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
-                    this.recordField = valueEnrichedType.elements[0].member;
-                    if (this.recordField.childrenTypes.length) {
-                        this.recordField.childrenTypes.forEach((field) => {
-                            this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
-                                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
-                                this.context.collapsedFields, parentPort.collapsed, true);
-                        });
-                    }
-                }
+                this.addPorts(valueEnrichedType, isSelectClause);
             }
         } else {
             this.addPortsForHeaderField(this.typeDef, this.rootName, "IN", UNION_TYPE_TARGET_PORT_PREFIX);
@@ -212,6 +198,79 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 && supportedTypes.includes(typeName)
                 && typeFromStore;
         }
+    }
+
+    private addPorts(valueEnrichedType: EditableRecordField, isSelectClause: boolean) {
+        switch (this.resolvedType.typeName) {
+            case PrimitiveBalType.Record:
+                this.addPortsForMappingConstructor(valueEnrichedType, isSelectClause);
+                break;
+            case PrimitiveBalType.Array:
+                this.addPortsForListConstructor(valueEnrichedType, isSelectClause);
+                break;
+            default:
+                this.addPortsForPrimitiveType(valueEnrichedType);
+                break;
+        }
+    }
+
+    private addPortsForMappingConstructor(valueEnrichedType: EditableRecordField, isSelectClause: boolean) {
+        const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
+            MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
+            isSelectClause, valueEnrichedType);
+        if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
+            this.recordField = valueEnrichedType;
+            if (this.recordField.childrenTypes.length) {
+                this.recordField.childrenTypes.forEach((field) => {
+                    this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
+                        MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
+                        this.context.collapsedFields, parentPort.collapsed);
+                });
+            }
+        } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && isSelectClause) {
+            // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
+            this.recordField = valueEnrichedType.elements[0].member;
+            if (this.recordField.childrenTypes.length) {
+                this.recordField.childrenTypes.forEach((field) => {
+                    this.addPortsForOutputRecordField(field, "IN", this.rootName, undefined,
+                        MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
+                        this.context.collapsedFields, parentPort.collapsed, true);
+                });
+            }
+        }
+    }
+
+    private addPortsForListConstructor(valueEnrichedType: EditableRecordField, isSelectClause: boolean) {
+        this.recordField = valueEnrichedType;
+        const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
+            LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields, isSelectClause, this.recordField);
+        if (valueEnrichedType.type.typeName === PrimitiveBalType.Array) {
+            if (isSelectClause) {
+                this.recordField = valueEnrichedType.elements[0].member;
+            }
+            if (this.recordField?.elements && this.recordField.elements.length > 0) {
+                this.recordField.elements.forEach((field, index) => {
+                    this.addPortsForOutputRecordField(field.member, "IN", this.rootName, index,
+                        LIST_CONSTRUCTOR_TARGET_PORT_PREFIX, parentPort,
+                        this.context.collapsedFields, parentPort.collapsed);
+                });
+            }
+        }
+    }
+
+    private addPortsForPrimitiveType(valueEnrichedType: EditableRecordField) {
+        this.recordField = valueEnrichedType;
+        if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
+            && STKindChecker.isSelectClause(this.value)
+        ) {
+            this.recordField = valueEnrichedType.elements[0].member;
+        }
+        const parentPort = this.addPortsForHeaderField(this.typeDef, '', "IN",
+            PRIMITIVE_TYPE_TARGET_PORT_PREFIX, this.context.collapsedFields,
+            STKindChecker.isSelectClause(this.value), this.recordField);
+        this.addPortsForOutputRecordField(this.recordField, "IN", this.recordField.type.typeName,
+            undefined, PRIMITIVE_TYPE_TARGET_PORT_PREFIX, parentPort,
+            this.context.collapsedFields, parentPort.collapsed, STKindChecker.isSelectClause(this.value));
     }
 
     public shouldRenderUnionType() {

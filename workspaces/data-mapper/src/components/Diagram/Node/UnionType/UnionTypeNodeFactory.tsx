@@ -101,6 +101,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						typeName={event.model.typeName}
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
+						resolvedTypeName={resolvedTypeName}
 					/>
 				)}
 				{!shouldRenderUnionType
@@ -117,6 +118,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						typeName={event.model.typeName}
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
+						resolvedTypeName={resolvedTypeName}
 					/>
 				)}
 			</>
