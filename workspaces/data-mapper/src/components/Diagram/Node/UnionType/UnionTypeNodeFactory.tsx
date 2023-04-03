@@ -28,6 +28,7 @@ import {
 	PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
 	UNION_TYPE_TARGET_PORT_PREFIX
 } from '../../utils/constants';
+import { getTypeName } from "../../utils/dm-utils";
 import { ArrayTypeOutputWidget } from "../commons/DataManipulationWidget/ArrayTypeOutputWidget";
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputWidget";
@@ -49,6 +50,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 	generateReactWidget(event: { model: UnionTypeNode; }): JSX.Element {
 		let valueLabel: string;
 		const resolvedType = event.model.resolvedType;
+		const resolvedTypeName = getTypeName(resolvedType);
 		const shouldRenderUnionType = event.model.shouldRenderUnionType();
 		if (STKindChecker.isSelectClause(event.model.value)
 			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
@@ -86,6 +88,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
 						originalTypeName={event.model.typeDef.originalTypeName}
+						resolvedTypeName={resolvedTypeName}
 					/>
 				)}
 				{!shouldRenderUnionType && resolvedType && resolvedType.typeName === PrimitiveBalType.Array && (

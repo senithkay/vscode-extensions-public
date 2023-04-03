@@ -51,6 +51,10 @@ const useStyles = makeStyles((theme: Theme) =>
 			minWidth: "100px",
 			marginRight: "24px"
 		},
+		boldedTypeLabel: {
+			fontFamily: "GilmerBold",
+			fontSize: "14px",
+		},
 		valueLabel: {
 			verticalAlign: "middle",
 			padding: "5px",
@@ -96,11 +100,12 @@ export interface PrimitiveTypeOutputWidgetProps {
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: STNode) => Promise<void>;
+	resolvedTypeName?: string;
 }
 
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, resolvedTypeName } = props;
 	const classes = useStyles();
 
 	const type = typeName || field?.type?.typeName;
@@ -114,6 +119,22 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 
 	const indentation = (portIn && !expanded) ? 0 : 24;
 
+	const TypeSpan = () => {
+		const typeText: JSX.Element[] = [];
+		const types = typeName.split('|');
+		types.forEach((type) => {
+			if (type.trim() === resolvedTypeName) {
+				typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
+			} else {
+				typeText.push(<>{type}</>);
+			}
+			if (type !== types[types.length - 1]) {
+				typeText.push(<>|</>);
+			}
+		});
+		return <span className={classes.typeLabel}>{typeText}</span>;
+	};
+
 	const label = (
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
@@ -122,11 +143,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 					{type && ":"}
 				</span>
 			)}
-			{type && (
-				<span className={classes.typeLabel}>
-					{type}
-				</span>
-			)}
+			{type && TypeSpan()}
 
 		</span>
 	);

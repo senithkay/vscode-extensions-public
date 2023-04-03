@@ -58,6 +58,10 @@ const useStyles = makeStyles((theme: Theme) =>
 			minWidth: "100px",
 			marginRight: "24px"
 		},
+		boldedTypeLabel: {
+			fontFamily: "GilmerBold",
+			fontSize: "14px",
+		},
 		typeLabelDisabled: {
 			backgroundColor: "#F7F8FB",
 			color: "#40404B",
@@ -125,10 +129,11 @@ export interface ArrayTypeOutputWidgetProps {
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: STNode) => Promise<void>;
+	resolvedTypeName?: string;
 }
 
 export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, resolvedTypeName } = props;
 	const classes = useStyles();
 	const dmStore = useDMSearchStore();
 
@@ -171,6 +176,26 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		isDisabled = true;
 	}
 
+	const TypeSpan = () => {
+		const typeText: JSX.Element[] = [];
+		const types = typeName.split('|');
+		types.forEach((type) => {
+			if (type.trim() === resolvedTypeName) {
+				typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
+			} else {
+				typeText.push(<>{type}</>);
+			}
+			if (type !== types[types.length - 1]) {
+				typeText.push(<>|</>);
+			}
+		});
+		return (
+			<span className={classnames(classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
+				{typeText}
+			</span>
+		);
+	};
+
 	const label = (
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
@@ -179,11 +204,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 					{typeName && ":"}
 				</span>
 			)}
-			{typeName && (
-				<span className={classnames(classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
-					{typeName}
-				</span>
-			)}
+			{typeName && TypeSpan()}
 		</span>
 	);
 

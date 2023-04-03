@@ -56,6 +56,10 @@ const useStyles = makeStyles((theme: Theme) =>
 			minWidth: "100px",
 			marginRight: "24px"
 		},
+		boldedTypeLabel: {
+			fontFamily: "GilmerBold",
+			fontSize: "14px",
+		},
 		valueLabel: {
 			verticalAlign: "middle",
 			padding: "5px",
@@ -101,6 +105,7 @@ export interface EditableMappingConstructorWidgetProps {
 	mappings?: FieldAccessToSpecificFied[];
 	deleteField?: (node: STNode) => Promise<void>;
 	originalTypeName?: string;
+	resolvedTypeName?: string;
 }
 
 
@@ -116,7 +121,8 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		mappings,
 		valueLabel,
 		deleteField,
-		originalTypeName
+		originalTypeName,
+		resolvedTypeName
 	} = props;
 	const classes = useStyles();
 	const dmStore = useDMSearchStore();
@@ -143,6 +149,23 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	}
 
 	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
+
+	const TypeSpan = () => {
+		const typeText: JSX.Element[] = [];
+		const types = typeName.split('|');
+		types.forEach((type) => {
+			if (type.trim() === resolvedTypeName) {
+				typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
+			} else {
+				typeText.push(<>{type}</>);
+			}
+			if (type !== types[types.length - 1]) {
+				typeText.push(<>|</>);
+			}
+		});
+		return <span className={classes.typeLabel}>{typeText}</span>;
+	};
+
 	const label = (
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
@@ -151,12 +174,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					{typeName && ":"}
 				</span>
 			)}
-			{typeName && (
-				<span className={classes.typeLabel}>
-					{typeName}
-				</span>
-			)}
-
+			{typeName && TypeSpan()}
 		</span>
 	);
 
