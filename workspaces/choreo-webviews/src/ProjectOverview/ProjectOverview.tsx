@@ -223,7 +223,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     <VSCodeButton appearance="icon" title="Open in Choreo Console" onClick={onOpenConsoleClick}><Codicon name="link-external" /></VSCodeButton>
                     {isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}
                 </HeaderContainer>
-                {location === undefined &&
+                {location === undefined && !isActive &&
                     <>
                         <p><InlineIcon><Codicon name="info" /></InlineIcon> To open the project clone in to your local machine</p>
                         <ActionContainer>

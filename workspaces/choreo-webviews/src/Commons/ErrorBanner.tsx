@@ -29,6 +29,10 @@ const codiconStyles = css`
     vertical-align: middle;
 `;
 
+export const ErrorIcon = cx(css`
+    color: var(--vscode-errorForeground);
+`);
+
 export function ErrorBanner(props: { errorMsg: string }) {
     const { errorMsg } = props;
 
