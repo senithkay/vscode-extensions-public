@@ -81,12 +81,14 @@ jobs:
       - name: Update ballerina extension versions
         if: ${{ inputs.version != 'N/A' && inputs.ballerina }}
         run: |
-          pnpm --filter=ballerina version ${{ inputs.version }} --preid beta --no-git-tag-version
+          cd workspaces/ballerina-extension
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
 
       - name: Update choreo extension versions
         if: ${{ inputs.version != 'N/A' && inputs.choreo }}
         run: |
-          pnpm --filter=choreo version ${{ inputs.version }} --preid beta --no-git-tag-version
+          cd workspaces/choreo-extension
+          npm version ${{ inputs.version }} --preid beta --no-git-tag-version
 
       - name: Get timestamp
         id: timestamp
