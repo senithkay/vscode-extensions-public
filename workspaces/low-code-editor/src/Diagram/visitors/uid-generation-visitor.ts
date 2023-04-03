@@ -12,34 +12,20 @@
  */
 
 import {
-    DotToken,
+    ClassDefinition,
     FunctionDefinition,
-    IdentifierToken,
     NodePosition,
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
-    ResourcePathRestParam,
-    ResourcePathSegmentParam,
     ServiceDeclaration,
-    SlashToken,
     STKindChecker,
     STNode,
     TypeDefinition,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-import { generateResourcePathString, isPositionEqual } from "./util";
+import { generateConstructIdStub, isPositionEqual, MODULE_DELIMETER } from "./util";
 
-export const MODULE_DELIMETER = '#';
-export const SUB_DELIMETER = '%%';
-
-export enum ELEMENT_KEYWORDS {
-    SERVICE = 'service',
-    FUNCTION = 'function',
-    RESOURCE = 'resource',
-    RECORD = 'record',
-    REMOTE = 'remote',
-}
 
 export class UIDGenerationVisitor implements Visitor {
     private position: NodePosition;
@@ -47,17 +33,33 @@ export class UIDGenerationVisitor implements Visitor {
     private stack: string[];
     private moduleServiceIndex: number;
     private moduleFunctionIndex: number;
+    private moduleClassIndex: number;
+    private moduleTypeIndex: number;
+    private classMemberIndex: number;
 
     constructor(position: NodePosition) {
         this.stack = [];
         this.position = position;
         this.moduleServiceIndex = 0;
         this.moduleFunctionIndex = 0;
+        this.moduleClassIndex = 0;
+        this.moduleTypeIndex = 0;
+        this.classMemberIndex = 0;
     }
 
+    beginVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
+        this.moduleClassIndex++;
+        this.classMemberIndex = 0;
+        this.stack.push(generateConstructIdStub(node, this.moduleClassIndex));
+    }
+
+    endVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
+        this.stack.pop();
+    }
     beginVisitServiceDeclaration(node: ServiceDeclaration): void {
         this.moduleServiceIndex++;
-        this.stack.push(`${ELEMENT_KEYWORDS.SERVICE}${SUB_DELIMETER}${this.moduleServiceIndex}`);
+        this.classMemberIndex = 0;
+        this.stack.push(generateConstructIdStub(node, this.moduleServiceIndex));
 
         if (isPositionEqual(node.position, this.position)) {
             this.setUId();
@@ -69,12 +71,15 @@ export class UIDGenerationVisitor implements Visitor {
     }
 
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
+        let id: string;
         if (parent && STKindChecker.isModulePart(parent)) {
             this.moduleFunctionIndex++;
-            this.stack.push(`${ELEMENT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${this.moduleFunctionIndex}`);
+            id = generateConstructIdStub(node, this.moduleFunctionIndex);
         } else {
-            this.stack.push(`${ELEMENT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${node.functionName.value}`);
+            this.classMemberIndex++;
+            id = generateConstructIdStub(node, this.classMemberIndex);
         }
+        this.stack.push(id);
 
         if (isPositionEqual(node.position, this.position)) {
             this.setUId();
@@ -86,12 +91,8 @@ export class UIDGenerationVisitor implements Visitor {
     }
 
     beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
-        let id: string = `${ELEMENT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${node.functionName.value}`;
-
-        if (node.relativeResourcePath.length > 0) {
-            id = (`${id}${SUB_DELIMETER}${generateResourcePathString(node.relativeResourcePath)}`);
-        }
-        this.stack.push(id);
+        this.classMemberIndex++;
+        this.stack.push(generateConstructIdStub(node, this.classMemberIndex));
 
         if (isPositionEqual(node.position, this.position)) {
             this.setUId();
@@ -103,7 +104,8 @@ export class UIDGenerationVisitor implements Visitor {
     }
 
     beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
-        this.stack.push(`${ELEMENT_KEYWORDS.REMOTE}${SUB_DELIMETER}${node.functionName.value}`);
+        this.classMemberIndex++;
+        this.stack.push(generateConstructIdStub(node, this.classMemberIndex));
 
         if (isPositionEqual(node.position, this.position)) {
             this.setUId();
@@ -115,7 +117,8 @@ export class UIDGenerationVisitor implements Visitor {
     }
 
     beginVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
-        this.stack.push(`${ELEMENT_KEYWORDS.RECORD}${SUB_DELIMETER}${node.typeName?.value}`);
+        this.moduleTypeIndex++;
+        this.stack.push(generateConstructIdStub(node, this.moduleTypeIndex));
 
         if (isPositionEqual(node.position, this.position)) {
             this.setUId();

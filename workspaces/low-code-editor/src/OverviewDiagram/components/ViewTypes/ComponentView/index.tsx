@@ -52,6 +52,7 @@ export function ComponentView(props: ComponentViewProps) {
         <div
             className={classNames("component", { 'not-allowed': !isComponentAllowed(props.type) })}
             onClick={isComponentAllowed(props.type) ? handleComponentClick : undefined}
+            title={info.name.length ? info.name : '/'}
         >
             <div className="icon">
                 {getConstructIcon(`${iconNameTranslator(props.type)}Icon`)}

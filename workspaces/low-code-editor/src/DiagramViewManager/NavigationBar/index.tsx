@@ -28,7 +28,6 @@ import { useHistoryContext } from "../context/history";
 
 import useStyles from './style';
 import './style.scss';
-import { CtrlClickWrapper } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 interface NavigationBarProps {
     workspaceName: string;
@@ -51,7 +50,7 @@ export function NavigationBar(props: NavigationBarProps) {
     const [isProjectSelectorOpen, setIsProjectSelectorOpen] = React.useState(false);
     const popoverRef = React.useRef<HTMLDivElement>(null);
 
-    const isWorkspace = projectList.length > 1;
+    const isWorkspace = projectList && projectList.length > 1;
 
     const isRootDataMapper = syntaxTree && STKindChecker.isFunctionDefinition(syntaxTree)
         && STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody);
@@ -117,22 +116,51 @@ export function NavigationBar(props: NavigationBarProps) {
         )
     }
 
-    const renderWorkspaceNameComponent = () => (
-        <div className="btn-container" onClick={historyReset} >
-            {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
-            <span className="icon-text">{`${workspaceName}`}</span>
-        </div>
-    );
+    const renderWorkspaceNameComponent = () => {
+        const handleOnClick = () => {
+            if (projectList && currentProject) {
+                historyReset();
+            }
+        }
 
-    const buttonsDisabled = history.length === 0;
+        return (
+            <div className="btn-container" onClick={handleOnClick} >
+                {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
+                <span className="icon-text">{`${projectList ? workspaceName : '.'}`}</span>
+            </div>
+        )
+    };
+
 
     const renderNavigationButtons = () => {
+        const buttonsDisabled = !projectList || !currentProject || history.length === 0;
+
+        const handleBackButtonClick = () => {
+            if (!buttonsDisabled) {
+                historyPop();
+            }
+        }
+
+        const handleHomeButtonClick = () => {
+            if (!buttonsDisabled) {
+                historyReset();
+            }
+        }
+
         return (
             <>
-                <div className="btn-container" aria-disabled={buttonsDisabled} onClick={historyPop}>
+                <div
+                    className="btn-container"
+                    aria-disabled={buttonsDisabled}
+                    onClick={handleBackButtonClick}
+                >
                     <ArrowBack className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
-                <div className="btn-container" aria-disabled={buttonsDisabled} onClick={historyReset}>
+                <div
+                    className="btn-container"
+                    aria-disabled={buttonsDisabled}
+                    onClick={handleHomeButtonClick}
+                >
                     <Home className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
             </>
@@ -188,17 +216,17 @@ export function NavigationBar(props: NavigationBarProps) {
             {isWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
             {isWorkspace && renderProjectSelectorComponent()}
             {isRootDataMapper ? (
-                    <Breadcrumbs
-                        maxItems={3}
-                        separator={<NavigateNextIcon fontSize="small" />}
-                        className={classes.breadcrumb}
-                    >
-                        {links}
-                        {activeLink}
-                    </Breadcrumbs>
-                ) :
+                <Breadcrumbs
+                    maxItems={3}
+                    separator={<NavigateNextIcon fontSize="small" />}
+                    className={classes.breadcrumb}
+                >
+                    {links}
+                    {activeLink}
+                </Breadcrumbs>
+            ) :
                 (
-                    <div className="component-details"/>
+                    <div className="component-details" />
                 )
             }
         </div>

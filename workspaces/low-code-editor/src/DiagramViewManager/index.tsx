@@ -24,8 +24,11 @@ import { GraphqlDiagramOverlay } from "../Diagram/components/GraphqlDiagramOverl
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 import { ServiceInvalidOverlay } from "../Diagram/components/ServiceInvalidOverlay";
 import { ServiceUnsupportedOverlay } from "../Diagram/components/ServiceUnsupported";
+import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
+import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
+import { getConstructBodyString } from "../Diagram/visitors/util";
 import {
     getLowcodeST,
     getSyntaxTree
@@ -63,8 +66,15 @@ export function DiagramViewManager(props: EditorProps) {
     const classes = useGeneratorStyles();
 
     const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [history, historyPush, historyPop, historyClearAndPopulateWith, historySelect, historyClear, updateCurrentEntry] =
-        useComponentHistory();
+    const [
+        history,
+        historyPush,
+        historyPop,
+        historyClearAndPopulateWith,
+        historySelect,
+        historyClear,
+        updateCurrentEntry
+    ] = useComponentHistory();
     const [updatedTimeStamp, setUpdatedTimeStamp] = useState<string>();
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
@@ -91,9 +101,9 @@ export function DiagramViewManager(props: EditorProps) {
             const { file, position, uid } = history[history.length - 1];
             fetchST(file, uid ? { uid } : { position });
 
-            const currentProjectPath = projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
+            const currentProjectPath = projectPaths && projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
 
-            if (!currentProject || currentProject.name !== currentProjectPath.name) {
+            if (!currentProject || (currentProjectPath && currentProject.name !== currentProjectPath.name)) {
                 setCurrentProject(currentProjectPath);
             }
             if (!focusFile || focusFile !== file) setFocusFile(file);
@@ -121,7 +131,7 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (diagramFocus) {
             const { filePath, position } = diagramFocus;
-            const currentProjectPath = projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
+            const currentProjectPath = projectPaths && projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
 
             (async () => {
                 if (!position) {
@@ -176,7 +186,32 @@ export function DiagramViewManager(props: EditorProps) {
                 if (options && options.uid) {
                     const nodeFindingVisitor = new FindNodeByUidVisitor(options.uid);
                     traversNode(visitedST, nodeFindingVisitor);
-                    selectedST = nodeFindingVisitor.getNode();
+                    if (!nodeFindingVisitor.getNode()) {
+                        const visitorToFindConstructByName = new FindConstructByNameVisitor(options.uid);
+                        traversNode(visitedST, visitorToFindConstructByName);
+                        if (visitorToFindConstructByName.getNode()) {
+                            selectedST = visitorToFindConstructByName.getNode();
+                            setFocusUid(visitorToFindConstructByName.getUid());
+                            updateCurrentEntry({
+                                ...history[history.length - 1], uid: visitorToFindConstructByName.getUid()
+                            });
+                        } else {
+                            const visitorToFindConstructByIndex = new FindConstructByIndexVisitor(options.uid, getConstructBodyString(focusedST));
+                            traversNode(visitedST, visitorToFindConstructByIndex);
+                            if (visitorToFindConstructByIndex.getNode()) {
+                                selectedST = visitorToFindConstructByIndex.getNode();
+                                setFocusUid(visitorToFindConstructByIndex.getUid());
+                                updateCurrentEntry({
+                                    ...history[history.length - 1], uid: visitorToFindConstructByIndex.getUid()
+                                });
+                            } else {
+                                // TODO:  Add error message saying we can't find the construct
+                            }
+                        }
+
+                    } else {
+                        selectedST = nodeFindingVisitor.getNode();
+                    }
                 }
 
                 // resolve the service type if the ST is a service
@@ -225,86 +260,84 @@ export function DiagramViewManager(props: EditorProps) {
 
     const viewComponent: React.ReactElement[] = [];
 
-    if (currentFileContent) {
-        if (history.length > 0 && history[history.length - 1].position && !focusedST) {
-            viewComponent.push(<TextPreLoader position={'absolute'} />);
-        } else if (!focusedST && fileList) {
-            const currentFileName = fileList.find(file => file.uri.path === focusFile)?.fileName;
-            viewComponent.push((
-                <OverviewDiagram
-                    currentProject={currentProject}
-                    currentFile={focusFile}
-                    currentFileName={currentFileName}
-                    notifyComponentSelection={updateSelectedComponent}
-                    updateCurrentFile={setFocusFile}
-                    fileList={fileList}
-                    lastUpdatedAt={updatedTimeStamp}
-                />
-            ));
-        } else if (focusedST) {
-            if (STKindChecker.isServiceDeclaration(focusedST)) {
-                const listenerExpression = focusedST.expressions[0];
-                const typeData = listenerExpression.typeData;
-                const typeSymbol = typeData?.typeSymbol;
-                const signature = typeSymbol?.signature;
-                if (serviceTypeSignature && serviceTypeSignature.includes('http')) {
-                    viewComponent.push((
-                        <ServiceDesignOverlay
-                            model={focusedST}
-                            targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
-                            onCancel={handleNavigationHome}
-                        />
-                    ));
-                } else if (experimentalEnabled && serviceTypeSignature && serviceTypeSignature.includes('graphql')) {
-                    viewComponent.push(
-                        <GraphqlDiagramOverlay
-                            model={focusedST}
-                            targetPosition={focusedST.position}
-                            ballerinaVersion={balVersion}
-                            onCancel={handleNavigationHome}
-                            goToSource={gotoSource}
-                        />
-                    );
-                } else if (signature && signature === "$CompilationError$") {
-                    viewComponent.push((
-                        <ServiceInvalidOverlay />
-                    ));
-                } else {
-                    viewComponent.push(
-                        <ServiceUnsupportedOverlay />
-                    )
-                }
-            } else if (STKindChecker.isFunctionDefinition(focusedST)
-                && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
+    if (history.length > 0 && history[history.length - 1].position && !focusedST) {
+        viewComponent.push(<TextPreLoader position={'absolute'} />);
+    } else if (!focusedST && fileList) {
+        const currentFileName = fileList.find(file => file.uri.path === focusFile)?.fileName;
+        viewComponent.push((
+            <OverviewDiagram
+                currentProject={currentProject}
+                currentFile={focusFile}
+                currentFileName={currentFileName}
+                notifyComponentSelection={updateSelectedComponent}
+                updateCurrentFile={setFocusFile}
+                fileList={fileList}
+                lastUpdatedAt={updatedTimeStamp}
+            />
+        ));
+    } else if (focusedST) {
+        if (STKindChecker.isServiceDeclaration(focusedST)) {
+            const listenerExpression = focusedST.expressions[0];
+            const typeData = listenerExpression.typeData;
+            const typeSymbol = typeData?.typeSymbol;
+            const signature = typeSymbol?.signature;
+            if (serviceTypeSignature && serviceTypeSignature.includes('http')) {
                 viewComponent.push((
-                    <DataMapperOverlay
-                        targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                    <ServiceDesignOverlay
                         model={focusedST}
-                        ballerinaVersion={balVersion}
+                        targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
                         onCancel={handleNavigationHome}
                     />
-                ))
-            } else if (STKindChecker.isTypeDefinition(focusedST)
-                && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
-                // Navigate to record composition view
-                const recordST = { ...focusedST }; // Clone focusedST
-                const name = recordST.typeName.value;
-                const module = recordST.typeData?.symbol?.moduleID;
-                if (!(name && module)) {
-                    // TODO: Handle error properly
-                    // tslint:disable-next-line
-                    console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
-                } else {
-                    const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
-                    props.openArchitectureView(nodeId);
-                }
-                // Show file view, clear focus syntax tree
-                setFocusedST(undefined);
-                setFocusUid(undefined);
-                handleNavigationHome();
+                ));
+            } else if (experimentalEnabled && serviceTypeSignature && serviceTypeSignature.includes('graphql')) {
+                viewComponent.push(
+                    <GraphqlDiagramOverlay
+                        model={focusedST}
+                        targetPosition={focusedST.position}
+                        ballerinaVersion={balVersion}
+                        onCancel={handleNavigationHome}
+                        goToSource={gotoSource}
+                    />
+                );
+            } else if (signature && signature === "$CompilationError$") {
+                viewComponent.push((
+                    <ServiceInvalidOverlay />
+                ));
             } else {
-                viewComponent.push(<Diagram />);
+                viewComponent.push(
+                    <ServiceUnsupportedOverlay />
+                )
             }
+        } else if (currentFileContent && STKindChecker.isFunctionDefinition(focusedST)
+            && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
+            viewComponent.push((
+                <DataMapperOverlay
+                    targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
+                    model={focusedST}
+                    ballerinaVersion={balVersion}
+                    onCancel={handleNavigationHome}
+                />
+            ))
+        } else if (STKindChecker.isTypeDefinition(focusedST)
+            && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
+            // Navigate to record composition view
+            const recordST = { ...focusedST }; // Clone focusedST
+            const name = recordST.typeName.value;
+            const module = recordST.typeData?.symbol?.moduleID;
+            if (!(name && module)) {
+                // TODO: Handle error properly
+                // tslint:disable-next-line
+                console.error('Couldn\'t generate record nodeId to open Architecture view', recordST);
+            } else {
+                const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
+                props.openArchitectureView(nodeId);
+            }
+            // Show file view, clear focus syntax tree
+            setFocusedST(undefined);
+            setFocusUid(undefined);
+            handleNavigationHome();
+        } else {
+            viewComponent.push(<Diagram />);
         }
     }
 

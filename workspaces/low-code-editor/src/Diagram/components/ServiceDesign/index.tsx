@@ -157,12 +157,12 @@ export function ServiceDesign(props: ServiceDesignProps) {
         >
             <Grid item={true}>
                 <Typography variant="h3"  component="div">
-                    Service list is empty 
+                    Service list is empty
                 </Typography>
             </Grid>
             <Grid item={true}>
                 <Typography variant="subtitle1"  component="div">
-                    Add a new resource 
+                    Add a new resource
                 </Typography>
             </Grid>
         </Grid>
@@ -172,7 +172,6 @@ export function ServiceDesign(props: ServiceDesignProps) {
         <div className={classes.root}>
             {serviceST && (
                 <>
-                    {/*<ServiceHeader onClose={onClose} model={fnSTZ} />*/}
                     <div className={classes.serviceTitle}>
                         <div className={classes.serviceTitleText}>
                             <span className={classes.servicePath}>Service {servicePath}</span>
