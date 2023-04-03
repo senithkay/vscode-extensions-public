@@ -15,7 +15,6 @@ import { OpenDialogOptions } from "@wso2-enterprise/choreo-core";
 import styled from "@emotion/styled";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { Codicon } from "../../Codicon/Codicon";
 
 const Container =  styled.span`
     margin-left: 10px;
