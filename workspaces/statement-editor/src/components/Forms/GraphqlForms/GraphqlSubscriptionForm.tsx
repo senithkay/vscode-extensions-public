@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { LiteExpressionEditor, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteTextField, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createResource,
     getSource,
@@ -41,17 +41,16 @@ import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
 import { completionEditorTypeKinds } from "../../InputEditor/constants";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
-import { FunctionParam, FunctionParamItem } from "../FunctionForm/FunctionParamEditor/FunctionParamItem";
-import { FunctionParamSegmentEditor } from "../FunctionForm/FunctionParamEditor/FunctionSegmentEditor";
+import { FunctionParam } from "../FunctionForm/FunctionParamEditor/FunctionParamItem";
 import {
     createNewConstruct,
     generateParameterSectionString,
-    getParamString,
     getResourcePath
 } from "../ResourceForm/util";
 
 import { ParameterEditor } from "./ParameterEditor/ParameterEditor";
-import { ParameterField } from "./ParameterEditor/ParameterField";
+import { FunctionParameter, ParameterField } from "./ParameterEditor/ParameterField";
+import { getFilteredCompletions, getParametersAsString } from "./utils";
 
 export interface FunctionProps {
     model: ResourceAccessorDefinition;
@@ -75,7 +74,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
 
     // States related to component model
     const [returnType, setReturnType] = useState<string>(model ? model.functionSignature?.returnTypeDesc?.type?.source?.trim() : "");
-    const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
+    const [resourceName, setResourceName] = useState<string>(model ? getResourcePath(model?.relativeResourcePath).trim() : "");
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
 
     // States related to syntax diagnostics
@@ -116,9 +115,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
         setAddingNewParam(true);
         setEditingSegmentId(-1);
         const newParams = [...parameters, { type: "string", name: "name" }];
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
+        const parametersStr = getParametersAsString(newParams);
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
@@ -127,37 +124,37 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
         );
     };
 
-    const onParamChange = async (param: FunctionParam) => {
+    const onParamChange = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
-        const newParams = [...parameters, param];
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
+        const newParams = [...parameters, parameter];
+        const parametersStr = getParametersAsString(newParams);
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
             parametersStr,
-            model.functionSignature?.returnTypeDesc?.type?.source
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            focusedModel,
+            typedInValue
         );
     };
 
-    const onUpdateParamChange = async (param: FunctionParam) => {
+    const onChangeExistingParameter = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
         const newParams = [...parameters];
-        newParams[param.id] = param;
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
+        newParams[parameter.id] = parameter;
+        const parametersStr = getParametersAsString(newParams);
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
             parametersStr,
-            model.functionSignature?.returnTypeDesc?.type?.source
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            focusedModel,
+            typedInValue
         );
     };
 
     const handleOnSave = () => {
-        const parametersStr = parameters.map((item) => `${item.type} ${item.name}`).join(", ");
+        const parametersStr = getParametersAsString(parameters);
         if (isEdit) {
             applyModifications([
                 updateResourceSignature(
@@ -241,9 +238,10 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
                         id={editingSegmentId}
                         syntaxDiag={currentComponentSyntaxDiag}
                         onCancel={closeNewParamView}
-                        onUpdate={handleOnUpdateParam}
-                        onChange={onUpdateParamChange}
+                        onSave={handleOnUpdateParam}
+                        onChange={onChangeExistingParameter}
                         isEdit={true}
+                        completions={getFilteredCompletions(completions)}
                     />
                 );
             }
@@ -254,7 +252,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
 
         if (currentComponentName === "") {
             const editParams: FunctionParam[] = model?.functionSignature.parameters
-                .filter((param) => STKindChecker.isRequiredParam(param))
+                .filter((param) => !STKindChecker.isCommaToken(param))
                 .map((param: any, index) => ({
                     id: index,
                     name: param.paramName.value,
@@ -262,7 +260,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
                 }));
             setParameters(editParams);
         }
-    }, [model, completions]);
+    }, [model]);
 
     const getResourcePathDiagnostics = () => {
         const diagPath = model.relativeResourcePath?.find(
@@ -281,8 +279,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
     };
 
     const handlePathChange = async (value: string) => {
-        setShouldUpdatePath(false);
-        // setResourcePath(value);
+        setResourceName(value);
         await handleResourceParamChange(
             model.functionName.value,
             value,
@@ -302,7 +299,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
         returnStr: string,
         stModel?: STNode,
         currentValue?: string) => {
-        const pathString = pathStr ? pathStr : ".";
+        const pathString = pathStr ? pathStr : "";
         const codeSnippet = getSource(
             updateResourceSignature(resMethod, pathString, paramStr, returnStr, targetPosition));
         const position = model ? ({
@@ -335,24 +332,39 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
         }
     }
 
+    const getPathDiagnostic = () => {
+        if (currentComponentSyntaxDiag){
+            return currentComponentSyntaxDiag;
+        } else {
+            const diagPath = model.relativeResourcePath?.find(
+                resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
+
+            let resourcePathDiagnostics = [];
+
+            if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
+                resourcePathDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.viewState?.diagnosticsInRange || [];
+                resourcePathDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.typeDescriptor?.viewState?.diagnosticsInRange || [];
+            } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
+                resourcePathDiagnostics = diagPath?.viewState?.diagnostics;
+            }
+
+            return resourcePathDiagnostics;
+        }
+    }
+
     const formContent = () => {
         return (
             <>
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title="Path" optional={false}/>
-                        <LiteExpressionEditor
-                            testId="resource-path"
-                            diagnostics={
-                                (currentComponentName === "Path" && currentComponentSyntaxDiag)
-                                || getResourcePathDiagnostics()
-                            }
-                            defaultValue={getResourcePath(model?.relativeResourcePath).trim()}
-                            externalChangedValue={shouldUpdatePath ? getResourcePath(model?.relativeResourcePath).trim() : undefined}
+                        <LiteTextField
+                            value={resourceName}
                             onChange={handlePathChange}
-                            completions={completions}
                             onFocus={onPathFocus}
-                            disabled={currentComponentName !== "Path" && isEditInProgress}
+                            isLoading={currentComponentName !== "Path" && isEditInProgress}
+                            diagnostics={(currentComponentName === "Path")
+                            && getPathDiagnostic()}
                         />
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <ConfigPanelSection title={"Parameters"}>
@@ -367,7 +379,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
                                     onChange={onParamChange}
                                     onSave={onSaveNewParam}
                                     isEdit={false}
-                                    completions={completions}
+                                    completions={getFilteredCompletions(completions)}
                                 />
                             ) : (
                                 <Button
@@ -388,7 +400,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
                             type={returnType}
                             onChange={onReturnTypeChange}
                             isLoading={false}
-                            recordCompletions={completions.filter((completion) => completion.kind !== "Module")}
+                            recordCompletions={getFilteredCompletions(completions)}
                             createNew={createConstruct}
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             isGraphqlForm={true}

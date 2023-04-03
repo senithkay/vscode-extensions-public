@@ -23,9 +23,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
-import { Colors, ComponentModel, DagreLayout, EditLayerAPI, Service, Views } from './resources';
+import {
+    Colors, ComponentModel, DagreLayout, EditLayerAPI, Location, GetComponentModelResponse, Service, Views, ComponentModelDiagnostics
+} from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
-import { ControlsLayer, EditForm } from './editing';
+import { EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
 
@@ -49,8 +51,9 @@ interface DiagramProps {
     isEditable: boolean;
     isChoreoProject: boolean;
     selectedNodeId?: string;
-    getComponentModel(): Promise<Map<string, ComponentModel>>;
+    getComponentModel(): Promise<GetComponentModelResponse>;
     showChoreoProjectOverview?: () => Promise<void>;
+    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void>;
     editLayerAPI?: EditLayerAPI;
     isConsoleView?: boolean;
 }
@@ -64,6 +67,7 @@ export function DesignDiagram(props: DiagramProps) {
         showChoreoProjectOverview = undefined,
         editLayerAPI = undefined,
         isConsoleView = false
+        deleteComponent = undefined
     } = props;
 
     const currentViewDefaultValue = isConsoleView ? Views.CELL_VIEW : Views.L1_SERVICES;
@@ -75,6 +79,7 @@ export function DesignDiagram(props: DiagramProps) {
     const [connectorTarget, setConnectorTarget] = useState<Service>(undefined);
     const defaultOrg = useRef<string>('');
     const previousScreen = useRef<Views>(undefined);
+    const projectDiagnostics = useRef<ComponentModelDiagnostics[]>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     let diagramBGColor;
@@ -109,10 +114,11 @@ export function DesignDiagram(props: DiagramProps) {
 
     const refreshDiagram = async () => {
         await getComponentModel().then((response) => {
-            const components: Map<string, ComponentModel> = new Map(Object.entries(response));
+            const components: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
             if (components && components.size > 0) {
                 defaultOrg.current = [...components][0][1].packageId.org;
             }
+            projectDiagnostics.current = response.diagnostics;
             setProjectPkgs(createRenderPackageObject(components.keys()));
             setProjectComponents(components);
         });
@@ -131,11 +137,15 @@ export function DesignDiagram(props: DiagramProps) {
         isChoreoProject,
         isConsoleView,
         currentView,
+        projectDiagnostics: projectDiagnostics.current,
+        projectComponents,
+        setCurrentView,
         refreshDiagram,
         getTypeComposition,
         setConnectorTarget,
         showChoreoProjectOverview,
-        editLayerAPI
+        editLayerAPI,
+        deleteComponent
     };
 
     return (
@@ -146,21 +156,16 @@ export function DesignDiagram(props: DiagramProps) {
                 {projectComponents && projectComponents.size < 1 ? <PromptScreen setShowEditForm={setShowEditForm} /> :
                     projectComponents ?
                         <>
-                            {editingEnabled && (currentView === Views.L1_SERVICES || currentView === Views.L2_SERVICES) &&
-                                <ControlsLayer setShowEditForm={setShowEditForm} />
-                            }
                             {connectorTarget &&
                                 <ConnectorWizard service={connectorTarget} onClose={onConnectorWizardClose} />}
                             {!isConsoleView && (
                                 <DiagramHeader
-                                    currentView={currentView}
                                     prevView={previousScreen.current}
                                     layout={layout}
                                     changeLayout={changeDiagramLayout}
                                     projectPackages={projectPkgs}
-                                    switchView={setCurrentView}
                                     updateProjectPkgs={setProjectPkgs}
-                                    onRefresh={refreshDiagram}
+                                    setShowEditForm={setShowEditForm}
                                 />
                             )}
                             <DiagramContainer

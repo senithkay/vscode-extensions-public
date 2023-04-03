@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { LiteExpressionEditor, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteExpressionEditor, LiteTextField, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createRemoteFunction,
     getSource, updateRemoteFunctionSignature,
@@ -44,7 +44,8 @@ import { FunctionParam } from "../FunctionForm/FunctionParamEditor/FunctionParam
 import { createNewConstruct, generateParameterSectionString } from "../ResourceForm/util";
 
 import { ParameterEditor } from "./ParameterEditor/ParameterEditor";
-import { ParameterField } from "./ParameterEditor/ParameterField";
+import { FunctionParameter, ParameterField } from "./ParameterEditor/ParameterField";
+import { getFilteredCompletions, getParametersAsString } from "./utils";
 
 export interface FunctionProps {
     model: ObjectMethodDefinition;
@@ -100,10 +101,12 @@ export function GraphqlMutationForm(props: FunctionProps) {
     // Return type related functions
     const onReturnTypeChange = (value: string) => {
         setReturnType(value);
-        const parametersStr = parameters.map((item) => `${item.type} ${item.name}`).join(", ");
+
         handleRemoteMethodDataChange(
             model.functionName.value,
-            parametersStr,
+            generateParameterSectionString(model?.functionSignature?.parameters),
+            value,
+            model.functionSignature?.returnTypeDesc?.type,
             value
         );
     };
@@ -114,9 +117,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
         setAddingNewParam(true);
         setEditingSegmentId(-1);
         const newParams = [...parameters, { type: "string", name: "name" }];
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
+        const parametersStr = getParametersAsString(newParams)
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
@@ -124,30 +125,30 @@ export function GraphqlMutationForm(props: FunctionProps) {
         );
     };
 
-    const onNewParamChange = async (param: FunctionParam) => {
+    const onNewParamChange = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
-        const newParams = [...parameters, param];
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
+        const newParams = [...parameters, parameter];
+        const parametersStr = getParametersAsString(newParams)
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
-            model.functionSignature?.returnTypeDesc?.type?.source
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            focusedModel,
+            typedInValue
         );
     };
 
-    const onUpdateParamChange = async (param: FunctionParam) => {
+    const onChangeExistingParameter = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
         const newParams = [...parameters];
-        newParams[param.id] = param;
-        const parametersStr = newParams
-            .map((item) => `${item.type} ${item.name}`)
-            .join(", ");
+        newParams[parameter.id] = parameter;
+        const parametersStr = getParametersAsString(newParams)
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
-            model.functionSignature?.returnTypeDesc?.type?.source
+            model.functionSignature?.returnTypeDesc?.type?.source,
+            focusedModel,
+            typedInValue
         );
     };
 
@@ -234,9 +235,10 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         id={editingSegmentId}
                         syntaxDiag={currentComponentSyntaxDiag}
                         onCancel={closeParamView}
-                        onUpdate={handleOnUpdateParam}
-                        onChange={onUpdateParamChange}
+                        onSave={handleOnUpdateParam}
+                        onChange={onChangeExistingParameter}
                         isEdit={true}
+                        completions={getFilteredCompletions(completions)}
                     />
                 );
             }
@@ -248,6 +250,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
 
         if (currentComponentName === "") {
             const editParams: FunctionParam[] = model?.functionSignature.parameters
+                .filter((param) => !STKindChecker.isCommaToken(param))
                 .map((param: any, index) => ({
                     id: index,
                     name: param.paramName.value,
@@ -255,7 +258,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
                 }));
             setParameters(editParams);
         }
-    }, [model, completions]);
+    }, [model]);
 
 
     const handleNameChange = async (value: string) => {
@@ -303,16 +306,15 @@ export function GraphqlMutationForm(props: FunctionProps) {
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title="Name" optional={false}/>
-                        <LiteExpressionEditor
-                            testId="method-name"
+                        <LiteTextField
+                            value={functionName}
+                            onChange={handleNameChange}
+                            onFocus={onNameFocus}
+                            isLoading={currentComponentName !== "MethodName" && isEditInProgress}
                             diagnostics={
                                 (currentComponentName === "MethodName" && currentComponentSyntaxDiag)
                                 || model?.functionName?.viewState?.diagnosticsInRange
                             }
-                            defaultValue={functionName}
-                            onChange={handleNameChange}
-                            onFocus={onNameFocus}
-                            disabled={currentComponentName !== "MethodName" && isEditInProgress}
                         />
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <ConfigPanelSection title={"Parameters"}>
@@ -327,7 +329,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
                                     onChange={onNewParamChange}
                                     onSave={onSaveNewParam}
                                     isEdit={false}
-                                    completions={completions}
+                                    completions={getFilteredCompletions(completions)}
                                 />
                             ) : (
                                 <Button
@@ -344,12 +346,11 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         </ConfigPanelSection>
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <FieldTitle title="Return Type" optional={false}/>
-                        {/*TODO: not getting completions for mutation return*/}
                         <TypeBrowser
                             type={returnType}
                             onChange={onReturnTypeChange}
                             isLoading={false}
-                            recordCompletions={completions.filter((completion) => completion.kind !== "Module")}
+                            recordCompletions={getFilteredCompletions(completions)}
                             createNew={createConstruct}
                             diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
                             isGraphqlForm={true}

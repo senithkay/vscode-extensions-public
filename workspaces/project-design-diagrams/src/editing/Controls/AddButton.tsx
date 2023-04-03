@@ -20,16 +20,9 @@
 import React, { useContext } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import Fab from '@mui/material/Fab';
-import styled from '@emotion/styled';
 import { SxProps } from '@mui/material';
 import { DiagramContext } from '../../components/common';
-import { Colors } from '../../resources';
-
-const Container: React.FC<any> = styled.div`
-    position: ${(props: { letFloat: boolean }) => props.letFloat ? 'relative' : 'absolute'};
-    bottom: 15px;
-    left: 15px;
-`;
+import { Colors, Views } from '../../resources';
 
 const ButtonStyles: SxProps = {
     backgroundColor: Colors.PRIMARY,
@@ -37,6 +30,7 @@ const ButtonStyles: SxProps = {
     color: 'white',
     fontSize: '12px',
     marginInline: '2.5px',
+    minWidth: '140px',
     '&:hover': {
         backgroundColor: '#4958ba'
     }
@@ -44,12 +38,11 @@ const ButtonStyles: SxProps = {
 
 interface ControlsProps {
     setShowEditForm: (status: boolean) => void;
-    float?: boolean;
 }
 
-export function ControlsLayer(props: ControlsProps) {
-    const { float, setShowEditForm } = props;
-    const { isChoreoProject, editLayerAPI } = useContext(DiagramContext);
+export function AddButton(props: ControlsProps) {
+    const { setShowEditForm } = props;
+    const { currentView, isChoreoProject, editLayerAPI } = useContext(DiagramContext);
 
     const onComponentAdd = () => {
         if (isChoreoProject && editLayerAPI) {
@@ -62,18 +55,17 @@ export function ControlsLayer(props: ControlsProps) {
     }
 
     return (
-        <Container letFloat={float}>
-            <Fab
-                id={'add-component-btn'}
-                aria-label='add'
-                variant='extended'
-                size='small'
-                onClick={onComponentAdd}
-                sx={ButtonStyles}
-            >
-                <AddIcon sx={{ marginRight: '5px' }} />
-                Component
-            </Fab>
-        </Container>
+        <Fab
+            id={'add-component-btn'}
+            aria-label='add'
+            variant='extended'
+            size='small'
+            onClick={onComponentAdd}
+            sx={ButtonStyles}
+            disabled={currentView === Views.TYPE}
+        >
+            <AddIcon sx={{ marginRight: '5px' }} />
+            {currentView === Views.TYPE ? 'Type' : 'Component'}
+        </Fab>
     )
 }

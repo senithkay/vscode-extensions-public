@@ -22,7 +22,7 @@ import CodeIcon from "@mui/icons-material/Code";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { Location } from "../../../../resources";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { useStyles } from "./styles";
+import { useStyles } from "./styles/styles";
 
 export function Go2SourceButton(props: { location: Location }) {
     const { location } = props;

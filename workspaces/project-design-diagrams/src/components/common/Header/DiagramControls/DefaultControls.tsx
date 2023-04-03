@@ -23,30 +23,27 @@ import IconButton from '@mui/material/IconButton';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import ArrowDropdownIcon from '@mui/icons-material/ArrowDropDown';
 import CachedIcon from '@mui/icons-material/Cached';
-import Chip from '@mui/material/Chip';
-import MenuIcon from '@mui/icons-material/Menu';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { PackagesPopup } from '../PackagesPopup/PackagesPopup';
 import { DiagramLayoutPopup } from '../DiagramLayoutPopup/DiagramLayoutPopup';
-import { MenuPanel } from '../../MenuPanel/MenuPanel';
-import { DagreLayout, Views } from '../../../../resources';
+import { DagreLayout } from '../../../../resources';
+import { AddButton } from '../../../../editing';
+import { CentralControls } from '../styles/styles';
 import '../styles/styles.css';
 
 interface DefaultControlProps {
     projectPackages: Map<string, boolean>;
     layout: DagreLayout;
     changeLayout: () => void;
-    switchView: (viewType: Views) => void;
     updateProjectPkgs: (packages: Map<string, boolean>) => void;
-    onRefresh: () => void;
+    setShowEditForm: (show: boolean) => void;
 }
 
 export function DefaultControls(props: DefaultControlProps) {
-    const { projectPackages, layout, changeLayout, switchView, updateProjectPkgs, onRefresh } = props;
-    const { isChoreoProject, isConsoleView, editingEnabled, showChoreoProjectOverview } = useContext(DiagramContext);
+    const { projectPackages, layout, changeLayout, setShowEditForm, updateProjectPkgs } = props;
+    const { isChoreoProject, isConsoleView, editingEnabled, refreshDiagram, showChoreoProjectOverview } = useContext(DiagramContext);
 
-    const [viewDrawer, updateViewDrawer] = useState<boolean>(false);
     const [pkgAnchorElement, setPkgAnchorElement] = useState<HTMLButtonElement>(null);
     const [layoutAnchorElement, setLayoutAnchorElement] = useState<HTMLButtonElement>(null);
 
@@ -64,23 +61,8 @@ export function DefaultControls(props: DefaultControlProps) {
 
     return (
         <>
-            <MenuPanel
-                drawerState={viewDrawer}
-                updateDrawerState={updateViewDrawer}
-                switchView={switchView}
-            />
-
-            <div>
-                {!isConsoleView && (
-                    <IconButton
-                        className={'iconButton'}
-                        size='small'
-                        onClick={() => { updateViewDrawer(true) }}
-                    >
-                        <MenuIcon fontSize='small' />
-                    </IconButton>
-                )}
-                {!isConsoleView && isChoreoProject && showChoreoProjectOverview &&
+            <CentralControls isChoreoProject={isChoreoProject}>
+                {isChoreoProject && showChoreoProjectOverview &&
                     <Button
                         variant='outlined'
                         size='small'
@@ -91,12 +73,6 @@ export function DefaultControls(props: DefaultControlProps) {
                         Project Overview
                     </Button>
                 }
-                {!editingEnabled &&
-                    <Chip label={'Read-Only Mode'} sx={{ fontSize: '11px', fontFamily: 'GilmerRegular', marginLeft: '5px' }} />
-                }
-            </div>
-
-            <div>
                 <Button
                     variant='outlined'
                     size='small'
@@ -120,11 +96,13 @@ export function DefaultControls(props: DefaultControlProps) {
                 <IconButton
                     className={'iconButton'}
                     size='small'
-                    onClick={onRefresh}
+                    onClick={refreshDiagram}
                 >
                     <CachedIcon fontSize='small' />
                 </IconButton>
-            </div>
+            </CentralControls>
+
+            {editingEnabled && <AddButton setShowEditForm={setShowEditForm} />}
 
             <PackagesPopup
                 anchorElement={pkgAnchorElement}

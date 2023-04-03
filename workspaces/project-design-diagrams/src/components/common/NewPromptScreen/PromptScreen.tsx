@@ -19,7 +19,7 @@
 
 import React, { useContext } from 'react';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { ControlsLayer } from '../../../editing';
+import { AddButton } from '../../../editing';
 import './styles.css';
 
 const NO_COMPONENTS_MSG = 'No components were detected in the project workspace.';
@@ -31,7 +31,7 @@ export function PromptScreen(props: { setShowEditForm: (status: boolean) => void
     return (
         <div id={"no-components-prompt-screen"} className={'container'}>
             <h3 className={'message-box'}>{NO_COMPONENTS_MSG}</h3>
-            {editingEnabled && <ControlsLayer setShowEditForm={setShowEditForm} float={true} />}
+            {editingEnabled && <AddButton setShowEditForm={setShowEditForm} />}
         </div>
     );
 }
