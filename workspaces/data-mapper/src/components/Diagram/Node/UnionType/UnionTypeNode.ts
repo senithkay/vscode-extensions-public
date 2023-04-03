@@ -38,6 +38,7 @@ import {
     getInnermostExpressionBody,
     getInputNodeExpr,
     getInputPortsForExpr,
+    getOutputPortForField,
     getSearchFilteredOutput,
     getTypeFromStore,
     getTypeName
@@ -79,7 +80,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
         if (this.resolvedType && renderResolvedTypes) {
             this.typeDef = getSearchFilteredOutput(this.resolvedType);
             if (this.typeDef) {
-                const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.value.expression,
+                const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.getValueExpr(),
                     this.context.selection.selectedST.stNode);
                 this.typeDef = type;
                 this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
@@ -137,7 +138,10 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 outPort = this.getPort(`${UNION_TYPE_TARGET_PORT_PREFIX}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
             } else {
-                // [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+                [outPort, mappedOutPort] = getOutputPortForField(fields,
+                    this.recordField,
+                    MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+                    (portId: string) =>  this.getPort(portId) as RecordFieldPortModel);
             }
             const diagnostics = filterDiagnostics(
                 this.context.diagnostics, (otherVal.position || value.position) as NodePosition);

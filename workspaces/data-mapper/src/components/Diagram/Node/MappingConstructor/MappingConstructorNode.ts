@@ -145,7 +145,10 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+            const [outPort, mappedOutPort] = getOutputPortForField(fields,
+                this.recordField,
+                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+                (portId: string) =>  this.getPort(portId) as RecordFieldPortModel);
             const diagnostics = filterDiagnostics(
                 this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
             if (inPort && mappedOutPort) {

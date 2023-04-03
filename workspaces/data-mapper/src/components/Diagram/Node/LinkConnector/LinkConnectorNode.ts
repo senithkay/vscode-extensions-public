@@ -31,7 +31,8 @@ import {
     getDefaultValue,
     getInputNodeExpr,
     getInputPortsForExpr,
-    getOutputPortForField
+    getOutputPortForField,
+    getTargetPortPrefix
 } from "../../utils/dm-utils";
 import { FnDefInfo } from "../../utils/fn-definition-store";
 import { filterDiagnostics } from "../../utils/ls-utils";
@@ -118,7 +119,11 @@ export class LinkConnectorNode extends DataMapperNodeModel {
                         }
                         this.targetMappedPort = this.targetPort;
                     } else {
-                        [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
+                        const targetPortPrefix = getTargetPortPrefix(node);
+                        [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields,
+                            node.recordField, targetPortPrefix,
+                            (portId: string) =>  node.getPort(portId) as RecordFieldPortModel,
+                            node instanceof ListConstructorNode && node.rootName);
                     }
                     if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
                         this.hidden = true;

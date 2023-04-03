@@ -150,7 +150,11 @@ export class ListConstructorNode extends DataMapperNodeModel {
                 outPort = this.getPort(`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${this.rootName}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
             } else {
-                [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+                [outPort, mappedOutPort] = getOutputPortForField(fields,
+                    this.recordField,
+                    LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
+                    (portId: string) =>  this.getPort(portId) as RecordFieldPortModel,
+                    this.rootName);
             }
             const diagnostics = filterDiagnostics(
                 this.context.diagnostics, (otherVal.position || value.position) as NodePosition);

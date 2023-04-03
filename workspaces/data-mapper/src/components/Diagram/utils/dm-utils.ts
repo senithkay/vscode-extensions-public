@@ -6,6 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
+import { NodeModel } from "@projectstorm/react-diagrams";
 import {
 	AnydataType,
 	keywords,
@@ -72,6 +73,7 @@ import {
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MODULE_VARIABLE_SOURCE_PORT_PREFIX,
 	PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
+	UNION_TYPE_TARGET_PORT_PREFIX,
 } from "./constants";
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
@@ -166,7 +168,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		parent = parent.parentModel;
 	}
 
-	if (targetNode instanceof MappingConstructorNode) {
+	if (targetNode instanceof MappingConstructorNode || targetNode instanceof UnionTypeNode) {
 		const targetExpr = targetNode.getValueExpr();
 		if (STKindChecker.isMappingConstructor(targetExpr)) {
 			mappingConstruct = targetExpr;
@@ -176,7 +178,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				mappingConstruct = exprBody;
 			}
 		}
-	} else if (targetNode instanceof ListConstructorNode) {
+	} else if (targetNode instanceof ListConstructorNode || targetNode instanceof UnionTypeNode) {
 		const targetExpr = targetNode.getValueExpr();
 		if (STKindChecker.isListConstructor(targetExpr) && fieldIndexes !== undefined && !!fieldIndexes.length) {
 			mappingConstruct = getNextMappingConstructor(targetExpr);
@@ -649,19 +651,13 @@ export function getInputPortsForExpr(node: RequiredParamNode
 }
 
 export function getOutputPortForField(fields: STNode[],
-                                      node: MappingConstructorNode | PrimitiveTypeNode | ListConstructorNode)
-	: [RecordFieldPortModel, RecordFieldPortModel] {
+                                      editableRecordField: EditableRecordField,
+                                      portPrefix: string,
+                                      getPort: (portId: string) => RecordFieldPortModel,
+                                      listConstructorRootName?: string): [RecordFieldPortModel, RecordFieldPortModel] {
+	let portIdBuffer = `${portPrefix}${listConstructorRootName || ''}`;
+	let nextTypeNode: EditableRecordField = editableRecordField;
 
-	let nextTypeNode: EditableRecordField = node.recordField;
-	let portIdBuffer: string = '';
-
-	if (node instanceof MappingConstructorNode) {
-		portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}`;
-	} else if (node instanceof ListConstructorNode) {
-		portIdBuffer = `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${getBalRecFieldName(node.rootName)}`;
-	} else {
-		portIdBuffer = PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
-	}
 	for (let i = 0; i < fields.length; i++) {
 		const field = fields[i];
 		const next = i + 1 < fields.length && fields[i + 1];
@@ -713,7 +709,7 @@ export function getOutputPortForField(fields: STNode[],
 		return [undefined, undefined];
 	}
 	const portId = `${portIdBuffer}.IN`;
-	const port = (node.getPort(portId) as RecordFieldPortModel);
+	const port = getPort(portId);
 	let mappedPort = port;
 	while (mappedPort && mappedPort.hidden) {
 		mappedPort = mappedPort.parentModel;
@@ -1359,8 +1355,29 @@ export function getInnermostExpressionBody(expr: STNode): STNode {
 	return innerExpr;
 }
 
-export function isTypesIdentical(type1: Type, type2: Type): boolean {
-	return JSON.stringify(type1) === JSON.stringify(type2);
+export function getTargetPortPrefix(node: NodeModel): string {
+	switch (true) {
+		case node instanceof MappingConstructorNode:
+			return MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+		case node instanceof ListConstructorNode:
+			return LIST_CONSTRUCTOR_TARGET_PORT_PREFIX;
+		case node instanceof PrimitiveTypeNode:
+			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+		case node instanceof UnionTypeNode:
+			const unionTypeNode = node as UnionTypeNode;
+			const resolvedType = unionTypeNode.resolvedType;
+			if (unionTypeNode.shouldRenderUnionType()) {
+				return UNION_TYPE_TARGET_PORT_PREFIX;
+			} else if (resolvedType && resolvedType.typeName === PrimitiveBalType.Record) {
+				return MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+			} else if (resolvedType && resolvedType.typeName === PrimitiveBalType.Array) {
+				return LIST_CONSTRUCTOR_TARGET_PORT_PREFIX;
+			} else {
+				return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+			}
+		default:
+			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+	}
 }
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {

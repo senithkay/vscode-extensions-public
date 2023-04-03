@@ -121,7 +121,10 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                     this.recordField.type.typeName}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
             } else {
-                [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+                [outPort, mappedOutPort] = getOutputPortForField(fields,
+                    this.recordField,
+                    PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
+                    (portId: string) =>  this.getPort(portId) as RecordFieldPortModel);
             }
             const diagnostics = filterDiagnostics(
                 this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
