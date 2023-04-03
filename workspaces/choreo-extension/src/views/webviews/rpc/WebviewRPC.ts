@@ -31,7 +31,7 @@ import {
     DeleteComponent,
     PullComponent,
     showOpenDialogRequest,
-    OpenDialogOptions
+    OpenDialogOptions,
     GetComponentModelResponse,
     ComponentModelDiagnostics
 } from "@wso2-enterprise/choreo-core";
