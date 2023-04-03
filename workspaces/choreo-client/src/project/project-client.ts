@@ -12,7 +12,7 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployments } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, CreateByocComponentParams } from "./types";
 import {
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
@@ -22,7 +22,7 @@ import {
     getProjectsByOrgIdQuery,
     getRepoMetadataQuery
 } from './project-queries';
-import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
+import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
 import { AxiosResponse } from 'axios';
@@ -149,6 +149,19 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
+    async createByocComponent(params: CreateByocComponentParams): Promise<Component> {
+        const mutation = getCreateByocComponentMutation(params);
+        console.log(mutation);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            console.log(data);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
     async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
         const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
         if (!choreoToken) {
@@ -170,7 +183,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async getSwaggerExamples(data: any): Promise<AxiosResponse> {
+    async getSwaggerExamples(data: string): Promise<AxiosResponse> {
         const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
         if (!choreoToken) {
             throw new Error('User is not logged in');
@@ -199,6 +212,18 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             const client = await this._getClient();
             const data = await client.request(query);
             return data.repoMetadata.isSubPathValid;
+        } catch (error) {
+            throw new Error("Error while executing " + query, { cause: error, });
+        }
+    }
+
+    async getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
+        const { organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId } = params;
+        const query = getRepoMetadataQuery(organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.repoMetadata;
         } catch (error) {
             throw new Error("Error while executing " + query, { cause: error, });
         }

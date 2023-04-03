@@ -12,14 +12,18 @@
  */
 import { Component, Project, Repository } from '@wso2-enterprise/choreo-core';
 import { RequestType } from 'vscode-messenger-common';
-import { ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, LinkRepoMutationParams } from '../types';
+import { ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, LinkRepoMutationParams } from '../types';
 
 // queries
 export const GetProjectsRequest: RequestType<GetProjectsParams, Project[]> = { method: 'project/getProjects' };
 export const GetComponentsRequest: RequestType<GetComponentsParams, Component[]> = { method: 'project/getComponents' };
+export const GetRepoMetaDataRequest: RequestType<GitHubRepoValidationRequestParams, GitHubRepoValidationResponse> = { method: 'project/getRepoMetaData' };
+
 
 // mutations
 export const CreateProjectRequest: RequestType<CreateProjectParams, Project> = { method: 'project/createProject' };
 export const CreateComponentRequest: RequestType<ComponentMutationParams, Component> = { method: 'project/createComponent' };
+export const CreateByocComponentRequest: RequestType<CreateByocComponentParams, Component> = { method: 'project/createByocComponent' };
+
 export const LinkRepoRequest: RequestType<LinkRepoMutationParams, Repository> = { method: 'project/linkRepo' };
 export const DeleteComponentRequest: RequestType<DeleteComponentParams, void> = { method: 'project/deleteComponent' };

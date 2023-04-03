@@ -101,7 +101,11 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			startLine: editor!.selection.active.line,
 			startColumn: editor!.selection.active.character,
 			isDiagram: true,
-
+			diagramFocus: {
+				fileUri: editor!.document.uri.path,
+				position: openInDiagram
+			},
+			workspaceName: workspace.name
 		};
 	} else {
 		diagramElement = {
@@ -109,18 +113,23 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			startLine,
 			startColumn,
 			isDiagram: true,
+			diagramFocus: {
+				fileUri: (filePath === '' ? editor!.document.uri : Uri.file(filePath)).path,
+				position: openInDiagram
+			},
+			workspaceName: workspace.name
 		};
 	}
 
-	diagramElement = {
-		fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
-		startLine,
-		startColumn,
-		isDiagram: true,
-		diagramFocus: filePath && filePath.length !== 0 ?
-			{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined,
-		workspaceName: workspace.name
-	};
+	// diagramElement = {
+	// 	fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
+	// 	startLine,
+	// 	startColumn,
+	// 	isDiagram: true,
+	// 	diagramFocus: filePath && filePath.length !== 0 ?
+	// 		{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined,
+	// 	workspaceName: workspace.name
+	// };
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 
@@ -216,7 +225,7 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
 	});
 
 	const diagramRenderDisposable = commands.registerCommand(PALETTE_COMMANDS.SHOW_DIAGRAM, (...args: any[]) => {
-		let path = args.length > 0 ? args[0] : '';
+		let path = args.length > 0 ? args[0] : window.activeTextEditor.document.uri.fsPath || '';
 		if (args[0] instanceof Uri) {
 			path = args[0].fsPath;
 		}
@@ -358,7 +367,7 @@ class DiagramPanel {
 		const fileName: string | undefined = getCurrentFileName();
 		const panel = window.createWebviewPanel(
 			'ballerinaDiagram',
-			fileName ? `${fileName} Diagram` : `Ballerina Diagram`,
+			`Overview Diagram`,
 			{ viewColumn, preserveFocus: false },
 			getCommonWebViewOptions()
 		);

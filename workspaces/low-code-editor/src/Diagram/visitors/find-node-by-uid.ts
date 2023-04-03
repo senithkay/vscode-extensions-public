@@ -12,9 +12,9 @@
  */
 
 import {
+    ClassDefinition,
     FunctionDefinition,
     ObjectMethodDefinition,
-    ResourceAccessorDeclaration,
     ResourceAccessorDefinition,
     ServiceDeclaration,
     STKindChecker,
@@ -23,26 +23,45 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
-import { ELEMENT_KEYWORDS, MODULE_DELIMETER, SUB_DELIMETER } from "./uid-generation-visitor";
-import { generateResourcePathString } from "./util";
+import { generateConstructIdStub, MODULE_DELIMETER } from "./util";
 
 export class FindNodeByUidVisitor implements Visitor {
     private uid: string;
     private stack: string[];
     private moduleServiceIndex: number;
     private moduleFunctionIndex: number;
+    private moduleClassIndex: number;
+    private moduleTypeIndex: number;
+    private classMemberIndex: number;
     private selectedNode: STNode;
 
     constructor(uid: string) {
         this.uid = uid;
+        this.stack = [];
         this.moduleFunctionIndex = 0;
         this.moduleServiceIndex = 0;
-        this.stack = [];
+        this.moduleClassIndex = 0;
+        this.moduleTypeIndex = 0;
+        this.classMemberIndex = 0;
+    }
+
+    beginVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
+        this.moduleClassIndex++;
+        this.classMemberIndex = 0;
+        this.stack.push(generateConstructIdStub(node, this.moduleClassIndex));
+        if (this.getCurrentUid() === this.uid) {
+            this.selectedNode = node;
+        }
+    }
+
+    endVisitClassDefinition(node: ClassDefinition, parent?: STNode): void {
+        this.stack.pop();
     }
 
     beginVisitServiceDeclaration(node: ServiceDeclaration, parent?: STNode): void {
+        this.classMemberIndex = 0;
         this.moduleServiceIndex++;
-        this.stack.push(`${ELEMENT_KEYWORDS.SERVICE}${SUB_DELIMETER}${this.moduleServiceIndex}`);
+        this.stack.push(generateConstructIdStub(node, this.moduleServiceIndex));
         if (this.getCurrentUid() === this.uid) {
             this.selectedNode = node;
         }
@@ -55,9 +74,10 @@ export class FindNodeByUidVisitor implements Visitor {
     beginVisitFunctionDefinition(node: FunctionDefinition, parent?: STNode): void {
         if (parent && STKindChecker.isModulePart(parent)) {
             this.moduleFunctionIndex++;
-            this.stack.push(`${ELEMENT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${this.moduleFunctionIndex}`);
+            this.stack.push(generateConstructIdStub(node, this.moduleFunctionIndex));
         } else {
-            this.stack.push(`${ELEMENT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${node.functionName.value}`);
+            this.classMemberIndex++;
+            this.stack.push(generateConstructIdStub(node, this.classMemberIndex));
         }
 
         if (this.getCurrentUid() === this.uid) {
@@ -70,13 +90,8 @@ export class FindNodeByUidVisitor implements Visitor {
     }
 
     beginVisitResourceAccessorDefinition(node: ResourceAccessorDefinition, parent?: STNode): void {
-        let id: string = `${ELEMENT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${node.functionName.value}`;
-
-        if (node.relativeResourcePath.length > 0) {
-            id = (`${id}${SUB_DELIMETER}${generateResourcePathString(node.relativeResourcePath)}`);
-        }
-
-        this.stack.push(id);
+        this.classMemberIndex++;
+        this.stack.push(generateConstructIdStub(node, this.classMemberIndex));
 
         if (this.getCurrentUid() === this.uid) {
             this.selectedNode = node;
@@ -88,7 +103,8 @@ export class FindNodeByUidVisitor implements Visitor {
     }
 
     beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode) {
-        this.stack.push(`${ELEMENT_KEYWORDS.REMOTE}${SUB_DELIMETER}${node.functionName.value}`);
+        this.classMemberIndex++;
+        this.stack.push(generateConstructIdStub(node, this.classMemberIndex));
 
         if (this.getCurrentUid() === this.uid) {
             this.selectedNode = node;
@@ -100,7 +116,8 @@ export class FindNodeByUidVisitor implements Visitor {
     }
 
     beginVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
-        this.stack.push(`${ELEMENT_KEYWORDS.RECORD}${SUB_DELIMETER}${node.typeName?.value}`);
+        this.moduleTypeIndex++;
+        this.stack.push(generateConstructIdStub(node, this.moduleTypeIndex));
 
         if (this.getCurrentUid() === this.uid) {
             this.selectedNode = node;

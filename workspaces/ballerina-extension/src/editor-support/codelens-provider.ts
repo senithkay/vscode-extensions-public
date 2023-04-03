@@ -216,7 +216,36 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                 };
                                 codeLenses.push(codeLens);
                             }
-                        })
+                        });
+                    } else if (STKindChecker.isClassDefinition(member)) {
+                        // TODO: Simplify this to remove the duplication, using a visitor might be more readable
+                        member.members.forEach(serviceMember => {
+                            if (STKindChecker.isObjectMethodDefinition(serviceMember)) {
+                                const functionPosition = serviceMember.functionKeyword.position;
+                                const codeLens = new CodeLens(
+                                    new Range(functionPosition.startLine, 0, functionPosition.endLine, 0)
+                                );
+                                codeLens.command = {
+                                    title: "Visualize",
+                                    tooltip: "Open this code block in low code view",
+                                    command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                    arguments: [activeEditorUri.fsPath, serviceMember.position]
+                                };
+                                codeLenses.push(codeLens);
+                            } else if (STKindChecker.isResourceAccessorDefinition(serviceMember)) {
+                                const resourcePosition = serviceMember.qualifierList[0].position;
+                                const codeLens = new CodeLens(
+                                    new Range(resourcePosition.startLine, 0, resourcePosition.endLine, 0)
+                                );
+                                codeLens.command = {
+                                    title: "Visualize",
+                                    tooltip: "Open this code block in low code view",
+                                    command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
+                                    arguments: [activeEditorUri.fsPath, serviceMember.position]
+                                };
+                                codeLenses.push(codeLens);
+                            }
+                        });
                     }
                 });
             }

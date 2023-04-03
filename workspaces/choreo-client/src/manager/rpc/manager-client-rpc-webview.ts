@@ -10,10 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { CloneRepoRequeset, CreateLocalComponentRequest, IsRepoClonedRequest } from "./types";
+import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTriggers, GetBallerinaVersion, GetRepoPathRequest, IsRepoClonedRequest } from "./types";
 
 export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     constructor (private _messenger: Messenger) {
@@ -25,8 +26,14 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean> {
         return this._messenger.sendRequest(IsRepoClonedRequest, HOST_EXTENSION, params);
     }
-    createLocalComponent(params: ChoreoComponentCreationParams): Promise<string | boolean> {
-        return this._messenger.sendRequest(CreateLocalComponentRequest, HOST_EXTENSION, params);
+    getRepoPath(repository: string): Promise<string> {
+        return this._messenger.sendRequest(GetRepoPathRequest, HOST_EXTENSION, repository);
+    }
+    createLocalComponent(args: ChoreoComponentCreationParams): Promise<string | boolean> {
+        return this._messenger.sendRequest(CreateLocalComponentRequest, HOST_EXTENSION, args);
+    }
+    createLocalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<string | boolean> {
+        return this._messenger.sendRequest(CreateLocalComponentFromExistingSourceRequest, HOST_EXTENSION, args);
     }
     getProjectDetails(): Promise<Project> {
         throw new Error("Method not implemented.");
@@ -37,5 +44,12 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getLocalComponents(_workspaceFilePath: string): Component[] {
         throw new Error("Method not implemented.");
+    }
+
+    fetchTriggers(): Promise<BallerinaTriggersResponse | undefined> {
+        return this._messenger.sendRequest(FetchBallerinaTriggers, HOST_EXTENSION, "");
+    }
+    getBalVersion(): Promise<string> {
+        return this._messenger.sendRequest(GetBallerinaVersion, HOST_EXTENSION, "");
     }
 }

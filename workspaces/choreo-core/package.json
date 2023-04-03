@@ -17,6 +17,7 @@
     "@typescript-eslint/parser": "~5.48.2"
   },
   "dependencies": {
-    "vscode-messenger-common": "^0.4.3"
+    "vscode-messenger-common": "^0.4.3",
+    "@wso2-enterprise/ballerina-languageclient": "workspace:*"
   }
 }

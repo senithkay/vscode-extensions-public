@@ -30,6 +30,8 @@ import {
     ComponentModel,
     DeleteComponent,
     PullComponent,
+    showOpenDialogRequest,
+    OpenDialogOptions,
     GetComponentModelResponse,
     ComponentModelDiagnostics
 } from "@wso2-enterprise/choreo-core";
@@ -43,6 +45,7 @@ import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData} from "../../../utils";
+import { getLogger } from "../../../logger/logger";
 
 export class WebViewRpc {
 
@@ -174,16 +177,9 @@ export class WebViewRpc {
         });
 
         this._messenger.onRequest(PushLocalComponentsToChoreo, async (projectId: string): Promise<void> => {
-            return window.withProgress({
-                title: `Pushing local components to Choreo.`,
-                location: ProgressLocation.Notification,
-                cancellable: true
-            }, async (_progress, cancellationToken) => {
-                // TODO Make the cancellation token work
-                if (ext.api.selectedOrg) {
-                    await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
-                }
-            });
+            if (ext.api.selectedOrg) {
+                await ProjectRegistry.getInstance().pushLocalComponentsToChoreo(projectId, ext.api.selectedOrg);
+            }
         });
 
         this._messenger.onRequest(HasUnpushedComponents, async (projectID: string): Promise<boolean> => {
@@ -211,6 +207,16 @@ export class WebViewRpc {
         });
         this._messenger.onNotification(CloseWebViewNotification, () => {
             view.dispose();
+        });
+
+        this._messenger.onRequest(showOpenDialogRequest, async (options: OpenDialogOptions) => {
+            try {
+                const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri)});
+                return result?.map((file) => file.fsPath);
+            } catch (error: any) {
+                getLogger().error(error.message);
+                return [];
+            }
         });
 
         // Register RPC handlers for Choreo project client

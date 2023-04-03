@@ -12,12 +12,13 @@
  */
 // tslint:disable: jsx-no-multiline-js, jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
-import { useIntl } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
-import { Divider } from "@material-ui/core";
-import { BallerinaSTModifyResponse, ConfigOverlayFormStatus, DiagramEditorLangClientInterface, LabelEditIcon, responseCodes, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ConfigPanelSection, Tooltip } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import {
+    BallerinaSTModifyResponse, ConfigOverlayFormStatus, CtrlClickWrapper, DiagramEditorLangClientInterface,
+    LabelEditIcon, responseCodes, STModification
+} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ConfigPanelSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ModulePart, NodePosition, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
@@ -41,7 +42,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const {
         props: { currentFile, fullST },
         api: {
-            code: { modifyDiagram },
+            code: { modifyDiagram, gotoSource },
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
@@ -307,11 +308,19 @@ export function ResourceBody(props: ResourceBodyProps) {
         </div>
     )
 
+    const handleGoToSource = () => {
+        gotoSource(model.position, currentFile.path);
+    }
+
     return (
-        <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
-            <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
-            {model.metadata && metaData}
-            {isExpanded && body}
-        </div>
+        <CtrlClickWrapper
+            onClick={handleGoToSource}
+        >
+            <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
+                <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
+                {model.metadata && metaData}
+                {isExpanded && body}
+            </div>
+        </CtrlClickWrapper>
     );
 }
