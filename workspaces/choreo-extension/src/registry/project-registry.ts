@@ -436,30 +436,6 @@ export class ProjectRegistry {
         }
     }
 
-    // private createComponent = async (componentMetadata: WorkspaceComponentMetadata, projectId: string) => {
-    //     const choreoPM = new ChoreoProjectManager();
-    //     const projectLocation: string | undefined = this.getProjectLocation(projectId);
-    //     if (projectLocation) {
-    //         const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
-    //         const componentRequest: CreateComponentParams = {
-    //             name: componentMetadata.displayName,
-    //             displayName: componentMetadata.displayName,
-    //             displayType: componentMetadata.displayType,
-    //             description: componentMetadata.description,
-    //             orgId: componentMetadata.org.id,
-    //             orgHandle: componentMetadata.org.handle,
-    //             projectId: projectId,
-    //             accessibility: componentMetadata.accessibility,
-    //             srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
-    //             repositorySubPath: appSubPath,
-    //             repositoryType: "UserManagedNonEmpty",
-    //             repositoryBranch: branchApp
-    //         };
-    //         await projectClient.createComponent(componentRequest);
-    //         choreoPM.removeLocalComponent(projectLocation, componentMetadata);
-    //     }
-    // };
-
     async hasDirtyLocalRepo(projectId: string, component: Component): Promise<boolean> {
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
         if (projectLocation && component.repository) {
