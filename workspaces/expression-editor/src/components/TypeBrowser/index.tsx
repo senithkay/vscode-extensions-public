@@ -97,6 +97,10 @@ function TypeBrowserC(props: TypeBrowserProps) {
         stringify: (option: any) => option.insertText,
     });
 
+    const handleOnChange = (_: any, value: CompletionResponseWithModule) => {
+        onChange(value?.module ? `${value.module}:${value.insertText}` : value?.insertText)
+    }
+
     return (
         <>
             <Autocomplete
@@ -114,7 +118,7 @@ function TypeBrowserC(props: TypeBrowserProps) {
                     }
                 }}
                 defaultValue={selectedTypeStr}
-                onChange={(_, value: CompletionResponseWithModule) => onChange(value?.module ? `${value.module}:${value.insertText}` : value?.insertText)}
+                onChange={handleOnChange}
                 renderInput={(params) => <TextFieldStyled {...params} autoFocus={!isLoading && !selectedTypeStr} />}
                 renderOption={(item) =>
                 (

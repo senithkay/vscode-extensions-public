@@ -298,6 +298,16 @@ export function ResourceBody(props: ResourceBodyProps) {
         </div>
     )
 
+    const metaData = (
+        <div className="service-member" onClick={handleIsExpand}>
+            <table className={classes.responseTable}>
+                <tbody>
+                    {model.metadata?.source.split("#").map(value => !value.includes("+") && value)}
+                </tbody>
+            </table>
+        </div>
+    )
+
     const handleGoToSource = () => {
         gotoSource(model.position, currentFile.path);
     }
@@ -308,6 +318,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         >
             <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
                 <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
+                {model.metadata && metaData}
                 {isExpanded && body}
             </div>
         </CtrlClickWrapper>

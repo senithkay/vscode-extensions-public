@@ -37,7 +37,8 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
         onChange(input)
     }
 
-    const handleOnFocus = () => {
+    const handleOnFocus = (e?: any) => {
+        e.target.select();
         onFocus();
     }
 
