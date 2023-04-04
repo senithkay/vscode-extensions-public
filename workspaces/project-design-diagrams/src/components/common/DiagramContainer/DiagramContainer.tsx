@@ -87,7 +87,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
                 <>
                     {serviceModels &&
                         <>
-                            <div id={"diagram-canvas-parent"} style={{ display: currentView === Views.L1_SERVICES ? 'block' : 'none', width: '100%', height: '100%' }}>
+                            <div style={{ display: currentView === Views.L1_SERVICES ? 'block' : 'none' }}>
                                 <DiagramCanvasWidget
                                     type={Views.L1_SERVICES}
                                     model={serviceModels.levelOne}
@@ -95,7 +95,7 @@ export function DiagramContainer(props: DiagramContainerProps) {
                                 />
                             </div>
 
-                            <div id={"diagram-canvas-parent"} style={{ display: currentView === Views.L2_SERVICES ? 'block' : 'none' }}>
+                            <div style={{ display: currentView === Views.L2_SERVICES ? 'block' : 'none' }}>
                                 <DiagramCanvasWidget
                                     type={Views.L2_SERVICES}
                                     model={serviceModels.levelTwo}
