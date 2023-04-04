@@ -99,7 +99,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetEnrichedComponents, HOST_EXTENSION, projectId);
     }
 
-    public async deleteComponent(params: {component: Component; projectId: string}): Promise<void> {
+    public async deleteComponent(params: {component: Component; projectId: string}): Promise<Component | null> {
         return this._messenger.sendRequest(DeleteComponent, HOST_EXTENSION, params);
     }
 

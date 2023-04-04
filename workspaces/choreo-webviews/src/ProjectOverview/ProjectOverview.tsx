@@ -114,7 +114,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const { mutate: handleDeleteComponentClick, isLoading: deletingComponent } = useMutation({
         mutationFn: (component: Component) => ChoreoWebViewAPI.getInstance().deleteComponent({ component, projectId }),
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        onSuccess: () => refetchComponents(),
+        onSuccess: (data) => {
+            if (data) {
+                const filteredComponents = components.filter(item=> data.local ? item.name !== data.name : item.id !== data.id);
+                queryClient.setQueryData(["overview_component_list", projectId, orgName], filteredComponents);
+                refetchComponents();
+            }
+        },
     });
 
     const { mutate: handlePushComponentClick, isLoading: pushingSingleComponent } = useMutation({
@@ -314,7 +320,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 />
 
                 
-                {hasPushableComponents && (
+                {(hasPushableComponents || pushingComponent) && (
                     <>
                         <p>
                             <InlineIcon>
@@ -327,7 +333,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             {pushingComponent && <VSCodeProgressRing />}
                             <VSCodeButton
                                 appearance="primary"
-                                disabled={pushingComponent || reloadingRegistry || refetchingComponents}
+                                disabled={pushingComponent || reloadingRegistry || refetchingComponents || pushingSingleComponent}
                                 onClick={() => handlePushToChoreoClick()}
                             >
                                 <Codicon name="cloud-upload" />
@@ -336,7 +342,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         </ActionContainer>
                     </>
                 )}
-                {!hasPushableComponents && componentsOutOfSync && (
+                {(!pushingComponent || !hasPushableComponents) && componentsOutOfSync && (
                     <>
                         <p>
                             <InlineIcon>

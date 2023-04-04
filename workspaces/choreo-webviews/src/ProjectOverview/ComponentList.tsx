@@ -153,6 +153,22 @@ export function ComponentList(props: ComponentListProps) {
                             ?.deploymentStatusV2 as DeploymentStatus.NotDeployed) ||
                         DeploymentStatus.NotDeployed;
 
+                    let deploymentStatusColor = '--vscode-commandCenter-inactiveForeground';
+                    switch(deploymentStatus as DeploymentStatus){
+                        case DeploymentStatus.Active: 
+                            deploymentStatusColor = '--vscode-charts-green';
+                            break;
+                        case DeploymentStatus.InProgress: 
+                            deploymentStatusColor = '--vscode-charts.orange';
+                            break;
+                        case DeploymentStatus.Error: 
+                            deploymentStatusColor = '--vscode-errorForeground';
+                            break;
+                        case DeploymentStatus.Suspended: 
+                            deploymentStatusColor = '--vscode-charts-lines';
+                            break;
+                    }
+                    
                     return (
                         <VSCodeDataGridRow key={component.id || component.name}>
                             <VSCodeDataGridCell gridColumn="1">
@@ -177,7 +193,7 @@ export function ComponentList(props: ComponentListProps) {
                                 {component.local ? (
                                     "N/A"
                                 ) : (
-                                    <a href={componentDeployLink}>
+                                    <a href={componentDeployLink} style={{ color: `var(${deploymentStatusColor})` }}>
                                         {DeploymentStatusMapping[deploymentStatus]}
                                     </a>
                                 )}
