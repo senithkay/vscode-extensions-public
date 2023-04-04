@@ -142,7 +142,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             const diagnostics = filterDiagnostics(this.context.diagnostics, diagnosticsPosition);
             const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
-                let keepDefault = false;
+                let keepDefault = this.resolvedType && this.resolvedType.typeName === PrimitiveBalType.Array;
                 if (this.resolvedType && this.resolvedType.typeName === PrimitiveBalType.Record) {
                     const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
                     keepDefault = ((mappedField && !mappedField?.name
@@ -370,7 +370,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 await this.deleteLinkForMappingConstructor(field, keepDefault);
                 break;
             case PrimitiveBalType.Array:
-                await this.deleteLinkForListConstructor(field, true);
+                await this.deleteLinkForListConstructor(field, keepDefault);
                 break;
             default:
                 await this.deleteLinkForPrimitiveType(field);
@@ -420,7 +420,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             }];
         } else {
             const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.innermostExpr);
-            traversNode(this.value.expression, linkDeleteVisitor);
+            traversNode(this.innermostExpr, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
             modifications = [{
                 type: "DELETE",
