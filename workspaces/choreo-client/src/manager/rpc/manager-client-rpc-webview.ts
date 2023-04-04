@@ -10,11 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTriggers, GetBallerinaVersion, GetRepoPathRequest, IsRepoClonedRequest } from "./types";
+import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTrigger, FetchBallerinaTriggers, GetBallerinaVersion, GetRepoPathRequest, IsRepoClonedRequest } from "./types";
 
 export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     constructor (private _messenger: Messenger) {
@@ -48,6 +48,9 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
 
     fetchTriggers(): Promise<BallerinaTriggersResponse | undefined> {
         return this._messenger.sendRequest(FetchBallerinaTriggers, HOST_EXTENSION, "");
+    }
+    fetchTrigger(param: string): Promise<BallerinaTriggerResponse | undefined> {
+        return this._messenger.sendRequest(FetchBallerinaTrigger, HOST_EXTENSION, param);
     }
     getBalVersion(): Promise<string> {
         return this._messenger.sendRequest(GetBallerinaVersion, HOST_EXTENSION, "");

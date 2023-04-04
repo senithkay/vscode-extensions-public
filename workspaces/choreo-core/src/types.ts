@@ -281,7 +281,12 @@ export interface ChoreoComponentCreationParams {
     displayType: ChoreoComponentType;
     accessibility: ComponentAccessibility;
     repositoryInfo: RepositoryDetails|BYOCRepositoryDetails;
-    triggerId?: string;
+    trigger?: TriggerDetails;
+}
+
+export interface TriggerDetails {
+    id: string;
+    services?: string[];
 }
 
 export interface RepositoryDetails {
