@@ -27,6 +27,8 @@ import { ProgressLocation, window } from "vscode";
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
 const PROJECT_REPOSITORIES = "project-repositories";
+const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories";
+
 
 export class ProjectRegistry {
     static _registry: ProjectRegistry | undefined;
@@ -324,6 +326,20 @@ export class ProjectRegistry {
 
     getProjectRepository(projectId: string): string | undefined {
         const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
+        return projectRepositories ? projectRepositories[projectId] : undefined;
+    }
+
+    setPreferredProjectRepository(projectId: string, repository: string) {
+        let projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
+        if (projectRepositories === undefined) {
+            projectRepositories = {};
+        }
+        projectRepositories[projectId] = repository;
+        ext.context.globalState.update(PREFERRED_PROJECT_REPOSITORIES, projectRepositories);
+    }
+
+    getPreferredProjectRepository(projectId: string): string | undefined {
+        const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
         return projectRepositories ? projectRepositories[projectId] : undefined;
     }
 
