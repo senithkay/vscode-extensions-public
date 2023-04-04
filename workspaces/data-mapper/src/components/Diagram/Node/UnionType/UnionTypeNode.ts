@@ -11,6 +11,7 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
+import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ExpressionFunctionBody,
@@ -19,6 +20,7 @@ import {
     SelectClause,
     STKindChecker,
     STNode,
+    traversNode,
 } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
@@ -36,6 +38,7 @@ import {
 import {
     enrichAndProcessType,
     getBalRecFieldName,
+    getDefaultValue,
     getExprBodyFromLetExpression,
     getInnermostExpressionBody,
     getInputNodeExpr,
@@ -44,10 +47,12 @@ import {
     getSearchFilteredOutput,
     getTypeFromStore,
     getTypeName,
+    getTypeOfValue,
     isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { getResolvedType, getSupportedUnionTypes } from "../../utils/union-type-utils";
+import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const UNION_TYPE_NODE_TYPE = "data-mapper-node-union-type";
@@ -149,7 +154,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
                     editorLabel: STKindChecker.isSpecificField(field)
                         ? field.fieldName.value as string
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
-                    deleteLink: () => this.deleteField(field, keepDefault),
+                    deleteLink: () => this.deleteField(field, keepDefault)
                 }));
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
@@ -353,7 +358,100 @@ export class UnionTypeNode extends DataMapperNodeModel {
     }
 
     async deleteField(field: STNode, keepDefault?: boolean) {
-        // TODO: Handle delete
+        if (this.shouldRenderUnionType()) {
+            await this.deleteLinkForUnionType(field);
+        }
+        switch (this.resolvedType.typeName) {
+            case PrimitiveBalType.Record:
+                await this.deleteLinkForMappingConstructor(field, keepDefault);
+                break;
+            case PrimitiveBalType.Array:
+                await this.deleteLinkForListConstructor(field, true);
+                break;
+            default:
+                await this.deleteLinkForPrimitiveType(field);
+        }
+    }
+
+    async deleteLinkForMappingConstructor(field: STNode, keepDefault?: boolean) {
+        let modifications: STModification[];
+        const typeOfValue = getTypeOfValue(this.recordField, field.position);
+        if (keepDefault && !STKindChecker.isSpecificField(field)) {
+            modifications = [{
+                type: "INSERT",
+                config: {
+                    "STATEMENT": getDefaultValue(typeOfValue?.typeName)
+                },
+                ...field.position
+            }];
+        } else if (STKindChecker.isSelectClause(this.value) && STKindChecker.isSpecificField(field)) {
+            // if Within query expression expanded view
+            modifications = [{
+                type: "DELETE",
+                ...field.valueExpr?.position
+            }];
+        } else {
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position as NodePosition, this.getValueExpr());
+            traversNode(this.value.expression, linkDeleteVisitor);
+            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+            modifications = [{
+                type: "DELETE",
+                ...nodePositionsToDelete
+            }];
+        }
+
+        await this.context.applyModifications(modifications);
+    }
+
+    async deleteLinkForListConstructor(field: STNode, keepDefault?: boolean) {
+        let modifications: STModification[];
+        const typeOfValue = getTypeOfValue(this.recordField, field.position);
+        if (keepDefault && !STKindChecker.isSpecificField(field)) {
+            modifications = [{
+                type: "INSERT",
+                config: {
+                    "STATEMENT": getDefaultValue(typeOfValue?.typeName)
+                },
+                ...field.position
+            }];
+        } else {
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.getValueExpr());
+            traversNode(this.value.expression, linkDeleteVisitor);
+            const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
+            modifications = [{
+                type: "DELETE",
+                ...nodePositionsToDelete
+            }]
+        }
+
+        await this.context.applyModifications(modifications);
+    }
+
+    async deleteLinkForPrimitiveType(field: STNode) {
+        const typeOfValue = STKindChecker.isSelectClause(this.value) && this.typeDef?.memberType
+            ? this.typeDef.memberType
+            : this.typeDef;
+        const modifications: STModification[] = [{
+            type: "INSERT",
+            config: {
+                "STATEMENT": getDefaultValue(typeOfValue?.typeName)
+            },
+            ...field.position
+        }];
+
+        await this.context.applyModifications(modifications);
+    }
+
+    async deleteLinkForUnionType(field: STNode) {
+        const modifications: STModification[] = [{
+            type: "INSERT",
+            config: {
+                "STATEMENT": ''
+            },
+            ...field.position
+        }];
+
+        await this.context.applyModifications(modifications);
     }
 
     public updatePosition() {
