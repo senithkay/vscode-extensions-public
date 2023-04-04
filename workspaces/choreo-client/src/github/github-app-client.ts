@@ -27,6 +27,17 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         this.onGHAppAuthCallback((status) => {
             this._status = status;
         });
+        this.checkAuthStatus();
+    }
+
+    async checkAuthStatus(): Promise<void> {
+        try {
+            // Check if the token is valid by trying to get the authorized repositories
+            await this.getAuthorizedRepositories();
+            this._onGHAppAuthCallback.fire({ status: 'authorized' });
+        } catch (error) {
+            this._onGHAppAuthCallback.fire({ status: 'not-authorized' });
+        }
     }
     
     private async _getClient() {

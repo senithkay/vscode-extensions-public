@@ -142,7 +142,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
 
                 </VSCodeTextField>
             </StepContainer>
-            {isValidationInProgress && <div>validating...</div>}
+            {isValidationInProgress && <div style={{ marginTop: "5px" }}>validating paths...</div>}
             {dockerFileError && <ErrorBanner errorMsg={dockerFileError} />}
         </div>
     );
