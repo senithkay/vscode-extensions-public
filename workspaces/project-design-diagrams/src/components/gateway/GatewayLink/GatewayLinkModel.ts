@@ -39,13 +39,15 @@ export class GatewayLinkModel extends DefaultLinkModel {
 
 	initLinks = (diagramEngine: DiagramEngine) => {
 		this.diagramEngine = diagramEngine;
-		this.getSourcePort().registerListener({
-			positionChanged: () => this.onPositionChange()
-		});
+		if (this.getSourcePort() && this.getTargetPort()) {
+			this.getSourcePort().registerListener({
+				positionChanged: () => this.onPositionChange()
+			});
 
-		this.getTargetPort().registerListener({
-			positionChanged: () => this.onPositionChange()
-		});
+			this.getTargetPort().registerListener({
+				positionChanged: () => this.onPositionChange()
+			});
+		}
 	}
 
 	selectLinkedNodes = () => {
@@ -135,22 +137,24 @@ export class GatewayLinkModel extends DefaultLinkModel {
 
 	getArrowHeadPoints = (): string => {
 		let points: string = "";
-		const widthOfTriangle = 12;
-		const targetPort: Point = this.getTargetPort().getPosition();
-		const sourcePort: Point = this.getSourcePort().getPosition();
-		const directLineSlope =  getAngleFromRadians(Math.atan(
-			(sourcePort.y - targetPort.y)/(sourcePort.x - targetPort.x)));
+		if (this.getSourcePort() && this.getTargetPort()) {
+			const widthOfTriangle = 12;
+			const targetPort: Point = this.getTargetPort().getPosition();
+			const sourcePort: Point = this.getSourcePort().getPosition();
+			const directLineSlope =  getAngleFromRadians(Math.atan(
+				(sourcePort.y - targetPort.y)/(sourcePort.x - targetPort.x)));
 
-		if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
-			points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 8},
+			if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
+				points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 8},
 				${targetPort.x + 12} ${targetPort.y - 8}`;
-		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-			points = getWestArrowHeadPoints(targetPort, directLineSlope, widthOfTriangle);
-		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
-			points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 12} ${targetPort.y + 14},
+			} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
+				points = getWestArrowHeadPoints(targetPort, directLineSlope, widthOfTriangle);
+			} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
+				points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 12} ${targetPort.y + 14},
 				${targetPort.x - 12} ${targetPort.y + 14}`;
-		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP) {
-			points = getNorthArrowHeadPoints(targetPort, directLineSlope, widthOfTriangle);
+			} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.TOP) {
+				points = getNorthArrowHeadPoints(targetPort, directLineSlope, widthOfTriangle);
+			}
 		}
 		return points;
 	}

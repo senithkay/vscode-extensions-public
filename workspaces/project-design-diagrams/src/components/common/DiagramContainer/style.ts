@@ -12,40 +12,58 @@
  */
 
 import styled from '@emotion/styled';
+import React from "react";
+import { Coordinate } from "../CellDiagram/CellDiagram";
 
-export const CellContainer = styled.div`
-  width: calc(100vw - 100px);
-  height: calc(100vh - 100px);
+export const CellContainer: React.FC<any> = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
   position: relative;
-  clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
-  &:before {
-    position: absolute;
-    z-index: -1;
-    inset: 0;
-    background: #5567D5;
-    clip-path: inherit;
-    content: ''
-  }
+  clip-path: ${(props: CellContainerProps) => props.path };
+  background: #5567D5;
   overflow: hidden;
 `;
 
-export const CanvasWrapper = styled.div`
-  position: absolute;
-  top: 1px;
-  left: 1px;
-  width: calc(100vw - 100px - 2px);
-  height: calc(100vh - 100px - 2px);
-  clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+export const CanvasWrapper: React.FC<any> = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  clip-path: ${(props: CellContainerProps) => props.path };
 `;
 
-export const CellContainerWrapper = styled.div`
+interface CellContainerProps {
+  isConsoleView?: boolean;
+  canvasHeight?: number;
+  path: string;
+  vertices?: Coordinate[];
+}
+
+export const CellContainerControls: React.FC<any> = styled.div`
+  display: flex;
+  align-items: flex-end;
   position: relative;
-  width: calc(100vw - 100px);
+  left: ${(props: CellContainerProps) => `${props.isConsoleView ? 92 : 102}px`};
+  margin-top: ${(props: CellContainerProps) => `${props.isConsoleView ? props.canvasHeight + 232 : '0'}px`};
+` ;
+
+export const CellDiagramWrapper: React.FC<any> = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: ${(props: CellContainerProps) => props.isConsoleView ? 'flex-start' : 'normal'};
+` ;
+
+export const CellContainerWrapper: React.FC<any> = styled.div`
+  display: flex;
+  position: relative;
+  left: 50px;
+  width: calc(100% - 100px);
   flex-direction: column;
   padding-top: 30px;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
   z-index: 1;
-  height: calc(100vh - 50px);
+  min-height: ${(props: CellContainerProps) => props.isConsoleView ? 'calc(100vh - 250px)' : 'calc(100vh - 90px)'};
 `;
 
 interface GatewayContainerProps {

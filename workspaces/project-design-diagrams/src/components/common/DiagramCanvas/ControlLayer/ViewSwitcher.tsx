@@ -55,14 +55,14 @@ const switchables: ViewTypes[] = [
 ];
 
 export function ViewSwitcher() {
-    const { currentView, isChoreoProject, setCurrentView } = useContext(DiagramContext);
+    const { isChoreoProject, setCurrentView } = useContext(DiagramContext);
 
     const handleOnClick = (type: Views) => {
         setCurrentView(type);
     }
 
     return (
-        <ViewTypePanel isCellView={currentView === Views.CELL_VIEW}>
+        <ViewTypePanel>
             {
                 switchables.map((viewType) => {
                     if (viewType.type !== Views.CELL_VIEW || (viewType.type === Views.CELL_VIEW && isChoreoProject)) {

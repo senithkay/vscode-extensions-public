@@ -21,6 +21,7 @@ import styled from '@emotion/styled';
 
 interface ControlPanelProps {
     showDownloadButton?: boolean;
+    isCellView?: boolean;
 }
 
 export const ControlPanel: React.FC<any> = styled.div`
@@ -41,6 +42,6 @@ export const ViewTypePanel: React.FC<any> = styled.div`
     justify-content: space-between;
     left: 15px;
     position: absolute;
-    top: ${(props: { isCellView: boolean }) => `${props.isCellView ? 100 : 65}px`};;
+    top: 100px;
     width: 40px;
 `;

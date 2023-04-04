@@ -29,7 +29,12 @@ import { GatewayLinkModel } from '../../gateway/GatewayLink/GatewayLinkModel';
 import { GatewayNodeModel } from '../../gateway/GatewayNode/GatewayNodeModel';
 import { DagreLayout, Views } from '../../../resources';
 import {
-    addGWNodesModel, cellDiagramZoomToFit, createEntitiesEngine, createServicesEngine, positionGatewayNodes, removeGWLinks
+    addGWNodesModel,
+    cellDiagramZoomToFit,
+    createEntitiesEngine,
+    createServicesEngine,
+    positionGatewayNodes,
+    removeGWLinks
 } from '../../../utils';
 import './styles/styles.css';
 
@@ -38,6 +43,7 @@ interface DiagramCanvasProps {
     currentView: Views;
     type: Views;
     layout: DagreLayout;
+    engine?: DiagramEngine;
 }
 
 // Note: Dagre distribution spaces correctly only if the particular diagram screen is visible
@@ -54,12 +60,19 @@ let dagreEngine = new DagreEngine({
 });
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
-    const { model, currentView, layout, type } = props;
-    const { editingEnabled, setNewLinkNodes } = useContext(DiagramContext);
+    const { model, currentView, layout, type, engine } = props;
+    const { editingEnabled, setNewLinkNodes, isConsoleView } = useContext(DiagramContext);
 
-    const [diagramEngine] = useState<DiagramEngine>(type === Views.TYPE || type === Views.TYPE_COMPOSITION ?
-        createEntitiesEngine : createServicesEngine);
+    const [diagramEngine] = useState<DiagramEngine>(engine || (type === Views.TYPE || type === Views.TYPE_COMPOSITION ?
+        createEntitiesEngine : createServicesEngine));
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
+
+    let diagramClass = 'diagram-container';
+    if (type === Views.CELL_VIEW && !isConsoleView) {
+        diagramClass = 'cell-diagram-container';
+    } else if (isConsoleView) {
+        diagramClass = 'choreo-cell-diagram-container';
+    }
 
     const hideGWLinks = () => {
         diagramEngine?.getModel()?.getLinks()?.forEach(link => {
@@ -198,16 +211,18 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                     onMouseDown={type === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
                     onMouseUp={type === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
                 >
-                    <CanvasWidget engine={diagramEngine} className={'diagram-container'} />
+                    <CanvasWidget engine={diagramEngine} className={diagramClass} />
                 </div>
             }
-            {type !== Views.TYPE_COMPOSITION && <ViewSwitcher />}
-            <DiagramControls
-                showDownloadButton={type !== Views.CELL_VIEW}
-                zoomToFit={zoomToFit}
-                onZoom={onZoom}
-                onDownload={downloadDiagram}
-            />
+            {type !== Views.TYPE_COMPOSITION && currentView !== Views.CELL_VIEW && <ViewSwitcher />}
+            {currentView !== Views.CELL_VIEW && (
+                <DiagramControls
+                    showDownloadButton={type !== Views.CELL_VIEW}
+                    zoomToFit={zoomToFit}
+                    onZoom={onZoom}
+                    onDownload={downloadDiagram}
+                />
+            )}
         </>
     );
 }

@@ -24,6 +24,19 @@
     min-width: 100vw;
 }
 
+.cell-diagram-container {
+    background-image: url('../../../../resources/assets/PatternBg.svg');
+    min-height: 100vh;
+    min-width: 100vw;
+}
+
+.choreo-cell-diagram-container {
+    background-image: url('../../../../resources/assets/PatternBg.svg');
+    background-repeat: repeat;
+    min-height: calc(100vh - 260px);
+    min-width: 86vw;
+}
+
 svg:not(:root) {
     overflow: visible;
 }
