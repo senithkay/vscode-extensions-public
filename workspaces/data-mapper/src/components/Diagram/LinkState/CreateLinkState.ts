@@ -11,6 +11,7 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from '../Node/LinkConnector';
 import { ModuleVariableNode } from "../Node/ModuleVariable";
+import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
 
@@ -34,6 +35,7 @@ export class CreateLinkState extends State<DiagramEngine> {
 						if (element instanceof MappingConstructorNode
 							|| element instanceof ListConstructorNode
 							|| element instanceof PrimitiveTypeNode
+							|| element instanceof UnionTypeNode
 						) {
 							const recordFieldElement = (event.target as Element).closest('div[id^="recordfield"]')
 							if (recordFieldElement) {
