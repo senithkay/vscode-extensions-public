@@ -28,6 +28,9 @@ export interface ComponentWizardState {
         dockerContext?: string;
         dockerFile?: string;
     };
-    trigger?: string;
+    trigger?: {
+        id: string;
+        services?: string[];
+    };
     version: string;
 }

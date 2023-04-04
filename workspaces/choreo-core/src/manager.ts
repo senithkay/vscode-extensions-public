@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggersResponse, BallerinaTriggerResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { Project, Component, ChoreoComponentCreationParams } from "./types";
 
 export interface IProjectManager {
@@ -24,6 +24,7 @@ export interface IProjectManager {
     getRepoPath(repository: string): Promise<string>;
     cloneRepo(params: RepoCloneRequestParams): Promise<boolean>;
     fetchTriggers(): Promise<BallerinaTriggersResponse | undefined>;
+    fetchTrigger(triggerId: string): Promise<BallerinaTriggerResponse | undefined>;
     getBalVersion(): Promise<string>;
 }
 
