@@ -180,7 +180,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
     const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
     const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
-    const showAuthorizeButton = ghStatus.status === "not-authorized";
+    const showAuthorizeButton = ghStatus.status === "not-authorized" || ghStatus.status === "error";
     const showConfigureButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
     let loaderMessage = "Loading repositories...";
     if (ghStatus.status === "auth-inprogress") {
