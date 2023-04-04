@@ -16,6 +16,7 @@
     "Other"
   ],
   "activationEvents": [
+    "workspaceContains:.choreo-project",
     "onCommand:wso2.choreo.sign.in",
     "onView:choreo-projects",
     "onView:choreo-account",
