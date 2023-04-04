@@ -110,7 +110,11 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                         }
                     }
                 } else {
-                    repository = { ...prevFormData?.repository, org: authorizedOrgs[0].orgName, repo: authorizedOrgs[0].repositories[0].name };
+                    const selectedOrg = authorizedOrgs.find((org) => org.repositories.length > 0);
+                    if (!selectedOrg) {
+                        throw new Error("No repositories found");
+                    }
+                    repository = { ...prevFormData?.repository, org: selectedOrg.orgName, repo: selectedOrg.repositories[0]?.name };
                     ChoreoWebViewAPI.getInstance().setPreferredProjectRepository(choreoProject?.id, `${repository.org}/${repository.repo}`);
                 }
             }
