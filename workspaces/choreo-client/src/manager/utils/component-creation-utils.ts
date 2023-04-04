@@ -169,7 +169,7 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
 
             content.folders.push({
                 path: componentPath,
-                name: repositoryInfo.subPath,
+                name: name,
                 metadata,
             });
 

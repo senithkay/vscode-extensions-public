@@ -205,7 +205,7 @@ export const ComponentTypeStepC = (props: StepProps<Partial<ComponentWizardState
                         {sourceType === "Ballerina" && (
                             <VSCodeOption value={ChoreoComponentType.GraphQL}>GraphQL API</VSCodeOption>)}
                         {sourceType === "Dockerfile" && (
-                            <VSCodeOption value={ChoreoComponentType.ByocService}>REST API</VSCodeOption>)}
+                            <VSCodeOption value={ChoreoComponentType.ByocService}>Service</VSCodeOption>)}
                         {sourceType === "Dockerfile" && (
                             <VSCodeOption value={ChoreoComponentType.ByocCronjob}>Scheduled Trigger</VSCodeOption>)}
                         {sourceType === "Dockerfile" && (
