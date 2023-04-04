@@ -25,12 +25,12 @@ export interface UnionTypesListProps {
     unionTypes: string[];
     context: IDataMapperContext;
     hasInvalidTypeCast: boolean;
-    getValueExpr: () => STNode;
-    getTypeCastExpr: () => STNode;
+    innermostExpr: STNode;
+    typeCastExpr: STNode;
 }
 
 export function UnionTypesList(props: UnionTypesListProps) {
-    const { unionTypes, context, hasInvalidTypeCast, getValueExpr, getTypeCastExpr } = props;
+    const { unionTypes, context, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
     const classes = useStyles();
 
     return (
@@ -43,8 +43,8 @@ export function UnionTypesList(props: UnionTypesListProps) {
                             context={context}
                             type={type}
                             hasInvalidTypeCast={hasInvalidTypeCast}
-                            getValueExpr={getValueExpr}
-                            getTypeCastExpr={getTypeCastExpr}
+                            innermostExpr={innermostExpr}
+                            typeCastExpr={typeCastExpr}
                         />
                     ))
                 }

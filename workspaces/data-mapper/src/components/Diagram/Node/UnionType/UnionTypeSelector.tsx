@@ -28,12 +28,12 @@ export interface UnionTypeSelectorProps {
     typeIdentifier: TypeDescriptor | IdentifierToken;
     typeDef: Type;
     hasInvalidTypeCast: boolean;
-    getValueExpr: () => STNode;
-    getTypeCastExpr: () => STNode;
+    innermostExpr: STNode;
+    typeCastExpr: STNode;
 }
 
 export function UnionTypeSelector(props: UnionTypeSelectorProps) {
-    const { typeIdentifier, context, typeDef, hasInvalidTypeCast, getValueExpr, getTypeCastExpr } = props;
+    const { typeIdentifier, context, typeDef, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
     const supportedUnionTypes = getSupportedUnionTypes(typeIdentifier, typeDef);
     const classes = useStyles();
 
@@ -42,8 +42,8 @@ export function UnionTypeSelector(props: UnionTypeSelectorProps) {
             context={context}
             unionTypes={supportedUnionTypes}
             hasInvalidTypeCast={hasInvalidTypeCast}
-            getValueExpr={getValueExpr}
-            getTypeCastExpr={getTypeCastExpr}
+            innermostExpr={innermostExpr}
+            typeCastExpr={typeCastExpr}
         />
     );
 }

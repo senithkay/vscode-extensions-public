@@ -57,7 +57,6 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 		{
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
-		const mappingConstruct = event.model.getValueExpr();
 		return (
 			<>
 				{shouldRenderUnionType && (
@@ -69,8 +68,8 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						typeIdentifier={event.model.typeIdentifier}
 						typeDef={event.model.typeDef}
 						hasInvalidTypeCast={event.model.hasInvalidTypeCast}
-						getValueExpr={() => event.model.getValueExpr()}
-						getTypeCastExpr={() => event.model.getTypeCastExpr()}
+						innermostExpr={event.model.innermostExpr}
+						typeCastExpr={event.model.typeCastExpr}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 						resolvedTypeName={resolvedTypeName}
 					/>
@@ -81,7 +80,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
 						editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
 						typeName={event.model.typeName}
-						value={mappingConstruct}
+						value={event.model.innermostExpr}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}

@@ -58,6 +58,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     public rootName: string;
     public mappings: FieldAccessToSpecificFied[];
     public hasNoMatchingFields: boolean;
+    public innermostExpr: STNode;
     public x: number;
     public y: number;
 
@@ -71,6 +72,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             context,
             MAPPING_CONSTRUCTOR_NODE_TYPE
         );
+        this.innermostExpr = getInnermostExpressionBody(this.queryExpr || this.value.expression);
     }
 
     async initPorts() {
@@ -94,7 +96,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     this.rootName = acceptedMembers[0]?.name;
                 }
             }
-            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.getValueExpr(),
+            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.innermostExpr,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
             this.hasNoMatchingFields = hasNoMatchFound(originalTypeDef, valueEnrichedType);
@@ -219,10 +221,6 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         }
 
         await this.context.applyModifications(modifications);
-    }
-
-    public getValueExpr(): STNode {
-        return getInnermostExpressionBody(this.queryExpr || this.value.expression);
     }
 
     public updatePosition() {

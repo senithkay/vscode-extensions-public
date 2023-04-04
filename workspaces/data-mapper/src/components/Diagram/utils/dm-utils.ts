@@ -145,7 +145,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			.selectClause.expression.position as NodePosition;
 		return updateValueExprSource(rhs, exprPosition, applyModifications);
 	} else if (isMappedToRootUnionType(targetPort)) {
-		const exprPosition = (targetPort.getParent() as UnionTypeNode).getValueExpr().position as NodePosition;
+		const exprPosition = (targetPort.getParent() as UnionTypeNode).innermostExpr.position as NodePosition;
 		return updateValueExprSource(rhs, exprPosition, applyModifications);
 	}
 
@@ -170,7 +170,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	if (targetNode instanceof MappingConstructorNode
 		|| (targetNode instanceof UnionTypeNode && targetNode.resolvedType.typeName === PrimitiveBalType.Record)) {
-		const targetExpr = targetNode.getValueExpr();
+		const targetExpr = targetNode.innermostExpr;
 		if (STKindChecker.isMappingConstructor(targetExpr)) {
 			mappingConstruct = targetExpr;
 		} else if (STKindChecker.isLetExpression(targetExpr)) {
@@ -181,7 +181,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		}
 	} else if (targetNode instanceof ListConstructorNode
 		|| (targetNode instanceof UnionTypeNode && targetNode.resolvedType.typeName === PrimitiveBalType.Array)) {
-		const targetExpr = targetNode.getValueExpr();
+		const targetExpr = targetNode.innermostExpr;
 		if (STKindChecker.isListConstructor(targetExpr) && fieldIndexes !== undefined && !!fieldIndexes.length) {
 			mappingConstruct = getNextMappingConstructor(targetExpr);
 		} else if (STKindChecker.isLetExpression(targetExpr)
@@ -267,7 +267,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			startColumn: targetPosition.endColumn
 		}
 	} else if (targetNode instanceof MappingConstructorNode) {
-		targetPosition = targetNode.getValueExpr().position as NodePosition;
+		targetPosition = targetNode.innermostExpr.position as NodePosition;
 		source = `{${getLinebreak()}${source}}`;
 	}
 

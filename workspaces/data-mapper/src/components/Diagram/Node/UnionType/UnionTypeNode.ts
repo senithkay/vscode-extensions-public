@@ -65,6 +65,8 @@ export class UnionTypeNode extends DataMapperNodeModel {
     public resolvedType: Type;
     public hasInvalidTypeCast: boolean;
     public mappings: FieldAccessToSpecificFied[];
+    public innermostExpr: STNode;
+    public typeCastExpr: STNode;
     public x: number;
     public y: number;
 
@@ -78,6 +80,8 @@ export class UnionTypeNode extends DataMapperNodeModel {
             context,
             UNION_TYPE_NODE_TYPE
         );
+        this.innermostExpr = getInnermostExpressionBody(this.value.expression);
+        this.typeCastExpr = this.getTypeCastExpr();
     }
 
     async initPorts() {
@@ -100,7 +104,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
                             ? this.resolvedType.memberType?.name
                             : this.typeIdentifier.value || this.typeIdentifier.source;
                 }
-                const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.getValueExpr(),
+                const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.innermostExpr,
                     this.context.selection.selectedST.stNode);
                 this.typeDef = type;
                 this.addPorts(valueEnrichedType, isSelectClause);
@@ -195,7 +199,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             });
         } else {
             // when the type is derivable from the expr
-            const typeFromStore = getTypeFromStore(this.getValueExpr().position as NodePosition);
+            const typeFromStore = getTypeFromStore(this.innermostExpr.position as NodePosition);
             const typeName = getTypeName(typeFromStore);
             this.resolvedType = !!typeFromStore
                 && typeFromStore.typeName !== '$CompilationError$'
@@ -341,12 +345,8 @@ export class UnionTypeNode extends DataMapperNodeModel {
 
     public shouldRenderUnionType() {
         return !this.resolvedType
-            || !STKindChecker.isMappingConstructor(this.getValueExpr()) && this.resolvedType.typeName === PrimitiveBalType.Record
-            || !STKindChecker.isListConstructor(this.getValueExpr()) && this.resolvedType.typeName === PrimitiveBalType.Array;
-    }
-
-    public getValueExpr(): STNode {
-        return getInnermostExpressionBody(this.value.expression);
+            || !STKindChecker.isMappingConstructor(this.innermostExpr) && this.resolvedType.typeName === PrimitiveBalType.Record
+            || !STKindChecker.isListConstructor(this.innermostExpr) && this.resolvedType.typeName === PrimitiveBalType.Array;
     }
 
     public getTypeCastExpr(): STNode {
@@ -391,7 +391,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 ...field.valueExpr?.position
             }];
         } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field.position as NodePosition, this.getValueExpr());
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position as NodePosition, this.innermostExpr);
             traversNode(this.value.expression, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
             modifications = [{
@@ -415,7 +415,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 ...field.position
             }];
         } else {
-            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.getValueExpr());
+            const linkDeleteVisitor = new LinkDeletingVisitor(field.position, this.innermostExpr);
             traversNode(this.value.expression, linkDeleteVisitor);
             const nodePositionsToDelete = linkDeleteVisitor.getPositionToDelete();
             modifications = [{

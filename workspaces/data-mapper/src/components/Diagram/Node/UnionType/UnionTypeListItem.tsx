@@ -28,12 +28,12 @@ export interface UnionTypeListItemProps {
     context: IDataMapperContext;
     type: string;
     hasInvalidTypeCast: boolean;
-    getValueExpr: () => STNode;
-    getTypeCastExpr: () => STNode;
+    innermostExpr: STNode;
+    typeCastExpr: STNode;
 }
 
 export function UnionTypeListItem(props: UnionTypeListItemProps) {
-    const { key, context, type, hasInvalidTypeCast, getValueExpr, getTypeCastExpr } = props;
+    const { key, context, type, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
     const { applyModifications } = context;
     const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
     const classes = useStyles();
@@ -42,9 +42,9 @@ export function UnionTypeListItem(props: UnionTypeListItemProps) {
         setIsAddingTypeCast(true)
         try {
             let targetPosition: NodePosition;
-            const valueExprPosition: NodePosition = getValueExpr().position;
+            const valueExprPosition: NodePosition = innermostExpr.position;
             if (hasInvalidTypeCast) {
-                const typeCastExprPosition: NodePosition = getTypeCastExpr().position;
+                const typeCastExprPosition: NodePosition = typeCastExpr.position;
                 targetPosition = {
                     ...typeCastExprPosition,
                     endLine: valueExprPosition.startLine,

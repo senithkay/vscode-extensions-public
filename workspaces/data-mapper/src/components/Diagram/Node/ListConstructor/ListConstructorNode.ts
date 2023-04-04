@@ -58,6 +58,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
     public typeName: string;
     public rootName: string;
     public hasNoMatchingFields: boolean;
+    public innermostExpr: STNode;
     public x: number;
     public y: number;
 
@@ -71,6 +72,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
             context,
             LIST_CONSTRUCTOR_NODE_TYPE
         );
+        this.innermostExpr = getInnermostExpressionBody(this.queryExpr || this.value.expression);
     }
 
     async initPorts() {
@@ -90,7 +92,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
                     this.typeDef = acceptedMembers[0];
                 }
             }
-            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.getValueExpr(),
+            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.innermostExpr,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
             this.hasNoMatchingFields = hasNoMatchFound(originalTypeDef, valueEnrichedType);
@@ -210,10 +212,6 @@ export class ListConstructorNode extends DataMapperNodeModel {
         }
 
         await this.context.applyModifications(modifications);
-    }
-
-    public getValueExpr(): STNode {
-        return getInnermostExpressionBody(this.queryExpr || this.value.expression);
     }
 
     public updatePosition() {

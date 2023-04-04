@@ -50,6 +50,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     public recordField: EditableRecordField;
     public typeName: string;
     public hasNoMatchingFields: boolean;
+    public innermostExpr: STNode;
     public x: number;
     public y: number;
 
@@ -63,6 +64,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             context,
             PRIMITIVE_TYPE_NODE_TYPE
         );
+        this.innermostExpr = getInnermostExpressionBody(this.queryExpr || this.value.expression);
     }
 
     async initPorts() {
@@ -77,7 +79,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 }
             }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                this.getValueExpr(), this.context.selection.selectedST.stNode);
+                this.innermostExpr, this.context.selection.selectedST.stNode);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
@@ -175,10 +177,6 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             }];
 
         await this.context.applyModifications(modifications);
-    }
-
-    public getValueExpr(): STNode {
-        return getInnermostExpressionBody(this.queryExpr || this.value.expression);
     }
 
     public updatePosition() {
