@@ -242,6 +242,7 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
         <>
             <FieldTitle title='Path' optional={false} />
             <LiteExpressionEditor
+                focus={true}
                 testId="service-base-path"
                 diagnostics={currentComponentName === 'path' ?
                     currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
