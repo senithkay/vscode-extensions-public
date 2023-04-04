@@ -52,6 +52,7 @@ export const CellDiagramWrapper: React.FC<any> = styled.div`
   display: flex;
   flex-direction: row;
   align-items: ${(props: CellContainerProps) => props.isConsoleView ? 'flex-start' : 'normal'};
+  min-height: ${(props: CellContainerProps) => props.isConsoleView ? 'calc(100vh - 250px)' : 'calc(100vh - 90px)'};
 ` ;
 
 export const CellContainerWrapper: React.FC<any> = styled.div`
