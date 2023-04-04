@@ -168,7 +168,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		parent = parent.parentModel;
 	}
 
-	if (targetNode instanceof MappingConstructorNode || targetNode instanceof UnionTypeNode) {
+	if (targetNode instanceof MappingConstructorNode
+		|| (targetNode instanceof UnionTypeNode && targetNode.resolvedType.typeName === PrimitiveBalType.Record)) {
 		const targetExpr = targetNode.getValueExpr();
 		if (STKindChecker.isMappingConstructor(targetExpr)) {
 			mappingConstruct = targetExpr;
@@ -178,7 +179,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				mappingConstruct = exprBody;
 			}
 		}
-	} else if (targetNode instanceof ListConstructorNode || targetNode instanceof UnionTypeNode) {
+	} else if (targetNode instanceof ListConstructorNode
+		|| (targetNode instanceof UnionTypeNode && targetNode.resolvedType.typeName === PrimitiveBalType.Array)) {
 		const targetExpr = targetNode.getValueExpr();
 		if (STKindChecker.isListConstructor(targetExpr) && fieldIndexes !== undefined && !!fieldIndexes.length) {
 			mappingConstruct = getNextMappingConstructor(targetExpr);
