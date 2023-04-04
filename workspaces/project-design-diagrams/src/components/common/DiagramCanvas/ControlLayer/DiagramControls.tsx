@@ -44,7 +44,7 @@ export function DiagramControls(props: ControlProps) {
     const isCellView = !showDownloadButton // We are hide download button form cell view. Hence, deriving from that
 
     return (
-        <ControlPanel isCellView={isCellView} showDownloadButton={showDownloadButton} >
+        <ControlPanel showDownloadButton={showDownloadButton} >
             {hasDiagnostics &&
                 <DiagnosticsWarning />
             }

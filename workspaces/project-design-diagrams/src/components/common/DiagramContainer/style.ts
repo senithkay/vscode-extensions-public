@@ -45,13 +45,14 @@ export const CellContainerControls: React.FC<any> = styled.div`
   align-items: flex-end;
   position: relative;
   left: ${(props: CellContainerProps) => `${props.isConsoleView ? 92 : 102}px`};
-  margin-top: ${(props: CellContainerProps) => `${props.isConsoleView ? props.canvasHeight + 232 : '0'}px`};
+  margin-top: ${(props: CellContainerProps) => `${props.isConsoleView ? props.canvasHeight + 164 : '0'}px`};
 ` ;
 
 export const CellDiagramWrapper: React.FC<any> = styled.div`
   display: flex;
   flex-direction: row;
   align-items: ${(props: CellContainerProps) => props.isConsoleView ? 'flex-start' : 'normal'};
+  min-height: ${(props: CellContainerProps) => props.isConsoleView ? 'calc(100vh - 250px)' : 'calc(100vh - 90px)'};
 ` ;
 
 export const CellContainerWrapper: React.FC<any> = styled.div`
