@@ -28,6 +28,7 @@ const WizardContainer = styled.div`
     display  : flex;
     flex-direction: column;
     padding: 20px;
+    position: relative;
 `;
 
 const HeaderContainer = styled.div`
@@ -60,6 +61,13 @@ const InlineIcon = styled.span`
     padding-left: 5px;
 `;
 
+const ProgressWrap = styled.div`
+    padding: 15px;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+`;
+
 export interface ProjectOverviewProps {
     projectId?: string;
     orgName?: string;
@@ -79,6 +87,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const {
         data: components = [],
         isLoading: loadingComponents,
+        isRefetching: refetchingComponents,
         refetch: refetchComponents,
     } = useQuery({
         queryKey: ["overview_component_list", projectId, orgName],
@@ -187,6 +196,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     return (
         <>
             <WizardContainer>
+                {(reloadingRegistry || refetchingComponents) && (
+                    <ProgressWrap>
+                        <VSCodeProgressRing />
+                    </ProgressWrap>
+                )}
                 <HeaderContainer>
                     <h1>{project?.name}</h1>
                     <VSCodeButton
@@ -296,66 +310,61 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     openSourceControl={handleOpenSourceControlClick}
                     onComponentDeleteClick={handleDeleteComponentClick}
                     handlePushComponentClick={handlePushComponentClick}
-                    loading={reloadingRegistry || loadingComponents || pushingComponent || pushingSingleComponent || deletingComponent}
+                    loading={pushingComponent || pushingSingleComponent || deletingComponent}
                 />
 
-                {(reloadingRegistry || loadingComponents) ? (
-                    <VSCodeProgressRing />
-                ) : (
+                
+                {hasPushableComponents && (
                     <>
-                        {hasPushableComponents && (
-                            <>
-                                <p>
-                                    <InlineIcon>
-                                        <Codicon name="lightbulb" />
-                                    </InlineIcon>
-                                    &nbsp; Some components are not created in Choreo. Click `Push
-                                    to Choreo` to create them.
-                                </p>
-                                <ActionContainer>
-                                    {pushingComponent && <VSCodeProgressRing />}
-                                    <VSCodeButton
-                                        appearance="primary"
-                                        disabled={pushingComponent}
-                                        onClick={() => handlePushToChoreoClick()}
-                                    >
-                                        <Codicon name="cloud-upload" />
-                                        &nbsp; Push to Choreo
-                                    </VSCodeButton>
-                                </ActionContainer>
-                            </>
-                        )}
-                        {!hasPushableComponents && componentsOutOfSync && (
-                            <>
-                                <p>
-                                    <InlineIcon>
-                                        <Codicon name="lightbulb" />
-                                    </InlineIcon>
-                                    &nbsp; Some components are not committed and pushed to the
-                                    upstream github repository.
-                                    {hasLocalComponents &&
-                                        ` Please commit and push them before pushing to Choreo.`}
-                                </p>
-                                <ActionContainer>
-                                    {pushingComponent && <VSCodeProgressRing />}
-                                    <VSCodeButton
-                                        appearance="secondary"
-                                        onClick={handleOpenSourceControlClick}
-                                    >
-                                        <Codicon name="source-control" />
-                                        &nbsp; Open Source Control
-                                    </VSCodeButton>
-                                    <VSCodeButton
-                                        appearance="secondary"
-                                        onClick={() => handleRefreshComponentsClick()}
-                                        disabled={loadingComponents}
-                                    >
-                                        <Codicon name="refresh" />
-                                        &nbsp; Recheck
-                                    </VSCodeButton>
-                                </ActionContainer>
-                            </>
-                        )}
+                        <p>
+                            <InlineIcon>
+                                <Codicon name="lightbulb" />
+                            </InlineIcon>
+                            &nbsp; Some components are not created in Choreo. Click `Push
+                            to Choreo` to create them.
+                        </p>
+                        <ActionContainer>
+                            {pushingComponent && <VSCodeProgressRing />}
+                            <VSCodeButton
+                                appearance="primary"
+                                disabled={pushingComponent || reloadingRegistry || refetchingComponents}
+                                onClick={() => handlePushToChoreoClick()}
+                            >
+                                <Codicon name="cloud-upload" />
+                                &nbsp; Push to Choreo
+                            </VSCodeButton>
+                        </ActionContainer>
+                    </>
+                )}
+                {!hasPushableComponents && componentsOutOfSync && (
+                    <>
+                        <p>
+                            <InlineIcon>
+                                <Codicon name="lightbulb" />
+                            </InlineIcon>
+                            &nbsp; Some components are not committed and pushed to the
+                            upstream github repository.
+                            {hasLocalComponents &&
+                                ` Please commit and push them before pushing to Choreo.`}
+                        </p>
+                        <ActionContainer>
+                            {pushingComponent && <VSCodeProgressRing />}
+                            <VSCodeButton
+                                appearance="secondary"
+                                onClick={handleOpenSourceControlClick}
+                            >
+                                <Codicon name="source-control" />
+                                &nbsp; Open Source Control
+                            </VSCodeButton>
+                            <VSCodeButton
+                                appearance="secondary"
+                                onClick={() => handleRefreshComponentsClick()}
+                                disabled={loadingComponents || refetchingComponents || reloadingRegistry}
+                            >
+                                <Codicon name="refresh" />
+                                &nbsp; Recheck
+                            </VSCodeButton>
+                        </ActionContainer>
                     </>
                 )}
             </WizardContainer>

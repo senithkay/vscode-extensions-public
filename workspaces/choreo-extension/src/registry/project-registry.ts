@@ -367,8 +367,6 @@ export class ProjectRegistry {
                     getLogger().error(failures);
                     window.showErrorMessage(failures);
                 }
-                // Delete the components so they resolve from choreo
-                this._dataComponents.delete(projectId);
             }
         });
         
