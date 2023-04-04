@@ -21,11 +21,10 @@ import styled from '@emotion/styled';
 
 interface ControlPanelProps {
     showDownloadButton?: boolean;
-    isCellView?: boolean;
 }
 
 export const ControlPanel: React.FC<any> = styled.div`
-    bottom: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 15 : 120}px`};
+    bottom: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 15 : 50}px`};
     display: flex;
     flex-direction: column;
     gap: 5px;
