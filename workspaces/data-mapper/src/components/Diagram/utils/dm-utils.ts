@@ -655,7 +655,7 @@ export function getOutputPortForField(fields: STNode[],
                                       portPrefix: string,
                                       getPort: (portId: string) => RecordFieldPortModel,
                                       listConstructorRootName?: string): [RecordFieldPortModel, RecordFieldPortModel] {
-	let portIdBuffer = `${portPrefix}${listConstructorRootName || ''}`;
+	let portIdBuffer = `${portPrefix}${listConstructorRootName ? `.${getBalRecFieldName(listConstructorRootName)}` : ''}`;
 	let nextTypeNode: EditableRecordField = editableRecordField;
 
 	for (let i = 0; i < fields.length; i++) {

@@ -165,12 +165,13 @@ export class ListConstructorNode extends DataMapperNodeModel {
                         ? field.valueExpr
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
-                        ? field.fieldName.value
+                        ? field.fieldName.value as string
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field, true)
                 }));
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
+                inPort.addLinkedPort(mappedOutPort);
                 lm.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {

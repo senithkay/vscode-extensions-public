@@ -43,7 +43,8 @@ import {
     getOutputPortForField,
     getSearchFilteredOutput,
     getTypeFromStore,
-    getTypeName
+    getTypeName,
+    isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { getResolvedType, getSupportedUnionTypes } from "../../utils/union-type-utils";
@@ -123,27 +124,20 @@ export class UnionTypeNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            let outPort: RecordFieldPortModel;
-            let mappedOutPort: RecordFieldPortModel;
-            if (this.shouldRenderUnionType()) {
-                outPort = this.getPort(`${UNION_TYPE_TARGET_PORT_PREFIX}.IN`) as RecordFieldPortModel;
-                mappedOutPort = outPort;
-            } else {
-                [outPort, mappedOutPort] = getOutputPortForField(fields,
-                    this.recordField,
-                    MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
-                    (portId: string) =>  this.getPort(portId) as RecordFieldPortModel);
-            }
+            const [outPort, mappedOutPort] = this.getOutPort(fields);
             const diagnostics = filterDiagnostics(
                 this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
             const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
-                const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
-                const keepDefault = ((mappedField && !mappedField?.name
-                        && mappedField.typeName !== PrimitiveBalType.Array
-                        && mappedField.typeName !== PrimitiveBalType.Record)
-                    || !STKindChecker.isMappingConstructor(this.value.expression)
-                );
+                let keepDefault = this.resolvedType.typeName === PrimitiveBalType.Array;
+                if (this.resolvedType.typeName === PrimitiveBalType.Record) {
+                    const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
+                    keepDefault = ((mappedField && !mappedField?.name
+                            && mappedField.typeName !== PrimitiveBalType.Array
+                            && mappedField.typeName !== PrimitiveBalType.Record)
+                        || !STKindChecker.isMappingConstructor(this.value.expression)
+                    );
+                }
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,
@@ -276,6 +270,68 @@ export class UnionTypeNode extends DataMapperNodeModel {
         this.addPortsForOutputRecordField(this.recordField, "IN", this.recordField.type.typeName,
             undefined, PRIMITIVE_TYPE_TARGET_PORT_PREFIX, parentPort,
             this.context.collapsedFields, parentPort.collapsed, STKindChecker.isSelectClause(this.value));
+    }
+
+    private getOutPort(fields: STNode[]): [RecordFieldPortModel, RecordFieldPortModel] {
+        if (this.shouldRenderUnionType()) {
+            return this.getOutPortForUnionType();
+        }
+        switch (this.resolvedType.typeName) {
+            case PrimitiveBalType.Record:
+                return this.getOutPortForMappingConstructor(fields);
+            case PrimitiveBalType.Array:
+                return this.getOutPortForListConstructor(fields);
+            default:
+                return this.getOutPortForPrimitiveType(fields);
+        }
+    }
+
+    private getOutPortForMappingConstructor(fields: STNode[]): [RecordFieldPortModel, RecordFieldPortModel] {
+        return getOutputPortForField(fields,
+            this.recordField,
+            MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+            (portId: string) =>  this.getPort(portId) as RecordFieldPortModel)
+    }
+
+    private getOutPortForListConstructor(fields: STNode[]): [RecordFieldPortModel, RecordFieldPortModel] {
+        let outPort: RecordFieldPortModel;
+        let mappedOutPort: RecordFieldPortModel;
+        const body = getInnermostExpressionBody(this.recordField.value);
+        if (this.recordField.type.typeName === PrimitiveBalType.Array
+            && this.recordField?.value
+            && !STKindChecker.isListConstructor(body)
+        ) {
+            outPort = this.getPort(`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${this.rootName}.IN`) as RecordFieldPortModel;
+            mappedOutPort = outPort;
+        } else {
+            [outPort, mappedOutPort] = getOutputPortForField(fields,
+                this.recordField,
+                LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
+                (portId: string) =>  this.getPort(portId) as RecordFieldPortModel,
+                this.rootName);
+        }
+        return [outPort, mappedOutPort];
+    }
+
+    private getOutPortForPrimitiveType(fields: STNode[]): [RecordFieldPortModel, RecordFieldPortModel] {
+        let outPort: RecordFieldPortModel;
+        let mappedOutPort: RecordFieldPortModel;
+        if (!isArrayOrRecord(this.recordField.type)) {
+            outPort = this.getPort(`${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${
+                this.recordField.type.typeName}.IN`) as RecordFieldPortModel;
+            mappedOutPort = outPort;
+        } else {
+            [outPort, mappedOutPort] = getOutputPortForField(fields,
+                this.recordField,
+                PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
+                (portId: string) =>  this.getPort(portId) as RecordFieldPortModel);
+        }
+        return [outPort, mappedOutPort];
+    }
+
+    private getOutPortForUnionType(): [RecordFieldPortModel, RecordFieldPortModel] {
+        const outPort = this.getPort(`${UNION_TYPE_TARGET_PORT_PREFIX}.IN`) as RecordFieldPortModel;
+        return [outPort, outPort];
     }
 
     public shouldRenderUnionType() {
