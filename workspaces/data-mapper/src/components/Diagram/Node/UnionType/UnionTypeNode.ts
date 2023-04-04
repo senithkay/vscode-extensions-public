@@ -134,12 +134,16 @@ export class UnionTypeNode extends DataMapperNodeModel {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
             const [outPort, mappedOutPort] = this.getOutPort(fields);
-            const diagnostics = filterDiagnostics(
-                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
+            const diagnosticsPosition = (this.shouldRenderUnionType()
+                ? this.resolvedType && this.typeCastExpr
+                    ? this.typeCastExpr.position
+                    : this.innermostExpr.position
+                : otherVal.position || value.position) as NodePosition;
+            const diagnostics = filterDiagnostics(this.context.diagnostics, diagnosticsPosition);
             const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
-                let keepDefault = this.resolvedType.typeName === PrimitiveBalType.Array;
-                if (this.resolvedType.typeName === PrimitiveBalType.Record) {
+                let keepDefault = false;
+                if (this.resolvedType && this.resolvedType.typeName === PrimitiveBalType.Record) {
                     const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
                     keepDefault = ((mappedField && !mappedField?.name
                             && mappedField.typeName !== PrimitiveBalType.Array
