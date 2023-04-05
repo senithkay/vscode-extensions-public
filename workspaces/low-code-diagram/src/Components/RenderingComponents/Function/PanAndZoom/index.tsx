@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useState } from "react";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 import { Context } from "../../../../Context/diagram";
 import { ViewMode } from "../../../../Context/types";
@@ -36,11 +35,6 @@ const defaultZoomStatus = {
     panY: 23,
 };
 
-interface PanningEvent {
-    positionX: number,
-    positionY: number,
-}
-
 const MAX_ZOOM: number = 2;
 const MIN_ZOOM: number = 0.6
 const ZOOM_STEP: number = 0.1;
@@ -50,6 +44,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
     const diagramContext = useContext(Context);
     const { onDiagramDoubleClick } = diagramContext.props;
     const [zoomStatus, setZoomStatus] = useState(defaultZoomStatus);
+    const containerRef = React.useRef(null);
 
     function handleDoubleClick() {
         if (onDiagramDoubleClick) {
@@ -75,59 +70,76 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
         setZoomStatus(defaultZoomStatus)
     }
 
-    function onPanningStart() {
-        document.body.style.cursor = 'grabbing';
-    }
-
-    function onPanningStop(e: PanningEvent) {
-        document.body.style.cursor = 'default';
-        const { positionX, positionY } = e;
-        if ((zoomStatus.panX !== positionX) || (zoomStatus.panY !== positionY)) {
+    const handleZoomAndPanWithWheel = (e: React.WheelEvent) => {
+        if (e.metaKey || e.ctrlKey) {
+            // zoom logic
+            const delta = Math.sign(e.deltaY);
+            if (delta === 1) {
+                zoomOut();
+            } else if (delta === -1) {
+                zoomIn();
+            }
+        } else {
+            // pan logic
             setZoomStatus({
                 ...zoomStatus,
-                panX: positionX,
-                panY: positionY
+                panX: zoomStatus.panX + e.deltaX,
+                panY: zoomStatus.panY + -e.deltaY,
             });
         }
-
     }
 
     return (
-        <TransformWrapper
-            wheel={{ disabled: true }}
-            doubleClick={{ disabled: true }}
-            scale={zoomStatus.scale}
-            positionX={zoomStatus.panX}
-            positionY={zoomStatus.panY}
-            options={{ limitToBounds: false, centerContent: false }}
-            onPanningStart={onPanningStart}
-            onPanningStop={onPanningStop}
-        >
-            <div className={'design-container-outer'} style={{ display: "flex", flexDirection: "column" }}>
-                <FunctionHeader />
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                    <TransformComponent>
+        <div className={'design-container-outer'} style={{ display: "flex", flexDirection: "column" }}>
+            <FunctionHeader />
+            <div style={{ display: "flex", flexDirection: "row" }}>
+                <div
+                    style={{
+                        position: "relative",
+                        width: 'fit-content',
+                        height: 'fit-content',
+                        overflow: "hidden",
+                        userSelect: "none",
+                        margin: 0,
+                        padding: 0,
+                    }}
+                    ref={containerRef}
+                    onWheel={handleZoomAndPanWithWheel}
+                >
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            width: 'fit-content',
+                            height: 'fit-content',
+                            margin: 0,
+                            padding: 0,
+                            transformOrigin: '0% 0%',
+                            transform: `scale(${zoomStatus.scale}) translate(${zoomStatus.panX}px, ${zoomStatus.panY}px)`,
+                            transition: 'transform 0.1s ease',
+                        }}
+                    >
                         <div className={'design-container'} onDoubleClick={handleDoubleClick}>
                             {props.children}
                         </div>
-                    </TransformComponent>
-                    <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
-                        <div className={'zoom-control-wrapper'} onClick={toggleViewMode}>
-                            {viewMode === ViewMode.STATEMENT ? <InteractionMode /> : <StatementMode />}
-                        </div>
-                        <div className={'zoom-control-wrapper'} onClick={zoomIn}>
-                            <ZoomInSVG />
-                        </div>
-                        <div className={'zoom-control-wrapper'} onClick={zoomOut}>
-                            <ZoomOutSVG />
-                        </div>
-                        <div className={'zoom-control-wrapper'} onClick={resetZoomStatus}>
-                            <FitToScreenSVG />
-                        </div>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
+                    <div className={'zoom-control-wrapper'} onClick={toggleViewMode}>
+                        {viewMode === ViewMode.STATEMENT ? <InteractionMode /> : <StatementMode />}
+                    </div>
+                    <div className={'zoom-control-wrapper'} onClick={zoomIn}>
+                        <ZoomInSVG />
+                    </div>
+                    <div className={'zoom-control-wrapper'} onClick={zoomOut}>
+                        <ZoomOutSVG />
+                    </div>
+                    <div className={'zoom-control-wrapper'} onClick={resetZoomStatus}>
+                        <FitToScreenSVG />
                     </div>
                 </div>
             </div>
-        </TransformWrapper>
+        </div>
     )
 
 }
