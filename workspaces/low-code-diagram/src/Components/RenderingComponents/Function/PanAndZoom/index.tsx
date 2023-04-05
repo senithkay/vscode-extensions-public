@@ -44,12 +44,38 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
     const diagramContext = useContext(Context);
     const { onDiagramDoubleClick } = diagramContext.props;
     const [zoomStatus, setZoomStatus] = useState(defaultZoomStatus);
+    const [isPanning, setIsPanning] = useState(false);
+    const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+
     const containerRef = React.useRef(null);
+
 
     function handleDoubleClick() {
         if (onDiagramDoubleClick) {
             onDiagramDoubleClick();
         }
+    }
+
+    const onPanStart = (e: React.MouseEvent) => {
+        setPanStart({ x: e.clientX, y: e.clientY });
+        setIsPanning(true);
+        containerRef.current.style.cursor = 'grabbing';
+    }
+
+    const onPan = (e: React.MouseEvent) => {
+        if (isPanning) {
+            setZoomStatus({
+                ...zoomStatus,
+                panX: zoomStatus.panX + e.clientX - panStart.x,
+                panY: zoomStatus.panY + e.clientY - panStart.y,
+            });
+            setPanStart({ x: e.clientX, y: e.clientY });
+        }
+    }
+
+    const onPanEnd = () => {
+        setIsPanning(false);
+        containerRef.current.style.cursor = 'default';
     }
 
     const zoomIn = () => {
@@ -89,6 +115,8 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
         }
     }
 
+    const transform: string = `scale(${zoomStatus.scale}) translate(${zoomStatus.panX}px, ${zoomStatus.panY}px)`;
+
     return (
         <div className={'design-container-outer'} style={{ display: "flex", flexDirection: "column" }}>
             <FunctionHeader />
@@ -105,6 +133,9 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
                     }}
                     ref={containerRef}
                     onWheel={handleZoomAndPanWithWheel}
+                    onPointerDown={onPanStart}
+                    onPointerMove={onPan}
+                    onPointerUp={onPanEnd}
                 >
                     <div
                         style={{
@@ -115,7 +146,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
                             margin: 0,
                             padding: 0,
                             transformOrigin: '0% 0%',
-                            transform: `scale(${zoomStatus.scale}) translate(${zoomStatus.panX}px, ${zoomStatus.panY}px)`,
+                            transform: transform,
                             transition: 'transform 0.1s ease',
                         }}
                     >
