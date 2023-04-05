@@ -23,7 +23,7 @@ import { randomUUID } from "crypto";
 import path, { join } from "path";
 import { addToWorkspace } from "../../utils/project-utils";
 import { addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate } from "./component-handler-utils";
-import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 
 export class BallerinaProjectManager implements IProjectManager {
     createLocalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
@@ -33,6 +33,9 @@ export class BallerinaProjectManager implements IProjectManager {
         throw new Error("Method not implemented.");
     }
     fetchTriggers(): Promise<BallerinaTriggersResponse> {
+        throw new Error("Method not implemented.");
+    }
+    fetchTrigger(param: string): Promise<BallerinaTriggerResponse> {
         throw new Error("Method not implemented.");
     }
     getBalVersion(): Promise<string> {

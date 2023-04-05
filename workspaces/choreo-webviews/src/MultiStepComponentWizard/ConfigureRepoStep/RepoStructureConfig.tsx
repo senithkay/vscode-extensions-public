@@ -157,8 +157,7 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
                     </VSCodeTextField>
                 </StepContainer>
             )}
-
-            {isValidationInProgress && <div>validating...</div>}
+            {isValidationInProgress && <div style={{ marginTop: "5px" }}>validating paths...</div>}
             {folderNameError && <ErrorBanner errorMsg={folderNameError} />}
             {isExistingDockerMode &&(
                 <BYOCRepoConfig formData={props.formData} onFormDataChange={props.onFormDataChange} />

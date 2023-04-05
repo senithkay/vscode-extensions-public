@@ -11,10 +11,10 @@
  *  associated services.
  */
 
-import { ChoreoComponentType, Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
+import { Component, Organization, Project, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
-import { existsSync, rmdirSync } from 'fs';
+import { existsSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, join } from "path";
@@ -27,6 +27,8 @@ import { ProgressLocation, window } from "vscode";
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
 const PROJECT_REPOSITORIES = "project-repositories";
+const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories";
+
 
 export class ProjectRegistry {
     static _registry: ProjectRegistry | undefined;
@@ -213,7 +215,7 @@ export class ProjectRegistry {
                             const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, appSubPath);
                             if (existsSync(repoPath)) {
                                 rmdirSync(repoPath, { recursive: true });
-                                choreoPM.removeLocalComponent(projectLocation, componentMetadata);
+                                this._removeComponentFromWorkspace(projectLocation, componentMetadata.displayName);
                             }
                         }
                     }
@@ -223,6 +225,7 @@ export class ProjectRegistry {
                         const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
                         if (existsSync(repoPath)) {
                             rmdirSync(repoPath, { recursive: true });
+                            this._removeComponentFromWorkspace(projectLocation, component.name);
                             successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
                         }
                     }
@@ -327,6 +330,20 @@ export class ProjectRegistry {
         return projectRepositories ? projectRepositories[projectId] : undefined;
     }
 
+    setPreferredProjectRepository(projectId: string, repository: string) {
+        let projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
+        if (projectRepositories === undefined) {
+            projectRepositories = {};
+        }
+        projectRepositories[projectId] = repository;
+        ext.context.globalState.update(PREFERRED_PROJECT_REPOSITORIES, projectRepositories);
+    }
+
+    getPreferredProjectRepository(projectId: string): string | undefined {
+        const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
+        return projectRepositories ? projectRepositories[projectId] : undefined;
+    }
+
     pushLocalComponentsToChoreo(projectId: string, org: Organization): Thenable<void> {
         return window.withProgress({
             title: `Pushing local components to Choreo.`,
@@ -366,8 +383,6 @@ export class ProjectRegistry {
                     getLogger().error(failures);
                     window.showErrorMessage(failures);
                 }
-                // Delete the components so they resolve from choreo
-                this._dataComponents.delete(projectId);
             }
         });
         
@@ -500,5 +515,17 @@ export class ProjectRegistry {
         }
         
         return components;
+    }
+
+    private _removeComponentFromWorkspace(wsFilePath: string, displayName: string) {
+        const contents = readFileSync(wsFilePath);
+        const content: WorkspaceConfig = JSON.parse(contents.toString());
+        const index = content.folders.findIndex(folder => folder.name === displayName);
+        if (index > -1) {
+            content.folders.splice(index, 1);
+            writeFileSync(wsFilePath, JSON.stringify(content, null, 4));
+        } else {
+            window.showWarningMessage("Error: Could not update project workspace.");
+        }
     }
 }

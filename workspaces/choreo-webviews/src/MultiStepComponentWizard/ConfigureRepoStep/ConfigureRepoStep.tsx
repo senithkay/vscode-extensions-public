@@ -84,17 +84,39 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
     const setRepository = (org: string, repo: string) => {
         onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, org, repo} }));
+        ChoreoWebViewAPI.getInstance().setPreferredProjectRepository(choreoProject?.id, `${org}/${repo}`);
     };
 
     const setIsRepoCloned = (isCloned: boolean ) => {
         onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isCloned} }));
     };
 
-    const setDefaultSelection = () => {
+    const setDefaultSelection = async () => {
+        const preferredRepo = await ChoreoWebViewAPI.getInstance().getPreferredProjectRepository(choreoProject?.id);
         onFormDataChange(prevFormData => {
             let repository = prevFormData?.repository;
             if (!(prevFormData?.repository?.org && prevFormData?.repository?.repo) && authorizedOrgs && authorizedOrgs.length > 0) {
-                repository = { ...prevFormData?.repository, org: authorizedOrgs[0].orgName, repo: authorizedOrgs[0].repositories[0].name };
+                if (preferredRepo) {
+                    // split the repo string to org and repo
+                    const parts = preferredRepo.split("/");
+                    if (parts.length !== 2) {
+                        throw new Error(`Invalid repo string: ${preferredRepo}`);
+                    }
+                    const org = authorizedOrgs.find((org) => org.orgName === parts[0]);
+                    if (org) {
+                        const repo = org.repositories.find((repo) => repo.name === parts[1]);
+                        if (repo) {
+                            repository = { ...prevFormData?.repository, org: parts[0], repo: parts[1] };
+                        }
+                    }
+                } else {
+                    const selectedOrg = authorizedOrgs.find((org) => org.repositories.length > 0);
+                    if (!selectedOrg) {
+                        throw new Error("No repositories found");
+                    }
+                    repository = { ...prevFormData?.repository, org: selectedOrg.orgName, repo: selectedOrg.repositories[0]?.name };
+                    ChoreoWebViewAPI.getInstance().setPreferredProjectRepository(choreoProject?.id, `${repository.org}/${repository.repo}`);
+                }
             }
             return { ...prevFormData, repository };
         });
@@ -180,7 +202,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
     const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
     const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
-    const showAuthorizeButton = ghStatus.status === "not-authorized";
+    const showAuthorizeButton = ghStatus.status === "not-authorized" || ghStatus.status === "error";
     const showConfigureButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
     let loaderMessage = "Loading repositories...";
     if (ghStatus.status === "auth-inprogress") {

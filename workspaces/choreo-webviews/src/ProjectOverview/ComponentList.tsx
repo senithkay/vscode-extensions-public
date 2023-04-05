@@ -175,7 +175,7 @@ export function ComponentList(props: ComponentListProps) {
                             </VSCodeDataGridCell>
                             <VSCodeDataGridCell gridColumn="7">
                                 {component.local ? (
-                                    DeploymentStatusMapping[deploymentStatus]
+                                    "N/A"
                                 ) : (
                                     <a href={componentDeployLink}>
                                         {DeploymentStatusMapping[deploymentStatus]}
