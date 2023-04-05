@@ -149,7 +149,8 @@ export interface Interaction {
 export enum FunctionType {
     QUERY = "Query",
     MUTATION = "Mutation",
-    SUBSCRIPTION = "Subscription"
+    SUBSCRIPTION = "Subscription",
+    CLASS_RESOURCE = "ClassResource"
 }
 
 export enum Colors {
