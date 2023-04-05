@@ -59,7 +59,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
     const onPanStart = (e: React.MouseEvent) => {
         setPanStart({ x: e.clientX, y: e.clientY });
         setIsPanning(true);
-        containerRef.current.style.cursor = 'grabbing';
+        if (containerRef.current) containerRef.current.style.cursor = 'grabbing';
     }
 
     const onPan = (e: React.MouseEvent) => {
@@ -75,7 +75,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
 
     const onPanEnd = () => {
         setIsPanning(false);
-        containerRef.current.style.cursor = 'default';
+        if (containerRef.current) containerRef.current.style.cursor = 'default';
     }
 
     const zoomIn = () => {
