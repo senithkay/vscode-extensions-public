@@ -23,6 +23,8 @@ import StatementMode from "./images/statement-mode";
 import ZoomInSVG from "./images/zoom-in";
 import ZoomOutSVG from "./images/zoom-out";
 
+import './styles.scss';
+
 
 interface PanAndZoomProps {
     viewMode: ViewMode;
@@ -122,15 +124,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
             <FunctionHeader />
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <div
-                    style={{
-                        position: "relative",
-                        width: 'fit-content',
-                        height: 'fit-content',
-                        overflow: "hidden",
-                        userSelect: "none",
-                        margin: 0,
-                        padding: 0,
-                    }}
+                    className={'diagram-container-outer'}
                     ref={containerRef}
                     onWheel={handleZoomAndPanWithWheel}
                     onPointerDown={onPanStart}
@@ -138,16 +132,9 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
                     onPointerUp={onPanEnd}
                 >
                     <div
+                        className={'diagram-container-inner'}
                         style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            width: 'fit-content',
-                            height: 'fit-content',
-                            margin: 0,
-                            padding: 0,
-                            transformOrigin: '0% 0%',
                             transform: transform,
-                            transition: 'transform 0.1s ease',
                         }}
                     >
                         <div className={'design-container'} onDoubleClick={handleDoubleClick}>
