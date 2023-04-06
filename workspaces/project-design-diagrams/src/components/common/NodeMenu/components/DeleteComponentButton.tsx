@@ -17,21 +17,34 @@
  *
  */
 
-import React from "react";
+import React, { useContext } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { useStyles } from "./styles/styles";
 
 interface DeleteComponentProps {
     handleDialogStatus: (status: boolean) => void;
+    canDelete: boolean;
 }
 
+const RESTRICTED_DELETE_MSG = "Cannot delete components with incoming links. Please remove the links first.";
+
 export function DeleteComponentButton(props: DeleteComponentProps) {
-    const { handleDialogStatus } = props;
+    const { canDelete, handleDialogStatus } = props;
+    const { editLayerAPI } = useContext(DiagramContext);
     const classes = useStyles();
 
+    const handleOnClick = () => {
+        if (canDelete) {
+            handleDialogStatus(true);
+        } else {
+            editLayerAPI.showErrorMessage(RESTRICTED_DELETE_MSG);
+        }
+    }
+
     return (
-        <MenuItem onClick={() => handleDialogStatus(true)}>
+        <MenuItem onClick={handleOnClick}>
             <ListItemIcon>
                 <DeleteIcon fontSize="small" />
             </ListItemIcon>

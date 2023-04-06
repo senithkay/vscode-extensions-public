@@ -21,20 +21,20 @@ import React, { useState } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import { NodeMenuPanel } from './NodeMenuPanel';
-import { Location, RemoteFunction, ResourceFunction, Service, ServiceAnnotation } from '../../../resources';
+import { Location, RemoteFunction, ResourceFunction } from '../../../resources';
 import { DeleteComponentDialog, EditLabelDialog } from './components';
+import { ServiceNodeModel } from '../../service-interaction';
 
 interface NodeMenuProps {
-    location: Location;
     background: string;
-    service?: Service;
-    resourceFunction?: ResourceFunction | RemoteFunction; // TODO: Figure out a way to merge resource and service
+    location: Location;
     linkingEnabled?: boolean;
-    serviceAnnotation?: ServiceAnnotation;
+    resourceFunction?: ResourceFunction | RemoteFunction; // TODO: Figure out a way to merge resource and service
+    serviceNode?: ServiceNodeModel;
 }
 
 export function NodeMenuWidget(props: NodeMenuProps) {
-    const { linkingEnabled, location, service, resourceFunction, serviceAnnotation, background } = props;
+    const { linkingEnabled, location, serviceNode, resourceFunction, background } = props;
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
     const [showEditLabelDialog, updateShowEditLabelDialog] = useState<boolean>(false);
     const [showDeleteDialog, updateShowDeleteDialog] = useState<boolean>(false);
@@ -49,11 +49,10 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                         <NodeMenuPanel
                             linkingEnabled={linkingEnabled}
                             location={location}
-                            service={service}
                             resource={resourceFunction}
-                            serviceAnnotation={serviceAnnotation}
-                            handleEditLabelDialog={updateShowEditLabelDialog}
+                            serviceNode={serviceNode}
                             handleDeleteComponentDialog={updateShowDeleteDialog}
+                            handleEditLabelDialog={updateShowEditLabelDialog}
                         />
                     }
                     PopperProps={{
@@ -100,18 +99,21 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                 </Tooltip>
             }
 
-            <EditLabelDialog
-                serviceAnnotation={serviceAnnotation}
-                serviceLocation={service?.elementLocation}
-                showDialog={showEditLabelDialog}
-                updateShowDialog={updateShowEditLabelDialog}
-            />
+            {serviceNode &&
+                <>
+                    <EditLabelDialog
+                        service={serviceNode.serviceObject}
+                        showDialog={showEditLabelDialog}
+                        updateShowDialog={updateShowEditLabelDialog}
+                    />
 
-            <DeleteComponentDialog
-                location={location}
-                showDialog={showDeleteDialog}
-                updateShowDialog={updateShowDeleteDialog}
-            />
+                    <DeleteComponentDialog
+                        location={location}
+                        showDialog={showDeleteDialog}
+                        updateShowDialog={updateShowDeleteDialog}
+                    />
+                </>
+            }
         </>
     );
 }

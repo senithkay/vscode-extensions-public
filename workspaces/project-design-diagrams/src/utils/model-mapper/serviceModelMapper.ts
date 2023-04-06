@@ -248,6 +248,9 @@ function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 }
 
 export function createLinks(sourcePort: ServicePortModel, targetPort: ServicePortModel, link: ServiceLinkModel): ServiceLinkModel {
+    if (targetPort.getNode() instanceof ServiceNodeModel) {
+        (targetPort.getNode() as ServiceNodeModel).setIsLinked();
+    }
     link.setSourcePort(sourcePort);
     link.setTargetPort(targetPort);
     sourcePort.addLink(link);
