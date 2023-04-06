@@ -79,6 +79,16 @@ export function getUnionTypes(unionType: Type): string[] {
 	});
 }
 
+export function getATypeFromUnionType(unionType: Type): Type {
+	return unionType.members.find(member => {
+		if (member.typeName === PrimitiveBalType.Union) {
+			return getATypeFromUnionType(member);
+		} else if (member.typeName !== PrimitiveBalType.Nil && member.typeName !== PrimitiveBalType.Error) {
+			return member;
+		}
+	});
+}
+
 function isUnsupportedType(typeDesc: STNode): boolean {
 	return STKindChecker.isByteTypeDesc(typeDesc)
 		|| STKindChecker.isDistinctTypeDesc(typeDesc)

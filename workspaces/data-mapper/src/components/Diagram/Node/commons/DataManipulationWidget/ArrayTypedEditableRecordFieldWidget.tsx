@@ -41,6 +41,7 @@ import {
     isConnectedViaLink,
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
+import { getATypeFromUnionType } from "../../../utils/union-type-utils";
 import { OutputSearchHighlight } from "../Search";
 import { TreeBody } from "../Tree/Tree";
 
@@ -308,6 +309,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         setIsAddingElement(true)
         try {
             const fieldsAvailable = !!listConstructor.expressions.length;
+            if (typeNameStr === PrimitiveBalType.Union) {
+                const type = getATypeFromUnionType(field.type.memberType);
+                typeNameStr = type ? type.typeName : '()';
+            }
             const defaultValue = getDefaultValue(typeNameStr);
             let targetPosition: NodePosition;
             let newElementSource: string;
