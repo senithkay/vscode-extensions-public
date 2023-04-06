@@ -43,7 +43,7 @@ export class BallerinaProjectManager implements IProjectManager {
     }
     async createLocalComponent(params: BallerinaComponentCreationParams): Promise<string> {
         return new Promise((resolve) => {
-            const { directory: parentDirPath, package: packageName, name, version, org: orgName, type, triggerId } = params;
+            const { directory: parentDirPath, package: packageName, name, version, org: orgName, type, trigger } = params;
             let serviceId: string = "";
 
             window.withProgress({
@@ -67,8 +67,8 @@ export class BallerinaProjectManager implements IProjectManager {
                         progress.report({ increment: 60, message: `Configured version ${version} in package ${packageName}` });
                     }
 
-                    if (type === BallerinaComponentTypes.WEBHOOK && triggerId) {
-                        const webhookTemplate: string = await buildWebhookTemplate(pkgPath, triggerId);
+                    if (type === BallerinaComponentTypes.WEBHOOK && trigger) {
+                        const webhookTemplate: string = await buildWebhookTemplate(pkgPath, trigger);
                         if (webhookTemplate) {
                             writeWebhookTemplate(pkgPath, webhookTemplate);
                             await runCommand(`bal format`, pkgPath);
