@@ -31,7 +31,8 @@ import {
     DeleteComponent,
     PullComponent,
     GetComponentModelResponse,
-    ComponentModelDiagnostics
+    ComponentModelDiagnostics,
+    GetDeletedComponents
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -77,6 +78,12 @@ export class WebViewRpc {
         this._messenger.onRequest(GetComponents, async (projectId: string) => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
+            }
+        });
+
+        this._messenger.onRequest(GetDeletedComponents, async (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().getDeletedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
             }
         });
 

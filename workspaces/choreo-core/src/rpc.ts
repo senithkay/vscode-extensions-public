@@ -27,6 +27,7 @@ export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
+export const GetDeletedComponents: RequestType<string, Component[]> = { method: 'getDeletedComponents' };
 export const DeleteComponent: RequestType<{projectId: string, componentId: string}, void> = { method: 'deleteComponent' };
 export const PullComponent: RequestType<{projectId: string, componentId: string}, void> = { method: 'pullComponent' };
 export const GetProjectLocation: RequestType<string, string | undefined> = { method: 'getProjectLocation' };

@@ -93,6 +93,11 @@ export interface Component {
     deployments?: Deployments;
 }
 
+export interface PushedComponent {
+    path: string;
+    name: string;
+}
+
 export interface Environment {
     id: string;
     name: string;

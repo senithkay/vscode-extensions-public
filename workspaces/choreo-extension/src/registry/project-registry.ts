@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { ChoreoServiceComponentType, Component, Organization, Project, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
+import { ChoreoServiceComponentType, Component, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync } from 'fs';
@@ -119,6 +119,32 @@ export class ProjectRegistry {
             const components: Component[] | undefined = this._dataComponents.get(projectId);
             return this._addLocalComponents(projectId, components || []);
         }
+    }
+
+    async getDeletedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<PushedComponent[]> {
+        const projectLocation: string | undefined = this.getProjectLocation(projectId);
+        const dataComponents = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
+        let deletedComponents: PushedComponent[] = [];
+
+        if (projectLocation !== undefined) {
+            const pushedComponents = (new ChoreoProjectManager()).getPushedComponents(projectLocation);
+
+            if(dataComponents && dataComponents.length < pushedComponents.length) {
+                deletedComponents = pushedComponents.filter((pushedComponent: PushedComponent) => {
+                    let isDeleted = true;
+                    dataComponents.forEach((component: Component) => {
+                        if (component.name === pushedComponent.name) {
+                            isDeleted = false;
+                        }
+                    });
+
+                    if (isDeleted) {
+                        return pushedComponent;
+                    }
+                });
+            }
+        }
+        return deletedComponents;      
     }
 
     async deleteComponent(componentId: string, orgHandler: string, projectId: string): Promise<void> {

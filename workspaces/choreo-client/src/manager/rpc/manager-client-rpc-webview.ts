@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, PushedComponent, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 import { CloneRepoRequeset, CreateLocalComponentRequest, IsRepoClonedRequest } from "./types";
@@ -36,6 +36,10 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getLocalComponents(_workspaceFilePath: string): Component[] {
+        throw new Error("Method not implemented.");
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getPushedComponents(_workspaceFilePath: string): PushedComponent[] {
         throw new Error("Method not implemented.");
     }
 }

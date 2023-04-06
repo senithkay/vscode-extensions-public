@@ -126,6 +126,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     }, [projectId, orgName]);
 
     useEffect(() => {
+        ChoreoWebViewAPI.getInstance().getDeletedComponents(projectId);
+    }, [components]);
+
+    useEffect(() => {
         if (components !== undefined && hasLocal(components)) {
             setComponentAction(ComponentAction.LOADING);
             ChoreoWebViewAPI.getInstance().hasUnpushedComponents(projectId).then((status: boolean) => {
