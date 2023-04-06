@@ -104,8 +104,8 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetDeletedComponents, HOST_EXTENSION, projectId);
     }
 
-    public async removeDeletedComponents(params: {components: PushedComponent[]; projectId: string}): Promise<void> {
-        return this._messenger.sendRequest(RemoveDeletedComponents, HOST_EXTENSION, params);
+    public async removeDeletedComponents(params: {projectId: string; components: PushedComponent[]}): Promise<void> {
+        this._messenger.sendRequest(RemoveDeletedComponents, HOST_EXTENSION, params);
     }
 
     public async getEnrichedComponents(projectId: string): Promise<Component[]> {

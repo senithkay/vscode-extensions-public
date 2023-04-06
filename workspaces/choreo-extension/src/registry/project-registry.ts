@@ -187,7 +187,8 @@ export class ProjectRegistry {
         
         const successMsg = " Please commit & push your local changes changes to ensure consistency with the remote repository.";
         vscode.window.showInformationMessage(successMsg);
-
+    }
+        
     private async isComponentInRepo(component: Component): Promise<boolean> {
         let isInRemoteRepo = true;
         if(component.local && component.repository){
