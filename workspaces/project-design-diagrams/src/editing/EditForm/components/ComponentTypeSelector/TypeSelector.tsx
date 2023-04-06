@@ -20,20 +20,20 @@
 import React from 'react';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { BallerinaComponentTypes } from '@wso2-enterprise/choreo-core';
+import { BallerinaComponentTypes, TriggerDetails } from '@wso2-enterprise/choreo-core';
 import { TriggerSelector } from './TriggerSelector';
 import { InputComponent, SelectLabel } from '../../resources/styles';
-import { DefaultTextProps, SelectBoxStyles } from '../../resources/constants';
+import { DefaultSelectBoxStyles, DefaultTextProps } from '../../resources/constants';
 
 interface TypeSelectorProps {
     type: BallerinaComponentTypes;
-    triggerId: string;
+    trigger: TriggerDetails;
     setType: (type: BallerinaComponentTypes) => void;
-    setTriggerId: (id: string) => void;
+    setTrigger: (trigger: TriggerDetails) => void;
 }
 
 export function TypeSelector(props: TypeSelectorProps) {
-    const { type, triggerId, setTriggerId, setType } = props;
+    const { type, trigger, setTrigger, setType } = props;
 
     const handleTypeChange = (event: SelectChangeEvent) => {
         setType(event.target.value as BallerinaComponentTypes);
@@ -47,7 +47,7 @@ export function TypeSelector(props: TypeSelectorProps) {
                     id='component-type-select'
                     value={type}
                     onChange={handleTypeChange}
-                    sx={SelectBoxStyles}
+                    sx={DefaultSelectBoxStyles}
                 >
                     <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.REST_API}>HTTP</MenuItem>
                     <MenuItem sx={DefaultTextProps} value={BallerinaComponentTypes.GRAPHQL}>GraphQL</MenuItem>
@@ -57,7 +57,10 @@ export function TypeSelector(props: TypeSelectorProps) {
             </InputComponent>
 
             {type === BallerinaComponentTypes.WEBHOOK &&
-                <TriggerSelector triggerId={triggerId} setTriggerId={setTriggerId} />
+                <TriggerSelector
+                    trigger={trigger}
+                    setTrigger={setTrigger}
+                />
             }
         </>
     );
