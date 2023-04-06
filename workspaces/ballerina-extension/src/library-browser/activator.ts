@@ -40,16 +40,16 @@ const options = {
 };
 let balVersion = 'slbeta6'; // This will overwrite if the ballerina version can be derived from the ballerina home (Cannot be derived when using the custom packs).
 const DOC_API_PATH = '/2.0/docs';
-let LIBRARIES_LIST_ENDPOINT = DOC_API_PATH + '/stdlib/' + balVersion;
-let LIBRARIES_SEARCH_ENDPOINT = LIBRARIES_LIST_ENDPOINT + '/search';
+let LibrariesListEndpoint = DOC_API_PATH + '/stdlib/' + balVersion;
+let LibrariesSearchEndpoint = LibrariesListEndpoint + '/search';
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const balHome = ballerinaExtInstance.getBallerinaHome();
     const match = BAL_VERSION_CAPTURING_REGEXP.exec(balHome);
     if (match) {
         [, balVersion] = match;
-        LIBRARIES_LIST_ENDPOINT = DOC_API_PATH + '/stdlib/' + balVersion;
-        LIBRARIES_SEARCH_ENDPOINT = LIBRARIES_LIST_ENDPOINT + '/search';
+        LibrariesListEndpoint = DOC_API_PATH + '/stdlib/' + balVersion;
+        LibrariesSearchEndpoint = LibrariesListEndpoint + '/search';
     }
 }
 
@@ -66,7 +66,7 @@ export function getLibrariesList(kind?: LibraryKind): Promise<LibrariesListRespo
         }
 
         let body = '';
-        const req = https.request({ path: LIBRARIES_LIST_ENDPOINT, ...options }, res => {
+        const req = https.request({ path: LibrariesListEndpoint, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
@@ -111,7 +111,7 @@ export function getAllResources(): Promise<LibrarySearchResponse | undefined> {
         }
 
         let body = '';
-        const req = https.request({ path: LIBRARIES_SEARCH_ENDPOINT, ...options }, res => {
+        const req = https.request({ path: LibrariesSearchEndpoint, ...options }, res => {
             res.on('data', function (chunk) {
                 body = body + chunk;
             });
