@@ -158,7 +158,7 @@ export function FormEditor(props: FormEditorProps) {
                 if (topLevelComponent) {
                     const partialST = await getPartialSTForModuleMembers(
                         { codeSnippet: initialSource.trim() }, getLangClient,
-                        (type === "Resource" || type === "GraphqlResource" || type === "GraphqlMutation" || type === "GraphqlSubscription")
+                        (type === "Resource" || type === "GraphqlResource" || type === "GraphqlMutation" || type === "GraphqlSubscription" || type === "ServiceClassResource")
                     );
                     const updatedContent = getUpdatedSource(initialSource.trim(), currentFile.content,
                         initialModel.position, undefined, true);
@@ -181,7 +181,7 @@ export function FormEditor(props: FormEditorProps) {
                     );
                     const source = getInitialSource(type, position).trim();
                     const partialST = await getPartialSTForModuleMembers({ codeSnippet: source },
-                        getLangClient, (type === "Resource" || type === "GraphqlResource" || type === "GraphqlMutation" || type === "GraphqlSubscription")
+                        getLangClient, (type === "Resource" || type === "GraphqlResource" || type === "GraphqlMutation" || type === "GraphqlSubscription" || type === "ServiceClassResource")
                     );
                     let moduleList;
                     if (!currentFile?.content?.includes("ballerina/http") && (type === "Service" ||

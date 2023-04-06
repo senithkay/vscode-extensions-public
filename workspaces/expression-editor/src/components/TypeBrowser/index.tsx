@@ -31,6 +31,7 @@ export interface TypeBrowserProps {
     createNew: (newType: string) => void;
     diagnostics: StatementSyntaxDiagnostics[];
     isGraphqlForm?: boolean;
+    isParameterType?: boolean;
 }
 
 export interface CompletionResponseWithModule extends SuggestionItem {
@@ -38,7 +39,7 @@ export interface CompletionResponseWithModule extends SuggestionItem {
 }
 
 function TypeBrowserC(props: TypeBrowserProps) {
-    const { type, diagnostics, onChange, isLoading, recordCompletions, createNew, isGraphqlForm } = props;
+    const { type, diagnostics, onChange, isLoading, recordCompletions, createNew, isGraphqlForm, isParameterType } = props;
     const [selectedTypeStr, setSelectedTypeStr] = useState(type ? type : '');
 
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState("");
@@ -139,6 +140,7 @@ function TypeBrowserC(props: TypeBrowserProps) {
                         message={expressionDiagnosticMsg}
                         isGraphqlForm={isGraphqlForm ? isGraphqlForm : false}
                         createNewConstruct={handleCreatingNewConstruct}
+                        isParameterType={isParameterType}
                     />}
                 </>
             )
@@ -152,8 +154,8 @@ enum ConstructType {
     CLASS_CONSTRUCT = "Create Service Class"
 }
 
-function DiagnosticView(props: { handleCreateNew: () => void, message: string, isGraphqlForm?: boolean, createNewConstruct?: (constructType: ConstructType) => void }) {
-    const { message, handleCreateNew, isGraphqlForm, createNewConstruct} = props;
+function DiagnosticView(props: { handleCreateNew: () => void, message: string, isGraphqlForm?: boolean, isParameterType?: boolean, createNewConstruct?: (constructType: ConstructType) => void }) {
+    const { message, handleCreateNew, isGraphqlForm, isParameterType, createNewConstruct} = props;
     const formClasses = useFormStyles();
 
 
@@ -178,7 +180,9 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
                         <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
                             {truncateDiagnosticMsg(message + ". Do you want to create a new construct?")}
                         </FormHelperText>
-                        <SecondaryButton text={"Create Service Class"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.CLASS_CONSTRUCT)} />
+                        {!isParameterType &&
+                            <SecondaryButton text={"Create Service Class"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.CLASS_CONSTRUCT)} />
+                        }
                         <SecondaryButton text={"Create Record"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.RECORD_CONSTRUCT)} />
                     </>
                 </TooltipCodeSnippet>

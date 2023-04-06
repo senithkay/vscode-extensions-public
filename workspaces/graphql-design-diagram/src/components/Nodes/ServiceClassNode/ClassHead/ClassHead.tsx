@@ -15,13 +15,14 @@ import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
+import { CtrlClickHandler } from "../../../CtrlClickHandler";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIcon";
 import { HeaderName, NodeHeader } from "../../../resources/styles/styles";
+import { getFormattedPosition } from "../../../utils/common-util";
 import { ServiceClassNodeModel } from "../ServiceClassNodeModel";
 
 import { ClassHeaderMenu } from "./ClassHeaderMenu";
-import { CtrlClickHandler } from "../../../CtrlClickHandler";
 
 interface ServiceClassHeadProps {
     engine: DiagramEngine;
@@ -41,13 +42,8 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
 
     return (
         <CtrlClickHandler
-            filePath={node.classObject.position.filePath}
-            position={{
-                startLine: node.classObject.position.startLine.line,
-                startColumn: node.classObject.position.startLine.offset,
-                endLine: node.classObject.position.endLine.line,
-                endColumn: node.classObject.position.endLine.offset,
-            }}
+            filePath={node.classObject?.position?.filePath}
+            position={node.classObject?.position && getFormattedPosition(node.classObject.position)}
         >
             <NodeHeader>
                 <ServiceClassIcon />

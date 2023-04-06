@@ -21,10 +21,10 @@ import { CtrlClickHandler } from '../../../CtrlClickHandler';
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { GraphQLIcon } from "../../../resources/assets/icons/GraphQL";
 import { HeaderName } from "../../../resources/styles/styles";
+import { getFormattedPosition } from "../../../utils/common-util";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { ServiceHead } from '../styles/styles';
 
-import { getFormattedPosition } from "../../../utils/common-util";
 import { ServiceHeaderMenu } from "./ServiceHeaderMenu";
 
 interface ServiceHeadProps {
@@ -45,8 +45,8 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
 
     return (
         <CtrlClickHandler
-            filePath={node.serviceObject.position.filePath}
-            position={getFormattedPosition(node.serviceObject.position)}
+            filePath={node.serviceObject?.position?.filePath}
+            position={node.serviceObject?.position && getFormattedPosition(node.serviceObject.position)}
         >
             <ServiceHead>
                 <GraphQLIcon />

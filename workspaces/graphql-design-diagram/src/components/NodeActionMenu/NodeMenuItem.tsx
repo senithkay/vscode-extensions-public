@@ -39,6 +39,7 @@ export function NodeMenuItem(props: NodeMenuItemProps) {
 
     const menuStyles = useStyles();
 
+    // TODO : if not being used for all the graphql nodes, remove the  mutation type ones
     const openFunctionPanel = () => {
         if (model && STKindChecker.isClassDefinition(model)) {
             const lastMemberPosition: NodePosition = {
@@ -53,6 +54,8 @@ export function NodeMenuItem(props: NodeMenuItemProps) {
                 functionPanel(lastMemberPosition, "GraphqlMutation");
             } else if (functionType === FunctionType.SUBSCRIPTION) {
                 functionPanel(lastMemberPosition, "GraphqlSubscription");
+            } else if (functionType === FunctionType.CLASS_RESOURCE) {
+                functionPanel(lastMemberPosition, "ServiceClassResource");
             }
         }
     };
@@ -62,13 +65,15 @@ export function NodeMenuItem(props: NodeMenuItemProps) {
             return "Add Query";
         } else if (functionType === FunctionType.MUTATION) {
             return "Add Mutation";
-        } else {
+        } else if (functionType === FunctionType.SUBSCRIPTION) {
             return "Add Subscription";
+        } else if (functionType === FunctionType.CLASS_RESOURCE) {
+            return "Add Field";
         }
     };
 
     const popupIcon = () => {
-        if (functionType === FunctionType.QUERY) {
+        if (functionType === FunctionType.QUERY || functionType === FunctionType.CLASS_RESOURCE) {
             return <GraphqlQueryIcon/>;
         } else if (functionType === FunctionType.MUTATION) {
             return <GraphqlMutationIcon/>;

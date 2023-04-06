@@ -49,7 +49,9 @@ import {
     PushLocalComponentToChoreo,
     GetEnrichedComponents,
     OpenDialogOptions,
-    showOpenDialogRequest
+    showOpenDialogRequest,
+    getPreferredProjectRepository,
+    setPreferredProjectRepository
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -129,6 +131,14 @@ export class ChoreoWebViewAPI {
 
     public async getProjectRepository(projId: string): Promise<string> {
         return this._messenger.sendRequest(getProjectRepository, HOST_EXTENSION, projId);
+    }
+
+    public async setPreferredProjectRepository(projId: string, repo: string): Promise<void> {
+        return this._messenger.sendRequest(setPreferredProjectRepository, HOST_EXTENSION, { projId, repo });
+    }
+
+    public async getPreferredProjectRepository(projId: string): Promise<string> {
+        return this._messenger.sendRequest(getPreferredProjectRepository, HOST_EXTENSION, projId);
     }
 
     public async isChoreoProject(): Promise<boolean> {
