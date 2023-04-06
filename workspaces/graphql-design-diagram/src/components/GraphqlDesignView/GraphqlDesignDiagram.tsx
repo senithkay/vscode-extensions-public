@@ -44,6 +44,7 @@ export interface GraphqlDesignDiagramProps {
     onDelete?: (position: NodePosition) => void;
     fullST?: STNode;
     goToSource?: (filePath: string, position: NodePosition) => void;
+    recordEditor?: (recordModel: STNode) => void;
 }
 
 export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
@@ -57,7 +58,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         operationDesignView,
         onDelete,
         fullST,
-        goToSource
+        goToSource,
+        recordEditor
     } = props;
 
     const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
@@ -87,7 +89,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         operationDesignView,
         onDelete,
         fullST,
-        goToSource
+        goToSource,
+        recordEditor
     };
 
     return (
