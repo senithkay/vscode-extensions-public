@@ -19,7 +19,7 @@
 
 import React, { createContext, ReactNode, useEffect, useState } from 'react';
 import { ComponentModel, ComponentModelDiagnostics, EditLayerAPI, Location, Service, Views } from '../../../resources';
-import { ConsoleView } from "../../../DesignDiagram";
+import { ConsoleView } from "../../../resources/model";
 
 interface DiagramContextProps {
     children?: ReactNode;

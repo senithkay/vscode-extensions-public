@@ -30,6 +30,7 @@ import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
+import { ConsoleView } from "./resources/model";
 
 interface ContainerStyleProps {
     backgroundColor?: string;
@@ -45,11 +46,6 @@ const Container: React.FC<any> = styled.div`
     height: 100%;
     width: 100%;
 `;
-
-export enum ConsoleView {
-    PROJECT_HOME = 'PROJECT_HOME',
-    COMPONENTS = 'COMPONENTS',
-}
 
 interface DiagramProps {
     isEditable: boolean;
@@ -88,7 +84,7 @@ export function DesignDiagram(props: DiagramProps) {
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     let diagramBGColor;
-    if (consoleView === ConsoleView.PROJECT_HOME || consoleView === ConsoleView.COMPONENTS) {
+    if (consoleView) {
         diagramBGColor = Colors.CONSOLE_CELL_DIAGRAM_BACKGROUND;
     } else if (currentView === Views.CELL_VIEW) {
         diagramBGColor = Colors.CELL_DIAGRAM_BACKGROUND;
@@ -163,7 +159,7 @@ export function DesignDiagram(props: DiagramProps) {
                         <>
                             {connectorTarget &&
                                 <ConnectorWizard service={connectorTarget} onClose={onConnectorWizardClose} />}
-                            {!(consoleView === ConsoleView.PROJECT_HOME || consoleView === ConsoleView.COMPONENTS) && (
+                            {!(consoleView) && (
                                 <DiagramHeader
                                     prevView={previousScreen.current}
                                     layout={layout}

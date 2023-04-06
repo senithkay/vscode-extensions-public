@@ -37,7 +37,7 @@ import {
     removeGWLinks
 } from '../../../utils';
 import './styles/styles.css';
-import { ConsoleView } from "../../../DesignDiagram";
+import { ConsoleView } from "../../../resources/model";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -69,8 +69,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
 
     let diagramClass = 'diagram-container';
-    if (type === Views.CELL_VIEW && !(consoleView === ConsoleView.PROJECT_HOME ||
-        consoleView === ConsoleView.COMPONENTS)) {
+    if (type === Views.CELL_VIEW && !(consoleView)) {
         diagramClass = 'cell-diagram-container';
     } else if (consoleView === ConsoleView.PROJECT_HOME) {
         diagramClass = 'choreo-project-cell-diagram-container';
