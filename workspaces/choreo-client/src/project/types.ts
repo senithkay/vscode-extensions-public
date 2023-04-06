@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Project, Component, Repository } from "@wso2-enterprise/choreo-core";
+import { Project, Component, Repository, Deployment } from "@wso2-enterprise/choreo-core";
 
 export interface CreateProjectParams {
     name: string;
@@ -56,6 +56,11 @@ export interface CreateByocComponentParams {
     }
 }
 
+export interface GetProjectEnvParams {
+    orgUuid: string;
+    projId: string;
+}
+
 export interface DeleteComponentParams {
     orgHandler: string;
     component: Component;
@@ -96,7 +101,9 @@ export interface GetComponentDeploymentStatusParams {
     orgHandle: string;
     projId: string;
     orgUuid: string;
-    components: Component[];
+    component: Component;
+    envId: string;
+    versionId: string;
 }
 
 export interface GetDiagramModelParams {
@@ -135,7 +142,7 @@ export interface IChoreoProjectClient {
     // queries
     getProjects(params: GetProjectsParams): Promise<Project[]>;
     getComponents(params: GetComponentsParams): Promise<Component[]>;
-    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]>;
+    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Deployment | null>;
     getDiagramModel(params: GetComponentsParams): Promise<Component[]>;
     getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse>;
 
