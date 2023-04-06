@@ -79,7 +79,7 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                                     <ListItemText className={classes.listItemText}>Edit Class</ListItemText>
                                 </MenuItem>
                                 <Divider />
-                                <NodeMenuItem position={location} model={model} functionType={FunctionType.QUERY}/>
+                                <NodeMenuItem position={location} model={model} functionType={FunctionType.CLASS_RESOURCE}/>
                             </MenuList>
                         </Paper>
                     </>

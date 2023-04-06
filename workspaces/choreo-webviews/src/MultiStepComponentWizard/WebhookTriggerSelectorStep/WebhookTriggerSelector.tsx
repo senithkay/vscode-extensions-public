@@ -98,12 +98,13 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
         queryKey: [`triggerData-${triggerId}`],
         queryFn: async () =>{
             if (!triggerId) {
-                return Promise.resolve(undefined);
+                return Promise.resolve();
             }
-            // TODO: implement this in ChoreoWebViewAPI
-            // ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTrigger(selectedTrigger).then(async (response) => {
-            //     return response;
-            // })
+            ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTrigger(triggerId).then(async (response) => {
+                if (response) {                    
+                    return response;
+                }
+            })
             const response = await fetch(`${GET_TRIGGERS_PATH}/${triggerId}`, {
                 headers: {
                     'User-Agent': await getLocalBallerinaVersion()
