@@ -23,6 +23,8 @@ import { getFormattedPosition } from "../../../utils/common-util";
 import { RecordNodeModel } from "../RecordNodeModel";
 import { RecordHead } from "../styles";
 
+import { RecordHeaderMenu } from "./RecordHeaderMenu";
+
 interface RecordHeadProps {
     engine: DiagramEngine;
     node: RecordNodeModel;
@@ -51,6 +53,7 @@ export function RecordHeadWidget(props: RecordHeadProps) {
                     engine={engine}
                 />
                 <HeaderName>{displayName}</HeaderName>
+                <RecordHeaderMenu location={node.recordObject.position} />
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}
