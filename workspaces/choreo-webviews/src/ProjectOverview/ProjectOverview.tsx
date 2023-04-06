@@ -94,6 +94,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         queryFn: async () => {
             const components = await ChoreoWebViewAPI.getInstance().getComponents(projectId);
             queryClient.setQueryData(["overview_component_list", projectId, orgName], components);
+            const deletedComponents = await ChoreoWebViewAPI.getInstance().getDeletedComponents(projectId);
+            if (deletedComponents.length > 0) {
+                ChoreoWebViewAPI.getInstance().removeDeletedComponents({components: deletedComponents, projectId});
+            }
             return ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
         },
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
@@ -116,10 +120,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         onSuccess: () => refetchComponents(),
     });
-
-    useEffect(() => {
-        ChoreoWebViewAPI.getInstance().getDeletedComponents(projectId);
-    }, [components]);
 
     const { mutate: handlePushComponentClick, isLoading: pushingSingleComponent } = useMutation({
         mutationFn: (componentName: string) => ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({ projectId, componentName }),

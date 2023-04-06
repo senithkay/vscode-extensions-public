@@ -145,7 +145,7 @@ export class ProjectRegistry {
     }
 
     async getDeletedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<PushedComponent[]> {
-        const projectLocation: string | undefined = this.getProjectLocation(projectId);
+        const projectLocation = this.getProjectLocation(projectId);
         const dataComponents = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
         let deletedComponents: PushedComponent[] = [];
 
@@ -167,7 +167,25 @@ export class ProjectRegistry {
                 });
             }
         }
+
         return deletedComponents;      
+    }
+
+    removeDeletedComponents(components: PushedComponent[], projectId: string) {
+        const projectLocation = this.getProjectLocation(projectId);
+
+        if (projectLocation !== undefined) {
+            components.forEach((component: PushedComponent) => {
+                const repoPath = join(dirname(projectLocation), component.path);
+                if (existsSync(repoPath)) {
+                    rmdirSync(repoPath, { recursive: true });
+                    this._removeComponentFromWorkspace(projectLocation, component.name);
+                }
+            });
+        }
+        
+        const successMsg = " Please commit & push your local changes changes to ensure consistency with the remote repository.";
+        vscode.window.showInformationMessage(successMsg);
     }
 
     async getEnrichedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {

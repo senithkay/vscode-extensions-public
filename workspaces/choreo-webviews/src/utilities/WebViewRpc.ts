@@ -53,7 +53,8 @@ import {
     OpenDialogOptions,
     showOpenDialogRequest,
     getPreferredProjectRepository,
-    setPreferredProjectRepository
+    setPreferredProjectRepository,
+    RemoveDeletedComponents
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -101,6 +102,10 @@ export class ChoreoWebViewAPI {
     
     public async getDeletedComponents(projectId: string): Promise<PushedComponent[]> {
         return this._messenger.sendRequest(GetDeletedComponents, HOST_EXTENSION, projectId);
+    }
+
+    public async removeDeletedComponents(params: {components: PushedComponent[]; projectId: string}): Promise<void> {
+        return this._messenger.sendRequest(RemoveDeletedComponents, HOST_EXTENSION, params);
     }
 
     public async getEnrichedComponents(projectId: string): Promise<Component[]> {

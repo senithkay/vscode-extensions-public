@@ -38,7 +38,9 @@ import {
     GetDeletedComponents,
     GetEnrichedComponents,
     getPreferredProjectRepository,
-    setPreferredProjectRepository
+    setPreferredProjectRepository,
+    PushedComponent,
+    RemoveDeletedComponents
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -91,6 +93,13 @@ export class WebViewRpc {
         this._messenger.onRequest(GetDeletedComponents, async (projectId: string) => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getDeletedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
+            }
+        });
+
+        this._messenger.onRequest(RemoveDeletedComponents, async (params: {projectId: string, components: PushedComponent[]}) => {
+            const answer = await vscode.window.showInformationMessage("Remove files of deleted components? This action will be irreversible and all related details will be lost.", "Remove Files", "Cancel");
+            if (answer === "Remove Files") {
+                ProjectRegistry.getInstance().removeDeletedComponents(params.components, params.projectId);
             }
         });
         
