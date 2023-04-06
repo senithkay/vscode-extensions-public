@@ -231,3 +231,8 @@ export interface EditLayerAPI {
     fetchTriggers: () => Promise<BallerinaTriggersResponse>;
     fetchTrigger: (triggerId: string) => Promise<BallerinaTriggerResponse>;
 }
+
+export enum ConsoleView {
+    PROJECT_HOME = 'PROJECT_HOME',
+    COMPONENTS = 'COMPONENTS',
+}
