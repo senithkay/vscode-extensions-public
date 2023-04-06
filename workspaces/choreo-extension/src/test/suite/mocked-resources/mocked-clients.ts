@@ -17,7 +17,7 @@ import {
     AccessToken, ChoreoTokenType, ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetComponentDeploymentStatusParams,
     GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams
 } from "@wso2-enterprise/choreo-client";
-import { Component, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
+import { Component, Deployment, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import { ALL_COMPONENTS, FOO_OWNER_ORGS, FOO_OWNER_PROJECTS, FOO_PROJECT_1, FOO_PROJECT_2, FOO_USER, TOKEN_EXPIRATION_TIME } from "./mocked-data";
 import { TEST_PROJECT_NAME } from "../project-based-tests/choreo-project.test";
@@ -99,7 +99,7 @@ export class MockProjectClient implements IChoreoProjectClient {
             component.projectId === params.projId && component.orgHandler === params.orgHandle);
         return projectComponents;
     }
-    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]> {
+    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Deployment | null> {
         throw new Error("Method not implemented.");
     }
     createProject(params: CreateProjectParams): Promise<Project> {

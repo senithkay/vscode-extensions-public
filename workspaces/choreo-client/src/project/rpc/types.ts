@@ -10,14 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Component, Project, Repository } from '@wso2-enterprise/choreo-core';
+import { Component, Deployment, Project, Repository } from '@wso2-enterprise/choreo-core';
 import { RequestType } from 'vscode-messenger-common';
 import { ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, LinkRepoMutationParams, GetComponentDeploymentStatusParams } from '../types';
 
 // queries
 export const GetProjectsRequest: RequestType<GetProjectsParams, Project[]> = { method: 'project/getProjects' };
 export const GetComponentsRequest: RequestType<GetComponentsParams, Component[]> = { method: 'project/getComponents' };
-export const GetComponentDeploymentStatus: RequestType<GetComponentDeploymentStatusParams, Component[]> = { method: 'project/getComponentDeploymentStatus' };
+export const GetComponentDeploymentStatus: RequestType<GetComponentDeploymentStatusParams, Deployment | null> = { method: 'project/getComponentDeploymentStatus' };
 export const GetRepoMetaDataRequest: RequestType<GitHubRepoValidationRequestParams, GitHubRepoValidationResponse> = { method: 'project/getRepoMetaData' };
 
 

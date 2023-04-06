@@ -84,6 +84,16 @@ export function ProjectOverview(props: ProjectOverviewProps) {
             fetchedProjects.find((i) => i.id === projectId),
     });
 
+    const { isRefetching: refetchingCompOnly, refetch: refetchComponentsOnly } = useQuery({
+        queryKey: ["overview_component_list_only", projectId, orgName],
+        queryFn: async () => ChoreoWebViewAPI.getInstance().getComponents(projectId),
+        refetchInterval: 120000, // check for new components every 2 minutes & on focus
+        onSuccess: (data) => {
+            queryClient.setQueryData(["overview_component_list", projectId, orgName], data)
+            refetchComponents()
+        },
+    });
+
     const {
         data: components = [],
         isLoading: loadingComponents,
@@ -91,13 +101,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         refetch: refetchComponents,
     } = useQuery({
         queryKey: ["overview_component_list", projectId, orgName],
-        queryFn: async () => {
-            const components = await ChoreoWebViewAPI.getInstance().getComponents(projectId);
-            queryClient.setQueryData(["overview_component_list", projectId, orgName], components);
-            return ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
-        },
+        queryFn: async () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         refetchInterval: 15000, // Refetch component list every 15 seconds
+        refetchOnWindowFocus: false,  // Will refetch all components on window focus
+        enabled: !refetchingCompOnly
     });
 
     const { data: isActive } = useQuery({
@@ -118,7 +126,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
             if (data) {
                 const filteredComponents = components.filter(item=> data.local ? item.name !== data.name : item.id !== data.id);
                 queryClient.setQueryData(["overview_component_list", projectId, orgName], filteredComponents);
-                refetchComponents();
+                refetchComponentsOnly();
             }
         },
     });
@@ -126,19 +134,19 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const { mutate: handlePushComponentClick, isLoading: pushingSingleComponent } = useMutation({
         mutationFn: (componentName: string) => ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({ projectId, componentName }),
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        onSuccess: () => refetchComponents(),
+        onSuccess: () => refetchComponentsOnly(),
     });
 
     const { mutate: handleRefreshComponentsClick, isLoading: reloadingRegistry } = useMutation({
         mutationFn: () => ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.projects.registry.refresh"),
-        onSuccess: () => refetchComponents(),
+        onSuccess: () => refetchComponentsOnly(),
     });
 
     const { mutate: handlePushToChoreoClick, isLoading: pushingComponent } =
         useMutation({
             mutationFn: () => ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(projectId),
             onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-            onSuccess: () => refetchComponents(),
+            onSuccess: () => refetchComponentsOnly(),
         });
 
     const handleCloneProjectClick = useCallback(() => {
@@ -202,7 +210,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     return (
         <>
             <WizardContainer>
-                {(reloadingRegistry || refetchingComponents) && (
+                {(reloadingRegistry || refetchingComponents || refetchingCompOnly) && (
                     <ProgressWrap>
                         <VSCodeProgressRing />
                     </ProgressWrap>
@@ -333,7 +341,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             {pushingComponent && <VSCodeProgressRing />}
                             <VSCodeButton
                                 appearance="primary"
-                                disabled={pushingComponent || reloadingRegistry || refetchingComponents || pushingSingleComponent}
+                                disabled={pushingComponent || reloadingRegistry || refetchingCompOnly || refetchingComponents || pushingSingleComponent}
                                 onClick={() => handlePushToChoreoClick()}
                             >
                                 <Codicon name="cloud-upload" />
@@ -365,7 +373,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton
                                 appearance="secondary"
                                 onClick={() => handleRefreshComponentsClick()}
-                                disabled={loadingComponents || refetchingComponents || reloadingRegistry}
+                                disabled={loadingComponents || refetchingComponents || reloadingRegistry || refetchingCompOnly}
                             >
                                 <Codicon name="refresh" />
                                 &nbsp; Recheck
