@@ -15,7 +15,7 @@ import { ProviderResult, Uri, commands, window } from "vscode";
 import { githubAppClient } from "./auth/auth";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
-import { STATUS_LOGGED_IN, choreoProjectOverview, choreoSignInCmdId } from "./constants";
+import { STATUS_LOGGED_IN, choreoProjectOverview, choreoSignInCmdId, refreshProjectsTreeViewCmdId } from "./constants";
 
 export function activateURIHandlers() {
     window.registerUriHandler({
@@ -82,6 +82,7 @@ export function activateURIHandlers() {
 async function switchToProjectOverview(projectId: string, orgId: number) {
     const logged = await ext.api.waitForLogin();
     if (logged) {
+        await commands.executeCommand(refreshProjectsTreeViewCmdId);
         const project = await ext.api.getProject(projectId, orgId);
         if (project) {
             commands.executeCommand(choreoProjectOverview, project);
