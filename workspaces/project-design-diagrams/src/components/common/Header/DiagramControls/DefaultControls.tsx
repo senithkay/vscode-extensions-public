@@ -61,7 +61,7 @@ export function DefaultControls(props: DefaultControlProps) {
 
     return (
         <>
-            <CentralControls isChoreoProject={isChoreoProject}>
+            <CentralControls isChoreoProject={isChoreoProject} editingEnabled={editingEnabled}>
                 {isChoreoProject && showChoreoProjectOverview &&
                     <Button
                         variant='outlined'
