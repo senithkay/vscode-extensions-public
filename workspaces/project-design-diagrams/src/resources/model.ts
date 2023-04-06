@@ -18,7 +18,7 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
@@ -229,4 +229,5 @@ export interface EditLayerAPI {
     showErrorMessage: (message: string) => void;
     editDisplayLabel: (annotation: ServiceAnnotation) => Promise<boolean>;
     fetchTriggers: () => Promise<BallerinaTriggersResponse>;
+    fetchTrigger: (triggerId: string) => Promise<BallerinaTriggerResponse>;
 }
