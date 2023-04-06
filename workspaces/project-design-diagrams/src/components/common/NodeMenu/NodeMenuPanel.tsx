@@ -19,16 +19,16 @@
 
 import React, { useContext } from "react";
 import { Paper, MenuList, Divider } from "@mui/material";
-import { Location, RemoteFunction, ResourceFunction, Service, ServiceAnnotation } from "../../../resources";
+import { Location, RemoteFunction, ResourceFunction, ServiceAnnotation } from "../../../resources";
 import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton, EditLabelButton, DeleteComponentButton } from "./components";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
+import { ServiceNodeModel } from "../../service-interaction";
 
 interface MenuProps {
-    location: Location;
     linkingEnabled: boolean;
-    service?: Service;
+    location: Location;
     resource?: ResourceFunction | RemoteFunction; // TODO: figure out a way to merge service and resource
-    serviceAnnotation?: ServiceAnnotation;
+    serviceNode?: ServiceNodeModel;
     handleEditLabelDialog: (status: boolean) => void;
     handleDeleteComponentDialog: (status: boolean) => void;
 }
@@ -37,31 +37,32 @@ export function NodeMenuPanel(props: MenuProps) {
     const {
         handleDeleteComponentDialog,
         handleEditLabelDialog,
-        location,
         linkingEnabled,
-        service,
-        serviceAnnotation,
-        resource
+        location,
+        resource,
+        serviceNode
     } = props;
     const { deleteComponent } = useContext(DiagramContext);
+
+    const serviceAnnotation: ServiceAnnotation = serviceNode?.serviceObject.annotation;
 
     return (
         <Paper sx={{ maxWidth: "100%" }}>
             <MenuList>
                 <Go2SourceButton location={location} />
-                {service && <GoToDesign element={service} />}
+                {serviceNode && <GoToDesign element={serviceNode.serviceObject} />}
                 {resource && <GoToDesign element={resource} />}
-                {serviceAnnotation && (serviceAnnotation.elementLocation || service.elementLocation) &&
+                {serviceAnnotation && (serviceAnnotation.elementLocation || serviceNode.serviceObject.elementLocation) &&
                     <EditLabelButton handleDialogStatus={handleEditLabelDialog} />
                 }
-                {service && location && deleteComponent &&
-                    <DeleteComponentButton handleDialogStatus={handleDeleteComponentDialog} />
+                {serviceNode && location && deleteComponent &&
+                    <DeleteComponentButton canDelete={!serviceNode.isLinked} handleDialogStatus={handleDeleteComponentDialog} />
                 }
-                {linkingEnabled && service && (
+                {linkingEnabled && serviceNode && (
                     <>
                         <Divider />
-                        <LinkingButton service={service} />
-                        <AddConnectorButton service={service} />
+                        <LinkingButton service={serviceNode.serviceObject} />
+                        <AddConnectorButton service={serviceNode.serviceObject} />
                     </>
                 )}
             </MenuList>
