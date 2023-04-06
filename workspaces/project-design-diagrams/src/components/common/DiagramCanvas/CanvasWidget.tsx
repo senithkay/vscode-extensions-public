@@ -37,6 +37,7 @@ import {
     removeGWLinks
 } from '../../../utils';
 import './styles/styles.css';
+import { ConsoleView } from "../../../DesignDiagram";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -61,16 +62,19 @@ let dagreEngine = new DagreEngine({
 
 export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const { model, currentView, layout, type, engine } = props;
-    const { editingEnabled, setNewLinkNodes, isConsoleView } = useContext(DiagramContext);
+    const { editingEnabled, setNewLinkNodes, consoleView } = useContext(DiagramContext);
 
     const [diagramEngine] = useState<DiagramEngine>(engine || (type === Views.TYPE || type === Views.TYPE_COMPOSITION ?
         createEntitiesEngine : createServicesEngine));
     const [diagramModel, setDiagramModel] = useState<DiagramModel | undefined>(undefined);
 
     let diagramClass = 'diagram-container';
-    if (type === Views.CELL_VIEW && !isConsoleView) {
+    if (type === Views.CELL_VIEW && !(consoleView === ConsoleView.PROJECT_HOME ||
+        consoleView === ConsoleView.COMPONENTS)) {
         diagramClass = 'cell-diagram-container';
-    } else if (isConsoleView) {
+    } else if (consoleView === ConsoleView.PROJECT_HOME) {
+        diagramClass = 'choreo-project-cell-diagram-container';
+    } else if (consoleView === ConsoleView.COMPONENTS) {
         diagramClass = 'choreo-cell-diagram-container';
     }
 

@@ -37,6 +37,13 @@
     min-width: 86vw;
 }
 
+.choreo-project-cell-diagram-container {
+    background-image: url('../../../../resources/assets/PatternBg.svg');
+    background-repeat: repeat;
+    min-height: calc(100vh - 260px);
+    min-width: 58vw;
+}
+
 svg:not(:root) {
     overflow: visible;
 }

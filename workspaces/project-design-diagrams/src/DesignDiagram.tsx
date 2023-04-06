@@ -33,7 +33,6 @@ import './resources/assets/font/fonts.css';
 
 interface ContainerStyleProps {
     backgroundColor?: string;
-    isConsoleView?: string;
 }
 
 const Container: React.FC<any> = styled.div`
@@ -47,6 +46,11 @@ const Container: React.FC<any> = styled.div`
     width: 100%;
 `;
 
+export enum ConsoleView {
+    PROJECT_HOME = 'PROJECT_HOME',
+    COMPONENTS = 'COMPONENTS',
+}
+
 interface DiagramProps {
     isEditable: boolean;
     isChoreoProject: boolean;
@@ -55,7 +59,7 @@ interface DiagramProps {
     showChoreoProjectOverview?: () => Promise<void>;
     deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void>;
     editLayerAPI?: EditLayerAPI;
-    isConsoleView?: boolean;
+    consoleView?: ConsoleView;
 }
 
 export function DesignDiagram(props: DiagramProps) {
@@ -66,11 +70,12 @@ export function DesignDiagram(props: DiagramProps) {
         getComponentModel,
         showChoreoProjectOverview = undefined,
         editLayerAPI = undefined,
-        isConsoleView = false,
+        consoleView = undefined,
         deleteComponent = undefined
     } = props;
 
-    const currentViewDefaultValue = isConsoleView ? Views.CELL_VIEW : Views.L1_SERVICES;
+    const currentViewDefaultValue = (consoleView ===  ConsoleView.COMPONENTS ||
+        consoleView === ConsoleView.PROJECT_HOME) ? Views.CELL_VIEW : Views.L1_SERVICES;
     const [currentView, setCurrentView] = useState<Views>(currentViewDefaultValue);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
@@ -83,7 +88,7 @@ export function DesignDiagram(props: DiagramProps) {
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     let diagramBGColor;
-    if (isConsoleView) {
+    if (consoleView === ConsoleView.PROJECT_HOME || consoleView === ConsoleView.COMPONENTS) {
         diagramBGColor = Colors.CONSOLE_CELL_DIAGRAM_BACKGROUND;
     } else if (currentView === Views.CELL_VIEW) {
         diagramBGColor = Colors.CELL_DIAGRAM_BACKGROUND;
@@ -135,7 +140,7 @@ export function DesignDiagram(props: DiagramProps) {
     const ctx = {
         editingEnabled,
         isChoreoProject,
-        isConsoleView,
+        consoleView,
         currentView,
         projectDiagnostics: projectDiagnostics.current,
         projectComponents,
@@ -150,7 +155,7 @@ export function DesignDiagram(props: DiagramProps) {
 
     return (
         <DesignDiagramContext {...ctx}>
-            <Container isConsoleView={isConsoleView} backgroundColor={diagramBGColor}>
+            <Container backgroundColor={diagramBGColor}>
                 {showEditForm &&
                     <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
                 {projectComponents && projectComponents.size < 1 ? <PromptScreen setShowEditForm={setShowEditForm} /> :
@@ -158,7 +163,7 @@ export function DesignDiagram(props: DiagramProps) {
                         <>
                             {connectorTarget &&
                                 <ConnectorWizard service={connectorTarget} onClose={onConnectorWizardClose} />}
-                            {!isConsoleView && (
+                            {!(consoleView === ConsoleView.PROJECT_HOME || consoleView === ConsoleView.COMPONENTS) && (
                                 <DiagramHeader
                                     prevView={previousScreen.current}
                                     layout={layout}

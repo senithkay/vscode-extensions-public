@@ -33,6 +33,7 @@ import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { cellDiagramZoomToFit, createServicesEngine, positionGatewayNodes } from "../../../utils";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { DiagramControls, ViewSwitcher } from "../DiagramCanvas/ControlLayer";
+import { ConsoleView } from "../../../DesignDiagram";
 
 export interface Coordinate {
     x: number;
@@ -47,7 +48,7 @@ interface CellDiagramProps {
 
 export function CellDiagram(props: CellDiagramProps) {
     const { currentView, layout, cellModel } = props;
-    const { isConsoleView } = useContext(DiagramContext);
+    const { consoleView } = useContext(DiagramContext);
 
     const [diagramEngine] = useState<DiagramEngine>(createServicesEngine);
     const [viewWidth, setViewWidth] = useState(window.innerWidth);
@@ -78,9 +79,15 @@ export function CellDiagram(props: CellDiagramProps) {
         cellDiagramZoomToFit(diagramEngine);
     };
 
-    const canvasW = (viewWidth - (isConsoleView ? 375 : 100));
-    const canvasH = (viewHeight - (isConsoleView ? 400 : 200));
-    const offset = isConsoleView ? 150 : 200;
+    let canvasWOffset = 100;
+    if (consoleView === ConsoleView.COMPONENTS) {
+        canvasWOffset = 375;
+    } else if (consoleView === ConsoleView.PROJECT_HOME) {
+        canvasWOffset = 850;
+    }
+    const canvasW = (viewWidth - canvasWOffset);
+    const canvasH = (viewHeight - (consoleView === ConsoleView.PROJECT_HOME || consoleView === ConsoleView.COMPONENTS ? 400 : 200));
+    const offset = consoleView ? 150 : 200;
     const vertices: Coordinate[] = [
         { x: offset, y: 0 },
         { x: canvasW - offset, y: 0 },
@@ -96,11 +103,11 @@ export function CellDiagram(props: CellDiagramProps) {
     const innerBorderPath = `path("M ${vertices[0].x + 9} ${vertices[0].y + 1} L ${vertices[1].x - 9} ${vertices[1].y + 1} C ${vertices[1].x - 3} ${vertices[1].y + 2} ${vertices[1].x + 1} ${vertices[1].y + 3} ${vertices[1].x + 7} ${vertices[1].y + 8} L ${vertices[2].x - 7} ${vertices[2].y - 5} C ${vertices[2].x - 6} ${vertices[2].y - 2} ${vertices[2].x - 1} ${vertices[2].y + 1} ${vertices[2].x - 1} ${vertices[2].y + 8} L ${vertices[3].x - 1} ${vertices[3].y + 74} C ${vertices[3].x - 1} ${vertices[3].y + 79} ${vertices[3].x - 3} ${vertices[3].y + 85} ${vertices[3].x - 7} ${vertices[3].y + 90} L ${vertices[4].x + 8} ${vertices[4].y + 77} C ${vertices[4].x + 8} ${vertices[4].y + 79} ${vertices[4].x - 6} ${vertices[4].y + 83} ${vertices[4].x - 4} ${vertices[4].y + 83} L ${vertices[5].x + 9} ${vertices[5].y + 83} C ${vertices[5].x + 1} ${vertices[5].y + 83}  ${vertices[5].x - 5}  ${vertices[5].y + 79}  ${vertices[5].x - 8} ${vertices[5].y + 75}  L ${vertices[6].x + 6} ${vertices[6].y + 90} C ${vertices[6].x + 2} ${vertices[6].y + 81} ${vertices[6].x} ${vertices[6].y + 64} ${vertices[6].x + 1} ${vertices[6].y + 63} L ${vertices[7].x + 1} ${vertices[7].y + 8} C ${vertices[7].x + 1} ${vertices[7].y + 1} ${vertices[7].x + 5} ${vertices[7].y - 3} ${vertices[7].x + 8} ${vertices[7].y - 6} L ${vertices[0].x + 12} ${vertices[0].y - 6} C ${vertices[0].x - 10} ${vertices[0].y + 15} ${vertices[0].x + 7} ${vertices[0].y + 1} ${vertices[0].x + 9} ${vertices[0].y + 1} Z")`;
 
     return (
-        <CellDiagramWrapper isConsoleView={isConsoleView}>
-            {!isConsoleView && (
+        <CellDiagramWrapper isConsoleView={consoleView === ConsoleView.PROJECT_HOME || consoleView === ConsoleView.COMPONENTS}>
+            {!(consoleView === ConsoleView.PROJECT_HOME || consoleView === ConsoleView.COMPONENTS) && (
                 <ViewSwitcher />
             )}
-            <CellContainerWrapper isConsoleView={isConsoleView}>
+            <CellContainerWrapper isConsoleView={consoleView === ConsoleView.PROJECT_HOME || consoleView === ConsoleView.COMPONENTS}>
                 <Gateways/>
                 <CellContainer path={borderPath} vertices={vertices}>
                     <CanvasWrapper path={innerBorderPath} vertices={vertices}>
@@ -113,7 +120,7 @@ export function CellDiagram(props: CellDiagramProps) {
                     </CanvasWrapper>
                 </CellContainer>
             </CellContainerWrapper>
-            <CellContainerControls isConsoleView={isConsoleView} canvasHeight={canvasH}>
+            <CellContainerControls isConsoleView={consoleView === ConsoleView.PROJECT_HOME || consoleView === ConsoleView.COMPONENTS} canvasHeight={canvasH}>
                 <DiagramControls
                     showDownloadButton={false}
                     zoomToFit={zoomToFit}
