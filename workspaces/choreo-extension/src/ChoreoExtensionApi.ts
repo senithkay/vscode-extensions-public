@@ -31,7 +31,7 @@ import { getLogger } from './logger/logger';
 import * as path from "path";
 import { enrichDeploymentData } from "./utils";
 import { AxiosResponse } from 'axios';
-import { SELECTED_ORG_ID_KEY } from './constants';
+import { SELECTED_ORG_ID_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from './constants';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -61,7 +61,7 @@ export class ChoreoExtensionApi {
     public onChoreoProjectChanged = this._onChoreoProjectChanged.event;
 
     constructor() {
-        this._status = "Initializing";
+        this._status = STATUS_INITIALIZING;
     }
 
     public get status(): ChoreoLoginStatus {
@@ -102,12 +102,12 @@ export class ChoreoExtensionApi {
 
     public async waitForLogin(): Promise<boolean> {
         switch (this._status) {
-            case 'LoggedIn':
+            case STATUS_LOGGED_IN:
                 return true;
-            case 'LoggedOut':
+            case STATUS_LOGGED_OUT:
                 return false;
-            case 'Initializing':
-            case 'LoggingIn':
+            case STATUS_INITIALIZING:
+            case STATUS_LOGGING_IN:
                 return new Promise<boolean>(resolve => {
                     const subscription: Disposable = this.onStatusChanged(() => {
                         subscription.dispose();
@@ -144,6 +144,10 @@ export class ChoreoExtensionApi {
                 return ProjectRegistry.getInstance().getProject(projectID, orgId);
             }
         }
+    }
+
+    public async getProject(projectId: string, orgId: number): Promise<Project | undefined> {
+        return ProjectRegistry.getInstance().getProject(projectId, orgId);
     }
 
     public getProjectManager(projectId: string): Promise<IProjectManager | undefined> {
@@ -198,7 +202,7 @@ export class ChoreoExtensionApi {
                 componentPath.includes(wsEntry.path));
             const toDelete = components.find(component => component.name === wsResponse?.name);
             if (toDelete) {
-                await ProjectRegistry.getInstance().deleteComponent(toDelete.id, handle, projectId);
+                await ProjectRegistry.getInstance().deleteComponent(toDelete, handle, projectId);
             }
         }
     }

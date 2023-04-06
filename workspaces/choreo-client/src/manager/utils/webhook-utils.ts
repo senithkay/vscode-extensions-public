@@ -15,16 +15,17 @@ import { compile } from "handlebars";
 import fetch from "node-fetch";
 import { log } from "console";
 import { extensions } from "vscode";
-import { BallerinaTriggerRequest, BallerinaTriggerResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggerRequest, BallerinaTriggerResponse, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
 import { join } from "path";
 import { readFile, writeFile } from "fs";
 import { runCommand } from "./component-creation-utils";
+import { TriggerDetails } from "@wso2-enterprise/choreo-core";
 
 interface TriggerResponse extends BallerinaTriggerResponse {
     moduleName: string;
 }
 
-export const BAL_FORMAT_SERVICE_CMD = "bal format service.bal";
+export const BAL_FORMAT_SERVICE_CMD = "bal format";
 const BAL_PULL_PREFIX = "bal pull";
 const GET_TRIGGERS_API = 'https://api.central.ballerina.io/2.0/registry/triggers';
 
@@ -33,7 +34,7 @@ const source =
     "configurable {{triggerType}}:ListenerConfig config = ?;\n\n" +
     "listener {{triggerType}}:Listener webhookListener =  new(config);\n\n" +
 
-    "{{#each serviceTypes}}" +
+    "{{#each selectedServices}}" +
     "@display {\n" +
         "label: \"{{ this.name }}\",\n" +
         "id: \"{{ this.name }}\"\n" +
@@ -49,19 +50,28 @@ const source =
 
 const template = compile(source);
 
-export async function buildWebhookTemplate(pkgPath: string, triggerId: string, balVersion: string): Promise<string> {
-    const triggerData: TriggerResponse | undefined = await getTrigger(triggerId, balVersion);
+export async function buildWebhookTemplate(pkgPath: string, trigger: TriggerDetails, balVersion: string): Promise<string> {
+    const triggerData: TriggerResponse | undefined = await getTrigger(trigger.id, balVersion);
     if (triggerData && triggerData.serviceTypes.length) {
+        const selectedServices = getFilteredTriggerData(triggerData, trigger.services);
         const moduleName = triggerData.moduleName;
         const cmdResponse = await runCommand(`${BAL_PULL_PREFIX} ballerinax/${moduleName}`, pkgPath);
         if (!cmdResponse.error || cmdResponse.message.includes("package already exists")) {
             return template({
                 ...triggerData,
-                triggerType: moduleName.slice(moduleName.lastIndexOf('.') + 1)
+                triggerType: moduleName.slice(moduleName.lastIndexOf('.') + 1),
+                selectedServices
             });
         }
     }
     return "";
+}
+
+function getFilteredTriggerData(triggerData: TriggerResponse, services: string[]|undefined): ServiceType[] {
+    if (triggerData && triggerData.serviceTypes.length && services) {
+        return triggerData.serviceTypes.filter((service) => services.includes(service.name));
+    }
+    return [];
 }
 
 async function getTrigger(triggerId: string, balVersion: string): Promise<TriggerResponse | undefined> {

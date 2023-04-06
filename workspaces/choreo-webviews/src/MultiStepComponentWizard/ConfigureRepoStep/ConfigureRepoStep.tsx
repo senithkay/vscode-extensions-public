@@ -13,14 +13,15 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing, VSCodeOption, VSCodeDropdown } from "@vscode/webview-ui-toolkit/react";
-import { GHAppAuthStatus, GithubOrgnization } from "@wso2-enterprise/choreo-client/lib/github/types";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { useContext, useEffect, useState } from "react";
 import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import { GithubRepoBranchSelector } from "./GithubRepoBranchSelector";
 import { RepoStructureConfig } from "./RepoStructureConfig";
+import { useQuery } from "@tanstack/react-query";
 
 const StepContainer = styled.div`
     display: flex;
@@ -59,33 +60,65 @@ const GhRepoSelectorRepoContainer = styled.div`
 export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
     const { formData, onFormDataChange } = props;
 
-    const [isFetchingRepos, setIsFetchingRepos] = useState(false);
-
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
     const [isCloneInProgress, setIsCloneInProgress] = useState<boolean>(false);
 
     const { choreoProject } = useContext(ChoreoWebViewContext);
 
+    const {isLoading: isFetchingRepos, data: authorizedOrgs, refetch } = useQuery({
+        queryKey: [`repoData${choreoProject?.id}`], //TODO: add userId to the key instead of choreoProjectId
+        queryFn: async () => {
+            const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
+            try {
+                return ghClient.getAuthorizedRepositories();
+            } catch (error: any) {
+                ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. Please authorize with GitHub.");
+                throw error;
+            }
+        }
+    });
+
     const selectedRepoString = formData?.repository ? `${formData?.repository?.org}/${formData?.repository?.repo}` : undefined;
 
-    const authorizedOrgs = formData?.cache?.authorizedOrgs || [];
-    const selectedOrg = authorizedOrgs.find((org) => org.orgName === formData?.repository?.org);
+    const selectedOrg = authorizedOrgs && authorizedOrgs.find((org) => org.orgName === formData?.repository?.org);
 
     const setRepository = (org: string, repo: string) => {
         onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, org, repo} }));
+        ChoreoWebViewAPI.getInstance().setPreferredProjectRepository(choreoProject?.id, `${org}/${repo}`);
     };
 
     const setIsRepoCloned = (isCloned: boolean ) => {
         onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isCloned} }));
     };
 
-    const setAuthorizedOrgs = (orgs: GithubOrgnization[]) => {
+    const setDefaultSelection = async () => {
+        const preferredRepo = await ChoreoWebViewAPI.getInstance().getPreferredProjectRepository(choreoProject?.id);
         onFormDataChange(prevFormData => {
             let repository = prevFormData?.repository;
-            if (!(prevFormData?.repository?.org && prevFormData?.repository?.repo) && orgs.length > 0) {
-                repository = { ...prevFormData?.repository, org: orgs[0].orgName, repo: orgs[0].repositories[0].name };
+            if (!(prevFormData?.repository?.org && prevFormData?.repository?.repo) && authorizedOrgs && authorizedOrgs.length > 0) {
+                if (preferredRepo) {
+                    // split the repo string to org and repo
+                    const parts = preferredRepo.split("/");
+                    if (parts.length !== 2) {
+                        throw new Error(`Invalid repo string: ${preferredRepo}`);
+                    }
+                    const org = authorizedOrgs.find((org) => org.orgName === parts[0]);
+                    if (org) {
+                        const repo = org.repositories.find((repo) => repo.name === parts[1]);
+                        if (repo) {
+                            repository = { ...prevFormData?.repository, org: parts[0], repo: parts[1] };
+                        }
+                    }
+                } else {
+                    const selectedOrg = authorizedOrgs.find((org) => org.repositories.length > 0);
+                    if (!selectedOrg) {
+                        throw new Error("No repositories found");
+                    }
+                    repository = { ...prevFormData?.repository, org: selectedOrg.orgName, repo: selectedOrg.repositories[0]?.name };
+                    ChoreoWebViewAPI.getInstance().setPreferredProjectRepository(choreoProject?.id, `${repository.org}/${repository.repo}`);
+                }
             }
-            return { ...prevFormData, repository, cache: { ...formData?.cache, authorizedOrgs: orgs } };
+            return { ...prevFormData, repository };
         });
     };
 
@@ -100,25 +133,15 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         });
     }, []);
 
-    const getRepoList = useCallback(async () => {
-        setIsFetchingRepos(true);
-        setAuthorizedOrgs([]);
-        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
-        try {
-            const repos = await ghClient.getAuthorizedRepositories();
-            setAuthorizedOrgs(repos);
-        } catch (error: any) {
-            setAuthorizedOrgs([]);
-            ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. Please authorize with GitHub.");
-        }
-        setIsFetchingRepos(false);
-    }, []);
+    useEffect(() => {
+        setDefaultSelection();
+    }, [authorizedOrgs]);
 
     useEffect(() => {
-        if ((ghStatus.status === "authorized" || ghStatus.status === "installed") && authorizedOrgs.length === 0) {
-            getRepoList();
+        if (ghStatus.status === "authorized" || ghStatus.status === "installed") {
+            refetch();
         }
-    }, [getRepoList, ghStatus]);
+    }, [ghStatus]);
 
     useEffect(() => {
         const checkRepoCloneStatus = async () => {
@@ -155,8 +178,9 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     };
 
     const handleGhRepoChange = (e: any) => {
-        if (selectedOrg) {
-            setRepository(selectedOrg.orgName, selectedOrg.repositories.find(repo => repo.name === e.target.value)!.name);
+        const currentOrg = authorizedOrgs && authorizedOrgs.find((org) => org.orgName === formData?.repository?.org);
+        if (currentOrg) {
+            setRepository(currentOrg.orgName, currentOrg.repositories.find(repo => repo.name === e.target.value)!.name);
         }
     };
 
@@ -178,7 +202,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
     const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
     const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
-    const showAuthorizeButton = ghStatus.status === "not-authorized";
+    const showAuthorizeButton = ghStatus.status === "not-authorized" || ghStatus.status === "error";
     const showConfigureButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
     let loaderMessage = "Loading repositories...";
     if (ghStatus.status === "auth-inprogress") {
@@ -190,14 +214,13 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     return (
         <StepContainer>
             <GhRepoSelectorActions>
-                {showAuthorizeButton && <VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink>}
-                {showRefreshButton && <VSCodeLink onClick={getRepoList}>Refresh Repositories</VSCodeLink>}
+                {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh</span>}
+                {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
                 {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
 
             </GhRepoSelectorActions>
             {showLoader && loaderMessage}
             {showLoader && <VSCodeProgressRing />}
-            {showAuthorizeButton && <div>Please authorize to get list of repositories.</div>}
             {authorizedOrgs && authorizedOrgs.length > 0 && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
@@ -228,13 +251,13 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                     </GhRepoSelectorRepoContainer>
                 </GhRepoSelectorContainer>
             )}
-            {!showAuthorizeButton && selectedRepoString && !isFetchingRepos && (
+            {selectedRepoString && !isFetchingRepos && (
                 <GithubRepoBranchSelector 
                     formData={formData}
                     onFormDataChange={onFormDataChange}
                 />
             )}
-            {(!showAuthorizeButton && selectedRepoString && !formData?.repository?.isCloned) &&
+            {(selectedRepoString && !isFetchingRepos  && !formData?.repository?.isCloned) &&
                 <>
                     Selected Repository is not available locally in Project folder. Clone the repository to continue.
                     {!isCloneInProgress &&
@@ -251,7 +274,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
                 </>
             }
-            {!showAuthorizeButton && formData?.repository?.isCloned && (
+            {formData?.repository?.isCloned && (
                 <RepoStructureConfig
                     formData={formData}
                     onFormDataChange={onFormDataChange}

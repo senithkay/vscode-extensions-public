@@ -89,7 +89,10 @@ export interface Component {
     // To store the accessibility of the component which are not created using Choreo
     accessibility?: string;
     local?: boolean;
+    hasUnPushedLocalCommits?: boolean;
+    hasDirtyLocalRepo?: boolean;
     isRemoteOnly?: boolean;
+    isInRemoteRepo?: boolean;
     deployments?: Deployments;
 }
 
@@ -278,7 +281,12 @@ export interface ChoreoComponentCreationParams {
     displayType: ChoreoComponentType;
     accessibility: ComponentAccessibility;
     repositoryInfo: RepositoryDetails|BYOCRepositoryDetails;
-    triggerId?: string;
+    trigger?: TriggerDetails;
+}
+
+export interface TriggerDetails {
+    id: string;
+    services?: string[];
 }
 
 export interface RepositoryDetails {
@@ -379,7 +387,11 @@ export enum DeploymentStatus {
     Active = 'ACTIVE',
     Suspended = 'SUSPENDED',
     Error = 'ERROR',
-    InProgress = 'IN_PROGRESS',
+    InProgress = 'IN_PROGRESS'
+}
+
+export enum Status {
     LocalOnly = "LOCAL_ONLY",
-    UnavailableLocally= "NOT_AVAILABLE_LOCALLY"
+    UnavailableLocally= "NOT_AVAILABLE_LOCALLY",
+    ChoreoAndLocal= "CHOREO_AND_LOCAL"
 }

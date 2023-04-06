@@ -18,13 +18,13 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 
 import { CtrlClickHandler } from '../../../CtrlClickHandler';
 import { FunctionType, RemoteFunction, ResourceFunction } from '../../../resources/model';
+import { getFormattedPosition } from "../../../utils/common-util";
 import { GraphqlServiceNodeModel } from "../GraphqlServiceNodeModel";
 import { FunctionContainer } from '../styles/styles';
 
 import { FunctionMenuWidget } from "./FunctionMenuWidget";
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
-import { getFormattedPosition } from "../../../utils/common-util";
 
 interface FunctionCardProps {
     engine: DiagramEngine;
@@ -72,8 +72,8 @@ export function FunctionCard(props: FunctionCardProps) {
 
     return (
         <CtrlClickHandler
-            filePath={functionElement.position.filePath}
-            position={getFormattedPosition(functionElement.position)}
+            filePath={functionElement?.position?.filePath}
+            position={functionElement?.position && getFormattedPosition(functionElement.position)}
         >
             <FunctionContainer
                 onMouseOver={() => handleOnHover('SELECT')}

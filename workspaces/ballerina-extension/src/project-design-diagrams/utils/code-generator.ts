@@ -21,9 +21,8 @@ import { writeFileSync } from "fs";
 import { randomUUID } from "crypto";
 import { ExtendedLangClient } from "src/core";
 import { Position, Range, Uri, window, workspace, WorkspaceEdit } from "vscode";
-import {
-    BallerinaConnectorInfo, Connector, GetSyntaxTreeResponse, STModification
-} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { camelCase } from "lodash";
+import { BallerinaConnectorInfo, Connector, GetSyntaxTreeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
 import { STResponse } from "../activator";
 import { Service, ServiceAnnotation, ServiceTypes } from "../resources";
@@ -44,15 +43,16 @@ export async function linkServices(langClient: ExtendedLangClient, sourceService
     }) as STResponse;
 
     if (stResponse && stResponse.parseSuccess) {
+        clientName = genClientName(stResponse.source,
+            transformLabel(targetService.annotation.label || targetService.path || targetService.serviceId));
+
         const targetType: ServiceTypes = getServiceType(targetService.serviceType);
         const imports = new Set<string>([`ballerina/${targetType}`]);
-
         const members: any[] = stResponse.syntaxTree.members;
         const serviceDecl = getServiceDeclaration(members, sourceService, true);
         const initMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
-        clientName = genClientName(stResponse.source, "serviceClient");
-        let modifiedST: STResponse;
 
+        let modifiedST: STResponse;
         if (initMember) {
             modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken,
                 generateClientDecl(targetService, targetType)) as STResponse;
@@ -234,7 +234,7 @@ function getServiceDeclaration(members: any[], service: Service, checkEnd: boole
     ));
 }
 
-function getInitFunction(serviceDeclaration: any): any {
+export function getInitFunction(serviceDeclaration: any): any {
     const serviceNodeMembers: any[] = serviceDeclaration.members;
     return serviceNodeMembers.find((member) =>
         (member.kind === "ObjectMethodDefinition" && member.functionName.value === "init")
@@ -325,10 +325,9 @@ function generateClientDecl(targetService: Service, targetType: ServiceTypes): s
 }
 
 function generateServiceInit(connectorInfo?: BallerinaConnectorInfo): string {
-    let serviceInit: string = `function init() returns error? {
+    return `function init() returns error? {
         ${connectorInfo ? generateConnectorClientInit(connectorInfo) : generateClientInit()}
     }`;
-    return serviceInit;
 }
 
 function generateClientInit(): string {
@@ -398,4 +397,10 @@ function genClientName(source: string, prefix: string, connector?: Connector) {
     }
 
     return tempName;
+}
+
+function transformLabel(rawName: string): string {
+    const sansBeginnerNum: string = rawName.replace(/^\d+/, '');
+    const camelCaseName: string = camelCase(sansBeginnerNum);
+    return `${camelCaseName}Client`;
 }

@@ -23,17 +23,21 @@ import {
     ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
     PushLocalComponentsToChoreo,
     OpenArchitectureView,
-    HasUnpushedComponents, UpdateProjectOverview,
+    Component, UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
     getDiagramComponentModel,
     ComponentModel,
     DeleteComponent,
     PullComponent,
+    PushLocalComponentToChoreo,
     showOpenDialogRequest,
     OpenDialogOptions,
     GetComponentModelResponse,
-    ComponentModelDiagnostics
+    ComponentModelDiagnostics,
+    GetEnrichedComponents,
+    getPreferredProjectRepository,
+    setPreferredProjectRepository
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -83,12 +87,20 @@ export class WebViewRpc {
             }
         });
 
-        this._messenger.onRequest(DeleteComponent, async (params: {projectId: string, componentId: string}) => {
+        this._messenger.onRequest(GetEnrichedComponents, async (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().getEnrichedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
+            }
+        });
+
+        this._messenger.onRequest(DeleteComponent, async (params: {projectId: string, component: Component}) => {
             if (ext.api.selectedOrg) {
                 const answer = await vscode.window.showInformationMessage("Are you sure you want to remove the component? This action will be irreversible and all related details will be lost.", "Delete Component", "Cancel");
                 if(answer === "Delete Component"){
-                    await ProjectRegistry.getInstance().deleteComponent(params.componentId, ext.api.selectedOrg.handle, params.projectId);
+                    await ProjectRegistry.getInstance().deleteComponent(params.component, ext.api.selectedOrg.handle, params.projectId);
+                    return params.component;
                 }
+                return null;
             }
         });
 
@@ -129,6 +141,14 @@ export class WebViewRpc {
 
         this._messenger.onRequest(getProjectRepository, (projectId: string) => {
             return ProjectRegistry.getInstance().getProjectRepository(projectId);
+        });
+
+        this._messenger.onRequest(setPreferredProjectRepository, async (params) => {
+            ProjectRegistry.getInstance().setPreferredProjectRepository(params.projId, params.repo);
+        });
+
+        this._messenger.onRequest(getPreferredProjectRepository, (projectId: string) => {
+            return ProjectRegistry.getInstance().getPreferredProjectRepository(projectId);
         });
 
         this._messenger.onRequest(isChoreoProject, () => {
@@ -182,8 +202,16 @@ export class WebViewRpc {
             }
         });
 
-        this._messenger.onRequest(HasUnpushedComponents, async (projectID: string): Promise<boolean> => {
-            return ProjectRegistry.getInstance().hasUnpushedComponents(projectID);
+        this._messenger.onRequest(PushLocalComponentToChoreo, async (params: {projectId: string, componentName: string}): Promise<void> => {
+            return window.withProgress({
+                title: `Pushing local component to Choreo.`,
+                location: ProgressLocation.Notification,
+                cancellable: false
+            }, async (_progress, cancellationToken) => {
+                if (ext.api.selectedOrg) {
+                    await ProjectRegistry.getInstance().pushLocalComponentToChoreo(params.projectId, params.componentName);
+                }
+            });
         });
 
         ext.api.onStatusChanged((newStatus) => {

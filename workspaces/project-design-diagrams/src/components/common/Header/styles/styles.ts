@@ -29,8 +29,7 @@ export const HeaderContainer = styled.div`
     font-family: inherit;
     height: 50px;
     justify-content: space-between;
-    min-width: 720px;
-    width: calc(100vw - 30px);
+    width: calc(100% - 30px);
 `;
 
 export const DiagramTitle = styled.div`
@@ -80,12 +79,13 @@ export const HeaderLeftPane: React.FC<any> = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    min-width: ${(props: { isEditable: boolean }) => props.isEditable ? '150px' : '300px'};
+    min-width: ${(props: { isEditable: boolean }) => props.isEditable ? '160px' : '300px'};
 `;
 
 export const CentralControls: React.FC<any> = styled.div`
     display: flex;
+    flex: 1;
     flex-direction: row;
-    justify-content: center;
+    justify-content: ${(props: { editingEnabled: boolean }) => props.editingEnabled ? 'center' : 'flex-end'};
     min-width: ${(props: { isChoreoProject: boolean }) => props.isChoreoProject ? '550px' : '350px'};
 `;

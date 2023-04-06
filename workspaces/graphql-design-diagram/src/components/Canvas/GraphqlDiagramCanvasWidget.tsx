@@ -20,6 +20,7 @@ import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-di
 import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
+import { ContainerController } from "./ContainerController";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -54,6 +55,12 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
     };
 
+    const onZoom = (zoomIn: boolean) => {
+        const delta: number = zoomIn ? +5 : -5;
+        diagramEngine.getModel().setZoomLevel(diagramEngine.getModel().getZoomLevel() + delta);
+        diagramEngine.repaintCanvas();
+    };
+
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
@@ -67,6 +74,7 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
             <CanvasWidgetContainer>
                 <CanvasWidget engine={diagramEngine}/>
+                <ContainerController onZoom={onZoom} zoomToFit={zoomToFit}/>
             </CanvasWidgetContainer>
             }
         </>

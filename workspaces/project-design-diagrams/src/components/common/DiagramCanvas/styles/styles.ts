@@ -24,7 +24,7 @@ interface ControlPanelProps {
 }
 
 export const ControlPanel: React.FC<any> = styled.div`
-    bottom: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 15 : 120}px`};
+    bottom: ${(props: ControlPanelProps) => `${props.showDownloadButton ? 15 : 50}px`};
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -41,6 +41,6 @@ export const ViewTypePanel: React.FC<any> = styled.div`
     justify-content: space-between;
     left: 15px;
     position: absolute;
-    top: ${(props: { isCellView: boolean }) => `${props.isCellView ? 100 : 65}px`};;
+    top: 100px;
     width: 40px;
 `;

@@ -19,6 +19,7 @@ import { usePopulateContext } from "./hooks/context-populate";
 import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
 import { ProjectOverview } from "./ProjectOverview/ProjectOverview";
 import { ChoreoArchitectureView } from "./ChoreoArchitectureView/ArchitectureView";
+import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
 
 export const Main: React.FC<any> = styled.main`
   display: flex;
@@ -48,14 +49,16 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
     }
 
     return (
-        <Main>
-            {type === 'ChoreoArchitectureView' ?
-                <ChoreoArchitectureView projectId={projectId} orgName={orgName} /> :
-                <ChoreoWebViewContext.Provider value={usePopulateContext()}>
-                    {switchViews()}
-                </ChoreoWebViewContext.Provider>
-            }
-        </Main>
+        <ChoreoWebviewQueryClientProvider>
+            <Main>
+                {type === 'ChoreoArchitectureView' ?
+                    <ChoreoArchitectureView projectId={projectId} orgName={orgName} /> :
+                    <ChoreoWebViewContext.Provider value={usePopulateContext()}>
+                        {switchViews()}
+                    </ChoreoWebViewContext.Provider>
+                }
+            </Main>
+        </ChoreoWebviewQueryClientProvider>
     );
 }
 

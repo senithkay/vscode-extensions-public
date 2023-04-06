@@ -10,8 +10,6 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-
-import { GithubOrgnization } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 
 
@@ -30,10 +28,9 @@ export interface ComponentWizardState {
         dockerContext?: string;
         dockerFile?: string;
     };
-    trigger?: string;
-    version: string;
-    cache: {
-        authorizedOrgs?: GithubOrgnization[],
-        branches?: Map<string, string[]>
+    trigger?: {
+        id: string;
+        services?: string[];
     };
+    version: string;
 }

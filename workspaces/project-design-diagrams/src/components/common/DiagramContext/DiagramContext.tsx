@@ -19,6 +19,7 @@
 
 import React, { createContext, ReactNode, useEffect, useState } from 'react';
 import { ComponentModel, ComponentModelDiagnostics, EditLayerAPI, Location, Service, Views } from '../../../resources';
+import { ConsoleView } from "../../../resources/model";
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -34,11 +35,13 @@ interface DiagramContextProps {
     setConnectorTarget: (service: Service) => void;
     editLayerAPI: EditLayerAPI | undefined;
     deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>;
+    consoleView: ConsoleView;
 }
 
 interface IDiagramContext {
     editingEnabled: boolean;
     isChoreoProject: boolean;
+    consoleView: ConsoleView;
     currentView: Views;
     hasDiagnostics: boolean;
     refreshDiagram: () => void;
@@ -68,6 +71,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         currentView,
         editingEnabled,
         isChoreoProject,
+        consoleView,
         editLayerAPI,
         projectComponents,
         projectDiagnostics,
@@ -86,6 +90,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         currentView,
         editingEnabled,
         isChoreoProject,
+        consoleView,
         hasDiagnostics,
         setCurrentView,
         refreshDiagram,
@@ -98,6 +103,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
             ...context,
             editLayerAPI,
             newComponentID,
+            consoleView,
             setNewComponentID,
             newLinkNodes,
             setNewLinkNodes,

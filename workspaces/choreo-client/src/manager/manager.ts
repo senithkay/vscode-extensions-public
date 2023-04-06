@@ -18,7 +18,7 @@ import {
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path, { basename, dirname, join } from "path";
 import { commands, workspace } from "vscode";
-import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { BAL_FORMAT_SERVICE_CMD, buildWebhookTemplate, getBallerinaExtensionInstance, writeWebhookTemplate } from "./utils/webhook-utils";
 import { addDisplayAnnotation, addToWorkspace, createBallerinaPackage, processTomlFiles, runCommand } from "./utils/component-creation-utils";
 
@@ -40,7 +40,7 @@ export class ChoreoProjectManager implements IProjectManager {
     private balVersion: string | undefined;
 
     async createLocalComponent(args: ChoreoComponentCreationParams): Promise<boolean> {
-        const { displayType, org, repositoryInfo, triggerId } = args;
+        const { displayType, org, repositoryInfo, trigger } = args;
         if (workspace.workspaceFile) {
             const workspaceFilePath = workspace.workspaceFile.fsPath;
             const projectRoot = workspaceFilePath.slice(0, workspaceFilePath.lastIndexOf(path.sep));
@@ -50,8 +50,8 @@ export class ChoreoProjectManager implements IProjectManager {
             const resp: CmdResponse = await createBallerinaPackage(basename(pkgPath), dirname(pkgPath), displayType);
             if (!resp.error) {
                 processTomlFiles(pkgPath, org.name);
-                if (displayType === ChoreoComponentType.Webhook && triggerId) {
-                    const webhookTemplate: string = await buildWebhookTemplate(pkgPath, triggerId, await this.getBalVersion());
+                if (displayType === ChoreoComponentType.Webhook && trigger && trigger.id) {
+                    const webhookTemplate: string = await buildWebhookTemplate(pkgPath, trigger, await this.getBalVersion());
                     if (webhookTemplate) {
                         writeWebhookTemplate(pkgPath, webhookTemplate);
                         await runCommand(BAL_FORMAT_SERVICE_CMD, pkgPath);
@@ -62,7 +62,7 @@ export class ChoreoProjectManager implements IProjectManager {
                 if (displayType === ChoreoComponentType.GraphQL
                     || displayType === ChoreoComponentType.Service
                     || displayType === ChoreoComponentType.Proxy) {
-                    addDisplayAnnotation(pkgPath, displayType, repositoryInfo);
+                    addDisplayAnnotation(pkgPath, displayType);
                 }
                 return await addToWorkspace(workspaceFilePath, args);
             } else {
@@ -112,7 +112,16 @@ export class ChoreoProjectManager implements IProjectManager {
                     displayName: folder.metadata.displayName,
                     version: "1.0.0",// TODO: get version from main form
                     createdAt: undefined,
-                    repository: undefined,
+                    repository: {
+                        branch: folder.metadata.repository.branchApp,
+                        branchApp: folder.metadata.repository.branchApp,
+                        isUserManage: true,
+                        nameApp: folder.metadata.repository.nameApp,
+                        nameConfig: "",
+                        organizationApp: folder.metadata.repository.orgApp,
+                        organizationConfig:"",
+                        appSubPath: folder.metadata.repository.appSubPath
+                    },
                     apiVersions: []
                 });
             }
@@ -154,6 +163,14 @@ export class ChoreoProjectManager implements IProjectManager {
         const ballerinaExtInstance = await getBallerinaExtensionInstance();
         if (ballerinaExtInstance && ballerinaExtInstance.langClient) {
             return ballerinaExtInstance.langClient.getTriggers({ query: "" });
+        }
+        return undefined;
+    }
+
+    async fetchTrigger(triggerId: string): Promise<BallerinaTriggerResponse | undefined> {
+        const ballerinaExtInstance = await getBallerinaExtensionInstance();
+        if (ballerinaExtInstance && ballerinaExtInstance.langClient) {
+            return ballerinaExtInstance.langClient.getTrigger({ id: triggerId });
         }
         return undefined;
     }

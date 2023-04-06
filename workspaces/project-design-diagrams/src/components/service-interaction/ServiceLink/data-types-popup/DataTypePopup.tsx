@@ -22,16 +22,17 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { DiagramContext } from '../../../common';
 import { ServiceLinkMenu } from '../LinkMenuPanel/LinkMenuPanel';
 import { mapUnionTypes } from '../link-utils';
-import { Colors, Location, RemoteFunction, ResourceFunction } from '../../../../resources';
+import { Colors, RemoteFunction, ResourceFunction } from '../../../../resources';
 import { Container, clickableType, defaultType, MenuButton } from './styles';
+import { ServiceLinkModel } from '../ServiceLinkModel';
 
 interface DataTypeProps {
     callingFunction: ResourceFunction | RemoteFunction;
-    location: Location
+    link: ServiceLinkModel;
 }
 
 export function DataTypesPopup(props: DataTypeProps) {
-    const { callingFunction, location } = props;
+    const { callingFunction, link } = props;
     const { getTypeComposition, editingEnabled } = useContext(DiagramContext);
 
     const [position, setPosition] = useState({ x: undefined, y: undefined });
@@ -121,7 +122,7 @@ export function DataTypesPopup(props: DataTypeProps) {
                     </MenuButton>
 
                     <ServiceLinkMenu
-                        location={location}
+                        link={link}
                         anchorElement={anchorElement}
                         position={position}
                         onMouseLeave={onMouseLeave}

@@ -10,11 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Project, Component, Repository } from "@wso2-enterprise/choreo-core";
+import { Project, Component, Repository, Deployment } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IChoreoProjectClient, LinkRepoMutationParams } from "../types";
-import { CreateByocComponentRequest, CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, GetRepoMetaDataRequest, LinkRepoRequest } from "./types";
+import { ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IChoreoProjectClient, LinkRepoMutationParams, GetComponentDeploymentStatusParams } from "../types";
+import { CreateByocComponentRequest, CreateComponentRequest, CreateProjectRequest, DeleteComponentRequest, GetComponentsRequest, GetProjectsRequest, GetRepoMetaDataRequest, LinkRepoRequest, GetComponentDeploymentStatus } from "./types";
 
 export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
 
@@ -30,6 +30,9 @@ export class ChoreoProjectClientRPCWebView implements IChoreoProjectClient {
     }
     getComponents(params: GetComponentsParams): Promise<Component[]> {
         return this._messenger.sendRequest(GetComponentsRequest, HOST_EXTENSION, params);
+    }
+    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Deployment | null> {
+        return this._messenger.sendRequest(GetComponentDeploymentStatus, HOST_EXTENSION, params);
     }
     createProject(params: CreateProjectParams): Promise<Project> {
         return this._messenger.sendRequest(CreateProjectRequest, HOST_EXTENSION, params);

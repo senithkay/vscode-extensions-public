@@ -34,7 +34,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>, 
         org: selectedOrg,
         displayType: type,
         accessibility,
-        triggerId: trigger,
+        trigger,
         description: description ?? '',
         repositoryInfo: {
             org,
@@ -79,9 +79,6 @@ export const ComponentWizard: React.FC = () => {
                 dockerContext: '',
                 dockerFile: '',
                 subPath: '',
-            },
-            cache: {
-                authorizedOrgs: [],
             }
         },
         isFormValid: false,

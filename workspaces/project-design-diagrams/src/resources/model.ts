@@ -18,7 +18,7 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
@@ -203,6 +203,7 @@ export enum ServiceTypes {
 export enum Colors {
     DIAGRAM_BACKGROUND = '#FFF',
     CELL_DIAGRAM_BACKGROUND = '#eeeffb',
+    CONSOLE_CELL_DIAGRAM_BACKGROUND = '#f7f8fb',
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
@@ -220,7 +221,7 @@ export interface EditLayerAPI {
     pullConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
     addConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
     addLink: (source: Service, target: Service) => Promise<boolean>;
-    deleteLink: (location: Location) => Promise<boolean>;
+    deleteLink: (linkLocation: Location, serviceLocation: Location) => Promise<boolean>;
     pickDirectory: () => Promise<string | undefined>;
     executeCommand: (cmd: string) => Promise<boolean>;
     go2source: (location: Location) => void;
@@ -228,4 +229,10 @@ export interface EditLayerAPI {
     showErrorMessage: (message: string) => void;
     editDisplayLabel: (annotation: ServiceAnnotation) => Promise<boolean>;
     fetchTriggers: () => Promise<BallerinaTriggersResponse>;
+    fetchTrigger: (triggerId: string) => Promise<BallerinaTriggerResponse>;
+}
+
+export enum ConsoleView {
+    PROJECT_HOME = 'PROJECT_HOME',
+    COMPONENTS = 'COMPONENTS',
 }

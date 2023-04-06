@@ -20,12 +20,8 @@
 import React, { ReactElement, useContext } from 'react';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import DescriptionIcon from '@mui/icons-material/Description';
-import ImportExportIcon from '@mui/icons-material/ImportExport';
-import WidgetsIcon from '@mui/icons-material/Widgets';
-import WidgetsOutlinedIcon from '@mui/icons-material/WidgetsOutlined';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
-import { Colors, Views } from '../../../../resources';
+import { CellViewIcon, L1ServicesIcon, L2ServicesIcon, TypesDiagramIcon, Views } from '../../../../resources';
 import { ViewTypePanel } from '../styles/styles';
 import '../styles/styles.css';
 
@@ -39,38 +35,37 @@ const switchables: ViewTypes[] = [
     {
         type: Views.L1_SERVICES,
         label: 'Service Diagram: Level 1',
-        icon: <WidgetsOutlinedIcon fontSize="medium" sx={{ color: Colors.PRIMARY }} />
+        icon: <L1ServicesIcon />
     },
     {
         type: Views.L2_SERVICES,
         label: 'Service Diagram: Level 2',
-        icon: <WidgetsIcon fontSize="medium" sx={{ color: Colors.PRIMARY }} />
+        icon: <L2ServicesIcon />
     },
     {
         type: Views.CELL_VIEW,
         label: 'Cell View',
-        icon: <ImportExportIcon fontSize="medium" sx={{ color: Colors.PRIMARY }} />
+        icon: <CellViewIcon />
     },
     {
         type: Views.TYPE,
         label: 'Type Diagram',
-        icon: <DescriptionIcon fontSize="medium" sx={{ color: Colors.PRIMARY }} />
+        icon: <TypesDiagramIcon />
     }
 ];
 
 export function ViewSwitcher() {
-    const { currentView, isChoreoProject, setCurrentView } = useContext(DiagramContext);
+    const { isChoreoProject, setCurrentView } = useContext(DiagramContext);
 
     const handleOnClick = (type: Views) => {
         setCurrentView(type);
     }
 
     return (
-        <ViewTypePanel isCellView={currentView === Views.CELL_VIEW}>
+        <ViewTypePanel>
             {
                 switchables.map((viewType) => {
-                    if (viewType.type !== currentView &&
-                        (viewType.type !== Views.CELL_VIEW || (viewType.type === Views.CELL_VIEW && isChoreoProject))) {
+                    if (viewType.type !== Views.CELL_VIEW || (viewType.type === Views.CELL_VIEW && isChoreoProject)) {
                         return (
                             <Tooltip
                                 arrow

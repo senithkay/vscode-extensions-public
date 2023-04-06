@@ -15,13 +15,13 @@ import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
+import { CtrlClickHandler } from "../../../CtrlClickHandler";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { RecordIcon } from "../../../resources/assets/icons/RecordIcon";
 import { HeaderName } from "../../../resources/styles/styles";
+import { getFormattedPosition } from "../../../utils/common-util";
 import { RecordNodeModel } from "../RecordNodeModel";
 import { RecordHead } from "../styles";
-import { CtrlClickHandler } from "../../../CtrlClickHandler";
-import { getFormattedPosition } from "../../../utils/common-util";
 
 interface RecordHeadProps {
     engine: DiagramEngine;
@@ -41,8 +41,8 @@ export function RecordHeadWidget(props: RecordHeadProps) {
 
     return (
         <CtrlClickHandler
-            filePath={node.recordObject.position.filePath}
-            position={getFormattedPosition(node.recordObject.position)}
+            filePath={node.recordObject?.position?.filePath}
+            position={node.recordObject?.position && getFormattedPosition(node.recordObject.position)}
         >
             <RecordHead>
                 <RecordIcon />
