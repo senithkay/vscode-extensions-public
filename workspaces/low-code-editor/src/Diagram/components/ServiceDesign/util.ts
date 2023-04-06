@@ -12,6 +12,7 @@
  */
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, PartialSTRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { monaco } from "react-monaco-editor";
 import {
     CommaToken, DefaultableParam,
     DotToken,
@@ -22,7 +23,6 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import { monaco } from "react-monaco-editor";
 
 import {
     AdvancedParams,

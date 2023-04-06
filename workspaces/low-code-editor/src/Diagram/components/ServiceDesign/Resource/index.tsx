@@ -322,26 +322,6 @@ export function ResourceBody(props: ResourceBodyProps) {
             {/* <Divider className="resource-divider" /> */}
         </>
     )
-    const body = (
-        <div className="service-member">
-            {paramArgs.length > 0 && args}
-
-            {bodyArgs.length > 0 && bodyAr}
-
-            <ConfigPanelSection title={"Responses"}>
-                <table className={classes.responseTable}>
-                    <thead>
-                        <td>Code</td>
-                        <td>Description</td>
-                    </thead>
-                    <tbody>
-                        {responseArgs}
-                    </tbody>
-                </table>
-            </ConfigPanelSection>
-
-        </div>
-    )
 
     const metaData = (
         <div className="service-member" onClick={handleIsExpand}>
@@ -353,6 +333,31 @@ export function ResourceBody(props: ResourceBodyProps) {
         </div>
     )
 
+    const body = (
+        <>
+            {model.metadata && metaData}
+            <div className="service-member">
+                {paramArgs.length > 0 && args}
+
+                {bodyArgs.length > 0 && bodyAr}
+
+                <ConfigPanelSection title={"Responses"}>
+                    <table className={classes.responseTable}>
+                        <thead>
+                            <td>Code</td>
+                            <td>Description</td>
+                        </thead>
+                        <tbody>
+                            {responseArgs}
+                        </tbody>
+                    </table>
+                </ConfigPanelSection>
+            </div>
+        </>
+    )
+
+
+
     const handleGoToSource = () => {
         gotoSource(model.position, currentFile.path);
     }
@@ -363,7 +368,6 @@ export function ResourceBody(props: ResourceBodyProps) {
         >
             <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
                 <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
-                {model.metadata && metaData}
                 {isExpanded && body}
             </div>
         </CtrlClickWrapper>
