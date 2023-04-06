@@ -48,7 +48,7 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getPushedComponents(_workspaceFilePath: string): PushedComponent[] {
         throw new Error("Method not implemented.");
-
+    }
     fetchTriggers(): Promise<BallerinaTriggersResponse | undefined> {
         return this._messenger.sendRequest(FetchBallerinaTriggers, HOST_EXTENSION, "");
     }
