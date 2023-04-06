@@ -23,6 +23,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { getNewFieldAdditionModification, isEmptyValue } from "../../../utils/dm-utils";
+import { UnionTypeLabel } from "../../../utils/union-type-utils";
 import { AddRecordFieldButton } from '../AddRecordFieldButton';
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
@@ -105,7 +106,7 @@ export interface EditableMappingConstructorWidgetProps {
 	mappings?: FieldAccessToSpecificFied[];
 	deleteField?: (node: STNode) => Promise<void>;
 	originalTypeName?: string;
-	resolvedTypeName?: string;
+	unionTypeLabel?: UnionTypeLabel;
 }
 
 
@@ -122,7 +123,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		valueLabel,
 		deleteField,
 		originalTypeName,
-		resolvedTypeName
+		unionTypeLabel
 	} = props;
 	const classes = useStyles();
 	const dmStore = useDMSearchStore();
@@ -150,20 +151,20 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 
 	const indentation = (portIn && (!hasValue || !expanded)) ? 0 : 24;
 
-	const TypeSpan = () => {
+	const getUnionType = () => {
 		const typeText: JSX.Element[] = [];
-		const types = typeName.split('|');
-		types.forEach((type) => {
+		const { unionTypes, resolvedTypeName } = unionTypeLabel;
+		unionTypes.forEach((type) => {
 			if (type.trim() === resolvedTypeName) {
 				typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
 			} else {
 				typeText.push(<>{type}</>);
 			}
-			if (type !== types[types.length - 1]) {
-				typeText.push(<>|</>);
+			if (type !== unionTypes[unionTypes.length - 1]) {
+				typeText.push(<> | </>);
 			}
 		});
-		return <span className={classes.typeLabel}>{typeText}</span>;
+		return typeText;
 	};
 
 	const label = (
@@ -174,7 +175,9 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					{typeName && ":"}
 				</span>
 			)}
-			{typeName && TypeSpan()}
+			<span className={classes.typeLabel}>
+				{unionTypeLabel ? getUnionType() : typeName || ''}
+			</span>
 		</span>
 	);
 

@@ -19,6 +19,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
+import { UnionTypeLabel } from "../../../utils/union-type-utils";
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
@@ -100,12 +101,12 @@ export interface PrimitiveTypeOutputWidgetProps {
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: STNode) => Promise<void>;
-	resolvedTypeName?: string;
+	unionTypeLabel?: UnionTypeLabel;
 }
 
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, resolvedTypeName } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeLabel } = props;
 	const classes = useStyles();
 
 	const type = typeName || field?.type?.typeName;
@@ -119,20 +120,20 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 
 	const indentation = (portIn && !expanded) ? 0 : 24;
 
-	const TypeSpan = () => {
+	const getUnionType = () => {
 		const typeText: JSX.Element[] = [];
-		const types = typeName.split('|');
-		types.forEach((type) => {
+		const { unionTypes, resolvedTypeName } = unionTypeLabel;
+		unionTypes.forEach((type) => {
 			if (type.trim() === resolvedTypeName) {
 				typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
 			} else {
 				typeText.push(<>{type}</>);
 			}
-			if (type !== types[types.length - 1]) {
-				typeText.push(<>|</>);
+			if (type !== unionTypes[unionTypes.length - 1]) {
+				typeText.push(<> | </>);
 			}
 		});
-		return <span className={classes.typeLabel}>{typeText}</span>;
+		return typeText;
 	};
 
 	const label = (
@@ -143,8 +144,9 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 					{type && ":"}
 				</span>
 			)}
-			{type && TypeSpan()}
-
+			<span className={classes.typeLabel}>
+				{unionTypeLabel ? getUnionType() : type}
+			</span>
 		</span>
 	);
 

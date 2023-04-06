@@ -963,7 +963,7 @@ export function getTypeName(field: Type): string {
 		const typeName = `${getTypeName(field.memberType)}`;
 		return field.memberType.typeName === PrimitiveBalType.Union ? `(${typeName})[]` : `${typeName}[]`;
 	} else if (field.typeName === PrimitiveBalType.Union) {
-		return field.members?.map(item => getTypeName(item)).join(' | ');
+		return field.members?.map(item => getTypeName(item)).join('|');
 	}
 	return field.typeName;
 }

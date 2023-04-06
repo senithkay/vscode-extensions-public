@@ -70,8 +70,11 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						hasInvalidTypeCast={event.model.hasInvalidTypeCast}
 						innermostExpr={event.model.innermostExpr}
 						typeCastExpr={event.model.typeCastExpr}
+						unionTypeLabel={{
+							unionTypes: event.model.unionTypes,
+							resolvedTypeName
+						}}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-						resolvedTypeName={resolvedTypeName}
 					/>
 				)}
 				{!shouldRenderUnionType && resolvedType && resolvedType.typeName === PrimitiveBalType.Record && (
@@ -87,7 +90,10 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
 						originalTypeName={event.model.typeDef.originalTypeName}
-						resolvedTypeName={resolvedTypeName}
+						unionTypeLabel={{
+							unionTypes: event.model.unionTypes,
+							resolvedTypeName
+						}}
 					/>
 				)}
 				{!shouldRenderUnionType && resolvedType && resolvedType.typeName === PrimitiveBalType.Array && (
@@ -100,7 +106,10 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						typeName={event.model.typeName}
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
-						resolvedTypeName={resolvedTypeName}
+						unionTypeLabel={{
+							unionTypes: event.model.unionTypes,
+							resolvedTypeName
+						}}
 					/>
 				)}
 				{!shouldRenderUnionType
@@ -117,7 +126,10 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						typeName={event.model.typeName}
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
-						resolvedTypeName={resolvedTypeName}
+						unionTypeLabel={{
+							unionTypes: event.model.unionTypes,
+							resolvedTypeName
+						}}
 					/>
 				)}
 			</>

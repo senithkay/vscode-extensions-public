@@ -25,6 +25,7 @@ import {
 	getInnermostExpressionBody,
 	isConnectedViaLink
 } from "../../../utils/dm-utils";
+import { UnionTypeLabel } from "../../../utils/union-type-utils";
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
@@ -128,11 +129,11 @@ export interface ArrayTypeOutputWidgetProps {
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: STNode) => Promise<void>;
-	resolvedTypeName?: string;
+	unionTypeLabel?: UnionTypeLabel;
 }
 
 export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, resolvedTypeName } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeLabel } = props;
 	const classes = useStyles();
 	const dmStore = useDMSearchStore();
 
@@ -171,24 +172,20 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		isDisabled = true;
 	}
 
-	const TypeSpan = () => {
+	const getUnionType = () => {
 		const typeText: JSX.Element[] = [];
-		const types = typeName.split('|');
-		types.forEach((type) => {
+		const { unionTypes, resolvedTypeName } = unionTypeLabel;
+		unionTypes.forEach((type) => {
 			if (type.trim() === resolvedTypeName) {
 				typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
 			} else {
 				typeText.push(<>{type}</>);
 			}
-			if (type !== types[types.length - 1]) {
-				typeText.push(<>|</>);
+			if (type !== unionTypes[unionTypes.length - 1]) {
+				typeText.push(<> | </>);
 			}
 		});
-		return (
-			<span className={classnames(classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
-				{typeText}
-			</span>
-		);
+		return typeText;
 	};
 
 	const label = (
@@ -199,7 +196,9 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 					{typeName && ":"}
 				</span>
 			)}
-			{typeName && TypeSpan()}
+			<span className={classnames(classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
+				{unionTypeLabel ? getUnionType() : typeName || ''}
+			</span>
 		</span>
 	);
 

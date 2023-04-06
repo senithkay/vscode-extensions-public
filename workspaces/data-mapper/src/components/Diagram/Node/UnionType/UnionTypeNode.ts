@@ -51,7 +51,7 @@ import {
     isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
-import { getResolvedType, getSupportedUnionTypes } from "../../utils/union-type-utils";
+import { getResolvedType, getSupportedUnionTypes, getUnionTypes } from "../../utils/union-type-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -65,6 +65,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
     public resolvedType: Type;
     public hasInvalidTypeCast: boolean;
     public mappings: FieldAccessToSpecificFied[];
+    public unionTypes: string[];
     public innermostExpr: STNode;
     public typeCastExpr: STNode;
     public x: number;
@@ -82,6 +83,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
         );
         this.innermostExpr = getInnermostExpressionBody(this.value.expression);
         this.typeCastExpr = this.getTypeCastExpr();
+        this.unionTypes = getUnionTypes(this.typeDef);
     }
 
     async initPorts() {

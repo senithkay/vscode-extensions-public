@@ -35,7 +35,6 @@ export interface UnionTypeSelectorProps {
 export function UnionTypeSelector(props: UnionTypeSelectorProps) {
     const { typeIdentifier, context, typeDef, hasInvalidTypeCast, innermostExpr, typeCastExpr } = props;
     const supportedUnionTypes = getSupportedUnionTypes(typeIdentifier, typeDef);
-    const classes = useStyles();
 
     return (
         <UnionTypesList

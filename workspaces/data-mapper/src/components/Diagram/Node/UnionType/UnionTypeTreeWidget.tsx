@@ -19,12 +19,13 @@ import { IdentifierToken, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
+import { UnionTypeLabel } from "../../utils/union-type-utils";
 import { TypeDescriptor } from "../commons/DataMapperNode";
 import { OutputSearchHighlight } from "../commons/SearchHighlight";
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 
 import { useStyles } from "./style";
-import {UnionTypeSelector} from "./UnionTypeSelector";
+import { UnionTypeSelector } from "./UnionTypeSelector";
 
 export interface UnionTypeTreeWidgetProps {
     id: string;
@@ -37,7 +38,7 @@ export interface UnionTypeTreeWidgetProps {
     hasInvalidTypeCast: boolean;
     innermostExpr: STNode;
     typeCastExpr: STNode;
-    resolvedTypeName?: string;
+    unionTypeLabel: UnionTypeLabel;
     getPort: (portId: string) => RecordFieldPortModel;
 }
 
@@ -53,9 +54,10 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         hasInvalidTypeCast,
         innermostExpr,
         typeCastExpr,
-        resolvedTypeName,
+        unionTypeLabel,
         getPort
     } = props;
+    const { unionTypes, resolvedTypeName } = unionTypeLabel;
     const classes = useStyles();
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -74,20 +76,19 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         setIsHovered(false);
     };
 
-    const TypeSpan = () => {
+    const getUnionType = () => {
         const typeText: JSX.Element[] = [];
-        const types = typeName.split('|');
-        types.forEach((type) => {
+        unionTypes.forEach((type) => {
             if (type.trim() === resolvedTypeName) {
                 typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
             } else {
                 typeText.push(<>{type}</>);
             }
-            if (type !== types[types.length - 1]) {
-                typeText.push(<>|</>);
+            if (type !== unionTypes[unionTypes.length - 1]) {
+                typeText.push(<> | </>);
             }
         });
-        return <span className={classes.typeLabel}>{typeText}</span>;
+        return typeText;
     };
 
     const label = (
@@ -98,7 +99,9 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                     {typeName && ":"}
 				</span>
             )}
-            {typeName && TypeSpan()}
+            <span className={classes.typeLabel}>
+                {getUnionType()}
+            </span>
 		</span>
     );
 
