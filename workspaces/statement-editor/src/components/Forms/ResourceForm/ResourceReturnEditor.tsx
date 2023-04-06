@@ -118,7 +118,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                         type: item,
                         option: item
                     }}
-                    readonly={editingSegmentId !== -1 || readonly}
+                    readonly={item.trim().includes("error") || editingSegmentId !== -1 || readonly}
                     onDelete={onDelete}
                     onEditClick={onEdit}
                 />

@@ -65,7 +65,7 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
                     <FormHeaderSection
                         onCancel={onCancel}
                         formTitle={"lowcode.develop.configForms.plusholder.selectFiles"}
-                        defaultMessage={"Select a file to add component"}
+                        defaultMessage={"Select a file to add a component"}
                     />
                     <List component="nav" style={{ width: 315 }}>
                         {fileList.map((file, index) => (

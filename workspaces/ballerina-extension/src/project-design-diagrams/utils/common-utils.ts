@@ -17,7 +17,7 @@
  *
  */
 
-import { commands, window, workspace } from "vscode";
+import { commands, Position, Range, Selection, TextEditorRevealType, window, workspace } from "vscode";
 import { existsSync } from "fs";
 import { join } from "path";
 import _ from "lodash";
@@ -26,7 +26,7 @@ import { ExtendedLangClient, GetPackageComponentModelsResponse } from "../../cor
 import { terminateActivation } from "../activator";
 import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, Location } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
-import { deleteBallerinaPackage, deleteComponent } from "./component-handler-utils";
+import { deleteBallerinaPackage, deleteService } from "./component-handler-utils";
 
 const ballerinaToml = "Ballerina.toml";
 
@@ -107,16 +107,30 @@ export async function showChoreoProjectOverview(project: Project | undefined): P
 }
 
 export async function deleteProjectComponent(projectId: string, location: Location, deletePkg: boolean): Promise<void> {
-    if (projectId) {
-        const choreoExt = await getChoreoExtAPI();
-        if (choreoExt) {
-            await choreoExt.deleteComponent(projectId, location.filePath);
+    if (deletePkg) {
+        if (projectId) {
+            const choreoExt = await getChoreoExtAPI();
+            if (choreoExt) {
+                await choreoExt.deleteComponent(projectId, location.filePath);
+            }
+        } else {
+            deleteBallerinaPackage(location.filePath);
         }
     } else {
-        if (deletePkg) {
-            deleteBallerinaPackage(location.filePath);
-        } else {
-            await deleteComponent(location);
-        }
+        await deleteService(location);
+    }
+}
+
+export function go2source(location: Location) {
+    if (location && existsSync(location.filePath)) {
+        workspace.openTextDocument(location.filePath).then((sourceFile) => {
+            window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {
+                const startPosition: Position = new Position(location.startPosition.line, location.startPosition.offset);
+                const endPosition: Position = new Position(location.endPosition.line, location.endPosition.offset);
+                const range: Range = new Range(startPosition, endPosition);
+                textEditor.revealRange(range, TextEditorRevealType.InCenter);
+                textEditor.selection = new Selection(range.start, range.start);
+            });
+        });
     }
 }

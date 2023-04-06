@@ -39,7 +39,6 @@ import {
     getChoreoProject,
     PushLocalComponentsToChoreo,
     OpenArchitectureView,
-    HasUnpushedComponents,
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
@@ -48,7 +47,13 @@ import {
     DeleteComponent,
     PullComponent,
     PushedComponent,
-    GetDeletedComponents
+    GetDeletedComponents,
+    PushLocalComponentToChoreo,
+    GetEnrichedComponents,
+    OpenDialogOptions,
+    showOpenDialogRequest,
+    getPreferredProjectRepository,
+    setPreferredProjectRepository
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -98,7 +103,11 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetDeletedComponents, HOST_EXTENSION, projectId);
     }
 
-    public async deleteComponent(params: {componentId: string; projectId: string}): Promise<void> {
+    public async getEnrichedComponents(projectId: string): Promise<Component[]> {
+        return this._messenger.sendRequest(GetEnrichedComponents, HOST_EXTENSION, projectId);
+    }
+
+    public async deleteComponent(params: {component: Component; projectId: string}): Promise<void> {
         return this._messenger.sendRequest(DeleteComponent, HOST_EXTENSION, params);
     }
 
@@ -130,6 +139,14 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(getProjectRepository, HOST_EXTENSION, projId);
     }
 
+    public async setPreferredProjectRepository(projId: string, repo: string): Promise<void> {
+        return this._messenger.sendRequest(setPreferredProjectRepository, HOST_EXTENSION, { projId, repo });
+    }
+
+    public async getPreferredProjectRepository(projId: string): Promise<string> {
+        return this._messenger.sendRequest(getPreferredProjectRepository, HOST_EXTENSION, projId);
+    }
+
     public async isChoreoProject(): Promise<boolean> {
         return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
     }
@@ -144,6 +161,10 @@ export class ChoreoWebViewAPI {
 
     public async pushLocalComponentsToChoreo(projectId: string): Promise<void> {
         return this._messenger.sendRequest(PushLocalComponentsToChoreo, HOST_EXTENSION, projectId);
+    }
+
+    public async pushLocalComponentToChoreo(params: {projectId: string, componentName: string}): Promise<void> {
+        return this._messenger.sendRequest(PushLocalComponentToChoreo, HOST_EXTENSION, params);
     }
 
     public async openArchitectureView(): Promise<void> {
@@ -190,15 +211,15 @@ export class ChoreoWebViewAPI {
         this._messenger.sendNotification(CloseWebViewNotification, HOST_EXTENSION, undefined);
     }
 
+    public async showOpenDialog(options: OpenDialogOptions): Promise<string[] | undefined> {
+        return this._messenger.sendRequest(showOpenDialogRequest, HOST_EXTENSION, options);
+    }
+
     public static getInstance() {
         if (!this._instance) {
             this._instance = new ChoreoWebViewAPI(vscode);
         }
         return this._instance;
-    }
-
-    public async hasUnpushedComponents(projectId: string): Promise<boolean> {
-        return this._messenger.sendRequest(HasUnpushedComponents, HOST_EXTENSION, projectId);
     }
 
     public updateProjectOverview(projectId: string) {

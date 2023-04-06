@@ -32,7 +32,10 @@
     "vscode-messenger-common": "^0.4.3",
     "vscode-messenger-webview": "^0.4.3",
     "graphql-request": "~5.1.0",
-    "@types/node": "^18.11.19"
+    "@types/node": "^18.11.19",
+    "handlebars": "~4.7.7",
+    "node-fetch": "~3.3.1",
+    "@wso2-enterprise/ballerina-languageclient": "workspace:*"
   },
   "jest": {
     "transformIgnorePatterns": [

@@ -38,7 +38,7 @@ export function LinkingButton(props: { service: Service }) {
             <ListItemIcon>
                 <TurnRightIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText className={classes.listItemText}>Link internally</ListItemText>
+            <ListItemText className={classes.listItemText}>Use Internal API</ListItemText>
         </MenuItem>
     );
 }

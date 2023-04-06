@@ -34,11 +34,13 @@ interface DiagramContextProps {
     setConnectorTarget: (service: Service) => void;
     editLayerAPI: EditLayerAPI | undefined;
     deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>;
+    isConsoleView: boolean;
 }
 
 interface IDiagramContext {
     editingEnabled: boolean;
     isChoreoProject: boolean;
+    isConsoleView: boolean;
     currentView: Views;
     hasDiagnostics: boolean;
     refreshDiagram: () => void;
@@ -68,6 +70,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         currentView,
         editingEnabled,
         isChoreoProject,
+        isConsoleView,
         editLayerAPI,
         projectComponents,
         projectDiagnostics,
@@ -86,6 +89,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         currentView,
         editingEnabled,
         isChoreoProject,
+        isConsoleView,
         hasDiagnostics,
         setCurrentView,
         refreshDiagram,
@@ -98,6 +102,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
             ...context,
             editLayerAPI,
             newComponentID,
+            isConsoleView,
             setNewComponentID,
             newLinkNodes,
             setNewLinkNodes,

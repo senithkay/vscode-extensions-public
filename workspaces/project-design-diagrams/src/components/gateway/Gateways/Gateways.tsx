@@ -17,15 +17,18 @@
  *
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { GatewayIcon } from "../../common/DiagramContainer/GatewayIcon";
 import { GatewayContainer } from "../../common/DiagramContainer/style";
+import { DiagramContext } from "../../common";
 
 export function Gateways() {
-    const westGWLeft = '20px';
-    const westGWTop = `50%`;
+    const { isConsoleView } = useContext(DiagramContext);
+
+    const westGWLeft = '-30px';
+    const westGWTop = isConsoleView ? `calc(48% - 30px)` : `calc(50% - 40px)`;
     const northGWLeft = `calc(50% - 20px)`;
-    const northGWTop = '50px';
+    const northGWTop = '0px';
 
     return (
         <>

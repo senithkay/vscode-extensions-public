@@ -11,15 +11,21 @@
  *  associated services.
  */
 
+import { BallerinaTriggersResponse, BallerinaTriggerResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { Project, Component, ChoreoComponentCreationParams } from "./types";
 
 export interface IProjectManager {
     createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
+    createLocalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string|boolean>;
     getProjectDetails(): Promise<Project>;
     getProjectRoot(): Promise<string | undefined>;
     getLocalComponents(workspaceFilePath: string): Component[];
     isRepoCloned(params: IsRepoClonedRequestParams): Promise<boolean>;
+    getRepoPath(repository: string): Promise<string>;
     cloneRepo(params: RepoCloneRequestParams): Promise<boolean>;
+    fetchTriggers(): Promise<BallerinaTriggersResponse | undefined>;
+    fetchTrigger(triggerId: string): Promise<BallerinaTriggerResponse | undefined>;
+    getBalVersion(): Promise<string>;
 }
 
 export enum BallerinaComponentTypes {

@@ -29,6 +29,7 @@ export const GetProject: RequestType<string, Project> = { method: 'getProject' }
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
 export const GetDeletedComponents: RequestType<string, Component[]> = { method: 'getDeletedComponents' };
 export const DeleteComponent: RequestType<{projectId: string, componentId: string}, void> = { method: 'deleteComponent' };
+export const GetEnrichedComponents: RequestType<string, Component[]> = { method: 'getEnrichedComponents' };
 export const PullComponent: RequestType<{projectId: string, componentId: string}, void> = { method: 'pullComponent' };
 export const GetProjectLocation: RequestType<string, string | undefined> = { method: 'getProjectLocation' };
 export const OpenExternal: RequestType<string, void> = { method: 'openExternal' };
@@ -36,16 +37,27 @@ export const OpenChoreoProject: RequestType<string, void> = { method: 'openChore
 export const CloneChoreoProject: RequestType<string, void> = { method: 'cloneChoreoProject' };
 export const setProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setProjectRepository' };
 export const getProjectRepository: RequestType<string, string> = { method: 'getProjectRepository' };
+export const setPreferredProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setPreferredProjectRepository' };
+export const getPreferredProjectRepository: RequestType<string, string> = { method: 'getPreferredProjectRepository' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
 export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
+export const PushLocalComponentToChoreo: RequestType<{projectId: string; componentName: string }, void> = { method: 'pushLocalComponentToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
 export const getDiagramComponentModel: RequestType<{ projId: string, orgHandler: string }, GetComponentModelResponse> = { method: 'getDiagramComponentModel' };
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
-export const HasUnpushedComponents: RequestType<string, boolean> = { method: 'hasUnpushedComponents' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
+export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };
 
+export interface OpenDialogOptions {
+   title: string,
+   canSelectFiles: boolean, 
+   canSelectFolders: boolean, 
+   canSelectMany: boolean, 
+   defaultUri: string, 
+   filters: { [name: string]: string[] }
+}
 
 // notification types
 export const LoginStatusChangedNotification: NotificationType<string> = { method: 'loginStatusChanged' };

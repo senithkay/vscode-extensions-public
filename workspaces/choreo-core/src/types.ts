@@ -89,7 +89,10 @@ export interface Component {
     // To store the accessibility of the component which are not created using Choreo
     accessibility?: string;
     local?: boolean;
+    hasUnPushedLocalCommits?: boolean;
+    hasDirtyLocalRepo?: boolean;
     isRemoteOnly?: boolean;
+    isInRemoteRepo?: boolean;
     deployments?: Deployments;
 }
 
@@ -237,7 +240,7 @@ export interface WorkspaceComponentMetadata {
         handle: string;
     };
     displayName: string;
-    displayType: ChoreoServiceComponentType;
+    displayType: ChoreoComponentType;
     description: string;
     projectId: string;
     accessibility: ComponentAccessibility;
@@ -247,17 +250,32 @@ export interface WorkspaceComponentMetadata {
         branchApp: string;
         appSubPath: string;
     };
+    byocConfig?: {
+        dockerfilePath: string;
+        dockerContext: string;
+        srcGitRepoUrl: string;
+        srcGitRepoBranch: string;
+    }
 }
 
-export enum ChoreoServiceComponentType {
-    REST_API = 'restAPI',
-    GRAPHQL = 'graphql',
-    MANUAL_TRIGGER = 'manualTrigger',
-    SCHEDULED_TASK = 'scheduledTask',
-    WEBHOOK = 'webhook',
-    PROXY = 'proxy',
-    GRPC_API = 'grpcAPI',
-    WEBSOCKET_API = 'websocketAPI'
+export enum ChoreoComponentType {
+    RestApi = 'restAPI',
+    ManualTrigger = 'manualTrigger',
+    ScheduledTask = 'scheduledTask',
+    Webhook = 'webhook',
+    Websocket = 'webSocket',
+    Proxy = 'proxy',
+    ByocMicroservice = 'byocMicroservice',
+    ByocCronjob = 'byocCronjob',
+    ByocJob = 'byocJob',
+    GraphQL = 'graphql',
+    ByocWebApp = 'byocWebApp',
+    ByocRestApi = 'byocRestApi',
+    ByocWebhook = 'byocWebhook',
+    MiRestApi = 'miRestApi',
+    MiEventHandler = 'miEventHandler',
+    Service = 'ballerinaService',
+    ByocService = 'byocService',
 }
 
 export interface ChoreoComponentCreationParams {
@@ -265,9 +283,15 @@ export interface ChoreoComponentCreationParams {
     projectId: string;
     org: Organization;
     description: string;
-    displayType: ChoreoServiceComponentType;
+    displayType: ChoreoComponentType;
     accessibility: ComponentAccessibility;
-    repositoryInfo: RepositoryDetails;
+    repositoryInfo: RepositoryDetails|BYOCRepositoryDetails;
+    trigger?: TriggerDetails;
+}
+
+export interface TriggerDetails {
+    id: string;
+    services?: string[];
 }
 
 export interface RepositoryDetails {
@@ -275,6 +299,11 @@ export interface RepositoryDetails {
     repo: string;
     branch: string;
     subPath: string;
+}
+
+export interface BYOCRepositoryDetails extends RepositoryDetails {
+    dockerFile: string;
+    dockerContext: string;
 }
 
 export interface Location {
@@ -363,7 +392,11 @@ export enum DeploymentStatus {
     Active = 'ACTIVE',
     Suspended = 'SUSPENDED',
     Error = 'ERROR',
-    InProgress = 'IN_PROGRESS',
+    InProgress = 'IN_PROGRESS'
+}
+
+export enum Status {
     LocalOnly = "LOCAL_ONLY",
-    UnavailableLocally= "NOT_AVAILABLE_LOCALLY"
+    UnavailableLocally= "NOT_AVAILABLE_LOCALLY",
+    ChoreoAndLocal= "CHOREO_AND_LOCAL"
 }

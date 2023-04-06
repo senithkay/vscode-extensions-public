@@ -184,7 +184,9 @@ export const useStyles = makeStyles(() =>
             },
             "& :hover": {
                 cursor: "pointer"
-            }
+            },
+            width: "inherit",
+            maxWidth: 150
         },
         resourceAdd: {
             cursor: "pointer",
@@ -196,6 +198,8 @@ export const useStyles = makeStyles(() =>
             padding: 5,
             backgroundColor: "#328b5e",
             color: "white",
+            width: "inherit",
+            maxWidth: 150
         },
         navigationIcon: {
             display: "flex",

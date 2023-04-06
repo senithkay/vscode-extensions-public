@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { gql } from 'graphql-request';
-import { CreateProjectParams, CreateComponentParams } from './types';
+import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
     const { name, description, orgId, orgHandle, version = "1.0.0", region = "US" } = params;
@@ -43,7 +43,6 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
             version: "1.0.0", 
             description: "${description}",
             apiId: "",
-            ballerinaVersion: "swan-lake-alpha5",
             triggerChannels: "", 
             triggerID: null,  
             httpBase: true,
@@ -55,6 +54,35 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
             repositoryBranch: "${repositoryBranch}",
             enableCellDiagram: true,})
             {  id, orgId, projectId, handler }
+        }
+    `;
+}
+
+export function getCreateBYOCComponentMutation(params: CreateByocComponentParams) {
+    const { name, displayName, componentType, description, orgId, orgHandler, projectId,
+        accessibility, byocConfig } = params;
+    const { dockerfilePath, dockerContext, srcGitRepoUrl, srcGitRepoBranch } = byocConfig;
+    return gql`mutation
+        { createByocComponent(component: {  
+                name: "${name}", 
+                displayName: "${displayName}",        
+                description: "${description}", 
+                orgId: ${orgId},  
+                orgHandler: "${orgHandler}",
+                projectId: "${projectId}",  
+                labels: "", 
+                componentType: "${componentType}", 
+                port: 8090,
+                oasFilePath: "",
+                accessibility: "${accessibility}",
+                byocConfig: {
+                    dockerfilePath: "${dockerfilePath}", 
+                    dockerContext: "${dockerContext}",
+                    srcGitRepoBranch: "${srcGitRepoBranch}",
+                    srcGitRepoUrl: "${srcGitRepoUrl}" 
+                }
+            })
+            {  id, organizationId, projectId, handle }
         }
     `;
 }

@@ -12,7 +12,7 @@
  */
 
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { Component, DeploymentStatus, Repository } from "@wso2-enterprise/choreo-core";
+import { Component, DeploymentStatus, Repository, Status } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
 import React, { useCallback } from "react";
@@ -23,8 +23,9 @@ export interface ComponentListProps {
     projectId?: string;
     orgName?: string;
     loading?: boolean;
-    openSourceControl?: () => void;
-    onComponentDeleteClick?: (componentId: string) => void;
+    openSourceControl: () => void;
+    onComponentDeleteClick: (component: Component) => void;
+    handlePushComponentClick: (componentName: string) => void;
 }
 
 const InlineIcon = styled.span`
@@ -42,14 +43,13 @@ export const DeploymentStatusMapping = {
     [DeploymentStatus.NotDeployed]: 'Not Deployed',
     [DeploymentStatus.Error]: 'Error',
     [DeploymentStatus.InProgress]: 'In-progress',
-    [DeploymentStatus.LocalOnly]: 'Locally only',
-    [DeploymentStatus.UnavailableLocally]: 'Not Available Locally',
-
+    [Status.LocalOnly]: 'Locally only',
+    [Status.UnavailableLocally]: 'Not Available Locally',
+    [Status.ChoreoAndLocal]: 'Available Locally & in Choreo',
 };
 
-// react component
 export function ComponentList(props: ComponentListProps) {
-    const { orgName, projectId, components, openSourceControl, onComponentDeleteClick, loading } = props;
+    const { orgName, projectId, components, openSourceControl, onComponentDeleteClick, handlePushComponentClick, loading } = props;
 
     if (!props.components) {
         return <><VSCodeProgressRing /></>;
@@ -91,17 +91,35 @@ export function ComponentList(props: ComponentListProps) {
         <>
             <VSCodeDataGrid aria-label="Components">
                 <VSCodeDataGridRow rowType="header">
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">Name</VSCodeDataGridCell>
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="2">Version</VSCodeDataGridCell>
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="3">Repo</VSCodeDataGridCell>
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="4">Branch</VSCodeDataGridCell>
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="5">Sub Path</VSCodeDataGridCell>
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="6">Status</VSCodeDataGridCell>
-                    <VSCodeDataGridActionCell cellType={"columnheader"} gridColumn="7">Actions</VSCodeDataGridActionCell>
+                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="1">
+                        Name
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="2">
+                        Version
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="3">
+                        Repo
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="4">
+                        Branch
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="5">
+                        Sub Path
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="6">
+                        Status
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="7">
+                        Deployment
+                    </VSCodeDataGridCell>
+                    <VSCodeDataGridActionCell cellType={"columnheader"} gridColumn="8">
+                        Actions
+                    </VSCodeDataGridActionCell>
                 </VSCodeDataGridRow>
-                {
-                    components?.map((component) => {
-                        const repo: Repository = component.repository ? component.repository : {
+                {components?.map((component) => {
+                    const repo: Repository = component.repository
+                        ? component.repository
+                        : {
                             nameApp: "-",
                             appSubPath: "-",
                             nameConfig: "-",
@@ -112,99 +130,118 @@ export function ComponentList(props: ComponentListProps) {
                             isUserManage: false,
                         };
 
-                        const componentBaseUrl = `https://console.choreo.dev/organizations/${orgName}/projects/${projectId}/components/${component.handler}`;
-                        const componentOverviewLink = `${componentBaseUrl}/overview`;
-                        const componentDeployLink = `${componentBaseUrl}/deploy`;
+                    const componentBaseUrl = `https://console.choreo.dev/organizations/${orgName}/projects/${projectId}/components/${component.handler}`;
+                    const componentOverviewLink = `${componentBaseUrl}/overview`;
+                    const componentDeployLink = `${componentBaseUrl}/deploy`;
 
-                        const repoName = (repo.organizationApp === '-') ? '-' : repo.organizationApp + "/" + repo.nameApp;
-                        const repoLink = repoName !== '-' ? `https://github.com/${repoName}` : ''
+                    const repoName =
+                        repo.organizationApp === "-"
+                            ? "-"
+                            : repo.organizationApp + "/" + repo.nameApp;
+                    const repoLink =
+                        repoName !== "-" ? `https://github.com/${repoName}` : "";
 
-                        let statusText: DeploymentStatus = component.deployments?.dev?.deploymentStatusV2 as DeploymentStatus;
-                        if (component.local) {
-                            statusText = DeploymentStatus.LocalOnly
-                        } else if (component.isRemoteOnly) {
-                            statusText = DeploymentStatus.UnavailableLocally
-                        } else if (!statusText) {
-                            statusText = DeploymentStatus.NotDeployed
-                        }
+                    let statusText: Status = Status.ChoreoAndLocal;
+                    if (component.local) {
+                        statusText = Status.LocalOnly;
+                    } else if (component.isRemoteOnly) {
+                        statusText = Status.UnavailableLocally;
+                    }
 
-                        return <VSCodeDataGridRow>
-                            <VSCodeDataGridCell gridColumn="1">{component.name}</VSCodeDataGridCell>
-                            <VSCodeDataGridCell gridColumn="2">{component.version}</VSCodeDataGridCell>
-                            <VSCodeDataGridCell gridColumn="3">
-                                {repoLink ? (
-                                    <VSCodeButton
-                                        appearance="icon"
-                                        onClick={() => onOpenConsoleClick(repoLink)}
-                                        title="Open GitHub Repo"
-                                    >
-                                        <Codicon name="github" />
-                                        &nbsp;{repoName}
-                                    </VSCodeButton>
-                                ) : (
-                                    repoName
-                                )}
+                    const deploymentStatus: DeploymentStatus =
+                        (component.deployments?.dev
+                            ?.deploymentStatusV2 as DeploymentStatus.NotDeployed) ||
+                        DeploymentStatus.NotDeployed;
+
+                    return (
+                        <VSCodeDataGridRow key={component.id || component.name}>
+                            <VSCodeDataGridCell gridColumn="1">
+                                {component.name}
                             </VSCodeDataGridCell>
-                            <VSCodeDataGridCell gridColumn="4">{repo.branchApp}</VSCodeDataGridCell>
+                            <VSCodeDataGridCell gridColumn="2">
+                                {component.version}
+                            </VSCodeDataGridCell>
+                            <VSCodeDataGridCell gridColumn="3">
+                                {repoLink && <a href={repoLink}>{repoName}</a>}
+                            </VSCodeDataGridCell>
+                            <VSCodeDataGridCell gridColumn="4">
+                                {repo.branchApp}
+                            </VSCodeDataGridCell>
                             <VSCodeDataGridCell gridColumn="5">
-                                {(repo.appSubPath === '-') ? '-' : "/" + repo.appSubPath}
+                                {repo.appSubPath === "-" ? "-" : "/" + repo.appSubPath}
                             </VSCodeDataGridCell>
                             <VSCodeDataGridCell gridColumn="6">
                                 {DeploymentStatusMapping[statusText]}
                             </VSCodeDataGridCell>
-                            <VSCodeDataGridActionCell gridColumn="7" className="">
-                                {[
-                                    DeploymentStatus.Suspended,
-                                    DeploymentStatus.NotDeployed,
-                                ].includes(
-                                    component.deployments?.dev
-                                        ?.deploymentStatusV2 as DeploymentStatus.NotDeployed
-                                ) && (
+                            <VSCodeDataGridCell gridColumn="7">
+                                {component.local ? (
+                                    "N/A"
+                                ) : (
+                                    <a href={componentDeployLink}>
+                                        {DeploymentStatusMapping[deploymentStatus]}
+                                    </a>
+                                )}
+                            </VSCodeDataGridCell>
+                            <VSCodeDataGridActionCell gridColumn="8" className="">
+                                {(component.hasDirtyLocalRepo ||
+                                    component.hasUnPushedLocalCommits) && (
                                         <VSCodeButton
                                             appearance="icon"
-                                            onClick={() => onOpenConsoleClick(componentDeployLink)}
-                                            title="Deploy the component via Choreo Console"
+                                            onClick={openSourceControl}
+                                            title="Open source control view & sync changes"
                                         >
-                                            <Codicon name="cloud-upload" />
+                                            <Codicon name="source-control" />
                                         </VSCodeButton>
                                     )}
-                                {(component.local || component.isRemoteOnly) && (
+                                {!component.local && (
                                     <VSCodeButton
                                         appearance="icon"
-                                        onClick={openSourceControl}
-                                        title="Open source control view & sync changes"
+                                        onClick={() => onOpenConsoleClick(componentOverviewLink)}
+                                        title="Open component overview in Choreo Console"
                                     >
-                                        <Codicon name="sync" />
+                                        <Codicon name="link-external" />
                                     </VSCodeButton>
                                 )}
-                                <VSCodeButton
-                                    appearance="icon"
-                                    onClick={() => onComponentDeleteClick(component.id)}
-                                    title="Delete Component"
-                                    disabled={loading}
-                                >
-                                    <Codicon name="trash" />
-                                </VSCodeButton>
-                                <VSCodeButton
-                                    appearance="icon"
-                                    onClick={() => onOpenConsoleClick(componentOverviewLink)}
-                                    title="Open component overview in Choreo Console"
-                                >
-                                    <Codicon name="link-external" />
-                                </VSCodeButton>
                                 {component.isRemoteOnly && (
                                     <VSCodeButton
                                         appearance="icon"
-                                        onClick={() => pullComponent(component.repository, repo.branchApp, component.id)}
+                                        onClick={() =>
+                                            pullComponent(
+                                                component.repository,
+                                                repo.branchApp,
+                                                component.id
+                                            )
+                                        }
                                         title="Pull code from remote repository"
                                     >
                                         <Codicon name="cloud-download" />
                                     </VSCodeButton>
                                 )}
+                                {component.local &&
+                                    !component.hasDirtyLocalRepo &&
+                                    !component.hasUnPushedLocalCommits &&
+                                    component.isInRemoteRepo && (
+                                        <VSCodeButton
+                                            appearance="icon"
+                                            onClick={() => handlePushComponentClick(component.name)}
+                                            title="Push code to remote repository"
+                                            disabled={loading}
+                                        >
+                                            <Codicon name="cloud-upload" />
+                                        </VSCodeButton>
+                                    )}
+                                <VSCodeButton
+                                    appearance="icon"
+                                    onClick={() => onComponentDeleteClick(component)}
+                                    title="Delete Component"
+                                    disabled={loading}
+                                >
+                                    <Codicon name="trash" />
+                                </VSCodeButton>
                             </VSCodeDataGridActionCell>
                         </VSCodeDataGridRow>
-                    })
-                }
+                    );
+                })}
             </VSCodeDataGrid>
         </>
     );

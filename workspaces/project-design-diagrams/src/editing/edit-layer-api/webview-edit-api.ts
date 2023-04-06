@@ -70,8 +70,8 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
         return this._messenger.sendRequest({ method: 'addLink' }, HOST_EXTENSION, [source, target]);
     }
 
-    public async deleteLink(location: Location): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'deleteLink' }, HOST_EXTENSION, location);
+    public async deleteLink(linkLocation: Location, serviceLocation: Location): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'deleteLink' }, HOST_EXTENSION, { linkLocation, serviceLocation });
     }
 
     public async pickDirectory(): Promise<string | undefined> {

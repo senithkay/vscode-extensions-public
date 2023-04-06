@@ -12,7 +12,7 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployments } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams } from "./types";
 import {
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
@@ -20,9 +20,9 @@ import {
     getComponentsWithCellDiagramQuery,
     getDeleteComponentQuery,
     getProjectsByOrgIdQuery,
-    getRepoMetadataQuery
+    getRepoMetadataQuery,
 } from './project-queries';
-import { getCreateProjectMutation, getCreateComponentMutation } from './project-mutations';
+import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
 import { AxiosResponse } from 'axios';
@@ -60,7 +60,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async deleteComponent(params: DeleteComponentParams): Promise<void> {
-        const query = getDeleteComponentQuery(params.orgHandler, params.componentId, params.projectId);
+        const query = getDeleteComponentQuery(params.orgHandler, params.component?.id, params.projectId);
         try {
             const client = await this._getClient();
             const data = await client.request(query);
@@ -76,13 +76,25 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         try {
             const client = await this._getClient();
             const data = await client.request(query);
+            return data.components;
+        } catch (error) {
+            throw new Error("Error while fetching components.", { cause: error });
+        }
+    }
 
+    async getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]> {
+        const { orgHandle } = params;
+        try {
+            const client = await this._getClient();
             const envQuery = getComponentEnvsQuery(params.orgUuid, params.projId);
             const envData = await client.request(envQuery);
             const devEnv = envData?.environments?.find((env: Environment) => env.name === 'Development');
             const prodEnv = envData?.environments?.find((env: Environment) => env.name === 'Production')
 
-            const components: Component[] = await Promise.all(data.components.map(async (component: Component) => {
+            const components: Component[] = await Promise.all(params.components.map(async (component: Component) => {
+                if (component.local) {
+                    return component;
+                }
                 const deployments: Deployments = {}
                 const queryData = {
                     componentId: component.id,
@@ -103,14 +115,21 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                     deploymentQueries.push(getComponentDeploymentQuery(queryData))
                 }
 
-                const deploymentRes = await Promise.allSettled(deploymentQueries.map(query => client.request(query)));
+                const deploymentRes = await Promise.all(deploymentQueries.map(async query => {
+                    try{
+                        const deploymentData = await client.request(query);
+                        return deploymentData;
+                    } catch {
+                        // If the component has never been deployed, this call would return a 404
+                        console.error(`Failed to get component deployment details for ${component.displayName}`);
+                        return;
+                    }
+                }));
                 deploymentRes?.forEach(deploymentData => {
-                    if (deploymentData.status === 'fulfilled') {
-                        if (devEnv && deploymentData?.value?.componentDeployment?.environmentId === devEnv.id) {
-                            deployments.dev = deploymentData.value.componentDeployment;
-                        } else if (prodEnv && deploymentData?.value?.componentDeployment?.environmentId === prodEnv.id) {
-                            deployments.prod = deploymentData.value.componentDeployment
-                        }
+                    if (devEnv && deploymentData?.componentDeployment?.environmentId === devEnv.id) {
+                        deployments.dev = deploymentData.componentDeployment;
+                    } else if (prodEnv && deploymentData?.componentDeployment?.environmentId === prodEnv.id) {
+                        deployments.prod = deploymentData.componentDeployment
                     }
                 })
 
@@ -120,7 +139,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
             return components;
         } catch (error) {
-            throw new Error("Error while fetching components.", { cause: error });
+            throw new Error("Error while getting component deployment details.", { cause: error });
         }
     }
 
@@ -138,6 +157,19 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async createComponent(params: CreateComponentParams): Promise<Component> {
         const mutation = getCreateComponentMutation(params);
+        console.log(mutation);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            console.log(data);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async createByocComponent(params: CreateByocComponentParams): Promise<Component> {
+        const mutation = getCreateByocComponentMutation(params);
         console.log(mutation);
         try {
             const client = await this._getClient();
@@ -170,7 +202,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async getSwaggerExamples(data: any): Promise<AxiosResponse> {
+    async getSwaggerExamples(data: string): Promise<AxiosResponse> {
         const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
         if (!choreoToken) {
             throw new Error('User is not logged in');
@@ -199,6 +231,18 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             const client = await this._getClient();
             const data = await client.request(query);
             return data.repoMetadata.isSubPathValid;
+        } catch (error) {
+            throw new Error("Error while executing " + query, { cause: error, });
+        }
+    }
+
+    async getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
+        const { organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId } = params;
+        const query = getRepoMetadataQuery(organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.repoMetadata;
         } catch (error) {
             throw new Error("Error while executing " + query, { cause: error, });
         }

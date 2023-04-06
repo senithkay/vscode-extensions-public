@@ -203,6 +203,7 @@ export enum ServiceTypes {
 export enum Colors {
     DIAGRAM_BACKGROUND = '#FFF',
     CELL_DIAGRAM_BACKGROUND = '#eeeffb',
+    CONSOLE_CELL_DIAGRAM_BACKGROUND = '#f7f8fb',
     PRIMARY = '#5567D5',
     SECONDARY = '#F0F1FB',
     PRIMARY_SELECTED = '#ffaf4d',
@@ -220,7 +221,7 @@ export interface EditLayerAPI {
     pullConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
     addConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
     addLink: (source: Service, target: Service) => Promise<boolean>;
-    deleteLink: (location: Location) => Promise<boolean>;
+    deleteLink: (linkLocation: Location, serviceLocation: Location) => Promise<boolean>;
     pickDirectory: () => Promise<string | undefined>;
     executeCommand: (cmd: string) => Promise<boolean>;
     go2source: (location: Location) => void;

@@ -14,8 +14,8 @@
 import { randomUUID } from "crypto";
 import { join } from "path";
 import {
-    AccessToken, ChoreoTokenType, ComponentMutationParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams,
-    GetProjectsParams, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams
+    AccessToken, ChoreoTokenType, ComponentMutationParams, CreateByocComponentParams, CreateProjectParams, DeleteComponentParams, GetComponentsParams, GetComponentDeploymentStatusParams,
+    GetProjectsParams, GitHubRepoValidationRequestParams, GitHubRepoValidationResponse, IAuthClient, IChoreoOrgClient, IChoreoProjectClient, ITokenStorage, LinkRepoMutationParams
 } from "@wso2-enterprise/choreo-client";
 import { Component, Organization, Project, Repository, UserInfo } from "@wso2-enterprise/choreo-core";
 import { ProjectRegistry } from "../../../registry/project-registry";
@@ -79,6 +79,13 @@ export class MockOrgClient implements IChoreoOrgClient {
 }
 
 export class MockProjectClient implements IChoreoProjectClient {
+    createByocComponent(params: CreateByocComponentParams): Promise<Component> {
+        throw new Error("Method not implemented.");
+    }
+    
+    getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
+        throw new Error("Method not implemented.");
+    }
     async getProjects(params: GetProjectsParams): Promise<Project[]> {
         // To mock a successfully cloned environment
         setProjectLocation();
@@ -91,6 +98,9 @@ export class MockProjectClient implements IChoreoProjectClient {
         const projectComponents: Component[] = allComponents.filter(component =>
             component.projectId === params.projId && component.orgHandler === params.orgHandle);
         return projectComponents;
+    }
+    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]> {
+        throw new Error("Method not implemented.");
     }
     createProject(params: CreateProjectParams): Promise<Project> {
         throw new Error("Method not implemented.");

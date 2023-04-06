@@ -1,0 +1,246 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * 
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
+ */
+import React, { useRef, useEffect } from "react";
+
+import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
+import { BallerinaTriggerInfo, DisplayAnnotation, ServiceType, Trigger } from '@wso2-enterprise/ballerina-languageclient';
+import { ErrorBanner } from '../../Commons/ErrorBanner';
+import { ChoreoWebViewAPI } from '../../utilities/WebViewRpc';
+
+import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
+import { ComponentWizardState } from "../types";
+import { ChoreoComponentType, TriggerDetails } from "@wso2-enterprise/choreo-core";
+import styled from "@emotion/styled";
+import { useQuery } from "@tanstack/react-query";
+
+
+const DEFAULT_ERROR_MSG = "Could not load the Webhook triggers.";
+const GET_TRIGGERS_PATH = "https://api.central.ballerina.io/2.0/registry/triggers";
+
+const StepContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 20px;
+    width: 100%;
+    min-width: 400px;
+`;
+
+const DropDownContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap : 4px;
+`;
+
+const TriggerSelectorContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+`
+
+interface TriggerServiceType extends ServiceType {
+    displayAnnotation?: DisplayAnnotation;
+}
+
+export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardState>>) => {
+
+    const { formData, stepValidationErrors, onFormDataChange } = props;
+
+    const balVersion = useRef<string>();
+
+    const triggerId = formData?.trigger?.id;
+    const triggerServices = formData?.trigger?.services;
+
+    const getLocalBallerinaVersion = async () => { 
+        if(!balVersion.current) {
+            balVersion.current = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().getBalVersion();
+        }
+        return balVersion.current;
+    }
+
+    const { isLoading: fetchingTriggers, error: triggersError, data: triggers, refetch: refetchTriggers } = useQuery({
+        queryKey: ['availableTriggers'],
+        queryFn: () =>
+            ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTriggers().then(async (response) => {
+                if (response && response.central?.length) {
+                    return response.central;
+                } else {
+                    return fetch(GET_TRIGGERS_PATH, {
+                        headers: {
+                            'User-Agent': await getLocalBallerinaVersion()
+                        }
+                    }).then((res) => res.json())
+                        .then((data) => {
+                            if (data && data.triggers?.length) {
+                                return data.triggers;
+                            } else {
+                                throw new Error(DEFAULT_ERROR_MSG);
+                            }
+                        })
+                }
+            })
+      })
+
+    const { isLoading: fetchingTrigger, error: triggerError, data: trigger, refetch: refetchTrigger } = useQuery({
+        enabled: triggerId !== undefined,
+        queryKey: [`triggerData-${triggerId}`],
+        queryFn: async () =>{
+            if (!triggerId) {
+                return Promise.resolve(undefined);
+            }
+            // TODO: implement this in ChoreoWebViewAPI
+            // ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTrigger(selectedTrigger).then(async (response) => {
+            //     return response;
+            // })
+            const response = await fetch(`${GET_TRIGGERS_PATH}/${triggerId}`, {
+                headers: {
+                    'User-Agent': await getLocalBallerinaVersion()
+                }
+            });
+            const triggerData = await response.json();
+            if (!triggerData) {
+                throw new Error(DEFAULT_ERROR_MSG);
+            }
+            return triggerData;
+        },
+    })
+
+    const handleTriggerChange = (id: string | undefined) => {
+        onFormDataChange((prevFormData) => {
+            return {
+                ...prevFormData,
+                trigger: {id: id, services: undefined}
+            };
+        });
+        refetchTrigger();
+    };  
+
+    const handleServiceChange = (event: any) => {
+        const selectedOptions = event.currentTarget.selectedOptions;
+        const newServices:string[] = [];
+        for (let i = 0; i < selectedOptions.length; i++) {
+            newServices.push(selectedOptions[i].value);
+        }
+        onFormDataChange((prevFormData) => {
+            return {
+                ...prevFormData,
+                trigger: {
+                    ...prevFormData.trigger,
+                    services: newServices
+                }
+            };
+        });
+    };
+
+    const setDefaultTrigger = () => {
+        if (!triggerId && triggers && triggers.length) {
+            handleTriggerChange(triggers[0].id);
+        }
+    };
+
+    const setDefaultService = () => {
+        if (!triggerServices && trigger && trigger.serviceTypes?.length) {
+            onFormDataChange((prevFormData) => {
+                return {
+                    ...prevFormData,
+                    trigger: {
+                        ...prevFormData.trigger,
+                        services: [trigger.serviceTypes[0].name]
+                    }
+                };
+            });
+        }
+    };
+
+    useEffect(() => {
+        setDefaultTrigger();
+    }, [triggers]);
+    
+    useEffect(() => {
+        setDefaultService();
+    }, [trigger]);
+
+    return (
+        <StepContainer>
+            <DropDownContainer>
+                <label htmlFor="trigger-dropdown">Select Trigger</label>
+                {fetchingTriggers && <VSCodeProgressRing />}
+                {triggers && triggers.length > 0 && (
+                    <TriggerSelectorContainer>
+                        <VSCodeDropdown
+                            id="trigger-dropdown"
+                            onChange={(e: any) => {
+                                handleTriggerChange(e.target.value);
+                            }}
+                            style={{ flex: 4, zIndex: 100 }}
+                        >
+                            {triggers.map((trigger: Trigger) => (
+                                <VSCodeOption id={trigger.id} value={trigger.id} key={trigger.id} selected={+triggerId === +trigger.id}>
+                                    {trigger.displayAnnotation?.label || trigger.moduleName}
+                                </VSCodeOption>
+                            ))}
+                        </VSCodeDropdown>
+                        <VSCodeLink onClick={() => refetchTriggers()} style={{ flex: 1 }}>
+                            Refresh
+                        </VSCodeLink>
+                    </TriggerSelectorContainer>
+                )}
+                {triggersError && <ErrorBanner errorMsg={triggersError as any} />}
+            </DropDownContainer>
+            {stepValidationErrors["trigger"] && <ErrorBanner errorMsg={stepValidationErrors["trigger"]} />}
+            <DropDownContainer>
+                <label htmlFor="service-dropdown">Select Trigger Services</label>
+                {fetchingTrigger && <VSCodeProgressRing />}
+                {trigger && (trigger as BallerinaTriggerInfo).serviceTypes?.length > 0 && (
+                    <TriggerSelectorContainer>
+                        <VSCodeDropdown id="service-dropdown" onChange={handleServiceChange} multiple style={{ flex: 4, zIndex: 1 }}>
+                            {trigger.serviceTypes.map((service: TriggerServiceType) => (
+                                <VSCodeOption
+                                    id={service.name}
+                                    value={service.name}
+                                    key={service.name}
+                                    defaultSelected={triggerServices?.includes(service.name)}
+                                >
+                                    {service.displayAnnotation?.label || service.name}
+                                </VSCodeOption>
+                            ))}
+                        </VSCodeDropdown>
+                        <VSCodeLink onClick={() => refetchTrigger()} style={{ flex: 1 }}>
+                            Refresh
+                        </VSCodeLink>
+                    </TriggerSelectorContainer>
+                )}
+                {triggerError && <ErrorBanner errorMsg={triggerError as any} />}
+            </DropDownContainer>
+        </StepContainer>
+    );
+}
+
+export const TriggerConfigStep: Step<Partial<ComponentWizardState>> = {
+    title: 'Configure Webhook Trigger',
+    component: WebhookTriggerSelector,
+    shouldSkip: (formData) => {
+        return formData?.type !== ChoreoComponentType.Webhook;
+    },
+    validationRules: [
+        {
+            field: "trigger",
+            message: 'Please select a trigger type and at least one service',
+            rule: async (value: TriggerDetails|undefined) => {
+                return value?.id !== undefined && value?.services?.length > 0;
+            }
+        }
+    ]
+};

@@ -92,13 +92,17 @@ export async function askProjectClonePath() {
     });
 }
 
-export async function createProjectDir(parentDir: string, projectName: string): Promise<string> {
-    const projectDir = path.join(parentDir, projectName);
+export async function createProjectDir(parentDir: string, project: Project): Promise<string> {
+    const { name } = project;
+    const projectDir = path.join(parentDir, name);
     if (existsSync(projectDir)) {
         // TODO: Optimize the UX. eg: prompt again to change selected path or overwrite or generate a new folder
         throw new Error("A folder already exists at " + projectDir);
     }
     mkdirSync(projectDir);
+    // create choreo metadata file
+    const projectMetadataFIle = path.join(projectDir, '.choreo-project');
+    writeFileSync(projectMetadataFIle, JSON.stringify(project, null, 4));
     return projectDir;
 }
 
@@ -207,7 +211,7 @@ export const cloneProject = async (project: Project) => {
                 }
 
                 const parentDir = selectedDir[0].fsPath;
-                const projectDir = await createProjectDir(parentDir, projectName);
+                const projectDir = await createProjectDir(parentDir, project);
 
                 getLogger().debug("folder path to clone project: " + projectName + " is " + projectDir);
 

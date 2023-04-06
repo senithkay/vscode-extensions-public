@@ -21,8 +21,9 @@ import React, { useContext } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
-import { Location } from '../../../../resources';
 import { DiagramContext } from "../../../common";
+import { ServiceLinkModel } from "../ServiceLinkModel";
+import { ServiceNodeModel } from "../../ServiceNode/ServiceNodeModel";
 
 export const useStyles = makeStyles(() =>
     createStyles({
@@ -38,18 +39,19 @@ export const useStyles = makeStyles(() =>
 
 interface DeleteLinkProps {
     handleClose: () => void;
-    location: Location;
+    link: ServiceLinkModel;
 }
 
 export function DeleteLinkButton(props: DeleteLinkProps) {
     const classes = useStyles();
-    const { location, handleClose } = props;
+    const { link, handleClose } = props;
     const { editLayerAPI } = useContext(DiagramContext);
 
     const handleOnClick = () => {
-        editLayerAPI.deleteLink(location).then(() => {
-            handleClose();
-        });
+        editLayerAPI.deleteLink(link.location, (link.getSourcePort().getNode() as ServiceNodeModel).serviceObject.elementLocation)
+            .then(() => {
+                handleClose();
+            });
     }
 
     return (

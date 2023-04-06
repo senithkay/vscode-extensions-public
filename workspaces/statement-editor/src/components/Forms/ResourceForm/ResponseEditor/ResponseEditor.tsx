@@ -14,13 +14,16 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { LiteExpressionEditor, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { TextField } from '@material-ui/core';
+import { LiteExpressionEditor, LiteTextField, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
 import { ResponseCode } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
     CheckBoxGroup,
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ModulePart, NodePosition } from '@wso2-enterprise/syntax-tree';
+import debounce from 'lodash.debounce';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
 import { FormEditorContext } from '../../../../store/form-editor-context';
@@ -66,7 +69,6 @@ export function ResponseEditor(props: ParamProps) {
         onCancel, completions, httpMethodName
     } = props;
     const classes = useStyles();
-    
     const subTypeText = "Define a name record for the return type";
 
     const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
@@ -76,7 +78,8 @@ export function ResponseEditor(props: ParamProps) {
     // When a type is created and full ST is updated update the onChange to remove diagnostics
     useEffect(() => {
         if (newlyCreatedRecord) {
-            handleTypeChange(newlyCreatedRecord);
+            const newRecord = `${newlyCreatedRecord}${isArrayType ? '[]' : ''}`
+            handleTypeChange(newRecord);
         }
     }, [fullST]);
 
@@ -99,8 +102,6 @@ export function ResponseEditor(props: ParamProps) {
 
     const defaultValue = optionList.find(item => withTypeModelValue ? item.source === withTypeModelValue : item.source === model);
 
-    // const [originalSource] = useState<string>(defaultValue ? `${defaultValue.code}-${defaultValue.source}` : "");
-
     const selectedMethodResponse = httpMethodName && httpMethodName === "POST" ? optionsListString[3] : optionsListString[0];
 
     const [response, setResponse] = useState<string>(defaultValue ? `${defaultValue.title}` : selectedMethodResponse);
@@ -110,6 +111,7 @@ export function ResponseEditor(props: ParamProps) {
 
     const [anonymousValue, setAnonymousValue] = useState<string>("");
     const [subType, setSubType] = useState<boolean>(false);
+    const [isArrayType, setIsArrayType] = useState<boolean>(false);
 
 
     const onTypeEditorFocus = () => {
@@ -125,43 +127,18 @@ export function ResponseEditor(props: ParamProps) {
     }
 
     const handleTypeChange = (value: string) => {
-        // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-        // const paramName = model.paramName.value;
-        // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        if (value) {
-            setTypeValue(value);
-            onChange(segmentId, 200, value);
-        }
+        setTypeValue(value);
+        setIsArrayType(value.includes("[]"));
+        onChange(segmentId, 200, value);
     }
+
+    const debouncedOnChange = debounce(handleTypeChange, 500);
 
     const handleNameChange = (value: string) => {
         setAnonymousValue(value.replace(/\s/g, ''));
-        // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-        // const type = model.typeName.source.trim();
-        // const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        // onChange(segmentId, `${annotation} ${type} ${value} ${defaultValue}`, model.paramName, value);
     }
 
-    const handleDefaultValueChange = (value: string) => {
-        // const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-        // const type = model.typeName.source.trim();
-        // const paramName = model.paramName.value
-        // onChange(
-        //     segmentId,
-        //     `${annotation} ${type} ${paramName} = ${value}`,
-        //     STKindChecker.isDefaultableParam(model) ? model.expression : undefined,
-        //     value
-        // );
-    }
-
-    // const debouncedTypeChange = debounce(handleTypeChange, 800);
-    // const debouncedNameChange = debounce(handleNameChange, 800);
-    // const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
-
-    const handleOnSelect = (value: string) => {
-        // const newParamString = value ?
-        //     `${RESOURCE_HEADER_PREFIX} ${model.typeName.source} ${model.paramName.value}`
-        //     : `${model.typeName.source} ${model.paramName.value}`;
+    const handleOnSelect = (_: any, value: string) => {
         setResponse(value);
     };
 
@@ -204,7 +181,7 @@ export function ResponseEditor(props: ParamProps) {
             const responseCode = optionList.find(item => item.title === response);
             const responseName = responseCode.source.split(":")[1];
             const nameValue = `${responseName}${typeValue}`;
-            setAnonymousValue(nameValue);
+            setAnonymousValue(nameValue.replace(/\[\]/g, ""));
             setSubType(true);
         } else {
             setSubType(false);
@@ -214,12 +191,11 @@ export function ResponseEditor(props: ParamProps) {
 
     const subTypeEditor = (
         <>
-            <LiteExpressionEditor
-                testId="anonymous-record-name"
-                defaultValue={anonymousValue}
+            <LiteTextField
+                value={anonymousValue}
+                isLoading={false}
                 onChange={handleNameChange}
-                disabled={false}
-                completions={[]}
+                diagnostics={[]}
             />
         </>
     )
@@ -236,31 +212,28 @@ export function ResponseEditor(props: ParamProps) {
             <div className={classes.paramContent}>
 
                 <div className={classes.paramDataTypeWrapper}>
-                    <ParamDropDown
-                        dataTestId="param-type-selector"
-                        placeholder={"Select Code"}
-                        customProps={{ values: optionsListString }}
+                    <FieldTitle title='Select Code' optional={false} />
+                    <Autocomplete
+                        disablePortal
+                        id="param-type-selector"
+                        options={optionsListString}
                         defaultValue={response}
                         onChange={handleOnSelect}
-                        label="HTTP Response Code"
+                        renderInput={(params) => <TextField className={classes.searchList} {...params} />}
                     />
                 </div>
 
                 <div className={classes.paramTypeWrapper}>
-                    <FieldTitle title='Type' optional={false} />
+                    <FieldTitle title='Type' optional={true} />
                     <TypeBrowser
                         type={typeValue}
-                        onChange={handleTypeChange}
+                        onChange={debouncedOnChange}
                         isLoading={false}
                         recordCompletions={completions}
                         createNew={createRecord}
                         diagnostics={syntaxDiagnostics?.filter(diag => diag?.message.includes("unknown type"))}
                     />
                 </div>
-
-
-
-
             </div>
 
             <div className={classes.paramContent}>

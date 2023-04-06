@@ -17,14 +17,30 @@
  *
  */
 
-import { IProjectManager, Project, Component, BallerinaComponentCreationParams, BallerinaComponentTypes, IsRepoClonedRequestParams } from "@wso2-enterprise/choreo-core";
+import { IProjectManager, Project, Component, BallerinaComponentCreationParams, BallerinaComponentTypes, IsRepoClonedRequestParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import path, { join } from "path";
 import { addToWorkspace } from "../../utils/project-utils";
 import { addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate } from "./component-handler-utils";
+import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 
 export class BallerinaProjectManager implements IProjectManager {
+    createLocalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
+        throw new Error("Method not implemented.");
+    }
+    getRepoPath(repository: string): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
+    fetchTriggers(): Promise<BallerinaTriggersResponse> {
+        throw new Error("Method not implemented.");
+    }
+    fetchTrigger(param: string): Promise<BallerinaTriggerResponse> {
+        throw new Error("Method not implemented.");
+    }
+    getBalVersion(): Promise<string> {
+        throw new Error("Method not implemented.");
+    }
     async createLocalComponent(params: BallerinaComponentCreationParams): Promise<string> {
         return new Promise((resolve) => {
             const { directory: parentDirPath, package: packageName, name, version, org: orgName, type, triggerId } = params;

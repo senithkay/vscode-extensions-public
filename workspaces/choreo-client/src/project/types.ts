@@ -36,9 +36,29 @@ export interface CreateComponentParams {
     repositoryBranch: string;
 }
 
+export interface CreateByocComponentParams {
+    name: string;
+    displayName: string;
+    description: string;
+    orgId: number;
+    orgHandler: string;
+    projectId: string;
+    accessibility: string;
+    labels: string;
+    componentType: string;
+    port: number;
+    oasFilePath: string;
+    byocConfig: {
+        dockerfilePath: string;
+        dockerContext: string;
+        srcGitRepoUrl: string;
+        srcGitRepoBranch: string;
+    }
+}
+
 export interface DeleteComponentParams {
     orgHandler: string;
-    componentId: string;
+    component: Component;
     projectId: string;
 }
 
@@ -72,20 +92,57 @@ export interface GetComponentsParams {
     orgUuid: string;
 }
 
+export interface GetComponentDeploymentStatusParams {
+    orgHandle: string;
+    projId: string;
+    orgUuid: string;
+    components: Component[];
+}
+
 export interface GetDiagramModelParams {
     orgHandle: string;
     projId: string;
 }
 
+export interface GitHubRepoValidationResponse {
+    isBareRepo: boolean;
+    isSubPathValid: boolean;
+    isSubPathEmpty: boolean;
+    isValidRepo: boolean;
+    hasBallerinaTomlInPath: boolean;
+    hasBallerinaTomlInRoot: boolean;
+    isDockerfilePathValid: boolean;
+    hasDockerfileInPath: boolean;
+    isDockerContextPathValid: boolean;
+    isOpenApiFilePathValid: boolean;
+    hasOpenApiFileInPath: boolean;
+    hasPomXmlInPath: boolean;
+    hasPomXmlInRoot: boolean;
+  }
+  
+  export interface GitHubRepoValidationRequestParams {
+    organization: string;
+    repo: string;
+    branch: string;
+    path?: string;
+    dockerfile?: string;
+    dockerContextPath?: string;
+    openApiPath?: string;
+    componentId?: string;
+  }
+
 export interface IChoreoProjectClient {
     // queries
     getProjects(params: GetProjectsParams): Promise<Project[]>;
     getComponents(params: GetComponentsParams): Promise<Component[]>;
+    getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]>;
     getDiagramModel(params: GetComponentsParams): Promise<Component[]>;
+    getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse>;
 
     // mutations
     createProject(params: CreateProjectParams): Promise<Project>;
     createComponent(params: ComponentMutationParams): Promise<Component>;
+    createByocComponent(params: CreateByocComponentParams): Promise<Component>;
     deleteComponent(params: DeleteComponentParams): Promise<void>;
     linkRepo(params: LinkRepoMutationParams): Promise<Repository>;
 }
