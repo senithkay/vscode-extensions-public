@@ -73,8 +73,8 @@ const templates: ExpressionGroup = {
             example: "`value`"
         }, {
             name: "Regex Template",
-            template: "re `<value>`",
-            example: "re `<value>`"
+            template: "re `value`",
+            example: "re `value`"
         }
     ],
     relatedModelType: ModelType.EXPRESSION
