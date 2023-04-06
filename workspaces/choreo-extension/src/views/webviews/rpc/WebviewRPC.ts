@@ -35,7 +35,9 @@ import {
     OpenDialogOptions,
     GetComponentModelResponse,
     ComponentModelDiagnostics,
-    GetEnrichedComponents
+    GetEnrichedComponents,
+    getPreferredProjectRepository,
+    setPreferredProjectRepository
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -139,6 +141,14 @@ export class WebViewRpc {
 
         this._messenger.onRequest(getProjectRepository, (projectId: string) => {
             return ProjectRegistry.getInstance().getProjectRepository(projectId);
+        });
+
+        this._messenger.onRequest(setPreferredProjectRepository, async (params) => {
+            ProjectRegistry.getInstance().setPreferredProjectRepository(params.projId, params.repo);
+        });
+
+        this._messenger.onRequest(getPreferredProjectRepository, (projectId: string) => {
+            return ProjectRegistry.getInstance().getPreferredProjectRepository(projectId);
         });
 
         this._messenger.onRequest(isChoreoProject, () => {

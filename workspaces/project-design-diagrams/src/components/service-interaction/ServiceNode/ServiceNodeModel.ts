@@ -24,6 +24,7 @@ import { SharedNodeModel } from '../../common/shared-node/shared-node';
 import { GatewayType } from "../../gateway/types";
 
 export class ServiceNodeModel extends SharedNodeModel {
+	isLinked: boolean;
 	readonly level: Level;
 	readonly serviceObject: Service;
 	readonly serviceType: ServiceTypes;
@@ -74,5 +75,9 @@ export class ServiceNodeModel extends SharedNodeModel {
 
 	getTargetGateways = (): GatewayType[] => {
 		return this.targetGateways;
+	}
+
+	setIsLinked = (): void => {
+		this.isLinked = true;
 	}
 }

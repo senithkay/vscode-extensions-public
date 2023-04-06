@@ -35,7 +35,7 @@ export function AddConnectorButton(props: { service: Service }) {
             <ListItemIcon>
                 <AddLinkIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText className={classes.listItemText}>Link externally</ListItemText>
+            <ListItemText className={classes.listItemText}>Use External API</ListItemText>
         </MenuItem>
     );
 }

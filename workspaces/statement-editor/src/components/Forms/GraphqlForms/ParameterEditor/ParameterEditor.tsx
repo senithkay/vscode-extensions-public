@@ -189,6 +189,7 @@ export function ParameterEditor(props: ParameterEditorProps) {
                             param?.typeName?.viewState?.diagnosticsInRange :
                             (param?.viewState?.diagnosticsInRange)}
                         isGraphqlForm={true}
+                        isParameterType={true}
                     />
                 </div>
                 <div className={classes.paramNameWrapper}>

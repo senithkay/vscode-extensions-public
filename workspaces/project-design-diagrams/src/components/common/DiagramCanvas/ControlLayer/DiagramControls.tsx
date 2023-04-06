@@ -26,22 +26,26 @@ import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { DiagnosticsWarning } from './DiagnosticsWarning';
 import { ControlPanel } from '../styles/styles';
+import CachedIcon from "@mui/icons-material/Cached";
 import '../styles/styles.css';
 
 interface ControlProps {
     zoomToFit: () => void;
     showDownloadButton: boolean;
     onZoom: (zoomIn: boolean) => void;
-    onDownload: () => void;
+    onDownload?: () => void;
 }
 
 export function DiagramControls(props: ControlProps) {
     const { onDownload, onZoom, zoomToFit, showDownloadButton = true } = props;
     const { hasDiagnostics } = useContext(DiagramContext);
+    const { refreshDiagram } = useContext(DiagramContext);
+
+    const isCellView = !showDownloadButton // We are hide download button form cell view. Hence, deriving from that
 
     return (
         <ControlPanel showDownloadButton={showDownloadButton} >
-            {hasDiagnostics && 
+            {hasDiagnostics &&
                 <DiagnosticsWarning />
             }
             {showDownloadButton && (
@@ -51,6 +55,15 @@ export function DiagramControls(props: ControlProps) {
                     onClick={onDownload}
                 >
                     <DownloadIcon fontSize='medium' />
+                </IconButton>
+            )}
+            {isCellView && (
+                <IconButton
+                    className={'control-button'}
+                    size='small'
+                    onClick={refreshDiagram}
+                >
+                    <CachedIcon fontSize='small' />
                 </IconButton>
             )}
             <IconButton

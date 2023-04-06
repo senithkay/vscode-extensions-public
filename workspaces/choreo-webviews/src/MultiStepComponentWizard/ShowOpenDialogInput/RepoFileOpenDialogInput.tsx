@@ -42,7 +42,11 @@ export const RepoFileOpenDialogInput = (props: ShowOpenDialogInputProps) => {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Selected path is not inside the repository.");
                 return;
             }
-            const subPath = paths[0].replace(repoPath, "");
+            let subPath = paths[0].replace(repoPath, "");
+            // need to remove the first slash if it exists, for both windows and unix
+            if (subPath.startsWith("/") || subPath.startsWith("\\")) {
+                subPath = subPath.substring(1);
+            }
             onOpen(subPath);
         }
     };

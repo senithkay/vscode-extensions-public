@@ -40,8 +40,8 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
 
     return (
         <CtrlClickHandler
-            filePath={node.interfaceObject.position.filePath}
-            position={getFormattedPosition(node.interfaceObject.position)}
+            filePath={node.interfaceObject?.position?.filePath}
+            position={node.interfaceObject?.position && getFormattedPosition(node.interfaceObject.position)}
         >
             <InterfaceNodeHeader>
                 <div>{"<<interface>>"}</div>

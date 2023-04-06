@@ -177,7 +177,7 @@ export function deleteBallerinaPackage(filePath: string): void {
     });
 }
 
-export async function deleteComponent(location: Location) {
+export async function deleteService(location: Location) {
     const modifications: STModification[] = [];
     modifications.push({
         startLine: location.startPosition.line,
@@ -197,7 +197,7 @@ export async function deleteComponent(location: Location) {
 
     if (response.parseSuccess && response.source) {
         await updateSourceFile(langClient, location.filePath, response.source).then(() => {
-            window.showInformationMessage('Component was deleted successfully');
+            window.showInformationMessage('Service was deleted successfully');
         })
     }
 }
