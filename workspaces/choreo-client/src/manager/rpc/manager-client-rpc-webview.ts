@@ -52,8 +52,8 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     fetchTriggers(): Promise<BallerinaTriggersResponse | undefined> {
         return this._messenger.sendRequest(FetchBallerinaTriggers, HOST_EXTENSION, "");
     }
-    fetchTrigger(param: string): Promise<BallerinaTriggerResponse | undefined> {
-        return this._messenger.sendRequest(FetchBallerinaTrigger, HOST_EXTENSION, param);
+    fetchTrigger(triggerId: string): Promise<BallerinaTriggerResponse | undefined> {
+        return this._messenger.sendRequest(FetchBallerinaTrigger, HOST_EXTENSION, triggerId);
     }
     getBalVersion(): Promise<string> {
         return this._messenger.sendRequest(GetBallerinaVersion, HOST_EXTENSION, "");

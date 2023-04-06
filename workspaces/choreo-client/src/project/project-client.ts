@@ -11,8 +11,8 @@
  *  associated services.
  */
 import { GraphQLClient } from 'graphql-request';
-import { Component, Project, Repository, Environment, Deployments } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams } from "./types";
+import { Component, Project, Repository, Environment, Deployment } from "@wso2-enterprise/choreo-core";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams } from "./types";
 import {
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
@@ -82,64 +82,37 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
-    async getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Component[]> {
-        const { orgHandle } = params;
+    async getProjectEnv(params: GetProjectEnvParams): Promise<Environment[]> {
+        const client = await this._getClient();
+        try {
+            const envQuery = getComponentEnvsQuery(params.orgUuid, params.projId);
+            const envDataRes = await client.request(envQuery);
+            return envDataRes?.environments;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Deployment | null> {
         try {
             const client = await this._getClient();
-            const envQuery = getComponentEnvsQuery(params.orgUuid, params.projId);
-            const envData = await client.request(envQuery);
-            const devEnv = envData?.environments?.find((env: Environment) => env.name === 'Development');
-            const prodEnv = envData?.environments?.find((env: Environment) => env.name === 'Production')
 
-            const components: Component[] = await Promise.all(params.components.map(async (component: Component) => {
-                if (component.local) {
-                    return component;
-                }
-                const deployments: Deployments = {}
-                const queryData = {
-                    componentId: component.id,
-                    orgHandler: orgHandle,
-                    versionId: component.apiVersions[component.apiVersions.length - 1]?.id,
-                    orgUuid: params.orgUuid,
-                    environmentId: ""
-                }
+            const queryData = {
+                componentId: params.component.id,
+                orgHandler: params.orgHandle,
+                versionId: params.versionId,
+                orgUuid: params.orgUuid,
+                environmentId: params.envId
+            }
 
-                const deploymentQueries: string[] = [];
-                if (devEnv) {
-                    queryData.environmentId = devEnv.id;
-                    deploymentQueries.push(getComponentDeploymentQuery(queryData))
-                }
+            const query = getComponentDeploymentQuery(queryData);
+            const deploymentData = await client.request(query);
 
-                if (prodEnv) {
-                    queryData.environmentId = prodEnv.id;
-                    deploymentQueries.push(getComponentDeploymentQuery(queryData))
-                }
-
-                const deploymentRes = await Promise.all(deploymentQueries.map(async query => {
-                    try{
-                        const deploymentData = await client.request(query);
-                        return deploymentData;
-                    } catch {
-                        // If the component has never been deployed, this call would return a 404
-                        console.error(`Failed to get component deployment details for ${component.displayName}`);
-                        return;
-                    }
-                }));
-                deploymentRes?.forEach(deploymentData => {
-                    if (devEnv && deploymentData?.componentDeployment?.environmentId === devEnv.id) {
-                        deployments.dev = deploymentData.componentDeployment;
-                    } else if (prodEnv && deploymentData?.componentDeployment?.environmentId === prodEnv.id) {
-                        deployments.prod = deploymentData.componentDeployment
-                    }
-                })
-
-                component.deployments = deployments;
-                return component;
-            }));
-
-            return components;
+            return deploymentData?.componentDeployment;
         } catch (error) {
-            throw new Error("Error while getting component deployment details.", { cause: error });
+            // If the component has never been deployed, this call would return a 404
+            console.info(`Failed to get component deployment details for ${params.component.displayName}`);
+            return null;
         }
     }
 

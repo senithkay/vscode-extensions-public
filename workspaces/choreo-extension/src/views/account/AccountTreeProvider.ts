@@ -20,6 +20,7 @@ import { ChoreoOrgTreeItem } from "./ChoreoOrganizationTreeItem";
 import { ChoreoOrganizationsTreeItem } from "./ChoreoOrganizationsTreeItem";
 import { orgClient } from "../../auth/auth";
 import { getLogger } from "../../logger/logger";
+import { STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from "../../constants";
 
 export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | ChoreoSignInTreeItem | ChoreoSignInPendingTreeItem;
  
@@ -42,15 +43,15 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
      }
  
      getChildren(element?: TreeItem): ProviderResult<AccountTreeItem[]> {
-        if (ext.api.status === "LoggedIn") {
+        if (ext.api.status === STATUS_LOGGED_IN) {
             if (!element) {
                 return  [new ChoreoOrganizationsTreeItem(), new ChoreoSignOutTreeItem()];
             } else if (element instanceof ChoreoOrganizationsTreeItem) {
                 return this.loadOrgTree();
             }
-        } else if (ext.api.status === "LoggedOut") {
+        } else if (ext.api.status === STATUS_LOGGED_OUT) {
             return [new ChoreoSignInTreeItem()];
-        } else if (ext.api.status === "LoggingIn") {
+        } else if (ext.api.status === STATUS_LOGGING_IN) {
             return [new ChoreoSignInPendingTreeItem()];
         }
      }

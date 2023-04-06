@@ -25,6 +25,12 @@ export const choreoArchitectureViewCmdId = 'wso2.choreo.architecture.view';
 export const choreoProjectRegistryRefreshCmdId = 'wso2.choreo.projects.registry.refresh';
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
 
+// Choreo login status
+export const STATUS_LOGGED_IN = "LoggedIn";
+export const STATUS_LOGGED_OUT = "LoggedOut";
+export const STATUS_LOGGING_IN = "LoggingIn";
+export const STATUS_INITIALIZING = "Initializing";
+
 // views
 export const choreoProjectsTreeId = 'choreo-projects';
 export const choreoAccountTreeId = 'choreo-account';

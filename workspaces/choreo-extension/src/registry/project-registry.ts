@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Component, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { Component, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
@@ -34,6 +34,7 @@ export class ProjectRegistry {
     static _registry: ProjectRegistry | undefined;
     private _dataProjects: Map<number, Project[]> = new Map<number, Project[]>([]);
     private _dataComponents: Map<string, Component[]> = new Map<string, Component[]>([]);
+    private _projectEnvs: Map<string, Environment[]> = new Map<string, Environment[]>([]);
 
     constructor() {
 
@@ -186,43 +187,71 @@ export class ProjectRegistry {
         
         const successMsg = " Please commit & push your local changes changes to ensure consistency with the remote repository.";
         vscode.window.showInformationMessage(successMsg);
+
+    private async isComponentInRepo(component: Component): Promise<boolean> {
+        let isInRemoteRepo = true;
+        if(component.local && component.repository){
+            const { appSubPath, branchApp, nameApp, organizationApp } = component.repository;
+            try {
+                isInRemoteRepo = await projectClient.isComponentInRepo({
+                    branchApp: branchApp,
+                    orgApp: organizationApp,
+                    repoApp: nameApp,
+                    subPath: appSubPath || ""
+                });
+            } catch (e) {
+                console.error(`Failed to check isComponentInRepo for ${component.name}`);
+                isInRemoteRepo = false;
+            }
+        }
+        return isInRemoteRepo;
     }
 
     async getEnrichedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
             const components = this._dataComponents.get(projectId) || [];
 
-            let enrichedComponents = await projectClient.getComponentDeploymentStatus({ projId: projectId, orgHandle: orgHandle, orgUuid, components });
+            let envData = this._projectEnvs.get(projectId);
+            if(!envData){
+                envData = await projectClient.getProjectEnv({ orgUuid, projId: projectId });
+                if(envData){
+                    this._projectEnvs.set(projectId, envData);
+                }
+            }
 
-            enrichedComponents = await Promise.all(
-                enrichedComponents.map(async (component) => {
-                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo] = await Promise.all([
+            const devEnv = envData?.find((env: Environment) => env.name === 'Development');
+
+            const enrichedComponents: Component[] = await Promise.all(
+                components.map(async (component) => {
+                    const selectedVersion = component.apiVersions?.find(item=>item.latest);
+                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo] = await Promise.all([
                         this.hasUnPushedLocalCommit(projectId, component),
                         this.hasDirtyLocalRepo(projectId, component),
+                        selectedVersion && devEnv && projectClient.getComponentDeploymentStatus({
+                            component,
+                            envId: devEnv?.id,
+                            orgHandle,
+                            orgUuid,
+                            projId: projectId,
+                            versionId: selectedVersion.id
+                        }),
+                        this.isComponentInRepo(component)
                     ]);
 
-                    let isInRemoteRepo = true;
-                    if(component.local && component.repository){
-                        const { appSubPath, branchApp, nameApp, organizationApp } = component.repository;
-                        try {
-                            isInRemoteRepo = await projectClient.isComponentInRepo({
-                                branchApp: branchApp,
-                                orgApp: organizationApp,
-                                repoApp: nameApp,
-                                subPath: appSubPath || ""
-                            });
-                        } catch (e) {
-                            console.error(`Failed to check isComponentInRepo for ${component.name}`);
-                            isInRemoteRepo = false;
-                        }
-                    }
-                    
                     let isRemoteOnly = true;
                     if (component.repository?.appSubPath) {
                         const { organizationApp, nameApp, appSubPath } = component.repository;
                         isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
                     }
-                    return { ...component, hasUnPushedLocalCommits, hasDirtyLocalRepo, isRemoteOnly, isInRemoteRepo };
+
+                    return { 
+                        ...component, 
+                        hasUnPushedLocalCommits, 
+                        hasDirtyLocalRepo, 
+                        isRemoteOnly, 
+                        isInRemoteRepo,
+                        deployments: { dev: devDeployment }
+                    } as Component;
                 })
             );
 

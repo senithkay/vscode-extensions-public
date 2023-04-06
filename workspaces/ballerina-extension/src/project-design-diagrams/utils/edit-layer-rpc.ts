@@ -19,7 +19,7 @@
 
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { BallerinaComponentCreationParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
-import { BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { Messenger } from "vscode-messenger";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
@@ -106,6 +106,10 @@ export class EditLayerRPC {
 
         this._messenger.onRequest({ method: 'fetchTriggers' }, async (): Promise<BallerinaTriggersResponse | {}> => {
             return langClient.getTriggers({ query: '' });
+        });
+
+        this._messenger.onRequest({ method: 'fetchTrigger' }, async (triggerId: string): Promise<BallerinaTriggerResponse | {}> => {
+            return langClient.getTrigger({ id: triggerId });
         });
 
         this._messenger.onRequest({ method: 'editDisplayLabel' }, async (annotation: ServiceAnnotation): Promise<boolean> => {

@@ -31,5 +31,3 @@ export * from "./ParamEditor/ParamEditor";
 export * from "./ParamEditor/ParamItem";
 export * from "./TextPreloaderVertical";
 export * from "./WarningBanner/WarningBanner";
-export * from "./CtrlClickWrapper"
-

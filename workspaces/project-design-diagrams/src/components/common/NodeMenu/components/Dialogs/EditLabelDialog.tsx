@@ -25,29 +25,28 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { DiagramContext } from '../../../DiagramContext/DiagramContext';
-import { Location, ServiceAnnotation } from '../../../../../resources';
+import { Location, Service, ServiceAnnotation } from '../../../../../resources';
 import { DefaultTextProps, TitleTextProps } from '../styles/styles';
 
 interface EditLabelDialogProps {
-    serviceAnnotation: ServiceAnnotation;
-    serviceLocation: Location;
+    service: Service;
     showDialog: boolean;
     updateShowDialog: (status: boolean) => void;
 }
 
 export function EditLabelDialog(props: EditLabelDialogProps) {
-    const { serviceAnnotation, serviceLocation, showDialog, updateShowDialog } = props;
-    const { editLayerAPI } = useContext(DiagramContext);
+    const { service, showDialog, updateShowDialog } = props;
+    const { editLayerAPI, refreshDiagram } = useContext(DiagramContext);
 
     const [serviceLabel, updateServiceLabel] = useState<string>(undefined);
 
     const getAnnotationLocation = (): Location => {
-        if (serviceAnnotation?.elementLocation) {
-            return serviceAnnotation.elementLocation;
-        } else if (serviceLocation) {
+        if (service.annotation?.elementLocation) {
+            return service.annotation.elementLocation;
+        } else if (service.elementLocation) {
             return {
-                ...serviceLocation,
-                endPosition: serviceLocation.startPosition
+                ...service.elementLocation,
+                endPosition: service.elementLocation.startPosition
             };
         }
     }
@@ -55,10 +54,11 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
     const editComponentLabel = async () => {
         const updatedAnnotation: ServiceAnnotation = {
             label: serviceLabel,
-            id: serviceAnnotation?.id,
+            id: service.annotation?.id,
             elementLocation: getAnnotationLocation()
         }
         await editLayerAPI.editDisplayLabel(updatedAnnotation);
+        refreshDiagram();
         handleDialogClose();
     }
 
@@ -79,7 +79,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
                     autoFocus
                     fullWidth
                     variant='standard'
-                    value={serviceLabel || serviceAnnotation?.label}
+                    value={serviceLabel || service.annotation?.label}
                     onChange={handleLabelInput}
                     InputProps={{ sx: DefaultTextProps }}
                 />
@@ -89,7 +89,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
                 <Button
                     sx={DefaultTextProps}
                     onClick={editComponentLabel}
-                    disabled={serviceLabel === undefined || serviceLabel === serviceAnnotation?.label}
+                    disabled={serviceLabel === undefined || serviceLabel === service.annotation?.label}
                 >
                     Update
                 </Button>

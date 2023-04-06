@@ -102,10 +102,13 @@ jobs:
       - name: Publish low code diagram
         if: ${{ github.event.inputs.packages == 'true' }}
         run: |
-          workspaces=("ballerina-languageclient" "ballerina-configurable-editor" "ballerina-data-mapper" "ballerina-expression-editor" "lang-service" "ballerina-low-code-diagram" "ballerina-low-code-distribution" "ballerina-low-code-editor" "ballerina-low-code-editor-commons" "ballerina-low-code-integration-tests" "ballerina-low-code-ui-components" "ballerina-statement-editor" "syntax-tree" "project-design-diagrams")
+          cd workspaces
+          workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree" "project-design-diagrams")
           for workspace in "${workspaces[@]}"; do
-            pnpm --filter=@wso2-enterprise/$workspace version ${{ inputs.version }} --no-git-tag-version
-            pnpm --filter=@wso2-enterprise/$workspace publish --tag ${{ steps.vsix.outputs.releaseMode }}
+            cd $workspace
+            npm version ${{ inputs.version }} --no-git-tag-version
+            npm publish --tag ${{ steps.vsix.outputs.releaseMode }}
+            cd ..
           done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
