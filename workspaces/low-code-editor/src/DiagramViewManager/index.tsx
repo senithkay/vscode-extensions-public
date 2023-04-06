@@ -223,11 +223,16 @@ export function DiagramViewManager(props: EditorProps) {
                         const typeSymbol = typeData?.typeSymbol;
                         listenerSignature = typeSymbol?.signature;
                     } else {
-                        const listenerSTDecl = await getSTNodeForReference(filePath, listenerExpression.position, langClient);
-                        if (listenerSTDecl) {
-                            const typeData = listenerExpression.typeData;
-                            const typeSymbol = typeData?.typeSymbol;
-                            listenerSignature = typeSymbol?.signature;
+                        try {
+                            const listenerSTDecl = await getSTNodeForReference(filePath, listenerExpression.position, langClient);
+                            if (listenerSTDecl) {
+                                const typeData = listenerExpression.typeData;
+                                const typeSymbol = typeData?.typeSymbol;
+                                listenerSignature = typeSymbol?.signature;
+                            }
+                        } catch (err) {
+                            // tslint:disable-next-line: no-console
+                            console.error(err);
                         }
                     }
                 }
