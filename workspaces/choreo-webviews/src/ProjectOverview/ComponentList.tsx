@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeButton, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { Component, DeploymentStatus, Repository, Status } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
@@ -33,7 +33,11 @@ const InlineIcon = styled.span`
     padding-left: 5px;
 `;
 
-const VSCodeDataGridActionCell = styled(VSCodeDataGridCell)`
+const VSCodeDataGridCenterCell = styled(VSCodeDataGridCell)`
+    align-self: center;
+`
+
+const VSCodeDataGridActionCell = styled(VSCodeDataGridCenterCell)`
     text-align: right;
 `
 
@@ -98,21 +102,12 @@ export function ComponentList(props: ComponentListProps) {
                         Version
                     </VSCodeDataGridCell>
                     <VSCodeDataGridCell cellType={"columnheader"} gridColumn="3">
-                        Repo
-                    </VSCodeDataGridCell>
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="4">
-                        Branch
-                    </VSCodeDataGridCell>
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="5">
-                        Sub Path
-                    </VSCodeDataGridCell>
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="6">
                         Status
                     </VSCodeDataGridCell>
-                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="7">
+                    <VSCodeDataGridCell cellType={"columnheader"} gridColumn="4">
                         Deployment
                     </VSCodeDataGridCell>
-                    <VSCodeDataGridActionCell cellType={"columnheader"} gridColumn="8">
+                    <VSCodeDataGridActionCell cellType={"columnheader"} gridColumn="5">
                         Actions
                     </VSCodeDataGridActionCell>
                 </VSCodeDataGridRow>
@@ -153,36 +148,45 @@ export function ComponentList(props: ComponentListProps) {
                             ?.deploymentStatusV2 as DeploymentStatus.NotDeployed) ||
                         DeploymentStatus.NotDeployed;
 
+                    let deploymentStatusColor = '--vscode-foreground';
+                    switch(deploymentStatus as DeploymentStatus){
+                        case DeploymentStatus.Active: 
+                            deploymentStatusColor = '--vscode-charts-green';
+                            break;
+                        case DeploymentStatus.InProgress: 
+                            deploymentStatusColor = '--vscode-charts-orange';
+                            break;
+                        case DeploymentStatus.Error: 
+                            deploymentStatusColor = '--vscode-errorForeground';
+                            break;
+                        case DeploymentStatus.Suspended: 
+                            deploymentStatusColor = '--vscode-charts-lines';
+                            break;
+                    }
+                    
                     return (
                         <VSCodeDataGridRow key={component.id || component.name}>
-                            <VSCodeDataGridCell gridColumn="1">
+                            <VSCodeDataGridCenterCell gridColumn="1">
                                 {component.name}
-                            </VSCodeDataGridCell>
+                            </VSCodeDataGridCenterCell>
                             <VSCodeDataGridCell gridColumn="2">
-                                {component.version}
+                                <VSCodeTag title={`Branch: ${repo.branchApp}`}>
+                                    {component.version}
+                                </VSCodeTag>
                             </VSCodeDataGridCell>
-                            <VSCodeDataGridCell gridColumn="3">
-                                {repoLink && <a href={repoLink}>{repoName}</a>}
-                            </VSCodeDataGridCell>
-                            <VSCodeDataGridCell gridColumn="4">
-                                {repo.branchApp}
-                            </VSCodeDataGridCell>
-                            <VSCodeDataGridCell gridColumn="5">
-                                {repo.appSubPath === "-" ? "-" : "/" + repo.appSubPath}
-                            </VSCodeDataGridCell>
-                            <VSCodeDataGridCell gridColumn="6">
+                            <VSCodeDataGridCenterCell gridColumn="3">
                                 {DeploymentStatusMapping[statusText]}
-                            </VSCodeDataGridCell>
-                            <VSCodeDataGridCell gridColumn="7">
+                            </VSCodeDataGridCenterCell>
+                            <VSCodeDataGridCenterCell gridColumn="4">
                                 {component.local ? (
                                     "N/A"
                                 ) : (
-                                    <a href={componentDeployLink}>
+                                    <a href={componentDeployLink} style={{ color: `var(${deploymentStatusColor})` }}>
                                         {DeploymentStatusMapping[deploymentStatus]}
                                     </a>
                                 )}
-                            </VSCodeDataGridCell>
-                            <VSCodeDataGridActionCell gridColumn="8" className="">
+                            </VSCodeDataGridCenterCell>
+                            <VSCodeDataGridActionCell gridColumn="5" className="">
                                 {(component.hasDirtyLocalRepo ||
                                     component.hasUnPushedLocalCommits) && (
                                         <VSCodeButton
@@ -193,6 +197,15 @@ export function ComponentList(props: ComponentListProps) {
                                             <Codicon name="source-control" />
                                         </VSCodeButton>
                                     )}
+                                {!component.local && (
+                                    <VSCodeButton
+                                        appearance="icon"
+                                        onClick={() => onOpenConsoleClick(repoLink)}
+                                        title="Open GitHub remote repository"
+                                    >
+                                        <Codicon name="github" />
+                                    </VSCodeButton>
+                                )}
                                 {!component.local && (
                                     <VSCodeButton
                                         appearance="icon"

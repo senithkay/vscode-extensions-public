@@ -72,7 +72,7 @@ const stmtEditorPadding = {
 const statementFontStyles = {
     fontSize: "15px",
     'user-select': 'none',
-    fontFamily: 'Droid sans mono'
+    fontFamily: 'monospace'
 }
 
 const inputEditorTemplateStyles = {

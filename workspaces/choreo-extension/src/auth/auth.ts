@@ -19,7 +19,7 @@ import { ext } from '../extensionVariables';
 import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
 import { Organization } from '@wso2-enterprise/choreo-core';
-import { SELECTED_ORG_ID_KEY } from '../constants';
+import { SELECTED_ORG_ID_KEY, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from '../constants';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -166,7 +166,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
 
 export async function signIn() {
     getLogger().debug("Signing in to Choreo.");
-    ext.api.status = 'LoggingIn';
+    ext.api.status = STATUS_LOGGING_IN;
     const choreoTokenInfo = await tokenStore.getToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
@@ -177,7 +177,7 @@ export async function signIn() {
             const selectedOrg = await getDefaultSelectedOrg(userInfo.organizations);
             await exchangeApimToken(choreoTokenInfo?.accessToken, selectedOrg.handle);  
             ext.api.selectedOrg = selectedOrg;
-            ext.api.status = "LoggedIn";
+            ext.api.status = STATUS_LOGGED_IN;
         } catch (error: any) {
             getLogger().error("Error while signing in! ", error);
             vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
@@ -213,7 +213,7 @@ export async function signOut() {
     await tokenStore.deleteToken("choreo.token");
     await tokenStore.deleteToken("choreo.apim.token");
     await tokenStore.deleteToken("choreo.vscode.token");
-    ext.api.status = "LoggedOut";
+    ext.api.status = STATUS_LOGGED_OUT;
     ext.api.userName = undefined;
     ext.api.selectedOrg = undefined;
 }

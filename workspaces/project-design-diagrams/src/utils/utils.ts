@@ -43,8 +43,8 @@ export const diagramTopXOffset = 580;
 export const diagramTopYOffset = 190;
 export const diagramLeftXOffset = 30;
 export const diagramLeftYOffset = 0;
-export const CELL_DIAGRAM_MARGIN_X = 300;
-export const CELL_DIAGRAM_MARGIN_Y = 100;
+export const CELL_DIAGRAM_MARGIN_X = 100;
+export const CELL_DIAGRAM_MARGIN_Y = 0;
 
 export interface ZoomOffset {
     topXOffset: number;

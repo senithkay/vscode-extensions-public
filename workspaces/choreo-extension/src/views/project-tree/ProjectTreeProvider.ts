@@ -16,6 +16,7 @@ import { ChoreoSignInPendingTreeItem } from "../common/ChoreoSignInTreeItem";
 import { ChoreoProjectTreeItem } from "./ProjectTreeItem";
 import { ProjectRegistry } from "../../registry/project-registry";
 import { getLogger } from "../../logger/logger";
+import { STATUS_LOGGED_IN, STATUS_LOGGING_IN } from "../../constants";
 
 export type ProjectTreeItem = ChoreoProjectTreeItem | ChoreoSignInPendingTreeItem;
 
@@ -47,11 +48,11 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
     }
 
     getChildren(element?: TreeItem): ProviderResult<ProjectTreeItem[]> {
-        if (ext.api.status === "LoggedIn") {
+        if (ext.api.status === STATUS_LOGGED_IN) {
             if (!element) {
                 return this.loadProjects();
             }
-        } else if (ext.api.status === "LoggingIn") {
+        } else if (ext.api.status === STATUS_LOGGING_IN) {
             return [new ChoreoSignInPendingTreeItem()];
         }
     }

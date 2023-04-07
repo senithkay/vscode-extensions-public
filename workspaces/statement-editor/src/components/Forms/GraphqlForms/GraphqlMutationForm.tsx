@@ -246,8 +246,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
     });
 
     useEffect(() => {
-        setFunctionName(model ? model.functionName.value : "");
-
         if (currentComponentName === "") {
             const editParams: FunctionParam[] = model?.functionSignature.parameters
                 .filter((param) => !STKindChecker.isCommaToken(param))

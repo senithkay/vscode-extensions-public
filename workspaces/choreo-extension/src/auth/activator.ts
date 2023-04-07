@@ -14,7 +14,7 @@ import * as vscode from 'vscode';
 import { commands, window } from "vscode";
 import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./auth";
 import { ext } from '../extensionVariables';
-import { choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
+import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 
 export async function activateAuth() {
@@ -23,7 +23,7 @@ export async function activateAuth() {
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {
             getLogger().debug("Signing in to Choreo");
-            ext.api.status = "LoggingIn";
+            ext.api.status = STATUS_LOGGING_IN;
             const openSuccess = await openAuthURL();
             if (openSuccess) {
                 await window.withProgress({
