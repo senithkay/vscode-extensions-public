@@ -24,6 +24,7 @@ export interface ComponentListProps {
     orgName?: string;
     loading?: boolean;
     fetchingComponents?: boolean;
+    isActive?: boolean;
     openSourceControl: () => void;
     onComponentDeleteClick: (component: Component) => void;
     handlePushComponentClick: (componentName: string) => void;
@@ -79,7 +80,7 @@ const mapBuildStatus = (
 };
 
 export function ComponentList(props: ComponentListProps) {
-    const { orgName, projectId, components, openSourceControl, onComponentDeleteClick, handlePushComponentClick, loading, fetchingComponents } = props;
+    const { orgName, projectId, components, openSourceControl, onComponentDeleteClick, handlePushComponentClick, loading, fetchingComponents, isActive } = props;
 
     if (props.components.length === 0 && fetchingComponents) {
         return <><VSCodeProgressRing /></>;
@@ -250,6 +251,7 @@ export function ComponentList(props: ComponentListProps) {
                                                 component.id
                                             )
                                         }
+                                        disabled={loading || !isActive}
                                         title="Pull code from remote repository"
                                     >
                                         <Codicon name="cloud-download" />
@@ -263,7 +265,7 @@ export function ComponentList(props: ComponentListProps) {
                                             appearance="icon"
                                             onClick={() => handlePushComponentClick(component.name)}
                                             title="Push code to remote repository"
-                                            disabled={loading}
+                                            disabled={loading || !isActive}
                                         >
                                             <Codicon name="cloud-upload" />
                                         </VSCodeButton>
@@ -272,7 +274,7 @@ export function ComponentList(props: ComponentListProps) {
                                     appearance="icon"
                                     onClick={() => onComponentDeleteClick(component)}
                                     title="Delete Component"
-                                    disabled={loading}
+                                    disabled={loading || !isActive}
                                 >
                                     <Codicon name="trash" />
                                 </VSCodeButton>

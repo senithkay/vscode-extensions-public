@@ -14,9 +14,10 @@
 import {
     VSCodeButton,
     VSCodeProgressRing,
+    VSCodeTag
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Component } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
@@ -51,11 +52,6 @@ const ComponentsHeader = styled.div`
     align-items: center;
 `;
 
-const ActiveLabel = styled.div`
-    font-size  : 12px;
-    display  : inline-block;
-`;
-
 const InlineIcon = styled.span`
     vertical-align: sub;
     padding-left: 5px;
@@ -76,22 +72,62 @@ export interface ProjectOverviewProps {
 export function ProjectOverview(props: ProjectOverviewProps) {
     const { orgName, projectId } = props;
     const queryClient = useQueryClient();
+    const [currentOrgName, setCurrentOrgName] = useState(orgName);
+    const validOrg = orgName === currentOrgName;
+
+    const { data: isLoggedIn } = useQuery({
+        queryKey: ["overview_project_login_status"],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getLoginStatus(),
+        select: (status) => status === 'LoggedIn'
+    });
+
+    const { data: validProject } = useQuery({
+        queryKey: ["overview_project_opened_project_id", projectId],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
+        select: (p) => p.id === projectId
+    });
+
+    const isActive = useMemo(() => {
+        return validProject && validOrg && isLoggedIn;
+    }, [validProject, validOrg, isLoggedIn]);
+
+    const inactiveMessage = useMemo(() => {
+        if (!isLoggedIn) {
+            return "Please Login to Choreo in order to activate this window.";
+        }
+        if (!validOrg) {
+            return `Please select ${orgName} as your organization in order to activate this window.`;
+        }
+        if (!validProject) {
+            return "Please clone or open your project to activate this window.";
+        }
+    }, [validProject, validOrg, isLoggedIn]);
+
+    ChoreoWebViewAPI.getInstance().onSelectedOrgChanged((newOrg=>{
+        setCurrentOrgName(newOrg.handle);
+    }))
+
+    ChoreoWebViewAPI.getInstance().onLoginStatusChanged((newStatus)=>{
+        queryClient.setQueryData(["overview_project_login_status"], newStatus);
+    })
 
     const { data: project } = useQuery({
-        queryKey: ["overview_project", projectId, orgName],
+        queryKey: ["overview_project", projectId],
         queryFn: () => ChoreoWebViewAPI.getInstance().getAllProjects(),
+        enabled: validOrg && isLoggedIn,
         select: (fetchedProjects) =>
             fetchedProjects.find((i) => i.id === projectId),
     });
 
     const { isLoading: isLoadingCompOnly, isRefetching: refetchingCompOnly, refetch: refetchComponentsOnly, isFetched } = useQuery({
-        queryKey: ["overview_component_list_only", projectId, orgName],
+        queryKey: ["overview_component_list_only", projectId],
         queryFn: async () => ChoreoWebViewAPI.getInstance().getComponents(projectId),
         refetchInterval: 120000, // check for new components every 2 minutes
         onSuccess: () => {
             refetchComponents()
         },
         refetchOnWindowFocus: false,
+        enabled: validOrg && isLoggedIn,
     });
 
     const {
@@ -100,22 +136,17 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         isRefetching: refetchingComponents,
         refetch: refetchComponents,
     } = useQuery({
-        queryKey: ["overview_component_list", projectId, orgName],
+        queryKey: ["overview_component_list", projectId],
         queryFn: async () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         refetchInterval: 15000, // Refetch component status every 15 seconds
-        enabled: !refetchingCompOnly && isFetched
-    });
-
-    const { data: isActive } = useQuery({
-        queryKey: ["overview_project_isActive", projectId, orgName],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
-        select: (p) => p?.id === projectId,
+        enabled: !refetchingCompOnly && isFetched && isLoggedIn && validOrg
     });
 
     const { data: location } = useQuery({
-        queryKey: ["overview_project_location", projectId, orgName],
+        queryKey: ["overview_project_location", projectId],
         queryFn: () => ChoreoWebViewAPI.getInstance().getProjectLocation(projectId),
+        enabled: isLoggedIn && validOrg
     });
 
     const { mutate: handleDeleteComponentClick, isLoading: deletingComponent } = useMutation({
@@ -124,7 +155,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         onSuccess: (data) => {
             if (data) {
                 const filteredComponents = components.filter(item => data.local ? item.name !== data.name : item.id !== data.id);
-                queryClient.setQueryData(["overview_component_list", projectId, orgName], filteredComponents);
+                queryClient.setQueryData(["overview_component_list", projectId], filteredComponents);
                 refetchComponentsOnly();
             }
         },
@@ -225,7 +256,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     >
                         <Codicon name="link-external" />
                     </VSCodeButton>
-                    {isActive && <ActiveLabel>(Currently Opened)</ActiveLabel>}
+                    {!isActive && <VSCodeTag color='yellow' title={inactiveMessage}>Inactive</VSCodeTag>}
                 </HeaderContainer>
                 {location === undefined && (
                     <>
@@ -321,7 +352,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         appearance="icon"
                         onClick={() => refetchComponentsOnly()}
                         title="Refresh component list"
-                        disabled={fetchingComponents}
+                        disabled={fetchingComponents || !isActive}
                     >
                         <Codicon name="refresh" />
                     </VSCodeButton>
@@ -335,6 +366,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     handlePushComponentClick={handlePushComponentClick}
                     loading={pushingComponent || pushingSingleComponent || deletingComponent}
                     fetchingComponents={fetchingComponents}
+                    isActive={isActive}
                 />
 
                 {(hasPushableComponents || pushingComponent) && (
@@ -350,7 +382,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             {pushingComponent && <VSCodeProgressRing />}
                             <VSCodeButton
                                 appearance="primary"
-                                disabled={pushingComponent || fetchingComponents || pushingSingleComponent}
+                                disabled={pushingComponent || fetchingComponents || pushingSingleComponent || !isActive}
                                 onClick={() => handlePushToChoreoClick()}
                             >
                                 <Codicon name="cloud-upload" />
@@ -382,7 +414,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton
                                 appearance="secondary"
                                 onClick={() => handleRefreshComponentsClick()}
-                                disabled={fetchingComponents}
+                                disabled={fetchingComponents || !isActive}
                             >
                                 <Codicon name="refresh" />
                                 &nbsp; Recheck
