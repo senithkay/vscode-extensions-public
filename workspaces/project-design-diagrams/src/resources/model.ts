@@ -226,6 +226,7 @@ export interface EditLayerAPI {
     executeCommand: (cmd: string) => Promise<boolean>;
     go2source: (location: Location) => void;
     goToDesign: (filePath: string, position: NodePosition) => void;
+    showDiagnosticsWarning: () => void;
     showErrorMessage: (message: string) => void;
     editDisplayLabel: (annotation: ServiceAnnotation) => Promise<boolean>;
     fetchTriggers: () => Promise<BallerinaTriggersResponse>;

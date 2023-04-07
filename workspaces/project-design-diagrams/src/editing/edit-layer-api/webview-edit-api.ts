@@ -84,7 +84,7 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
 
     public async fetchTrigger(triggerId: string): Promise<BallerinaTriggerResponse> {
         return this._messenger.sendRequest({ method: 'fetchTrigger' }, HOST_EXTENSION, triggerId);
-    }    
+    }
 
     public async executeCommand(cmd: string): Promise<boolean> {
         return this._messenger.sendRequest({ method: 'executeCommand' }, HOST_EXTENSION, cmd);
@@ -92,6 +92,10 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
 
     public async editDisplayLabel(annotation: ServiceAnnotation): Promise<boolean> {
         return this._messenger.sendRequest({ method: 'editDisplayLabel' }, HOST_EXTENSION, annotation);
+    }
+
+    public showDiagnosticsWarning(): void {
+        this._messenger.sendNotification({ method: 'showDiagnosticsWarning' }, HOST_EXTENSION, '');
     }
 
     public showErrorMessage(msg: string): void {
