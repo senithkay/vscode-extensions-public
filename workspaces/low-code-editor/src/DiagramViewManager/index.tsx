@@ -100,7 +100,6 @@ export function DiagramViewManager(props: EditorProps) {
         if (history.length > 0) {
             const { file, position, uid } = history[history.length - 1];
             fetchST(file, uid ? { uid } : { position });
-
             const currentProjectPath = projectPaths && projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
 
             if (!currentProject || (currentProjectPath && currentProject.name !== currentProjectPath.name)) {
@@ -117,9 +116,21 @@ export function DiagramViewManager(props: EditorProps) {
         if (currentProject) {
             (async () => {
                 const response = await getAllFiles('**/*.bal');
+                // TODO: This fix is temporary need to investigate why the file path is not correct in windows
+                const isWindows = window.navigator.userAgent.indexOf('Windows') !== -1;
+                if (isWindows) {
+                    // check if the file path has forward slash at the begning and replace if the os is windows
+                    response.forEach((fileUri,) => {
+                        if (fileUri.path.startsWith('/')) {
+                            fileUri.path = fileUri.path.replace('/', '');
+                            fileUri.path = fileUri.path.replaceAll('/', '\\');
+                        }
+                    });
+                }
+
                 const fileListResponse: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
                 const projectFiles: FileListEntry[] = fileListResponse.map(fileUri => ({
-                    fileName: fileUri.path.replace(`${currentProject.uri.fsPath}/`, ''),
+                    fileName: fileUri.path.replace(`${currentProject.uri.fsPath}${isWindows ? '\\' : '/'}`, ''),
                     uri: fileUri
                 }));
 
