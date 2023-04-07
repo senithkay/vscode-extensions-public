@@ -69,6 +69,7 @@ export const RecordType = (props: RecordTypeProps) => {
         const property = recordValue.properties[key];
         const configElementProps: ConfigElementProps = {
             ...property,
+            connectionConfig: props.connectionConfig,
             isRequired: props.isRequired ? property.isRequired : false,
             setConfigElement: handleValueChange,
         };
