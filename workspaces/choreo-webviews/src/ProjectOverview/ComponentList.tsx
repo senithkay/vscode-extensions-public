@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeButton, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeButton, VSCodeTag, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { Component, DeploymentStatus, Repository, Status } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
@@ -127,7 +127,7 @@ export function ComponentList(props: ComponentListProps) {
                         Version
                     </VSCodeDataGridCell>
                     <VSCodeDataGridCell cellType={"columnheader"} gridColumn="3">
-                        Build Status
+                        Build
                     </VSCodeDataGridCell>
                     <VSCodeDataGridCell cellType={"columnheader"} gridColumn="4">
                         Deployment
@@ -199,9 +199,23 @@ export function ComponentList(props: ComponentListProps) {
                                 {component.local || !component.buildStatus ? (
                                     "N/A"
                                 ) : (
-                                    <a href={componentDeployLink} style={{ color: `var(${buildStatusMappedValue.color})` }}>
-                                        {buildStatusMappedValue.text}
-                                    </a>
+                                    <>
+                                        <VSCodeLink
+                                            href={componentDeployLink} 
+                                            style={{ color: `var(${buildStatusMappedValue.color})` }}
+                                            title="Open component deployment page in Choreo Console"
+                                        >
+                                            {buildStatusMappedValue.text}
+                                        </VSCodeLink>
+                                        &nbsp;
+                                        <VSCodeLink 
+                                            href={`${repoLink}/commit/${component.buildStatus?.sourceCommitId}`} 
+                                            style={{ color: `var(${buildStatusMappedValue.color})` }}
+                                            title="Open commit in remote GitHub repository"
+                                        >
+                                            {`#${component.buildStatus?.sourceCommitId.substring(0, 9)}`}
+                                        </VSCodeLink>
+                                    </>
                                 )}
                                 
                             </VSCodeDataGridCenterCell>
@@ -209,9 +223,13 @@ export function ComponentList(props: ComponentListProps) {
                                 {component.local ? (
                                     "N/A"
                                 ) : (
-                                    <a href={componentDeployLink} style={{ color: `var(${deploymentStatusColor})` }}>
+                                    <VSCodeLink 
+                                        href={componentDeployLink} 
+                                        style={{ color: `var(${deploymentStatusColor})` }}
+                                        title="Open component deployment page in Choreo Console"
+                                    >
                                         {DeploymentStatusMapping[deploymentStatus]}
-                                    </a>
+                                    </VSCodeLink>
                                 )}
                             </VSCodeDataGridCenterCell>
                             <VSCodeDataGridActionCell gridColumn="5" className="">
