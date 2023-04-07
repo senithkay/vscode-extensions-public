@@ -17,9 +17,9 @@
  *
  */
 
-import React, { ReactElement, useEffect, useState } from "react";
+import React, { ElementType, ReactElement, useEffect, useState } from "react";
 
-import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
+import { Box, FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
 
 export interface SelectInputProps {
     id: string;

@@ -80,13 +80,11 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
 
             return(
                 <div key={props.id + "-FIELD"}>
-                    <Box display="flex" alignItems="center">
-                        <Box flex="0 0 150px">
+                    <Box display="flex" flexDirection="column">
+                        <Box mb={0.5}>
                             <FieldLabel {...fieldLabelProps} />
                         </Box>
-                        <Box
-                            flexGrow={1}
-                        >
+                        <Box>
                             <SelectInput {...selectInputProps}/>
                         </Box>
                     </Box>
@@ -105,8 +103,8 @@ export const EnumType = (props: EnumTypeProps): ReactElement => {
 
         return(
             <div key={props.id + "-FIELD"}>
-                 <Box display="flex" alignItems="center">
-                    <Box flex="0 0 150px">
+                 <Box display="flex" flexDirection="column">
+                    <Box mb={0.5}>
                         <FieldLabel {...fieldLabelProps} />
                     </Box>
                     <Box flexGrow={1}>

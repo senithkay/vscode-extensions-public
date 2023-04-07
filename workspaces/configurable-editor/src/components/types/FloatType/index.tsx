@@ -29,14 +29,15 @@ import {
     ListItemText,
     MenuItem,
     Popover,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
 import { ConnectionSchema } from "../../model";
 import { useStyles } from "../../style";
@@ -84,12 +85,21 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
     const [selectedValue, setSelectedValue] = useState<string | number>(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
     const [selectedIndex, setSelectedIndex] = React.useState("");
-
+    const [textInputDisabledState, setTextInputDisabledState] = React.useState(false);
     const handleClickOpenConnection = () => {
         setOpenConnection(!openConnection);
     };
     const returnElement: ReactElement[] = [];
     const { id, isRequired, value, setFloatConfig, placeholder } = props;
+
+    useEffect(() => {
+        if (selectedValueRef !== "" && selectedValueRef !== undefined) {
+            setTextInputDisabledState(true);
+            if (typeof selectedValue === "string") {
+                setSelectedIndex(selectedValue.substring(selectedValue.indexOf(".") + 1).replace("}", ""));
+            }
+        }
+    }, []);
 
     const textFieldInputProps: TextFieldInputProps = {
         id,
@@ -104,11 +114,21 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
     const onSelected = (index: string, mappingName: string, valueReference: string,
                         valueType: string, connectionName: string) => () => {
             if (valueType === "float") {
-                setConnectionClick(true);
-                setSelectedValue(mappingName);
-                setSelectedValueRef(valueReference);
-                setSelectedIndex(connectionName.concat(index));
-                setAnchorEl(null);
+                if (selectedValueRef === valueReference) {
+                    setSelectedValueRef("");
+                    setSelectedValue("");
+                    setSelectedIndex("");
+                    setTextInputDisabledState(false);
+                    setConnectionClick(false);
+                    setAnchorEl(null);
+                } else {
+                    setConnectionClick(true);
+                    setSelectedValue(mappingName);
+                    setSelectedValueRef(valueReference);
+                    setSelectedIndex(index);
+                    setTextInputDisabledState(true);
+                    setAnchorEl(null);
+                }
             } else {
                 setAnchorEl(null);
             }
@@ -128,7 +148,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
         return (
             <Box key={index} className={classes.accordionBox}>
                 <ListItem button={true} className={classes.accordion} key={index} onClick={() => handleOpen(index)}>
-                    {openConnection ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                    {isOpenCollapse === index ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                     <ListItemText
                         key={index}
                         primary={connections.name}
@@ -175,7 +195,8 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                             connectionFields.valueType,
                                             connections.name,
                                         )}
-                                        selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
+                                        selected={connectionFields.configKey === selectedIndex}
+                                        disabled={connectionFields.valueType === "float" ? false : true}
                                     >
                                     <Box display="flex" width={1}>
                                         <Box
@@ -187,20 +208,20 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                                             >
                                                 {connectionFields.configKey.split(".").pop() + ":"}
                                             </Typography>
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
+                                             <Box ml={1}>
+                                                <Tooltip title={connectionFields.valueType}>
+                                                    <Chip
+                                                        color="success"
+                                                        variant="outlined"
+                                                        size="small"
+                                                        label={connectionFields.valueType}
+                                                    />
+                                                </Tooltip>
+                                            </Box>
+
                                         </Box>
                                         {
-                                                connections.name.concat(connectionFields.configKey) === selectedIndex
-                                                &&   <MenuSelectedIcon />
+                                                connectionFields.configKey === selectedIndex &&   <MenuSelectedIcon />
                                             }
                                         </Box>
                                     </MenuItem>
@@ -213,17 +234,44 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
         );
     });
 
-    const iconButton = (
-        <Box>
+    function iconButtonWithToolTip() {
+        if (connectionConfigs === undefined || connectionConfigs.length === 0) {
+          return (
+            <Tooltip title="No global configurations defined. Please contact administrator">
+                <span>
+                    <IconButton
+                        size={"small"}
+                        className={classes.buttonConnections}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        onClick={handleClick}
+                        color={selectedValueRef ? "primary" : "default"}
+                        disabled={connectionConfigs ===  undefined || connectionConfigs.length === 0 ? true : false}
+                    >
+                        <SelectIcon />
+                    </IconButton>
+                </span>
+            </Tooltip>
+          );
+        }
+        return (
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleClick}
+                color={selectedValueRef ? "primary" : "default"}
+                disabled={connectionConfigs.length !== 0 ? false : true}
             >
                 <SelectIcon />
             </IconButton>
+        );
+      }
+
+    const iconButton = (
+        <Box>
+            {iconButtonWithToolTip}
         </Box>
     );
 
@@ -251,6 +299,7 @@ const FloatType = (props: FloatTypeProps): ReactElement => {
                             placeholder="Select config or Enter a value"
                             setTextFieldValue={setFloatConfig}
                             type={(connectionClick || selectedValueRef !== "") ? "text" : "number"}
+                            disabled={textInputDisabledState}
                             value={selectedValue}
                             valueRef={selectedValueRef}
                         />

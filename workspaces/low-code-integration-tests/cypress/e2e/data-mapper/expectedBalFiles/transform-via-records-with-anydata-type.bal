@@ -1,6 +1,7 @@
 
 type Input record {
-    string str;
+    string str1;
+    string str2;
     decimal dec;
     anydata inputField;
     anydata[] items1;
@@ -32,7 +33,7 @@ function transform(Input input) returns Output => {
         },
     stArr: [
         "",
-        input.str
+        input.str2
     ],
     items2: from var items1Item in input.items1
         select {
@@ -50,6 +51,6 @@ function transform(Input input) returns Output => {
             newlyAddedField: input.inputField
         }
     ],
-    str: input.str,
+    str: input.str1,
     outputField1: 1.2
 };
