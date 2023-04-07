@@ -78,6 +78,7 @@ import {
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
+import { resolveUnionType } from "./union-type-utils";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -746,6 +747,10 @@ export function enrichAndProcessType(typeToBeProcessed: Type, node: STNode,
 		type = updatedType;
 		valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
 	}
+	const [updatedType2, hasEnrichedWithUnionType] = addResolvedUnionTypes(valueEnrichedType);
+	if (hasEnrichedWithUnionType) {
+		console.log(updatedType2);
+	}
 	return [valueEnrichedType, type];
 }
 
@@ -1192,6 +1197,33 @@ export function addMissingTypes(field: EditableRecordField): [Type, boolean] {
 	return [type, hasTypeUpdated];
 }
 
+export function addResolvedUnionTypes(field: EditableRecordField): [Type, boolean] {
+	const type = { ...field.type };
+	const value = field.value;
+	let hasTypeUpdated = false;
+
+	if (type.typeName === PrimitiveBalType.Union && value) {
+		const resolvedType = resolveUnionType(value, type);
+		if (resolvedType) {
+			type.resolvedUnionType = resolvedType;
+		}
+	} else if (type.typeName === PrimitiveBalType.Record) {
+		type.fields = field.childrenTypes.map((child) => {
+			const [updatedType, isUpdated] = addResolvedUnionTypes(child);
+			hasTypeUpdated = hasTypeUpdated || isUpdated;
+			return updatedType;
+		});
+	} else if (type.typeName === PrimitiveBalType.Array) {
+		if (field?.elements && field.elements.length > 0) {
+			const [updatedType, isUpdated] = addResolvedUnionTypes(field.elements[0].member);
+			hasTypeUpdated = hasTypeUpdated || isUpdated;
+			type.memberType = updatedType;
+		}
+	}
+
+	return [type, hasTypeUpdated];
+}
+
 export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: string): Type {
 	if (prevSTNodes.length === 0) {
 		return undefined;
@@ -1355,6 +1387,14 @@ export function getInnermostExpressionBody(expr: STNode): STNode {
 		innerExpr = getExprBodyFromTypeCastExpression(innerExpr);
 	}
 	return innerExpr;
+}
+
+export function getInnermostMemberTypeFromArrayType(arrayType: Type): Type {
+	let memberType = arrayType.memberType;
+	while (memberType.typeName === PrimitiveBalType.Array) {
+		memberType = memberType.memberType;
+	}
+	return memberType;
 }
 
 export function getTargetPortPrefix(node: NodeModel): string {

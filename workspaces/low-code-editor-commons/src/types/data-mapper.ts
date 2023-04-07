@@ -49,4 +49,5 @@ export interface Type {
     position?: NodePosition;
     selected?: boolean;
     originalTypeName?: string;
+    resolvedUnionType?: Type;
 }

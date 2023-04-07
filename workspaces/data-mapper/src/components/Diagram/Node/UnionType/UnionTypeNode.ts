@@ -189,7 +189,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
         const bodyExpr = STKindChecker.isLetExpression(this.value.expression)
             ? getExprBodyFromLetExpression(this.value.expression)
             : this.value.expression;
-        const supportedTypes = getSupportedUnionTypes(this.typeIdentifier, this.typeDef);
+        const supportedTypes = getSupportedUnionTypes(this.typeDef, this.typeIdentifier);
         if (STKindChecker.isTypeCastExpression(bodyExpr)) {
             // when the expr is wrapped with a type cast
             const type = bodyExpr.typeCastParam?.type;

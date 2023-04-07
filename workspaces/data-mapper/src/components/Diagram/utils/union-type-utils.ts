@@ -11,7 +11,7 @@
  * associated services.
  */
 
-import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { OtherBalType, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
 	STKindChecker,
 	STNode
@@ -20,11 +20,54 @@ import {
 import { useDMStore } from "../../../store/store";
 import { TypeDescriptor } from "../Node/commons/DataMapperNode";
 
-import { getTypeName } from "./dm-utils";
+import {
+	getExprBodyFromLetExpression,
+	getInnermostMemberTypeFromArrayType,
+	getTypeName
+} from "./dm-utils";
 
 export interface UnionTypeLabel {
 	unionTypes: string[];
 	resolvedTypeName: string;
+}
+
+export function resolveUnionType(expr: STNode, unionType: Type): Type {
+	const innerExpr = STKindChecker.isLetExpression(expr)
+		? getExprBodyFromLetExpression(expr)
+		: expr;
+	const supportedTypes = getSupportedUnionTypes(unionType);
+	if (STKindChecker.isTypeCastExpression(innerExpr)) {
+		// when the expr is wrapped with a type cast
+		const castedType = innerExpr.typeCastParam?.type;
+		return unionType.members.find((member) => {
+			return getResolvedType(member, castedType);
+		});
+	} else if (supportedTypes.length === 1) {
+		// when the specified union type is narrowed down to a single type
+		return unionType.members.find(member => {
+			const typeName = getTypeName(member);
+			return typeName === supportedTypes[0];
+		});
+	} else {
+		// when the type is derivable from the expr
+		let typeName: string;
+		if (expr.typeData?.typeSymbol && expr.typeData?.typeSymbol?.signature !== "$CompilationError$") {
+			const typeSignature = expr.typeData?.typeSymbol?.signature;
+			const orgAndModule = typeSignature.split(':')[0];
+			typeName = typeSignature.split(':')[2];
+			const importStatements = useDMStore.getState().imports;
+			if (importStatements.some(item => item.includes(orgAndModule))){
+				// If record is from an imported package
+				typeName = `${orgAndModule.split('/')[1]}:${typeName}`;
+			}
+		}
+		if (typeName && supportedTypes.includes(typeName)) {
+			return unionType.members.find(member => {
+				const memberName = getTypeName(member);
+				return memberName === typeName;
+			});
+		}
+	}
 }
 
 export function getResolvedType(type: Type, typeDesc: TypeDescriptor): Type {
@@ -43,24 +86,42 @@ export function getResolvedType(type: Type, typeDesc: TypeDescriptor): Type {
 	}
 }
 
-export function getUnsupportedTypes(typeDesc: STNode): string[] {
+export function getUnsupportedTypesFromTypeDesc(typeDesc: STNode): string[] {
 	const unsupportedTypes: string[] = [];
 	if (STKindChecker.isUnionTypeDesc(typeDesc)) {
 		const { leftTypeDesc, rightTypeDesc } = typeDesc;
-		unsupportedTypes.push(...getUnsupportedTypes(leftTypeDesc), ...getUnsupportedTypes(rightTypeDesc));
+		unsupportedTypes.push(...getUnsupportedTypesFromTypeDesc(leftTypeDesc),
+			...getUnsupportedTypesFromTypeDesc(rightTypeDesc));
 	} else if (STKindChecker.isArrayTypeDesc(typeDesc)) {
-		const filteredTypes = getUnsupportedTypes(typeDesc.memberTypeDesc).map(type => `${type}[]`);
+		const filteredTypes = getUnsupportedTypesFromTypeDesc(typeDesc.memberTypeDesc).map(type => `${type}[]`);
 		unsupportedTypes.push(...filteredTypes);
 	} else if (STKindChecker.isParenthesisedTypeDesc(typeDesc)) {
-		unsupportedTypes.push(...getUnsupportedTypes(typeDesc.typedesc));
-	} else if (isUnsupportedType(typeDesc)) {
+		unsupportedTypes.push(...getUnsupportedTypesFromTypeDesc(typeDesc.typedesc));
+	} else if (isUnsupportedTypeDesc(typeDesc)) {
 		unsupportedTypes.push(typeDesc.source);
 	}
 	return unsupportedTypes;
 }
 
-export function getSupportedUnionTypes(typeDesc: STNode, typeDef: Type): string[] {
-	const unsupportedTypes = getUnsupportedTypes(typeDesc);
+export function getUnsupportedTypesFromType(unionType: Type): string[] {
+	const unsupportedTypes: string[] = [];
+	for (const member of unionType.members) {
+		const memberType = getTypeName(member);
+		let type: Type = member;
+		if (member.typeName === PrimitiveBalType.Array) {
+			type = getInnermostMemberTypeFromArrayType(member);
+		}
+		if (isUnsupportedType(type)) {
+			unsupportedTypes.push(memberType);
+		}
+	}
+	return unsupportedTypes;
+}
+
+export function getSupportedUnionTypes(typeDef: Type, typeDesc?: STNode): string[] {
+	const unsupportedTypes = typeDesc
+		? getUnsupportedTypesFromTypeDesc(typeDesc)
+		: getUnsupportedTypesFromType(typeDef);
 	const allUnionTypes = getUnionTypes(typeDef);
 
 	const filteredTypes = allUnionTypes.map(unionType => {
@@ -89,7 +150,7 @@ export function getATypeFromUnionType(unionType: Type): Type {
 	});
 }
 
-function isUnsupportedType(typeDesc: STNode): boolean {
+function isUnsupportedTypeDesc(typeDesc: STNode): boolean {
 	return STKindChecker.isByteTypeDesc(typeDesc)
 		|| STKindChecker.isDistinctTypeDesc(typeDesc)
 		|| STKindChecker.isFunctionTypeDesc(typeDesc)
@@ -109,4 +170,23 @@ function isUnsupportedType(typeDesc: STNode): boolean {
 		|| STKindChecker.isTypedescTypeDesc(typeDesc)
 		|| STKindChecker.isXmlTypeDesc(typeDesc)
 		|| typeDesc?.typeData?.symbol?.definition?.kind === "ENUM";
+}
+
+function isUnsupportedType(type: Type): boolean {
+	if (type.typeName === PrimitiveBalType.Union) {
+		return type.members.some(member => {
+			return isUnsupportedType(member);
+		});
+	}
+	return type.typeName === PrimitiveBalType.Error
+		|| type.typeName === PrimitiveBalType.Nil
+		|| type.typeName === PrimitiveBalType.Enum
+		|| type.typeName === PrimitiveBalType.Json
+		|| type.typeName === PrimitiveBalType.Var
+		|| type.typeName === PrimitiveBalType.Xml
+		|| type.typeName === OtherBalType.Map
+		|| type.typeName === OtherBalType.Object
+		|| type.typeName === OtherBalType.Stream
+		|| type.typeName === OtherBalType.Table
+		|| type.typeName === OtherBalType.Null;
 }

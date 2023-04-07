@@ -33,6 +33,14 @@ export enum PrimitiveBalType {
     Decimal = "decimal"
 }
 
+export enum OtherBalType {
+    Map = "map",
+    Object = "object",
+    Stream = "stream",
+    Table = "table",
+    Null = "()"
+}
+
 export const AnydataType = "anydata";
 
 export const httpResponse: NonPrimitiveBal = {

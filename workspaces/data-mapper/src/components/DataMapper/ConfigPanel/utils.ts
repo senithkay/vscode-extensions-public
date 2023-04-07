@@ -31,7 +31,7 @@ import { CompletionItemKind, Diagnostic } from "vscode-languageserver-protocol";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
 import { getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-utils";
-import { getUnsupportedTypes } from "../../Diagram/utils/union-type-utils";
+import { getUnsupportedTypesFromTypeDesc } from "../../Diagram/utils/union-type-utils";
 import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupported } from "../utils";
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
@@ -93,12 +93,12 @@ function isSupportedType(node: STNode,
 
     if (isTypeMissing) {
         return [false, TypeNature.TYPE_UNAVAILABLE];
-    } else if ((isUnionType || isOptionalType) && kind === 'output' && getUnsupportedTypes(node).length === 0) {
+    } else if ((isUnionType || isOptionalType) && kind === 'output' && getUnsupportedTypesFromTypeDesc(node).length === 0) {
         return [true];
     } else if (isUnionType || isMapType || isOptionalType) {
         return [false, TypeNature.YET_TO_SUPPORT];
     } else if (isArrayType || isParenthesisedType) {
-        return [getUnsupportedTypes(node).length === 0, TypeNature.BLACKLISTED]
+        return [getUnsupportedTypesFromTypeDesc(node).length === 0, TypeNature.BLACKLISTED]
     } else if (isInvalid) {
         return [false, TypeNature.INVALID];
     } else if (isAlreadySupportedType || (!isUnsupportedType && isArraysSupported(balVersion))) {
