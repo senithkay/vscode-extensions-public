@@ -94,6 +94,7 @@ export interface Component {
     isRemoteOnly?: boolean;
     isInRemoteRepo?: boolean;
     deployments?: Deployments;
+    buildStatus?: BuildStatus;
 }
 
 export interface Environment {
@@ -166,6 +167,19 @@ export interface Deployment {
             successDeployedTime?: number
         }[]
     };
+}
+
+export interface BuildStatus {
+    id: string;
+    name: string;
+    conclusion?: string;
+    status: string;
+    started_at?: string;
+    completed_at?: string
+    sha?: string
+    isAutoDeploy?: boolean;
+    failureReason?: number;
+    sourceCommitId?: string;
 }
 
 export interface Repository {

@@ -23,6 +23,7 @@ export interface ComponentListProps {
     projectId?: string;
     orgName?: string;
     loading?: boolean;
+    fetchingComponents?: boolean;
     openSourceControl: () => void;
     onComponentDeleteClick: (component: Component) => void;
     handlePushComponentClick: (componentName: string) => void;
@@ -41,7 +42,7 @@ const VSCodeDataGridActionCell = styled(VSCodeDataGridCenterCell)`
     text-align: right;
 `
 
-export const DeploymentStatusMapping = {
+const DeploymentStatusMapping = {
     [DeploymentStatus.Active]: 'Deployed',
     [DeploymentStatus.Suspended]: 'Suspended',
     [DeploymentStatus.NotDeployed]: 'Not Deployed',
@@ -52,14 +53,37 @@ export const DeploymentStatusMapping = {
     [Status.ChoreoAndLocal]: 'Available Locally & in Choreo',
 };
 
-export function ComponentList(props: ComponentListProps) {
-    const { orgName, projectId, components, openSourceControl, onComponentDeleteClick, handlePushComponentClick, loading } = props;
-
-    if (!props.components) {
-        return <><VSCodeProgressRing /></>;
+const mapBuildStatus = (
+    status: string,
+    conclusion: string | null,
+): { text: string; color: string; } => {
+    switch (status) {
+        case 'started':
+            return { text: "Started", color: '--vscode-charts-green' };
+        case 'completed':
+            if (conclusion === 'success') {
+                return { text: "Success", color: '--vscode-charts-green' };
+            }
+            return { text: "Failed", color: '--vscode-errorForeground' };
+        case 'Partially completed':
+            return { text: "Partially Completed", color: '--vscode-charts-green' };
+        case 'in_progress':
+            return { text: "In Progress", color: '--vscode-charts-orange' };
+        case 'failed':
+            return { text: "Failed", color: '--vscode-errorForeground' };
+        case 'queued':
+            return { text: "Queued", color: '--vscode-foreground' };
+        default:
+            return { text: "In Progress", color: '--vscode-charts-orange' };
     }
+};
 
-    if (props.components.length === 0) {
+export function ComponentList(props: ComponentListProps) {
+    const { orgName, projectId, components, openSourceControl, onComponentDeleteClick, handlePushComponentClick, loading, fetchingComponents } = props;
+
+    if (props.components.length === 0 && fetchingComponents) {
+        return <><VSCodeProgressRing /></>;
+    } else if (props.components.length === 0) {
         return <><p><InlineIcon><Codicon name="info" /></InlineIcon> No components found. Clone & Open the project to create components.</p></>;
     }
 
@@ -102,7 +126,7 @@ export function ComponentList(props: ComponentListProps) {
                         Version
                     </VSCodeDataGridCell>
                     <VSCodeDataGridCell cellType={"columnheader"} gridColumn="3">
-                        Status
+                        Build Status
                     </VSCodeDataGridCell>
                     <VSCodeDataGridCell cellType={"columnheader"} gridColumn="4">
                         Deployment
@@ -136,12 +160,6 @@ export function ComponentList(props: ComponentListProps) {
                     const repoLink =
                         repoName !== "-" ? `https://github.com/${repoName}` : "";
 
-                    let statusText: Status = Status.ChoreoAndLocal;
-                    if (component.local) {
-                        statusText = Status.LocalOnly;
-                    } else if (component.isRemoteOnly) {
-                        statusText = Status.UnavailableLocally;
-                    }
 
                     const deploymentStatus: DeploymentStatus =
                         (component.deployments?.dev
@@ -163,6 +181,8 @@ export function ComponentList(props: ComponentListProps) {
                             deploymentStatusColor = '--vscode-charts-lines';
                             break;
                     }
+
+                    const buildStatusMappedValue = component.buildStatus && mapBuildStatus(component.buildStatus?.status, component.buildStatus?.conclusion);
                     
                     return (
                         <VSCodeDataGridRow key={component.id || component.name}>
@@ -175,7 +195,14 @@ export function ComponentList(props: ComponentListProps) {
                                 </VSCodeTag>
                             </VSCodeDataGridCell>
                             <VSCodeDataGridCenterCell gridColumn="3">
-                                {DeploymentStatusMapping[statusText]}
+                                {component.local || !component.buildStatus ? (
+                                    "N/A"
+                                ) : (
+                                    <a href={componentDeployLink} style={{ color: `var(${buildStatusMappedValue.color})` }}>
+                                        {buildStatusMappedValue.text}
+                                    </a>
+                                )}
+                                
                             </VSCodeDataGridCenterCell>
                             <VSCodeDataGridCenterCell gridColumn="4">
                                 {component.local ? (
@@ -197,15 +224,13 @@ export function ComponentList(props: ComponentListProps) {
                                             <Codicon name="source-control" />
                                         </VSCodeButton>
                                     )}
-                                {!component.local && (
-                                    <VSCodeButton
-                                        appearance="icon"
-                                        onClick={() => onOpenConsoleClick(repoLink)}
-                                        title="Open GitHub remote repository"
-                                    >
-                                        <Codicon name="github" />
-                                    </VSCodeButton>
-                                )}
+                                <VSCodeButton
+                                    appearance="icon"
+                                    onClick={() => onOpenConsoleClick(repoLink)}
+                                    title="Open GitHub remote repository"
+                                >
+                                    <Codicon name="github" />
+                                </VSCodeButton>
                                 {!component.local && (
                                     <VSCodeButton
                                         appearance="icon"

@@ -11,9 +11,10 @@
  *  associated services.
  */
 import { GraphQLClient } from 'graphql-request';
-import { Component, Project, Repository, Environment, Deployment } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams } from "./types";
+import { Component, Project, Repository, Environment, Deployment, BuildStatus } from "@wso2-enterprise/choreo-core";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams } from "./types";
 import {
+    getComponentBuildStatus,
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
     getComponentsByProjectIdQuery,
@@ -90,6 +91,19 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             return envDataRes?.environments;
         } catch (error) {
             throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async getComponentBuildStatus(params: GetComponentBuildStatusParams): Promise<BuildStatus | null> {
+        try {
+            const client = await this._getClient();
+
+            const query = getComponentBuildStatus(params.componentId, params.versionId);
+            const response = await client.request(query);
+            return response?.deploymentStatusByVersion?.[0] || null;
+        } catch (error) {
+            console.error(`Failed to get component build details for ${params.componentId}`);
+            return null;
         }
     }
 
