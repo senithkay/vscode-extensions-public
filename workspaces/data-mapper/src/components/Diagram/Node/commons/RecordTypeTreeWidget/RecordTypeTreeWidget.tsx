@@ -182,7 +182,6 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                                 parentId={id}
                                 handleCollapse={handleCollapse}
                                 treeDepth={0}
-                                isOptional={typeDesc.optional}
                                 hasHoveredParent={isHovered}
                             />
                         );

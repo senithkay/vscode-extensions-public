@@ -45,7 +45,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: "#F7F8FB",
             border: "1px solid #E0E2E9",
             borderRadius: 5,
-            color: "#5567D5",
             padding: theme.spacing(1.2),
         },
         card: {
@@ -64,6 +63,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             paddingBottom: theme.spacing(2),
         },
         connectionField: {
+            alignItems: "center",
             display: "flex",
             flexGrow: 1,
             flexWrap: "wrap",
@@ -72,7 +72,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             color: theme.palette.primary.main,
             display: "flex",
             fontSize: theme.spacing(1.5),
-            marginRight: theme.spacing(0.5),
+            marginLeft: theme.spacing(1),
         },
         divider: {
             border: "1px solid #DEE0E7",
@@ -104,6 +104,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             fontSize: theme.spacing(1.8),
         },
         itemText: {
+            color: theme.palette.common.black,
             fontSize: theme.typography.pxToRem(13),
             fontWeight: 500,
         },
@@ -126,21 +127,27 @@ export const useStyles = makeStyles((theme: Theme) =>
         mainLabelText: {
             color: "#1D2028",
             fontSize: theme.spacing(1.6),
-            marginRight: theme.spacing(0.5),
+            marginRight: theme.spacing(1),
         },
         menuItem: {
+            "&.Mui-disabled": {
+                "& $connectionField": {
+                    opacity: 0.5,
+                },
+                "opacity": 1,
+            },
             "&.Mui-selected": {
                 backgroundColor: "#F0F1FB",
             },
             "&:hover": {
                 backgroundColor: "#F0F1FB",
             },
-            "border": "1px solid #d5d5d5",
+            "border": `1px solid ${theme.palette.grey[100]}`,
             "borderTop": 0,
-            "paddingLeft": theme.spacing(1),
-            "paddingRight": theme.spacing(1),
+            "padding": theme.spacing(0.8, 1),
         },
         popOver: {
+            minWidth: theme.spacing(40),
             overflow: "auto",
             padding: theme.spacing(2),
             position: "relative",

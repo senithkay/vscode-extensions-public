@@ -57,8 +57,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     const { history } = useHistoryContext();
     const { api: { navigation: { updateSelectedComponent } } } = useDiagramContext();
 
-    const [enableFunctionForm, setEnableFunctionForm] = useState(false);
-    const [enableServicePanel, setServicePanel] = useState(false);
+    const [enableFormGenerator, setEnableFormGenerator] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
 
     const renderFunctionForm = (position: NodePosition, functionType: string, functionModel?: STNode) => {
@@ -68,11 +67,11 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 configOverlayFormStatus: { formType: "GraphqlConfigForm", formName: functionType, isLoading: false },
                 targetPosition: position,
                 onCancel: () => {
-                    setEnableFunctionForm(false);
+                    setEnableFormGenerator(false);
                 },
 
             });
-            setEnableFunctionForm(true);
+            setEnableFormGenerator(true);
         }
     };
 
@@ -83,11 +82,26 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 configOverlayFormStatus: { formType: "ServiceDeclaration", isLoading: false },
                 targetPosition: model.position,
                 onCancel: () => {
-                    setServicePanel(false);
+                    setEnableFormGenerator(false);
                 },
 
             });
-            setServicePanel(true);
+            setEnableFormGenerator(true);
+        }
+    }
+
+    const renderRecordEditor = (recordModel: STNode) => {
+        if (STKindChecker.isRecordTypeDesc(recordModel) || STKindChecker.isTypeDefinition(recordModel)) {
+            setFormConfig({
+                model: recordModel,
+                configOverlayFormStatus: { formType: "RecordEditor", isLoading: false },
+                targetPosition: recordModel.position,
+                onCancel: () => {
+                    setEnableFormGenerator(false);
+                },
+
+            });
+            setEnableFormGenerator(true);
         }
     }
 
@@ -124,15 +138,14 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 functionPanel={renderFunctionForm}
                 servicePanel={renderServicePanel}
                 operationDesignView={handleDesignOperationClick}
+                recordEditor={renderRecordEditor}
                 onDelete={handleDeleteBtnClick}
                 fullST={fullST}
                 goToSource={goToSource}
             />
-            {enableFunctionForm &&
+            {enableFormGenerator &&
             <FormGenerator {...formConfig}/>
             }
-            {enableServicePanel &&
-            <FormGenerator {...formConfig}/>}
         </div>
     );
 }

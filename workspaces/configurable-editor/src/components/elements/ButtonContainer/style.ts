@@ -22,24 +22,24 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         buttonContainerLarge: {
-            paddingLeft: theme.spacing(1),
-            paddingRight: theme.spacing(1),
-            paddingTop: theme.spacing(1),
-        },
-        buttonContainerSmall: {
             paddingLeft: theme.spacing(0.5),
             paddingRight: theme.spacing(0.5),
             paddingTop: theme.spacing(0.5),
         },
-        buttonGridLarge: {
-            marginLeft: `-${theme.spacing(1)}px`,
-            marginRight: `-${theme.spacing(1)}px`,
-            marginTop: `-${theme.spacing(1)}px`,
+        buttonContainerSmall: {
+            paddingLeft: theme.spacing(0.25),
+            paddingRight: theme.spacing(0.25),
+            paddingTop: theme.spacing(0.25),
         },
-        buttonGridSmall: {
+        buttonGridLarge: {
             marginLeft: `-${theme.spacing(0.5)}px`,
             marginRight: `-${theme.spacing(0.5)}px`,
             marginTop: `-${theme.spacing(0.5)}px`,
+        },
+        buttonGridSmall: {
+            marginLeft: `-${theme.spacing(0.25)}px`,
+            marginRight: `-${theme.spacing(0.25)}px`,
+            marginTop: `-${theme.spacing(0.25)}px`,
         },
     }),
 );

@@ -24,13 +24,13 @@ import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient, GetPackageComponentModelsResponse } from "../../core";
 import { terminateActivation } from "../activator";
-import { ComponentModel, DIAGNOSTICS_WARNING, ERROR_MESSAGE, Location } from "../resources";
+import { ComponentModel, ERROR_MESSAGE, Location } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
 import { deleteBallerinaPackage, deleteService } from "./component-handler-utils";
 
 const ballerinaToml = "Ballerina.toml";
 
-export function getComponentModel(langClient: ExtendedLangClient): Promise<GetPackageComponentModelsResponse> {
+export function getComponentModel(langClient: ExtendedLangClient, isChoreoProject: boolean): Promise<GetPackageComponentModelsResponse> {
     return new Promise((resolve, reject) => {
         let ballerinaFiles: string[] = [];
         let workspaceFolders = workspace.workspaceFolders;
@@ -51,19 +51,19 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<GetPa
             documentUris: ballerinaFiles
         }).then(async (response) => {
             let packageModels: Map<string, ComponentModel> = new Map(Object.entries(response.componentModels));
-            if (response.diagnostics?.length) {
-                showDiagnosticsWarning();
-            } else {
+            if (!response.diagnostics?.length) {
                 for (let [_key, packageModel] of packageModels) {
                     if (packageModel.hasCompilationErrors) {
-                        showDiagnosticsWarning();
+                        response.diagnostics.push({
+                            message: `Compilation errors found in ${packageModel.packageId.name}`,
+                        });
                         break;
                     }
                 }
             }
 
             const choreoExt = await getChoreoExtAPI();
-            if (choreoExt) {
+            if (choreoExt && isChoreoProject) {
                 packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
             }
             resolve(response);
@@ -71,15 +71,6 @@ export function getComponentModel(langClient: ExtendedLangClient): Promise<GetPa
             reject(error);
             terminateActivation(ERROR_MESSAGE);
         });
-    });
-}
-
-function showDiagnosticsWarning() {
-    const action = 'View Problems';
-    window.showInformationMessage(DIAGNOSTICS_WARNING, action).then((selection) => {
-        if (action === selection) {
-            commands.executeCommand('workbench.action.problems.focus');
-        }
     });
 }
 

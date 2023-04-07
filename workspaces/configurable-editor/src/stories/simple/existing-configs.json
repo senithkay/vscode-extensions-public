@@ -9,7 +9,6 @@
             "age2": {"value":45, "valueReference":"age2Ref"},
             "isAdmin1": {"value":false, "valueReference":""},
             "salary1": {"value":1000.7, "valueReference":""},
-            "height1": {"value":23.2, "valueReference":""},
             "name1": {"value":"Jack", "valueReference":"name1Reference"},
             "port1": {"value":9091, "valueReference":""},
             "age1": {"value":22.9, "valueReference":""}

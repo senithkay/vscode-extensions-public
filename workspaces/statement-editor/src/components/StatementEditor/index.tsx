@@ -287,11 +287,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const updateDraftFileContent = async (statement: string, fileContent: string) => {
-        // Remove comments from the draft statement
-        const lines = statement.split('\n');
-        const filteredStatement = lines.filter((line) => !line.trim().startsWith('//')).join('\n');
-
-        const updatedContent = getUpdatedSource(filteredStatement, fileContent, targetPosition, moduleList, skipStatementSemicolon);
+        const updatedContent = getUpdatedSource(statement, fileContent, targetPosition, moduleList, skipStatementSemicolon);
         const stmtIndex = getStatementIndex(updatedContent, statement, targetPosition);
         const newTargetPosition = getStatementPosition(updatedContent, statement, stmtIndex);
 

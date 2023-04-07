@@ -17,7 +17,7 @@
  *
  */
 
-export { Colors, DagreLayout, GRAPHQL_SUBSCRIBE_ACTION, Level, ServiceTypes, Views } from './model';
+export { Colors, ConsoleView, DagreLayout, GRAPHQL_SUBSCRIBE_ACTION, Level, ServiceTypes, Views } from './model';
 
 export type {
     Attribute,
