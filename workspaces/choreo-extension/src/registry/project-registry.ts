@@ -167,7 +167,8 @@ export class ProjectRegistry {
 
     async getEnrichedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
-            const components = this._dataComponents.get(projectId) || [];
+            const componentsCache = this._dataComponents.get(projectId) || [];
+            const components = this._addLocalComponents(projectId, componentsCache);
 
             let envData = this._projectEnvs.get(projectId);
             if(!envData){
@@ -182,10 +183,10 @@ export class ProjectRegistry {
             const enrichedComponents: Component[] = await Promise.all(
                 components.map(async (component) => {
                     const selectedVersion = component.apiVersions?.find(item=>item.latest);
-                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo] = await Promise.all([
+                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo, buildStatus] = await Promise.all([
                         this.hasUnPushedLocalCommit(projectId, component),
                         this.hasDirtyLocalRepo(projectId, component),
-                        selectedVersion && devEnv && projectClient.getComponentDeploymentStatus({
+                        !component.local && selectedVersion && devEnv && projectClient.getComponentDeploymentStatus({
                             component,
                             envId: devEnv?.id,
                             orgHandle,
@@ -193,7 +194,8 @@ export class ProjectRegistry {
                             projId: projectId,
                             versionId: selectedVersion.id
                         }),
-                        this.isComponentInRepo(component)
+                        this.isComponentInRepo(component),
+                        !component.local && selectedVersion && projectClient.getComponentBuildStatus({componentId: component.id, versionId: selectedVersion.id})
                     ]);
 
                     let isRemoteOnly = true;
@@ -208,7 +210,8 @@ export class ProjectRegistry {
                         hasDirtyLocalRepo, 
                         isRemoteOnly, 
                         isInRemoteRepo,
-                        deployments: { dev: devDeployment }
+                        deployments: { dev: devDeployment },
+                        buildStatus
                     } as Component;
                 })
             );
@@ -539,13 +542,20 @@ export class ProjectRegistry {
 
     private _addLocalComponents(projectId: string, components: Component[]): Component[] {
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
-
+        const mergedComponents = components;
         if (projectLocation !== undefined) {
             const localComponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
-            components = components.concat(localComponents);
+            localComponents.forEach(item => {
+                const alreadyExists = components.some(component => {
+                    return component.local && component.name === item.name;
+                });
+                if (!alreadyExists) {
+                    mergedComponents.push(item);
+                }
+            });
         }
-        
-        return components;
+
+        return mergedComponents;
     }
 
     private _removeComponentFromWorkspace(wsFilePath: string, displayName: string) {
