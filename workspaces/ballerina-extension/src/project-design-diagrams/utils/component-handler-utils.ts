@@ -22,8 +22,8 @@ import { existsSync, readFile, rmSync, unlinkSync, writeFile, writeFileSync } fr
 import * as path from "path";
 import child_process from "child_process";
 import { compile } from "handlebars";
-import { BallerinaTriggerResponse, STModification } from "@wso2-enterprise/ballerina-languageclient";
-import { BallerinaComponentTypes } from "@wso2-enterprise/choreo-core";
+import { BallerinaTriggerResponse, STModification, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaComponentTypes, TriggerDetails } from "@wso2-enterprise/choreo-core";
 import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { ExtendedLangClient } from "../../core";
 import { getLangClient, STResponse } from "../activator";
@@ -119,7 +119,7 @@ const triggerSource =
     "configurable {{triggerType}}:ListenerConfig config = ?;\n\n" +
     "listener {{triggerType}}:Listener webhookListener =  new(config);\n\n" +
 
-    "{{#each serviceTypes}}" +
+    "{{#each selectedServices}}" +
     "@display {\n" +
         "label: \"{{ this.name }}\",\n" +
         "id: \"{{ this.name }}\"\n" +
@@ -133,21 +133,30 @@ const triggerSource =
     "}\n\n" +
     "{{/each}}\n";
 
-export async function buildWebhookTemplate(pkgPath: string, triggerId: string): Promise<string> {
+export async function buildWebhookTemplate(pkgPath: string, trigger: TriggerDetails): Promise<string> {
     const langClient: ExtendedLangClient = getLangClient();
     const template = compile(triggerSource);
-    const triggerData: BallerinaTriggerResponse | {} = await langClient.getTrigger({ id: triggerId });
+    const triggerData: BallerinaTriggerResponse | {} = await langClient.getTrigger({ id: trigger.id });
     if ('serviceTypes' in triggerData && triggerData.serviceTypes.length) {
+        const selectedServices = getFilteredTriggerData(triggerData, trigger.services);
         const moduleName = triggerData.moduleName;
-        const cmdResponse: CommandResponse = await runCommand(`bal pull ballerinax/${moduleName}`, pkgPath);
-        if (!cmdResponse.error || cmdResponse.message.includes('package already exists')) {
+        const cmdResponse = await runCommand(`bal pull ballerinax/${moduleName}`, pkgPath);
+        if (!cmdResponse.error || cmdResponse.message.includes("package already exists")) {
             return template({
                 ...triggerData,
-                triggerType: moduleName.slice(moduleName.lastIndexOf('.') + 1)
+                triggerType: moduleName.slice(moduleName.lastIndexOf('.') + 1),
+                selectedServices
             });
         }
     }
     return "";
+}
+
+function getFilteredTriggerData(triggerData: BallerinaTriggerResponse, services: string[]|undefined): ServiceType[] {
+    if (triggerData && triggerData.serviceTypes.length && services) {
+        return triggerData.serviceTypes.filter((service) => services.includes(service.name));
+    }
+    return [];
 }
 
 export function writeWebhookTemplate(pkgPath: string, template: string): boolean {

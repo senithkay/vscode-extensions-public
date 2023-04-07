@@ -98,7 +98,9 @@ export class WebViewRpc {
                 const answer = await vscode.window.showInformationMessage("Are you sure you want to remove the component? This action will be irreversible and all related details will be lost.", "Delete Component", "Cancel");
                 if(answer === "Delete Component"){
                     await ProjectRegistry.getInstance().deleteComponent(params.component, ext.api.selectedOrg.handle, params.projectId);
+                    return params.component;
                 }
+                return null;
             }
         });
 

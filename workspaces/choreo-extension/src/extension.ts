@@ -18,7 +18,7 @@ import { activateAuth } from './auth';
 import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, signIn } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
-import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId, refreshProjectsTreeViewCmdId, setSelectedOrgCmdId } from './constants';
+import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId, refreshProjectsTreeViewCmdId, setSelectedOrgCmdId, STATUS_LOGGED_IN } from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
 import { activateRegistry } from './registry/activate';
@@ -165,7 +165,7 @@ function createAccountTreeView() {
 	ext.context.subscriptions.push(ext.api.onStatusChanged((newStatus) => {
 		getLogger().debug("Updating Choreo Account Tree View description based on the new status " + newStatus);
 		let description = '';
-		if (newStatus === "LoggedIn" && ext.api.userName) {
+		if (newStatus === STATUS_LOGGED_IN && ext.api.userName) {
 			description = ext.api.userName;
 		}
 		treeView.description = description;
