@@ -397,7 +397,11 @@ export function ServiceClassResourceForm(props: FunctionProps) {
                             isLoading={false}
                             recordCompletions={getFilteredCompletions(completions)}
                             createNew={createConstruct}
-                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                            diagnostics={
+                                currentComponentSyntaxDiag?.length > 0 ?
+                                    currentComponentSyntaxDiag :
+                                    model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange
+                            }
                             isGraphqlForm={true}
                         />
                     </div>

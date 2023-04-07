@@ -68,12 +68,12 @@ function TypeBrowserC(props: TypeBrowserProps) {
     }
 
     const handleCreatingNewConstruct = (nodeType : ConstructType) => {
-        const validName = selectedTypeStr.replace(/[\])}[{(]/g, '');
+        const typeName = expressionDiagnosticMsg.match(/'(.*)'/)[1];
         let codeSnippet : string = "";
         if (nodeType === ConstructType.RECORD_CONSTRUCT) {
-            codeSnippet = `type ${validName} record {};`;
+            codeSnippet = `type ${typeName} record {};`;
         } else if (nodeType === ConstructType.CLASS_CONSTRUCT) {
-            codeSnippet = `service class ${validName} {}`
+            codeSnippet = `service class ${typeName} {}`
         }
         createNew(codeSnippet);
         setSelectedTypeStr(selectedTypeStr);
@@ -173,7 +173,7 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
                     </FormHelperText>
                 </TooltipCodeSnippet>
                 )}
-            {isGraphqlForm && message.includes("unknown type") &&
+            {isGraphqlForm && (message.includes("unknown type") ?
                 (
                 <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
                     <>
@@ -186,7 +186,13 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
                         <SecondaryButton text={"Create Record"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.RECORD_CONSTRUCT)} />
                     </>
                 </TooltipCodeSnippet>
-                )
+                ) : (
+                    <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
+                        <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
+                            {truncateDiagnosticMsg(message)}
+                        </FormHelperText>
+                    </TooltipCodeSnippet>
+                ))
             }
         </>
     );
