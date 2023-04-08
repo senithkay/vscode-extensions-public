@@ -18,7 +18,8 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { ConsoleView, EditLayerAPI, Location, Service, Views } from '../../../resources';
+import { ElementLocation, Service } from '@wso2-enterprise/ballerina-languageclient';
+import { ConsoleView, EditLayerAPI, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -32,7 +33,7 @@ interface DiagramContextProps {
     getTypeComposition: (entityID: string) => void;
     setConnectorTarget: (service: Service) => void;
     editLayerAPI: EditLayerAPI | undefined;
-    deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>;
+    deleteComponent: (location: ElementLocation, deletePkg: boolean) => Promise<void>;
     consoleView: ConsoleView;
 }
 
@@ -52,7 +53,7 @@ interface IDiagramContext {
     setNewComponentID?: (name: string | undefined) => void;
     setNewLinkNodes?: (nodes: LinkedNodes) => void;
     setConnectorTarget?: (service: Service) => void;
-    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void> | undefined;
+    deleteComponent?: (location: ElementLocation, deletePkg: boolean) => Promise<void> | undefined;
 }
 
 interface LinkedNodes {

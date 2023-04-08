@@ -20,9 +20,10 @@
 import { Messenger } from 'vscode-messenger-webview';
 import { HOST_EXTENSION } from 'vscode-messenger-common';
 import { WebviewApi } from 'vscode-webview';
+import { ElementLocation, Service, ServiceAnnotation } from '@wso2-enterprise/ballerina-languageclient';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
-import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { Location, Service, EditLayerAPI, ServiceAnnotation } from '../../resources';
+import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { EditLayerAPI } from '../../resources';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 export class WebviewEditLayerAPI implements EditLayerAPI {
@@ -70,7 +71,7 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
         return this._messenger.sendRequest({ method: 'addLink' }, HOST_EXTENSION, [source, target]);
     }
 
-    public async deleteLink(linkLocation: Location, serviceLocation: Location): Promise<boolean> {
+    public async deleteLink(linkLocation: ElementLocation, serviceLocation: ElementLocation): Promise<boolean> {
         return this._messenger.sendRequest({ method: 'deleteLink' }, HOST_EXTENSION, { linkLocation, serviceLocation });
     }
 
@@ -102,7 +103,7 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
         this._messenger.sendNotification({ method: 'showErrorMsg' }, HOST_EXTENSION, msg);
     }
 
-    public go2source(location: Location): void {
+    public go2source(location: ElementLocation): void {
         return this._messenger.sendNotification({ method: 'go2source' }, HOST_EXTENSION, location);
     }
 

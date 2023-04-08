@@ -18,18 +18,18 @@
  */
 
 import React, { useState } from 'react';
+import { ElementLocation, ServiceRemoteFunction, ServiceResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import { NodeMenuPanel } from './NodeMenuPanel';
-import { Location, RemoteFunction, ResourceFunction } from '../../../resources';
 import { DeleteComponentDialog, EditLabelDialog } from './components';
 import { ServiceNodeModel } from '../../service-interaction';
 
 interface NodeMenuProps {
     background: string;
-    location: Location;
+    location: ElementLocation;
     linkingEnabled?: boolean;
-    resourceFunction?: ResourceFunction | RemoteFunction; // TODO: Figure out a way to merge resource and service
+    resourceFunction?: ServiceResourceFunction | ServiceRemoteFunction; // TODO: Figure out a way to merge resource and service
     serviceNode?: ServiceNodeModel;
 }
 

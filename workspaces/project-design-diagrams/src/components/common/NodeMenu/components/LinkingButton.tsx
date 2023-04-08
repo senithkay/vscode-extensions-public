@@ -18,10 +18,10 @@
  */
 
 import React, { useContext } from "react";
+import { Service } from "@wso2-enterprise/ballerina-languageclient";
 import TurnRightIcon from "@mui/icons-material/TurnRight";
-import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { Service } from "../../../../resources";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
+import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { useStyles } from "./styles/styles";
 
 export function LinkingButton(props: { service: Service }) {

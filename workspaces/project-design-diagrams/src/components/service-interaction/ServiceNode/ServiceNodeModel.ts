@@ -17,9 +17,10 @@
  *
  */
 
+import { Service } from '@wso2-enterprise/ballerina-languageclient';
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { ServicePortModel } from '../ServicePort/ServicePortModel';
-import { Level, Service, ServiceTypes } from '../../../resources';
+import { Level, ServiceTypes } from '../../../resources';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
 import { GatewayType } from "../../gateway/types";
 

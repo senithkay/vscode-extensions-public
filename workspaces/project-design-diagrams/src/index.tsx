@@ -19,10 +19,9 @@
 
 import React from "react";
 import { render } from "react-dom";
+import { ElementLocation, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { DesignDiagram } from "./DesignDiagram";
-import { Location } from "./resources";
 import { WebviewEditLayerAPI } from "./editing";
-import { GetComponentModelResponse } from "./resources";
 
 export function renderDesignDiagrams(
     isEditable: boolean,
@@ -30,7 +29,7 @@ export function renderDesignDiagrams(
     selectedNodeId: string,
     getComponentModel: () => Promise<GetComponentModelResponse>,
     showChoreoProjectOverview: () => Promise<void>,
-    deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>,
+    deleteComponent: (location: ElementLocation, deletePkg: boolean) => Promise<void>,
     target: HTMLElement
 ) {
     render(

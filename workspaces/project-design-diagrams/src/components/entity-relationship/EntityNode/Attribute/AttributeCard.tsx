@@ -19,10 +19,11 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
+import { Attribute } from '@wso2-enterprise/ballerina-languageclient';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
-import { Attribute, Colors } from '../../../../resources';
+import { Colors } from '../../../../resources';
 import { extractAttributeType } from '../entity-util';
 import { AttributeContainer, AttributeName, AttributeType } from '../styles';
 

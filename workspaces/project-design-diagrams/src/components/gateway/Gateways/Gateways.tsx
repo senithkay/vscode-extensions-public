@@ -18,7 +18,7 @@
  */
 
 import React, { useContext } from 'react';
-import { GatewayIcon } from "../../common/DiagramContainer/GatewayIcon";
+import { GatewayIcon } from "../../../resources";
 import { GatewayContainer } from "../../common/DiagramContainer/style";
 import { DiagramContext } from "../../common";
 

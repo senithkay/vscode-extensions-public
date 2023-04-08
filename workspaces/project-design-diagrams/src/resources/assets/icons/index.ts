@@ -19,6 +19,7 @@
 
 export { EndpointIcon } from './EndpointIcon';
 export { EntryPointIcon } from './EntryPointIcon';
+export { GatewayIcon } from './GatewayIcon';
 export { GraphQLIcon } from './GraphQL';
 export { GraphQLMutationIcon } from './GraphQLMutation';
 export { GraphQLQueryIcon } from './GraphQLQuery';

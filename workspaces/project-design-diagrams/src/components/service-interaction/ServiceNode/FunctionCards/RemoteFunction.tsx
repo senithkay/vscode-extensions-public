@@ -18,8 +18,9 @@
  */
 
 import React from 'react';
+import { ServiceRemoteFunction } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { GraphQLMutationIcon, RemoteFunction, ServiceTypes } from '../../../../resources';
+import { GraphQLMutationIcon, ServiceTypes } from '../../../../resources';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { RemoteName } from '../styles/styles';
@@ -27,7 +28,7 @@ import { RemoteName } from '../styles/styles';
 interface RemoteFunctionProps {
     engine: DiagramEngine;
     node: ServiceNodeModel;
-    remoteFunc: RemoteFunction;
+    remoteFunc: ServiceRemoteFunction;
 }
 
 export function RemoteFunctionWidget(props: RemoteFunctionProps) {

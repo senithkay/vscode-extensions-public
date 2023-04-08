@@ -18,16 +18,16 @@
  */
 
 import React, { useContext } from "react";
+import { ElementLocation, ServiceRemoteFunction, ServiceResourceFunction, ServiceAnnotation } from "@wso2-enterprise/ballerina-languageclient";
 import { Paper, MenuList, Divider } from "@mui/material";
-import { Location, RemoteFunction, ResourceFunction, ServiceAnnotation } from "../../../resources";
 import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton, EditLabelButton, DeleteComponentButton } from "./components";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { ServiceNodeModel } from "../../service-interaction";
 
 interface MenuProps {
     linkingEnabled: boolean;
-    location: Location;
-    resource?: ResourceFunction | RemoteFunction; // TODO: figure out a way to merge service and resource
+    location: ElementLocation;
+    resource?: ServiceResourceFunction | ServiceRemoteFunction; // TODO: figure out a way to merge service and resource
     serviceNode?: ServiceNodeModel;
     handleEditLabelDialog: (status: boolean) => void;
     handleDeleteComponentDialog: (status: boolean) => void;

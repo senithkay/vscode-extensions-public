@@ -22,10 +22,11 @@ import { randomUUID } from "crypto";
 import { ExtendedLangClient } from "src/core";
 import { Position, Range, Uri, window, workspace, WorkspaceEdit } from "vscode";
 import { camelCase } from "lodash";
+import { Service, ServiceAnnotation } from "@wso2-enterprise/ballerina-languageclient";
 import { BallerinaConnectorInfo, Connector, GetSyntaxTreeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
 import { STResponse } from "../activator";
-import { Service, ServiceAnnotation, ServiceTypes } from "../resources";
+import { ServiceTypes } from "../resources";
 import { getConnectorImports, getDefaultParams, getFormFieldReturnType } from "./connector-code-gen-utils";
 import { runBackgroundTerminalCommand } from "../../utils/runCommand";
 

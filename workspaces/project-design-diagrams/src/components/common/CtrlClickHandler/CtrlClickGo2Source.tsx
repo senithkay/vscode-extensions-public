@@ -18,12 +18,12 @@
  */
 
 import React, { PropsWithChildren, useContext } from 'react';
+import { ElementLocation } from '@wso2-enterprise/ballerina-languageclient';
 import { CtrlClickWrapper } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { Location } from '../../../resources';
 
 interface CtrlClickProps {
-    location: Location;
+    location: ElementLocation;
 }
 
 export function CtrlClickGo2Source(props: PropsWithChildren<CtrlClickProps>) {

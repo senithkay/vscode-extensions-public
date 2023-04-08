@@ -20,11 +20,10 @@
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { v4 as uuid, validate as validateUUID } from 'uuid';
 import {
-    ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes
-} from '../../resources';
-import {
-    EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel
-} from '../../components/service-interaction';
+    ComponentModel, Dependency, ElementLocation, Interaction,  ServiceRemoteFunction, ServiceResourceFunction, Service
+} from '@wso2-enterprise/ballerina-languageclient';
+import { Level, ServiceModels, ServiceTypes } from '../../resources';
+import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
 import { extractGateways } from "../utils";
 
 type ServiceNodeModels = ServiceNodeModel | EntryNodeModel;
@@ -200,8 +199,8 @@ function mapDependencies(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 }
 
 function mapInteractions(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, cellSourceNode: ServiceNodeModel,
-    functions: ResourceFunction[] | RemoteFunction[]) {
-    functions.forEach((sourceFunction: ResourceFunction | RemoteFunction) => {
+    functions: ServiceResourceFunction[] | ServiceRemoteFunction[]) {
+    functions.forEach((sourceFunction: ServiceResourceFunction | ServiceRemoteFunction) => {
         sourceFunction.interactions.forEach(interaction => {
             if (l1Nodes.has(interaction.resourceId.serviceId) && l2Nodes.has(interaction.resourceId.serviceId) && cellNodes.has(interaction.resourceId.serviceId)) {
                 mapLinksByLevel(l1Source, l2Source, cellSourceNode, interaction, sourceFunction);
@@ -213,7 +212,7 @@ function mapInteractions(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 }
 
 function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, cellSource: ServiceNodeModel, interaction: Interaction,
-    sourceFunction: ResourceFunction | RemoteFunction) {
+    sourceFunction: ServiceResourceFunction | ServiceRemoteFunction) {
     // create L1 service links if not created already
     let linkID: string = `${l1Source.getID()}-${interaction.resourceId.serviceId}`;
     if (!l1Links.has(linkID)) {
@@ -257,8 +256,8 @@ export function createLinks(sourcePort: ServicePortModel, targetPort: ServicePor
     return link;
 }
 
-function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel, location: Location, interaction?: Interaction,
-    sourceFunction?: RemoteFunction | ResourceFunction): ServiceLinkModel {
+function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel, location: ElementLocation, interaction?: Interaction,
+    sourceFunction?: ServiceRemoteFunction | ServiceResourceFunction): ServiceLinkModel {
     let sourcePort: ServicePortModel = undefined;
     let targetPort: ServicePortModel = undefined;
 
@@ -292,7 +291,7 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
 }
 
 function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels, cellSource: ServiceNodeModels,
-    connectorType: string, location: Location, callingFunction?: ResourceFunction | RemoteFunction) {
+    connectorType: string, location: ElementLocation, callingFunction?: ServiceResourceFunction | ServiceRemoteFunction) {
     // create L1 external service node if not available
     let l1ExtService: ExtServiceNodeModel;
     if (l1ExtNodes.has(connectorType)) {
@@ -340,7 +339,7 @@ function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels
     }
 }
 
-function mapExtLinks(source: ServiceNodeModels, target: ExtServiceNodeModel, location: Location, sourcePortID?: string)
+function mapExtLinks(source: ServiceNodeModels, target: ExtServiceNodeModel, location: ElementLocation, sourcePortID?: string)
     : ServiceLinkModel {
     let sourcePort: ServicePortModel;
     let targetPort: ServicePortModel = target.getPortFromID(`left-${target.getID()}`);
@@ -404,8 +403,8 @@ function generateEntryPointLinks(source: EntryNodeModel, target: ServiceNodeMode
     }
 }
 
-function isResource(functionObject: ResourceFunction | RemoteFunction): functionObject is ResourceFunction {
-    return (functionObject as ResourceFunction).resourceId !== undefined;
+function isResource(functionObject: ServiceResourceFunction | ServiceRemoteFunction): functionObject is ServiceResourceFunction {
+    return (functionObject as ServiceResourceFunction).resourceId !== undefined;
 }
 
 function generateLabels(packageName: string, serviceId: string): string {

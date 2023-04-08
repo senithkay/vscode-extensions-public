@@ -27,18 +27,16 @@ import {
     isSubpathAvailable,
     SubpathAvailableRequest,
     getDiagramComponentModel,
-    ComponentModel,
     DeleteComponent,
     PullComponent,
     PushLocalComponentToChoreo,
     showOpenDialogRequest,
     OpenDialogOptions,
-    GetComponentModelResponse,
-    ComponentModelDiagnostics,
     GetEnrichedComponents,
     getPreferredProjectRepository,
     setPreferredProjectRepository
 } from "@wso2-enterprise/choreo-core";
+import { ComponentModel, ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';

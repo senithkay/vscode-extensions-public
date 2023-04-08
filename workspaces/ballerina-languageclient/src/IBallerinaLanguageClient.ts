@@ -3,13 +3,12 @@ import {
     CodeAction,
     CodeActionParams,
     DefinitionParams,
-    Diagnostic,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     DocumentSymbol,
     DocumentSymbolParams,
-    InitializeParams, InitializeResult, Location, LocationLink, Position,
+    Location, LocationLink, Position,
     PublishDiagnosticsParams,
     Range, SymbolInformation, TextDocumentPositionParams, WorkspaceEdit, RenameParams
 } from "vscode-languageserver-protocol";
@@ -52,6 +51,7 @@ export enum EXTENDED_APIS {
     SYMBOL_GET_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
     SYMBOL_GET_TYPES_FROM_FN_DEFINITION = 'ballerinaSymbol/getTypesFromFnDefinition',
     GRAPHQL_DESIGN_MODEL = 'graphqlDesignService/getGraphqlModel',
+    COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
 }
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -836,6 +836,145 @@ export interface TypesFromSymbolResponse {
     types: ResolvedTypeForSymbol[];
 }
 
+export interface GetComponentModelRequest {
+    documentUris: string[];
+}
+
+export interface GetComponentModelResponse {
+    componentModels: {
+        [key: string]: ComponentModel;
+    };
+    diagnostics: ComponentModelDiagnostics[];
+}
+
+export interface ComponentModelDiagnostics {
+    name: string;
+    message?: string;
+    severity?: string;
+}
+
+export interface ComponentModel {
+    packageId: PackageID;
+    services: Map<string, Service>;
+    entities: Map<string, Entity>;
+    functionEntryPoint: EntryPoint;
+    hasCompilationErrors: boolean;
+}
+
+export interface PackageID {
+    name: string,
+    org: string,
+    version: string
+}
+
+export interface ElementLocation {
+    filePath: string;
+    startPosition: LinePosition;
+    endPosition: LinePosition;
+}
+
+export interface ModelAttributes {
+    elementLocation: ElementLocation;
+    diagnostics?: ComponentModelDiagnostics[];
+}
+
+export interface EntryPoint extends ModelAttributes {
+    annotation: ServiceAnnotation;
+    parameters: FunctionParameter[];
+    returns: string[];
+    interactions: Interaction[];
+}
+
+export interface Service extends ModelAttributes {
+    annotation: ServiceAnnotation;
+    path: string;
+    serviceId: string;
+    resources: ServiceResourceFunction[];
+    remoteFunctions: ServiceRemoteFunction[];
+    serviceType: string;
+    dependencies: Dependency[];
+    deploymentMetadata: DeploymentMetadata;
+}
+
+export interface ServiceAnnotation extends ModelAttributes {
+    id: string;
+    label: string;
+}
+
+export interface Dependency extends ModelAttributes {
+    serviceId: string;
+    connectorType: string;
+}
+
+export interface ServiceResourceFunction extends ModelAttributes {
+    identifier: string;
+    resourceId: ResourceId;
+    parameters: FunctionParameter[];
+    returns: string[];
+    interactions: Interaction[];
+}
+
+export interface ServiceRemoteFunction extends ModelAttributes {
+    name: string;
+    parameters: FunctionParameter[];
+    returns: string[];
+    interactions: Interaction[];
+}
+
+export interface Interaction extends ModelAttributes {
+    resourceId: ResourceId;
+    connectorType: string;
+}
+
+export interface FunctionParameter extends ModelAttributes {
+    name: string;
+    type: string[];
+    in?: string;
+    isRequired: boolean;
+}
+
+export interface ResourceId {
+    serviceId: string;
+    path: string;
+    action: string;
+}
+
+export interface Entity extends ModelAttributes {
+    attributes: Attribute[];
+    inclusions: string[];
+    isAnonymous: boolean;
+}
+
+export interface Attribute extends ModelAttributes {
+    name: string;
+    type: string;
+    defaultValue: string;
+    required: boolean;
+    nillable: boolean;
+    associations: Association[];
+}
+
+export interface Association {
+    associate: string;
+    cardinality: Cardinality;
+}
+
+export interface Cardinality {
+    self: string;
+    associate: string;
+}
+
+export interface DeploymentMetadata {
+    gateways: {
+        internet: {
+            isExposed: boolean;
+        },
+        intranet: {
+            isExposed: boolean;
+        }
+    }
+}
+
 export interface IBallerinaLangClient {
 
     didOpen: (Params: DidOpenTextDocumentParams) => void;
@@ -921,6 +1060,8 @@ export interface IBallerinaLangClient {
     convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
 
     rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
+
+    getPackageComponentModels: (params: GetComponentModelRequest) => Promise<GetComponentModelResponse>;
 
     getGraphqlModel: (params: GraphqlDesignServiceRequest) => Thenable<GraphqlDesignServiceResponse>;
     // close: () => void;

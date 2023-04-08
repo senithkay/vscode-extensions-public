@@ -19,9 +19,9 @@ import {
     Project,
     ChoreoLoginStatus,
     WorkspaceConfig,
-    ComponentModel,
     Component
 } from "@wso2-enterprise/choreo-core";
+import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { exchangeAuthToken } from "./auth/auth";
 import { readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';

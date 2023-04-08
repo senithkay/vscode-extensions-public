@@ -18,6 +18,7 @@
  */
 
 import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
+import { Service } from '@wso2-enterprise/ballerina-languageclient';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import {
     EntryNodeFactory,
@@ -34,7 +35,6 @@ import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeM
 import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLinkFactory";
 import { Point } from "@projectstorm/geometry";
 import { GatewayType } from "../components/gateway/types";
-import { Service } from "../resources";
 import { GatewayPortModel } from "../components/gateway/GatewayPort/GatewayPortModel";
 import { GatewayLinkModel } from "../components/gateway/GatewayLink/GatewayLinkModel";
 

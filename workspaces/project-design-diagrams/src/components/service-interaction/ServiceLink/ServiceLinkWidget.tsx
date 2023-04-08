@@ -18,6 +18,7 @@
  */
 
 import React, { useContext, useEffect, useState } from 'react';
+import { ServiceRemoteFunction, ServiceResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import Popover from '@mui/material/Popover';
 import { DiagramContext } from '../../common';
@@ -25,7 +26,7 @@ import { ServiceLinkModel } from './ServiceLinkModel';
 import { DataTypesPopup } from './data-types-popup/DataTypePopup';
 import { findCallingFunction } from './link-utils';
 import { ServiceLinkMenu } from './LinkMenuPanel/LinkMenuPanel';
-import { Colors, Level, RemoteFunction, ResourceFunction } from '../../../resources';
+import { Colors, Level } from '../../../resources';
 
 interface WidgetProps {
 	engine: DiagramEngine,
@@ -39,7 +40,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 	const [isSelected, setIsSelected] = useState<boolean>(false);
 	const [position, setPosition] = useState({ x: undefined, y: undefined });
 	const [anchorElement, setAnchorElement] = useState<SVGPathElement | HTMLDivElement>(null);
-	const [callingFunction, setCallingFunction] = useState<ResourceFunction | RemoteFunction>(undefined);
+	const [callingFunction, setCallingFunction] = useState<ServiceResourceFunction | ServiceRemoteFunction>(undefined);
 
 	useEffect(() => {
 		link.initLinks(engine);

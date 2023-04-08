@@ -27,7 +27,7 @@ import { DiagramControls, ViewSwitcher } from './ControlLayer';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { GatewayLinkModel } from '../../gateway/GatewayLink/GatewayLinkModel';
 import { GatewayNodeModel } from '../../gateway/GatewayNode/GatewayNodeModel';
-import { DagreLayout, Views } from '../../../resources';
+import { ConsoleView, DagreLayout, Views } from '../../../resources';
 import {
     addGWNodesModel,
     cellDiagramZoomToFit,
@@ -37,7 +37,6 @@ import {
     removeGWLinks
 } from '../../../utils';
 import './styles/styles.css';
-import { ConsoleView } from "../../../resources/model";
 
 interface DiagramCanvasProps {
     model: DiagramModel;

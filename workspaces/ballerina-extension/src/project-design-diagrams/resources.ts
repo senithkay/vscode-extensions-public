@@ -1,67 +1,24 @@
+/**
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
 import { decimal } from "vscode-languageclient";
-
-export interface ComponentModel {
-    packageId: {
-        name: string,
-        org: string,
-        version: string
-    };
-    services: Map<string, Service>;
-    entities: Map<string, Entity>;
-    hasCompilationErrors: boolean;
-}
-
-export interface Service {
-    annotation: ServiceAnnotation;
-    path: string;
-    serviceId: string;
-    resources: any[];
-    remoteFunctions: any[];
-    serviceType: string;
-    dependencies: any[];
-    deploymentMetadata: DeploymentMetadata;
-    elementLocation: Location;
-}
-
-export interface ServiceAnnotation {
-    id: string;
-    label: string;
-    elementLocation?: Location;
-}
-
-export interface Entity {
-    attributes: any[];
-    inclusions: string[];
-    elementLocation: Location;
-    isAnonymous: boolean;
-}
-
-export interface BallerinaVersion {
-    majorVersion: decimal;
-    patchVersion: number;
-}
-
-export interface Location {
-    filePath: string;
-    startPosition: LinePosition;
-    endPosition: LinePosition;
-}
-
-interface LinePosition {
-    line: number;
-    offset: number;
-}
-
-export interface DeploymentMetadata {
-    gateways: {
-        internet: {
-            isExposed: boolean;
-        },
-        intranet: {
-            isExposed: boolean;
-        }
-    };
-}
+import { ElementLocation } from "@wso2-enterprise/ballerina-languageclient";
 
 export enum ServiceTypes {
     HTTP = "http",
@@ -71,22 +28,19 @@ export enum ServiceTypes {
     OTHER = "other"
 }
 
+export interface BallerinaVersion {
+    majorVersion: decimal;
+    patchVersion: number;
+}
+
 export interface CommandResponse {
     error: boolean;
     message: string;
 }
 
-export interface WorkspaceItem {
-    name: string;
-    path: string;
-}
-export interface WorkspaceConfig {
-    folders: WorkspaceItem[]
-}
-
 export interface DeleteLinkArgs {
-    linkLocation: Location;
-    serviceLocation: Location;
+    linkLocation: ElementLocation;
+    serviceLocation: ElementLocation;
 }
 
 export const ERROR_MESSAGE = "Architecture View: Failed to generate view.";

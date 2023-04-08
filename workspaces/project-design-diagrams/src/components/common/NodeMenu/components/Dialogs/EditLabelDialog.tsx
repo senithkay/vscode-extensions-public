@@ -18,6 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
+import { ElementLocation, Service, ServiceAnnotation } from '@wso2-enterprise/ballerina-languageclient';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -25,7 +26,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { DiagramContext } from '../../../DiagramContext/DiagramContext';
-import { Location, Service, ServiceAnnotation } from '../../../../../resources';
 import { DefaultTextProps, TitleTextProps } from '../styles/styles';
 
 interface EditLabelDialogProps {
@@ -40,7 +40,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
 
     const [serviceLabel, updateServiceLabel] = useState<string>(undefined);
 
-    const getAnnotationLocation = (): Location => {
+    const getAnnotationLocation = (): ElementLocation => {
         if (service.annotation?.elementLocation) {
             return service.annotation.elementLocation;
         } else if (service.elementLocation) {
@@ -85,7 +85,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleDialogClose} sx={DefaultTextProps} >Cancel</Button>
+                <Button onClick={handleDialogClose} sx={DefaultTextProps}>Cancel</Button>
                 <Button
                     sx={DefaultTextProps}
                     onClick={editComponentLabel}

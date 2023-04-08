@@ -17,9 +17,9 @@
  *
  */
 
+import { ComponentModel, Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { EntityLinkModel, EntityModel, EntityPortModel } from '../../components/entity-relationship';
-import { ComponentModel, Entity } from '../../resources';
 
 export function entityModeller(projectComponents: Map<string, ComponentModel>, packageSelection: Map<string, boolean>)
     : DiagramModel {
