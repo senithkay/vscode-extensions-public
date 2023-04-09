@@ -18,6 +18,7 @@ export class ActionViewState extends ViewState {
     public trigger: SimpleBBox = new SimpleBBox();
     public iconId: string = "default";
     public actionName?: string;
+    public resourcePath?: string;
 
     constructor() {
         super();
