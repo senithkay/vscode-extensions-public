@@ -18,8 +18,9 @@
  */
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { Box, Button, Card, CardActions, CardContent, Collapse, FormLabel } from "@material-ui/core";
+import { Box,  Card, CardActions, CardContent, Collapse, FormLabel } from "@material-ui/core";
 
+import Button from "./ChoreoSystem/Button/Button";
 import ConfigElement, { ConfigElementProps } from "./ConfigElement";
 import ButtonContainer from "./elements/ButtonContainer";
 import ExpandMore from "./elements/ExpandMore";
@@ -45,6 +46,7 @@ export interface ConfigFormProps {
     primaryButtonText: string;
     onClickDefaultButton: () => void;
     onClickPrimaryButton: (configProperties: ConfigElementProps) => void;
+    isDisablePrimaryButton?: boolean;
     isLowCode?: boolean;
     isFeaturePreview?: boolean;
     env?: string;
@@ -95,6 +97,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
         primaryButtonText,
         onClickDefaultButton,
         onClickPrimaryButton,
+        isDisablePrimaryButton,
         isFeaturePreview,
         isLowCode,
     } = props;
@@ -195,23 +198,28 @@ export const ConfigForm = (props: ConfigFormProps) => {
                 {requiredElements.map(ConfigElement)}
                 {defaultableFields}
                 <CardActions>
-                    <ButtonContainer justifyContent="flex-end">
+                    <ButtonContainer justifyContent="flex-end" size="small">
                         <Button
                             variant="outlined"
-                            color="default"
+                            color="secondary"
                             size="small"
                             onClick={handleDefaultButtonClick}
                         >
                             {defaultButtonText}
                         </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            type="submit"
-                        >
-                            {primaryButtonText}
-                        </Button>
+                        {
+                            !isDisablePrimaryButton && (
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    type="submit"
+                                >
+                                    {primaryButtonText}
+                                </Button>
+                            )
+                        }
+
                     </ButtonContainer>
                 </CardActions>
             </form>
@@ -222,5 +230,6 @@ export const ConfigForm = (props: ConfigFormProps) => {
 export default ConfigForm;
 
 ConfigForm.defaultProps = {
+    isDisablePrimaryButton: false,
     isLowCode: false,
 };

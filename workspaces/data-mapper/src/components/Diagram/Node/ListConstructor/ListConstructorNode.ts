@@ -72,8 +72,6 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
-        this.typeDef = getSearchFilteredOutput(this.typeDef);
-
         if (this.typeDef) {
             const isSelectClause = STKindChecker.isSelectClause(this.value);
             this.rootName = this.typeDef?.name ? getBalRecFieldName(this.typeDef.name) : this.typeDef.typeName;

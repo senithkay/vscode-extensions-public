@@ -111,7 +111,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
             // pan logic
             setZoomStatus({
                 ...zoomStatus,
-                panX: zoomStatus.panX + e.deltaX,
+                panX: zoomStatus.panX + -e.deltaX,
                 panY: zoomStatus.panY + -e.deltaY,
             });
         }

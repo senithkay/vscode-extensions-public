@@ -86,24 +86,18 @@ export class DefaultState extends State<DiagramEngine> {
 						.closest('button[id^="button-wrapper"]');
 					const isAddElement = (actionEvent.event.target as Element)
 						.closest('button[id^="add-array-element"]');
-					const isAddLocalVariable = (actionEvent.event.target as Element)
-						.closest('button[id^="add-local-variable"]');
-					const isEditLocalVariables = (actionEvent.event.target as Element)
-						.closest('button[id^="edit-local-variables"]');
 
-					if (!isExpandOrCollapse && !isAddElement && !isAddLocalVariable && !isEditLocalVariables
-						&& (element instanceof PortModel
-							|| element instanceof MappingConstructorNode
-							|| element instanceof ListConstructorNode
-							|| element instanceof PrimitiveTypeNode
-							|| element instanceof RequiredParamNode
-							|| element instanceof FromClauseNode
-							|| element instanceof LetExpressionNode
-							|| element instanceof ModuleVariableNode
-							|| element instanceof LetClauseNode
-							|| element instanceof JoinClauseNode
-						)
-					) {
+					if (!isExpandOrCollapse && !isAddElement && (element instanceof PortModel
+						|| element instanceof MappingConstructorNode
+						|| element instanceof ListConstructorNode
+						|| element instanceof PrimitiveTypeNode
+						|| element instanceof RequiredParamNode
+						|| element instanceof FromClauseNode
+						|| element instanceof LetExpressionNode
+						|| element instanceof ModuleVariableNode
+						|| element instanceof LetClauseNode
+						|| element instanceof JoinClauseNode
+					)) {
 						this.transitionWithEvent(this.createLink, actionEvent);
 					}
 				}

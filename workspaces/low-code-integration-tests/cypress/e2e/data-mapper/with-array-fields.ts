@@ -44,8 +44,8 @@ describe("Primitive array field manipulation within mapping constructor", () => 
     });
 
     it("Create mapping between the first array element and source node", () => {
-        DataMapper.createMappingUsingFields('input.st1', 'Output.stArr.0', 'mappingConstructor');
-        DataMapper.linkExists('input.st1', 'Output.stArr.0', 'mappingConstructor');
+        DataMapper.createMappingUsingFields('input.st1', 'Output.stArr.0');
+        DataMapper.linkExists('input.st1', 'Output.stArr.0');
     });
 
     it("Add another element to the array field", () => {
@@ -121,16 +121,16 @@ describe("Record type array field manipulation within mapping constructor", () =
     });
 
     it("Create an invalid mapping between a string value and first record item in the array", () => {
-        DataMapper.createMappingUsingFields('input.st1', 'Output.Items.0', 'mappingConstructor');
-        DataMapper.linkWithErrorExists('input.st1', 'Output.Items.0', 'mappingConstructor');
-        DataMapper.deleteLinkWithDiagnostics('input.st1', 'Output.Items.0', 'mappingConstructor');
+        DataMapper.createMappingUsingFields('input.st1', 'Output.Items.0');
+        DataMapper.linkWithErrorExists('input.st1', 'Output.Items.0');
+        DataMapper.deleteLinkWithDiagnostics('input.st1', 'Output.Items.0');
     });
 
     it("Create mapping between a string value and a string field of the first record item in the array", () => {
-        DataMapper.addElementToArrayField('Output.Items', 'mappingConstructor');
-        DataMapper.getRecordArrayFieldElement('Output.Items.0', 'mappingConstructor');
-        DataMapper.createMappingUsingFields('input.st1', 'Output.Items.0.Id', 'mappingConstructor');
-        DataMapper.linkExists('input.st1', 'Output.Items.0.Id', 'mappingConstructor');
+        DataMapper.addElementToArrayField('Output.Items');
+        DataMapper.getRecordArrayFieldElement('Output.Items.0');
+        DataMapper.createMappingUsingFields('input.st1', 'Output.Items.0.Id');
+        DataMapper.linkExists('input.st1', 'Output.Items.0.Id');
     });
 
     it("Edit value of the second element using statement editor", () => {

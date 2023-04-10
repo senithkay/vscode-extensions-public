@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Component, Environment, Organization, Project, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { Component, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
@@ -145,7 +145,50 @@ export class ProjectRegistry {
         }
     }
 
+    async getDeletedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<PushedComponent[]> {
+        const projectLocation = this.getProjectLocation(projectId);
+        const dataComponents = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
+        let deletedComponents: PushedComponent[] = [];
 
+        if (projectLocation !== undefined) {
+            const pushedComponents = (new ChoreoProjectManager()).getPushedComponents(projectLocation);
+
+            if(dataComponents && dataComponents.length < pushedComponents.length) {
+                deletedComponents = pushedComponents.filter((pushedComponent: PushedComponent) => {
+                    let isDeleted = true;
+                    dataComponents.forEach((component: Component) => {
+                        if (component.name === pushedComponent.name) {
+                            isDeleted = false;
+                        }
+                    });
+
+                    if (isDeleted) {
+                        return pushedComponent;
+                    }
+                });
+            }
+        }
+
+        return deletedComponents;      
+    }
+
+    removeDeletedComponents(components: PushedComponent[], projectId: string) {
+        const projectLocation = this.getProjectLocation(projectId);
+
+        if (projectLocation !== undefined) {
+            components.forEach((component: PushedComponent) => {
+                const repoPath = join(dirname(projectLocation), component.path);
+                if (existsSync(repoPath)) {
+                    rmdirSync(repoPath, { recursive: true });
+                    this._removeComponentFromWorkspace(projectLocation, component.name);
+                }
+            });
+        }
+        
+        const successMsg = " Please commit & push your local changes changes to ensure consistency with the remote repository.";
+        vscode.window.showInformationMessage(successMsg);
+    }
+        
     private async isComponentInRepo(component: Component): Promise<boolean> {
         let isInRemoteRepo = true;
         if(component.local && component.repository){
@@ -167,7 +210,8 @@ export class ProjectRegistry {
 
     async getEnrichedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
-            const components = this._dataComponents.get(projectId) || [];
+            const componentsCache = this._dataComponents.get(projectId) || [];
+            const components = this._addLocalComponents(projectId, componentsCache);
 
             let envData = this._projectEnvs.get(projectId);
             if(!envData){
@@ -182,10 +226,10 @@ export class ProjectRegistry {
             const enrichedComponents: Component[] = await Promise.all(
                 components.map(async (component) => {
                     const selectedVersion = component.apiVersions?.find(item=>item.latest);
-                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo] = await Promise.all([
+                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo, buildStatus] = await Promise.all([
                         this.hasUnPushedLocalCommit(projectId, component),
                         this.hasDirtyLocalRepo(projectId, component),
-                        selectedVersion && devEnv && projectClient.getComponentDeploymentStatus({
+                        !component.local && selectedVersion && devEnv && projectClient.getComponentDeploymentStatus({
                             component,
                             envId: devEnv?.id,
                             orgHandle,
@@ -193,7 +237,8 @@ export class ProjectRegistry {
                             projId: projectId,
                             versionId: selectedVersion.id
                         }),
-                        this.isComponentInRepo(component)
+                        this.isComponentInRepo(component),
+                        !component.local && selectedVersion && projectClient.getComponentBuildStatus({componentId: component.id, versionId: selectedVersion.id})
                     ]);
 
                     let isRemoteOnly = true;
@@ -208,7 +253,8 @@ export class ProjectRegistry {
                         hasDirtyLocalRepo, 
                         isRemoteOnly, 
                         isInRemoteRepo,
-                        deployments: { dev: devDeployment }
+                        deployments: { dev: devDeployment },
+                        buildStatus
                     } as Component;
                 })
             );
@@ -539,13 +585,20 @@ export class ProjectRegistry {
 
     private _addLocalComponents(projectId: string, components: Component[]): Component[] {
         const projectLocation: string | undefined = this.getProjectLocation(projectId);
-
+        const mergedComponents = components;
         if (projectLocation !== undefined) {
             const localComponents = (new ChoreoProjectManager()).getLocalComponents(projectLocation);
-            components = components.concat(localComponents);
+            localComponents.forEach(item => {
+                const alreadyExists = components.some(component => {
+                    return component.local && component.name === item.name;
+                });
+                if (!alreadyExists) {
+                    mergedComponents.push(item);
+                }
+            });
         }
-        
-        return components;
+
+        return mergedComponents;
     }
 
     private _removeComponentFromWorkspace(wsFilePath: string, displayName: string) {

@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-configurable-editor",
-  "version": "3.3.9",
+  "version": "3.3.14",
   "description": "Ballerina Configurable Editor",
   "files": [
     "build"
@@ -36,7 +36,8 @@
     "ts-loader": "^9.4.1",
     "svg-url-loader": "^8.0.0",
     "@types/jest": "^29.2.5",
-    "copyfiles": "^2.4.1"
+    "copyfiles": "^2.4.1",
+    "clsx": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",

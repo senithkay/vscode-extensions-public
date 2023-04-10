@@ -64,6 +64,9 @@ export function ActionList(props: FormGeneratorProps) {
         if (action.name === "init") {
             return;
         }
+        if (isHttp && action.qualifiers?.includes("resource")) {
+            return; // Skip resource actions from http connector to avoid listing duplicate actions
+        }
         return <ActionCard key={action.name} action={action} onSelect={onSelect} />;
     });
 

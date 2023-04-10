@@ -40,7 +40,7 @@
                 "extensions": [
                     ".bal"
                 ],
-                "configuration": "./grammar/ballerina.configuration.json"
+                "configuration": "./ballerina.configuration.json"
             },
             {
                 "id": "toml",

@@ -24,7 +24,7 @@ import { Messenger } from "vscode-messenger";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { BallerinaProjectManager } from "./manager";
-import { DeleteLinkArgs, Location, Service, ServiceAnnotation } from "../resources";
+import { DIAGNOSTICS_WARNING, DeleteLinkArgs, Location, Service, ServiceAnnotation } from "../resources";
 import { ExtendedLangClient } from "../../core";
 import { addConnector, editDisplayLabel, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -122,6 +122,15 @@ export class EditLayerRPC {
 
         this._messenger.onNotification({ method: 'goToDesign' }, (args: { filePath: string, position: NodePosition }): void => {
             commands.executeCommand(PALETTE_COMMANDS.OPEN_IN_DIAGRAM, args.filePath, args.position, true);
+        });
+
+        this._messenger.onNotification({ method: 'showDiagnosticsWarning' }, () => {
+            const action = 'View Problems';
+            window.showInformationMessage(DIAGNOSTICS_WARNING, action).then((selection) => {
+                if (action === selection) {
+                    commands.executeCommand('workbench.action.problems.focus');
+                }
+            });
         });
 
         this._messenger.onNotification({ method: 'showErrorMsg' }, (msg: string) => {

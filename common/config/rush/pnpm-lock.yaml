@@ -579,6 +579,7 @@ importers:
       '@types/react': ^17.0.37
       '@types/react-dom': 17.0.14
       babel-loader: ^8.2.5
+      clsx: ^1.1.0
       copyfiles: ^2.4.1
       css-loader: ^5.2.7
       react: ^17.0.2
@@ -598,6 +599,7 @@ importers:
       '@material-ui/icons': 4.11.3_ix2yut7rilqbdm4h4dqhlnprni
       '@types/jest': 29.4.1
       '@types/node': 18.15.3
+      clsx: 1.2.1
       copyfiles: 2.4.1
       svg-url-loader: 8.0.0_webpack@5.76.1
       ts-loader: 9.4.2_cbz6r35m2it77sxuzifyafc6zi

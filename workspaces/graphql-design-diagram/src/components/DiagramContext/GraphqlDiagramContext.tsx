@@ -14,7 +14,7 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React, { createContext } from "react";
 
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, RecordTypeDesc, STNode } from "@wso2-enterprise/syntax-tree";
 
 interface GraphqlDiagramContextProps {
     children?: React.ReactNode,
@@ -25,6 +25,7 @@ interface GraphqlDiagramContextProps {
     onDelete?: (position: NodePosition) => void;
     fullST?: STNode;
     goToSource?: (filePath: string, position: NodePosition) => void
+    recordEditor?: (recordModel: STNode) => void;
 }
 
 export const DiagramContext = createContext({
@@ -35,12 +36,13 @@ export const DiagramContext = createContext({
         onDelete: (position: NodePosition) => {},
         fullST: undefined,
         goToSource: (filePath: string, position: NodePosition) => {},
+        recordEditor: (recordModel: STNode) => {}
     }
 );
 
 export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
 
-    const { children, functionPanel, servicePanel, model, operationDesignView, onDelete, fullST, goToSource } = props;
+    const { children, functionPanel, servicePanel, model, operationDesignView, onDelete, fullST, goToSource, recordEditor } = props;
 
     return (
         <DiagramContext.Provider
@@ -51,7 +53,8 @@ export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
                 operationDesignView,
                 onDelete,
                 fullST,
-                goToSource
+                goToSource,
+                recordEditor
             }}
         >
             {children}

@@ -34,17 +34,20 @@ import {
     MenuItem,
     Popover,
     TextField,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { ConfigElementProps } from "../../ConfigElement";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-import OutlinedLabel from "../../elements/OutlinedLabel";
+import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
 import PopOverComponent, {
     PopOverComponentProps,
 } from "../../elements/PopOverComponent";
@@ -64,10 +67,7 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const returnElement: ReactElement[] = [];
     const [arrayValues, setArrayValues] = useState<ConfigElementProps[]>([]);
     const [counter, setCounter] = useState(arrayValues.length + 1);
-    const isLowCode = props.isLowCode;
-    const isInsideArray = props.isInsideArray;
-    const isFeaturePreview = props.isFeaturePreview;
-    const connectionConfigs = props.connectionConfig;
+    const { isLowCode, isInsideArray, isFeaturePreview, connectionConfig, isRequired } = props;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const [connectionAnchorEl, setConnectionAnchorEl] =
         React.useState<HTMLButtonElement | null>(null);
@@ -77,14 +77,19 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const connectionId = open ? "simple-popover" : undefined;
     const [openElement, setOpenElement] = React.useState(true);
     const [openPopover, setOpenPopover] = React.useState(true);
+    const [selectedIndex, setSelectedIndex] = React.useState("");
 
     const [selectedValue, setSelectedValue] = useState(props.value);
     const [arrayValue, setArrayValue] = useState(props.value);
     const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
-    const [openConnection, setOpenConnection] = React.useState(true);
+    const [isOpenCollapse, setIsOpenCollapse] = useState<number | null>(null);
 
-    const handleClickOpenConnection = () => {
-        setOpenConnection(!openConnection);
+    const handleOpen = (clickedIndex: number) => {
+        if (isOpenCollapse === clickedIndex) {
+            setIsOpenCollapse(null);
+        } else {
+            setIsOpenCollapse(clickedIndex);
+        }
     };
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -103,8 +108,11 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
     const handleConnectionClick = (
         connectionEvent: React.MouseEvent<HTMLButtonElement>,
     ) => {
-        if (connectionConfigs.length > 0) {
+        if (!!connectionConfig || connectionConfig.length) {
+            setIsOpenCollapse(0);
             setConnectionAnchorEl(connectionEvent.currentTarget);
+        } else {
+            setAnchorEl(null);
         }
     };
 
@@ -269,44 +277,52 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
             ),
         );
     });
-
-    const onSelected =
-        (index: string, mappingName: string, valueReference: string) => () => {
+    // tslint:disable: jsx-no-lambda jsx-no-multiline-js
+    const onSelected = (index: string, mappingName: string, valueReference: string,
+                        valueType: string, connectionName: string) => () => {
+            setSelectedIndex(connectionName.concat(index));
             setSelectedValue(mappingName);
             setSelectedValueRef(valueReference);
             setConnectionAnchorEl(null);
         };
 
-    const getConnection = connectionConfigs?.map((connections, index) => {
+    const getConnection = connectionConfig?.map((connections, index) => {
         return (
             <Box key={index} className={classes.accordionBox}>
-                <ListItem button={true} className={classes.accordion}>
-                    <ListItemText
-                        key={index}
-                        primary={connections.name}
-                        className={classes.heading}
-                        onClick={handleClickOpenConnection}
-                    />
-                    {openConnection ? <ExpandLess /> : <ExpandMore />}
+                <ListItem
+                    button={true}
+                    className={classes.accordion}
+                    key={index}
+                    onClick={() => handleOpen(index)}
+                    disableGutters={true}
+                >
+                    {isOpenCollapse === index ? (
+                        <ExpandLess fontSize="small" />
+                    ) : (
+                        <ExpandMore fontSize="small" />
+                    )}
+                    <Typography className={classes.heading} key={index}>
+                        {connections.name}
+                    </Typography>
                 </ListItem>
-                {connections.configurationData.map(
-                    (
-                        connectionFields: {
-                            configKey: string;
-                            valueType: string;
-                            valueRef: string;
-                        },
-                        sIndex: React.Key,
-                    ) => {
-                        return (
-                            <Collapse
-                                key={sIndex}
-                                in={openConnection}
-                                timeout="auto"
-                                unmountOnExit={true}
-                            >
-                                <List component="div" disablePadding={true}>
+                <Collapse
+                    in={isOpenCollapse === index}
+                    timeout="auto"
+                    unmountOnExit={true}
+                >
+                    <List component="div" disablePadding={true}>
+                        {connections.configurationData.map(
+                            (
+                                connectionFields: {
+                                    configKey: string;
+                                    valueType: string;
+                                    valueRef: string;
+                                },
+                                sIndex: React.Key,
+                            ) => {
+                                return (
                                     <MenuItem
+                                        key={sIndex}
                                         button={true}
                                         value={connectionFields.configKey}
                                         className={classes.menuItem}
@@ -325,51 +341,86 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
                                                 connectionFields.configKey +
                                                 "}",
                                             connectionFields.valueRef,
+                                            connectionFields.valueType,
+                                            connections.name,
                                         )}
-                                        title={connectionFields.valueRef}
+                                        selected={connections.name.concat(connectionFields.configKey) === selectedIndex}
                                     >
-                                        <Box
-                                            className={classes.connectionField}
-                                        >
-                                            <ListItemText
-                                                key={sIndex}
-                                                primary={
-                                                    connectionFields.configKey.split(".").pop() +
-                                                    ":"
-                                                }
-                                            />
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
+                                        <Box display="flex" width={1}>
+                                            <Box
+                                                className={classes.connectionField}
+                                            >
+                                                <Typography
+                                                    className={classes.itemText}
+                                                    key={sIndex}
+                                                >
+                                                    {connectionFields.configKey.split(".").pop() +
+                                                        ":"}
+                                                </Typography>
+                                                <Box ml={1}>
+                                                    <Tooltip title={connectionFields.valueType}>
+                                                        <Chip
+                                                            color="success"
+                                                            variant="outlined"
+                                                            size="small"
+                                                            label={connectionFields.valueType}
+                                                        />
+                                                    </Tooltip>
+                                                </Box>
+                                            </Box>
+                                            {
+                                                connections.name.concat(connectionFields.configKey) === selectedIndex
+                                                &&   <MenuSelectedIcon />
+                                            }
                                         </Box>
                                     </MenuItem>
-                                </List>
-                            </Collapse>
-                        );
-                    },
-                )}
+                                );
+                            },
+                        )}
+                    </List>
+                </Collapse>
             </Box>
         );
     });
 
-    const iconButton = (
-        <Box>
+    function iconButtonWithToolTip() {
+        if (!connectionConfig || !connectionConfig.length) {
+          return (
+            <Tooltip title="No global configurations defined. Please contact administrator">
+                <span>
+                    <IconButton
+                        size={"small"}
+                        className={classes.buttonConnections}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        onClick={handleConnectionClick}
+                        color={selectedValueRef ? "primary" : "default"}
+                        disabled={!connectionConfig || !connectionConfig.length}
+                    >
+                        <SelectIcon />
+                    </IconButton>
+                </span>
+            </Tooltip>
+          );
+        }
+        return (
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleConnectionClick}
+                color={selectedValueRef ? "primary" : "default"}
+                disabled={!connectionConfig || !connectionConfig.length}
             >
                 <SelectIcon />
             </IconButton>
+        );
+      }
+
+    const iconButton = (
+        <Box>
+            {iconButtonWithToolTip}
         </Box>
     );
 
@@ -399,32 +450,25 @@ const ObjectArray = (props: ObjectArrayProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" alignItems="center">
-                <Box flex="0 0 150px">
+            <Box display="flex" flexDirection="column">
+                <Box mb={0.5}>
                     <FieldLabel {...fieldLabelProps} />
                 </Box>
-
                 <Box
-                    flexGrow={1}
                     display="flex"
                     gridGap={4}
                     alignItems="center"
                 >
                     <Box flexGrow={1}>
-                        <TextField
-                            variant="outlined"
+                        <TextInput
                             fullWidth={true}
+                            required={isRequired}
                             margin="none"
-                            size="small"
-                            classes={{
-                                root: classes.textInputRoot,
-                            }}
                             placeholder={"Select config or Add values"}
-                            InputLabelProps={{ shrink: false }}
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}
-                            value={selectedValue}
+                            value={selectedValue !== "[ undefined ]" ? selectedValue : undefined}
                         />
                     </Box>
                     {!isInsideArray &&

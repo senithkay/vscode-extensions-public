@@ -12,7 +12,7 @@
  */
 
 import { BallerinaTriggersResponse, BallerinaTriggerResponse } from "@wso2-enterprise/ballerina-languageclient";
-import { Project, Component, ChoreoComponentCreationParams } from "./types";
+import { Project, Component, ChoreoComponentCreationParams, TriggerDetails } from "./types";
 
 export interface IProjectManager {
     createLocalComponent(componentDetails: ChoreoComponentCreationParams | BallerinaComponentCreationParams): Promise<string|boolean>;
@@ -44,7 +44,7 @@ export interface BallerinaComponentCreationParams {
     package: string;
     directory: string;
     type: BallerinaComponentTypes;
-    triggerId?: string;
+    trigger?: TriggerDetails;
 }
 
 export interface IsRepoClonedRequestParams {

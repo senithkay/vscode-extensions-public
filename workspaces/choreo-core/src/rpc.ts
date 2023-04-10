@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project, Component, GetComponentModelResponse } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component, GetComponentModelResponse, PushedComponent } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -27,6 +27,8 @@ export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
+export const GetDeletedComponents: RequestType<string, PushedComponent[]> = { method: 'getDeletedComponents' };
+export const RemoveDeletedComponents: RequestType<{projectId: string, components: PushedComponent[]}, void> = { method: 'removeDeletedComponents' };
 export const GetEnrichedComponents: RequestType<string, Component[]> = { method: 'getEnrichedComponents' };
 export const DeleteComponent: RequestType<{projectId: string, component: Component}, Component | null> = { method: 'deleteComponent' };
 export const PullComponent: RequestType<{projectId: string, componentId: string}, void> = { method: 'pullComponent' };

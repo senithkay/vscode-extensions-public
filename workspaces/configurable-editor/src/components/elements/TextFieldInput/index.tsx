@@ -21,6 +21,7 @@ import React, { useEffect, useState } from "react";
 
 import { TextField } from "@material-ui/core";
 
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { useStyles } from "../../style";
 
 export interface TextFieldInputProps {
@@ -29,6 +30,7 @@ export interface TextFieldInputProps {
     name?: string;
     value: any;
     valueRef?: string;
+    disabled?: boolean;
     type: string;
     inputProps?: object;
     placeholder?: string;
@@ -37,7 +39,7 @@ export interface TextFieldInputProps {
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, value, valueRef, type, inputProps, placeholder, setTextFieldValue, name } = props;
+    const { id, isRequired, value, valueRef, type, inputProps, placeholder, setTextFieldValue, name, disabled } = props;
     const [inputValue, setInputValue] = useState(value ? String(value) : undefined);
     const [inputValueRef, setInputValueRef] = useState(valueRef ? String(valueRef) : undefined);
 
@@ -70,20 +72,17 @@ export function TextFieldInput(props: TextFieldInputProps) {
         style: { fontSize: 14 },
     };
     return (
-        <TextField
+        <TextInput
             required={isRequired}
-            variant="outlined"
             placeholder={placeholder}
             fullWidth={true}
             value={inputValue}
             type={type}
             margin="none"
             onChange={handleChange}
-            size="small"
-            classes={{ root: classes.textInputRoot }}
-            InputLabelProps={{ shrink: false }}
             inputProps={newInputProps}
             data-cyid={name}
+            disabled={disabled}
         />
     );
 }

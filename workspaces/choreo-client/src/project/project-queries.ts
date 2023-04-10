@@ -136,6 +136,25 @@ export function getComponentDeploymentQuery({ orgHandler, orgUuid, componentId, 
     `;
 }
 
+export function getComponentBuildStatus(componentId: string, versionId: string) {
+    return gql`   
+        query { 
+            deploymentStatusByVersion(componentId: "${componentId}", versionId: "${versionId}") {
+                id
+                sha
+                completed_at
+                started_at
+                name
+                status
+                conclusion
+                isAutoDeploy
+                failureReason
+                sourceCommitId
+            }
+        }
+    `;
+}
+
 export function getDeleteComponentQuery(orgHandler: string, componentId: string, projectId: string) {
     return gql`   
         mutation { 

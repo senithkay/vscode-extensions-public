@@ -120,16 +120,16 @@ export const ConfigElement = (props: ConfigElementProps): ReactElement => {
             const simpleTypeProp: SimpleTypeProps = {
                 ...props,
                 setSimpleConfig: props.setConfigElement,
-                value: props.value !== undefined ? props.value : "",
+                value: props.value,
             };
 
             returnElement.push(
                 (
-                    <Box display="flex" alignItems="center">
-                        <Box flex="0 0 150px">
+                    <Box display="flex" flexDirection="column">
+                        <Box mb={0.5}>
                             <FieldLabel {...fieldLabelProps} />
                         </Box>
-                        <Box flexGrow={1}>
+                        <Box>
                             <SimpleType {...simpleTypeProp} />
                         </Box>
                     </Box>

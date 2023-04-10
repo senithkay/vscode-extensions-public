@@ -69,13 +69,13 @@ function TypeBrowserC(props: TypeBrowserProps) {
         setExpressionDiagnosticMsg("");
     }
 
-    const handleCreatingNewConstruct = (nodeType: ConstructType) => {
-        const validName = selectedTypeStr.replace(/[\])}[{(]/g, '');
-        let codeSnippet: string = "";
+    const handleCreatingNewConstruct = (nodeType : ConstructType) => {
+        const typeName = expressionDiagnosticMsg.match(/'(.*)'/)[1];
+        let codeSnippet : string = "";
         if (nodeType === ConstructType.RECORD_CONSTRUCT) {
-            codeSnippet = `type ${validName} record {};`;
+            codeSnippet = `type ${typeName} record {};`;
         } else if (nodeType === ConstructType.CLASS_CONSTRUCT) {
-            codeSnippet = `service class ${validName} {}`
+            codeSnippet = `service class ${typeName} {}`
         }
         createNew(codeSnippet);
         setSelectedTypeStr(selectedTypeStr);
@@ -164,21 +164,27 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
                         <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>
                     </FormHelperText>
                 </TooltipCodeSnippet>
-            )}
-            {isGraphqlForm && message.includes("unknown type") &&
+                )}
+            {isGraphqlForm && (message.includes("unknown type") ?
                 (
+                <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
+                    <>
+                        <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
+                            {truncateDiagnosticMsg(message + ". Do you want to create a new construct?")}
+                        </FormHelperText>
+                        {!isParameterType &&
+                            <SecondaryButton text={"Create Service Class"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.CLASS_CONSTRUCT)} />
+                        }
+                        <SecondaryButton text={"Create Record"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.RECORD_CONSTRUCT)} />
+                    </>
+                </TooltipCodeSnippet>
+                ) : (
                     <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
-                        <>
-                            <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
-                                {truncateDiagnosticMsg(message + ". Do you want to create a new construct?")}
-                            </FormHelperText>
-                            {!isParameterType &&
-                                <SecondaryButton text={"Create Service Class"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.CLASS_CONSTRUCT)} />
-                            }
-                            <SecondaryButton text={"Create Record"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.RECORD_CONSTRUCT)} />
-                        </>
+                        <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
+                            {truncateDiagnosticMsg(message)}
+                        </FormHelperText>
                     </TooltipCodeSnippet>
-                )
+                ))
             }
         </>
     );

@@ -16,7 +16,7 @@ import React, { useContext, useEffect, useState } from "react";
 
 import { Button, Divider, FormControl } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { LiteExpressionEditor, LiteTextField, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteTextField, TypeBrowser } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createRemoteFunction,
     getSource, updateRemoteFunctionSignature,
@@ -96,18 +96,19 @@ export function GraphqlMutationForm(props: FunctionProps) {
             createNewConstruct(newCodeSnippet, fullST, applyModifications)
             setNewlyCreatedConstruct(returnType);
         }
-    }
+    };
 
     // Return type related functions
     const onReturnTypeChange = (value: string) => {
-        setReturnType(value);
+        const formattedValue = value.replace(/\s*\|\s*/g, '|');
+        setReturnType(formattedValue);
 
         handleRemoteMethodDataChange(
             model.functionName.value,
             generateParameterSectionString(model?.functionSignature?.parameters),
-            value,
+            formattedValue,
             model.functionSignature?.returnTypeDesc?.type,
-            value
+            formattedValue
         );
     };
 
@@ -246,8 +247,6 @@ export function GraphqlMutationForm(props: FunctionProps) {
     });
 
     useEffect(() => {
-        setFunctionName(model ? model.functionName.value : "");
-
         if (currentComponentName === "") {
             const editParams: FunctionParam[] = model?.functionSignature.parameters
                 .filter((param) => !STKindChecker.isCommaToken(param))
@@ -352,7 +351,11 @@ export function GraphqlMutationForm(props: FunctionProps) {
                             isLoading={false}
                             recordCompletions={getFilteredCompletions(completions)}
                             createNew={createConstruct}
-                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                            diagnostics={
+                                currentComponentSyntaxDiag?.length > 0 ?
+                                    currentComponentSyntaxDiag :
+                                    model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange
+                            }
                             isGraphqlForm={true}
                         />
                     </div>

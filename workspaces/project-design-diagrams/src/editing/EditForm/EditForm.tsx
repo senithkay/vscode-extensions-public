@@ -23,7 +23,7 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@mui/material/CircularProgress';
-import { BallerinaComponentCreationParams, BallerinaComponentTypes } from '@wso2-enterprise/choreo-core';
+import { BallerinaComponentCreationParams, BallerinaComponentTypes, TriggerDetails } from '@wso2-enterprise/choreo-core';
 import { DiagramContext } from '../../components/common/';
 import { Colors } from '../../resources';
 import { AdvancedSettingsWidget, CreateButton, TextInputWidget, TypeSelector } from './components';
@@ -84,15 +84,15 @@ export function EditForm(props: EditFormProps) {
         editComponent({ ...component, type: type });
     }
 
-    const setTriggerId = (triggerId: string) => {
-        editComponent({ ...component, triggerId: triggerId });
+    const setTrigger = (trigger: TriggerDetails) => {
+        editComponent({ ...component, trigger: trigger });
     }
 
     const verifyInputs = (): boolean => {
         return Boolean(component && component.name && component.directory && component.type &&
             (component.package ? PackageNameRegex.test(component.package) : validatedComponentName) &&
             (component.org ? OrganizationRegex.test(component.org) : defaultOrg) && VersionRegex.test(component.version) &&
-            (component.type === BallerinaComponentTypes.WEBHOOK ? component.triggerId : true));
+            (component.type === BallerinaComponentTypes.WEBHOOK ? component.trigger?.id && component.trigger.services.length : true));
     }
 
     const closeForm = () => {
@@ -135,9 +135,9 @@ export function EditForm(props: EditFormProps) {
 
                 <TypeSelector
                     type={component.type}
-                    triggerId={component.triggerId}
+                    trigger={component.trigger}
                     setType={setComponentType}
-                    setTriggerId={setTriggerId}
+                    setTrigger={setTrigger}
                 />
 
                 <AdvancedSettingsWidget
