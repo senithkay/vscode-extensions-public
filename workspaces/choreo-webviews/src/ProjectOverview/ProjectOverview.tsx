@@ -148,7 +148,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         queryFn: async () => ChoreoWebViewAPI.getInstance().getDeletedComponents(projectId),
         onSuccess: (data) => {
             queryClient.setQueryData(["deleted_component_list", projectId], data)
-            if (data.length > 0) {
+            if (data.length > 0 && isActive) {
                 ChoreoWebViewAPI.getInstance().removeDeletedComponents({components: data, projectId});
             }
         },
