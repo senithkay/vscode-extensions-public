@@ -454,7 +454,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                 <ActionContainer>
                                     <VSCodeButton
                                         appearance="primary"
-                                        // disabled={pushingComponent || fetchingComponents || pushingSingleComponent || !isActive}
                                         onClick={() => onOpenBillingClick()}
                                     >
                                         Upgrade
