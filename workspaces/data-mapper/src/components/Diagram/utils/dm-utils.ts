@@ -912,6 +912,8 @@ export function getEnrichedArrayType(field: Type,
 		field.resolvedUnionType.forEach((type, index) => {
 			if (type) {
 				fields[index] = type;
+			} else {
+				fields[index].resolvedUnionType = undefined;
 			}
 		});
 	}

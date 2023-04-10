@@ -168,8 +168,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         indentation += 24;
     }
 
-    if (!fieldName && isWithinArray) {
-        fieldName = field.parentType.type?.name ? `${field.parentType.type?.name}Item` : 'item';
+    if (isWithinArray) {
+        const elementName = fieldName || field.parentType.type?.name;
+        fieldName = elementName ? `${elementName}Item` : 'item';
     }
 
     const diagnostic = (specificField.valueExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
