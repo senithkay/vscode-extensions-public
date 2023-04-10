@@ -37,7 +37,8 @@
       },
       {
         "command": "wso2.choreo.org.setAsSelected",
-        "title": "Set As Seleted"
+        "title": "Select",
+        "icon": "$(check)"
       },
       {
         "command": "wso2.choreo.component.clone",
@@ -128,7 +129,8 @@
       "view/item/context": [
         {
           "command": "wso2.choreo.org.setAsSelected",
-          "when": "view == choreo-account && viewItem == choreo.org"
+          "when": "view == choreo-account && viewItem == choreo.org",
+          "group": "inline"
         }
       ],
       "commandPalette": [

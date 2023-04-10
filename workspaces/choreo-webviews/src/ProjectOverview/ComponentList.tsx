@@ -17,6 +17,7 @@ import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
 import React, { useCallback } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { ContextMenu, MenuItem } from "../Commons/ContextMenu";
 
 export interface ComponentListProps {
     components?: Component[];
@@ -116,6 +117,22 @@ export function ComponentList(props: ComponentListProps) {
         }
     }, [projectId]);
 
+
+
+    function getMenuItems(component: Component, componentOverviewLink: string, repoLink: string): MenuItem[] {
+        // const menuItems = [
+        //     { id: 'delete', label: <><Codicon name="trash" /> Delete Component</> , onClick: onComponentDeleteClick(component)},
+        // ];
+        // return menuItems;
+        let menuItems = [];
+        menuItems.push({ id: 'choreo-console', label: <><InlineIcon><Codicon name="github" /></InlineIcon> &nbsp; Open in Github</>, onClick: () => onOpenConsoleClick(repoLink) });
+        if (!component.local) {
+            menuItems.push({ id: 'choreo-console', label: <><InlineIcon><Codicon name="link-external" /></InlineIcon> &nbsp; Open in Choreo Console</>, onClick: () => onOpenConsoleClick(componentOverviewLink) });
+        }
+        menuItems.push({ id: 'delete', label: <><InlineIcon><Codicon name="trash" /></InlineIcon>  &nbsp; Delete Component</>, onClick: () => onComponentDeleteClick(component) });
+        return menuItems;
+    }
+
     return (
         <>
             <VSCodeDataGrid aria-label="Components">
@@ -153,13 +170,7 @@ export function ComponentList(props: ComponentListProps) {
                     const componentBaseUrl = `https://console.choreo.dev/organizations/${orgName}/projects/${projectId}/components/${component.handler}`;
                     const componentOverviewLink = `${componentBaseUrl}/overview`;
                     const componentDeployLink = `${componentBaseUrl}/deploy`;
-
-                    const repoName =
-                        repo.organizationApp === "-"
-                            ? "-"
-                            : repo.organizationApp + "/" + repo.nameApp;
-                    const repoLink =
-                        repoName !== "-" ? `https://github.com/${repoName}` : "";
+                    const repoLink = `https://github.com/${repo.organizationApp}/${repo.nameApp}/tree/${repo.branchApp}/${repo.appSubPath}`;
 
 
                     const deploymentStatus: DeploymentStatus =
@@ -168,23 +179,23 @@ export function ComponentList(props: ComponentListProps) {
                         DeploymentStatus.NotDeployed;
 
                     let deploymentStatusColor = '--vscode-foreground';
-                    switch(deploymentStatus as DeploymentStatus){
-                        case DeploymentStatus.Active: 
+                    switch (deploymentStatus as DeploymentStatus) {
+                        case DeploymentStatus.Active:
                             deploymentStatusColor = '--vscode-charts-green';
                             break;
-                        case DeploymentStatus.InProgress: 
+                        case DeploymentStatus.InProgress:
                             deploymentStatusColor = '--vscode-charts-orange';
                             break;
-                        case DeploymentStatus.Error: 
+                        case DeploymentStatus.Error:
                             deploymentStatusColor = '--vscode-errorForeground';
                             break;
-                        case DeploymentStatus.Suspended: 
+                        case DeploymentStatus.Suspended:
                             deploymentStatusColor = '--vscode-charts-lines';
                             break;
                     }
 
                     const buildStatusMappedValue = component.buildStatus && mapBuildStatus(component.buildStatus?.status, component.buildStatus?.conclusion);
-                    
+
                     return (
                         <VSCodeDataGridRow key={component.id || component.name}>
                             <VSCodeDataGridCenterCell gridColumn="1">
@@ -217,7 +228,7 @@ export function ComponentList(props: ComponentListProps) {
                                         </VSCodeLink>
                                     </>
                                 )}
-                                
+
                             </VSCodeDataGridCenterCell>
                             <VSCodeDataGridCenterCell gridColumn="4">
                                 {component.local ? (
@@ -232,7 +243,7 @@ export function ComponentList(props: ComponentListProps) {
                                     </VSCodeLink>
                                 )}
                             </VSCodeDataGridCenterCell>
-                            <VSCodeDataGridActionCell gridColumn="5" className="">
+                            <VSCodeDataGridActionCell gridColumn="5">
                                 {(component.hasDirtyLocalRepo ||
                                     component.hasUnPushedLocalCommits) && (
                                         <VSCodeButton
@@ -240,25 +251,9 @@ export function ComponentList(props: ComponentListProps) {
                                             onClick={openSourceControl}
                                             title="Open source control view & sync changes"
                                         >
-                                            <Codicon name="source-control" />
+                                            <Codicon name="source-control" /> &nbsp; Commit & Push
                                         </VSCodeButton>
                                     )}
-                                <VSCodeButton
-                                    appearance="icon"
-                                    onClick={() => onOpenConsoleClick(repoLink)}
-                                    title="Open GitHub remote repository"
-                                >
-                                    <Codicon name="github" />
-                                </VSCodeButton>
-                                {!component.local && (
-                                    <VSCodeButton
-                                        appearance="icon"
-                                        onClick={() => onOpenConsoleClick(componentOverviewLink)}
-                                        title="Open component overview in Choreo Console"
-                                    >
-                                        <Codicon name="link-external" />
-                                    </VSCodeButton>
-                                )}
                                 {component.isRemoteOnly && (
                                     <VSCodeButton
                                         appearance="icon"
@@ -272,7 +267,7 @@ export function ComponentList(props: ComponentListProps) {
                                         disabled={loading || !isActive}
                                         title="Pull code from remote repository"
                                     >
-                                        <Codicon name="cloud-download" />
+                                        <Codicon name="cloud-download" /> &nbsp; Pull Component
                                     </VSCodeButton>
                                 )}
                                 {component.local &&
@@ -285,7 +280,7 @@ export function ComponentList(props: ComponentListProps) {
                                             title="Push code to remote repository"
                                             disabled={loading || !isActive}
                                         >
-                                            <Codicon name="cloud-upload" />
+                                            <Codicon name="cloud-upload" /> &nbsp; Push Component
                                         </VSCodeButton>
                                     )}
                                 <VSCodeButton
@@ -296,6 +291,7 @@ export function ComponentList(props: ComponentListProps) {
                                 >
                                     <Codicon name="trash" />
                                 </VSCodeButton>
+                                <ContextMenu items={getMenuItems(component, componentOverviewLink, repoLink)}></ContextMenu>
                             </VSCodeDataGridActionCell>
                         </VSCodeDataGridRow>
                     );
