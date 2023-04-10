@@ -33,6 +33,7 @@ import {
     enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
+    getDiagnosticsPosition,
     getExprBodyFromLetExpression,
     getExprBodyFromTypeCastExpression,
     getFilteredMappings,
@@ -154,10 +155,10 @@ export class ListConstructorNode extends DataMapperNodeModel {
                     (portId: string) =>  this.getPort(portId) as RecordFieldPortModel,
                     this.rootName);
             }
-            const diagnostics = filterDiagnostics(
-                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
-            const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
+                const diagnostics = filterDiagnostics(this.context.diagnostics,
+                    getDiagnosticsPosition(mappedOutPort.editableRecordField, mapping));
+                const lm = new DataMapperLinkModel(value, diagnostics, true);
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,

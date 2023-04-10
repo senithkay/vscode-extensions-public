@@ -28,6 +28,7 @@ import { RecordFieldPortModel } from "../../Port";
 import { OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getDefaultValue,
+    getDiagnosticsPosition,
     getEnrichedRecordType,
     getExprBodyFromLetExpression,
     getExprBodyFromTypeCastExpression,
@@ -128,10 +129,10 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                     PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
                     (portId: string) =>  this.getPort(portId) as RecordFieldPortModel);
             }
-            const diagnostics = filterDiagnostics(
-                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
-            const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
+                const diagnostics = filterDiagnostics(this.context.diagnostics,
+                    getDiagnosticsPosition(mappedOutPort.editableRecordField, mapping));
+                const lm = new DataMapperLinkModel(value, diagnostics, true);
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,

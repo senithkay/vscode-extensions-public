@@ -1444,6 +1444,16 @@ export function getTargetPortPrefix(node: NodeModel): string {
 	}
 }
 
+export function getDiagnosticsPosition(outPortField: EditableRecordField, mapping: FieldAccessToSpecificFied): NodePosition {
+	const {type, value: outPortFieldValue} = outPortField;
+	const {value: mappedValue, otherVal} = mapping;
+	let diagnosticsPosition: NodePosition = (otherVal.position || mappedValue.position) as NodePosition;
+	if (type.typeName === PrimitiveBalType.Union && !type?.resolvedUnionType && outPortFieldValue) {
+		diagnosticsPosition = outPortFieldValue.position;
+	}
+	return diagnosticsPosition;
+}
+
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)
 		&& targetPort?.editableRecordField?.value
