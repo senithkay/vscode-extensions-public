@@ -98,14 +98,15 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
 
     // Return type related functions
     const onReturnTypeChange = (value: string) => {
-        setReturnType(value);
+        const formattedValue = value.replace(/\s*\|\s*/g, '|');
+        setReturnType(formattedValue);
         handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
             generateParameterSectionString(model?.functionSignature?.parameters),
-            value,
+            formattedValue,
             model.functionSignature?.returnTypeDesc?.type,
-            value
+            formattedValue
         );
     };
 
@@ -333,7 +334,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
     }
 
     const getPathDiagnostic = () => {
-        if (currentComponentSyntaxDiag){
+        if (currentComponentSyntaxDiag) {
             return currentComponentSyntaxDiag;
         } else {
             const diagPath = model.relativeResourcePath?.find(
@@ -402,7 +403,11 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
                             isLoading={false}
                             recordCompletions={getFilteredCompletions(completions)}
                             createNew={createConstruct}
-                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                            diagnostics={
+                                currentComponentSyntaxDiag?.length > 0 ?
+                                    currentComponentSyntaxDiag :
+                                    model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange
+                            }
                             isGraphqlForm={true}
                         />
                     </div>

@@ -99,16 +99,17 @@ export function ServiceClassResourceForm(props: FunctionProps) {
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
-        setReturnType(value);
+        const formattedValue =  value.replace(/\s*\|\s*/g, '|');
+        setReturnType(formattedValue);
 
         const returnTypeChange = debounce(async () => {
             await handleResourceParamChange(
                 model.functionName.value,
                 getResourcePath(model.relativeResourcePath),
                 generateParameterSectionString(model?.functionSignature?.parameters),
-                value,
+                formattedValue,
                 model.functionSignature?.returnTypeDesc?.type,
-                value
+                formattedValue
             );
         }, 500);
 
@@ -397,7 +398,11 @@ export function ServiceClassResourceForm(props: FunctionProps) {
                             isLoading={false}
                             recordCompletions={getFilteredCompletions(completions)}
                             createNew={createConstruct}
-                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                            diagnostics={
+                                currentComponentSyntaxDiag?.length > 0 ?
+                                    currentComponentSyntaxDiag :
+                                    model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange
+                            }
                             isGraphqlForm={true}
                         />
                     </div>
