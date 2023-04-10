@@ -139,7 +139,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
-	const body = getInnermostExpressionBody(field.value);
+	const body = field && getInnermostExpressionBody(field.value);
 	const hasValue = field && field?.elements && field.elements.length > 0;
 	const isBodyListConstructor = body && STKindChecker.isListConstructor(body);
 	const isBodyQueryExpression = body && STKindChecker.isQueryExpression(body);

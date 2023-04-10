@@ -52,6 +52,7 @@ import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "
 import {
     constructTypeFromSTNode,
     getExprBodyFromLetExpression,
+    getExprBodyFromTypeCastExpression,
     getFnDefForFnCall,
     getInnermostExpressionBody,
     getInputNodes,
@@ -524,19 +525,22 @@ export class NodeInitVisitor implements Visitor {
         this.mapIdentifiers.push(node);
         if (this.isWithinQuery === 0 && node.expressions) {
             node.expressions.forEach((expr: STNode) => {
-                if (!STKindChecker.isMappingConstructor(expr) && !STKindChecker.isListConstructor(expr)) {
-                    const inputNodes = getInputNodes(expr);
+                const innerExpr = STKindChecker.isTypeCastExpression(expr)
+                    ? getExprBodyFromTypeCastExpression(expr)
+                    : expr;
+                if (!STKindChecker.isMappingConstructor(innerExpr) && !STKindChecker.isListConstructor(innerExpr)) {
+                    const inputNodes = getInputNodes(innerExpr);
                     expr = STKindChecker.isCheckExpression(expr) ? expr.expression : expr;
-                    const fnDefForFnCall = STKindChecker.isFunctionCall(expr) && getFnDefForFnCall(expr);
+                    const fnDefForFnCall = STKindChecker.isFunctionCall(innerExpr) && getFnDefForFnCall(innerExpr);
                     if (inputNodes.length > 1
-                        || (inputNodes.length === 1 && (isComplexExpression(expr) || fnDefForFnCall))) {
+                        || (inputNodes.length === 1 && (isComplexExpression(innerExpr) || fnDefForFnCall))) {
                         const linkConnectorNode = new LinkConnectorNode(
                             this.context,
-                            expr,
+                            innerExpr,
                             "",
                             parent,
                             inputNodes,
-                            [...this.mapIdentifiers, expr],
+                            [...this.mapIdentifiers, innerExpr],
                             fnDefForFnCall,
                             true
                         );
