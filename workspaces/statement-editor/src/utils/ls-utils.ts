@@ -10,6 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     CompletionParams,
     CompletionResponse,
@@ -23,7 +24,8 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
+import { Uri } from "monaco-editor";
+import { CodeAction, Diagnostic, WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import {
     acceptedCompletionKindForExpressions,
@@ -66,6 +68,20 @@ export async function getPartialSTForExpression(
     const langClient: ExpressionEditorLangClientInterface = await getLangClient();
     const resp = await langClient.getSTForExpression(partialSTRequest);
     return resp.syntaxTree;
+}
+
+export async function getRenameEdits(fileURI: string, newName: string, position: NodePosition,
+                                     getLangClient: () => Promise<IBallerinaLangClient>): Promise<WorkspaceEdit> {
+    const langClient = await getLangClient();
+    const renameEdits = await langClient.rename({
+        textDocument: { uri: Uri.file(fileURI).toString() },
+        position: {
+            line: position.startLine,
+            character: position?.startColumn
+        },
+        newName
+    });
+    return renameEdits;
 }
 
 export async function getCompletions(docUri: string,

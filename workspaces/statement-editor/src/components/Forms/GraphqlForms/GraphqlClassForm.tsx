@@ -14,8 +14,9 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda no-console
 import React, { useContext, useState } from "react";
 
-import { Divider, FormControl, TextField } from "@material-ui/core";
+import { FormControl } from "@material-ui/core";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { LiteTextField } from "@wso2-enterprise/ballerina-expression-editor";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { dynamicConnectorStyles as connectorStyles, FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { ClassDefinition, ModulePart, NodePosition, STKindChecker, SyntaxDiagnostics } from "@wso2-enterprise/syntax-tree";
@@ -24,7 +25,7 @@ import debounce from "lodash.debounce";
 import { SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
-import { getPartialSTForModulePart } from "../../../utils/ls-utils";
+import { getPartialSTForModulePart, getRenameEdits } from "../../../utils/ls-utils";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
 
 export interface ClassFormProps {
@@ -35,7 +36,7 @@ export interface ClassFormProps {
 export function GraphqlClassForm(props: ClassFormProps) {
     const { model } = props;
 
-    const { applyModifications, onCancel, onSave, getLangClient, fullST } = useContext(FormEditorContext);
+    const { applyModifications, onCancel, onSave, getLangClient, fullST, currentFile } = useContext(FormEditorContext);
 
     const classes = useStyles();
     const connectorClasses = connectorStyles();
@@ -43,28 +44,34 @@ export function GraphqlClassForm(props: ClassFormProps) {
     const [className, setClassName] = useState<string>(model?.className.value);
     const [diagnostics, setDiagnostics] = useState<SyntaxDiagnostics[]>(undefined);
 
-    const handleClassNameChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        const name = event.target?.value.trim();
+    const handleClassNameChange = (value: string) => {
+        const name = value.trim();
         setClassName(name);
         changeClassName(name);
     };
 
-    const handleFormSave = () => {
-        const modifications: STModification[] = [];
-        // update the class name
+    const handleFormSave = async () => {
         const classNamePosition = getClassNamePosition();
-        modifications.push({
-            type: "INSERT",
-            config: { STATEMENT: className.trim() },
-            endColumn: classNamePosition.endColumn,
-            endLine: classNamePosition.endLine,
-            startColumn: classNamePosition.startColumn,
-            startLine: classNamePosition.endLine,
-        });
-        // update the class attributes
+        const workspaceEdit = await getRenameEdits(currentFile.path, className.trim(), classNamePosition, getLangClient);
 
-        // apply all modifications
-        applyModifications(modifications);
+        const modifications: STModification[] = [];
+
+        Object.values(workspaceEdit?.changes).forEach((edits) => {
+            edits.forEach((edit) => {
+                modifications.push({
+                    type: "INSERT",
+                    config: { STATEMENT: edit.newText },
+                    endColumn: edit.range.end.character,
+                    endLine: edit.range.end.line,
+                    startColumn: edit.range.start.character,
+                    startLine: edit.range.start.line,
+                });
+            });
+        });
+
+        modifications.sort((a, b) => a.startLine - b.startLine)
+        await applyModifications(modifications);
+
         onSave();
     };
 
@@ -88,15 +95,14 @@ export function GraphqlClassForm(props: ClassFormProps) {
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
                         <FieldTitle title="Class Name" optional={false} />
-                        <TextField
-                            id="outlined-helperText"
-                            size="small"
-                            defaultValue={className}
+                        <LiteTextField
+                            value={className}
                             onChange={handleClassNameChange}
-                            variant="outlined"
-                            fullWidth={true}
+                            isLoading={false}
+                            diagnostics={
+                                diagnostics?.length > 0 ? diagnostics : model?.className?.viewState?.diagnostics
+                            }
                         />
-                        <Divider className={connectorClasses.sectionSeperatorHR} />
                     </div>
                 </div>
 
