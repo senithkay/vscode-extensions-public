@@ -684,8 +684,10 @@ export function getOutputPortForField(fields: STNode[],
 			}
 		} else {
 			if (nextTypeNode.childrenTypes) {
-				const fieldIndex = nextTypeNode.childrenTypes.findIndex(
-					(recF) => recF?.value && isPositionsEquals(nextPosition, recF.value.position as NodePosition));
+				const fieldIndex = nextTypeNode.childrenTypes.findIndex(recF => {
+					const innerExpr = recF?.value && getInnermostExpressionBody(recF.value);
+					return innerExpr && isPositionsEquals(nextPosition, innerExpr.position as NodePosition);
+				});
 				if (fieldIndex !== -1) {
 					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${getBalRecFieldName(nextTypeNode.type.name)}` : ''}`;
 					nextTypeNode = nextTypeNode.childrenTypes[fieldIndex];
@@ -730,7 +732,8 @@ export function getLinebreak(){
 function getNextField(nextTypeMemberNodes: ArrayElement[],
                       nextFieldPosition: NodePosition): [EditableRecordField, number] {
 	const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
-		return node.member?.value && isPositionsEquals(nextFieldPosition, node.member.value.position as NodePosition);
+		const innerExpr = node.member?.value && getInnermostExpressionBody(node.member.value);
+		return innerExpr && isPositionsEquals(nextFieldPosition, innerExpr.position as NodePosition);
 	});
 	if (fieldIndex !== -1) {
 		return [nextTypeMemberNodes[fieldIndex].member, fieldIndex];
@@ -760,6 +763,7 @@ export function getEnrichedRecordType(type: Type,
                                       selectedST: STNode,
                                       parentType?: EditableRecordField,
                                       childrenTypes?: EditableRecordField[]): EditableRecordField {
+	const innerExpr = getInnermostExpressionBody(node);
 	let editableRecordField: EditableRecordField = null;
 	let fields: Type[] = null;
 	let valueNode: STNode;
@@ -770,8 +774,8 @@ export function getEnrichedRecordType(type: Type,
 	}
 
 	if (parentType) {
-		if (node && STKindChecker.isMappingConstructor(node)) {
-			const specificField: SpecificField = node.fields.find((val) =>
+		if (innerExpr && STKindChecker.isMappingConstructor(innerExpr)) {
+			const specificField: SpecificField = innerExpr.fields.find((val) =>
 				STKindChecker.isSpecificField(val) && type?.name && val.fieldName.value === getBalRecFieldName(type.name)
 			) as SpecificField;
 			if (specificField) {
@@ -781,8 +785,8 @@ export function getEnrichedRecordType(type: Type,
 				valueNode = node;
 				nextNode = valueNode;
 			}
-		} else if (node && STKindChecker.isListConstructor(node)) {
-			const mappingConstructors = node.expressions.filter((val) =>
+		} else if (innerExpr && STKindChecker.isListConstructor(innerExpr)) {
+			const mappingConstructors = innerExpr.expressions.filter((val) =>
 				STKindChecker.isMappingConstructor(val)
 			) as MappingConstructor[];
 			if (mappingConstructors.length > 0) {
@@ -799,10 +803,10 @@ export function getEnrichedRecordType(type: Type,
 				valueNode = node;
 				nextNode = valueNode;
 			}
-		} else if (node && STKindChecker.isFunctionDefinition(selectedST)
+		} else if (innerExpr && STKindChecker.isFunctionDefinition(selectedST)
 			&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
 			&& isPositionsEquals(selectedST.functionBody.expression.position as NodePosition,
-								node.position as NodePosition))
+				innerExpr.position as NodePosition))
 		{
 			nextNode = undefined;
 		} else {
@@ -810,8 +814,10 @@ export function getEnrichedRecordType(type: Type,
 		}
 	} else {
 		valueNode = node;
-		nextNode = STKindChecker.isQueryExpression(node)
-			&& STKindChecker.isMappingConstructor(node.selectClause.expression) ? node.selectClause.expression : node;
+		nextNode = STKindChecker.isQueryExpression(innerExpr)
+			&& STKindChecker.isMappingConstructor(innerExpr.selectClause.expression)
+				? innerExpr.selectClause.expression
+				: node;
 	}
 
 	editableRecordField = new EditableRecordField(type, valueNode, parentType);
@@ -1402,10 +1408,10 @@ export function getFilteredMappings(mappings: FieldAccessToSpecificFied[], searc
 
 export function getInnermostExpressionBody(expr: STNode): STNode {
 	let innerExpr =	expr;
-	if (STKindChecker.isLetExpression(innerExpr)) {
+	if (innerExpr && STKindChecker.isLetExpression(innerExpr)) {
 		innerExpr = getExprBodyFromLetExpression(innerExpr);
 	}
-	if (STKindChecker.isTypeCastExpression(innerExpr)) {
+	if (innerExpr && STKindChecker.isTypeCastExpression(innerExpr)) {
 		innerExpr = getExprBodyFromTypeCastExpression(innerExpr);
 	}
 	return innerExpr;
