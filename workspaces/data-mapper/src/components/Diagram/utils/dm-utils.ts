@@ -749,7 +749,8 @@ export function enrichAndProcessType(typeToBeProcessed: Type, node: STNode,
 	}
 	const [updatedType2, hasEnrichedWithUnionType] = addResolvedUnionTypes(valueEnrichedType);
 	if (hasEnrichedWithUnionType) {
-		console.log(updatedType2);
+		type = updatedType2;
+		valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
 	}
 	return [valueEnrichedType, type];
 }
@@ -763,6 +764,10 @@ export function getEnrichedRecordType(type: Type,
 	let fields: Type[] = null;
 	let valueNode: STNode;
 	let nextNode: STNode;
+
+	if (type.typeName === PrimitiveBalType.Union && type?.resolvedUnionType) {
+		type = !Array.isArray(type.resolvedUnionType) && type.resolvedUnionType;
+	}
 
 	if (parentType) {
 		if (node && STKindChecker.isMappingConstructor(node)) {
@@ -899,21 +904,28 @@ export function getEnrichedArrayType(field: Type,
                                      isSelectClauseExpr?: boolean) {
 	const members: ArrayElement[] = [];
 
+	const expressions = node.expressions.filter((expr) => !STKindChecker.isCommaToken(expr));
+	const fields = new Array(expressions.length).fill(field);
 	if (isSelectClauseExpr && field.typeName === PrimitiveBalType.Array) {
 		return getEnrichedPrimitiveType(field, node, selectedST, parentType, childrenTypes);
+	} else if (field.typeName === PrimitiveBalType.Union && Array.isArray(field.resolvedUnionType)) {
+		field.resolvedUnionType.forEach((type, index) => {
+			if (type) {
+				fields[index] = type;
+			}
+		});
 	}
 
-	node.expressions.forEach((expr) => {
-		if (!STKindChecker.isCommaToken(expr)) {
-			if (field) {
-				const childType = getEnrichedRecordType(field, expr, selectedST, parentType, childrenTypes);
+	expressions.forEach((expr, index) => {
+		const type = fields[index];
+		if (type) {
+			const childType = getEnrichedRecordType(type, expr, selectedST, parentType, childrenTypes);
 
-				if (childType) {
-					members.push({
-						member: childType,
-						elementNode: expr
-					});
-				}
+			if (childType) {
+				members.push({
+					member: childType,
+					elementNode: expr
+				});
 			}
 		}
 	});
@@ -1206,6 +1218,7 @@ export function addResolvedUnionTypes(field: EditableRecordField): [Type, boolea
 		const resolvedType = resolveUnionType(value, type);
 		if (resolvedType) {
 			type.resolvedUnionType = resolvedType;
+			hasTypeUpdated = true;
 		}
 	} else if (type.typeName === PrimitiveBalType.Record) {
 		type.fields = field.childrenTypes.map((child) => {
@@ -1214,7 +1227,14 @@ export function addResolvedUnionTypes(field: EditableRecordField): [Type, boolea
 			return updatedType;
 		});
 	} else if (type.typeName === PrimitiveBalType.Array) {
-		if (field?.elements && field.elements.length > 0) {
+		if (type.memberType.typeName === PrimitiveBalType.Union && value) {
+			type.memberType.resolvedUnionType = field.elements.map(element => {
+				const [updatedType, isUpdated] = addResolvedUnionTypes(element.member);
+				hasTypeUpdated = hasTypeUpdated || isUpdated;
+				element.member.type = updatedType;
+				return !Array.isArray(updatedType.resolvedUnionType) && updatedType.resolvedUnionType;
+			});
+		} else if (field?.elements && field.elements.length > 0) {
 			const [updatedType, isUpdated] = addResolvedUnionTypes(field.elements[0].member);
 			hasTypeUpdated = hasTypeUpdated || isUpdated;
 			type.memberType = updatedType;

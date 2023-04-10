@@ -34,6 +34,7 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../
 import {
     createSourceForUserInput,
     getDefaultValue,
+    getExprBodyFromTypeCastExpression,
     getFieldName,
     getInnermostExpressionBody,
     getLinebreak,
@@ -214,51 +215,56 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         </span>
     );
 
-    const arrayElements = elements && (
-        elements.map((element, index) => {
-            if (element.elementNode && (STKindChecker.isMappingConstructor(element.elementNode)
-                || element.member?.type.typeName === PrimitiveBalType.Record)) {
-                return (
-                    <>
-                        <TreeBody>
-                            <EditableRecordFieldWidget
-                                key={index}
+    const arrayElements = useMemo(() => {
+        return elements && (
+            elements.map((element, index) => {
+                if (element.elementNode) {
+                    const elementNode = STKindChecker.isTypeCastExpression(element.elementNode)
+                        ? getExprBodyFromTypeCastExpression(element.elementNode)
+                        : element.elementNode;
+                    if (STKindChecker.isMappingConstructor(elementNode)
+                        || element.member?.type.typeName === PrimitiveBalType.Record) {
+                        return (
+                            <>
+                                <TreeBody>
+                                    <EditableRecordFieldWidget
+                                        key={index}
+                                        engine={engine}
+                                        field={element.member}
+                                        getPort={getPort}
+                                        parentId={fieldId}
+                                        parentMappingConstruct={elementNode as MappingConstructor}
+                                        context={context}
+                                        fieldIndex={index}
+                                        treeDepth={treeDepth + 1}
+                                        deleteField={deleteField}
+                                        hasHoveredParent={isHovered || hasHoveredParent}
+                                    />
+                                </TreeBody>
+                                <br />
+                            </>
+                        );
+                    } else if (STKindChecker.isListConstructor(elementNode)) {
+                        return (
+                            <ArrayTypedEditableRecordFieldWidget
+                                key={fieldId}
                                 engine={engine}
                                 field={element.member}
                                 getPort={getPort}
                                 parentId={fieldId}
-                                parentMappingConstruct={element.elementNode as MappingConstructor}
+                                parentMappingConstruct={parentMappingConstruct}
                                 context={context}
                                 fieldIndex={index}
                                 treeDepth={treeDepth + 1}
                                 deleteField={deleteField}
                                 hasHoveredParent={isHovered || hasHoveredParent}
                             />
-                        </TreeBody>
-                        <br />
-                    </>
-                );
-            } else if (element.elementNode && STKindChecker.isListConstructor(element.elementNode)) {
-                return (
-                    <ArrayTypedEditableRecordFieldWidget
-                        key={fieldId}
-                        engine={engine}
-                        field={element.member}
-                        getPort={getPort}
-                        parentId={fieldId}
-                        parentMappingConstruct={parentMappingConstruct}
-                        context={context}
-                        fieldIndex={index}
-                        treeDepth={treeDepth + 1}
-                        deleteField={deleteField}
-                        hasHoveredParent={isHovered || hasHoveredParent}
-                    />
-                )
-            } else {
-                if (element.elementNode) {
-                    const value: string = element.elementNode.value || element.elementNode.source;
-                    if (searchValue && !value.toLowerCase().includes(searchValue.toLowerCase())) {
-                        return null;
+                        )
+                    } else {
+                        const value: string = elementNode.value || elementNode.source;
+                        if (searchValue && !value.toLowerCase().includes(searchValue.toLowerCase())) {
+                            return null;
+                        }
                     }
                 }
                 return (
@@ -279,9 +285,9 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         <br />
                     </>
                 );
-            }
-        })
-    );
+            })
+        );
+    }, [elements]);
 
     const handleExpand = () => {
         handleCollapse(fieldId, !expanded);
