@@ -223,12 +223,19 @@ export class InitVisitor implements Visitor {
                 } else {
                     simpleName = (actionNode.expression as SimpleNameReference).name.value;
                 }
-            } else if (actionNode.kind === 'ClientResourceAccessAction') {
+            } else if (STKindChecker.isClientResourceAccessAction(actionNode)) {
                 // TODO: fix syntax-tree lib and update any types
                 if (STKindChecker.isFieldAccess((actionNode as any).expression)) {
                     simpleName = ((actionNode as any).expression.fieldName as SimpleNameReference).name.value;
                 } else {
                     simpleName = ((actionNode as any).expression as SimpleNameReference).name.value;
+                }
+
+                if (actionNode.resourceAccessPath && actionNode.resourceAccessPath.length > 0) {
+                    stmtViewState.action.resourcePath = actionNode.resourceAccessPath
+                        .reduce((acc, curr) => `${acc}${curr.value ? curr.value : curr.source}`, '/');
+                } else {
+                    stmtViewState.action.resourcePath = '/';
                 }
             }
             stmtViewState.action.endpointName = simpleName;
@@ -260,6 +267,7 @@ export class InitVisitor implements Visitor {
             stmtViewState.isAction = expressionViewState.isAction;
             stmtViewState.action.endpointName = expressionViewState.action.endpointName;
             stmtViewState.action.actionName = expressionViewState.action.actionName;
+            stmtViewState.action.resourcePath = expressionViewState.action.resourcePath;
         }
     }
 
@@ -289,6 +297,7 @@ export class InitVisitor implements Visitor {
                 stmtViewState.isAction = exprViewState.isAction;
                 stmtViewState.action.endpointName = exprViewState.action.endpointName;
                 stmtViewState.action.actionName = exprViewState.action.actionName;
+                stmtViewState.action.resourcePath = exprViewState.action.resourcePath;
             }
         }
     }
@@ -318,6 +327,7 @@ export class InitVisitor implements Visitor {
                 stmtViewState.isAction = exprViewState.isAction;
                 stmtViewState.action.endpointName = exprViewState.action.endpointName;
                 stmtViewState.action.actionName = exprViewState.action.actionName;
+                stmtViewState.action.resourcePath = exprViewState.action.resourcePath;
             }
         }
     }
@@ -457,7 +467,8 @@ export class InitVisitor implements Visitor {
 
             // todo: need to fix these with invocation data
             if (node.initializer && stmtViewState.isAction) {
-                if (node.initializer.kind === "RemoteMethodCallAction" || node.initializer.kind === 'ClientResourceAccessAction') {
+                if (STKindChecker.isRemoteMethodCallAction(node.initializer)
+                    || STKindChecker.isClientResourceAccessAction(node.initializer)) {
                     const remoteActionCall: RemoteMethodCallAction = node.initializer as RemoteMethodCallAction;
                     const typeInfo: any = remoteActionCall?.typeData?.symbol?.typeDescriptor;
                     if (typeInfo?.name === "BaseClient") {
@@ -477,7 +488,7 @@ export class InitVisitor implements Visitor {
                     const actionName: SimpleNameReference = remoteActionCall.methodName as SimpleNameReference;
                     if (actionName) {
                         stmtViewState.action.actionName = actionName.name.value;
-                    } else if (node.initializer.kind === 'ClientResourceAccessAction'
+                    } else if (STKindChecker.isClientResourceAccessAction(node.initializer)
                         && currentFnBody && STKindChecker.isFunctionBodyBlock(currentFnBody)
                         && currentFnBody.VisibleEndpoints) {
 
@@ -487,6 +498,14 @@ export class InitVisitor implements Visitor {
                                 stmtViewState.action.actionName = 'get';
                                 break;
                         }
+
+
+                        if (node.initializer.resourceAccessPath && node.initializer.resourceAccessPath.length > 0) {
+                            stmtViewState.action.resourcePath = node.initializer.resourceAccessPath
+                                .reduce((acc, curr) => `${acc}${curr.value ? curr.value : curr.source}`, '/');
+                        } else {
+                            stmtViewState.action.resourcePath = '/';
+                        }
                     }
                     stmtViewState.isAction = true;
                     if (currentFnBody
@@ -495,7 +514,7 @@ export class InitVisitor implements Visitor {
                         const callerParam = currentFnBody.VisibleEndpoints.find((vEP: any) => vEP.isCaller);
                         stmtViewState.isCallerAction = callerParam && callerParam.name === simpleName.name.value;
                     }
-                } else if (node.initializer.kind === "CheckAction") {
+                } else if (STKindChecker.isCheckAction(node.initializer)) {
                     const checkExpr: CheckAction = node.initializer as CheckAction;
                     const remoteActionCall: RemoteMethodCallAction = checkExpr.expression as RemoteMethodCallAction;
                     const typeInfo: any = remoteActionCall?.typeData?.symbol?.typeDescriptor;
@@ -505,8 +524,9 @@ export class InitVisitor implements Visitor {
                     const checkExprViewState: StatementViewState = checkExpr.viewState as StatementViewState;
                     stmtViewState.action.endpointName = checkExprViewState.action.endpointName;
                     stmtViewState.action.actionName = checkExprViewState.action.actionName;
+                    stmtViewState.action.resourcePath = checkExprViewState.action.resourcePath;
                     stmtViewState.isCallerAction = checkExprViewState.isCallerAction;
-                } else if (node.initializer.kind === "TypeCastExpression") {
+                } else if (STKindChecker.isTypeCastExpression(node.initializer)) {
                     const typeCastExpression: TypeCastExpression = node.initializer as TypeCastExpression;
                     if (typeCastExpression.expression.kind === "RemoteMethodCallAction") {
                         const remoteActionCall: RemoteMethodCallAction = typeCastExpression.expression as RemoteMethodCallAction;
@@ -518,6 +538,7 @@ export class InitVisitor implements Visitor {
                     const typeCastViewState: StatementViewState = typeCastExpression.viewState as StatementViewState;
                     stmtViewState.action.endpointName = typeCastViewState.action.endpointName;
                     stmtViewState.action.actionName = typeCastViewState.action.actionName;
+                    stmtViewState.action.resourcePath = typeCastViewState.action.resourcePath;
                     stmtViewState.isCallerAction = typeCastViewState.isCallerAction;
                 }
 
