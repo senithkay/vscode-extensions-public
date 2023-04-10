@@ -42,7 +42,7 @@ import {
     isConnectedViaLink,
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
-import { getATypeFromUnionType } from "../../../utils/union-type-utils";
+import { getSupportedUnionTypes } from "../../../utils/union-type-utils";
 import { OutputSearchHighlight } from "../Search";
 import { TreeBody } from "../Tree/Tree";
 
@@ -315,19 +315,19 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         setIsAddingElement(true)
         try {
             const fieldsAvailable = !!listConstructor.expressions.length;
-            if (typeNameStr === PrimitiveBalType.Union) {
-                const type = getATypeFromUnionType(field.type.memberType);
-                typeNameStr = type ? type.typeName : '()';
+            let type = typeNameStr;
+            if (isUnionType) {
+                const unionType = field.type.memberType;
+                type  = unionType.members.find(member => typeNameStr === getTypeName(member)).typeName;
             }
-            const defaultValue = getDefaultValue(typeNameStr);
+            const defaultValue = getDefaultValue(type);
             let targetPosition: NodePosition;
-            let newElementSource: string;
+            let newElementSource: string = `${getLinebreak()}${isUnionType ? `<${typeNameStr}>` : ''}${defaultValue}`;
             if (fieldsAvailable) {
                 targetPosition = listConstructor.expressions[listConstructor.expressions.length - 1].position as NodePosition;
-                newElementSource = `,${getLinebreak()}${defaultValue}`
+                newElementSource = `,${newElementSource}`
             } else {
                 targetPosition = listConstructor.openBracket.position as NodePosition;
-                newElementSource = `${getLinebreak()}${defaultValue}`
             }
             const modification = [getModification(newElementSource, {
                 ...targetPosition,
@@ -352,8 +352,10 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         || field.type?.memberType?.originalTypeName === AnydataType
         || field.type?.originalTypeName === AnydataType;
 
+    const isUnionType = field.type?.memberType?.typeName === PrimitiveBalType.Union;
+
     const onAddElementClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (isAnydataType) {
+        if (isAnydataType || isUnionType) {
             addElementSetAnchorEl(event.currentTarget)
         } else {
             handleAddArrayElement(field?.type?.memberType?.typeName)
@@ -369,6 +371,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             anyDataConvertOptions.push({ title: `Add a record element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Record) })
             anyDataConvertOptions.push({ title: `Add an array element`, onClick: () => handleAddArrayElement(PrimitiveBalType.Array) })
             return anyDataConvertOptions;
+        } else if (isUnionType) {
+            const unionTypeOptions: ValueConfigMenuItem[] = [];
+            const supportedTypes = getSupportedUnionTypes(field.type.memberType);
+            supportedTypes.forEach((type) => {
+                unionTypeOptions.push({ title: `Add a ${type} element`, onClick: () => handleAddArrayElement(type) })
+            })
+            return unionTypeOptions;
         }
     }, [])
 
@@ -455,7 +464,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         >
                             Add Element
                         </Button>
-                        {isAnydataType && (
+                        {(isAnydataType || isUnionType) && (
                             <Menu
                                 anchorEl={addElementAnchorEl}
                                 open={addMenuOpen}
