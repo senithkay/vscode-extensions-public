@@ -20,6 +20,7 @@ export interface MenuItem {
     id: number | string;
     label: React.ReactNode;
     onClick: () => void;
+    disabled?: boolean;
 }
 
 interface Props {
@@ -29,9 +30,8 @@ interface Props {
 export const ContextMenu: React.FC<Props> = ({ items }) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const handleClick = () => {
         setIsOpen(true);
-        console.log(event);
     };
 
     const handleClose = () => {
@@ -64,7 +64,14 @@ export const ContextMenu: React.FC<Props> = ({ items }) => {
                 >
                     <VSCodeDataGrid aria-label="Context Menu">
                         {items.map((item) => (
-                            <VSCodeDataGridRow key={item.id} onClick={() => handleItemClick(item)} style={{ cursor: 'pointer' }}>
+                            <VSCodeDataGridRow 
+                                key={item.id}
+                                onClick={item.disabled ? undefined : () => handleItemClick(item)} 
+                                style={{ 
+                                    cursor: item.disabled ? 'not-allowed' : 'pointer',
+                                    opacity: item.disabled ? 0.5 : 1,
+                                }}
+                            >
                                 <VSCodeDataGridCell style={{ textAlign: 'left', width: 200 }}>
                                     {item.label}
                                 </VSCodeDataGridCell>

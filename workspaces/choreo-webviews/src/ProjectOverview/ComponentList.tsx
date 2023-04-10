@@ -12,7 +12,7 @@
  */
 
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeButton, VSCodeTag, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { Component, DeploymentStatus, Repository, Status } from "@wso2-enterprise/choreo-core";
+import { Component, DeploymentStatus, Repository } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
 import React, { useCallback } from "react";
@@ -26,6 +26,7 @@ export interface ComponentListProps {
     loading?: boolean;
     fetchingComponents?: boolean;
     isActive?: boolean;
+    reachedChoreoLimit?: boolean;
     openSourceControl: () => void;
     onComponentDeleteClick: (component: Component) => void;
     handlePushComponentClick: (componentName: string) => void;
@@ -54,9 +55,6 @@ const DeploymentStatusMapping = {
     [DeploymentStatus.NotDeployed]: 'Not Deployed',
     [DeploymentStatus.Error]: 'Error',
     [DeploymentStatus.InProgress]: 'In-progress',
-    [Status.LocalOnly]: 'Locally only',
-    [Status.UnavailableLocally]: 'Not Available Locally',
-    [Status.ChoreoAndLocal]: 'Available Locally & in Choreo',
 };
 
 const mapBuildStatus = (
@@ -85,7 +83,18 @@ const mapBuildStatus = (
 };
 
 export function ComponentList(props: ComponentListProps) {
-    const { orgName, projectId, components, openSourceControl, onComponentDeleteClick, handlePushComponentClick, loading, fetchingComponents, isActive } = props;
+    const {
+        orgName,
+        projectId,
+        components,
+        openSourceControl,
+        onComponentDeleteClick,
+        handlePushComponentClick,
+        loading,
+        fetchingComponents,
+        isActive,
+        reachedChoreoLimit,
+    } = props;
 
     if (props.components.length === 0 && fetchingComponents) {
         return <><VSCodeProgressRing /></>;
@@ -162,6 +171,7 @@ export function ComponentList(props: ComponentListProps) {
                 </>
             ),
             onClick: () => onComponentDeleteClick(component),
+            disabled: !isActive,
         });
         return menuItems;
     }
@@ -247,15 +257,15 @@ export function ComponentList(props: ComponentListProps) {
                                 ) : (
                                     <>
                                         <VSCodeLink
-                                            href={componentDeployLink} 
+                                            href={componentDeployLink}
                                             style={{ color: `var(${buildStatusMappedValue.color})` }}
                                             title="Open component deployment page in Choreo Console"
                                         >
                                             {buildStatusMappedValue.text}
                                         </VSCodeLink>
                                         &nbsp;
-                                        <VSCodeLink 
-                                            href={`${repoLink}/commit/${component.buildStatus?.sourceCommitId}`} 
+                                        <VSCodeLink
+                                            href={`${repoLink}/commit/${component.buildStatus?.sourceCommitId}`}
                                             style={{ color: `var(${buildStatusMappedValue.color})` }}
                                             title="Open commit in remote GitHub repository"
                                         >
@@ -269,8 +279,8 @@ export function ComponentList(props: ComponentListProps) {
                                 {component.local ? (
                                     "N/A"
                                 ) : (
-                                    <VSCodeLink 
-                                        href={componentDeployLink} 
+                                    <VSCodeLink
+                                        href={componentDeployLink}
                                         style={{ color: `var(${deploymentStatusColor})` }}
                                         title="Open component deployment page in Choreo Console"
                                     >
@@ -280,15 +290,15 @@ export function ComponentList(props: ComponentListProps) {
                             </VSCodeDataGridCenterCell>
                             <VSCodeDataGridActionCell gridColumn="5">
                                 {hasDirtyLocalRepo && (
-                                        <VSCodeButton
-                                            appearance="icon"
-                                            onClick={openSourceControl}
-                                            title="Open source control view & sync changes"
-                                        >
-                                            <Codicon name="source-control" /> &nbsp; Commit & Push
-                                        </VSCodeButton>
-                                    )}
-                                {component.isRemoteOnly && !hasDirtyLocalRepo && (
+                                    <VSCodeButton
+                                        appearance="icon"
+                                        onClick={openSourceControl}
+                                        title="Open source control view & sync changes"
+                                    >
+                                        <Codicon name="source-control" /> &nbsp; Commit & Push
+                                    </VSCodeButton>
+                                )}
+                                {component.isRemoteOnly && isActive && !hasDirtyLocalRepo && (
                                     <VSCodeButton
                                         appearance="icon"
                                         onClick={() =>
@@ -298,22 +308,22 @@ export function ComponentList(props: ComponentListProps) {
                                                 component.id
                                             )
                                         }
-                                        disabled={loading || !isActive}
+                                        disabled={loading}
                                         title="Pull code from remote repository"
                                     >
                                         <Codicon name="cloud-download" /> &nbsp; Pull Component
                                     </VSCodeButton>
                                 )}
                                 {component.local && !hasDirtyLocalRepo && component.isInRemoteRepo && (
-                                        <VSCodeButton
-                                            appearance="icon"
-                                            onClick={() => handlePushComponentClick(component.name)}
-                                            title="Push code to remote repository"
-                                            disabled={loading || !isActive}
-                                        >
-                                            <Codicon name="cloud-upload" /> &nbsp; Push to Choreo
-                                        </VSCodeButton>
-                                    )}
+                                    <VSCodeButton
+                                        appearance="icon"
+                                        onClick={() => handlePushComponentClick(component.name)}
+                                        title={reachedChoreoLimit ? "Please upgrade your tier to push to Choreo" : "Push code to remote repository"}
+                                        disabled={loading || !isActive || reachedChoreoLimit}
+                                    >
+                                        <Codicon name="cloud-upload" /> &nbsp; Push to Choreo
+                                    </VSCodeButton>
+                                )}
                                 <ContextMenu items={getMenuItems(component, componentOverviewLink, repoLink)}></ContextMenu>
                             </VSCodeDataGridActionCell>
                         </VSCodeDataGridRow>

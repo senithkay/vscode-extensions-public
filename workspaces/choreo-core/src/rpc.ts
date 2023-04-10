@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project, Component, GetComponentModelResponse, PushedComponent } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component, GetComponentModelResponse, PushedComponent, ComponentCount } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -50,6 +50,7 @@ export const getDiagramComponentModel: RequestType<{ projId: string, orgHandler:
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
 export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };
+export const GetComponentCount: RequestType<number, ComponentCount> = { method: 'getComponentCount' };
 
 export interface OpenDialogOptions {
    title: string,

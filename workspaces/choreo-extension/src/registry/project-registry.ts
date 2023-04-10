@@ -11,8 +11,8 @@
  *  associated services.
  */
 
-import { Component, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
-import { projectClient } from "../auth/auth";
+import { Component, ComponentCount, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { orgClient, projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
@@ -341,6 +341,15 @@ export class ProjectRegistry {
             }
         } catch (e) {
             serializeError(e);
+        }
+    }
+
+    async getComponentCount(orgId: number): Promise<ComponentCount> {
+        try {
+            return orgClient.getComponentCount(orgId);
+        } catch (e) {
+            serializeError(e);
+            throw (e);
         }
     }
 

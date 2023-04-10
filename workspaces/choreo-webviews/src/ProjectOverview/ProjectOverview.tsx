@@ -65,10 +65,13 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
 export interface ProjectOverviewProps {
     projectId?: string;
     orgName?: string;
+    componentLimit?: number;
+    choreoUrl?: string;
+    billingUrl?: string;
 }
 
 export function ProjectOverview(props: ProjectOverviewProps) {
-    const { orgName, projectId } = props;
+    const { orgName, projectId, billingUrl, choreoUrl, componentLimit } = props;
     const queryClient = useQueryClient();
     const [currentOrgName, setCurrentOrgName] = useState(orgName);
     const validOrg = orgName === currentOrgName;
@@ -105,6 +108,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         setCurrentOrgName(newOrg.handle);
     }))
 
+    const { data: org } = useQuery({
+        queryKey: ["overview_project_org", orgName],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getCurrentOrg(),
+    });
+
     ChoreoWebViewAPI.getInstance().onLoginStatusChanged((newStatus) => {
         queryClient.setQueryData(["overview_project_login_status"], newStatus);
     })
@@ -119,10 +127,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     const { isLoading: isLoadingCompOnly, isRefetching: refetchingCompOnly, refetch: refetchComponentsOnly, isFetched } = useQuery({
         queryKey: ["overview_component_list_only", projectId],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().getComponents(projectId),
+        queryFn: () => ChoreoWebViewAPI.getInstance().getComponents(projectId),
         refetchInterval: 120000, // check for new components every 2 minutes
         onSuccess: () => {
-            refetchComponents()
+            refetchComponents();
+            refetchUsage();
         },
         refetchOnWindowFocus: false,
         enabled: validOrg && isLoggedIn,
@@ -135,27 +144,32 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         refetch: refetchComponents,
     } = useQuery({
         queryKey: ["overview_component_list", projectId],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
+        queryFn: () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         refetchInterval: 15000, // Refetch component status every 15 seconds
         enabled: !refetchingCompOnly && isFetched && isLoggedIn && validOrg
     });
 
     useQuery({
-        queryKey: ["deleted_component_list_only", projectId],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().getDeletedComponents(projectId),
+        queryKey: ["deleted_component_show_prompt", projectId],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getDeletedComponents(projectId),
         onSuccess: (data) => {
-            queryClient.setQueryData(["deleted_component_list", projectId], data)
             if (data.length > 0) {
                 ChoreoWebViewAPI.getInstance().removeDeletedComponents({ components: data, projectId });
             }
         },
+        refetchOnWindowFocus: false,
     });
 
     const { data: location } = useQuery({
         queryKey: ["overview_project_location", projectId],
         queryFn: () => ChoreoWebViewAPI.getInstance().getProjectLocation(projectId),
         enabled: isLoggedIn && validOrg
+    });
+
+    const { data: usageData, refetch: refetchUsage } = useQuery({
+        queryKey: ["overview_project_comp_count", projectId, orgName, components],
+        queryFn: () => ChoreoWebViewAPI.getInstance().getComponentCount(),
     });
 
     const { mutate: handleDeleteComponentClick, isLoading: deletingComponent } = useMutation({
@@ -204,11 +218,18 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.architecture.view", orgName, projectId);
     }, [orgName, projectId]);
 
-    const consoleLink = `https://console.choreo.dev/organizations/${orgName}/projects/${project?.id}`;
+    const consoleLink = `${choreoUrl}/organizations/${orgName}/projects/${project?.id}`;
+
+    // todo: make fidp dynamic, if more than one idp is supported
+    const billingLink = `${billingUrl}/cloud/choreo/upgrade?orgId=${org?.id}&fidp=google`;
 
     const onOpenConsoleClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openExternal(consoleLink);
     }, [consoleLink]);
+
+    const onOpenBillingClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().openExternal(billingLink);
+    }, [billingLink]);
 
     const handleCreateComponentClick = useCallback(() => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.component.create");
@@ -230,21 +251,27 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         );
     }, [components]);
 
-    /** Every local components is without any local git changes to commit/push & valid path in remote repo. These components can be pushed to Choreo */
-    const hasPushableComponents = useMemo(() => {
+    /** Count of every local components that's without any local git changes to commit/push & valid path in remote repo. These components can be pushed to Choreo */
+    const pushableComponentCount = useMemo(() => {
         const localOnlyComponents = components.filter(
             (component) => component.local
         );
-        if (localOnlyComponents.length === 0) {
-            return false;
+        return localOnlyComponents.reduce((count, component) => {
+            if (!component.hasDirtyLocalRepo && !component.hasUnPushedLocalCommits && component.isInRemoteRepo) {
+                return count + 1;
+            }
+            return count;
+        }, 0);
+    }, [components])
+
+    const hasPushableComponents = useMemo(() => pushableComponentCount > 0, [pushableComponentCount]);
+
+    const pushableLimitExceeded = useMemo(() => {
+        if (usageData) {
+            return pushableComponentCount > (componentLimit - usageData?.componentCount);
         }
-        return localOnlyComponents?.every(
-            (component) =>
-                !component.hasDirtyLocalRepo &&
-                !component.hasUnPushedLocalCommits &&
-                component.isInRemoteRepo
-        );
-    }, [components]);
+        return false;
+    }, [pushableComponentCount, usageData, componentLimit]);
 
     const fetchingComponents = reloadingRegistry || loadingComponents || refetchingComponents || isLoadingCompOnly || refetchingCompOnly;
 
@@ -376,31 +403,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     loading={pushingComponent || pushingSingleComponent || deletingComponent}
                     fetchingComponents={fetchingComponents}
                     isActive={isActive}
+                    reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
                 />
 
-                {(hasPushableComponents || pushingComponent) && (
-                    <>
-                        <p>
-                            <InlineIcon>
-                                <Codicon name="lightbulb" />
-                            </InlineIcon>
-                            &nbsp; Some components are not created in Choreo. Click `Push
-                            to Choreo` to create them.
-                        </p>
-                        <ActionContainer>
-                            {pushingComponent && <VSCodeProgressRing />}
-                            <VSCodeButton
-                                appearance="primary"
-                                disabled={pushingComponent || fetchingComponents || pushingSingleComponent || !isActive}
-                                onClick={() => handlePushToChoreoClick()}
-                            >
-                                <Codicon name="cloud-upload" />
-                                &nbsp; Push to Choreo
-                            </VSCodeButton>
-                        </ActionContainer>
-                    </>
-                )}
-                {!(pushingComponent || hasPushableComponents) && componentsOutOfSync && (
+                {componentsOutOfSync && (
                     <>
                         <p>
                             <InlineIcon>
@@ -429,6 +435,52 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                 &nbsp; Recheck
                             </VSCodeButton>
                         </ActionContainer>
+                    </>
+                )}
+
+                {!componentsOutOfSync && (hasPushableComponents || pushingComponent) && (
+                    <>
+                        {pushableLimitExceeded ? (
+                            <>
+                                <p>
+                                    <InlineIcon>
+                                        <Codicon name="lightbulb" />
+                                    </InlineIcon>
+                                    &nbsp; You have {pushableComponentCount} new components to
+                                    be pushed to Choreo but have{" "}
+                                    {componentLimit - (usageData?.componentCount || 0)} pushable
+                                    components within your quota. Please upgrade your tier in order to proceed.
+                                </p>
+                                <ActionContainer>
+                                    <VSCodeButton
+                                        appearance="primary"
+                                        // disabled={pushingComponent || fetchingComponents || pushingSingleComponent || !isActive}
+                                        onClick={() => onOpenBillingClick()}
+                                    >
+                                        Upgrade
+                                    </VSCodeButton>
+                                </ActionContainer>
+                            </>
+                        ) : <>
+                            <p>
+                                <InlineIcon>
+                                    <Codicon name="lightbulb" />
+                                </InlineIcon>
+                                &nbsp; Some components are not created in Choreo. Click `Push
+                                to Choreo` to create them.
+                            </p>
+                            <ActionContainer>
+                                {pushingComponent && <VSCodeProgressRing />}
+                                <VSCodeButton
+                                    appearance="primary"
+                                    disabled={pushingComponent || fetchingComponents || pushingSingleComponent || !isActive}
+                                    onClick={() => handlePushToChoreoClick()}
+                                >
+                                    <Codicon name="cloud-upload" />
+                                    &nbsp; Push to Choreo
+                                </VSCodeButton>
+                            </ActionContainer>
+                        </>}
                     </>
                 )}
             </WizardContainer>
