@@ -10,8 +10,9 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { ExpressionEditorLangClientInterface, PartialSTRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, PartialSTRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import { monaco } from "react-monaco-editor";
 import {
     CommaToken, DefaultableParam,
     DotToken,
@@ -742,4 +743,23 @@ export function addImportStatements(
         }
     });
     return moduleList + currentFileContent;
+}
+
+export async function getKeywordTypes(docUri: string, getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
+    const completionParams: CompletionParams = {
+        textDocument: {
+            uri: monaco.Uri.file(docUri).toString()
+        },
+        context: {
+            triggerKind: 25,
+        },
+        position: {
+            character: 0,
+            line: 0
+        }
+    }
+
+    const langClient = await getLangClient();
+    const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
+    return completions.filter(value => value.kind === 25);
 }

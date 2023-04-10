@@ -41,11 +41,13 @@ export interface CompletionResponseWithModule extends SuggestionItem {
 function TypeBrowserC(props: TypeBrowserProps) {
     const { type, diagnostics, onChange, isLoading, recordCompletions, createNew, isGraphqlForm, isParameterType } = props;
     const [selectedTypeStr, setSelectedTypeStr] = useState(type ? type : '');
+    const [inputValue, setInputValue] = useState(type ? type : '');
 
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState("");
 
     useEffect(() => {
-        setSelectedTypeStr(type ? type : '')
+        setSelectedTypeStr(type ? type : '');
+        setInputValue(type ? type : '');
     }, [type])
 
     // Create new record and add it to the list
@@ -106,34 +108,24 @@ function TypeBrowserC(props: TypeBrowserProps) {
         <>
             <Autocomplete
                 freeSolo={true}
-                key={`type-select-${isLoading.toString()}`}
                 data-testid='type-select-dropdown'
-                getOptionLabel={(option) => option?.insertText || selectedTypeStr}
                 options={recordCompletions}
-                disabled={isLoading}
-                inputValue={selectedTypeStr}
+                defaultValue={selectedTypeStr}
+                inputValue={inputValue}
+                onChange={handleOnChange}
+                getOptionLabel={(option) => option?.insertText || selectedTypeStr}
+                renderInput={(params) => <TextFieldStyled {...params} autoFocus={!isLoading && !selectedTypeStr} />}
                 onInputChange={(_, value) => {
                     if (!isLoading) {
-                        setSelectedTypeStr(value)
+                        setInputValue(value);
                         onChange(value);
                     }
                 }}
-                defaultValue={selectedTypeStr}
-                onChange={handleOnChange}
-                renderInput={(params) => <TextFieldStyled {...params} autoFocus={!isLoading && !selectedTypeStr} />}
-                renderOption={(item) =>
-                (
-                    <TypeSelectItem>
-                        <TypeSelectItemLabel>{item.label}</TypeSelectItemLabel>
-                        <TypeSelectItemModule>{item.module}</TypeSelectItemModule>
-                    </TypeSelectItem>
-                )
-                }
-                blurOnSelect={true}
                 filterOptions={filterOptions}
+                blurOnSelect={true}
             />
             {isLoading && <LinearProgress />}
-            {selectedTypeStr && expressionDiagnosticMsg && (
+            {selectedTypeStr && inputValue && expressionDiagnosticMsg && (
                 <>
                     {<DiagnosticView
                         handleCreateNew={handleCreateNew}
@@ -155,7 +147,7 @@ enum ConstructType {
 }
 
 function DiagnosticView(props: { handleCreateNew: () => void, message: string, isGraphqlForm?: boolean, isParameterType?: boolean, createNewConstruct?: (constructType: ConstructType) => void }) {
-    const { message, handleCreateNew, isGraphqlForm, isParameterType, createNewConstruct} = props;
+    const { message, handleCreateNew, isGraphqlForm, isParameterType, createNewConstruct } = props;
     const formClasses = useFormStyles();
 
 
@@ -165,7 +157,7 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
 
     return (
         <>
-            {!isGraphqlForm &&  (
+            {!isGraphqlForm && (
                 <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
                     <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
                         {truncateDiagnosticMsg(message)}

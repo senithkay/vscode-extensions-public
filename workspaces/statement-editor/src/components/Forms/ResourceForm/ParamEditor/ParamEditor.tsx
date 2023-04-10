@@ -142,7 +142,7 @@ export function ParamEditor(props: ParamProps) {
         const paramName = model.paramName.value
         onChange(
             segmentId,
-            `${annotation} ${type} ${paramName} = ${value}`,
+            value ? `${annotation} ${type} ${paramName} = ${value}` : `${annotation} ${type} ${paramName}`,
             STKindChecker.isDefaultableParam(model) ? model.expression : undefined,
             value
         );
