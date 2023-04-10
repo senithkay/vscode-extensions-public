@@ -32,7 +32,6 @@ export function render(
 function renderDiagram(
     filePath: Uri, startLine: number, startColumn: number, experimental: boolean,
     openInDiagram: NodePosition, webView: Webview, projectPaths: WorkspaceFolder[], diagramFocus?: DiagramFocus): string {
-    console.log('workspace name', workspace.name);
     const body = `
         <div class="ballerina-editor design-view-container" id="diagram"><div class="loader" /></div>
     `;
@@ -312,7 +311,6 @@ function renderDiagram(
                             getAllFiles
                         }
                     };
-
                     BLCEditor.renderOverviewDiagram(options);
                 } catch(e) {
                     if (e.message === 'ballerinaComposer is not defined') {
@@ -421,8 +419,8 @@ function renderDiagram(
                 projectPaths: ${JSON.stringify(projectPaths)},
                 diagramFocus: ${diagramFocus ?
                     `{
-                        filePath: ${JSON.stringify(ballerinaFilePath)},
-                        position: ${JSON.stringify(openInDiagram)}
+                        filePath: ${JSON.stringify(diagramFocus.fileUri)},
+                        position: ${JSON.stringify(diagramFocus.position)}
                     }` : `undefined`
                 },
                 workspaceName: ${JSON.stringify(workspace.name)}
