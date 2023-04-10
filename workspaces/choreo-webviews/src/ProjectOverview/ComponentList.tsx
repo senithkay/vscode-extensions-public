@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeButton, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeButton, VSCodeTag, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { Component, DeploymentStatus, Repository, Status } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
@@ -25,6 +25,7 @@ export interface ComponentListProps {
     orgName?: string;
     loading?: boolean;
     fetchingComponents?: boolean;
+    isActive?: boolean;
     openSourceControl: () => void;
     onComponentDeleteClick: (component: Component) => void;
     handlePushComponentClick: (componentName: string) => void;
@@ -80,7 +81,7 @@ const mapBuildStatus = (
 };
 
 export function ComponentList(props: ComponentListProps) {
-    const { orgName, projectId, components, openSourceControl, onComponentDeleteClick, handlePushComponentClick, loading, fetchingComponents } = props;
+    const { orgName, projectId, components, openSourceControl, onComponentDeleteClick, handlePushComponentClick, loading, fetchingComponents, isActive } = props;
 
     if (props.components.length === 0 && fetchingComponents) {
         return <><VSCodeProgressRing /></>;
@@ -143,7 +144,7 @@ export function ComponentList(props: ComponentListProps) {
                         Version
                     </VSCodeDataGridCell>
                     <VSCodeDataGridCell cellType={"columnheader"} gridColumn="3">
-                        Build Status
+                        Build
                     </VSCodeDataGridCell>
                     <VSCodeDataGridCell cellType={"columnheader"} gridColumn="4">
                         Deployment
@@ -209,9 +210,23 @@ export function ComponentList(props: ComponentListProps) {
                                 {component.local || !component.buildStatus ? (
                                     "N/A"
                                 ) : (
-                                    <a href={componentDeployLink} style={{ color: `var(${buildStatusMappedValue.color})` }}>
-                                        {buildStatusMappedValue.text}
-                                    </a>
+                                    <>
+                                        <VSCodeLink
+                                            href={componentDeployLink} 
+                                            style={{ color: `var(${buildStatusMappedValue.color})` }}
+                                            title="Open component deployment page in Choreo Console"
+                                        >
+                                            {buildStatusMappedValue.text}
+                                        </VSCodeLink>
+                                        &nbsp;
+                                        <VSCodeLink 
+                                            href={`${repoLink}/commit/${component.buildStatus?.sourceCommitId}`} 
+                                            style={{ color: `var(${buildStatusMappedValue.color})` }}
+                                            title="Open commit in remote GitHub repository"
+                                        >
+                                            {`#${component.buildStatus?.sourceCommitId.substring(0, 9)}`}
+                                        </VSCodeLink>
+                                    </>
                                 )}
 
                             </VSCodeDataGridCenterCell>
@@ -219,9 +234,13 @@ export function ComponentList(props: ComponentListProps) {
                                 {component.local ? (
                                     "N/A"
                                 ) : (
-                                    <a href={componentDeployLink} style={{ color: `var(${deploymentStatusColor})` }}>
+                                    <VSCodeLink 
+                                        href={componentDeployLink} 
+                                        style={{ color: `var(${deploymentStatusColor})` }}
+                                        title="Open component deployment page in Choreo Console"
+                                    >
                                         {DeploymentStatusMapping[deploymentStatus]}
-                                    </a>
+                                    </VSCodeLink>
                                 )}
                             </VSCodeDataGridCenterCell>
                             <VSCodeDataGridActionCell gridColumn="5">
@@ -245,6 +264,7 @@ export function ComponentList(props: ComponentListProps) {
                                                 component.id
                                             )
                                         }
+                                        disabled={loading || !isActive}
                                         title="Pull code from remote repository"
                                     >
                                         <Codicon name="cloud-download" /> &nbsp; Pull Component
@@ -258,11 +278,19 @@ export function ComponentList(props: ComponentListProps) {
                                             appearance="icon"
                                             onClick={() => handlePushComponentClick(component.name)}
                                             title="Push code to remote repository"
-                                            disabled={loading}
+                                            disabled={loading || !isActive}
                                         >
                                             <Codicon name="cloud-upload" /> &nbsp; Push Component
                                         </VSCodeButton>
                                     )}
+                                <VSCodeButton
+                                    appearance="icon"
+                                    onClick={() => onComponentDeleteClick(component)}
+                                    title="Delete Component"
+                                    disabled={loading || !isActive}
+                                >
+                                    <Codicon name="trash" />
+                                </VSCodeButton>
                                 <ContextMenu items={getMenuItems(component, componentOverviewLink, repoLink)}></ContextMenu>
                             </VSCodeDataGridActionCell>
                         </VSCodeDataGridRow>
