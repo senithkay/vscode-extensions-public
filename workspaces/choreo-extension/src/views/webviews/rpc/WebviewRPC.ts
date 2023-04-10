@@ -97,8 +97,8 @@ export class WebViewRpc {
         });
 
         this._messenger.onRequest(RemoveDeletedComponents, async (params: {projectId: string, components: PushedComponent[]}) => {
-            const answer = await vscode.window.showInformationMessage("Remove files of deleted components? This action will be irreversible and all related details will be lost.", "Remove Files", "Cancel");
-            if (answer === "Remove Files") {
+            const answer = await vscode.window.showInformationMessage("Some components are deleted in Choreo. Do you want to remove them from workspace?", "Yes", "No");
+            if (answer === "Yes") {
                 ProjectRegistry.getInstance().removeDeletedComponents(params.components, params.projectId);
             }
         });
