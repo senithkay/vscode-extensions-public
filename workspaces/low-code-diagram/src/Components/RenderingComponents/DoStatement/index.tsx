@@ -186,8 +186,9 @@ export function DoStatement(props: DoStatementProps) {
                 do
             </text>
             <line className="life-line" {...doBodyLifeLineProps} />
-            {doBodyChildren}
             <line className="life-line" {...onFailBodyLifeLineProps} />
+            {collapsedComponents}
+            {doBodyChildren}
             <line className="life-line" {...seperatorLineProps} strokeDasharray={4} />
             <text
                 className="then-text"
@@ -205,7 +206,6 @@ export function DoStatement(props: DoStatementProps) {
             {onFailBodyChildren}
             {drafts}
             {plusButtons}
-            {collapsedComponents}
         </g>
     )
 
