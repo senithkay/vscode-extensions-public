@@ -31,6 +31,7 @@ import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
 import { activateWizards } from './wizards/activate';
 
 import { getLogger, initLogger } from "./logger/logger";
+import { choreoSignInCmdId } from './constants';
 
 export function activateBallerinaExtension() {
 	const ext = extensions.getExtension("wso2.ballerina");
@@ -83,6 +84,12 @@ export async function showChoreoProjectOverview() {
 				const isLoggedIn = await ext.api.waitForLogin();
 				if (!isLoggedIn) {
 					//TODO: Prompt to sign in as the opened Choreo project is not accessible
+					getLogger().debug("Choreo Project Overview loading cancelled as the user is not logged in.");
+					window.showInformationMessage("Current workspace is a Choreo project. Please sign in to Choreo to view the project overview.", "Sign In").then((selection) => {
+						if (selection === "Sign In") {
+							vscode.commands.executeCommand(choreoSignInCmdId);
+						}
+					});
 					return;
 				}
 				// TODO: Check if the Choreo project is accessible by the logged in user using the access token
