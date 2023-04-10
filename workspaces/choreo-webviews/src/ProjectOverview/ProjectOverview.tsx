@@ -144,14 +144,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     });
 
     const {} = useQuery({
-        queryKey: ["deleted_component_list_only", projectId],
+        queryKey: ["deleted_component_list_only", projectId, isActive],
         queryFn: async () => ChoreoWebViewAPI.getInstance().getDeletedComponents(projectId),
         onSuccess: (data) => {
             queryClient.setQueryData(["deleted_component_list", projectId], data)
-            if (data.length > 0 && isActive) {
+            if (data.length > 0) {
                 ChoreoWebViewAPI.getInstance().removeDeletedComponents({components: data, projectId});
             }
         },
+        enabled: isActive
     });
 
     const { data: location } = useQuery({
