@@ -38,6 +38,15 @@ export interface ComponentCollection {
 
 
 export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, element: ComponentInfo) {
-    return `${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`
+    let filePath = `${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`
         .replace('file://', '');
+
+    if (window.navigator.userAgent.indexOf("Win") > -1) {
+        if (filePath.startsWith('/')) {
+            filePath = filePath.substring(1);
+            filePath = filePath.replaceAll(/\//g, '\\');
+        }
+    }
+
+    return filePath;
 }
