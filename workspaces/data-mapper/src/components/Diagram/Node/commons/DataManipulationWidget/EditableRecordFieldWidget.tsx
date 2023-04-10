@@ -14,7 +14,12 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import {
+    MappingConstructor,
+    NodePosition,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -26,11 +31,13 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../
 import {
     createSourceForUserInput,
     getDefaultValue,
+    getExprBodyFromTypeCastExpression,
     getFieldName,
     getNewFieldAdditionModification,
     getTypeName,
     isConnectedViaLink
 } from "../../../utils/dm-utils";
+import { getModification } from "../../../utils/modifications";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
 import { OutputSearchHighlight } from "../Search";
 
@@ -73,6 +80,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
 
     let fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
@@ -87,6 +95,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
+    const isUnionTypedElement = field.type.typeName === PrimitiveBalType.Union && !field.type.resolvedUnionType;
     let indentation = treeDepth * 16;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
@@ -143,6 +152,35 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const onMouseLeave = () => {
         setIsHovered(false);
+    };
+
+    const handleWrapWithTypeCast = async (type: string) => {
+        setIsAddingTypeCast(true)
+        try {
+            let targetPosition: NodePosition;
+            const typeCastExpr = STKindChecker.isTypeCastExpression(field.value) && field.value;
+            const valueExprPosition: NodePosition = typeCastExpr
+                ? getExprBodyFromTypeCastExpression(typeCastExpr).position
+                : field.value.position;
+            if (typeCastExpr) {
+                const typeCastExprPosition: NodePosition = typeCastExpr.position;
+                targetPosition = {
+                    ...typeCastExprPosition,
+                    endLine: valueExprPosition.startLine,
+                    endColumn: valueExprPosition.startColumn
+                };
+            } else {
+                targetPosition = {
+                    ...valueExprPosition,
+                    endLine: valueExprPosition.startLine,
+                    endColumn: valueExprPosition.startColumn
+                };
+            }
+            const modification = [getModification(`<${type}>`, targetPosition)];
+            await applyModifications(modification);
+        } finally {
+            setIsAddingTypeCast(false);
+        }
     };
 
     let isDisabled = portIn?.descendantHasValue || (value && !connectedViaLink);
@@ -245,6 +283,15 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         onClick: handleDeleteValue
     };
 
+    const typeSelectorMenuItems: ValueConfigMenuItem[] = isUnionTypedElement
+        && field.type.members.map(member => {
+            const memberTypeName = getTypeName(member);
+            return {
+                title: `Re-initialize as ${memberTypeName}`,
+                onClick: () => handleWrapWithTypeCast(memberTypeName)
+            }
+        });
+
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
         (hasValue || isWithinArray) && deleteValueMenuItem,
@@ -257,6 +304,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         anyDataConvertOptions.push({ title: `Initialize as record`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Record) })
         anyDataConvertOptions.push({ title: `Initialize as array`, onClick: () => handleAssignDefaultValue(PrimitiveBalType.Array) })
         valConfigMenuItems.push(...anyDataConvertOptions)
+    }
+
+    if (isUnionTypedElement) {
+        valConfigMenuItems.push(...typeSelectorMenuItems);
     }
 
     const addNewField = async (newFieldNameStr: string) => {
@@ -319,7 +370,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     </span>
                     {(!isDisabled || hasValue) && (
                         <>
-                            {isLoading ? (
+                            {(isLoading || isAddingTypeCast) ? (
                                 <CircularProgress size={18} className={classes.loader} />
                             ) : (
                                 <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
