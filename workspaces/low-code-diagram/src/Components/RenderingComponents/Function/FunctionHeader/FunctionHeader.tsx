@@ -124,15 +124,17 @@ export function FunctionHeader() {
             ));
 
         functionNode.functionSignature.parameters
-            .filter((param) => !STKindChecker.isCommaToken(param))
-            .filter((param) => !isQueryParam(param))
-            .forEach((param: DefaultableParam | RequiredParam | RestParam, paramIndex) => {
-                argumentComponents.push(
-                    <div key={paramIndex} className={'argument-item'}>
-                        <span className="type-name">{param.typeName.source.trim()}</span>
-                        <span className="argument-name">{param.paramName.value}</span>
-                    </div>
-                );
+            .forEach((param, paramIndex) => {
+                if (STKindChecker.isRequiredParam(param)
+                    || STKindChecker.isDefaultableParam(param)
+                    || STKindChecker.isRestParam(param)) {
+                    argumentComponents.push(
+                        <div key={paramIndex} className={'argument-item'}>
+                            <span className="type-name">{param.typeName.source.trim()}</span>
+                            <span className="argument-name">{param.paramName.value}</span>
+                        </div>
+                    );
+                }
             });
 
         if (queryParamComponents.length > 0) {

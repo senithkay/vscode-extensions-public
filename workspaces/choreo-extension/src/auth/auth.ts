@@ -20,6 +20,7 @@ import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
 import { Organization } from '@wso2-enterprise/choreo-core';
 import { SELECTED_ORG_ID_KEY, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from '../constants';
+import { showChoreoProjectOverview } from '../extension';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -178,6 +179,7 @@ export async function signIn() {
             await exchangeApimToken(choreoTokenInfo?.accessToken, selectedOrg.handle);  
             ext.api.selectedOrg = selectedOrg;
             ext.api.status = STATUS_LOGGED_IN;
+            showChoreoProjectOverview();
         } catch (error: any) {
             getLogger().error("Error while signing in! ", error);
             vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
