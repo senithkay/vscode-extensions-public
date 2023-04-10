@@ -34,16 +34,18 @@ import {
     MenuItem,
     Popover,
     TextField,
+    Tooltip,
     Typography,
 } from "@material-ui/core";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
 import { SelectIcon } from "../../../assets/icons";
+import Chip from "../../ChoreoSystem/Chip/Chip";
+import TextInput from "../../ChoreoSystem/TextInput/TextInput";
 import { AddInputButton } from "../../elements/AddInputButton";
 import DeleteButton from "../../elements/DeleteButton";
 import { FieldLabel, FieldLabelProps } from "../../elements/FieldLabel";
-import OutlinedLabel from "../../elements/OutlinedLabel";
 import PopOverComponent, {
     PopOverComponentProps,
 } from "../../elements/PopOverComponent";
@@ -71,6 +73,7 @@ export const MapType = (props: MapTypeProps): ReactElement => {
     const isInsideArray = props.isInsideArray;
     const isFeaturePreview = props.isFeaturePreview;
     const connectionConfigs = props.connectionConfig;
+    const isRequired = props.isRequired;
     const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
     const [connectionAnchorEl, setConnectionAnchorEl] =
         React.useState<HTMLButtonElement | null>(null);
@@ -352,23 +355,25 @@ export const MapType = (props: MapTypeProps): ReactElement => {
                                         <Box
                                             className={classes.connectionField}
                                         >
-                                            <ListItemText
-                                                key={sIndex}
-                                                primary={
-                                                    connectionFields.configKey.split(".").pop() +
-                                                    ":"
-                                                }
-                                            />
-                                            <OutlinedLabel
-                                                type="default"
-                                                label={
-                                                    connectionFields.valueType
-                                                }
-                                                tooltipText={
-                                                    connectionFields.valueType
-                                                }
-                                                shape="none"
-                                            />
+                                            <Box>
+                                                <ListItemText
+                                                    key={sIndex}
+                                                    primary={
+                                                        connectionFields.configKey.split(".").pop() +
+                                                        ":"
+                                                    }
+                                                />
+                                            </Box>
+                                            <Box ml={1}>
+                                                <Tooltip title={connectionFields.valueType}>
+                                                    <Chip
+                                                        color="success"
+                                                        variant="outlined"
+                                                        size="small"
+                                                        label={connectionFields.valueType}
+                                                    />
+                                                </Tooltip>
+                                            </Box>
                                         </Box>
                                     </MenuItem>
                                 </List>
@@ -380,17 +385,44 @@ export const MapType = (props: MapTypeProps): ReactElement => {
         );
     });
 
-    const iconButton = (
-        <Box>
+    function iconButtonWithToolTip() {
+        if (connectionConfigs === undefined || connectionConfigs.length === 0) {
+          return (
+            <Tooltip title="No global configurations defined. Please contact administrator">
+                <span>
+                    <IconButton
+                        size={"small"}
+                        className={classes.buttonConnections}
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        onClick={handleConnectionClick}
+                        color={selectedValueRef ? "primary" : "default"}
+                        disabled={connectionConfigs ===  undefined || connectionConfigs.length === 0 ? true : false}
+                    >
+                        <SelectIcon />
+                    </IconButton>
+                </span>
+            </Tooltip>
+          );
+        }
+        return (
             <IconButton
                 size={"small"}
                 className={classes.buttonConnections}
                 data-toggle="tooltip"
                 data-placement="top"
                 onClick={handleConnectionClick}
+                color={selectedValueRef ? "primary" : "default"}
+                disabled={connectionConfigs ===  undefined || connectionConfigs.length === 0 ? true : false}
             >
-               <SelectIcon />
+                <SelectIcon />
             </IconButton>
+        );
+      }
+
+    const iconButton = (
+        <Box>
+            {iconButtonWithToolTip}
         </Box>
     );
 
@@ -417,24 +449,19 @@ export const MapType = (props: MapTypeProps): ReactElement => {
 
     return (
         <Box mb={2}>
-            <Box display="flex" alignItems="center">
-                <Box flex="0 0 100px">
+            <Box display="flex" flexDirection="column">
+                <Box mb={0.5}>
                     <FieldLabel {...fieldLabelProps} />
                 </Box>
-                <Box flexGrow={1} display="flex" alignItems="center" gridGap={4}>
+                <Box display="flex" alignItems="center" gridGap={4}>
                     <Box flexGrow={1}>
-                        <TextField
-                            variant="outlined"
+                        <TextInput
                             fullWidth={true}
+                            required={isRequired}
                             margin="none"
-                            size="small"
-                            classes={{
-                                root: classes.textInputRoot,
-                            }}
                             placeholder={
                                 "Select config or Add values"
                             }
-                            InputLabelProps={{ shrink: false }}
                             data-cyid={name}
                             aria-describedby={textId}
                             onClick={handleClick}

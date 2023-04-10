@@ -64,12 +64,18 @@ jobs:
           unzip build.zip
           rm build.zip
 
-      - name: Setup
-        uses: gigara/rush-cache@v1
+      - uses: actions/setup-node@v3
         with:
-          pnpm: 7.26.3
-          node: 16.x
-          rush-install: true
+          always-auth: true
+          node-version: 16.x
+          registry-url: "https://npm.pkg.github.com"
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.26.3
+
+      - run: |
+          node common/scripts/install-run-rush.js install
 
       - name: Get version
         id: vsix

@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/project-design-diagrams",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generates the design diagrams for Ballerina projects.",
   "files": [
     "lib"
@@ -85,7 +85,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
-},
+  },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   }

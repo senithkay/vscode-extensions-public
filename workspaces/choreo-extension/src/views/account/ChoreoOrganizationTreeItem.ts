@@ -15,16 +15,16 @@ import { Organization } from "@wso2-enterprise/choreo-core";
 import { ext } from "../../extensionVariables";
 
 export class ChoreoOrgTreeItem extends TreeItem {
-    constructor(
-      public readonly org: Organization,
-      public readonly collapsibleState: TreeItemCollapsibleState
-    ) {
-      super(org.name, collapsibleState);
-      const isSelected = ext.api.selectedOrg?.id === org.id;
-      this.description = isSelected ? '*' : '';
-      this.tooltip = `Organization handle: ${org.handle}\nOwner: ${org.owner.id}`;
-      this.contextValue = "choreo.org";
-    }
-  
-    iconPath = new ThemeIcon("organization");
+	constructor(
+		public readonly org: Organization,
+		public readonly collapsibleState: TreeItemCollapsibleState
+	) {
+		super(org.name, collapsibleState);
+		const isSelected = ext.api.selectedOrg?.id === org.id;
+		this.description = isSelected ? '(selected)' : '';
+		this.tooltip = `Organization handle: ${org.handle}`;
+		this.contextValue = isSelected ? 'choreo.org.selected' : "choreo.org";
+	}
+
+	iconPath = new ThemeIcon("organization");
 }

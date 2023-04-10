@@ -136,11 +136,11 @@ export const UnionType = (props: UnionTypeProps): ReactElement => {
 
     return(
         <div key={props.id + "-FIELD"}>
-            <Box display="flex" alignItems="center" mb={1}>
-                <Box flex="0 0 150px">
+            <Box display="flex" flexDirection="column" mb={2}>
+                <Box>
                     <FieldLabel {...fieldLabelProps} />
                 </Box>
-                <Box flexGrow={1}>
+                <Box>
                     <RadioGroupInput {...radioGroupInputProps}/>
                 </Box>
             </Box>

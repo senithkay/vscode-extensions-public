@@ -173,7 +173,7 @@ export function LinkConnectorNodeWidget(props: LinkConnectorNodeWidgetProps) {
                     : props.node.editorLabel)
             });
         } else {
-            enableStatementEditor({
+            props.node.context.enableStatementEditor({
                 valuePosition: valueNode.position as NodePosition,
                 value: valueNode.source,
                 label: "Expression"

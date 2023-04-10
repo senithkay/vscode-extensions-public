@@ -116,7 +116,8 @@ export class NodeInitVisitor implements Visitor {
                     if (this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY) {
                         isFnBodyQueryExpr = true;
                         const selectClause = bodyExpr.selectClause;
-                        const intermediateClausesHeight = 100 + bodyExpr.queryPipeline.intermediateClauses.length * OFFSETS.INTERMEDIATE_CLAUSE_HEIGHT;
+                        const intermediateClausesHeight = bodyExpr.queryPipeline.intermediateClauses.length * 80;
+                        const yPosition = 50 + intermediateClausesHeight;
                         if (returnType?.typeName === PrimitiveBalType.Record || returnType?.memberType?.typeName === PrimitiveBalType.Record) {
                             this.outputNode = new MappingConstructorNode(
                                 this.context,
@@ -368,7 +369,6 @@ export class NodeInitVisitor implements Visitor {
                         exprType = constructTypeFromSTNode(node);
                     }
                 }
-
                 if (exprType?.typeName === PrimitiveBalType.Array && exprType?.memberType?.typeName === PrimitiveBalType.Record) {
                     this.outputNode = new MappingConstructorNode(
                         this.context,

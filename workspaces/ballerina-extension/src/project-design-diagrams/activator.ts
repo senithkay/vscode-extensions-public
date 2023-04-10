@@ -24,7 +24,7 @@ import { Project } from "@wso2-enterprise/choreo-core";
 import { BallerinaExtension, ExtendedLangClient, GetPackageComponentModelsResponse } from "../core";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../utils";
 import { render } from "./renderer";
-import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, ComponentModel } from "./resources";
+import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion } from "./resources";
 import { getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
 import { PALETTE_COMMANDS } from "../project/activator";
 import { deleteProjectComponent } from "./utils/common-utils";
@@ -101,7 +101,7 @@ async function setupWebviewPanel() {
             {
                 methodName: "getComponentModel",
                 handler: (): Promise<GetPackageComponentModelsResponse> => {
-                    return getComponentModel(langClient);
+                    return getComponentModel(langClient, isChoreoProject);
                 }
             },
             {

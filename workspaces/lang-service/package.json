@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/lang-service",
-  "version": "3.3.9",
+  "version": "3.3.14",
   "description": "lang-service",
   "files": [
     "lib"

@@ -1115,14 +1115,12 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type 
 			name: fieldName ? fieldName : null,
 			fields: (node.fields.filter(field => STKindChecker.isSpecificField(field)) as SpecificField[]).map(field => {
 				return constructTypeFromSTNode(field);
-			}),
-			originalTypeName: AnydataType
+			})
 		}
 	} else if (STKindChecker.isListConstructor(node)) {
 		type = {
 			typeName: PrimitiveBalType.Array,
-			name: fieldName ? fieldName : null,
-			originalTypeName: AnydataType
+			name: fieldName ? fieldName : null
 		}
 		if (node.expressions.length > 0) {
 			type.memberType = constructTypeFromSTNode(node.expressions[0]);

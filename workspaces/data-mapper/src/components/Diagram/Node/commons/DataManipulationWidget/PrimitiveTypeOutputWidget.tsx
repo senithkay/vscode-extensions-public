@@ -122,7 +122,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classes.valueLabel}>
-					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
+					{valueLabel}
 					{type && ":"}
 				</span>
 			)}

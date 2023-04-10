@@ -23,9 +23,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
-import {
-    Colors, ComponentModel, DagreLayout, EditLayerAPI, Location, GetComponentModelResponse, Service, Views, ComponentModelDiagnostics
-} from './resources';
+import { Colors, ComponentModel, DagreLayout, EditLayerAPI, Location, GetComponentModelResponse, Service, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { EditForm } from './editing';
 
@@ -79,8 +77,8 @@ export function DesignDiagram(props: DiagramProps) {
     const [showEditForm, setShowEditForm] = useState(false);
     const [connectorTarget, setConnectorTarget] = useState<Service>(undefined);
     const defaultOrg = useRef<string>('');
+    const hasDiagnostics = useRef<boolean>(false);
     const previousScreen = useRef<Views>(undefined);
-    const projectDiagnostics = useRef<ComponentModelDiagnostics[]>(undefined);
     const typeCompositionModel = useRef<DiagramModel>(undefined);
 
     let diagramBGColor;
@@ -119,7 +117,10 @@ export function DesignDiagram(props: DiagramProps) {
             if (components && components.size > 0) {
                 defaultOrg.current = [...components][0][1].packageId.org;
             }
-            projectDiagnostics.current = response.diagnostics;
+            if (!hasDiagnostics.current && response.diagnostics.length && editLayerAPI) {
+                editLayerAPI.showDiagnosticsWarning();
+            }
+            hasDiagnostics.current = response.diagnostics.length > 0;
             setProjectPkgs(createRenderPackageObject(components.keys()));
             setProjectComponents(components);
         });
@@ -138,8 +139,7 @@ export function DesignDiagram(props: DiagramProps) {
         isChoreoProject,
         consoleView,
         currentView,
-        projectDiagnostics: projectDiagnostics.current,
-        projectComponents,
+        hasDiagnostics: hasDiagnostics.current,
         setCurrentView,
         refreshDiagram,
         getTypeComposition,
