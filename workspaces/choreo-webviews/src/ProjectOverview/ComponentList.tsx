@@ -27,6 +27,7 @@ export interface ComponentListProps {
     fetchingComponents?: boolean;
     isActive?: boolean;
     reachedChoreoLimit?: boolean;
+    choreoUrl?: string;
     openSourceControl: () => void;
     onComponentDeleteClick: (component: Component) => void;
     handlePushComponentClick: (componentName: string) => void;
@@ -94,6 +95,7 @@ export function ComponentList(props: ComponentListProps) {
         fetchingComponents,
         isActive,
         reachedChoreoLimit,
+        choreoUrl
     } = props;
 
     if (props.components.length === 0 && fetchingComponents) {
@@ -210,7 +212,7 @@ export function ComponentList(props: ComponentListProps) {
                             isUserManage: false,
                         };
 
-                    const componentBaseUrl = `https://console.choreo.dev/organizations/${orgName}/projects/${projectId}/components/${component.handler}`;
+                    const componentBaseUrl = `${choreoUrl}/organizations/${orgName}/projects/${projectId}/components/${component.handler}`;
                     const componentOverviewLink = `${componentBaseUrl}/overview`;
                     const componentDeployLink = `${componentBaseUrl}/deploy`;
                     const repoLink = `https://github.com/${repo.organizationApp}/${repo.nameApp}/tree/${repo.branchApp}/${repo.appSubPath}`;

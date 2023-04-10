@@ -403,6 +403,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     loading={pushingComponent || pushingSingleComponent || deletingComponent}
                     fetchingComponents={fetchingComponents}
                     isActive={isActive}
+                    choreoUrl={choreoUrl}
                     reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
                 />
 
