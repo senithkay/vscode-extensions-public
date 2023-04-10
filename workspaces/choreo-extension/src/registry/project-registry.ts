@@ -201,7 +201,8 @@ export class ProjectRegistry {
                     subPath: appSubPath || ""
                 });
             } catch (e) {
-                console.error(`Failed to check isComponentInRepo for ${component.name}`);
+                // This could fail if repo access is unavailable to Choreo
+                console.info(`Failed to check isComponentInRepo for ${component.name}`);
                 isInRemoteRepo = false;
             }
         }

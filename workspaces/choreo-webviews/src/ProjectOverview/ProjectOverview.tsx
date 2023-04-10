@@ -57,11 +57,9 @@ const InlineIcon = styled.span`
     padding-left: 5px;
 `;
 
-const ProgressWrap = styled.div`
-    padding: 15px;
-    position: absolute;
-    top: 15px;
-    right: 15px;
+const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: calc(var(--design-unit) * 4px);
+    width: calc(var(--design-unit) * 4px);
 `;
 
 export interface ProjectOverviewProps {
@@ -103,11 +101,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         }
     }, [validProject, validOrg, isLoggedIn]);
 
-    ChoreoWebViewAPI.getInstance().onSelectedOrgChanged((newOrg=>{
+    ChoreoWebViewAPI.getInstance().onSelectedOrgChanged((newOrg => {
         setCurrentOrgName(newOrg.handle);
     }))
 
-    ChoreoWebViewAPI.getInstance().onLoginStatusChanged((newStatus)=>{
+    ChoreoWebViewAPI.getInstance().onLoginStatusChanged((newStatus) => {
         queryClient.setQueryData(["overview_project_login_status"], newStatus);
     })
 
@@ -143,13 +141,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         enabled: !refetchingCompOnly && isFetched && isLoggedIn && validOrg
     });
 
-    const {} = useQuery({
+    useQuery({
         queryKey: ["deleted_component_list_only", projectId],
         queryFn: async () => ChoreoWebViewAPI.getInstance().getDeletedComponents(projectId),
         onSuccess: (data) => {
             queryClient.setQueryData(["deleted_component_list", projectId], data)
             if (data.length > 0) {
-                ChoreoWebViewAPI.getInstance().removeDeletedComponents({components: data, projectId});
+                ChoreoWebViewAPI.getInstance().removeDeletedComponents({ components: data, projectId });
             }
         },
     });
@@ -253,11 +251,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     return (
         <>
             <WizardContainer>
-                {(fetchingComponents && components?.length !== 0) && (
-                    <ProgressWrap>
-                        <VSCodeProgressRing />
-                    </ProgressWrap>
-                )}
                 <HeaderContainer>
                     <h1>{project?.name}</h1>
                     <VSCodeButton
@@ -267,7 +260,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     >
                         <Codicon name="link-external" />
                     </VSCodeButton>
-                    {!isActive && <VSCodeTag color='yellow' title={inactiveMessage}>Inactive</VSCodeTag>}
+                    <VSCodeTag title={inactiveMessage}>{isActive ? "Active" : "Inactive"}</VSCodeTag>
                 </HeaderContainer>
                 {location === undefined && (
                     <>
@@ -359,14 +352,19 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     >
                         <Codicon name="plus" />
                     </VSCodeButton>
-                    <VSCodeButton
-                        appearance="icon"
-                        onClick={() => refetchComponentsOnly()}
-                        title="Refresh component list"
-                        disabled={fetchingComponents || !isActive}
-                    >
-                        <Codicon name="refresh" />
-                    </VSCodeButton>
+                    {fetchingComponents && components?.length !== 0 && (
+                        <SmallProgressRing />
+                    )}
+                    {!fetchingComponents && (
+                        <VSCodeButton
+                            appearance="icon"
+                            onClick={() => refetchComponentsOnly()}
+                            title="Refresh component list"
+                            disabled={!isActive || fetchingComponents}
+                        >
+                            <Codicon name="refresh" />
+                        </VSCodeButton>
+                    )}
                 </ComponentsHeader>
                 <ComponentList
                     components={components}

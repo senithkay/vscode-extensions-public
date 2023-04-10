@@ -38,6 +38,10 @@ const InlineIcon = styled.span`
 
 const VSCodeDataGridCenterCell = styled(VSCodeDataGridCell)`
     align-self: center;
+    &:focus,&:active  {
+        border: none;
+        background: none;
+    }
 `
 
 const VSCodeDataGridActionCell = styled(VSCodeDataGridCenterCell)`
@@ -120,16 +124,45 @@ export function ComponentList(props: ComponentListProps) {
 
 
     function getMenuItems(component: Component, componentOverviewLink: string, repoLink: string): MenuItem[] {
-        // const menuItems = [
-        //     { id: 'delete', label: <><Codicon name="trash" /> Delete Component</> , onClick: onComponentDeleteClick(component)},
-        // ];
-        // return menuItems;
         let menuItems = [];
-        menuItems.push({ id: 'choreo-console', label: <><InlineIcon><Codicon name="github" /></InlineIcon> &nbsp; Open in Github</>, onClick: () => onOpenConsoleClick(repoLink) });
+        menuItems.push({
+            id: "github-remote",
+            label: (
+                <>
+                    <InlineIcon>
+                        <Codicon name="github" />
+                    </InlineIcon>{" "}
+                    &nbsp; Open in Github
+                </>
+            ),
+            onClick: () => onOpenConsoleClick(repoLink),
+        });
         if (!component.local) {
-            menuItems.push({ id: 'choreo-console', label: <><InlineIcon><Codicon name="link-external" /></InlineIcon> &nbsp; Open in Choreo Console</>, onClick: () => onOpenConsoleClick(componentOverviewLink) });
+            menuItems.push({
+                id: "choreo-console",
+                label: (
+                    <>
+                        <InlineIcon>
+                            <Codicon name="link-external" />
+                        </InlineIcon>{" "}
+                        &nbsp; Open in Choreo Console
+                    </>
+                ),
+                onClick: () => onOpenConsoleClick(componentOverviewLink),
+            });
         }
-        menuItems.push({ id: 'delete', label: <><InlineIcon><Codicon name="trash" /></InlineIcon>  &nbsp; Delete Component</>, onClick: () => onComponentDeleteClick(component) });
+        menuItems.push({
+            id: "delete",
+            label: (
+                <>
+                    <InlineIcon>
+                        <Codicon name="trash" />
+                    </InlineIcon>{" "}
+                    &nbsp; Delete Component
+                </>
+            ),
+            onClick: () => onComponentDeleteClick(component),
+        });
         return menuItems;
     }
 
@@ -196,16 +229,18 @@ export function ComponentList(props: ComponentListProps) {
 
                     const buildStatusMappedValue = component.buildStatus && mapBuildStatus(component.buildStatus?.status, component.buildStatus?.conclusion);
 
+                    const hasDirtyLocalRepo = component.hasDirtyLocalRepo || component.hasUnPushedLocalCommits;
+
                     return (
                         <VSCodeDataGridRow key={component.id || component.name}>
                             <VSCodeDataGridCenterCell gridColumn="1">
                                 {component.name}
                             </VSCodeDataGridCenterCell>
-                            <VSCodeDataGridCell gridColumn="2">
+                            <VSCodeDataGridCenterCell gridColumn="2">
                                 <VSCodeTag title={`Branch: ${repo.branchApp}`}>
                                     {component.version}
                                 </VSCodeTag>
-                            </VSCodeDataGridCell>
+                            </VSCodeDataGridCenterCell>
                             <VSCodeDataGridCenterCell gridColumn="3">
                                 {component.local || !component.buildStatus ? (
                                     "N/A"
@@ -244,8 +279,7 @@ export function ComponentList(props: ComponentListProps) {
                                 )}
                             </VSCodeDataGridCenterCell>
                             <VSCodeDataGridActionCell gridColumn="5">
-                                {(component.hasDirtyLocalRepo ||
-                                    component.hasUnPushedLocalCommits) && (
+                                {hasDirtyLocalRepo && (
                                         <VSCodeButton
                                             appearance="icon"
                                             onClick={openSourceControl}
@@ -254,7 +288,7 @@ export function ComponentList(props: ComponentListProps) {
                                             <Codicon name="source-control" /> &nbsp; Commit & Push
                                         </VSCodeButton>
                                     )}
-                                {component.isRemoteOnly && (
+                                {component.isRemoteOnly && !hasDirtyLocalRepo && (
                                     <VSCodeButton
                                         appearance="icon"
                                         onClick={() =>
@@ -270,27 +304,16 @@ export function ComponentList(props: ComponentListProps) {
                                         <Codicon name="cloud-download" /> &nbsp; Pull Component
                                     </VSCodeButton>
                                 )}
-                                {component.local &&
-                                    !component.hasDirtyLocalRepo &&
-                                    !component.hasUnPushedLocalCommits &&
-                                    component.isInRemoteRepo && (
+                                {component.local && !hasDirtyLocalRepo && component.isInRemoteRepo && (
                                         <VSCodeButton
                                             appearance="icon"
                                             onClick={() => handlePushComponentClick(component.name)}
                                             title="Push code to remote repository"
                                             disabled={loading || !isActive}
                                         >
-                                            <Codicon name="cloud-upload" /> &nbsp; Push Component
+                                            <Codicon name="cloud-upload" /> &nbsp; Push to Choreo
                                         </VSCodeButton>
                                     )}
-                                <VSCodeButton
-                                    appearance="icon"
-                                    onClick={() => onComponentDeleteClick(component)}
-                                    title="Delete Component"
-                                    disabled={loading || !isActive}
-                                >
-                                    <Codicon name="trash" />
-                                </VSCodeButton>
                                 <ContextMenu items={getMenuItems(component, componentOverviewLink, repoLink)}></ContextMenu>
                             </VSCodeDataGridActionCell>
                         </VSCodeDataGridRow>
