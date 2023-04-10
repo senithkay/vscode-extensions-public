@@ -97,6 +97,11 @@ export interface Component {
     buildStatus?: BuildStatus;
 }
 
+export interface PushedComponent {
+    path: string;
+    name: string;
+}
+
 export interface Environment {
     id: string;
     name: string;

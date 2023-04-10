@@ -46,12 +46,15 @@ import {
     getDiagramComponentModel,
     DeleteComponent,
     PullComponent,
+    PushedComponent,
+    GetDeletedComponents,
     PushLocalComponentToChoreo,
     GetEnrichedComponents,
     OpenDialogOptions,
     showOpenDialogRequest,
     getPreferredProjectRepository,
-    setPreferredProjectRepository
+    setPreferredProjectRepository,
+    RemoveDeletedComponents
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -95,6 +98,14 @@ export class ChoreoWebViewAPI {
 
     public async getComponents(projectId: string): Promise<Component[]> {
         return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
+    }
+    
+    public async getDeletedComponents(projectId: string): Promise<PushedComponent[]> {
+        return this._messenger.sendRequest(GetDeletedComponents, HOST_EXTENSION, projectId);
+    }
+
+    public async removeDeletedComponents(params: {projectId: string; components: PushedComponent[]}): Promise<void> {
+        this._messenger.sendRequest(RemoveDeletedComponents, HOST_EXTENSION, params);
     }
 
     public async getEnrichedComponents(projectId: string): Promise<Component[]> {

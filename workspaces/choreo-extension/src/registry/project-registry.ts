@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Component, Environment, Organization, Project, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { Component, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
@@ -145,7 +145,50 @@ export class ProjectRegistry {
         }
     }
 
+    async getDeletedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<PushedComponent[]> {
+        const projectLocation = this.getProjectLocation(projectId);
+        const dataComponents = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
+        let deletedComponents: PushedComponent[] = [];
 
+        if (projectLocation !== undefined) {
+            const pushedComponents = (new ChoreoProjectManager()).getPushedComponents(projectLocation);
+
+            if(dataComponents && dataComponents.length < pushedComponents.length) {
+                deletedComponents = pushedComponents.filter((pushedComponent: PushedComponent) => {
+                    let isDeleted = true;
+                    dataComponents.forEach((component: Component) => {
+                        if (component.name === pushedComponent.name) {
+                            isDeleted = false;
+                        }
+                    });
+
+                    if (isDeleted) {
+                        return pushedComponent;
+                    }
+                });
+            }
+        }
+
+        return deletedComponents;      
+    }
+
+    removeDeletedComponents(components: PushedComponent[], projectId: string) {
+        const projectLocation = this.getProjectLocation(projectId);
+
+        if (projectLocation !== undefined) {
+            components.forEach((component: PushedComponent) => {
+                const repoPath = join(dirname(projectLocation), component.path);
+                if (existsSync(repoPath)) {
+                    rmdirSync(repoPath, { recursive: true });
+                    this._removeComponentFromWorkspace(projectLocation, component.name);
+                }
+            });
+        }
+        
+        const successMsg = " Please commit & push your local changes changes to ensure consistency with the remote repository.";
+        vscode.window.showInformationMessage(successMsg);
+    }
+        
     private async isComponentInRepo(component: Component): Promise<boolean> {
         let isInRemoteRepo = true;
         if(component.local && component.repository){

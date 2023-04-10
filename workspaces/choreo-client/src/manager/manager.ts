@@ -13,7 +13,7 @@
 
 import {
     ChoreoComponentCreationParams, ChoreoComponentType, Component, IProjectManager,
-    Project, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams
+    Project, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams, PushedComponent
 } from "@wso2-enterprise/choreo-core";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path, { basename, dirname, join } from "path";
@@ -123,6 +123,21 @@ export class ChoreoProjectManager implements IProjectManager {
                         appSubPath: folder.metadata.repository.appSubPath
                     },
                     apiVersions: []
+                });
+            }
+        });
+        return components;
+    }
+
+    public getPushedComponents(workspaceFilePath: string): PushedComponent[] {
+        const contents = readFileSync(workspaceFilePath);
+        const content: WorkspaceConfig = JSON.parse(contents.toString());
+        const components: PushedComponent[] = [];
+        content.folders.forEach((folder) => {
+            if (folder.metadata == undefined && folder.name !== 'choreo-project-root') {
+                components.push({
+                    path: folder.path,
+                    name: folder.name,
                 });
             }
         });
