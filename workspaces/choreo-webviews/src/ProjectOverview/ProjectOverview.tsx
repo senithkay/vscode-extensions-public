@@ -322,17 +322,19 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                 <Codicon name="cloud-download" />
                                 &nbsp;Clone Project
                             </VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>
-                                Open Project
-                            </VSCodeButton>
-                            <VSCodeButton
-                                appearance="secondary"
-                                disabled={components?.length <= 0}
-                                onClick={handleOpenChoreoArchitectureViewClick}
-                            >
-                                Architecture View
-                            </VSCodeButton>
                         </ActionContainer>
+                        {components?.length > 0 && (
+                            <ActionContainer>
+                                <p>
+                                    <VSCodeButton
+                                        appearance="secondary"
+                                        onClick={handleOpenChoreoArchitectureViewClick}
+                                    >
+                                        Architecture View
+                                    </VSCodeButton>
+                                </p>
+                            </ActionContainer>
+                        )}
                     </>
                 )}
                 {location !== undefined && !isActive && (
@@ -344,18 +346,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             Found a local copy of the project at `{location}`.{" "}
                         </p>
                         <ActionContainer>
-                            <VSCodeButton appearance="secondary" disabled={true}>
-                                <Codicon name="cloud-download" />
-                                &nbsp;Clone Project
-                            </VSCodeButton>
                             <VSCodeButton
                                 appearance="primary"
                                 onClick={handleOpenProjectClick}
                             >
                                 Open Project
-                            </VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>
-                                Architecture View
                             </VSCodeButton>
                         </ActionContainer>
                     </>
@@ -369,13 +364,6 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             Open the architecture view to add components.{" "}
                         </p>
                         <ActionContainer>
-                            <VSCodeButton appearance="secondary" disabled={true}>
-                                <Codicon name="cloud-download" />
-                                &nbsp;Clone Project
-                            </VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>
-                                Open Project
-                            </VSCodeButton>
                             <VSCodeButton
                                 appearance="primary"
                                 onClick={handleOpenArchitectureViewClick}
