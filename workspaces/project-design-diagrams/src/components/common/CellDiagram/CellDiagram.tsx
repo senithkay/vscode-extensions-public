@@ -80,7 +80,7 @@ export function CellDiagram(props: CellDiagramProps) {
         cellDiagramZoomToFit(diagramEngine);
     };
 
-    let canvasWOffset = 100;
+    let canvasWOffset = 102;
     if (consoleView === ConsoleView.COMPONENTS) {
         canvasWOffset = 375;
     } else if (consoleView === ConsoleView.PROJECT_HOME) {
