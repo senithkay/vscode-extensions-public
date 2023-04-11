@@ -34,6 +34,7 @@ import { cellDiagramZoomToFit, createServicesEngine, positionGatewayNodes } from
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { DiagramControls, ViewSwitcher } from "../DiagramCanvas/ControlLayer";
 import { ConsoleView } from "../../../resources/model";
+import { PromptScreen } from "../NewPromptScreen/PromptScreen";
 
 export interface Coordinate {
     x: number;
@@ -109,6 +110,9 @@ export function CellDiagram(props: CellDiagramProps) {
             )}
             <CellContainerWrapper isConsoleView={consoleView}>
                 <Gateways/>
+                {cellModel && consoleView && (cellModel.getNodes().length < 1) && (
+                    <PromptScreen/>
+                )}
                 <CellContainer path={borderPath} vertices={vertices}>
                     <CanvasWrapper path={innerBorderPath} vertices={vertices}>
                         <DiagramCanvasWidget

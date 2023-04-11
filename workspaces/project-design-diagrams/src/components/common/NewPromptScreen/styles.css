@@ -15,3 +15,16 @@
     font-size: 16px;
     padding: 10px;
 }
+
+.console-container {
+    position: absolute;
+    align-items: center;
+    background-image: url('../../../resources/assets/PatternBg.svg');
+    background-repeat: repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 4;
+    left: 32%;
+    top: 50%;
+}
