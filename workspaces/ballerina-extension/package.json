@@ -421,7 +421,7 @@
             },
             {
                 "command": "ballerina.view.architectureView",
-                "title": "Architecture View (Experimental)",
+                "title": "Architecture View",
                 "category": "Ballerina"
             }
         ],
