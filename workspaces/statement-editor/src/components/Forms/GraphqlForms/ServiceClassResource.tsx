@@ -91,6 +91,8 @@ export function ServiceClassResourceForm(props: FunctionProps) {
 
     const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
 
+    const [parametersBeforeParamChange, setParamsBeforeParamChange] = useState<FunctionParameter[]>([]);
+
     useEffect(() => {
         if (newlyCreatedConstruct) {
             onReturnTypeChange(newlyCreatedConstruct);
@@ -119,6 +121,7 @@ export function ServiceClassResourceForm(props: FunctionProps) {
 
     // Open the Add new Parameter view
     const openNewParamView = async () => {
+        setParamsBeforeParamChange(parameters);
         setCurrentComponentName("Param");
         setAddingNewParam(true);
         setEditingSegmentId(-1);
@@ -189,7 +192,14 @@ export function ServiceClassResourceForm(props: FunctionProps) {
         onCancel();
     };
 
-    const closeNewParamView = () => {
+    const closeNewParamView = async () => {
+        const parametersStr = getParametersAsString(parametersBeforeParamChange);
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            parametersStr,
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
         setAddingNewParam(false);
         setIsEditInProgress(false);
         setEditingSegmentId(-1);
@@ -201,6 +211,7 @@ export function ServiceClassResourceForm(props: FunctionProps) {
         setParameters([...parameters, param]);
         setAddingNewParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const onDeleteParam = async (paramItem: FunctionParameter) => {
@@ -210,12 +221,12 @@ export function ServiceClassResourceForm(props: FunctionProps) {
 
     // Function called when edit btn clicked an existing parameter
     const handleOnEdit = (funcParam: FunctionParameter) => {
+        setParamsBeforeParamChange(parameters);
         const id = parameters.findIndex(param => param.id === funcParam.id);
         // Once edit is clicked
         if (id > -1) {
             setEditingSegmentId(id);
         }
-        setAddingNewParam(false);
         setIsEditInProgress(true);
     };
 
@@ -226,8 +237,8 @@ export function ServiceClassResourceForm(props: FunctionProps) {
             parameters[id] = param;
             setParameters(parameters);
         }
-        setAddingNewParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const paramElements: React.ReactElement[] = [];

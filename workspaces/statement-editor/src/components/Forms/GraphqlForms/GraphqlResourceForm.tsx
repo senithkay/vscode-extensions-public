@@ -40,7 +40,7 @@ import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/defi
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
-import { completionEditorTypeKinds, EXPR_SCHEME, FILE_SCHEME } from "../../InputEditor/constants";
+import { completionEditorTypeKinds } from "../../InputEditor/constants";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
 import {
     createNewConstruct,
@@ -91,6 +91,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
 
+    const [parametersBeforeParamChange, setParamsBeforeParamChange] = useState<FunctionParameter[]>([]);
+
     useEffect(() => {
         if (newlyCreatedConstruct) {
             onReturnTypeChange(newlyCreatedConstruct);
@@ -120,6 +122,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     // Open the Add new Parameter view
     const openNewParamView = async () => {
+        setParamsBeforeParamChange(parameters);
         setCurrentComponentName("Param");
         setAddingNewParam(true);
         setEditingSegmentId(-1);
@@ -190,7 +193,15 @@ export function GraphqlResourceForm(props: FunctionProps) {
         onCancel();
     };
 
-    const closeNewParamView = () => {
+    // TODO : Move all the parameter related functions to another component which wraps the ParameterEditor
+    const closeNewParamView = async () => {
+        const parametersStr = getParametersAsString(parametersBeforeParamChange);
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            parametersStr,
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
         setAddingNewParam(false);
         setIsEditInProgress(false);
         setEditingSegmentId(-1);
@@ -202,6 +213,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
         setParameters([...parameters, param]);
         setAddingNewParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const onDeleteParam = async (paramItem: FunctionParameter) => {
@@ -211,12 +223,13 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     // Function called when edit btn clicked an existing parameter
     const handleOnEdit = (funcParam: FunctionParameter) => {
+        setParamsBeforeParamChange(parameters);
         const id = parameters.findIndex(param => param.id === funcParam.id);
         // Once edit is clicked
         if (id > -1) {
             setEditingSegmentId(id);
         }
-        setAddingNewParam(false);
+        // setAddingNewParam(false);
         setIsEditInProgress(true);
     };
 
@@ -227,8 +240,9 @@ export function GraphqlResourceForm(props: FunctionProps) {
             parameters[id] = param;
             setParameters(parameters);
         }
-        setAddingNewParam(false);
+        // setAddingNewParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const paramElements: React.ReactElement[] = [];
@@ -261,7 +275,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
         }
     });
 
-    // TODO : check if we can remove this useeffect
     useEffect(() => {
         if (currentComponentName === "") {
             const editParams: FunctionParameter[] = model?.functionSignature.parameters
