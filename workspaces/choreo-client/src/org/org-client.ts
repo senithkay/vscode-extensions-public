@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { Organization, UserInfo } from "@wso2-enterprise/choreo-core";
+import { ComponentCount, Organization, UserInfo } from "@wso2-enterprise/choreo-core";
 import axios from "axios";
 import { IReadOnlyTokenStorage } from "../auth";
 import { IChoreoOrgClient } from "./types";
@@ -44,6 +44,16 @@ export class ChoreoOrgClient implements IChoreoOrgClient {
             return response.data as UserInfo;
         } catch (error) {
             throw new Error("Error while fetching user info.", { cause: error });
+        }
+    }
+
+    async getComponentCount(orgId: number): Promise<ComponentCount> {
+        const client = await this._getClient();
+        try {
+            const response = await client.get(`/orgs/${orgId}/component-count`);
+            return response.data?.data as ComponentCount;
+        } catch (error) {
+            throw new Error("Error while fetching component usage", { cause: error });
         }
     }
 }

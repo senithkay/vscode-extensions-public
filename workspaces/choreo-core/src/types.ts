@@ -48,6 +48,11 @@ export interface Project {
     version: string;
 }
 
+export interface ComponentCount {
+    orgId: number; 
+    componentCount: number;
+}
+
 export interface ApiVersion {
     apiVersion: string;
     proxyName: string;

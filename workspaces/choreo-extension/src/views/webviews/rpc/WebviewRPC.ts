@@ -40,7 +40,8 @@ import {
     getPreferredProjectRepository,
     setPreferredProjectRepository,
     PushedComponent,
-    RemoveDeletedComponents
+    RemoveDeletedComponents,
+    GetComponentCount
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -122,6 +123,12 @@ export class WebViewRpc {
 
         this._messenger.onRequest(PullComponent, async (params: {projectId: string, componentId: string}) => {
             await ProjectRegistry.getInstance().pullComponent(params.componentId, params.projectId);
+        });
+
+        this._messenger.onRequest(GetComponentCount, async () => {
+            if (ext.api.selectedOrg) { 
+                return ProjectRegistry.getInstance().getComponentCount(ext.api.selectedOrg.id);
+            }
         });
 
         this._messenger.onRequest(GetProjectLocation, async (projectId: string) => {

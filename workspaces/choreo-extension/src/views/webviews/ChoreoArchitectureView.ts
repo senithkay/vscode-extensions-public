@@ -14,6 +14,8 @@
 import * as vscode from "vscode";
 import { WebViewRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
+import { FREE_COMPONENT_LIMIT } from "../../auth/config";
+import { choreoAuthConfig } from "../../auth/auth";
 
 export class ChoreoArchitectureView {
 	public static currentPanel: ChoreoArchitectureView | undefined;
@@ -71,7 +73,15 @@ export class ChoreoArchitectureView {
                 </body>
                 <script>
                     function render() {
-                        choreoWebviews.renderChoreoWebViews(document.getElementById("root"), "ChoreoArchitectureView", "${projectId}", "${orgName}");
+                        choreoWebviews.renderChoreoWebViews(
+							document.getElementById("root"), 
+							"ChoreoArchitectureView", 
+							"${projectId}", 
+							"${orgName}", 
+							${FREE_COMPONENT_LIMIT},  
+							"${choreoAuthConfig.getConsoleUrl()}" , 
+							"${choreoAuthConfig.getBillingUrl()}"
+						);
                     }
                     render();
                 </script>

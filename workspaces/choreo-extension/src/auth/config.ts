@@ -26,6 +26,8 @@ export enum ChoreoFidp {
     anonymous = "choreoanonymous"
 }
 
+export const FREE_COMPONENT_LIMIT = 5;
+
 export interface ChoreoAuthConfigParams {
     loginUrl: string;
     tokenUrl: string;
@@ -41,7 +43,9 @@ export interface ChoreoAuthConfigParams {
     apis: {
         projectAPI: string;
         base: string;
-    }
+    },
+    choreoConsoleBaseUrl: string;
+    billingConsoleBaseUrl: string;
 }
 
 export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
@@ -67,7 +71,10 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
     apis: {
         projectAPI: "https://apis.choreo.dev/projects/1.0.0/graphql",
         base: "https://app.choreo.dev"
-    }
+    },
+    
+    choreoConsoleBaseUrl: "https://console.choreo.dev",
+    billingConsoleBaseUrl: "https://subscriptions.wso2.com"
 };
 
 export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
@@ -93,7 +100,10 @@ export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
     apis: {
         projectAPI: "https://apis.st.choreo.dev/projects/1.0.0/graphql",
         base: "https://app.st.choreo.dev"
-    }
+    },
+
+    choreoConsoleBaseUrl: "https://console.st.choreo.dev",
+    billingConsoleBaseUrl: "https://subscriptions.st.wso2.com"
 };
 
 export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
@@ -119,7 +129,10 @@ export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
     apis: {
         projectAPI: "https://apis.preview-dv.choreo.dev/projects/1.0.0/graphql",
         base: "https://app.preview-dv.choreo.dev"
-    }
+    },
+
+    choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
+    billingConsoleBaseUrl: "https://subscriptions.dv.wso2.com"
 };
 
 // Choreo V2 environment
@@ -181,5 +194,13 @@ export class ChoreoAuthConfig {
 
     public getGHAppConfig(): GHAppConfig {
         return this._config.ghApp;
+    }
+
+    public getConsoleUrl(): string {
+        return this._config.choreoConsoleBaseUrl;
+    }
+
+    public getBillingUrl(): string {
+        return this._config.billingConsoleBaseUrl;
     }
 }

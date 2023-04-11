@@ -54,7 +54,9 @@ import {
     showOpenDialogRequest,
     getPreferredProjectRepository,
     setPreferredProjectRepository,
-    RemoveDeletedComponents
+    RemoveDeletedComponents,
+    GetComponentCount,
+    ComponentCount,
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -229,5 +231,9 @@ export class ChoreoWebViewAPI {
 
     public updateProjectOverview(projectId: string) {
         return this._messenger.sendRequest(UpdateProjectOverview, HOST_EXTENSION, projectId);
+    }
+
+    public async getComponentCount(): Promise<ComponentCount> {
+        return this._messenger.sendRequest(GetComponentCount, HOST_EXTENSION, undefined);
     }
 }
