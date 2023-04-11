@@ -309,13 +309,17 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}>
                                 Open Project
                             </VSCodeButton>
-                            <VSCodeButton
-                                appearance="secondary"
-                                disabled={components?.length <= 0}
-                                onClick={handleOpenChoreoArchitectureViewClick}
-                            >
-                                Architecture View
-                            </VSCodeButton>
+                        </ActionContainer>
+                        <ActionContainer>
+                            <p>
+                                <VSCodeButton
+                                    appearance="secondary"
+                                    disabled={components?.length <= 0}
+                                    onClick={handleOpenChoreoArchitectureViewClick}
+                                >
+                                    Architecture View
+                                </VSCodeButton>
+                            </p>
                         </ActionContainer>
                     </>
                 )}
@@ -338,20 +342,18 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             >
                                 Open Project
                             </VSCodeButton>
-                            <VSCodeButton appearance="secondary" disabled={true}>
-                                Architecture View
-                            </VSCodeButton>
+                        </ActionContainer>
+                        <ActionContainer>
+                            <p>
+                                <VSCodeButton appearance="secondary" disabled={true}>
+                                    Architecture View
+                                </VSCodeButton>
+                            </p>
                         </ActionContainer>
                     </>
                 )}
                 {isActive && (
                     <>
-                        <p>
-                            <InlineIcon>
-                                <Codicon name="info" />
-                            </InlineIcon>{" "}
-                            Open the architecture view to add components.{" "}
-                        </p>
                         <ActionContainer>
                             <VSCodeButton appearance="secondary" disabled={true}>
                                 <Codicon name="cloud-download" />
@@ -360,6 +362,14 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton appearance="secondary" disabled={true}>
                                 Open Project
                             </VSCodeButton>
+                        </ActionContainer>
+                        <p>
+                            <InlineIcon>
+                                <Codicon name="info" />
+                            </InlineIcon>{" "}
+                            Open the architecture view to add components.{" "}
+                        </p>
+                        <ActionContainer>
                             <VSCodeButton
                                 appearance="primary"
                                 onClick={handleOpenArchitectureViewClick}
