@@ -22,6 +22,7 @@ import { Organization } from '@wso2-enterprise/choreo-core';
 import { SELECTED_ORG_ID_KEY, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from '../constants';
 import { showChoreoProjectOverview } from '../extension';
 import { executeWithTaskRetryPrompt } from '../retry';
+import { lock } from './lock';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -70,6 +71,7 @@ export async function initiateInbuiltAuth() {
 }
 
 export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
+    await lock.acquire();
     const currentChoreoToken = await tokenStore.getToken("choreo.token");
     if (currentChoreoToken?.accessToken && currentChoreoToken.expirationTime
         && currentChoreoToken.loginTime && currentChoreoToken.refreshToken) {
@@ -90,6 +92,7 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
             }
         }
     }
+    lock.release();
     return tokenStore.getToken(tokenType);
 }
 
