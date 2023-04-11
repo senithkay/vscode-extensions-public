@@ -13,14 +13,15 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import * as os from 'os';
 import path = require('path');
-import { commands, ProgressLocation, Uri, window, workspace } from 'vscode';
-import { Component, Organization, Project, RepoCloneRequestParams, Repository, WorkspaceConfig, WorkspaceItem } from '@wso2-enterprise/choreo-core';
+import { commands, ProgressLocation, Uri, window } from 'vscode';
+import { Component, Project, RepoCloneRequestParams, Repository, WorkspaceConfig, WorkspaceItem } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
 import { getLogger } from '../logger/logger';
 import { execSync } from 'child_process';
 import { initGit } from '../git/main';
+import { executeWithTaskRetryPrompt } from '../retry';
 
 export function checkSSHAccessToGitHub() {
     try {
@@ -71,7 +72,7 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
         }
         const git = await initGit(ext.context);
         if (git) {
-            await git.clone(`https://github.com/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken);        
+            await executeWithTaskRetryPrompt(() => git.clone(`https://github.com/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken));        
             getLogger().debug("Cloned repository: " + repository + " to " + repoPath);
             success = true;
         } else {
@@ -114,7 +115,7 @@ export async function cloneRepositoryWithProgress(orgName: string, repoName: str
     }, async (progress, cancellationToken) => {
         const git = await initGit(ext.context);
         if (git) {
-            return await git.clone(`https://github.com/${orgName}/${repoName}.git`, { recursive: true, ref, parentPath, progress }, cancellationToken);        
+            return await executeWithTaskRetryPrompt(() => git.clone(`https://github.com/${orgName}/${repoName}.git`, { recursive: true, ref, parentPath, progress }, cancellationToken));        
         } else {
             throw new Error("Git was not initialized."); 
         }
@@ -145,7 +146,7 @@ export async function createProjectWorkspaceFile(projectName: string, projectID:
 
 
 async function getProjectRepositories(orgHandle: string, projId: string, orgUuid: string) {
-    const components = await projectClient.getComponents({ orgHandle, projId, orgUuid });
+    const components = await executeWithTaskRetryPrompt(() => projectClient.getComponents({ orgHandle, projId, orgUuid }));
     const userManagedComponents = components.filter((cmp) => cmp.repository && cmp.repository.isUserManage);
     const repos = components.map((cmp) => cmp.repository);
 
