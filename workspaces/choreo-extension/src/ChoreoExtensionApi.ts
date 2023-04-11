@@ -20,7 +20,8 @@ import {
     ChoreoLoginStatus,
     WorkspaceConfig,
     ComponentModel,
-    Component
+    Component,
+    ChoreoComponentType
 } from "@wso2-enterprise/choreo-core";
 import { exchangeAuthToken } from "./auth/auth";
 import { readFileSync } from 'fs';
@@ -174,12 +175,17 @@ export class ChoreoExtensionApi {
                     const choreoComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
                         (this._selectedOrg as Organization).handle, (this._selectedOrg as Organization).uuid);
 
-                    choreoComponents.forEach(({ name, apiVersions, accessibility, local = false }) => {
+                    choreoComponents.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {
                         const wsConfig = workspaceFileConfig.folders.find(component => component.name === name);
                         if (wsConfig && wsConfig.path) {
+                            const componentPath: string = path.join(projectRoot, wsConfig.path);
                             for (const localModel of model.values()) {
+                                if (localModel.functionEntryPoint?.elementLocation.filePath.includes(componentPath) &&
+                                    (displayType === ChoreoComponentType.ScheduledTask || displayType === ChoreoComponentType.ManualTrigger)) {
+                                        localModel.functionEntryPoint.type = displayType;
+                                }
                                 const response = enrichDeploymentData(new Map(Object.entries(localModel.services)), apiVersions,
-                                    path.join(projectRoot, wsConfig.path), local, accessibility);
+                                    componentPath, local, accessibility);
                                 if (response === true) {
                                     break;
                                 }
