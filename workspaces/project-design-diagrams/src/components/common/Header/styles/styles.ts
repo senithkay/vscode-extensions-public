@@ -76,10 +76,11 @@ export const PackageLabel = styled.span`
 `;
 
 export const HeaderLeftPane: React.FC<any> = styled.div`
+    align-items: center;
     display: flex;
     flex-direction: row;
-    align-items: center;
-    min-width: ${(props: { isEditable: boolean }) => props.isEditable ? '160px' : '300px'};
+    gap: 5px;
+    min-width: ${(props: { isEditable: boolean }) => props.isEditable ? '200px' : '340px'};
 `;
 
 export const CentralControls: React.FC<any> = styled.div`

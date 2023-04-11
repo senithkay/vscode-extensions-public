@@ -40,7 +40,8 @@ import {
     getPreferredProjectRepository,
     setPreferredProjectRepository,
     PushedComponent,
-    RemoveDeletedComponents
+    RemoveDeletedComponents,
+    GetComponentCount
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -53,6 +54,7 @@ import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData} from "../../../utils";
 import { getLogger } from "../../../logger/logger";
+import { executeWithTaskRetryPrompt } from "../../../retry";
 
 export class WebViewRpc {
 
@@ -72,9 +74,8 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllOrgsRequest, async () => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
-                return orgClient.getUserInfo()
-                    .then((userInfo) => userInfo.organizations)
-                    .catch(serializeError);
+                const info = await executeWithTaskRetryPrompt(() => orgClient.getUserInfo());
+                return info.organizations;
             }
         });
         // TODO: Remove this once the Choreo project client RPC handlers are registered
@@ -122,6 +123,12 @@ export class WebViewRpc {
 
         this._messenger.onRequest(PullComponent, async (params: {projectId: string, componentId: string}) => {
             await ProjectRegistry.getInstance().pullComponent(params.componentId, params.projectId);
+        });
+
+        this._messenger.onRequest(GetComponentCount, async () => {
+            if (ext.api.selectedOrg) { 
+                return ProjectRegistry.getInstance().getComponentCount(ext.api.selectedOrg.id);
+            }
         });
 
         this._messenger.onRequest(GetProjectLocation, async (projectId: string) => {

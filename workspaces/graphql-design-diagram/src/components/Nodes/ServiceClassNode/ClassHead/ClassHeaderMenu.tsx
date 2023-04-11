@@ -76,7 +76,7 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                                     <ListItemIcon  style={{marginRight: "10px", minWidth: "0px"}}>
                                         <LabelEditIcon/>
                                     </ListItemIcon>
-                                    <ListItemText className={classes.listItemText}>Edit Class</ListItemText>
+                                    <ListItemText className={classes.listItemText}>Rename Class</ListItemText>
                                 </MenuItem>
                                 <Divider />
                                 <NodeMenuItem position={location} model={model} functionType={FunctionType.CLASS_RESOURCE}/>

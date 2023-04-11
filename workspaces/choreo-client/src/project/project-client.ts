@@ -95,22 +95,24 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async getComponentBuildStatus(params: GetComponentBuildStatusParams): Promise<BuildStatus | null> {
+        const client = await this._getClient();
         try {
-            const client = await this._getClient();
-
             const query = getComponentBuildStatus(params.componentId, params.versionId);
             const response = await client.request(query);
             return response?.deploymentStatusByVersion?.[0] || null;
-        } catch (error) {
-            console.error(`Failed to get component build details for ${params.componentId}`);
-            return null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            // If the component has never been built, this call would return a 404
+            if (error.response?.status === 404) {
+                return null;
+            }
+            throw new Error(`Failed to get component build details for ${params.componentId}` , { cause: error });
         }
     }
 
     async getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Deployment | null> {
+        const client = await this._getClient();
         try {
-            const client = await this._getClient();
-
             const queryData = {
                 componentId: params.component.id,
                 orgHandler: params.orgHandle,
@@ -123,10 +125,13 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             const deploymentData = await client.request(query);
 
             return deploymentData?.componentDeployment;
-        } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
             // If the component has never been deployed, this call would return a 404
-            console.info(`Failed to get component deployment details for ${params.component.displayName}`);
-            return null;
+            if (error.response?.status === 404) {
+                return null;
+            }
+            throw new Error(`Failed to get component deployment details for ${params.component.displayName}`, { cause: error });
         }
     }
 

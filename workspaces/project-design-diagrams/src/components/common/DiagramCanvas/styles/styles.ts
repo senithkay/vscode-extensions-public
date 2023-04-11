@@ -33,14 +33,3 @@ export const ControlPanel: React.FC<any> = styled.div`
     right: 15px;
     width: 32px;
 `;
-
-export const ViewTypePanel: React.FC<any> = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    justify-content: space-between;
-    left: 15px;
-    position: absolute;
-    top: 100px;
-    width: 40px;
-`;

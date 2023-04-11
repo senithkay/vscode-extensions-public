@@ -32,21 +32,32 @@ interface ChoreoWebviewProps {
     type: string;
     projectId?: string;
     orgName?: string;
+    componentLimit?: number;
+    choreoUrl?: string;
+    billingUrl?: string;
 }
 
 function ChoreoWebview(props: ChoreoWebviewProps) {
-    const { type, orgName, projectId } = props;
+    const { type, orgName, projectId, billingUrl, choreoUrl, componentLimit } = props;
 
     const switchViews = () => {
         switch (type) {
-            case 'ProjectCreateForm':
+            case "ProjectCreateForm":
                 return <ProjectWizard />;
-            case 'ComponentCreateForm':
+            case "ComponentCreateForm":
                 return <ComponentWizard />;
-            case 'ProjectOverview':
-                return <ProjectOverview projectId={projectId} orgName={orgName} />;
+            case "ProjectOverview":
+                return (
+                    <ProjectOverview
+                        projectId={projectId}
+                        orgName={orgName}
+                        componentLimit={componentLimit}
+                        billingUrl={billingUrl}
+                        choreoUrl={choreoUrl}
+                    />
+                );
         }
-    }
+    };
 
     return (
         <ChoreoWebviewQueryClientProvider>

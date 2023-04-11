@@ -32,7 +32,7 @@ import { DiagramModel } from "@projectstorm/react-diagrams";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { cellDiagramZoomToFit, createServicesEngine, positionGatewayNodes } from "../../../utils";
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { DiagramControls, ViewSwitcher } from "../DiagramCanvas/ControlLayer";
+import { DiagramControls } from "../DiagramCanvas/ControlLayer";
 import { ConsoleView } from "../../../resources/model";
 import { PromptScreen } from "../NewPromptScreen/PromptScreen";
 
@@ -105,9 +105,6 @@ export function CellDiagram(props: CellDiagramProps) {
 
     return (
         <CellDiagramWrapper isConsoleView={consoleView}>
-            {!consoleView && (
-                <ViewSwitcher />
-            )}
             <CellContainerWrapper isConsoleView={consoleView}>
                 <Gateways/>
                 {cellModel && consoleView && (cellModel.getNodes().length < 1) && (

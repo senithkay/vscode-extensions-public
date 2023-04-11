@@ -90,6 +90,8 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
 
     const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
 
+    const [parametersBeforeParamChange, setParamsBeforeParamChange] = useState<FunctionParameter[]>([]);
+
     useEffect(() => {
         if (newlyCreatedConstruct) {
             onReturnTypeChange(newlyCreatedConstruct);
@@ -112,6 +114,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
 
     // Param related functions
     const openNewParamView = async () => {
+        setParamsBeforeParamChange(parameters);
         setCurrentComponentName("Param");
         setAddingNewParam(true);
         setEditingSegmentId(-1);
@@ -180,7 +183,14 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
         onCancel();
     };
 
-    const closeNewParamView = () => {
+    const closeNewParamView = async () => {
+        const parametersStr = getParametersAsString(parametersBeforeParamChange);
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            parametersStr,
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
         setAddingNewParam(false);
         setIsEditInProgress(false);
         setEditingSegmentId(-1);
@@ -192,6 +202,7 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
         setParameters([...parameters, param]);
         setAddingNewParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const onDeleteParam = async (paramItem: FunctionParam) => {
@@ -200,12 +211,12 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
     };
 
     const handleOnEdit = (funcParam: FunctionParam) => {
+        setParamsBeforeParamChange(parameters);
         const id = parameters.findIndex(param => param.id === funcParam.id);
         // Once edit is clicked
         if (id > -1) {
             setEditingSegmentId(id);
         }
-        setAddingNewParam(false);
         setIsEditInProgress(true);
     };
 
@@ -215,8 +226,8 @@ export function GraphqlSubscriptionForm(props: FunctionProps) {
             parameters[id] = param;
             setParameters(parameters);
         }
-        setAddingNewParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const paramElements: React.ReactElement[] = [];

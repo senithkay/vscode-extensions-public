@@ -17,4 +17,15 @@
  *
  */
 
-export * from './DiagramControls';
+import React from 'react';
+import { Colors } from '../../model';
+
+export function ScheduledTriggerIcon() {
+    return (
+        <svg width="14px" height="14px" viewBox="0 0 45 40" xmlns="http://www.w3.org/2000/svg">
+            <g fill="none" stroke={Colors.PRIMARY} strokeWidth={5} strokeLinecap="round" strokeLinejoin="round">
+                <path d="m2.5 24.09a21.5 21.5 0 1 0 21.5-21.5" /><path d="m24 24.09-15.2-15.2" />
+            </g>
+        </svg>
+    );
+}

@@ -17,7 +17,7 @@
  *
  */
 
-import { Uri } from 'vscode';
+import { Uri, WorkspaceFolder } from 'vscode';
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 export enum ViewMode {
@@ -37,6 +37,7 @@ export interface DiagramOptions {
     fileUri?: Uri;
     diagramFocus?: DiagramFocus;
     workspaceName?: string;
+    projectPaths?: WorkspaceFolder[];
 }
 
 export interface SyntaxTree {

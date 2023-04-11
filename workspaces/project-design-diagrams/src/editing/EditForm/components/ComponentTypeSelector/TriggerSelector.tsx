@@ -21,15 +21,18 @@ import React, { useContext, useEffect, useState } from 'react';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
-import CancelIcon from "@mui/icons-material/Cancel";
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import { ServiceType, Trigger } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { TriggerDetails } from '@wso2-enterprise/choreo-core';
 import { InputComponent, SelectLabel } from '../../resources/styles';
-import { DefaultSelectBoxStyles, DefaultTextProps, MultiplSelectionTextProps, SelectBoxStyles } from '../../resources/constants';
+import { DefaultSelectBoxStyles, DefaultTextProps } from '../../resources/constants';
 import { DiagramContext } from '../../../../components/common';
 import { Colors } from '../../../../resources';
-import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
+import './styles.css';
 
 interface TriggerSelectorProps {
     trigger: TriggerDetails;
@@ -55,6 +58,7 @@ export function TriggerSelector(props: TriggerSelectorProps) {
 
     const handleTriggerChange = (event: SelectChangeEvent) => {
         setTrigger({ id: event.target.value as string, services: [] });
+        setServices(undefined);
         refetchTrigger(event.target.value as string);
     }
 
@@ -64,12 +68,21 @@ export function TriggerSelector(props: TriggerSelectorProps) {
         });
     }
 
-    const updateTriggerServices = (services: string[]) => {
+    const handleToggle = (service: string) => () => {
+        const serviceIndex = trigger.services.indexOf(service);
+        const updatedCheckedServices = [...trigger.services];
+
+        if (serviceIndex === -1) {
+            updatedCheckedServices.push(service);
+        } else {
+            updatedCheckedServices.splice(serviceIndex, 1);
+        }
+
         setTrigger({
             ...trigger,
-            services: services
+            services: updatedCheckedServices
         });
-    }
+    };
 
     return (
         <>
@@ -96,41 +109,34 @@ export function TriggerSelector(props: TriggerSelectorProps) {
                 <InputComponent>
                     <SelectLabel>Trigger Services</SelectLabel>
                     {services ?
-                        <Select
-                            id='trigger-service-select'
-                            multiple
-                            value={trigger.services}
-                            onChange={(e) => updateTriggerServices([...e.target.value])}
-                            sx={SelectBoxStyles}
-                            placeholder={'Select services'}
-                            renderValue={(selected) => (
-                                <Stack gap={1} direction='row' flexWrap='wrap'>
-                                    {selected.map((value) => (
-                                        <Chip
-                                            key={value}
-                                            label={value}
-                                            onDelete={() =>
-                                                updateTriggerServices(
-                                                    trigger.services.filter((item) => item !== value)
-                                                )
-                                            }
-                                            deleteIcon={
-                                                <CancelIcon
-                                                    onMouseDown={(e: Event) => e.stopPropagation()}
-                                                />
-                                            }
-                                            sx={MultiplSelectionTextProps}
-                                        />
-                                    ))}
-                                </Stack>
-                            )}
-                        >
+                        <List dense sx={{ maxHeight: '200px', overflow: 'auto' }}>
                             {services.map((service) => {
-                                return <MenuItem sx={DefaultTextProps} value={service.name}>
-                                    {service.name}
-                                </MenuItem>;
+                                const labelId = `checkbox-list-secondary-label-${service.name}`;
+                                const isChecked = trigger.services.indexOf(service.name) !== -1;
+                                return (
+                                    <ListItem
+                                        key={service.name}
+                                        disablePadding
+                                        secondaryAction={
+                                            <Checkbox
+                                                edge='end'
+                                                onChange={handleToggle(service.name)}
+                                                checked={isChecked}
+                                                className={isChecked ? 'checked-box ' : 'unchecked-box'}
+                                                inputProps={{ 'aria-labelledby': labelId }}
+                                            />
+                                        }
+                                    >
+                                        <ListItemButton>
+                                            <ListItemText
+                                                secondaryTypographyProps={DefaultTextProps}
+                                                id={labelId} secondary={service.name}
+                                            />
+                                        </ListItemButton>
+                                    </ListItem>
+                                );
                             })}
-                        </Select> :
+                        </List> :
                         <CircularProgress size={'25px'} sx={{ color: Colors.PRIMARY, marginTop: '5px' }} />
                     }
                 </InputComponent>

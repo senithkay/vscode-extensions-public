@@ -85,6 +85,8 @@ export function GraphqlMutationForm(props: FunctionProps) {
 
     const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
 
+    const [parametersBeforeParamChange, setParamsBeforeParamChange] = useState<FunctionParameter[]>([]);
+
     useEffect(() => {
         if (newlyCreatedConstruct) {
             onReturnTypeChange(newlyCreatedConstruct);
@@ -114,6 +116,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
 
     // Param related functions
     const openNewParamView = async () => {
+        setParamsBeforeParamChange(parameters);
         setCurrentComponentName("Param");
         setAddingNewParam(true);
         setEditingSegmentId(-1);
@@ -177,7 +180,13 @@ export function GraphqlMutationForm(props: FunctionProps) {
         onCancel();
     };
 
-    const closeParamView = () => {
+    const closeParamView = async () => {
+        const parametersStr = getParametersAsString(parametersBeforeParamChange)
+        await handleRemoteMethodDataChange(
+            model.functionName.value,
+            parametersStr,
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
         setAddingNewParam(false);
         setIsEditInProgress(false);
         setEditingSegmentId(-1);
@@ -189,6 +198,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
         setParameters([...parameters, param]);
         setAddingNewParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const onDeleteParam = async (paramItem: FunctionParam) => {
@@ -197,12 +207,12 @@ export function GraphqlMutationForm(props: FunctionProps) {
     };
 
     const handleOnEdit = (funcParam: FunctionParam) => {
+        setParamsBeforeParamChange(parameters);
         const id = parameters.findIndex(param => param.id === funcParam.id);
         // Once edit is clicked
         if (id > -1) {
             setEditingSegmentId(id);
         }
-        setAddingNewParam(false);
         setIsEditInProgress(true);
     };
 
@@ -212,8 +222,8 @@ export function GraphqlMutationForm(props: FunctionProps) {
             parameters[id] = param;
             setParameters(parameters);
         }
-        setAddingNewParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const paramElements: React.ReactElement[] = [];

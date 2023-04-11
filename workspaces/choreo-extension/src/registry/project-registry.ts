@@ -11,8 +11,8 @@
  *  associated services.
  */
 
-import { Component, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
-import { projectClient } from "../auth/auth";
+import { Component, ComponentCount, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { orgClient, projectClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
@@ -23,6 +23,7 @@ import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager
 import { initGit, } from "../git/main";
 import { getLogger } from "../logger/logger";
 import { ProgressLocation, window } from "vscode";
+import { executeWithTaskRetryPrompt } from "../retry";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -96,14 +97,15 @@ export class ProjectRegistry {
 
     async getProjects(orgId: number): Promise<Project[]> {
         if (!this._dataProjects.has(orgId)) {
-            return projectClient.getProjects({ orgId: orgId })
-                .then((projects) => {
-                    this._dataProjects.set(orgId, projects);
-                    return projects;
-                }).catch((e) => {
-                    serializeError(e);
-                    return [];
-                });
+            try {
+                const projects: Project[] = await executeWithTaskRetryPrompt(() => projectClient.getProjects({ orgId: orgId }));
+                this._dataProjects.set(orgId, projects);
+                return projects;
+            } catch (error: any) {
+                getLogger().error("Error while fetching projects", error);
+                window.showErrorMessage("Error while fetching projects ");
+                return [];
+            }
         } else {
             return new Promise((resolve) => {
                 const projects: Project[] | undefined = this._dataProjects.get(orgId);
@@ -115,7 +117,7 @@ export class ProjectRegistry {
     async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
             const previousComponents = this._dataComponents.get(projectId) || [];
-            let components = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
+            let components = await executeWithTaskRetryPrompt(() => projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid }));
             components = this._addLocalComponents(projectId, components);
             components = components.map(component => {
                 const matchingComponent = previousComponents.find(item => {
@@ -147,7 +149,7 @@ export class ProjectRegistry {
 
     async getDeletedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<PushedComponent[]> {
         const projectLocation = this.getProjectLocation(projectId);
-        const dataComponents = await projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid });
+        const dataComponents = await executeWithTaskRetryPrompt(() => projectClient.getComponents({ projId: projectId, orgHandle: orgHandle, orgUuid }));
         let deletedComponents: PushedComponent[] = [];
 
         if (projectLocation !== undefined) {
@@ -194,12 +196,12 @@ export class ProjectRegistry {
         if(component.local && component.repository){
             const { appSubPath, branchApp, nameApp, organizationApp } = component.repository;
             try {
-                isInRemoteRepo = await projectClient.isComponentInRepo({
+                isInRemoteRepo = await executeWithTaskRetryPrompt(() => projectClient.isComponentInRepo({
                     branchApp: branchApp,
                     orgApp: organizationApp,
                     repoApp: nameApp,
                     subPath: appSubPath || ""
-                });
+                }));
             } catch (e) {
                 console.error(`Failed to check isComponentInRepo for ${component.name}`);
                 isInRemoteRepo = false;
@@ -215,7 +217,7 @@ export class ProjectRegistry {
 
             let envData = this._projectEnvs.get(projectId);
             if(!envData){
-                envData = await projectClient.getProjectEnv({ orgUuid, projId: projectId });
+                envData = await executeWithTaskRetryPrompt(() => projectClient.getProjectEnv({ orgUuid, projId: projectId }));
                 if(envData){
                     this._projectEnvs.set(projectId, envData);
                 }
@@ -229,16 +231,16 @@ export class ProjectRegistry {
                     const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo, buildStatus] = await Promise.all([
                         this.hasUnPushedLocalCommit(projectId, component),
                         this.hasDirtyLocalRepo(projectId, component),
-                        !component.local && selectedVersion && devEnv && projectClient.getComponentDeploymentStatus({
+                        !component.local && selectedVersion && devEnv && executeWithTaskRetryPrompt(() => projectClient.getComponentDeploymentStatus({
                             component,
                             envId: devEnv?.id,
                             orgHandle,
                             orgUuid,
                             projId: projectId,
                             versionId: selectedVersion.id
-                        }),
+                        })),
                         this.isComponentInRepo(component),
-                        !component.local && selectedVersion && projectClient.getComponentBuildStatus({componentId: component.id, versionId: selectedVersion.id})
+                        !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({componentId: component.id, versionId: selectedVersion.id}))
                     ]);
 
                     let isRemoteOnly = true;
@@ -331,7 +333,7 @@ export class ProjectRegistry {
                     const git = await initGit(ext.context);
                     if (git) {
                         const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
-                        await git.pull(repoPath);
+                        await executeWithTaskRetryPrompt(() => git.pull(repoPath));
                     } else {
                         getLogger().error("Git was not initialized");
                     }
@@ -343,18 +345,21 @@ export class ProjectRegistry {
         }
     }
 
+    async getComponentCount(orgId: number): Promise<ComponentCount> {
+        try {
+            return orgClient.getComponentCount(orgId);
+        } catch (e) {
+            serializeError(e);
+            throw (e);
+        }
+    }
+
     async getDiagramModel(projectId: string, orgHandle: string): Promise<Component[]> {
-        return projectClient.getDiagramModel({ projId: projectId, orgHandle: orgHandle });
+        return executeWithTaskRetryPrompt(() => projectClient.getDiagramModel({ projId: projectId, orgHandle: orgHandle }));
     }
 
     async getPerformanceForecast(data: string): Promise<AxiosResponse> {
-        return projectClient.getPerformanceForecastData(data)
-            .then((result: any) => {
-                return result;
-            }).catch((e: any) => {
-                serializeError(e);
-                throw (e);
-            });
+        return executeWithTaskRetryPrompt(() => projectClient.getPerformanceForecastData(data));
     }
 
     async getSwaggerExamples(spec: any): Promise<AxiosResponse> {
@@ -481,7 +486,7 @@ export class ProjectRegistry {
                 repositoryType: "UserManagedNonEmpty",
                 repositoryBranch: branchApp
             };
-            await projectClient.createComponent(componentRequest);
+            await executeWithTaskRetryPrompt(() => projectClient.createComponent(componentRequest));
     }
 
     private async _createByoComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
@@ -502,7 +507,7 @@ export class ProjectRegistry {
             oasFilePath: "",
             port: 8090, // Check if this is mandoatory
         };
-        await projectClient.createByocComponent(componentRequest);
+        await executeWithTaskRetryPrompt(() => projectClient.createByocComponent(componentRequest));
     }
 
     async pushLocalComponentToChoreo(projectId: string, componentName: string): Promise<void> {
@@ -537,7 +542,7 @@ export class ProjectRegistry {
             if (git) {
                 const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
                 const gitRepo = git.open(repoPath, { path: repoPath });
-                const status = await gitRepo.getStatus({ untrackedChanges: 'separate', subDirectory: appSubPath });
+                const status = await executeWithTaskRetryPrompt(() => gitRepo.getStatus({ untrackedChanges: 'separate', subDirectory: appSubPath }));
                 return status.statusLength > 0;
             }
             return false;
@@ -554,7 +559,7 @@ export class ProjectRegistry {
             const git = await initGit(ext.context);
             if (git) {
                 const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
-                const commits = await git.getUnPushedCommits(repoPath, appSubPath);
+                const commits = await executeWithTaskRetryPrompt(() => git.getUnPushedCommits(repoPath, appSubPath));
                 return commits.length > 0;
             }
             return false;

@@ -18,13 +18,15 @@
  */
 
 export { EndpointIcon } from './EndpointIcon';
-export { EntryPointIcon } from './EntryPointIcon';
+export { DefaultEntryPointIcon } from './DefaultEntryPointIcon';
 export { GraphQLIcon } from './GraphQL';
 export { GraphQLMutationIcon } from './GraphQLMutation';
 export { GraphQLQueryIcon } from './GraphQLQuery';
 export { GraphQLSubscriptionIcon } from './GraphQLSubscription';
 export { GrpcIcon } from './GrpcIcon';
 export { HttpServiceIcon } from './HttpIcon';
+export { ManualTriggerIcon } from './ManualTriggerIcon';
+export { ScheduledTriggerIcon } from './ScheduledTriggerIcon';
 export { ShortGrpcIcon } from './ShortGrpcIcon';
 
 export { CellViewIcon } from './CellView';
