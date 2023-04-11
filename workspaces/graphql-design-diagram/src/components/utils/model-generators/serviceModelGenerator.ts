@@ -100,8 +100,10 @@ function enumModelMapper(enums: Map<string, EnumComponent>) {
 
 function recordModelMapper(records: Map<string, RecordComponent>) {
     records.forEach((recordObj, key) => {
-        const recordNode = new RecordNodeModel(recordObj);
-        diagramNodes.set(key, recordNode);
+        if (!recordObj.isInputObject) {
+            const recordNode = new RecordNodeModel(recordObj);
+            diagramNodes.set(key, recordNode);
+        }
     });
 }
 
@@ -205,19 +207,21 @@ function generateLinksForInterfaces(interfaces: Map<string, InterfaceComponent>)
 
 function generateLinksForRecords(records: Map<string, RecordComponent>) {
     records.forEach(record => {
-        record.recordFields.forEach(field => {
-            field.interactions.forEach(interaction => {
-                if (diagramNodes.has(interaction.componentName)) {
-                    const targetNode: GraphqlDesignNode = diagramNodes.get(interaction.componentName);
-                    if (targetNode) {
-                        const sourceNode: GraphqlDesignNode = diagramNodes.get(record.name);
-                        const sourcePortId = field.name;
-                        const link: GraphqlBaseLinkModel = setInteractionLinks(sourceNode, sourcePortId, targetNode, interaction);
-                        nodeLinks.push(link);
+        if (!record.isInputObject) {
+            record.recordFields.forEach(field => {
+                field.interactions.forEach(interaction => {
+                    if (diagramNodes.has(interaction.componentName)) {
+                        const targetNode: GraphqlDesignNode = diagramNodes.get(interaction.componentName);
+                        if (targetNode) {
+                            const sourceNode: GraphqlDesignNode = diagramNodes.get(record.name);
+                            const sourcePortId = field.name;
+                            const link: GraphqlBaseLinkModel = setInteractionLinks(sourceNode, sourcePortId, targetNode, interaction);
+                            nodeLinks.push(link);
+                        }
                     }
-                }
+                })
             })
-        })
+        }
     })
 }
 
