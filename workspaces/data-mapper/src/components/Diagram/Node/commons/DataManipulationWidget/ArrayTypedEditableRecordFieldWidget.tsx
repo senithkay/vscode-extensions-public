@@ -150,6 +150,14 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
+    const onAddElementClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (isAnydataType || isUnionType) {
+            addElementSetAnchorEl(event.currentTarget)
+        } else {
+            handleAddArrayElement(field?.type?.memberType?.typeName)
+        }
+    };
+
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
@@ -291,6 +299,22 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         );
     }, [elements]);
 
+    const addElementButton = useMemo(() => {
+        return (
+            <Button
+                id={"add-array-element"}
+                aria-label="add"
+                className={classes.addIcon}
+                onClick={onAddElementClick}
+                startIcon={isAddingElement ? <CircularProgress size={16} /> : <AddIcon />}
+                disabled={isAddingElement}
+                data-testid={`array-widget-${portIn?.getName()}-add-element`}
+            >
+                Add Element
+            </Button>
+        );
+    }, []);
+
     const handleExpand = () => {
         handleCollapse(fieldId, !expanded);
     };
@@ -384,14 +408,6 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         || field.type?.originalTypeName === AnydataType;
 
     const isUnionType = field.type?.memberType?.typeName === PrimitiveBalType.Union;
-
-    const onAddElementClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (isAnydataType || isUnionType) {
-            addElementSetAnchorEl(event.currentTarget)
-        } else {
-            handleAddArrayElement(field?.type?.memberType?.typeName)
-        }
-    }
 
     const onCloseElementSetAnchor = () => addElementSetAnchorEl(null);
 
@@ -492,39 +508,29 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     )}
                 </div>
             )}
-            {expanded && hasValue && listConstructor && (
+            {expanded && hasValue && listConstructor && !isUnionTypedElement && (
                 <div data-testid={`array-widget-${portIn?.getName()}-values`}>
                     <div className={classes.innerTreeLabel}>
                         <span>[</span>
                         {arrayElements}
-                        <Button
-                            id={"add-array-element"}
-                            aria-label="add"
-                            className={classes.addIcon}
-                            onClick={onAddElementClick}
-                            startIcon={isAddingElement ? <CircularProgress size={16} /> : <AddIcon />}
-                            disabled={isAddingElement}
-                            data-testid={`array-widget-${portIn?.getName()}-add-element`}
-                        >
-                            Add Element
-                        </Button>
-                        {(isAnydataType || isUnionType) && (
-                            <Menu
-                                anchorEl={addElementAnchorEl}
-                                open={addMenuOpen}
-                                onClose={onCloseElementSetAnchor}
-                                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                                className={classes.valueConfigMenu}
-                            >
-                                {possibleTypeOptions?.map((item) => (
-                                    <>
-                                        <MenuItem key={item.title} onClick={item.onClick}>
-                                            {item.title}
-                                        </MenuItem>
-                                    </>
-                                ))}
-                            </Menu>
-                        )}
+                        {addElementButton}
+                            {(isAnydataType || isUnionType) && (
+                                <Menu
+                                    anchorEl={addElementAnchorEl}
+                                    open={addMenuOpen}
+                                    onClose={onCloseElementSetAnchor}
+                                    anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                                    className={classes.valueConfigMenu}
+                                >
+                                    {possibleTypeOptions?.map((item) => (
+                                        <>
+                                            <MenuItem key={item.title} onClick={item.onClick}>
+                                                {item.title}
+                                            </MenuItem>
+                                        </>
+                                    ))}
+                                </Menu>
+                            )}
                         <span>]</span>
                     </div>
                 </div>
