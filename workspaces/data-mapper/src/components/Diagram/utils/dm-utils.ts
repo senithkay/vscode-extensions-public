@@ -306,7 +306,8 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	while (nextField && nextField.parentType) {
 		const fieldName = getFieldName(nextField);
-		if (fieldName && !(nextField.hasValue() && STKindChecker.isMappingConstructor(nextField.value))) {
+		const innerExpr = nextField.hasValue() && getInnermostExpressionBody(nextField.value);
+		if (fieldName && !(innerExpr && STKindChecker.isMappingConstructor(innerExpr))) {
 			parentFields.push(getBalRecFieldName(fieldName));
 		}
 
@@ -1502,7 +1503,7 @@ function isMappedToMappingConstructorWithinArray(targetPort: RecordFieldPortMode
 	return targetPort.index !== undefined
 		&& targetPort.field.typeName === PrimitiveBalType.Record
 		&& targetPort.editableRecordField?.value
-		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value);
+		&& STKindChecker.isMappingConstructor(getInnermostExpressionBody(targetPort.editableRecordField.value));
 }
 
 function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel): boolean {
