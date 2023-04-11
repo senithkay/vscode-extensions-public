@@ -59,15 +59,15 @@ export const ContextMenu: React.FC<Props> = ({ items }) => {
                         right: 10,
                         zIndex: 9999,
                         background: 'var(--vscode-editor-background)',
-                        border: '1px solid var(--vscode-dropdown-background)',
+                        border: '1px solid var(--vscode-menu-border)',
                     }}
                 >
                     <VSCodeDataGrid aria-label="Context Menu">
                         {items.map((item) => (
-                            <VSCodeDataGridRow 
+                            <VSCodeDataGridRow
                                 key={item.id}
-                                onClick={item.disabled ? undefined : () => handleItemClick(item)} 
-                                style={{ 
+                                onClick={item.disabled ? undefined : () => handleItemClick(item)}
+                                style={{
                                     cursor: item.disabled ? 'not-allowed' : 'pointer',
                                     opacity: item.disabled ? 0.5 : 1,
                                 }}
