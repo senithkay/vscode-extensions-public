@@ -53,6 +53,7 @@ import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData} from "../../../utils";
 import { getLogger } from "../../../logger/logger";
+import { executeWithTaskRetryPrompt } from "../../../retry";
 
 export class WebViewRpc {
 
@@ -72,9 +73,8 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllOrgsRequest, async () => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
-                return orgClient.getUserInfo()
-                    .then((userInfo) => userInfo.organizations)
-                    .catch(serializeError);
+                const info = await executeWithTaskRetryPrompt(() => orgClient.getUserInfo());
+                return info.organizations;
             }
         });
         // TODO: Remove this once the Choreo project client RPC handlers are registered
