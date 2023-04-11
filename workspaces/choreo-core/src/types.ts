@@ -374,7 +374,7 @@ export interface GetComponentModelResponse {
     componentModels: {
         [key: string]: ComponentModel;
     };
-    diagnostics?: ComponentModelDiagnostics[];
+    diagnostics: ComponentModelDiagnostics[];
 }
 
 export interface ComponentModelDiagnostics {
@@ -388,6 +388,7 @@ interface EntryPoint {
     annotation: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     parameters: any[];
+    type: EntryPointType;
     returns: string[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     interactions: any[];
@@ -419,3 +420,5 @@ export enum Status {
     UnavailableLocally= "NOT_AVAILABLE_LOCALLY",
     ChoreoAndLocal= "CHOREO_AND_LOCAL"
 }
+
+export type EntryPointType = ChoreoComponentType.ManualTrigger | ChoreoComponentType.ScheduledTask;

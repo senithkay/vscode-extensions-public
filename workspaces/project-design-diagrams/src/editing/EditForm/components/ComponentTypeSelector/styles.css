@@ -17,4 +17,10 @@
  *
  */
 
-export * from './DiagramControls';
+.unchecked-box {
+    color: #40404B !important;
+}
+
+.checked-box {
+    color: #36B475 !important;
+}

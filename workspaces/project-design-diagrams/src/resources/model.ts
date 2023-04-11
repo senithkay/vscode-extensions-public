@@ -19,7 +19,7 @@
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
+import { BallerinaComponentCreationParams, EntryPointType } from '@wso2-enterprise/choreo-core';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 export interface GetComponentModelResponse {
@@ -56,6 +56,7 @@ interface PackageID {
 
 export interface EntryPoint extends ModelAttributes {
     annotation: ServiceAnnotation;
+    type: EntryPointType;
     parameters: Parameter[];
     returns: string[];
     interactions: Interaction[];

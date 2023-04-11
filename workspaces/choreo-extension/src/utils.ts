@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import {ApiVersion, ComponentModel, Service} from "@wso2-enterprise/choreo-core";
+import { ApiVersion, Service } from "@wso2-enterprise/choreo-core";
 
 export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
     isLocal: boolean, accessibility?: string): boolean {
