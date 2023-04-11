@@ -836,8 +836,9 @@ export function getEnrichedRecordType(type: Type,
 		editableRecordField.childrenTypes = children;
 	} else if (type.typeName === PrimitiveBalType.Array && type?.memberType) {
 		if (nextNode) {
-			if (STKindChecker.isQueryExpression(nextNode)) {
-				const selectClauseExpr = nextNode.selectClause.expression;
+			const innerExprOfNextNode = getInnermostExpressionBody(nextNode);
+			if (STKindChecker.isQueryExpression(innerExprOfNextNode)) {
+				const selectClauseExpr = innerExprOfNextNode.selectClause.expression;
 				if (STKindChecker.isMappingConstructor(selectClauseExpr)) {
 					const childType = getEnrichedRecordType(type.memberType, selectClauseExpr,
 						selectedST, editableRecordField, childrenTypes);
@@ -852,20 +853,20 @@ export function getEnrichedRecordType(type: Type,
 					editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, selectClauseExpr,
 						selectedST, editableRecordField);
 				}
-			} else if (STKindChecker.isMappingConstructor(nextNode)) {
+			} else if (STKindChecker.isMappingConstructor(innerExprOfNextNode)) {
 				if (type.memberType.typeName === PrimitiveBalType.Record) {
-					const childType = getEnrichedRecordType(type.memberType, nextNode,
+					const childType = getEnrichedRecordType(type.memberType, innerExprOfNextNode,
 						selectedST, editableRecordField, childrenTypes);
 					editableRecordField.elements = [{
 						member: childType,
 						elementNode: nextNode
 					}];
 				}
-			} else if (STKindChecker.isListConstructor(nextNode)) {
-				editableRecordField.elements = getEnrichedArrayType(type.memberType, nextNode,
+			} else if (STKindChecker.isListConstructor(innerExprOfNextNode)) {
+				editableRecordField.elements = getEnrichedArrayType(type.memberType, innerExprOfNextNode,
 					selectedST, editableRecordField);
 			} else {
-				editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, nextNode,
+				editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, innerExprOfNextNode,
 					selectedST, editableRecordField);
 			}
 		} else {
