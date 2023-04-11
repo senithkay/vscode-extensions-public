@@ -85,6 +85,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const [isLoading, setLoading] = useState(false);
     const [isAddingElement, setIsAddingElement] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
 
     const fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
@@ -95,6 +96,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const valExpr = body && STKindChecker.isSpecificField(body) ? body.valueExpr : body;
     const hasValue = valExpr && !!valExpr.source;
     const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);
+    const isUnionTypedElement = field.type.typeName === PrimitiveBalType.Union && !field.type.resolvedUnionType;
     const typeName = getTypeName(field.type);
     const elements = field.elements;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
@@ -340,6 +342,35 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
+    const handleWrapWithTypeCast = async (type: string) => {
+        setIsAddingTypeCast(true)
+        try {
+            let targetPosition: NodePosition;
+            const typeCastExpr = STKindChecker.isTypeCastExpression(field.value) && field.value;
+            const valueExprPosition: NodePosition = typeCastExpr
+                ? getExprBodyFromTypeCastExpression(typeCastExpr).position
+                : field.value.position;
+            if (typeCastExpr) {
+                const typeCastExprPosition: NodePosition = typeCastExpr.position;
+                targetPosition = {
+                    ...typeCastExprPosition,
+                    endLine: valueExprPosition.startLine,
+                    endColumn: valueExprPosition.startColumn
+                };
+            } else {
+                targetPosition = {
+                    ...valueExprPosition,
+                    endLine: valueExprPosition.startLine,
+                    endColumn: valueExprPosition.startColumn
+                };
+            }
+            const modification = [getModification(`<${type}>`, targetPosition)];
+            await applyModifications(modification);
+        } finally {
+            setIsAddingTypeCast(false);
+        }
+    };
+
     const onMouseEnter = () => {
         setIsHovered(true);
     };
@@ -380,6 +411,28 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
             return unionTypeOptions;
         }
     }, [])
+
+    const valConfigMenuItems: ValueConfigMenuItem[] = hasValue
+        ? [
+            { title: ValueConfigOption.EditValue, onClick: handleEditValue },
+            { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
+        ]
+        : [
+            { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
+        ];
+
+    const typeSelectorMenuItems: ValueConfigMenuItem[] = isUnionTypedElement
+        && field.type.members.map(member => {
+            const memberTypeName = getTypeName(member);
+            return {
+                title: `Re-initialize as ${memberTypeName}`,
+                onClick: () => handleWrapWithTypeCast(memberTypeName)
+            }
+        });
+
+    if (isUnionTypedElement) {
+        valConfigMenuItems.push(...typeSelectorMenuItems);
+    }
 
     return (
         <div
@@ -424,22 +477,13 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                         )}
                         {label}
                     </span>
-                    {isLoading ? (
+                    {(isLoading || isAddingTypeCast) ? (
                         <CircularProgress size={18} className={classes.loader} />
                     ) : (
                         <>
                             {((hasValue && !connectedViaLink) || !isDisabled) && (
                                 <ValueConfigMenu
-                                    menuItems={
-                                        hasValue
-                                            ? [
-                                                { title: ValueConfigOption.EditValue, onClick: handleEditValue },
-                                                { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
-                                            ]
-                                            : [
-                                                { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
-                                            ]
-                                    }
+                                    menuItems={valConfigMenuItems}
                                     isDisabled={!typeName || typeName === "[]"}
                                     portName={portIn?.getName()}
                                 />
