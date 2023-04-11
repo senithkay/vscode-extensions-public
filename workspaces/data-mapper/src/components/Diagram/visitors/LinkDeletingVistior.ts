@@ -18,7 +18,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { isPositionsEquals } from "../../../utils/st-utils";
-import { getExprBodyFromLetExpression } from "../utils/dm-utils";
+import { getExprBodyFromLetExpression, getInnermostExpressionBody } from "../utils/dm-utils";
 
 export class LinkDeletingVisitor implements Visitor {
     /** NodePosition of the specific field or mapping construct that needs to be removed */
@@ -178,8 +178,9 @@ export class LinkDeletingVisitor implements Visitor {
                 }
             } else {
                 for (const item of node.expressions) {
-                    if (STKindChecker.isMappingConstructor(item)) {
-                        this.findDeletePosition(item, true);
+                    const innerExpr = getInnermostExpressionBody(item);
+                    if (STKindChecker.isMappingConstructor(innerExpr)) {
+                        this.findDeletePosition(innerExpr, true);
                     }
                 }
             }

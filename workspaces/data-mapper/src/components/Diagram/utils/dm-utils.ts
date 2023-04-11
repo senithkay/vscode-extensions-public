@@ -283,10 +283,11 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	function getNextMappingConstructor(listConstructor: ListConstructor): MappingConstructor {
 		const targetExpr = listConstructor.expressions[fieldIndexes.pop() * 2];
-		if (STKindChecker.isMappingConstructor(targetExpr)) {
-			return targetExpr;
-		} else if (STKindChecker.isListConstructor(targetExpr)) {
-			return getNextMappingConstructor(targetExpr);
+		const innerExpr = getInnermostExpressionBody(targetExpr);
+		if (STKindChecker.isMappingConstructor(innerExpr)) {
+			return innerExpr;
+		} else if (STKindChecker.isListConstructor(innerExpr)) {
+			return getNextMappingConstructor(innerExpr);
 		}
 	}
 
