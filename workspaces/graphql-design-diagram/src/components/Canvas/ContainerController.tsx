@@ -26,7 +26,7 @@ interface ContainerControllerProps {
 }
 
 const ControlPanel: React.FC<any> = styled.div`
-  bottom: 60px;
+  bottom: 40px;
   display: flex;
   flex-direction: column;
   gap: 5px;
