@@ -122,7 +122,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
     return (
         <div className={'design-container-outer'} style={{ display: "flex", flexDirection: "column" }}>
             <FunctionHeader />
-            <div style={{ display: "flex", flexDirection: "row" }}>
+            <div style={{ display: "flex", flexDirection: "row", padding: '0 10px 0 0' }}>
                 <div
                     className={'diagram-container-outer'}
                     ref={containerRef}
