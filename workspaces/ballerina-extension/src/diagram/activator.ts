@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
-	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern
+	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern, WorkspaceFolder
 } from 'vscode';
 import { render } from './renderer';
 import {
@@ -90,6 +90,20 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 		}
 	}
 
+	const projectPaths: WorkspaceFolder[] = [];
+	const choreoProjectFile = await workspace.findFiles('**/\.choreo-project');
+
+	if (choreoProjectFile.length > 0) {
+		const choreoProjectFolderPath = choreoProjectFile[0].fsPath.replace(/\/\.choreo-project$/, '');
+		workspace.workspaceFolders.forEach((workspaceFolder) => {
+			if (workspaceFolder.uri.fsPath !== choreoProjectFolderPath) {
+				projectPaths.push(workspaceFolder);
+			}
+		});
+	} else {
+		projectPaths.push(...workspace.workspaceFolders);
+	}
+
 	if (isCommand) {
 		if (!editor) {
 			window.showErrorMessage(CMP_DIAGRAM_VIEW);
@@ -105,7 +119,8 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 				fileUri: editor!.document.uri.path,
 				position: openInDiagram
 			},
-			workspaceName: workspace.name
+			workspaceName: workspace.name,
+			projectPaths
 		};
 	} else {
 		diagramElement = {
@@ -117,19 +132,10 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 				fileUri: (filePath === '' ? editor!.document.uri : Uri.file(filePath)).path,
 				position: openInDiagram
 			},
-			workspaceName: workspace.name
+			workspaceName: workspace.name,
+			projectPaths
 		};
 	}
-
-	// diagramElement = {
-	// 	fileUri: filePath === '' ? editor!.document.uri : Uri.file(filePath),
-	// 	startLine,
-	// 	startColumn,
-	// 	isDiagram: true,
-	// 	diagramFocus: filePath && filePath.length !== 0 ?
-	// 		{ fileUri: Uri.file(filePath).path, position: openInDiagram } : undefined,
-	// 	workspaceName: workspace.name
-	// };
 
 	DiagramPanel.create(isCommand ? ViewColumn.Two : ViewColumn.One);
 
@@ -618,6 +624,7 @@ class DiagramPanel {
 					experimentalEnabled,
 					openNodeInDiagram,
 					this.webviewPanel.webview,
+					diagramElement.projectPaths,
 					diagramElement!.diagramFocus
 				);
 			} else {
@@ -668,7 +675,8 @@ export function callUpdateDiagramMethod() {
 	const args = [{
 		filePath: ballerinaFilePath,
 		startLine: diagramElement!.startLine,
-		startColumn: diagramElement!.startColumn
+		startColumn: diagramElement!.startColumn,
+		projectPaths: diagramElement!.projectPaths
 	}];
 	webviewRPCHandler.invokeRemoteMethod('updateDiagram', args, () => { });
 }
