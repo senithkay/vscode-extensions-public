@@ -18,6 +18,7 @@ import styled from "@emotion/styled";
 import React, { useCallback } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ContextMenu, MenuItem } from "../Commons/ContextMenu";
+import { useMutation } from "@tanstack/react-query";
 
 export interface ComponentListProps {
     components?: Component[];
@@ -31,6 +32,7 @@ export interface ComponentListProps {
     openSourceControl: () => void;
     onComponentDeleteClick: (component: Component) => void;
     handlePushComponentClick: (componentName: string) => void;
+    refreshComponentStatus: () => void;
 }
 
 const InlineIcon = styled.span`
@@ -91,6 +93,7 @@ export function ComponentList(props: ComponentListProps) {
         openSourceControl,
         onComponentDeleteClick,
         handlePushComponentClick,
+        refreshComponentStatus,
         loading,
         fetchingComponents,
         isActive,
@@ -108,31 +111,32 @@ export function ComponentList(props: ComponentListProps) {
         ChoreoWebViewAPI.getInstance().openExternal(url);
     }, []);
 
-    const pullComponent = useCallback(async (repository, selectedBranch, componentId) => {
-        if (projectId && repository && selectedBranch) {
-            const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
-            if (projectPath) {
-                const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
-                    repository: `${repository.organizationApp}/${repository.nameApp}`,
-                    workspaceFilePath: projectPath,
-                    branch: selectedBranch
-                })
-                if (isCloned) {
-                    ChoreoWebViewAPI.getInstance().pullComponent({ componentId, projectId })
-                } else {
-                    await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
+    const { mutate: pullComponent, isLoading: isPulling } = useMutation({
+        mutationFn: async ({ repository, branchName, componentId }: { repository: Repository; branchName: string; componentId: string }) => {
+            if (projectId && repository && branchName) {
+                const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+                if (projectPath) {
+                    const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
                         repository: `${repository.organizationApp}/${repository.nameApp}`,
                         workspaceFilePath: projectPath,
-                        branch: selectedBranch
-                    });
+                        branch: branchName
+                    })
+                    if (isCloned) {
+                        await ChoreoWebViewAPI.getInstance().pullComponent({ componentId, projectId })
+                    } else {
+                        await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
+                            repository: `${repository.organizationApp}/${repository.nameApp}`,
+                            workspaceFilePath: projectPath,
+                            branch: branchName
+                        });
+                    }
+                } else {
+                    await ChoreoWebViewAPI.getInstance().cloneChoreoProject(projectId);
                 }
-            } else {
-                ChoreoWebViewAPI.getInstance().cloneChoreoProject(projectId);
             }
-        }
-    }, [projectId]);
-
-
+        },
+        onSuccess: () => refreshComponentStatus(),
+    });
 
     function getMenuItems(component: Component, componentOverviewLink: string, repoLink: string): MenuItem[] {
         let menuItems = [];
@@ -304,13 +308,13 @@ export function ComponentList(props: ComponentListProps) {
                                     <VSCodeButton
                                         appearance="icon"
                                         onClick={() =>
-                                            pullComponent(
-                                                component.repository,
-                                                repo.branchApp,
-                                                component.id
-                                            )
+                                            pullComponent({
+                                                repository: component.repository,
+                                                branchName: repo.branchApp,
+                                                componentId: component.id
+                                            })
                                         }
-                                        disabled={loading}
+                                        disabled={loading || isPulling}
                                         title="Pull code from remote repository"
                                     >
                                         <Codicon name="cloud-download" /> &nbsp; Pull Component
@@ -321,7 +325,7 @@ export function ComponentList(props: ComponentListProps) {
                                         appearance="icon"
                                         onClick={() => handlePushComponentClick(component.name)}
                                         title={reachedChoreoLimit ? "Please upgrade your tier to push to Choreo" : "Push code to remote repository"}
-                                        disabled={loading || !isActive || reachedChoreoLimit}
+                                        disabled={fetchingComponents || loading || !isActive || reachedChoreoLimit}
                                     >
                                         <Codicon name="cloud-upload" /> &nbsp; Push to Choreo
                                     </VSCodeButton>
