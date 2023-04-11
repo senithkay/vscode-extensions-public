@@ -127,11 +127,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     const { isLoading: isLoadingCompOnly, isRefetching: refetchingCompOnly, refetch: refetchComponentsOnly, isFetched } = useQuery({
         queryKey: ["overview_component_list_only", projectId],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getComponents(projectId),
+        queryFn: () => {
+            refetchUsage();
+            return ChoreoWebViewAPI.getInstance().getComponents(projectId)
+        },
         refetchInterval: 120000, // check for new components every 2 minutes
         onSuccess: () => {
             refetchComponents();
-            refetchUsage();
         },
         refetchOnWindowFocus: false,
         enabled: validOrg && isLoggedIn,
@@ -150,7 +152,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         enabled: !refetchingCompOnly && isFetched && isLoggedIn && validOrg
     });
 
-    const {} = useQuery({
+    useQuery({
         queryKey: ["deleted_component_show_prompt", projectId, isActive],
         queryFn: async () => ChoreoWebViewAPI.getInstance().getDeletedComponents(projectId),
         onSuccess: (data) => {
@@ -176,10 +178,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const { mutate: handleDeleteComponentClick, isLoading: deletingComponent } = useMutation({
         mutationFn: (component: Component) => ChoreoWebViewAPI.getInstance().deleteComponent({ component, projectId }),
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
             if (data) {
-                const filteredComponents = components.filter(item => data.local ? item.name !== data.name : item.id !== data.id);
-                queryClient.setQueryData(["overview_component_list", projectId], filteredComponents);
+                await queryClient.cancelQueries({ queryKey: ["overview_component_list", projectId] })
+                const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
+                const filteredComponents = previousComponents?.filter(item => data.local ? item.name !== data.name : item.id !== data.id);
+                queryClient.setQueryData(["overview_component_list", projectId], filteredComponents)
                 refetchComponentsOnly();
             }
         },
@@ -188,7 +192,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const { mutate: handlePushComponentClick, isLoading: pushingSingleComponent } = useMutation({
         mutationFn: (componentName: string) => ChoreoWebViewAPI.getInstance().pushLocalComponentToChoreo({ projectId, componentName }),
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        onSuccess: () => refetchComponentsOnly(),
+        onSuccess: async (_, name) => {
+            await queryClient.cancelQueries({ queryKey: ["overview_component_list", projectId] })
+            const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
+            const updatedComponents = previousComponents?.map(item => item.name === name ? ({ ...item, local: false }): item);
+            queryClient.setQueryData(["overview_component_list", projectId], updatedComponents)
+            refetchComponentsOnly()
+        },
     });
 
     const { mutate: handleRefreshComponentsClick, isLoading: reloadingRegistry } = useMutation({
@@ -200,7 +210,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         useMutation({
             mutationFn: () => ChoreoWebViewAPI.getInstance().pushLocalComponentsToChoreo(projectId),
             onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-            onSuccess: () => refetchComponentsOnly(),
+            onSuccess: async () => {
+                await queryClient.cancelQueries({ queryKey: ["overview_component_list", projectId] })
+                const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
+                const updatedComponents = previousComponents?.map(item => ({ ...item, local: false }));
+                queryClient.setQueryData(["overview_component_list", projectId], updatedComponents)
+                refetchComponentsOnly()
+            },
         });
 
     const handleCloneProjectClick = useCallback(() => {
@@ -268,8 +284,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const hasPushableComponents = useMemo(() => pushableComponentCount > 0, [pushableComponentCount]);
 
     const pushableLimitExceeded = useMemo(() => {
-        if (usageData) {
-            return pushableComponentCount > (componentLimit - usageData?.componentCount);
+        if (usageData && pushableComponentCount > 0) {
+            return pushableComponentCount > (componentLimit - (usageData?.componentCount || 0));
         }
         return false;
     }, [pushableComponentCount, usageData, componentLimit]);
@@ -406,6 +422,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     isActive={isActive}
                     choreoUrl={choreoUrl}
                     reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
+                    refreshComponentStatus={refetchComponents}
                 />
 
                 {componentsOutOfSync && (
@@ -442,7 +459,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
                 {!componentsOutOfSync && (hasPushableComponents || pushingComponent) && (
                     <>
-                        {pushableLimitExceeded ? (
+                        {pushableLimitExceeded && !pushingComponent && !pushingSingleComponent ? (
                             <>
                                 <p>
                                     <InlineIcon>
