@@ -96,7 +96,7 @@ export class ProjectRegistry {
     }
 
     async getProjects(orgId: number): Promise<Project[]> {
-        if (!this._dataProjects.has(orgId)) {
+        if (!this._dataProjects.has(orgId) && ext.api.status === "LoggedIn") {
             try {
                 const projects: Project[] = await executeWithTaskRetryPrompt(() => projectClient.getProjects({ orgId: orgId }));
                 this._dataProjects.set(orgId, projects);
