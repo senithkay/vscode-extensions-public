@@ -220,8 +220,16 @@ export function ResourceBody(props: ResourceBodyProps) {
                         <td>
                             {des}
                             <div>
-                                Record Schema : <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>{recordName}</span>
-                                {schema[i] && <pre className={classes.schema}>{schema[i]} <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                                Record Schema :
+                                <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                                    {recordName}
+                                </span>
+                                {schema[i] &&
+                                    <pre className={classes.schema}>
+                                        {schema[i]}
+                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </pre>
+                                }
                             </div>
                         </td>
                     </tr>
@@ -244,8 +252,15 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {code}
                         </td>
                         <td>
-                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>{recordName}</span>
-                            {schema[i] && <pre className={classes.schema}>{schema[i]} <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                                {recordName}
+                            </span>
+                            {schema[i] &&
+                                <pre className={classes.schema}>
+                                    {schema[i]}
+                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                </pre>
+                            }
                         </td>
                     </tr>
                 )
@@ -267,8 +282,15 @@ export function ResourceBody(props: ResourceBodyProps) {
                 responses.push(
                     <tr key={i} className={classes.signature}>
                         <td>
-                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>{recordName}</span>
-                            {schemaParam[i] && <pre className={classes.schema}>{schemaParam[i]} <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
+                                {recordName}
+                            </span>
+                            {schemaParam[i] &&
+                                <pre className={classes.schema}>
+                                    {schemaParam[i]}
+                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                </pre>
+                            }
                         </td>
                         <td>
                             {paramDetails.length > 0 && param.source.split(" ")[1]}
