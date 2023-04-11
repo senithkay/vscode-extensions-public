@@ -207,13 +207,13 @@ export function GraphqlMutationForm(props: FunctionProps) {
     };
 
     const handleOnEdit = (funcParam: FunctionParam) => {
+        setParamsBeforeParamChange(parameters);
         const id = parameters.findIndex(param => param.id === funcParam.id);
         // Once edit is clicked
         if (id > -1) {
             setEditingSegmentId(id);
         }
         setIsEditInProgress(true);
-        setIsEditInProgress(false);
     };
 
     const handleOnUpdateParam = (param: FunctionParam) => {

@@ -229,7 +229,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
         if (id > -1) {
             setEditingSegmentId(id);
         }
-        // setAddingNewParam(false);
         setIsEditInProgress(true);
     };
 
@@ -240,7 +239,6 @@ export function GraphqlResourceForm(props: FunctionProps) {
             parameters[id] = param;
             setParameters(parameters);
         }
-        // setAddingNewParam(false);
         setEditingSegmentId(-1);
         setIsEditInProgress(false);
     };
