@@ -60,13 +60,20 @@ export function ActionList(props: FormGeneratorProps) {
         }
     }, [actions, keyword]);
 
-    const actionElementList = filteredActions?.map((action) => {
+    const supportedActions = filteredActions?.filter((action) => {
         if (action.name === "init") {
-            return;
+            return false;
+        }
+        if (!(action.isRemote || action.qualifiers?.includes("remote") || action.qualifiers?.includes("resource"))) {
+            return false; // Skip non-remote actions and non-resource actions
         }
         if (isHttp && action.qualifiers?.includes("resource")) {
-            return; // Skip resource actions from http connector to avoid listing duplicate actions
+            return false; // Skip resource actions from http connector to avoid listing duplicate actions
         }
+        return true;
+    });
+
+    const actionElementList = supportedActions?.map((action) => {
         return <ActionCard key={action.name} action={action} onSelect={onSelect} />;
     });
 
@@ -110,7 +117,7 @@ export function ActionList(props: FormGeneratorProps) {
                                 />
                             </FormControl>
                         )}
-                        {!isLoading && filteredActions?.length > 0 && (
+                        {!isLoading && supportedActions?.length > 0 && (
                             <>
                                 <Typography>
                                     <FormattedMessage id="lowcode.develop.configForms.actionList.subtitle" defaultMessage="Select an action" />
@@ -120,9 +127,19 @@ export function ActionList(props: FormGeneratorProps) {
                                 </div>
                             </>
                         )}
+                        {!isLoading && supportedActions?.length === 0 && (
+                            <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+                                <Typography className={classes.hint}>
+                                    <FormattedMessage
+                                        id="lowcode.develop.configForms.actionList.notSupported"
+                                        defaultMessage="Sorry. We currently support `remote` and `resource` actions only."
+                                    />
+                                </Typography>
+                            </Box>
+                        )}
                         {!isLoading && (filteredActions?.length === 0 || !actions) && (
                             <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
-                                <Typography className={classes.subTitle}>
+                                <Typography className={classes.hint}>
                                     <FormattedMessage id="lowcode.develop.configForms.actionList.empty" defaultMessage="No actions found" />
                                 </Typography>
                             </Box>

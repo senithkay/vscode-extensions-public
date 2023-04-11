@@ -87,7 +87,7 @@ function ConnectorForm(props: ConnectorFormProps) {
                 <LoadingWrapper>
                     <PullingModuleLoader />
                     <LoaderTitle>Pulling {connector.moduleName} package</LoaderTitle>
-                    <LoaderSubtitle>It takes some time</LoaderSubtitle>
+                    <LoaderSubtitle>It might take some time</LoaderSubtitle>
                 </LoadingWrapper>
             )}
             {!pulling && !error && (

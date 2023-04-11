@@ -97,7 +97,6 @@ export function StatementEditor(props: StatementEditorProps) {
         importStatements,
         experimentalEnabled,
         extraModules,
-        runBackgroundTerminalCommand,
         isExpressionMode,
         ballerinaVersion,
         openExternalUrl,
@@ -144,7 +143,6 @@ export function StatementEditor(props: StatementEditorProps) {
     const [isDisableEditor, setIsDisableEditor] = useState(false);
     const [draftSource, setDraftSource] = useState(source);
     const [draftPosition, setDraftPosition] = useState(targetPosition);
-    const pulledModules = useRef<string[]>([]);
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -417,9 +415,6 @@ export function StatementEditor(props: StatementEditorProps) {
     const handleDiagnostics = async (statement: string, targetedPosition?: NodePosition): Promise<Diagnostic[]> => {
         const diagResp = await getDiagnostics(fileURI, getLangClient);
         const diag  = diagResp[0]?.diagnostics ? diagResp[0].diagnostics : [];
-        if (config.type === CONNECTOR){
-            pullUnresolvedModules(diag).then();
-        }
         if (config.type !== CONNECTOR && config.type !== ACTION && config.type !== HTTP_ACTION){
             removeUnusedModules(diag);
         }
@@ -488,43 +483,6 @@ export function StatementEditor(props: StatementEditorProps) {
                         }
                 }
             });
-        }
-    };
-
-    const pullUnresolvedModules = async (completeDiagnostic: Diagnostic[]) => {
-        if (!(!!moduleList?.size && runBackgroundTerminalCommand && !isPullingModule)) {
-            return;
-        }
-        let pullCommand = "";
-        for (const diagnostic of completeDiagnostic) {
-            if (!diagnostic.message?.includes("cannot resolve module '")) {
-                continue;
-            }
-            moduleList.forEach((module) => {
-                if (diagnostic.message?.includes(module) && !pulledModules.current.includes(module)) {
-                    if (pullCommand !== "") {
-                        pullCommand += ` && `;
-                    }
-                    pullCommand += `bal pull ${module.replace(" as _", "")}`;
-                    pulledModules.current.push(module);
-                }
-            });
-        }
-        if (pullCommand !== "") {
-            setIsPullingModule(true);
-            const cmdRes = await runBackgroundTerminalCommand(pullCommand);
-            setIsPullingModule(false);
-            updateEditorModel().then(() => {
-                // HACK: Trying twice to fetch code actions.
-                // Because immediate request after module pulling doesn't get any code actions.
-                updateEditorModel().then();
-            });
-            if (cmdRes && cmdRes.error){
-                // TODO: Handle module pulling failed error properly
-                // tslint:disable-next-line: no-console
-                console.error('Module pulling failed!', cmdRes.error);
-                updateEditorModel().then();
-            }
         }
     };
 
