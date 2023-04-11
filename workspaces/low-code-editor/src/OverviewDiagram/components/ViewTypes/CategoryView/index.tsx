@@ -22,6 +22,7 @@ import { ComponentView } from "../ComponentView";
 
 import useStyles from "./style";
 import './style.scss'
+import { TopLevelActionButton } from "../../TopLevelActionButton";
 
 interface CategoryViewProps {
     projectComponents: BallerinaProjectComponents;
@@ -151,6 +152,7 @@ export function CategoryView(props: CategoryViewProps) {
                         ),
                     }}
                 />
+                <TopLevelActionButton />
             </div>
         );
     };
