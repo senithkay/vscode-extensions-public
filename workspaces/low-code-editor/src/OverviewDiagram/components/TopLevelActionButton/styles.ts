@@ -28,5 +28,17 @@ export const useStyles = makeStyles((theme: Theme) =>
                 backgroundColor: "#4958ba",
             },
         },
+        addComponentButton: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 15,
+            padding: '0 10px 0 5px',
+            cursor: "pointer",
+            backgroundColor: theme.palette.primary.main,
+            color: "white",
+            borderRadius: "5px",
+            marginLeft: 'auto'
+        }
     })
 );

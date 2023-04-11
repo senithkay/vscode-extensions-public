@@ -18,7 +18,7 @@ import AddIcon from "@material-ui/icons/Add";
 
 import { FormGenerator } from "../../../Diagram/components/FormComponents/FormGenerator";
 
-import {useStyles} from './styles';
+import { useStyles } from './styles';
 
 export function TopLevelActionButton() {
     const [showDrawer, setShowDrawer] = useState(false);
@@ -34,15 +34,13 @@ export function TopLevelActionButton() {
 
     return (
         <>
-            <Button
-                variant="contained"
-                color="primary"
-                className={classes.fab}
+            <div
+                className={classes.addComponentButton}
                 onClick={handleActionBtnClick}
-                startIcon={<AddIcon />}
             >
+                <AddIcon />
                 Component
-            </Button>
+            </div>
             {showDrawer && (
                 <FormGenerator
                     onCancel={handleDrawerClose}
