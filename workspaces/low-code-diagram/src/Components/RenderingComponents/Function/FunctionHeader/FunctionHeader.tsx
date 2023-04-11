@@ -15,9 +15,7 @@ import React from "react";
 
 import { SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    DefaultableParam,
     RequiredParam,
-    RestParam,
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";

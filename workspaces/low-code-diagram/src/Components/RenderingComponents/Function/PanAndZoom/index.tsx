@@ -142,7 +142,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
                         </div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'end' }} className="tools">
                     <div className={'zoom-control-wrapper'} onClick={toggleViewMode}>
                         {viewMode === ViewMode.STATEMENT ? <InteractionMode /> : <StatementMode />}
                     </div>
