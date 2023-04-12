@@ -55,16 +55,15 @@ export function DiagramViewManager(props: EditorProps) {
         langClientPromise,
         experimentalEnabled,
         projectPaths,
-        diagramFocus,
         getFileContent,
         getEnv,
         getBallerinaVersion,
         workspaceName,
         getAllFiles,
-        gotoSource
+        gotoSource,
+        diagramFocus
     } = props;
     const classes = useGeneratorStyles();
-
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [
         history,
@@ -90,28 +89,30 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (diagramFocus) {
             const { filePath, position } = diagramFocus;
-            const currentProjectPath = projectPaths && projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
+            if (filePath && filePath.length > 0 && filePath !== focusFile) {
+                if (position) {
+                    historyClearAndPopulateWith({ file: filePath, position });
+                } else {
+                    historyClear();
 
-            if (!position) {
-                historyClear();
-                setFocusedST(undefined)
-            } else {
+                    (async () => {
+                        const currentProjectPath = projectPaths
+                            && projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
+                        const response = await getAllFiles('**/*.bal');
+                        const filteredFileList: Uri[] = response
+                            .filter(fileUri => fileUri.path.includes(currentProjectPath.uri.fsPath));
+                        const projectFiles: FileListEntry[] = filteredFileList.map(fileUri => ({
+                            fileName: fileUri.path.replace(`${currentProjectPath.uri.fsPath}/`, ''),
+                            uri: fileUri
+                        }));
+                        const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
+                        setCurrentProject(currentProjectPath);
+                        setFocusFile(currentFile.uri.path);
+                    })();
+                }
+            } else if (position) {
                 historyClearAndPopulateWith({ file: filePath, position });
             }
-
-            (async () => {
-                if (!position) {
-                    const response = await getAllFiles('**/*.bal');
-                    const filteredFileList: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProjectPath.uri.fsPath));
-                    const projectFiles: FileListEntry[] = filteredFileList.map(fileUri => ({
-                        fileName: fileUri.path.replace(`${currentProjectPath.uri.fsPath}/`, ''),
-                        uri: fileUri
-                    }));
-                    const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
-                    setCurrentProject(currentProjectPath);
-                    setFocusFile(currentFile.uri.path);
-                }
-            })();
         }
     }, [diagramFocus]);
 
@@ -119,7 +120,8 @@ export function DiagramViewManager(props: EditorProps) {
         if (history.length > 0) {
             const { file, position, uid } = history[history.length - 1];
             fetchST(file, uid ? { uid } : { position });
-            const currentProjectPath = projectPaths && projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
+            const currentProjectPath = projectPaths
+                && projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
 
             if (!currentProject || (currentProjectPath && currentProject.name !== currentProjectPath.name)) {
                 setCurrentProject(currentProjectPath);
@@ -139,7 +141,7 @@ export function DiagramViewManager(props: EditorProps) {
                 const isWindows = window.navigator.userAgent.indexOf('Windows') !== -1;
                 if (isWindows) {
                     // check if the file path has forward slash at the begning and replace if the os is windows
-                    response.forEach((fileUri,) => {
+                    response.forEach((fileUri) => {
                         if (fileUri.path.startsWith('/')) {
                             fileUri.path = fileUri.path.replace('/', '');
                             fileUri.path = fileUri.path.replaceAll('/', '\\');
@@ -147,7 +149,8 @@ export function DiagramViewManager(props: EditorProps) {
                     });
                 }
 
-                const fileListResponse: Uri[] = response.filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
+                const fileListResponse: Uri[] = response
+                    .filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
                 const projectFiles: FileListEntry[] = fileListResponse.map(fileUri => ({
                     fileName: fileUri.path.replace(`${currentProject.uri.fsPath}${isWindows ? '\\' : '/'}`, ''),
                     uri: fileUri
@@ -167,7 +170,7 @@ export function DiagramViewManager(props: EditorProps) {
         fetchST(focusFile, { uid: history[history.length - 1].uid });
     }, [updatedTimeStamp]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         (async () => {
             const version: string = await getBallerinaVersion();
             setBalVersion(version);
@@ -212,7 +215,8 @@ export function DiagramViewManager(props: EditorProps) {
                                 ...history[history.length - 1], uid: visitorToFindConstructByName.getUid()
                             });
                         } else {
-                            const visitorToFindConstructByIndex = new FindConstructByIndexVisitor(options.uid, getConstructBodyString(focusedST));
+                            const visitorToFindConstructByIndex =
+                                new FindConstructByIndexVisitor(options.uid, getConstructBodyString(focusedST));
                             traversNode(visitedST, visitorToFindConstructByIndex);
                             if (visitorToFindConstructByIndex.getNode()) {
                                 selectedST = visitorToFindConstructByIndex.getNode();
@@ -256,8 +260,8 @@ export function DiagramViewManager(props: EditorProps) {
                 if (options && (options.position || options.uid)) {
                     setFocusedST(selectedST);
                     setServiceTypeSignature(listenerSignature);
-                    setCompleteST(visitedST);
                 }
+                setCompleteST(visitedST);
                 setCurrentFileContent(content);
                 setLowCodeResourcesVersion(resourceVersion);
                 setLowCodeEnvInstance(envInstance);
@@ -281,13 +285,13 @@ export function DiagramViewManager(props: EditorProps) {
         historyClear();
     }
 
-    const viewComponent: React.ReactElement[] = [];
+    let viewComponent: React.ReactElement;
 
     if (history.length > 0 && history[history.length - 1].position && !focusedST) {
-        viewComponent.push(<TextPreLoader position={'absolute'} />);
+        viewComponent = (<TextPreLoader position={'absolute'} />);
     } else if (!focusedST && fileList) {
         const currentFileName = fileList.find(file => file.uri.path === focusFile)?.fileName;
-        viewComponent.push((
+        viewComponent = (
             <OverviewDiagram
                 currentProject={currentProject}
                 currentFile={focusFile}
@@ -297,7 +301,7 @@ export function DiagramViewManager(props: EditorProps) {
                 fileList={fileList}
                 lastUpdatedAt={updatedTimeStamp}
             />
-        ));
+        );
     } else if (focusedST) {
         if (STKindChecker.isServiceDeclaration(focusedST)) {
             const listenerExpression = focusedST.expressions[0];
@@ -305,15 +309,15 @@ export function DiagramViewManager(props: EditorProps) {
             const typeSymbol = typeData?.typeSymbol;
             const signature = typeSymbol?.signature;
             if (serviceTypeSignature && serviceTypeSignature.includes('http')) {
-                viewComponent.push((
+                viewComponent = (
                     <ServiceDesignOverlay
                         model={focusedST}
                         targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
                         onCancel={handleNavigationHome}
                     />
-                ));
+                );
             } else if (serviceTypeSignature && serviceTypeSignature.includes('graphql')) {
-                viewComponent.push(
+                viewComponent = (
                     <GraphqlDiagramOverlay
                         model={focusedST}
                         targetPosition={focusedST.position}
@@ -323,24 +327,24 @@ export function DiagramViewManager(props: EditorProps) {
                     />
                 );
             } else if (signature && signature === "$CompilationError$") {
-                viewComponent.push((
+                viewComponent = (
                     <ServiceInvalidOverlay />
-                ));
+                );
             } else {
-                viewComponent.push(
+                viewComponent = (
                     <ServiceUnsupportedOverlay />
                 )
             }
         } else if (currentFileContent && STKindChecker.isFunctionDefinition(focusedST)
             && STKindChecker.isExpressionFunctionBody(focusedST.functionBody)) {
-            viewComponent.push((
+            viewComponent = (
                 <DataMapperOverlay
                     targetPosition={{ ...focusedST.position, startColumn: 0, endColumn: 0 }}
                     model={focusedST}
                     ballerinaVersion={balVersion}
                     onCancel={handleNavigationHome}
                 />
-            ))
+            )
         } else if (STKindChecker.isTypeDefinition(focusedST)
             && STKindChecker.isRecordTypeDesc(focusedST.typeDescriptor)) {
             // Navigate to record composition view
@@ -360,7 +364,7 @@ export function DiagramViewManager(props: EditorProps) {
             // setFocusUid(undefined);
             handleNavigationHome();
         } else {
-            viewComponent.push(<Diagram />);
+            viewComponent = (<Diagram />);
         }
     }
 
