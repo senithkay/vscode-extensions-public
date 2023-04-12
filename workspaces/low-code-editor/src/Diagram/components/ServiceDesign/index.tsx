@@ -12,12 +12,12 @@
 */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
-import { useIntl } from "react-intl";
 
 import { Grid, Typography } from "@material-ui/core";
+import UnfoldLessIcon from '@material-ui/icons/UnfoldLess';
+import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ConfigOverlayFormStatus, SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { ComponentExpandButton, LinePrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     ModulePart,
     NodePosition,
@@ -32,7 +32,6 @@ import { Context } from "../../../Contexts/Diagram";
 import { RecordEditor } from "../FormComponents/ConfigForms";
 
 import { ResourceBody } from "./Resource";
-import { ServiceHeader } from "./ServiceHeader";
 import { useStyles } from "./style";
 import "./style.scss";
 
@@ -194,11 +193,9 @@ export function ServiceDesign(props: ServiceDesignProps) {
                     {children.length > 0 && (
                         <div className={classes.expandAll}>
                             <div className={classes.collapseBtn} onClick={onExpandAllClick}>
-                                {isAllExpanded ? 'Collapse All' : 'Expand All'}
-                                <ComponentExpandButton
-                                    isExpanded={isAllExpanded}
-                                    onClick={onExpandAllClick}
-                                />
+                                <Typography variant="body1">{isAllExpanded ? "Collapse All" : "Expand All"}</Typography>
+                                {isAllExpanded && <UnfoldLessIcon onClick={onExpandAllClick} />}
+                                {!isAllExpanded && <UnfoldMoreIcon onClick={onExpandAllClick} />}
                             </div>
                         </div>
                     )}

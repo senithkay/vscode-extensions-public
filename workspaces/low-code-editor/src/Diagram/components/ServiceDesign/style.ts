@@ -107,16 +107,28 @@ export const useStyles = makeStyles(() =>
             maxHeight: "90%"
         },
         expandAll: {
-            textAlign: "right"
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            marginRight: "20px",
         },
         collapseBtn: {
-            display: "inline-flex",
-            border: "1px solid #5667d5",
-            borderRadius: 5,
-            paddingLeft: 15,
-            marginTop: 5,
-            marginRight: 20,
-            cursor: "pointer"
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            flexDirection: "row",
+            width: "max-content",
+            padding: "4px 4px 4px 8px",
+            marginTop: "4px",
+            borderRadius: "4px",
+            color: "#8d91a3",
+            cursor: "pointer",
+            "&:hover": {
+                backgroundColor: "#e6e7ec",
+            },
+            "& #config-showed-options": {
+                fill: "#8d91a3",
+            },
         },
         signature: {
             padding: 8,
