@@ -67,7 +67,7 @@ export function FunctionHeader() {
         // TODO: handle general funciton
         titleComponents.push(
             <div key={"title"} className="title-components">
-                {`Function Design - ${functionNode.functionName.value}`}
+                {`Function ${functionNode.functionName.value}`}
             </div>
         );
 
@@ -156,9 +156,8 @@ export function FunctionHeader() {
     }
 
     titleComponents.push(
-        <div key={"config"} className="config-form-icon" onClick={handleConfigFormClick}>
-            <SettingsIcon />
-            <div className="config-form-icon-text">Configure Interface</div>
+        <div key={"config"} className="config-form-btn" onClick={handleConfigFormClick}>
+            <SettingsIcon onClick={handleConfigFormClick}/>
         </div>
     );
 

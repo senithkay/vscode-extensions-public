@@ -22,7 +22,6 @@ import InteractionMode from "./images/interaction-mode";
 import StatementMode from "./images/statement-mode";
 import ZoomInSVG from "./images/zoom-in";
 import ZoomOutSVG from "./images/zoom-out";
-
 import './styles.scss';
 
 
@@ -134,7 +133,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
                     <div
                         className={'diagram-container-inner'}
                         style={{
-                            transform: transform,
+                            transform,
                         }}
                     >
                         <div className={'design-container'} onDoubleClick={handleDoubleClick}>
