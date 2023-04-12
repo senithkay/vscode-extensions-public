@@ -23,15 +23,18 @@ import { AddButton } from '../../../editing';
 import './styles.css';
 
 const NO_COMPONENTS_MSG = 'No components were detected in the project workspace.';
+export interface PromptScreenProps {
+    setShowEditForm?: (status: boolean) => void;
+}
 
-export function PromptScreen(props: { setShowEditForm: (status: boolean) => void }) {
+export function PromptScreen(props: PromptScreenProps) {
     const { setShowEditForm } = props;
-    const { editingEnabled } = useContext(DiagramContext);
+    const { editingEnabled, consoleView } = useContext(DiagramContext);
 
     return (
-        <div id={"no-components-prompt-screen"} className={'container'}>
+        <div id={"no-components-prompt-screen"} className={consoleView ? 'console-container' : 'container'}>
             <h3 className={'message-box'}>{NO_COMPONENTS_MSG}</h3>
-            {editingEnabled && <AddButton setShowEditForm={setShowEditForm} />}
+            {(editingEnabled || consoleView) && <AddButton setShowEditForm={setShowEditForm}  />}
         </div>
     );
 }

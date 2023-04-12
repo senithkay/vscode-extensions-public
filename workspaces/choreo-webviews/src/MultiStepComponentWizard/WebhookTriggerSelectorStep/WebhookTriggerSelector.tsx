@@ -12,7 +12,7 @@
  */
 import React, { useRef, useEffect } from "react";
 
-import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
+import { VSCodeCheckbox, VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { BallerinaTriggerInfo, DisplayAnnotation, ServiceType, Trigger } from '@wso2-enterprise/ballerina-languageclient';
 import { ErrorBanner } from '../../Commons/ErrorBanner';
 import { ChoreoWebViewAPI } from '../../utilities/WebViewRpc';
@@ -48,7 +48,21 @@ const TriggerSelectorContainer = styled.div`
     justify-content: flex-start;
     align-items: center;
     gap: 20px;
-`
+`;
+
+const ServiceContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap : 16px;
+`;
+
+const ServiceListContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 60vh;
+`;
 
 interface TriggerServiceType extends ServiceType {
     displayAnnotation?: DisplayAnnotation;
@@ -127,20 +141,23 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
         });
         refetchTrigger();
     };  
-
+    
     const handleServiceChange = (event: any) => {
-        const selectedOptions = event.currentTarget.selectedOptions;
-        const newServices:string[] = [];
-        for (let i = 0; i < selectedOptions.length; i++) {
-            newServices.push(selectedOptions[i].value);
+        const { name, checked } = event.target;
+        const selectedServices: string[] = formData?.trigger?.services || [];
+        let newServices: string[] = [];
+        if (selectedServices.includes(name) && !checked) {
+            newServices = selectedServices.filter((selectedValue) => selectedValue !== name);
+        } else {
+            newServices = [...selectedServices, name];
         }
         onFormDataChange((prevFormData) => {
             return {
                 ...prevFormData,
                 trigger: {
                     ...prevFormData.trigger,
-                    services: newServices
-                }
+                    services: newServices,
+                },
             };
         });
     };
@@ -199,38 +216,40 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
                     </TriggerSelectorContainer>
                 )}
                 {triggersError && <ErrorBanner errorMsg={triggersError as any} />}
-            </DropDownContainer>
-            {stepValidationErrors["trigger"] && <ErrorBanner errorMsg={stepValidationErrors["trigger"]} />}
-            <DropDownContainer>
-                <label htmlFor="service-dropdown">Select Trigger Services</label>
-                {fetchingTrigger && <VSCodeProgressRing />}
-                {trigger && (trigger as BallerinaTriggerInfo).serviceTypes?.length > 0 && (
-                    <TriggerSelectorContainer>
-                        <VSCodeDropdown id="service-dropdown" onChange={handleServiceChange} multiple style={{ flex: 4, zIndex: 1 }}>
-                            {trigger.serviceTypes.map((service: TriggerServiceType) => (
-                                <VSCodeOption
-                                    id={service.name}
-                                    value={service.name}
-                                    key={service.name}
-                                    defaultSelected={triggerServices?.includes(service.name)}
-                                >
-                                    {service.displayAnnotation?.label || service.name}
-                                </VSCodeOption>
-                            ))}
-                        </VSCodeDropdown>
-                        <VSCodeLink onClick={() => refetchTrigger()} style={{ flex: 1 }}>
+            </DropDownContainer>            
+            {formData.mode === "fromScratch" && (
+                <ServiceContainer>
+                    <div>
+                        <label htmlFor="service-dropdown">Select one or more Trigger Services</label>
+                        <VSCodeLink onClick={() => refetchTrigger()} style={{ marginLeft: 20 }}>
                             Refresh
                         </VSCodeLink>
-                    </TriggerSelectorContainer>
-                )}
-                {triggerError && <ErrorBanner errorMsg={triggerError as any} />}
-            </DropDownContainer>
+                    </div>
+                    {fetchingTrigger && <VSCodeProgressRing />}
+                    {trigger && (trigger as BallerinaTriggerInfo).serviceTypes?.length > 0 && (
+                        <ServiceListContainer>
+                            {trigger.serviceTypes.map((service: TriggerServiceType) => (
+                                <VSCodeCheckbox
+                                    key={service.name}
+                                    name={service.name}
+                                    checked={triggerServices?.includes(service.name)}
+                                    onChange={handleServiceChange}
+                                >
+                                    {service.displayAnnotation?.label || service.name}
+                                </VSCodeCheckbox>
+                            ))}
+                        </ServiceListContainer>
+                    )}
+                    {triggerError && <ErrorBanner errorMsg={triggerError as any} />}
+                </ServiceContainer>
+            )}
+            {stepValidationErrors["trigger"] && <ErrorBanner errorMsg={stepValidationErrors["trigger"]} />}
         </StepContainer>
     );
 }
 
 export const TriggerConfigStep: Step<Partial<ComponentWizardState>> = {
-    title: 'Configure Webhook Trigger',
+    title: "Configure Webhook Trigger",
     component: WebhookTriggerSelector,
     shouldSkip: (formData) => {
         return formData?.type !== ChoreoComponentType.Webhook;
@@ -238,10 +257,10 @@ export const TriggerConfigStep: Step<Partial<ComponentWizardState>> = {
     validationRules: [
         {
             field: "trigger",
-            message: 'Please select a trigger type and at least one service',
-            rule: async (value: TriggerDetails|undefined) => {
-                return value?.id !== undefined && value?.services?.length > 0;
-            }
-        }
-    ]
+            message: "Please select a trigger type and at least one service",
+            rule: async (value: TriggerDetails | undefined, formData: Partial<ComponentWizardState>) => {
+                return formData.mode === "fromExisting" || (value?.id !== undefined && value?.services?.length > 0);
+            },
+        },
+    ],
 };

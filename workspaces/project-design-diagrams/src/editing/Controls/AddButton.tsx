@@ -42,13 +42,15 @@ interface ControlsProps {
 
 export function AddButton(props: ControlsProps) {
     const { setShowEditForm } = props;
-    const { currentView, isChoreoProject, editLayerAPI } = useContext(DiagramContext);
+    const { currentView, isChoreoProject, editLayerAPI, addComponent } = useContext(DiagramContext);
 
     const onComponentAdd = () => {
         if (isChoreoProject && editLayerAPI) {
             editLayerAPI.executeCommand('wso2.choreo.component.create').catch((error: Error) => {
                 editLayerAPI.showErrorMessage(error.message);
             })
+        } else if (addComponent) {
+            addComponent();
         } else {
             setShowEditForm(true);
         }

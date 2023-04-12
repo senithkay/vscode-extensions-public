@@ -19,9 +19,10 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
+import { ChoreoComponentType } from '@wso2-enterprise/choreo-core';
 import { EntryNodeModel } from './EntryNodeModel';
 import { Container, DisplayName } from './styles';
-import { Colors, EntryPointIcon, Level } from '../../../resources';
+import { Colors, DefaultEntryPointIcon, Level, ManualTriggerIcon, ScheduledTriggerIcon } from '../../../resources';
 import { ServicePortWidget } from '../ServicePort/ServicePortWidget';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../common';
 
@@ -71,7 +72,11 @@ export function EntryNodeWidget(props: EntryNodeProps) {
                     port={node.getPort(`left-${node.getID()}`)}
                     engine={engine}
                 />
-                    <EntryPointIcon />
+                    {node.entryPoint.type &&
+                        node.entryPoint.type === ChoreoComponentType.ScheduledTask ? <ScheduledTriggerIcon /> :
+                        node.entryPoint.type === ChoreoComponentType.ManualTrigger ? <ManualTriggerIcon /> :
+                            <DefaultEntryPointIcon />
+                    }
                     <DisplayName>{displayName}</DisplayName>
                     {isHovered && node.entryPoint.elementLocation && editingEnabled &&
                         <NodeMenuWidget

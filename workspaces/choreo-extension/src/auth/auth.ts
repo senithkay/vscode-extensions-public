@@ -21,6 +21,8 @@ import { ChoreoAIConfig } from '../services/ai';
 import { Organization } from '@wso2-enterprise/choreo-core';
 import { SELECTED_ORG_ID_KEY, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from '../constants';
 import { showChoreoProjectOverview } from '../extension';
+import { executeWithTaskRetryPrompt } from '../retry';
+import { lock } from './lock';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -69,6 +71,7 @@ export async function initiateInbuiltAuth() {
 }
 
 export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
+    await lock.acquire();
     const currentChoreoToken = await tokenStore.getToken("choreo.token");
     if (currentChoreoToken?.accessToken && currentChoreoToken.expirationTime
         && currentChoreoToken.loginTime && currentChoreoToken.refreshToken) {
@@ -89,6 +92,7 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
             }
         }
     }
+    lock.release();
     return tokenStore.getToken(tokenType);
 }
 
@@ -100,7 +104,7 @@ export async function exchangeAuthToken(authCode: string) {
         // To bypass the self signed server error.
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
         try {
-            const response = await authClient.exchangeAuthCode(authCode);
+            const response = await executeWithTaskRetryPrompt(() => authClient.exchangeAuthCode(authCode));
             await tokenStore.setToken("choreo.token", response);
             getLogger().debug("Successfully exchanged auth code to token.");
             await signIn();
@@ -120,7 +124,7 @@ export async function exchangeApimToken(token: string, orgHandle: string) {
         return;
     }
     try {
-        const response = await authClient.exchangeApimToken(token, orgHandle);
+        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeApimToken(token, orgHandle));
         getLogger().debug("Successfully exchanged access token to apim token.");
         await tokenStore.setToken("choreo.apim.token", response);
         await exchangeVSCodeToken(response.accessToken);
@@ -138,7 +142,7 @@ export async function exchangeVSCodeToken(apimToken: string) {
         return;
     }
     try {
-        const response = await authClient.exchangeVSCodeToken(apimToken);
+        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeVSCodeToken(apimToken));
         getLogger().debug("Successfully exchanged apim token to vscode token.");
         await tokenStore.setToken("choreo.vscode.token", response);
     } catch (error: any) {
@@ -155,7 +159,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
         return;
     }
     try {
-        const response = await authClient.exchangeRefreshToken(refreshToken);
+        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeRefreshToken(refreshToken));
         getLogger().debug("Successfully exchanged refresh token to access token.");
         await tokenStore.setToken("choreo.token", response);
     } catch (error: any) {
@@ -172,7 +176,7 @@ export async function signIn() {
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
         try {
-            const userInfo = await orgClient.getUserInfo();
+            const userInfo = await executeWithTaskRetryPrompt(() => orgClient.getUserInfo());
             getLogger().debug("Successfully retrived user info.");
             ext.api.userName = userInfo.displayName;
             const selectedOrg = await getDefaultSelectedOrg(userInfo.organizations);

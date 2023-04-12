@@ -15,9 +15,7 @@ import React from "react";
 
 import { SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    DefaultableParam,
     RequiredParam,
-    RestParam,
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -68,7 +66,9 @@ export function FunctionHeader() {
     if (STKindChecker.isFunctionDefinition(functionNode)) {
         // TODO: handle general funciton
         titleComponents.push(
-            <div key={"title"} className="title-components">{`Function Design - ${functionNode.functionName.value}`}</div>
+            <div key={"title"} className="title-components">
+                {`Function ${functionNode.functionName.value}`}
+            </div>
         );
 
         functionNode.functionSignature.parameters
@@ -156,9 +156,8 @@ export function FunctionHeader() {
     }
 
     titleComponents.push(
-        <div key={"config"} className="config-form-icon" onClick={handleConfigFormClick}>
-            <SettingsIcon />
-            <div className="config-form-icon-text">Configure Interface</div>
+        <div key={"config"} className="config-form-btn" onClick={handleConfigFormClick}>
+            <SettingsIcon onClick={handleConfigFormClick}/>
         </div>
     );
 

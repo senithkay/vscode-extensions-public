@@ -10,9 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
+import { monaco } from "react-monaco-editor";
+
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, PartialSTRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { monaco } from "react-monaco-editor";
 import {
     CommaToken, DefaultableParam,
     DotToken,
