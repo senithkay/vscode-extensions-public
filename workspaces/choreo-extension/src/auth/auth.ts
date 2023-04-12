@@ -104,7 +104,7 @@ export async function exchangeAuthToken(authCode: string) {
         // To bypass the self signed server error.
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
         try {
-            const response = await executeWithTaskRetryPrompt(() => authClient.exchangeAuthCode(authCode));
+            const response = await authClient.exchangeAuthCode(authCode);
             await tokenStore.setToken("choreo.token", response);
             getLogger().debug("Successfully exchanged auth code to token.");
             await signIn();
@@ -124,7 +124,7 @@ export async function exchangeApimToken(token: string, orgHandle: string) {
         return;
     }
     try {
-        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeApimToken(token, orgHandle));
+        const response = await authClient.exchangeApimToken(token, orgHandle);
         getLogger().debug("Successfully exchanged access token to apim token.");
         await tokenStore.setToken("choreo.apim.token", response);
         await exchangeVSCodeToken(response.accessToken);
@@ -142,7 +142,7 @@ export async function exchangeVSCodeToken(apimToken: string) {
         return;
     }
     try {
-        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeVSCodeToken(apimToken));
+        const response = await authClient.exchangeVSCodeToken(apimToken);
         getLogger().debug("Successfully exchanged apim token to vscode token.");
         await tokenStore.setToken("choreo.vscode.token", response);
     } catch (error: any) {
@@ -159,7 +159,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
         return;
     }
     try {
-        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeRefreshToken(refreshToken));
+        const response = await authClient.exchangeRefreshToken(refreshToken);
         getLogger().debug("Successfully exchanged refresh token to access token.");
         await tokenStore.setToken("choreo.token", response);
     } catch (error: any) {
@@ -176,7 +176,7 @@ export async function signIn() {
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
         try {
-            const userInfo = await executeWithTaskRetryPrompt(() => orgClient.getUserInfo());
+            const userInfo = await orgClient.getUserInfo();
             getLogger().debug("Successfully retrived user info.");
             ext.api.userName = userInfo.displayName;
             const selectedOrg = await getDefaultSelectedOrg(userInfo.organizations);
