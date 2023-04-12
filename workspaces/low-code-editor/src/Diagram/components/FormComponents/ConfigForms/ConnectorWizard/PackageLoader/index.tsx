@@ -35,7 +35,7 @@ export function PackageLoader(props: FormGeneratorProps) {
             <div className={classes.loaderWrapper}>
                 <PullingModuleLoader />
                 <p className={classes.loaderTitle}>Pulling packages</p>
-                <p className={classes.loaderSubtitle}>It might take some time</p>
+                <p className={classes.loaderSubtitle}>This might take some time</p>
             </div>
         </FormControl>
     );
