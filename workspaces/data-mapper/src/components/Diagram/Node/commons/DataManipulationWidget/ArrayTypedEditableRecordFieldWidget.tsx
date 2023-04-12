@@ -141,13 +141,19 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     };
 
     const handleEditValue = () => {
+        let value = field.value.source;
+        let valuePosition = field.value.position as NodePosition;
+        let editorLabel = 'Array Element';
         if (field.value && STKindChecker.isSpecificField(field.value)) {
-            props.context.enableStatementEditor({
-                value: field.value.valueExpr.source,
-                valuePosition: field.value.valueExpr.position as NodePosition,
-                label: field.value.fieldName.value as string
-            });
+            value = field.value.valueExpr.source;
+            valuePosition = field.value.valueExpr.position as NodePosition;
+            editorLabel = field.value.fieldName.value as string;
         }
+        props.context.enableStatementEditor({
+            value,
+            valuePosition,
+            label: editorLabel
+        });
     };
 
     const onAddElementClick = (event: React.MouseEvent<HTMLButtonElement>) => {
