@@ -113,8 +113,6 @@ export function DataMapperOverlay(props: DataMapperProps) {
 
     const onSave = (fnName: string) => {
         setNewFnName(fnName);
-        console.log('fn st >>>', functionST);
-        console.log('<filePath >>>', currentFile);
     };
 
     const renderRecordPanel = (panelProps: { targetPosition: NodePosition, closeAddNewRecord: (createdNewRecord?: string) => void }) => {
