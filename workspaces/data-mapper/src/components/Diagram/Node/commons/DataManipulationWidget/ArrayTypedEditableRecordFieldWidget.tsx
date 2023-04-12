@@ -313,7 +313,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 Add Element
             </Button>
         );
-    }, []);
+    }, [isAddingElement]);
 
     const handleExpand = () => {
         handleCollapse(fieldId, !expanded);
