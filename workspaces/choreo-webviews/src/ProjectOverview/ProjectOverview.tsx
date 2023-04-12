@@ -85,7 +85,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const { data: validProject } = useQuery({
         queryKey: ["overview_project_opened_project_id", projectId],
         queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
-        select: (p) => p?.id === projectId
+        select: (p) => p && p.id === projectId
     });
 
     const isActive = useMemo(() => {
