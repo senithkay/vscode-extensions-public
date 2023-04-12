@@ -214,6 +214,8 @@ export class ProjectRegistry {
         try {
             const componentsCache = this._dataComponents.get(projectId) || [];
             const components = this._addLocalComponents(projectId, componentsCache);
+            const openedProject = await ext.api.getChoreoProject();
+            const isActive = projectId === openedProject?.id;
 
             let envData = this._projectEnvs.get(projectId);
             if(!envData){
@@ -229,8 +231,8 @@ export class ProjectRegistry {
                 components.map(async (component) => {
                     const selectedVersion = component.apiVersions?.find(item=>item.latest);
                     const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo, buildStatus] = await Promise.all([
-                        this.hasUnPushedLocalCommit(projectId, component),
-                        this.hasDirtyLocalRepo(projectId, component),
+                        isActive && this.hasUnPushedLocalCommit(projectId, component),
+                        isActive && this.hasDirtyLocalRepo(projectId, component),
                         !component.local && selectedVersion && devEnv && executeWithTaskRetryPrompt(() => projectClient.getComponentDeploymentStatus({
                             component,
                             envId: devEnv?.id,
@@ -239,12 +241,12 @@ export class ProjectRegistry {
                             projId: projectId,
                             versionId: selectedVersion.id
                         })),
-                        this.isComponentInRepo(component),
+                        isActive && this.isComponentInRepo(component),
                         !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({componentId: component.id, versionId: selectedVersion.id}))
                     ]);
 
                     let isRemoteOnly = true;
-                    if (component.repository?.appSubPath) {
+                    if (component.repository?.appSubPath && isActive) {
                         const { organizationApp, nameApp, appSubPath } = component.repository;
                         isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
                     }
