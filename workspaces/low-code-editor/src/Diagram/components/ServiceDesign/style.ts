@@ -179,7 +179,7 @@ export const useStyles = makeStyles(() =>
             borderRadius: 3,
             padding: 7,
             "&:hover": {
-                backgroundColor: "#e6e7ec",                
+                backgroundColor: "#e6e7ec",
             },
             "& #config-showed-options": {
                 fill: "#8d91a3",

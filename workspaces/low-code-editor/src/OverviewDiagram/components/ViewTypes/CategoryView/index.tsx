@@ -18,11 +18,11 @@ import SearchIcon from '@material-ui/icons/Search';
 import { BallerinaProjectComponents, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { ComponentCollection, ComponentViewInfo, genFilePath } from "../../../util";
+import { TopLevelActionButton } from "../../TopLevelActionButton";
 import { ComponentView } from "../ComponentView";
 
 import useStyles from "./style";
 import './style.scss'
-import { TopLevelActionButton } from "../../TopLevelActionButton";
 
 interface CategoryViewProps {
     projectComponents: BallerinaProjectComponents;

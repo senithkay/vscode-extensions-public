@@ -139,7 +139,7 @@ export function DiagramViewManager(props: EditorProps) {
                 const isWindows = window.navigator.userAgent.indexOf('Windows') !== -1;
                 if (isWindows) {
                     // check if the file path has forward slash at the begning and replace if the os is windows
-                    response.forEach((fileUri,) => {
+                    response.forEach((fileUri) => {
                         if (fileUri.path.startsWith('/')) {
                             fileUri.path = fileUri.path.replace('/', '');
                             fileUri.path = fileUri.path.replaceAll('/', '\\');

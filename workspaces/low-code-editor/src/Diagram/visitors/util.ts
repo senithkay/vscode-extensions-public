@@ -63,6 +63,7 @@ export function generateConstructIdStub(construct: STNode, index?: number): stri
     } else if (STKindChecker.isObjectMethodDefinition(construct)) {
         id = `${CONSTRUCT_KEYWORDS.FUNCTION}${SUB_DELIMETER}${construct.functionName.value}`;
     } else if (STKindChecker.isResourceAccessorDefinition(construct)) {
+        // tslint:disable: prefer-conditional-expression
         id = `${CONSTRUCT_KEYWORDS.RESOURCE}${SUB_DELIMETER}${construct.functionName.value}`;
         if (construct.relativeResourcePath && construct.relativeResourcePath.length > 0) {
             id = `${id}-${generateResourcePathString(construct.relativeResourcePath)}`;

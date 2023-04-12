@@ -191,7 +191,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                             </div>
                         </div>
                     </div>
-                    {children.length > 0 &&
+                    {children.length > 0 && (
                         <div className={classes.expandAll}>
                             <div className={classes.collapseBtn} onClick={onExpandAllClick}>
                                 {isAllExpanded ? 'Collapse All' : 'Expand All'}
@@ -201,7 +201,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                                 />
                             </div>
                         </div>
-                    }
+                    )}
                     <div className={classes.serviceList}>
                         <>
                             {children.length > 0 ? children : emptyView}
