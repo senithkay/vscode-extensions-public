@@ -46,7 +46,7 @@ export interface AuthClientConfig {
 export interface IAuthClient {
     exchangeAuthCode(authCode: string): Promise<AccessToken>;
     exchangeApimToken(choreoAccessToken: string, orgHandle: string): Promise<AccessToken>;
-    exchangeVSCodeToken(apiAccessToken: string): Promise<AccessToken>;
+    exchangeVSCodeToken(apiAccessToken: string, orgHandle: string): Promise<AccessToken>;
     exchangeRefreshToken(refreshToken: string): Promise<AccessToken>;
     getAuthURL(callbackUri: Uri): string;
 }
