@@ -80,6 +80,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
     const [parameters, setParameters] = useState<FunctionParam[]>([]);
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [addingNewParam, setAddingNewParam] = useState(false);
+    const [addingBeforeDefaultableParam, setAddingBeforeDefaultableParam] = useState(false);
 
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
@@ -118,21 +119,42 @@ export function GraphqlMutationForm(props: FunctionProps) {
     const openNewParamView = async () => {
         setParamsBeforeParamChange(parameters);
         setCurrentComponentName("Param");
-        setAddingNewParam(true);
-        setEditingSegmentId(-1);
-        const newParams = [...parameters, { type: "string", name: "name" }];
-        const parametersStr = getParametersAsString(newParams)
+        let editingParamId = params?.length === 0 ? 0 : params?.length;
+        const newParamsList = [...parameters, { type: "string", name: "name" }];
+        let parametersStr = getParametersAsString(newParamsList);
+        const lastParamIndex = params.findIndex(param => STKindChecker.isRestParam(param) || STKindChecker.isDefaultableParam(param));
+        if (lastParamIndex !== -1) {
+            editingParamId = lastParamIndex;
+            parametersStr = params.reduce((prev, current, currentIndex) => {
+                const previousParams = prev.length === 0 ? `${prev}` : `${prev},`;
+                return currentIndex === lastParamIndex ?
+                    `${previousParams} string name, ${current.source ? current.source : current.value}` :
+                    `${previousParams} ${current.source ? current.source : current.value}`
+            }, '');
+
+            setAddingBeforeDefaultableParam(true);
+        } else {
+
+            setAddingNewParam(true);
+        }
+
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
             model.functionSignature?.returnTypeDesc?.type?.source
         );
+        setEditingSegmentId(editingParamId);
     };
 
     const onNewParamChange = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
-        const newParams = [...parameters, parameter];
-        const parametersStr = getParametersAsString(newParams)
+        let newParams = [...parameters];
+        if (addingBeforeDefaultableParam) {
+            newParams[editingSegmentId] = parameter;
+        } else {
+            newParams = [...parameters, parameter];
+        }
+        const parametersStr = getParametersAsString(newParams);
         await handleRemoteMethodDataChange(
             model.functionName.value,
             parametersStr,
@@ -188,6 +210,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
             model.functionSignature?.returnTypeDesc?.type?.source
         );
         setAddingNewParam(false);
+        setAddingBeforeDefaultableParam(false);
         setIsEditInProgress(false);
         setEditingSegmentId(-1);
         setCurrentComponentName(undefined);
@@ -195,8 +218,16 @@ export function GraphqlMutationForm(props: FunctionProps) {
     };
 
     const onSaveNewParam = (param: FunctionParam) => {
-        setParameters([...parameters, param]);
+        if (addingBeforeDefaultableParam) {
+            if (editingSegmentId > -1) {
+                parameters[editingSegmentId] = param;
+                setParameters(parameters);
+            }
+        } else {
+            setParameters([...parameters, param]);
+        }
         setAddingNewParam(false);
+        setAddingBeforeDefaultableParam(false);
         setEditingSegmentId(-1);
         setIsEditInProgress(false);
     };
@@ -238,7 +269,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         onEditClick={handleOnEdit}
                     />
                 );
-            } else if (editingSegmentId === index) {
+            } else if (editingSegmentId === index && !addingNewParam && !addingBeforeDefaultableParam) {
                 paramElements.push(
                     <ParameterEditor
                         param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
@@ -257,7 +288,7 @@ export function GraphqlMutationForm(props: FunctionProps) {
     });
 
     useEffect(() => {
-        if (currentComponentName === "") {
+        if (currentComponentName === "" || addingBeforeDefaultableParam) {
             const editParams: FunctionParam[] = model?.functionSignature.parameters
                 .filter((param) => !STKindChecker.isCommaToken(param))
                 .map((param: any, index) => ({
@@ -328,9 +359,9 @@ export function GraphqlMutationForm(props: FunctionProps) {
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <ConfigPanelSection title={"Parameters"}>
                             {paramElements}
-                            {addingNewParam ? (
+                            {addingNewParam || addingBeforeDefaultableParam ? (
                                 <ParameterEditor
-                                    param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
+                                    param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam |
                                         RequiredParam | RestParam)}
                                     id={parameters.length}
                                     syntaxDiag={currentComponentSyntaxDiag}
