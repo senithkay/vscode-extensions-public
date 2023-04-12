@@ -308,22 +308,22 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             </VSCodeButton>
                         </ActionContainer>
                         {components?.length > 0 && (
-                            <ActionContainer>
+                            <>
                                 <p>
-                                    <p>
-                                        <InlineIcon>
-                                            <Codicon name="info" />
-                                        </InlineIcon>{" "}
-                                        Open the architecture view to add components.{" "}
-                                    </p>
+                                    <InlineIcon>
+                                        <Codicon name="info" />
+                                    </InlineIcon>{" "}
+                                    Open the architecture view to add components.{" "}
+                                </p>
+                                <ActionContainer>
                                     <VSCodeButton
                                         appearance="primary"
                                         onClick={handleOpenChoreoArchitectureViewClick}
                                     >
                                         Architecture View
                                     </VSCodeButton>
-                                </p>
-                            </ActionContainer>
+                                </ActionContainer>
+                            </>
                         )}
                     </>
                 )}
