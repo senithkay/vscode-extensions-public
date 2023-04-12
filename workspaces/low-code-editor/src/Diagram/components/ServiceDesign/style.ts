@@ -141,10 +141,14 @@ export const useStyles = makeStyles(() =>
         schema: {
             background: "#f3efef",
             padding: 16,
+            width: 300,
+            marginRight: -250
         },
         schemaButton: {
             cursor: "pointer",
-            fontWeight: 900
+            fontWeight: 900,
+            color: "#5567d5",
+            textTransform: "none"
         },
         recordEdit: {
             textAlign: "end",
