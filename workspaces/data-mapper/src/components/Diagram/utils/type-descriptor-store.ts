@@ -49,8 +49,8 @@ export class TypeDescriptorStore {
 
     public async storeTypeDescriptors(stNode: FunctionDefinition, context: IDataMapperContext, isArraysSupported: boolean) {
         if (this.stNode
-            && isPositionsEquals(this.stNode.position, stNode.position)
-            && this.stNode.source === stNode.source) {
+                && isPositionsEquals(this.stNode.position, stNode.position)
+                && this.stNode.source === stNode.source) {
             return;
         }
         this.status = TypeStoreStatus.Loading;
