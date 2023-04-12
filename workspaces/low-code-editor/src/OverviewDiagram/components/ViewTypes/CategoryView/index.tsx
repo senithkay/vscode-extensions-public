@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { FormControl, Input, InputAdornment, InputLabel, OutlinedInput, Select, TextField } from "@material-ui/core";
+import { FormControl, Input, InputAdornment, InputLabel, OutlinedInput, Select, TextField, Typography } from "@material-ui/core";
 import SearchIcon from '@material-ui/icons/Search';
 import { BallerinaProjectComponents, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
@@ -175,7 +175,7 @@ export function CategoryView(props: CategoryViewProps) {
 
             categories.push(
                 <div className={classes.categoryContainer} key={key + categoryIndex}>
-                    <h3 className={classes.categoryTitle}>{key}</h3>
+                    <Typography variant="h3" className={classes.categoryTitle}>{key}</Typography>
                     <div className={classes.componentContainer}>{components}</div>
                 </div>
             );

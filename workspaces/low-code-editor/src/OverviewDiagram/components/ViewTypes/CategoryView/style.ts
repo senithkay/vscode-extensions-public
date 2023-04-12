@@ -28,6 +28,7 @@ const useStyles = makeStyles(() =>
         },
         categoryTitle: {
             textTransform: "capitalize",
+            marginBottom: 10,
         },
         noComponents: {
             display: "flex",

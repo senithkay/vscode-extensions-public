@@ -173,19 +173,22 @@ export function ServiceDesign(props: ServiceDesignProps) {
             {serviceST && (
                 <>
                     <div className={classes.serviceTitle}>
-                        <div className={classes.serviceTitleText}>
-                            <span className={classes.servicePath}>Service {servicePath}</span>
-                            <span className={classes.listenerText}>
-                                {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ''}
-                            </span>
+                        <div  className={classes.flexRow}>
+                            <Typography variant="h4">
+                                Service {servicePath}
+                            </Typography>
+                            <Typography variant="h4" className={classes.listenerText}>
+                                {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ""}
+                            </Typography>
                         </div>
-                        <div className={classes.resourceAdd} onClick={handlePlusClick} >
-                            <AddIcon />
-                            <div>Add Resource</div>
-                        </div>
-                        <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
-                            <SettingsIcon />
-                            <div>Configure Service</div>
+                        <div  className={classes.flexRow}>
+                            <div className={classes.resourceAdd} onClick={handlePlusClick} >
+                                <AddIcon />
+                                <div>Resource</div>
+                            </div>
+                            <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
+                                <SettingsIcon onClick={handleServiceConfigureFormClick}/>
+                            </div>
                         </div>
                     </div>
                     {children.length > 0 &&

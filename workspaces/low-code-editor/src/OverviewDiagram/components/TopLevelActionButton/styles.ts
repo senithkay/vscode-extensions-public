@@ -29,16 +29,16 @@ export const useStyles = makeStyles((theme: Theme) =>
             },
         },
         addComponentButton: {
+            cursor: "pointer",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            marginBottom: 15,
-            padding: '0 10px 0 5px',
-            cursor: "pointer",
+            borderRadius: 4,
+            padding: '4px 9px 4px 6px',
             backgroundColor: theme.palette.primary.main,
             color: "white",
-            borderRadius: "5px",
-            marginLeft: 'auto'
+            marginLeft: 'auto',
+            height: 32,
         }
     })
 );
