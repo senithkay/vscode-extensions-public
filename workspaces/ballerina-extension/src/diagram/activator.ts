@@ -664,16 +664,16 @@ export async function refreshDiagramForEditorChange(change: Change) {
 		diagramElement!.startLine = 0;
 		diagramElement!.startColumn = 0;
 	}
-	callUpdateDiagramMethod();
+	callUpdateDiagramMethod(true);
 }
 
-export function callUpdateDiagramMethod() {
+export function callUpdateDiagramMethod(isEditorChange: boolean = false) {
 	performDidOpen();
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
 	const fileName: string | undefined = getCurrentFileName();
 	DiagramPanel.currentPanel?.updateTitle(fileName ? `${fileName} Diagram` : `Ballerina Diagram`);
 	const args = [{
-		filePath: ballerinaFilePath,
+		filePath: isEditorChange ? undefined : ballerinaFilePath,
 		startLine: diagramElement!.startLine,
 		startColumn: diagramElement!.startColumn,
 		projectPaths: diagramElement!.projectPaths
