@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "4.0.2023041102",
+    "version": "4.0.2023041212",
     "publisher": "wso2",
     "repository": {
         "type": "git",
