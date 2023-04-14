@@ -54,7 +54,7 @@ interface IDiagramContext {
     setNewComponentID?: (name: string | undefined) => void;
     setNewLinkNodes?: (nodes: LinkedNodes) => void;
     setConnectorTarget?: (service: Service) => void;
-    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void> | undefined;
+    deleteComponent?: (location: ElementLocation, deletePkg: boolean) => Promise<void> | undefined;
     addComponent?: () => void;
 }
 
