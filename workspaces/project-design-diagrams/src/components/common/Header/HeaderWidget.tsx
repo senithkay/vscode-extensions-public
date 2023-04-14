@@ -17,14 +17,16 @@
  *
  */
 
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import Chip from '@mui/material/Chip';
+import IconButton from '@mui/material/IconButton';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { RestrictedControls } from './DiagramControls/RestrictedControls';
 import { DefaultControls } from './DiagramControls/DefaultControls';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { DagreLayout, Views } from '../../../resources';
+import { ViewSwitcher } from './TypeSelector/DiagramTypeSelector';
 import { HeaderLeftPane, DiagramTitle, HeaderContainer } from './styles/styles';
-import './styles/styles.css';
 
 interface HeaderProps {
     layout: DagreLayout;
@@ -46,15 +48,28 @@ const headings: Map<Views, string> = new Map<Views, string>([
 export function DiagramHeader(props: HeaderProps) {
     const { layout, prevView, projectPackages, changeLayout, setShowEditForm, updateProjectPkgs } = props;
     const { currentView, editingEnabled } = useContext(DiagramContext);
+    const [showTypeDropdown, setShowTypeDropdown] = useState<boolean>(false);
 
     return (
         <HeaderContainer>
             <HeaderLeftPane isEditable={editingEnabled}>
-                <DiagramTitle> {headings.get(currentView)} </DiagramTitle>
+                {currentView !== Views.TYPE_COMPOSITION &&
+                    <IconButton
+                        className={'iconButton'}
+                        size='small'
+                        onMouseOver={() => setShowTypeDropdown(true)}
+                    >
+                        <MenuRoundedIcon fontSize={'small'} />
+                    </IconButton>
+                }
+                <DiagramTitle>
+                    {headings.get(currentView)}
+                </DiagramTitle>
                 {!editingEnabled &&
                     <Chip label={'Read-Only Mode'} sx={{ fontSize: '11px', fontFamily: 'GilmerRegular', marginLeft: '5px' }} />
                 }
             </HeaderLeftPane>
+
             {currentView === Views.TYPE_COMPOSITION ?
                 <RestrictedControls previousScreen={prevView} /> :
                 <DefaultControls
@@ -65,6 +80,8 @@ export function DiagramHeader(props: HeaderProps) {
                     setShowEditForm={setShowEditForm}
                 />
             }
+
+            {showTypeDropdown && <ViewSwitcher setShowTypeDropdown={setShowTypeDropdown} />}
         </HeaderContainer>
     );
 }

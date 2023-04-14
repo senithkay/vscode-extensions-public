@@ -91,7 +91,7 @@ export function ActionInvocation(props: ConnectorLineProps) {
                     width={DefaultConfig.textLine.padding + DefaultConfig.textLine.width + DefaultConfig.textLine.padding}
                     className={'method-text'}
                 >
-                    {viewState.action.actionName}{/* isPerformanceViewOpen ? truncatedActionName : */}
+                    {`${viewState.action.actionName} ${viewState.action.resourcePath || ''}`}{/* isPerformanceViewOpen ? truncatedActionName : */}
                 </text>
                 <ActionInvoLine
                     actionX={actionLineStartX}

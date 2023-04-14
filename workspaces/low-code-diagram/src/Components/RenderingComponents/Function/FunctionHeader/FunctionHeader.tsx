@@ -15,9 +15,7 @@ import React from "react";
 
 import { SettingsIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    DefaultableParam,
     RequiredParam,
-    RestParam,
     STKindChecker,
 } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
@@ -68,7 +66,9 @@ export function FunctionHeader() {
     if (STKindChecker.isFunctionDefinition(functionNode)) {
         // TODO: handle general funciton
         titleComponents.push(
-            <div key={"title"} className="title-components">{`Function Design - ${functionNode.functionName.value}`}</div>
+            <div key={"title"} className="title-components">
+                {`Function ${functionNode.functionName.value}`}
+            </div>
         );
 
         functionNode.functionSignature.parameters
@@ -113,32 +113,19 @@ export function FunctionHeader() {
             }
         });
 
-        const queryParamComponents: React.ReactElement[] = functionNode.functionSignature.parameters
-            .filter((param) => isQueryParam(param))
-            .map((param: RequiredParam, i) => (
-                <span key={i}>
-                    {i !== 0 ? "&" : ""}
-                    {param.paramName.value}
-                    <sub className={'type-descriptor'}>{(param.typeName as any)?.name?.value}</sub>
-                </span>
-            ));
-
         functionNode.functionSignature.parameters
-            .filter((param) => !STKindChecker.isCommaToken(param))
-            .filter((param) => !isQueryParam(param))
-            .forEach((param: DefaultableParam | RequiredParam | RestParam, paramIndex) => {
-                argumentComponents.push(
-                    <div key={paramIndex} className={'argument-item'}>
-                        <span className="type-name">{param.typeName.source.trim()}</span>
-                        <span className="argument-name">{param.paramName.value}</span>
-                    </div>
-                );
+            .forEach((param, paramIndex) => {
+                if (STKindChecker.isRequiredParam(param)
+                    || STKindChecker.isDefaultableParam(param)
+                    || STKindChecker.isRestParam(param)) {
+                    argumentComponents.push(
+                        <div key={paramIndex} className={'argument-item'}>
+                            <span className="type-name">{param.typeName.source.trim()}</span>
+                            <span className="argument-name">{param.paramName.value}</span>
+                        </div>
+                    );
+                }
             });
-
-        if (queryParamComponents.length > 0) {
-            resourceTitleContent.push(<span>?</span>);
-            resourceTitleContent.push(...queryParamComponents);
-        }
 
         titleComponents.push(
             <div key={"params"} className="title-components">
@@ -169,9 +156,8 @@ export function FunctionHeader() {
     }
 
     titleComponents.push(
-        <div key={"config"} className="config-form-icon" onClick={handleConfigFormClick}>
-            <SettingsIcon />
-            <div className="config-form-icon-text">Configure Interface</div>
+        <div key={"config"} className="config-form-btn" onClick={handleConfigFormClick}>
+            <SettingsIcon onClick={handleConfigFormClick}/>
         </div>
     );
 

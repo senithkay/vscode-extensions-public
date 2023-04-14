@@ -18,4 +18,3 @@
  */
 
 export * from './DiagramControls';
-export * from './ViewSwitcher';

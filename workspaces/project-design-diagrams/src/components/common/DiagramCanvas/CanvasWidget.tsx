@@ -23,7 +23,7 @@ import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import debounce from 'lodash.debounce';
-import { DiagramControls, ViewSwitcher } from './ControlLayer';
+import { DiagramControls } from './ControlLayer';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 import { GatewayLinkModel } from '../../gateway/GatewayLink/GatewayLinkModel';
 import { GatewayNodeModel } from '../../gateway/GatewayNode/GatewayNodeModel';
@@ -216,7 +216,6 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                     <CanvasWidget engine={diagramEngine} className={diagramClass} />
                 </div>
             }
-            {type !== Views.TYPE_COMPOSITION && currentView !== Views.CELL_VIEW && <ViewSwitcher />}
             {currentView !== Views.CELL_VIEW && (
                 <DiagramControls
                     showDownloadButton={type !== Views.CELL_VIEW}

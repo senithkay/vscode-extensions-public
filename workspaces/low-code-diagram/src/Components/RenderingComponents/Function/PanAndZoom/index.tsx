@@ -22,7 +22,6 @@ import InteractionMode from "./images/interaction-mode";
 import StatementMode from "./images/statement-mode";
 import ZoomInSVG from "./images/zoom-in";
 import ZoomOutSVG from "./images/zoom-out";
-
 import './styles.scss';
 
 
@@ -111,7 +110,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
             // pan logic
             setZoomStatus({
                 ...zoomStatus,
-                panX: zoomStatus.panX + e.deltaX,
+                panX: zoomStatus.panX + -e.deltaX,
                 panY: zoomStatus.panY + -e.deltaY,
             });
         }
@@ -122,7 +121,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
     return (
         <div className={'design-container-outer'} style={{ display: "flex", flexDirection: "column" }}>
             <FunctionHeader />
-            <div style={{ display: "flex", flexDirection: "row" }}>
+            <div style={{ display: "flex", flexDirection: "row", padding: '0 10px 0 0' }}>
                 <div
                     className={'diagram-container-outer'}
                     ref={containerRef}
@@ -134,7 +133,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
                     <div
                         className={'diagram-container-inner'}
                         style={{
-                            transform: transform,
+                            transform,
                         }}
                     >
                         <div className={'design-container'} onDoubleClick={handleDoubleClick}>
@@ -142,7 +141,7 @@ export default function PanAndZoom(props: React.PropsWithChildren<PanAndZoomProp
                         </div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }} className="tools">
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'end' }} className="tools">
                     <div className={'zoom-control-wrapper'} onClick={toggleViewMode}>
                         {viewMode === ViewMode.STATEMENT ? <InteractionMode /> : <StatementMode />}
                     </div>

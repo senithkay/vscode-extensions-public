@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
-import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, PushedComponent, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
 import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTrigger, FetchBallerinaTriggers, GetBallerinaVersion, GetRepoPathRequest, IsRepoClonedRequest } from "./types";
@@ -45,7 +45,10 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     getLocalComponents(_workspaceFilePath: string): Component[] {
         throw new Error("Method not implemented.");
     }
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    getPushedComponents(_workspaceFilePath: string): PushedComponent[] {
+        throw new Error("Method not implemented.");
+    }
     fetchTriggers(): Promise<BallerinaTriggersResponse | undefined> {
         return this._messenger.sendRequest(FetchBallerinaTriggers, HOST_EXTENSION, "");
     }

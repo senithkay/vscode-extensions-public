@@ -107,16 +107,28 @@ export const useStyles = makeStyles(() =>
             maxHeight: "90%"
         },
         expandAll: {
-            textAlign: "right"
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            marginRight: "20px",
         },
         collapseBtn: {
-            display: "inline-flex",
-            border: "1px solid #5667d5",
-            borderRadius: 5,
-            paddingLeft: 15,
-            marginTop: 5,
-            marginRight: 20,
-            cursor: "pointer"
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            flexDirection: "row",
+            width: "max-content",
+            padding: "4px 4px 4px 8px",
+            marginTop: "4px",
+            borderRadius: "4px",
+            color: "#8d91a3",
+            cursor: "pointer",
+            "&:hover": {
+                backgroundColor: "#e6e7ec",
+            },
+            "& #config-showed-options": {
+                fill: "#8d91a3",
+            },
         },
         signature: {
             padding: 8,
@@ -141,10 +153,14 @@ export const useStyles = makeStyles(() =>
         schema: {
             background: "#f3efef",
             padding: 16,
+            width: 300,
+            marginRight: -250
         },
         schemaButton: {
             cursor: "pointer",
-            fontWeight: 900
+            fontWeight: 900,
+            color: "#5567d5",
+            textTransform: "none"
         },
         recordEdit: {
             textAlign: "end",
@@ -156,50 +172,44 @@ export const useStyles = makeStyles(() =>
             cursor: "pointer"
         },
         serviceTitle: {
-            padding: 10,
             display: "flex",
-            justifyContent: "center",
             flexDirection: "row",
+            justifyContent: "space-between",
+            padding: "0 20px",
             height: 40,
             width: "100%",
             boxShadow: "inset 0 -1px 0 0 #E6E7EC",
             backgroundColor: "#F7F8FB",
             alignItems: "center"
         },
-        serviceTitleText: {
-            flexGrow: 1,
+        flexRow: {
+            display: "flex",
+            flexDirection: "row",
+            gap: 8,
         },
         serviceConfigure: {
             cursor: "pointer",
             display: "flex",
-            marginLeft: 5,
             justifyContent: "center",
             alignItems: "center",
-            borderRadius: 4,
-            padding: 5,
-            backgroundColor: "#5567d5",
-            color: "white",
+            borderRadius: 3,
+            padding: 7,
+            "&:hover": {
+                backgroundColor: "#e6e7ec",
+            },
             "& #config-showed-options": {
-                fill: "white",
+                fill: "#8d91a3",
             },
-            "& :hover": {
-                cursor: "pointer"
-            },
-            width: "inherit",
-            maxWidth: 150
         },
         resourceAdd: {
             cursor: "pointer",
             display: "flex",
-            marginLeft: 5,
             justifyContent: "center",
-            alignItems: "center",
-            borderRadius: 4,
-            padding: 5,
-            backgroundColor: "#328b5e",
+            alignItems: "flex-end",
+            borderRadius: 3,
+            padding: "4px 9px 4px 6px",
+            backgroundColor: theme.palette.primary.main,
             color: "white",
-            width: "inherit",
-            maxWidth: 150
         },
         navigationIcon: {
             display: "flex",
@@ -212,8 +222,8 @@ export const useStyles = makeStyles(() =>
             fontWeight: 400
         },
         listenerText: {
-            fontSize: 15,
-            fontWeight: 200
+            color: theme.palette.text.hint,
+            fontWeight: 400
         },
         addResource: {
             height: '30px !important',

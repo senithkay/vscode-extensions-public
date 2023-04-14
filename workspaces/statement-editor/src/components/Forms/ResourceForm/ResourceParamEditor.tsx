@@ -102,8 +102,8 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
         onChangeInProgress(false);
         if (id && id >= 0 && isNew) {
             onDelete({ id, name:"" });
-            setIsNew(false);
         }
+        setIsNew(false);
     };
 
 

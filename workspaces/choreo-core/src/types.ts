@@ -48,6 +48,11 @@ export interface Project {
     version: string;
 }
 
+export interface ComponentCount {
+    orgId: number; 
+    componentCount: number;
+}
+
 export interface ApiVersion {
     apiVersion: string;
     proxyName: string;
@@ -95,6 +100,11 @@ export interface Component {
     isInRemoteRepo?: boolean;
     deployments?: Deployments;
     buildStatus?: BuildStatus;
+}
+
+export interface PushedComponent {
+    path: string;
+    name: string;
 }
 
 export interface Environment {

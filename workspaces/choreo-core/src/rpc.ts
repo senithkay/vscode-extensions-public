@@ -12,7 +12,7 @@
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { Organization, ChoreoLoginStatus, Project, Component } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -28,6 +28,8 @@ export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 
 export const GetAllProjectsRequest: RequestType<string, Project[]> = { method: 'getAllProjects' };
 export const GetProject: RequestType<string, Project> = { method: 'getProject' };
 export const GetComponents: RequestType<string, Component[]> = { method: 'getComponents' };
+export const GetDeletedComponents: RequestType<string, PushedComponent[]> = { method: 'getDeletedComponents' };
+export const RemoveDeletedComponents: RequestType<{projectId: string, components: PushedComponent[]}, void> = { method: 'removeDeletedComponents' };
 export const GetEnrichedComponents: RequestType<string, Component[]> = { method: 'getEnrichedComponents' };
 export const DeleteComponent: RequestType<{projectId: string, component: Component}, Component | null> = { method: 'deleteComponent' };
 export const PullComponent: RequestType<{projectId: string, componentId: string}, void> = { method: 'pullComponent' };
@@ -49,6 +51,7 @@ export const getDiagramComponentModel: RequestType<{ projId: string, orgHandler:
 export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: 'executeCommand' };
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
 export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };
+export const GetComponentCount: RequestType<number, ComponentCount> = { method: 'getComponentCount' };
 
 export interface OpenDialogOptions {
    title: string,

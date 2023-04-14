@@ -12,11 +12,13 @@
  */
 import React from "react";
 
+import { Typography } from "@material-ui/core";
 import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import classNames from "classnames";
 
 import { ComponentViewInfo } from "../../../util";
 
+import useStyles from "./style";
 import './style.scss';
 
 interface ComponentViewProps {
@@ -28,6 +30,7 @@ interface ComponentViewProps {
 
 export function ComponentView(props: ComponentViewProps) {
     const { info, updateSelection } = props;
+    const classes = useStyles();
 
     const handleComponentClick = () => {
         updateSelection(info);
@@ -57,7 +60,7 @@ export function ComponentView(props: ComponentViewProps) {
             <div className="icon">
                 {getConstructIcon(`${iconNameTranslator(props.type)}Icon`)}
             </div>
-            <div className="title label">{info.name.length ? info.name : '/'}</div>
+            <Typography className={classes.label} variant="h4">{info.name.length ? info.name : '/'}</Typography>
         </div>
     )
 }

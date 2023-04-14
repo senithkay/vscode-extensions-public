@@ -2,7 +2,7 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.0.2023040307",
+  "version": "1.0.2023041212",
   "publisher": "wso2",
   "icon": "resources/icons/choreo.png",
   "repository": {
@@ -37,7 +37,8 @@
       },
       {
         "command": "wso2.choreo.org.setAsSelected",
-        "title": "Set As Seleted"
+        "title": "Select",
+        "icon": "$(check)"
       },
       {
         "command": "wso2.choreo.component.clone",
@@ -128,7 +129,8 @@
       "view/item/context": [
         {
           "command": "wso2.choreo.org.setAsSelected",
-          "when": "view == choreo-account && viewItem == choreo.org"
+          "when": "view == choreo-account && viewItem == choreo.org",
+          "group": "inline"
         }
       ],
       "commandPalette": [

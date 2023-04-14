@@ -16,6 +16,7 @@ import { githubAppClient } from "./auth/auth";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
 import { STATUS_LOGGED_IN, choreoProjectOverview, choreoSignInCmdId, refreshProjectsTreeViewCmdId } from "./constants";
+import { executeWithTaskRetryPrompt } from "./retry";
 
 export function activateURIHandlers() {
     window.registerUriHandler({
@@ -40,7 +41,7 @@ export function activateURIHandlers() {
                 const installationId = urlParams.get("installationId");
                 if (authCode) {
                     getLogger().debug(`Github exchanging code for token`);
-                    githubAppClient.obatainAccessToken(authCode).catch((err) => {
+                    executeWithTaskRetryPrompt(() => githubAppClient.obatainAccessToken(authCode)).catch((err) => {
                         getLogger().error(`Github App Auth Failed: ${err.message}`);
                         window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
                     });

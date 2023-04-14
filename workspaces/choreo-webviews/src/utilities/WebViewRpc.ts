@@ -45,12 +45,17 @@ import {
     getDiagramComponentModel,
     DeleteComponent,
     PullComponent,
+    PushedComponent,
+    GetDeletedComponents,
     PushLocalComponentToChoreo,
     GetEnrichedComponents,
     OpenDialogOptions,
     showOpenDialogRequest,
     getPreferredProjectRepository,
-    setPreferredProjectRepository
+    setPreferredProjectRepository,
+    RemoveDeletedComponents,
+    GetComponentCount,
+    ComponentCount,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -94,6 +99,14 @@ export class ChoreoWebViewAPI {
 
     public async getComponents(projectId: string): Promise<Component[]> {
         return this._messenger.sendRequest(GetComponents, HOST_EXTENSION, projectId);
+    }
+    
+    public async getDeletedComponents(projectId: string): Promise<PushedComponent[]> {
+        return this._messenger.sendRequest(GetDeletedComponents, HOST_EXTENSION, projectId);
+    }
+
+    public async removeDeletedComponents(params: {projectId: string; components: PushedComponent[]}): Promise<void> {
+        this._messenger.sendRequest(RemoveDeletedComponents, HOST_EXTENSION, params);
     }
 
     public async getEnrichedComponents(projectId: string): Promise<Component[]> {
@@ -217,5 +230,9 @@ export class ChoreoWebViewAPI {
 
     public updateProjectOverview(projectId: string) {
         return this._messenger.sendRequest(UpdateProjectOverview, HOST_EXTENSION, projectId);
+    }
+
+    public async getComponentCount(): Promise<ComponentCount> {
+        return this._messenger.sendRequest(GetComponentCount, HOST_EXTENSION, undefined);
     }
 }

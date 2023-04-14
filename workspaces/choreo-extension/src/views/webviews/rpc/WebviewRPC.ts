@@ -32,9 +32,13 @@ import {
     PushLocalComponentToChoreo,
     showOpenDialogRequest,
     OpenDialogOptions,
+    GetDeletedComponents,
     GetEnrichedComponents,
     getPreferredProjectRepository,
-    setPreferredProjectRepository
+    setPreferredProjectRepository,
+    PushedComponent,
+    RemoveDeletedComponents,
+    GetComponentCount
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -48,6 +52,7 @@ import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData} from "../../../utils";
 import { getLogger } from "../../../logger/logger";
+import { executeWithTaskRetryPrompt } from "../../../retry";
 
 export class WebViewRpc {
 
@@ -67,9 +72,8 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllOrgsRequest, async () => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
-                return orgClient.getUserInfo()
-                    .then((userInfo) => userInfo.organizations)
-                    .catch(serializeError);
+                const info = await executeWithTaskRetryPrompt(() => orgClient.getUserInfo());
+                return info.organizations;
             }
         });
         // TODO: Remove this once the Choreo project client RPC handlers are registered
@@ -85,6 +89,19 @@ export class WebViewRpc {
             }
         });
 
+        this._messenger.onRequest(GetDeletedComponents, async (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().getDeletedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
+            }
+        });
+
+        this._messenger.onRequest(RemoveDeletedComponents, async (params: {projectId: string, components: PushedComponent[]}) => {
+            const answer = await vscode.window.showInformationMessage("Some components are deleted in Choreo. Do you want to remove them from workspace?", "Yes", "No");
+            if (answer === "Yes") {
+                ProjectRegistry.getInstance().removeDeletedComponents(params.components, params.projectId);
+            }
+        });
+        
         this._messenger.onRequest(GetEnrichedComponents, async (projectId: string) => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getEnrichedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
@@ -104,6 +121,12 @@ export class WebViewRpc {
 
         this._messenger.onRequest(PullComponent, async (params: {projectId: string, componentId: string}) => {
             await ProjectRegistry.getInstance().pullComponent(params.componentId, params.projectId);
+        });
+
+        this._messenger.onRequest(GetComponentCount, async () => {
+            if (ext.api.selectedOrg) { 
+                return ProjectRegistry.getInstance().getComponentCount(ext.api.selectedOrg.id);
+            }
         });
 
         this._messenger.onRequest(GetProjectLocation, async (projectId: string) => {

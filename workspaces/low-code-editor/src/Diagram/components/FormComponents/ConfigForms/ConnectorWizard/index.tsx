@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js no-console jsx-wrap-multiline
 import React, { useContext, useEffect, useState } from "react";
 
 import {
@@ -28,6 +28,7 @@ import { isStatementEditorSupported } from "../../Utils";
 
 import { fetchConnectorInfo } from "./util";
 
+
 enum WizardStep {
     EMPTY = "empty",
     MARKETPLACE = "marketplace",
@@ -42,6 +43,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         props: { langServerURL, currentFile, ballerinaVersion },
         api: {
             ls: { getDiagramEditorLangClient },
+            runBackgroundTerminalCommand,
         },
     } = useContext(Context);
 
@@ -64,9 +66,10 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     const [selectedAction, setSelectedAction] = useState<FunctionDefinitionInfo>();
     const [isClassField, setIsClassField] = useState(false);
     const [wizardStep, setWizardStep] = useState<string>(getInitialWizardStep());
+    const [pullingPackage, setPullingPackage] = useState(false);
 
     const showNewForms = isStatementEditorSupported(ballerinaVersion);
-    const isLoading = fetchingMetadata || retrievingAction;
+    const isLoading = fetchingMetadata || retrievingAction || pullingPackage;
     const isHttp = selectedConnector?.moduleName === "http";
 
     useEffect(() => {
@@ -82,6 +85,27 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     useEffect(() => {
         retrieveMissingInfo();
     }, [connectorInfo]);
+
+    useEffect(() => {
+        if (!model && selectedConnector?.package?.organization && selectedConnector.package.name) {
+            setPullingPackage(true);
+            const pullCommand = `bal pull ${selectedConnector.package.organization.trim()}/${selectedConnector.package.name.replace(" as _", "").trim()}`;
+            runBackgroundTerminalCommand(pullCommand)
+                .then((res) => {
+                    if (res.error && !res.message.includes("already exists")) {
+                        // TODO: Handle error properly
+                        console.error('Something wrong when pulling package: ', res.message)
+                    }
+                })
+                .catch((err) => {
+                    // TODO: Handle error properly
+                    console.error('Something wrong when pulling package: ', err)
+                })
+                .finally(() => {
+                    setPullingPackage(false);
+                });
+        }
+    }, [selectedConnector]);
 
     function getInitialWizardStep() {
         if (wizardType === ConnectorWizardType.ENDPOINT) {
@@ -238,6 +262,16 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
 
     return (
         <>
+            {pullingPackage && (wizardStep === WizardStep.ENDPOINT_FORM || wizardStep === WizardStep.ACTION_FROM) && (
+                <FormGenerator
+                    onCancel={onClose}
+                    configOverlayFormStatus={{
+                        formType: "PackageLoader",
+                        formArgs: {},
+                        isLoading,
+                    }}
+                />
+            )}
             {wizardStep === WizardStep.MARKETPLACE && (
                 <FormGenerator
                     onCancel={onClose}
@@ -253,7 +287,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
             )}
             {wizardStep === WizardStep.ENDPOINT_FORM &&
                 (selectedConnector?.package || connectorInfo?.package) &&
-                showNewForms && (
+                showNewForms && !pullingPackage && (
                     <FormGenerator
                         onCancel={closeEndpointForm}
                         onSave={saveEndpointForm}
@@ -261,7 +295,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                             formType: "EndpointForm",
                             formArgs: {
                                 connector: selectedConnector?.package ? selectedConnector : connectorInfo,
-                                functionNode
+                                functionNode,
                             },
                             isLoading,
                         }}
@@ -272,7 +306,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                 )}
             {wizardStep === WizardStep.ENDPOINT_FORM &&
                 (selectedConnector?.package || connectorInfo?.package) &&
-                !showNewForms && (
+                !showNewForms && !pullingPackage && (
                     // TODO: Remove this when cleaning old forms
                     <ConnectorConfigWizard
                         position={diagramPosition}
@@ -336,7 +370,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     isLoading={isLoading}
                 />
             )}
-            {wizardStep === WizardStep.ACTION_FROM && (
+            {wizardStep === WizardStep.ACTION_FROM && !pullingPackage && (
                 <FormGenerator
                     onCancel={onClose}
                     onSave={onSave}

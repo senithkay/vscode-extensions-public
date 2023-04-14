@@ -40,7 +40,7 @@ import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/defi
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getPartialSTForModuleMembers } from "../../../utils/ls-utils";
-import { completionEditorTypeKinds, EXPR_SCHEME, FILE_SCHEME } from "../../InputEditor/constants";
+import { completionEditorTypeKinds } from "../../InputEditor/constants";
 import { FieldTitle } from "../components/FieldTitle/fieldTitle";
 import {
     createNewConstruct,
@@ -86,10 +86,13 @@ export function GraphqlResourceForm(props: FunctionProps) {
     const [parameters, setParameters] = useState<FunctionParameter[]>([]);
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [addingNewParam, setAddingNewParam] = useState(false);
+    const [addingBeforeDefaultableParam, setAddingBeforeDefaultableParam] = useState(false);
 
     const params = model?.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
 
     const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
+
+    const [parametersBeforeParamChange, setParamsBeforeParamChange] = useState<FunctionParameter[]>([]);
 
     useEffect(() => {
         if (newlyCreatedConstruct) {
@@ -99,16 +102,18 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     // Return type related functions
     const onReturnTypeChange = async (value: string) => {
-        setReturnType(value);
+        // If union types with spaces are present, the value will be formatted to remove spaces
+        const formattedValue =  value.replace(/\s*\|\s*/g, '|');
+        setReturnType(formattedValue);
 
         const returnTypeChange = debounce(async () => {
             await handleResourceParamChange(
                 model.functionName.value,
                 getResourcePath(model.relativeResourcePath),
                 generateParameterSectionString(model?.functionSignature?.parameters),
-                value,
+                formattedValue,
                 model.functionSignature?.returnTypeDesc?.type,
-                value
+                formattedValue
             );
         }, 500);
 
@@ -118,23 +123,46 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     // Open the Add new Parameter view
     const openNewParamView = async () => {
+        setParamsBeforeParamChange(parameters);
         setCurrentComponentName("Param");
-        setAddingNewParam(true);
-        setEditingSegmentId(-1);
-        const newParams = [...parameters, { type: "string", name: "name" }];
-        const parametersStr = getParametersAsString(newParams);
+
+        let editingParamId = params?.length === 0 ? 0 : params?.length;
+        const newParamsList = [...parameters, { type: "string", name: "name" }];
+        let parametersStr = getParametersAsString(newParamsList);
+        const lastParamIndex = params.findIndex(param => STKindChecker.isRestParam(param) || STKindChecker.isDefaultableParam(param));
+        if (lastParamIndex !== -1) {
+            editingParamId = lastParamIndex;
+            parametersStr = params.reduce((prev, current, currentIndex) => {
+                const previousParams = prev.length === 0 ? `${prev}` : `${prev},`;
+                return currentIndex === lastParamIndex ?
+                    `${previousParams} string name, ${current.source ? current.source : current.value}` :
+                    `${previousParams} ${current.source ? current.source : current.value}`
+            }, '');
+
+            setAddingBeforeDefaultableParam(true);
+        } else {
+
+            setAddingNewParam(true);
+        }
+
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),
             parametersStr,
             model.functionSignature?.returnTypeDesc?.type?.source
         );
+        setEditingSegmentId(editingParamId);
     };
 
     // Function called when updating parameter fields (type/name) in the Add new Parameter view
     const onParamChange = async (parameter: FunctionParameter, focusedModel?: STNode, typedInValue?: string) => {
         setCurrentComponentName("Param");
-        const newParams = [...parameters, parameter];
+        let newParams = [...parameters];
+        if (addingBeforeDefaultableParam) {
+            newParams[editingSegmentId] = parameter;
+        } else {
+            newParams = [...parameters, parameter];
+        }
         const parametersStr = getParametersAsString(newParams);
         await handleResourceParamChange(
             model.functionName.value,
@@ -188,8 +216,17 @@ export function GraphqlResourceForm(props: FunctionProps) {
         onCancel();
     };
 
-    const closeNewParamView = () => {
+    // TODO : Move all the parameter related functions to another component which wraps the ParameterEditor
+    const closeNewParamView = async () => {
+        const parametersStr = getParametersAsString(parametersBeforeParamChange);
+        await handleResourceParamChange(
+            model.functionName.value,
+            getResourcePath(model.relativeResourcePath),
+            parametersStr,
+            model.functionSignature?.returnTypeDesc?.type?.source
+        );
         setAddingNewParam(false);
+        setAddingBeforeDefaultableParam(false);
         setIsEditInProgress(false);
         setEditingSegmentId(-1);
         setCurrentComponentName(undefined);
@@ -197,9 +234,18 @@ export function GraphqlResourceForm(props: FunctionProps) {
     };
 
     const onSaveNewParam = (param: FunctionParameter) => {
-        setParameters([...parameters, param]);
+        if (addingBeforeDefaultableParam) {
+            if (editingSegmentId > -1) {
+                parameters[editingSegmentId] = param;
+                setParameters(parameters);
+            }
+        } else {
+            setParameters([...parameters, param]);
+        }
         setAddingNewParam(false);
+        setAddingBeforeDefaultableParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const onDeleteParam = async (paramItem: FunctionParameter) => {
@@ -209,12 +255,12 @@ export function GraphqlResourceForm(props: FunctionProps) {
 
     // Function called when edit btn clicked an existing parameter
     const handleOnEdit = (funcParam: FunctionParameter) => {
+        setParamsBeforeParamChange(parameters);
         const id = parameters.findIndex(param => param.id === funcParam.id);
         // Once edit is clicked
         if (id > -1) {
             setEditingSegmentId(id);
         }
-        setAddingNewParam(false);
         setIsEditInProgress(true);
     };
 
@@ -225,8 +271,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
             parameters[id] = param;
             setParameters(parameters);
         }
-        setAddingNewParam(false);
         setEditingSegmentId(-1);
+        setIsEditInProgress(false);
     };
 
     const paramElements: React.ReactElement[] = [];
@@ -241,7 +287,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
                         onEditClick={handleOnEdit}
                     />
                 );
-            } else if (editingSegmentId === index) {
+            } else if (editingSegmentId === index && !addingNewParam && !addingBeforeDefaultableParam) {
                 paramElements.push(
                     <ParameterEditor
                         param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam | RequiredParam |
@@ -259,9 +305,8 @@ export function GraphqlResourceForm(props: FunctionProps) {
         }
     });
 
-    // TODO : check if we can remove this useeffect
     useEffect(() => {
-        if (currentComponentName === "") {
+        if (currentComponentName === "" || addingBeforeDefaultableParam) {
             const editParams: FunctionParameter[] = model?.functionSignature.parameters
                 .filter((param) => !STKindChecker.isCommaToken(param))
                 .map((param: any, index) => ({
@@ -367,9 +412,9 @@ export function GraphqlResourceForm(props: FunctionProps) {
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
                         <ConfigPanelSection title={"Parameters"}>
                             {paramElements}
-                            {addingNewParam ? (
+                            {addingNewParam || addingBeforeDefaultableParam ? (
                                 <ParameterEditor
-                                    param={params[parameters.length] as (DefaultableParam | IncludedRecordParam |
+                                    param={params[editingSegmentId] as (DefaultableParam | IncludedRecordParam |
                                         RequiredParam | RestParam)}
                                     id={parameters.length}
                                     syntaxDiag={currentComponentSyntaxDiag}
@@ -400,7 +445,11 @@ export function GraphqlResourceForm(props: FunctionProps) {
                             isLoading={false}
                             recordCompletions={getFilteredCompletions(completions)}
                             createNew={createConstruct}
-                            diagnostics={model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange}
+                            diagnostics={
+                                currentComponentSyntaxDiag?.length > 0 ?
+                                currentComponentSyntaxDiag :
+                                model?.functionSignature?.returnTypeDesc?.viewState?.diagnosticsInRange
+                            }
                             isGraphqlForm={true}
                         />
                     </div>

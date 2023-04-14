@@ -18,12 +18,27 @@
  */
 
 import React, { ReactElement, useContext } from 'react';
+import styled from '@emotion/styled';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
 import { CellViewIcon, L1ServicesIcon, L2ServicesIcon, TypesDiagramIcon, Views } from '../../../../resources';
-import { ViewTypePanel } from '../styles/styles';
-import '../styles/styles.css';
+
+const ViewTypePanel = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: space-between;
+    left: 15px;
+    position: absolute;
+    top: 60px;
+    width: 40px;
+    z-index: 10;
+`;
+
+interface ViewSwitcherProps {
+    setShowTypeDropdown: (status: boolean) => void;
+}
 
 interface ViewTypes {
     type: Views;
@@ -34,12 +49,12 @@ interface ViewTypes {
 const switchables: ViewTypes[] = [
     {
         type: Views.L1_SERVICES,
-        label: 'Service Diagram: Level 1',
+        label: 'Services',
         icon: <L1ServicesIcon />
     },
     {
         type: Views.L2_SERVICES,
-        label: 'Service Diagram: Level 2',
+        label: 'Resources',
         icon: <L2ServicesIcon />
     },
     {
@@ -49,20 +64,22 @@ const switchables: ViewTypes[] = [
     },
     {
         type: Views.TYPE,
-        label: 'Type Diagram',
+        label: 'Types',
         icon: <TypesDiagramIcon />
     }
 ];
 
-export function ViewSwitcher() {
+export function ViewSwitcher(props: ViewSwitcherProps) {
     const { isChoreoProject, setCurrentView } = useContext(DiagramContext);
+    const { setShowTypeDropdown } = props;
 
     const handleOnClick = (type: Views) => {
+        setShowTypeDropdown(false);
         setCurrentView(type);
     }
 
     return (
-        <ViewTypePanel>
+        <ViewTypePanel onMouseLeave={() => setShowTypeDropdown(false)}>
             {
                 switchables.map((viewType) => {
                     if (viewType.type !== Views.CELL_VIEW || (viewType.type === Views.CELL_VIEW && isChoreoProject)) {
@@ -75,7 +92,7 @@ export function ViewSwitcher() {
                                     tooltip: {
                                         sx: {
                                             fontFamily: 'GilmerRegular',
-                                            fontSize: '12px',
+                                            fontSize: '11px',
                                             padding: '6px'
                                         }
                                     }

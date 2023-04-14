@@ -38,8 +38,10 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
     }
 
     const handleOnFocus = (e?: any) => {
-        e.target.select();
-        onFocus();
+        if (onFocus) {
+            e.target.select();
+            onFocus();
+        }
     }
 
     // When diagnostics are hit push the error message

@@ -26,6 +26,11 @@ const useStyles = makeStyles((theme: Theme) =>
             marginTop: theme.spacing(6),
             color: theme.palette.text.secondary
         },
+        hint: {
+            marginTop: theme.spacing(6),
+            textAlign: 'center',
+            color: theme.palette.text.secondary
+        },
         fullHeight: {
             height: '80vh',
         },
@@ -76,6 +81,35 @@ const useStyles = makeStyles((theme: Theme) =>
             alignItems: 'center',
             justifyContent: 'center',
             marginRight: 14
+        },
+        loaderWrapper: {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "80vh"
+        },
+        loaderTitle: {
+            fontWeight: 600,
+            fontSize: 17,
+            marginTop: 28,
+            marginBottom: 4,
+            color: "#1d2028",
+            textAlign: "center",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            width: 450,
+        },
+        loaderSubtitle: {
+            fontWeight: 400,
+            fontSize: 13,
+            color: "#8d91a3",
+            textAlign: "center",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            width: 450,
         },
     })
 );

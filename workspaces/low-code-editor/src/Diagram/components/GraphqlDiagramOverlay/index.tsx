@@ -31,6 +31,8 @@ import { removeStatement } from "../../utils";
 import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
 
 import { graphQLOverlayStyles } from "./style";
+import { GraphqlUnsupportedVersionOverlay } from "./UnsupportedVersionOverlay";
+import { isGraphqlVisualizerSupported } from "./utils/ls-util";
 
 export interface GraphqlDesignOverlayProps {
     model?: STNode;
@@ -59,6 +61,8 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
 
     const [enableFormGenerator, setEnableFormGenerator] = useState(false);
     const [formConfig, setFormConfig] = useState<FormGeneratorProps>(undefined);
+
+    const isVisualizerSupported = isGraphqlVisualizerSupported(ballerinaVersion);
 
     const renderFunctionForm = (position: NodePosition, functionType: string, functionModel?: STNode) => {
         if (STKindChecker.isServiceDeclaration(model) || STKindChecker.isClassDefinition(model)) {
@@ -125,26 +129,32 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
 
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
-            <GraphqlDesignDiagram
-                model={model}
-                targetPosition={targetPosition}
-                langClientPromise={
-                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-                }
-                filePath={currentFile.path}
-                currentFile={currentFile}
-                ballerinaVersion={ballerinaVersion}
-                syntaxTree={lowcodeST}
-                functionPanel={renderFunctionForm}
-                servicePanel={renderServicePanel}
-                operationDesignView={handleDesignOperationClick}
-                recordEditor={renderRecordEditor}
-                onDelete={handleDeleteBtnClick}
-                fullST={fullST}
-                goToSource={goToSource}
-            />
-            {enableFormGenerator &&
-            <FormGenerator {...formConfig}/>
+            {isVisualizerSupported ? (
+                <>
+                    <GraphqlDesignDiagram
+                        model={model}
+                        targetPosition={targetPosition}
+                        langClientPromise={
+                            getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                        }
+                        filePath={currentFile.path}
+                        currentFile={currentFile}
+                        ballerinaVersion={ballerinaVersion}
+                        syntaxTree={lowcodeST}
+                        functionPanel={renderFunctionForm}
+                        servicePanel={renderServicePanel}
+                        operationDesignView={handleDesignOperationClick}
+                        recordEditor={renderRecordEditor}
+                        onDelete={handleDeleteBtnClick}
+                        fullST={fullST}
+                        goToSource={goToSource}
+                    />
+                    {enableFormGenerator &&
+                    <FormGenerator {...formConfig}/>
+                    }
+                </>
+            ) :
+                <GraphqlUnsupportedVersionOverlay/>
             }
         </div>
     );

@@ -54,6 +54,7 @@ interface DiagramProps {
     deleteComponent?: (location: ElementLocation, deletePkg: boolean) => Promise<void>;
     editLayerAPI?: EditLayerAPI;
     consoleView?: ConsoleView;
+    addComponent?: () => void;
 }
 
 export function DesignDiagram(props: DiagramProps) {
@@ -65,7 +66,8 @@ export function DesignDiagram(props: DiagramProps) {
         showChoreoProjectOverview = undefined,
         editLayerAPI = undefined,
         consoleView = undefined,
-        deleteComponent = undefined
+        deleteComponent = undefined,
+        addComponent = undefined
     } = props;
 
     const currentViewDefaultValue = (consoleView === ConsoleView.COMPONENTS ||
@@ -146,7 +148,8 @@ export function DesignDiagram(props: DiagramProps) {
         setConnectorTarget,
         showChoreoProjectOverview,
         editLayerAPI,
-        deleteComponent
+        deleteComponent,
+        addComponent
     };
 
     return (
@@ -154,7 +157,8 @@ export function DesignDiagram(props: DiagramProps) {
             <Container backgroundColor={diagramBGColor}>
                 {showEditForm &&
                     <EditForm visibility={true} updateVisibility={setShowEditForm} defaultOrg={defaultOrg.current} />}
-                {projectComponents && projectComponents.size < 1 ? <PromptScreen setShowEditForm={setShowEditForm} /> :
+                {projectComponents && !consoleView && projectComponents.size < 1 ?
+                    <PromptScreen setShowEditForm={setShowEditForm} /> :
                     projectComponents ?
                         <>
                             {connectorTarget &&

@@ -42,7 +42,7 @@ export function DiagramControls(props: ControlProps) {
 
     return (
         <ControlPanel showDownloadButton={showDownloadButton} >
-            {hasDiagnostics &&
+            {hasDiagnostics && !consoleView &&
                 <DiagnosticsWarning />
             }
             {showDownloadButton && (

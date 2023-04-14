@@ -32,7 +32,8 @@ import { DiagramCanvasWidget } from "../DiagramCanvas/CanvasWidget";
 import { ConsoleView, DagreLayout, Views } from "../../../resources";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { cellDiagramZoomToFit, createServicesEngine, positionGatewayNodes } from "../../../utils";
-import { DiagramControls, ViewSwitcher } from "../DiagramCanvas/ControlLayer";
+import { DiagramControls } from "../DiagramCanvas/ControlLayer";
+import { PromptScreen } from "../NewPromptScreen/PromptScreen";
 
 export interface Coordinate {
     x: number;
@@ -78,7 +79,7 @@ export function CellDiagram(props: CellDiagramProps) {
         cellDiagramZoomToFit(diagramEngine);
     };
 
-    let canvasWOffset = 100;
+    let canvasWOffset = 102;
     if (consoleView === ConsoleView.COMPONENTS) {
         canvasWOffset = 375;
     } else if (consoleView === ConsoleView.PROJECT_HOME) {
@@ -103,11 +104,11 @@ export function CellDiagram(props: CellDiagramProps) {
 
     return (
         <CellDiagramWrapper isConsoleView={consoleView}>
-            {!consoleView && (
-                <ViewSwitcher />
-            )}
             <CellContainerWrapper isConsoleView={consoleView}>
                 <Gateways/>
+                {cellModel && consoleView && (cellModel.getNodes().length < 1) && (
+                    <PromptScreen/>
+                )}
                 <CellContainer path={borderPath} vertices={vertices}>
                     <CanvasWrapper path={innerBorderPath} vertices={vertices}>
                         <DiagramCanvasWidget

@@ -24,3 +24,37 @@ export const graphQLOverlayStyles = makeStyles((theme: Theme) =>
         }
     }),
 );
+
+export const GraphqlUnsupportedStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        overlayWrapper: {
+            height: 'calc(100vh - 110px)',
+            '&.overlay': {
+                display: 'block',
+                position: 'relative',
+                backgroundColor: '#fff',
+                opacity: '0.7',
+                zIndex: -1
+            },
+            overflowY: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center'
+        },
+        title: {
+            fontWeight: 600,
+            fontSize: "17px",
+            lineHeight: "24px",
+            marginTop: "28px",
+            marginBottom: "4px",
+            color: theme.palette.text.primary
+        },
+        subtitle: {
+            fontWeight: 400,
+            fontSize: "13px",
+            lineHeight: "20px",
+            color: theme.palette.text.hint
+        },
+    }),
+);

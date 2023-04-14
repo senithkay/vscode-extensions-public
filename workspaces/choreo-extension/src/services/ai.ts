@@ -33,6 +33,6 @@ export class ChoreoAIConfig {
     }
 
     public getSwaggerExamplesAPI(): string {
-        return this._config.swaggerExamplesAPI
+        return this._config.swaggerExamplesAPI;
     }
 }

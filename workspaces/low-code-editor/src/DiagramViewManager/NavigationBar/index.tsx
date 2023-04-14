@@ -17,7 +17,7 @@ import { ClickAwayListener, Popover } from "@material-ui/core";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
-import { Apps, ArrowBack, ArrowDropDown, Home } from "@material-ui/icons";
+import { Apps, ArrowBack, ArrowDropDown, HomeOutlined } from "@material-ui/icons";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
@@ -92,7 +92,7 @@ export function NavigationBar(props: NavigationBarProps) {
         return (
             <div className="btn-container" ref={popoverRef} onClick={handlePojectSelectorOpen} >
                 <PackageIcon className={'icon'} />
-                <span className="icon-text">{currentProject?.name || ''}</span>
+                    <Typography variant="h4">{currentProject?.name || ''}</Typography>
                 <ArrowDropDown />
                 <Popover
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
@@ -125,8 +125,8 @@ export function NavigationBar(props: NavigationBarProps) {
 
         return (
             <div className="btn-container" onClick={handleOnClick} >
-                {isWorkspace ? <Apps /> : <PackageIcon className={'icon'} />}
-                <span className="icon-text">{`${projectList ? workspaceName : '.'}`}</span>
+                {isWorkspace ? <Apps className={'workspace-icon'} /> : <PackageIcon className={'icon'} />}
+                <Typography variant="h4">{`${projectList ? workspaceName : '.'}`}</Typography>
             </div>
         )
     };
@@ -161,7 +161,7 @@ export function NavigationBar(props: NavigationBarProps) {
                     aria-disabled={buttonsDisabled}
                     onClick={handleHomeButtonClick}
                 >
-                    <Home className={buttonsDisabled ? 'is-disabled' : ''} />
+                    <HomeOutlined className={buttonsDisabled ? 'is-disabled' : ''} />
                 </div>
             </>
         );

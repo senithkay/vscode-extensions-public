@@ -384,9 +384,10 @@ export function Diagram() {
                             {...formConfig}
                         />
                     )}
-                    {experimentalEnabled && isGraphQLViewOpen && (
+                    {isGraphQLViewOpen && (
                         <GraphqlDiagramOverlay
                             {...dataMapperArgs}
+                            // tslint:disable-next-line: jsx-no-lambda no-empty
                             goToSource={() => {}}
                         />
                     )}

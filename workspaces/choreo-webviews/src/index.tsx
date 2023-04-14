@@ -27,11 +27,14 @@ export function renderChoreoWebViews(
 	target: HTMLDivElement,
 	type: string,
 	projectId?: string,
-	orgName?: string
+	orgName?: string,
+	componentLimit?: number,
+	choreoUrl?: string,
+	billingUrl?: string
 ) {
 	render(
 		<React.StrictMode>
-			<ChoreoWebview {...{ type, projectId, orgName }} />
+			<ChoreoWebview {...{ type, projectId, orgName, componentLimit, choreoUrl, billingUrl }} />
 		</React.StrictMode>,
 		target
 	);

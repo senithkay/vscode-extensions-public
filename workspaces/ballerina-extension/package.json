@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "4.0.0-beta.0",
+    "version": "4.0.2023041212",
     "publisher": "wso2",
     "repository": {
         "type": "git",
@@ -40,7 +40,7 @@
                 "extensions": [
                     ".bal"
                 ],
-                "configuration": "./grammar/ballerina.configuration.json"
+                "configuration": "./ballerina.configuration.json"
             },
             {
                 "id": "toml",
@@ -421,7 +421,7 @@
             },
             {
                 "command": "ballerina.view.architectureView",
-                "title": "Architecture View (Experimental)",
+                "title": "Architecture View",
                 "category": "Ballerina"
             }
         ],

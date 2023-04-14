@@ -59,7 +59,7 @@ export const CellContainerWrapper: React.FC<any> = styled.div`
   display: flex;
   position: relative;
   left: 50px;
-  width: calc(100% - 100px);
+  width: calc(100% - 102px);
   flex-direction: column;
   padding-top: 30px;
   padding-bottom: 10px;

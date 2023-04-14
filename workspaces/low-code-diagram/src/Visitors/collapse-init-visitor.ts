@@ -69,7 +69,7 @@ export class CollapseInitVisitor implements Visitor {
         const onFailVS = viewState.onFailBodyVS as OnFailClauseViewState;
         const onFailBody = onFailVS.onFailBodyVS as BlockViewState;
 
-        viewState.collapsed = !doBodyVS.containsAction || !onFailBody.containsAction;
+        viewState.collapsed = !(doBodyVS.containsAction || onFailBody.containsAction);
     }
 
     endVisitForeachStatement(node: ForeachStatement, parent?: STNode): void {
@@ -178,6 +178,7 @@ export class CollapseInitVisitor implements Visitor {
     private isSkippedConstruct(node: STNode): boolean {
         return STKindChecker.isWhileStatement(node)
             || STKindChecker.isForeachStatement(node)
-            || STKindChecker.isIfElseStatement(node);
+            || STKindChecker.isIfElseStatement(node)
+            || STKindChecker.isDoStatement(node);
     }
 }

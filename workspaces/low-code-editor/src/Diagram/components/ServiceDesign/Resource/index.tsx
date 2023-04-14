@@ -15,7 +15,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
 import {
-    BallerinaSTModifyResponse, ConfigOverlayFormStatus, CtrlClickWrapper, DiagramEditorLangClientInterface,
+    BallerinaSTModifyResponse, CompletionResponse, ConfigOverlayFormStatus, CtrlClickWrapper, DiagramEditorLangClientInterface,
     LabelEditIcon, responseCodes, STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ConfigPanelSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -28,6 +28,7 @@ import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
 import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
+import { getKeywordTypes } from "../util";
 
 import { ResourceHeader } from "./ResourceHeader";
 
@@ -43,21 +44,47 @@ export function ResourceBody(props: ResourceBodyProps) {
         props: { currentFile, fullST },
         api: {
             code: { modifyDiagram, gotoSource },
-            ls: { getDiagramEditorLangClient },
+            ls: { getDiagramEditorLangClient, getExpressionEditorLangClient },
         },
     } = useContext(Context);
 
     const classes = useStyles();
     const [isExpanded, setIsExpanded] = useState(false);
     const [schema, setSchema] = useState({});
+    const [schemaParam, setSchemaParam] = useState({});
+    const [responseArgs, setResponseArgs] = useState([]);
+    const [types, setTypes] = useState([]);
+    const [paramArgs, setParamArgs] = useState([]);
+    const [payloadSchema, setPayloadSchema] = useState([]);
 
+    useEffect(() => {
+        getKeywordTypes(currentFile.path, getExpressionEditorLangClient).then(setTypes);
+    }, []);
 
     useEffect(() => {
         setIsExpanded(isExpandedAll)
     }, [isExpandedAll]);
 
     useEffect(() => {
-        setSchema({})
+        if (types.length > 0) {
+            renderResponses(types).then(setResponseArgs);
+        }
+        renderParameters().then(setParamArgs);
+    }, [schema, schemaParam]);
+
+    useEffect(() => {
+        if (types.length > 0) {
+            renderResponses(types).then(setResponseArgs);
+        }
+    }, [types]);
+
+    useEffect(() => {
+        setSchema({});
+        setSchemaParam({});
+        if (types.length > 0) {
+            renderResponses(types).then(setResponseArgs);
+        }
+        renderParameters().then(setParamArgs);
     }, [model]);
 
     const handleIsExpand = () => {
@@ -97,8 +124,8 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <tr key={i} className={classes.signature}>
                         <td>
                             <div>
-                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
-                                {schema[i] && <pre className={classes.schema}>{schema[i]}  <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
+                                {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}  <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
                             </div>
                         </td>
                     </tr>
@@ -112,27 +139,6 @@ export function ResourceBody(props: ResourceBodyProps) {
             }
         }
     });
-
-
-    const paramArgs: any[] = [];
-
-    model.functionSignature?.parameters?.forEach((param, i) => {
-        if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
-            const paramDetails = param.source.split(" ");
-            paramArgs.push(
-                <tr key={i} className={classes.signature}>
-                    <td>
-                        {paramDetails.length > 0 && param.source.split(" ")[0]}
-                    </td>
-                    <td>
-                        {paramDetails.length > 0 && param.source.split(" ")[1]}
-                    </td>
-                </tr>
-            )
-        }
-    });
-
-    const responseArgs: any[] = [];
 
     traversNode(model, RecordsFinderVisitor);
     const records = RecordsFinderVisitor.getRecords();
@@ -179,57 +185,131 @@ export function ResourceBody(props: ResourceBodyProps) {
         );
     };
 
-    getReturnTypesArray()?.forEach((value, i) => {
-        let code = "500";
-        responseCodes.forEach(item => {
-            if (value.includes(item.source)) {
-                code = item.code.toString();
+
+    async function renderResponses(keywordTypes: CompletionResponse[]) {
+        const values = await getReturnTypesArray();
+        const langClient = await getDiagramEditorLangClient();
+        const responses = [];
+
+        for (const [i, value] of values.entries()) {
+            let code = "500";
+            let recordName = value.trim();
+            let des = "";
+
+            responseCodes.forEach(item => {
+                if (recordName.includes(item.source)) {
+                    code = item.code.toString();
+                }
+            });
+
+            keywordTypes.forEach(item => {
+                if (recordName.trim() === item.insertText) {
+                    code = "200";
+                }
+            })
+
+            if (value.includes("body")) {
+                recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
+                const recordInfo = await getRecord(value.trim(), langClient);
+                des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
+                responses.push(
+                    <tr key={i} className={classes.signature}>
+                        <td>
+                            {code}
+                        </td>
+                        <td>
+                            {des}
+                            <div>
+                                Record Schema :
+                                <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                                    {recordName}
+                                </span>
+                                {schema[i] &&
+                                    <pre className={classes.schema}>
+                                        {schema[i]}
+                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </pre>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                )
+            } else {
+                const recordInfo = await getRecord(value.trim(), langClient);
+
+                if (recordInfo && recordInfo.parseSuccess) {
+                    const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
+                    code = "200";
+                    responseCodes.forEach(item => {
+                        if (ST.source.includes(item.source)) {
+                            code = item.code.toString();
+                        }
+                    });
+                }
+                responses.push(
+                    <tr key={i} className={classes.signature}>
+                        <td>
+                            {code}
+                        </td>
+                        <td>
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                                {recordName}
+                            </span>
+                            {schema[i] &&
+                                <pre className={classes.schema}>
+                                    {schema[i]}
+                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                </pre>
+                            }
+                        </td>
+                    </tr>
+                )
             }
-        });
-
-        // value = record {|*http:Ok; Foo body;|}
-        let recordName = value;
-        let des = "";
-        if (value.includes("body")) {
-            recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
-            des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
-            responseArgs.push(
-                <tr key={i} className={classes.signature}>
-                    <td>
-                        {code}
-                    </td>
-                    <td>
-                        {des}
-                        <div>
-                            Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, i)}>{recordName}</span>
-                            {schema[i] && <pre className={classes.schema}>{schema[i]} <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
-                        </div>
-                    </td>
-                </tr>
-            )
-        } else {
-            const record: STNode = records.get(value.trim());
-            responseArgs.push(
-                <tr key={i} className={classes.signature}>
-                    <td>
-                        {record ? "200" : code}
-                    </td>
-                    <td onClick={() => recordEditor(recordName)}>
-                        {value}
-                    </td>
-                </tr>
-            )
         }
-    })
 
-    const recordEditor = async (record: any, key?: any) => {
+        return responses;
+    }
+
+    async function renderParameters() {
+        const values = model.functionSignature?.parameters;
+        const langClient = await getDiagramEditorLangClient();
+        const responses = [];
+        for (const [i, param] of values.entries()) {
+            if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
+                const paramDetails = param.source.split(" ");
+                const recordName = param.source.split(" ")[0];
+                const recordInfo = await getRecord(recordName.trim(), langClient);
+                responses.push(
+                    <tr key={i} className={classes.signature}>
+                        <td>
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
+                                {recordName}
+                            </span>
+                            {schemaParam[i] &&
+                                <pre className={classes.schema}>
+                                    {schemaParam[i]}
+                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                </pre>
+                            }
+                        </td>
+                        <td>
+                            {paramDetails.length > 0 && param.source.split(" ")[1]}
+                        </td>
+                    </tr>
+                )
+            }
+        };
+        return responses;
+    }
+
+    const recordEditor = async (setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
         const recordInfo = await getRecord(record.trim(), langClient);
 
         if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
-            setSchema({ ...schema, [key]: [ST.source] })
+            setSchemaState({ ...schema, [key]: [ST.source] })
         }
     }
 
@@ -277,26 +357,6 @@ export function ResourceBody(props: ResourceBodyProps) {
             {/* <Divider className="resource-divider" /> */}
         </>
     )
-    const body = (
-        <div className="service-member">
-            {paramArgs.length > 0 && args}
-
-            {bodyArgs.length > 0 && bodyAr}
-
-            <ConfigPanelSection title={"Responses"}>
-                <table className={classes.responseTable}>
-                    <thead>
-                        <td>Code</td>
-                        <td>Description</td>
-                    </thead>
-                    <tbody>
-                        {responseArgs}
-                    </tbody>
-                </table>
-            </ConfigPanelSection>
-
-        </div>
-    )
 
     const metaData = (
         <div className="service-member" onClick={handleIsExpand}>
@@ -308,6 +368,31 @@ export function ResourceBody(props: ResourceBodyProps) {
         </div>
     )
 
+    const body = (
+        <>
+            {model.metadata && metaData}
+            <div className="service-member">
+                {paramArgs.length > 0 && args}
+
+                {bodyArgs.length > 0 && bodyAr}
+
+                <ConfigPanelSection title={"Responses"}>
+                    <table className={classes.responseTable}>
+                        <thead>
+                            <td>Code</td>
+                            <td>Description</td>
+                        </thead>
+                        <tbody>
+                            {responseArgs}
+                        </tbody>
+                    </table>
+                </ConfigPanelSection>
+            </div>
+        </>
+    )
+
+
+
     const handleGoToSource = () => {
         gotoSource(model.position, currentFile.path);
     }
@@ -318,7 +403,6 @@ export function ResourceBody(props: ResourceBodyProps) {
         >
             <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
                 <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
-                {model.metadata && metaData}
                 {isExpanded && body}
             </div>
         </CtrlClickWrapper>

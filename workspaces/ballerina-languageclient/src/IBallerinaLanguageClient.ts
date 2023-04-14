@@ -882,6 +882,7 @@ export interface EntryPoint extends ModelAttributes {
     annotation: ServiceAnnotation;
     parameters: FunctionParameter[];
     returns: string[];
+    type: 'scheduledTask' | 'manualTrigger';
     interactions: Interaction[];
 }
 
