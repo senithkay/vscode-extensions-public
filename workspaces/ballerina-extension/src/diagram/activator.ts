@@ -93,10 +93,11 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	const projectPaths: WorkspaceFolder[] = [];
 	const choreoProjectFile = await workspace.findFiles('**/\.choreo-project');
 
+
 	if (choreoProjectFile.length > 0) {
-		const choreoProjectFolderPath = choreoProjectFile[0].fsPath.replace(/\/\.choreo-project$/, '');
+		const choreoProjectFolderPath = choreoProjectFile[0].path.replace(/\/\.choreo-project$/, '');
 		workspace.workspaceFolders.forEach((workspaceFolder) => {
-			if (workspaceFolder.uri.fsPath !== choreoProjectFolderPath) {
+			if (workspaceFolder.uri.path !== choreoProjectFolderPath) {
 				projectPaths.push(workspaceFolder);
 			}
 		});
