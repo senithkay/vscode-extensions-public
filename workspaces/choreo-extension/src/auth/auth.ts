@@ -105,7 +105,7 @@ export async function exchangeAuthToken(authCode: string) {
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
         try {
             var currentTime = Date.now();
-            const response = await await executeWithTaskRetryPrompt(() => authClient.exchangeAuthCode(authCode));
+            const response = await authClient.exchangeAuthCode(authCode);
             getLogger().info("auth token exchange time: " + (Date.now() - currentTime));
 
             await tokenStore.setToken("choreo.token", response);
@@ -128,7 +128,7 @@ export async function exchangeVSCodeToken(apimToken: string, orgHandle: string) 
         return;
     }
     try {
-        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeVSCodeToken(apimToken, orgHandle));
+        const response = await authClient.exchangeVSCodeToken(apimToken, orgHandle);
         getLogger().debug("Successfully exchanged apim token to vscode token.");
         await tokenStore.setToken("choreo.vscode.token", response);        
     } catch (error: any) {
@@ -145,7 +145,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
         return;
     }
     try {
-        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeRefreshToken(refreshToken));
+        const response = await authClient.exchangeRefreshToken(refreshToken);
         getLogger().debug("Successfully exchanged refresh token to access token.");
         await tokenStore.setToken("choreo.token", response);
     } catch (error: any) {
@@ -163,7 +163,7 @@ export async function signIn() {
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
         try {
             var currentTime = Date.now();
-            const userInfo = await executeWithTaskRetryPrompt(() => orgClient.getUserInfo());
+            const userInfo = await orgClient.getUserInfo();
             getLogger().info("get user info request time: " + (Date.now() - currentTime));
             getLogger().debug("Successfully retrived user info.");
             ext.api.userName = userInfo.displayName;
