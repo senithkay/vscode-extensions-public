@@ -214,7 +214,8 @@ export function ComponentList(props: ComponentListProps) {
                     const componentBaseUrl = `${choreoUrl}/organizations/${orgName}/projects/${projectId}/components/${component.handler}`;
                     const componentOverviewLink = `${componentBaseUrl}/overview`;
                     const componentDeployLink = `${componentBaseUrl}/deploy`;
-                    const repoLink = `https://github.com/${repo.organizationApp}/${repo.nameApp}/tree/${repo.branchApp}/${repo.appSubPath}`;
+                    const gitHubBaseUrl = `https://github.com/${repo.organizationApp}/${repo.nameApp}`;
+                    const repoLink = `${gitHubBaseUrl}/tree/${repo.branchApp}/${repo.appSubPath}`;
 
 
                     const deploymentStatus: DeploymentStatus =
@@ -266,7 +267,7 @@ export function ComponentList(props: ComponentListProps) {
                                         </VSCodeLink>
                                         &nbsp;
                                         <VSCodeLink
-                                            href={`https://github.com/${repo.organizationApp}/${repo.nameApp}/commit/${component.buildStatus?.sourceCommitId}`}
+                                            href={`${gitHubBaseUrl}/commit/${component.buildStatus?.sourceCommitId}`}
                                             style={{ color: `var(${buildStatusMappedValue.color})` }}
                                             title="Open commit in remote GitHub repository"
                                         >
