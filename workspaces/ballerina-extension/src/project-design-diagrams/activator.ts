@@ -88,13 +88,25 @@ async function setupWebviewPanel() {
             getCommonWebViewOptions()
         );
 
+        let shouldUpdateDiagram: boolean = false;
+        const storeDocumentChanges = debounce(() => {
+            shouldUpdateDiagram = true;
+        }, 1000);
+
         const refreshDiagram = debounce(() => {
             if (designDiagramWebview) {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
             }
         }, 500);
 
-        workspace.onDidChangeTextDocument(refreshDiagram);
+        designDiagramWebview.onDidChangeViewState(() => {
+            if (designDiagramWebview && designDiagramWebview.active && shouldUpdateDiagram) {
+                refreshDiagram();
+                shouldUpdateDiagram = false;
+            }
+        });
+
+        workspace.onDidChangeTextDocument(storeDocumentChanges);
         workspace.onDidChangeWorkspaceFolders(refreshDiagram);
 
         const remoteMethods: WebViewMethod[] = [
