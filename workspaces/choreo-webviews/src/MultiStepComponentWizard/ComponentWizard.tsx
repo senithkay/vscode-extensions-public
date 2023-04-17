@@ -10,22 +10,23 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
 import { ConfigureRepoStep } from "./ConfigureRepoStep/ConfigureRepoStep";
-import { TriggerConfigStep  } from "./WebhookTriggerSelectorStep/WebhookTriggerSelector";
+import { TriggerConfigStep } from "./WebhookTriggerSelectorStep/WebhookTriggerSelector";
 
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
 import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType } from "@wso2-enterprise/choreo-core";
-import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { ChoreoWebViewContext, IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { SignIn } from "../SignIn/SignIn";
 
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>, context: IChoreoWebViewContext) => {
-    const { mode, name, type, repository: { org, repo, branch, subPath, dockerContext, dockerFile }, description, accessibility, trigger  } = formData;
+    const { mode, name, type, repository: { org, repo, branch, subPath, dockerContext, dockerFile }, description, accessibility, trigger } = formData;
     const { choreoProject, selectedOrg } = context;
 
     const componentParams: ChoreoComponentCreationParams = {
@@ -45,19 +46,19 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>, 
     };
 
     if (mode === "fromScratch") {
-       
+
         const response: any = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent(componentParams);
         if (response !== true) {
             throw new Error("Failed to create component. Error: " + response.message);
         }
     } else {
         if (type.startsWith("byoc")) {
-           const repoDetails: BYOCRepositoryDetails = {
+            const repoDetails: BYOCRepositoryDetails = {
                 ...componentParams.repositoryInfo,
                 dockerFile,
                 dockerContext
-           }
-           componentParams.repositoryInfo = repoDetails;
+            }
+            componentParams.repositoryInfo = repoDetails;
         }
         const response: any = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponentFromExistingSource(componentParams);
         if (response !== true) {
@@ -68,6 +69,8 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>, 
 };
 
 export const ComponentWizard: React.FC = () => {
+    const { loginStatus } = useContext(ChoreoWebViewContext);
+
     const initialState: WizardState<Partial<ComponentWizardState>> = {
         currentStep: 0,
         formData: {
@@ -89,15 +92,20 @@ export const ComponentWizard: React.FC = () => {
     };
 
     return (
-        <Wizard 
-            title="Create New Choreo Component"
-            steps={[ComponentTypeStep, ComponentDetailsStep, TriggerConfigStep, ConfigureRepoStep, ]}
-            initialState={initialState}
-            validationRules={[]}
-            onSave={handleComponentCreation}
-            onCancel={() => {}}
-            saveButtonText="Create"
-            closeOnSave={true}
-        />
+        <>
+            {loginStatus === "LoggedIn" ?
+                <Wizard
+                    title="Create New Choreo Component"
+                    steps={[ComponentTypeStep, ComponentDetailsStep, TriggerConfigStep, ConfigureRepoStep,]}
+                    initialState={initialState}
+                    validationRules={[]}
+                    onSave={handleComponentCreation}
+                    onCancel={() => { }}
+                    saveButtonText="Create"
+                    closeOnSave={true}
+                /> :
+                <SignIn />
+            }
+        </>
     );
 };
