@@ -158,7 +158,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     } = useQuery({
         queryKey: ["overview_component_list", projectId],
         queryFn: () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
-        onError: async (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
+        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         refetchInterval: 15000, // Refetch component status every 15 seconds
         enabled: !refetchingCompOnly && isFetched && isLoggedIn && validOrg
     });
