@@ -26,6 +26,9 @@ import { addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, pro
 import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 
 export class BallerinaProjectManager implements IProjectManager {
+    isComponentNameAvailable(componentName: string): Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
     createLocalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
         throw new Error("Method not implemented.");
     }
