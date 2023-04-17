@@ -88,7 +88,15 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         if (diagramFocus) {
-            const { filePath, position } = diagramFocus;
+            const { filePath: inputPath, position } = diagramFocus;
+            let filePath = inputPath;
+            if (window.navigator.userAgent.includes('Windows')) {
+                if (filePath.startsWith('/')) {
+                    filePath = filePath.replace('/', '');
+                    filePath = filePath.replaceAll('/', '\\');
+                }
+            }
+
             if (filePath && filePath.length > 0 && filePath !== focusFile) {
                 if (position) {
                     historyClearAndPopulateWith({ file: filePath, position });
