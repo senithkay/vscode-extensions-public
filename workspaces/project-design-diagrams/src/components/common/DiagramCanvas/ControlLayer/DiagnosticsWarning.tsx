@@ -35,7 +35,7 @@ export function DiagnosticsWarning() {
         <Tooltip
             arrow
             placement={'left-end'}
-            title={'Project contains diagnostics'}
+            title={ editingEnabled ? 'Project contains diagnostics' : 'Error while fetching diagram data' }
             componentsProps={{
                 tooltip: {
                     sx: {

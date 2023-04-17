@@ -118,7 +118,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
                         canSelectFolders={false}
                         canSelectMany={false}
                         title="Select Dockerfile"
-                        filters={{ "Dockerfile": ["Dockerfile"]}}
+                        filters={{ "Dockerfile": ['*']}}
                     />
                 </VSCodeTextField>
                 <VSCodeTextField
