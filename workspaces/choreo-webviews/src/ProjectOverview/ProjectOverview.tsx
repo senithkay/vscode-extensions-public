@@ -128,7 +128,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
             fetchedProjects.find((i) => i.id === projectId),
     });
 
-    const { isLoading: isLoadingCompOnly, isRefetching: refetchingCompOnly, refetch: refetchComponentsOnly, isFetched } = useQuery({
+    const {
+        isLoading: isLoadingCompOnly,
+        isRefetching: refetchingCompOnly,
+        refetch: refetchComponentsOnly,
+        isFetched,
+        error: componentsListError
+    } = useQuery({
         queryKey: ["overview_component_list_only", projectId],
         queryFn: () => {
             refetchUsage();
@@ -138,6 +144,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         onSuccess: () => {
             refetchComponents();
         },
+        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         refetchOnWindowFocus: false,
         enabled: validOrg && isLoggedIn,
     });
@@ -147,10 +154,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         isLoading: loadingComponents,
         isRefetching: refetchingComponents,
         refetch: refetchComponents,
+        error: componentStatusError
     } = useQuery({
         queryKey: ["overview_component_list", projectId],
         queryFn: () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
-        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
+        onError: async (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         refetchInterval: 15000, // Refetch component status every 15 seconds
         enabled: !refetchingCompOnly && isFetched && isLoggedIn && validOrg
     });
@@ -169,7 +177,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     const { data: location } = useQuery({
         queryKey: ["overview_project_location", projectId],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getProjectLocation(projectId),
+        queryFn: async () => {
+            const location = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+            return location || null;
+        },
         enabled: isLoggedIn && validOrg
     });
 
@@ -198,7 +209,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         onSuccess: async (_, name) => {
             await queryClient.cancelQueries({ queryKey: ["overview_component_list", projectId] })
             const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
-            const updatedComponents = previousComponents?.map(item => item.name === name ? ({ ...item, local: false }): item);
+            const updatedComponents = previousComponents?.map(item => item.name === name ? ({ ...item, local: false }) : item);
             queryClient.setQueryData(["overview_component_list", projectId], updatedComponents)
             refetchComponentsOnly()
         },
@@ -407,20 +418,38 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         </VSCodeButton>
                     )}
                 </ComponentsHeader>
-                <ComponentList
-                    components={components}
-                    projectId={projectId}
-                    orgName={orgName}
-                    openSourceControl={handleOpenSourceControlClick}
-                    onComponentDeleteClick={handleDeleteComponentClick}
-                    handlePushComponentClick={handlePushComponentClick}
-                    loading={pushingComponent || pushingSingleComponent || deletingComponent}
-                    fetchingComponents={fetchingComponents}
-                    isActive={isActive}
-                    choreoUrl={choreoUrl}
-                    reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
-                    refreshComponentStatus={refetchComponents}
-                />
+
+                {components.length === 0 && fetchingComponents && (
+                    <VSCodeProgressRing />
+                )}
+
+                {components.length === 0 && !fetchingComponents && (
+                    <p>
+                        <InlineIcon>
+                            <Codicon name="info" />
+                        </InlineIcon>{" "}
+                        {(componentsListError as Error)?.message ||
+                            (componentStatusError as Error)?.message ||
+                            "No components found. Clone & Open the project to create components."}
+                    </p>
+                )}
+
+                {components.length > 0 && (
+                    <ComponentList
+                        components={components}
+                        projectId={projectId}
+                        orgName={orgName}
+                        openSourceControl={handleOpenSourceControlClick}
+                        onComponentDeleteClick={handleDeleteComponentClick}
+                        handlePushComponentClick={handlePushComponentClick}
+                        loading={pushingComponent || pushingSingleComponent || deletingComponent}
+                        fetchingComponents={fetchingComponents}
+                        isActive={isActive}
+                        choreoUrl={choreoUrl}
+                        reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
+                        refreshComponentStatus={refetchComponents}
+                    />
+                )}
 
                 {componentsOutOfSync && (
                     <>

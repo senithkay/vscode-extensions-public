@@ -89,6 +89,7 @@ export class WebViewRpc {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
             }
+            return [];
         });
 
         this._messenger.onRequest(GetDeletedComponents, async (projectId: string) => {
@@ -108,6 +109,7 @@ export class WebViewRpc {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getEnrichedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
             }
+            return [];
         });
 
         this._messenger.onRequest(DeleteComponent, async (params: {projectId: string, component: Component}) => {

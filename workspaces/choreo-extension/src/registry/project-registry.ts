@@ -131,10 +131,12 @@ export class ProjectRegistry {
                 });
                 return {
                     ...component,
-                    deployments: matchingComponent?.deployments,
-                    isRemoteOnly: matchingComponent?.isRemoteOnly,
                     hasUnPushedLocalCommits: matchingComponent?.hasUnPushedLocalCommits,
-                    hasDirtyLocalRepo: matchingComponent?.hasDirtyLocalRepo
+                    hasDirtyLocalRepo: matchingComponent?.hasDirtyLocalRepo,
+                    isRemoteOnly: matchingComponent?.isRemoteOnly,
+                    isInRemoteRepo: matchingComponent?.isInRemoteRepo,
+                    deployments: matchingComponent?.deployments,
+                    buildStatus: matchingComponent?.buildStatus,
                 };
             });
 
@@ -143,7 +145,7 @@ export class ProjectRegistry {
             return components;
         } catch (e) {
             serializeError(e);
-            return this._dataComponents.get(projectId) || [];
+            throw new Error("Failed to fetch component list");
         }
     }
 
@@ -241,7 +243,7 @@ export class ProjectRegistry {
                             projId: projectId,
                             versionId: selectedVersion.id
                         })),
-                        isActive && this.isComponentInRepo(component),
+                        component.local && isActive && this.isComponentInRepo(component),
                         !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({componentId: component.id, versionId: selectedVersion.id}))
                     ]);
 
@@ -268,7 +270,7 @@ export class ProjectRegistry {
             return enrichedComponents;
         } catch (e) {
             serializeError(e);
-            return this._dataComponents.get(projectId) || [];
+            throw new Error("Failed to fetch the status of components");
         }
     }
 

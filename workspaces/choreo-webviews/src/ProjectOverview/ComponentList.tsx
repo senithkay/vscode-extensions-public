@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeButton, VSCodeTag, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton, VSCodeTag, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { Component, DeploymentStatus, Repository } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
@@ -101,11 +101,6 @@ export function ComponentList(props: ComponentListProps) {
         choreoUrl
     } = props;
 
-    if (props.components.length === 0 && fetchingComponents) {
-        return <><VSCodeProgressRing /></>;
-    } else if (props.components.length === 0) {
-        return <><p><InlineIcon><Codicon name="info" /></InlineIcon> No components found. Clone & Open the project to create components.</p></>;
-    }
 
     const onOpenConsoleClick = useCallback((url) => {
         ChoreoWebViewAPI.getInstance().openExternal(url);
