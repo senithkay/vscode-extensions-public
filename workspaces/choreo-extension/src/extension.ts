@@ -61,10 +61,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	return ext.api;
 }
 
+let isChoreoProjectBeingOpened: boolean = false;
+
 export async function showChoreoProjectOverview() {
 	getLogger().debug("Show Choreo Project Overview if a Choreo project is opened.");
 	const isChoreoProject = await ext.api.isChoreoProject();
 	if (isChoreoProject) {
+		if (isChoreoProjectBeingOpened) {
+			getLogger().debug("Choreo project is already being opened. Ignoring Choreo Project Overview.");
+			return;
+		}
+		isChoreoProjectBeingOpened = true;
 		getLogger().debug("Choreo project is opened. Showing Choreo Project Overview.");
 		await window.withProgress({
             title: `Opening Choreo Project Workspace.`,
@@ -110,7 +117,7 @@ export async function showChoreoProjectOverview() {
 				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
 			}
 		});
-		
+		isChoreoProjectBeingOpened = false;	
 	}
 }
 
