@@ -29,6 +29,15 @@ interface CmdResponse {
 
 export class ChoreoProjectManager implements IProjectManager {
 
+    async isComponentNameAvailable(componentName: string): Promise<boolean> {
+        if (workspace.workspaceFile) {
+            const localComponents = this.getLocalComponents(workspace.workspaceFile.fsPath);
+            const pushedComponents = this.getPushedComponents(workspace.workspaceFile.fsPath);
+            return !localComponents.find((component) => component.name === componentName) && !pushedComponents.find((component) => component.name === componentName);
+        }
+        return true;
+    }
+
     async createLocalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
         if (workspace.workspaceFile) {
             return await addToWorkspace(workspace.workspaceFile.fsPath, componentDetails);

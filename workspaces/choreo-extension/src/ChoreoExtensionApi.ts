@@ -141,7 +141,8 @@ export class ChoreoExtensionApi {
             const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
             const projectID = workspaceConfig.metadata?.choreo?.projectID,
                 orgId = workspaceConfig.metadata?.choreo?.orgId;
-            if (projectID && orgId) {
+            const selectedOrg = ext.api.selectedOrg?.id;
+            if (projectID && orgId && orgId === selectedOrg) {
                 return ProjectRegistry.getInstance().getProject(projectID, orgId);
             }
         }
