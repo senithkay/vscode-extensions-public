@@ -266,7 +266,7 @@ export function ComponentList(props: ComponentListProps) {
                                         </VSCodeLink>
                                         &nbsp;
                                         <VSCodeLink
-                                            href={`${repoLink}/commit/${component.buildStatus?.sourceCommitId}`}
+                                            href={`https://github.com/${repo.organizationApp}/${repo.nameApp}/commit/${component.buildStatus?.sourceCommitId}`}
                                             style={{ color: `var(${buildStatusMappedValue.color})` }}
                                             title="Open commit in remote GitHub repository"
                                         >
