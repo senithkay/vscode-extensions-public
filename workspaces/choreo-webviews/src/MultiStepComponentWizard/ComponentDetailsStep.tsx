@@ -19,6 +19,7 @@ import { Step, StepProps } from "../Commons/MultiStepWizard/types";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 // import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentWizardState } from "./types";
+import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
 const StepContainer = styled.div`
     display: flex;
@@ -120,23 +121,17 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
                 return value !== undefined;
             }
         },
-        // {
-        //     field: 'name',
-        //     message: 'Componet name is already taken',
-        //     rule: async (value: any, _formData, context) => {
-        //         const {  isChoreoProject, choreoProject }  = context;
-        //         if (isChoreoProject && choreoProject && choreoProject?.id) {
-        //             const components = await ChoreoWebViewAPI.getInstance().getComponents(choreoProject?.id);
-        //             if (components.length) {
-        //                 const component = components.find((component: Component) => component.name === value);
-        //                 if (component) {
-        //                     return false;
-        //                 }
-        //             }
-        //         }
-        //         return true;
-        //     }
-        // },
+        {
+            field: 'name',
+            message: 'Componet name is already taken',
+            rule: async (value: any, _formData, context) => {
+                const {  isChoreoProject, choreoProject }  = context;
+                if (isChoreoProject && choreoProject && choreoProject?.id) {
+                    return ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isComponentNameAvailable(value);
+                }
+                return true;
+            }
+        },
         {
             field: 'name',
             message: 'Name is required',
