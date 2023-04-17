@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = (env, argv) => ({
-    mode: 'none',
+    mode: 'production',
     entry: {
         ConfigForm: path.join(__dirname, 'src', 'index.tsx')
     },
@@ -50,7 +50,7 @@ module.exports = (env, argv) => ({
     output: {
         filename: 'ConfigEditor.js',
         path: path.resolve(__dirname, 'build', 'umd'),
-        libraryTarget: "umd",
+        library: 'configEditor',
     },
     plugins: [
         new webpack.DefinePlugin({
