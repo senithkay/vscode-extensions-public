@@ -332,7 +332,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                     <InlineIcon>
                                         <Codicon name="info" />
                                     </InlineIcon>{" "}
-                                    Open the architecture view to add components.{" "}
+                                    Open the architecture view to visualise your project components.{" "}
                                 </p>
                                 <ActionContainer>
                                     <VSCodeButton
@@ -366,7 +366,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <InlineIcon>
                                 <Codicon name="info" />
                             </InlineIcon>{" "}
-                            Open the architecture view to add components.{" "}
+                            Open the architecture view to visualise your project components.{" "}
                         </p>
                         <ActionContainer>
                             <VSCodeButton
