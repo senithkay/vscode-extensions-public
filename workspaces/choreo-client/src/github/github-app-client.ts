@@ -41,7 +41,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     }
     
     private async _getClient() {
-        const token = await this._tokenStore.getToken("choreo.apim.token");
+        const token = await this._tokenStore.getToken("choreo.vscode.token");
         if (!token) {
             throw new Error('User is not logged in');
         }

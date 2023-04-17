@@ -84,7 +84,7 @@ export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
     clientId: "NoOBydRztff7iENCq0LM2uuRs2ca",
 
     apimClientId: "lxa0Z3jtHtNxE9fqev4HUryUTLUa",
-    vscodeClientId: "GWj5MzWNrOB28jX_wu5ZGu7I1VIa",
+    vscodeClientId: "Wr5EP0IljfVyydMflZcbCtgqifUa",
     apimTokenUrl: "https://sts.st.choreo.dev:443/oauth2/token",
     userRegistrationUrl: "https://app.choreo.dev/register-user",
 
@@ -113,7 +113,7 @@ export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
     clientId: "_eEveWFdTSJPaui7DmCuU5DUrUEa",
 
     apimClientId: "Wxqy0liCfLBsdpXOhkcxZz6uLPka",
-    vscodeClientId: "GWj5MzWNrOB28jX_wu5ZGu7I1VIa",
+    vscodeClientId: "XR0UxDfbpjXEyp0Z2C4GuKy7Bdga",
     apimTokenUrl: "https://sts.preview-dv.choreo.dev:443/oauth2/token",
     userRegistrationUrl: "https://app.choreo.dev/register-user",
 
