@@ -47,7 +47,8 @@ export function ProjectWizard() {
     const [creationInProgress, setCreationInProgress] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [initMonoRepo, setInitMonoRepo] = useState(true);
-    const [githubRepo, setGithubRepo] = useState("");
+    const [selectedGHOrgName, setSelectedGHOrgName] = useState("");
+    const [selectedGHRepo, setSelectedGHRepo] = useState("");
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
@@ -65,7 +66,9 @@ export function ProjectWizard() {
                     orgId: selectedOrg.id,
                     orgHandle: selectedOrg.handle
                 });
-                await webviewAPI.setProjectRepository(createdProject.id, githubRepo);
+                if (initMonoRepo) {
+                    await webviewAPI.setProjectRepository(createdProject.id, `${selectedGHOrgName}/${selectedGHRepo}`);
+                }
                 await webviewAPI.triggerCmd("wso2.choreo.projects.registry.refresh");
                 await webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
                 await webviewAPI.triggerCmd("wso2.choreo.projects.tree.refresh");
@@ -78,11 +81,8 @@ export function ProjectWizard() {
     };
 
     const handleRepoSelect = (org?: string, repo?: string) => { 
-        if (org && repo) {
-            setGithubRepo(`${org}/${repo}`);
-        } else {
-            setGithubRepo("");
-        }
+        setSelectedGHOrgName(org || "");
+        setSelectedGHRepo(repo || "");
     };
 
     const isValid: boolean = projectName.length > 0;
@@ -125,22 +125,13 @@ export function ProjectWizard() {
                     >
                         Initialize a mono repo
                     </VSCodeCheckbox>
-                    {initMonoRepo && <GithubRepoSelector onRepoSelect={handleRepoSelect} />}
+                    {initMonoRepo && <GithubRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} />}
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
                         <ErrorMessageContainer>
                             {error.message + error.cause}
                         </ErrorMessageContainer>
                     )}
-                    {initMonoRepo && 
-                        <VSCodeTextField
-                            autofocus
-                            readOnly={true}
-                            value={githubRepo}
-                        >
-                            Selected Repository
-                        </VSCodeTextField>
-                    }
                     <ActionContainer>
 
                         <VSCodeButton
