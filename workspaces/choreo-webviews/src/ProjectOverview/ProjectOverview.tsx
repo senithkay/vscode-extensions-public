@@ -315,7 +315,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <InlineIcon>
                                 <Codicon name="info" />
                             </InlineIcon>{" "}
-                            To open the project clone in to your local machine
+                            To develop the project, clone it to your local machine.
                         </p>
                         <ActionContainer>
                             <VSCodeButton
