@@ -103,8 +103,10 @@ export function ComponentList(props: ComponentListProps) {
 
     if (props.components.length === 0 && fetchingComponents) {
         return <><VSCodeProgressRing /></>;
-    } else if (props.components.length === 0) {
+    } else if (props.components.length === 0 && isActive) {
         return <><p><InlineIcon><Codicon name="info" /></InlineIcon> No components found.</p></>;
+    } else if (props.components.length === 0) {
+        return <><p><InlineIcon><Codicon name="info" /></InlineIcon> No components found. Clone & Open the project to create components.</p></>;
     }
 
     const onOpenConsoleClick = useCallback((url) => {
