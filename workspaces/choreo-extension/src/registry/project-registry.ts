@@ -157,7 +157,7 @@ export class ProjectRegistry {
         if (projectLocation !== undefined) {
             const pushedComponents = (new ChoreoProjectManager()).getPushedComponents(projectLocation);
 
-            if(dataComponents && dataComponents.length < pushedComponents.length) {
+            if (dataComponents && dataComponents.length < pushedComponents.length) {
                 deletedComponents = pushedComponents.filter((pushedComponent: PushedComponent) => {
                     let isDeleted = true;
                     dataComponents.forEach((component: Component) => {
@@ -173,7 +173,7 @@ export class ProjectRegistry {
             }
         }
 
-        return deletedComponents;      
+        return deletedComponents;
     }
 
     removeDeletedComponents(components: PushedComponent[], projectId: string) {
@@ -188,14 +188,14 @@ export class ProjectRegistry {
                 }
             });
         }
-        
+
         const successMsg = " Please commit & push your local changes changes to ensure consistency with the remote repository.";
         vscode.window.showInformationMessage(successMsg);
     }
-        
+
     private async isComponentInRepo(component: Component): Promise<boolean> {
         let isInRemoteRepo = true;
-        if(component.local && component.repository){
+        if (component.local && component.repository) {
             const { appSubPath, branchApp, nameApp, organizationApp } = component.repository;
             try {
                 isInRemoteRepo = await executeWithTaskRetryPrompt(() => projectClient.isComponentInRepo({
@@ -220,9 +220,9 @@ export class ProjectRegistry {
             const isActive = projectId === openedProject?.id;
 
             let envData = this._projectEnvs.get(projectId);
-            if(!envData){
+            if (!envData) {
                 envData = await executeWithTaskRetryPrompt(() => projectClient.getProjectEnv({ orgUuid, projId: projectId }));
-                if(envData){
+                if (envData) {
                     this._projectEnvs.set(projectId, envData);
                 }
             }
@@ -231,7 +231,7 @@ export class ProjectRegistry {
 
             const enrichedComponents: Component[] = await Promise.all(
                 components.map(async (component) => {
-                    const selectedVersion = component.apiVersions?.find(item=>item.latest);
+                    const selectedVersion = component.apiVersions?.find(item => item.latest);
                     const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo, buildStatus] = await Promise.all([
                         isActive && this.hasUnPushedLocalCommit(projectId, component),
                         isActive && this.hasDirtyLocalRepo(projectId, component),
@@ -244,7 +244,7 @@ export class ProjectRegistry {
                             versionId: selectedVersion.id
                         })),
                         component.local && isActive && this.isComponentInRepo(component),
-                        !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({componentId: component.id, versionId: selectedVersion.id}))
+                        !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({ componentId: component.id, versionId: selectedVersion.id }))
                     ]);
 
                     let isRemoteOnly = true;
@@ -253,11 +253,11 @@ export class ProjectRegistry {
                         isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
                     }
 
-                    return { 
-                        ...component, 
-                        hasUnPushedLocalCommits, 
-                        hasDirtyLocalRepo, 
-                        isRemoteOnly, 
+                    return {
+                        ...component,
+                        hasUnPushedLocalCommits,
+                        hasDirtyLocalRepo,
+                        isRemoteOnly,
                         isInRemoteRepo,
                         deployments: { dev: devDeployment },
                         buildStatus
@@ -432,7 +432,7 @@ export class ProjectRegistry {
 
     pushLocalComponentsToChoreo(projectId: string, org: Organization): Thenable<void> {
         return window.withProgress({
-            title: `Pushing local components to Choreo.`,
+            title: `Pushing local components to Choreo`,
             location: ProgressLocation.Notification,
             cancellable: true
         }, async (_progress, cancellationToken) => {
@@ -440,7 +440,7 @@ export class ProjectRegistry {
             cancellationToken.onCancellationRequested(async () => {
                 getLogger().debug("Pushing to Choreo cancelled for project: " + projectId);
             });
-            
+
             const projectLocation: string | undefined = this.getProjectLocation(projectId);
             let failures: string = "";
             if (projectLocation !== undefined) {
@@ -451,7 +451,7 @@ export class ProjectRegistry {
                     if (cancellationToken.isCancellationRequested) {
                         break;
                     }
-                    _progress.report({ message: `Pushing ${componentMetadata.displayName} to Choreo.`});
+                    _progress.report({ message: `Uploading the ${componentMetadata.displayName} component from your local machine.` });
                     try {
                         if (componentMetadata.displayType.startsWith("byoc")) {
                             await this._createByoComponent(componentMetadata);
@@ -471,26 +471,26 @@ export class ProjectRegistry {
                 }
             }
         });
-        
+
     }
 
     private async _createComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
-            const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
-            const componentRequest: CreateComponentParams = {
-                name: componentMetadata.displayName,
-                displayName: componentMetadata.displayName,
-                displayType: componentMetadata.displayType,
-                description: componentMetadata.description,
-                orgId: componentMetadata.org.id,
-                orgHandle: componentMetadata.org.handle,
-                projectId: componentMetadata.projectId,
-                accessibility: componentMetadata.accessibility,
-                srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
-                repositorySubPath: appSubPath,
-                repositoryType: "UserManagedNonEmpty",
-                repositoryBranch: branchApp
-            };
-            await executeWithTaskRetryPrompt(() => projectClient.createComponent(componentRequest));
+        const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+        const componentRequest: CreateComponentParams = {
+            name: componentMetadata.displayName,
+            displayName: componentMetadata.displayName,
+            displayType: componentMetadata.displayType,
+            description: componentMetadata.description,
+            orgId: componentMetadata.org.id,
+            orgHandle: componentMetadata.org.handle,
+            projectId: componentMetadata.projectId,
+            accessibility: componentMetadata.accessibility,
+            srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+            repositorySubPath: appSubPath,
+            repositoryType: "UserManagedNonEmpty",
+            repositoryBranch: branchApp
+        };
+        await executeWithTaskRetryPrompt(() => projectClient.createComponent(componentRequest));
     }
 
     private async _createByoComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {

@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { ApiVersion, Service } from "@wso2-enterprise/choreo-core";
+import { ApiVersion, Component, ComponentModel, Service } from "@wso2-enterprise/choreo-core";
 
 export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
     isLocal: boolean, accessibility?: string): boolean {
@@ -75,4 +75,48 @@ export function enrichConsoleDeploymentData(pkgServices: Map<string, Service>, a
         };
     }
     return services.length > 0;
+}
+
+export function mergeNonClonedProjectData(components: Component): ComponentModel {
+    const pkgServices: { [key: string]: Service } = {};
+    pkgServices[components.id] = {
+        serviceId: components.displayName,
+        serviceType: components.displayType,
+        annotation: {
+            id: components.id,
+            label: "",
+            elementLocation: null
+        },
+        elementLocation: {
+            filePath: "",
+            startPosition: {
+                line: 0,
+                offset: 0
+            },
+            endPosition: {
+                line: 0,
+                offset: 0
+            }
+        },
+        deploymentMetadata: {
+            gateways: {
+                internet: {
+                    isExposed: false
+                },
+                intranet: {
+                    isExposed: false
+                }
+            }
+        },
+        path: "",
+        dependencies: [],
+        remoteFunctions: [],
+        resources: []
+    };
+    return {
+        packageId: {name: components.name, org: components.orgHandler, version: components.version},
+        services: pkgServices as any,
+        entities: new Map(),
+        hasCompilationErrors: false
+    };
 }

@@ -703,8 +703,14 @@ export function createNewRecord(newRecord: string, stNode: STNode, applyModifica
 export function createNewConstruct(codeSnippet: string, stNode: STNode, applyModifications: (modifications: STModification[]) => void) {
     const stNodeValue = (stNode as ModulePart);
     const nodePosition: NodePosition = stNodeValue.eofToken.position;
+    const lastMemberPosition: NodePosition = {
+        startLine: nodePosition.endLine,
+        startColumn: nodePosition.endColumn,
+        endLine: nodePosition.endLine,
+        endColumn: nodePosition.endColumn,
+    }
     applyModifications([
-        createPropertyStatement(codeSnippet, nodePosition, false)
+        createPropertyStatement(codeSnippet, lastMemberPosition, true)
     ]);
 }
 
