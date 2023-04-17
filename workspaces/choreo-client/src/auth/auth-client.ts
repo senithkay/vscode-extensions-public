@@ -17,7 +17,6 @@ import { getHttpClient } from '../http-client';
 import { AccessToken, AuthClientConfig, IAuthClient } from './types';
 
 const ACCESS_TOKEN_ERROR = "Error while exchanging the access token!";
-const APIM_TOKEN_ERROR = "Error while exchanging the apim token!";
 const REFRESH_TOKEN_ERROR = "Error while exchanging the refresh token!";
 const VSCODE_TOKEN_ERROR = "Error while exchanging the VSCode token!";
 
@@ -61,30 +60,6 @@ export class ChoreoAuthClient implements IAuthClient {
             };
         } catch (err) {
             throw new Error(ACCESS_TOKEN_ERROR, { cause: err });
-        }
-    }
-
-    async exchangeApimToken(choreoAccessToken: string, orgHandle: string): Promise<AccessToken> {
-        const params = new URLSearchParams({
-            client_id: this._config.apimClientId,
-            grant_type: ExchangeGrantType,
-            subject_token_type: JWTTokenType,
-            requested_token_type: JWTTokenType,
-            scope: ApimScope,
-            subject_token: choreoAccessToken,
-            orgHandle,
-        });
-        try {
-            const response = await getHttpClient()
-                .post(this._config.apimTokenUrl, params.toString(), { headers: CommonReqHeaders });
-            return {
-                accessToken: response.data.access_token,
-                refreshToken: response.data.refresh_token,
-                loginTime: new Date().toISOString(),
-                expirationTime: response.data.expires_in
-            };
-        } catch (err) {
-            throw new Error(APIM_TOKEN_ERROR, { cause: err });
         }
     }
 
