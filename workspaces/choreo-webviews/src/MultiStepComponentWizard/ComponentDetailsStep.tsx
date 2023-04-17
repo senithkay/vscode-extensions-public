@@ -123,7 +123,7 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
         },
         {
             field: 'name',
-            message: 'Componet name is already taken',
+            message: 'Component name is already taken',
             rule: async (value: any, _formData, context) => {
                 const {  isChoreoProject, choreoProject }  = context;
                 if (isChoreoProject && choreoProject && choreoProject?.id) {
