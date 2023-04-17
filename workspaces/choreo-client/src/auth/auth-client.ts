@@ -88,14 +88,15 @@ export class ChoreoAuthClient implements IAuthClient {
         }
     }
 
-    async exchangeVSCodeToken(apimAccessToken: string): Promise<AccessToken> {
+    async exchangeVSCodeToken(apimAccessToken: string, orgHandle: string): Promise<AccessToken> {
         const params = new URLSearchParams({
             client_id: this._config.vscodeClientId,
             grant_type: ExchangeGrantType,
             subject_token_type: JWTTokenType,
             requested_token_type: JWTTokenType,
             scope: ApimScope,
-            subject_token: apimAccessToken
+            subject_token: apimAccessToken,
+            orgHandle,
         });
         try {
             const response = await getHttpClient()

@@ -69,7 +69,7 @@ export class CollapseInitVisitor implements Visitor {
         const onFailVS = viewState.onFailBodyVS as OnFailClauseViewState;
         const onFailBody = onFailVS.onFailBodyVS as BlockViewState;
 
-        viewState.collapsed = !(doBodyVS.containsAction || onFailBody.containsAction); 
+        viewState.collapsed = !(doBodyVS.containsAction || onFailBody.containsAction);
     }
 
     endVisitForeachStatement(node: ForeachStatement, parent?: STNode): void {

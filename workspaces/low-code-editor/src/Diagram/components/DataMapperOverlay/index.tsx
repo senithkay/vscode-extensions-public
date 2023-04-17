@@ -33,6 +33,7 @@ import { RecordEditor } from "../FormComponents/ConfigForms";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
+import { useHistoryContext } from "../../../DiagramViewManager/context/history";
 
 export interface DataMapperProps {
     model?: STNode;
@@ -57,8 +58,10 @@ export function DataMapperOverlay(props: DataMapperProps) {
                 updateActiveFile,
                 updateSelectedComponent
             }
-    }
+        }
     } = useContext(Context);
+
+    const { historyClearAndPopulateWith, history } = useHistoryContext();
 
     const [functionST, setFunctionST] =
         React.useState<FunctionDefinition>(undefined);
@@ -100,7 +103,9 @@ export function DataMapperOverlay(props: DataMapperProps) {
             const fns = modPart.members.filter((mem) =>
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
-            setFunctionST(fns.find((mem) => mem.functionName.value === funcName));
+            const st = fns.find((mem) => mem.functionName.value === funcName);
+            if (history.length === 0) historyClearAndPopulateWith({ file: currentFile.path, position: st.position });
+            setFunctionST(st);
             return;
         }
         setFunctionST(undefined);

@@ -167,7 +167,7 @@ export function RegularFuncComponent(props: FunctionProps) {
         }
         headerComponent.push(
             <div className="btn-container" onClick={handleParentNavigation}>
-                <span className="module-text">{viewState.parentNamePlaceHolder}</span>
+               {viewState.parentNamePlaceHolder}
             </div>
         )
         // <span className="component-name">{model?.functionName.value}</span>

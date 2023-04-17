@@ -39,7 +39,7 @@ export function TopLevelActionButton() {
                 onClick={handleActionBtnClick}
             >
                 <AddIcon />
-                Component
+                <span>Component</span>
             </div>
             {showDrawer && (
                 <FormGenerator
