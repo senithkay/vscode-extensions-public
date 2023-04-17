@@ -205,7 +205,6 @@ export async function exchangeOrgAccessTokens(orgHandle: string) {
 export async function signOut() {
     getLogger().debug("Clear current Choreo session.");
     await tokenStore.deleteToken("choreo.token");
-    await tokenStore.deleteToken("choreo.apim.token");
     await tokenStore.deleteToken("choreo.vscode.token");
     ext.api.status = STATUS_LOGGED_OUT;
     ext.api.userName = undefined;

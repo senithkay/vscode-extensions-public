@@ -20,10 +20,9 @@ export interface AccessToken {
 }
 
 export type ChoreoToken = "choreo.token";
-export type ChoreoApimToken = "choreo.apim.token";
 export type ChoreoVscodeToken = "choreo.vscode.token";
 
-export type ChoreoTokenType = ChoreoToken | ChoreoApimToken | ChoreoVscodeToken;
+export type ChoreoTokenType = ChoreoToken | ChoreoVscodeToken;
 
 export interface IReadOnlyTokenStorage {
     getToken(tokenType: ChoreoTokenType): Promise<AccessToken|undefined>;
@@ -45,7 +44,6 @@ export interface AuthClientConfig {
 
 export interface IAuthClient {
     exchangeAuthCode(authCode: string): Promise<AccessToken>;
-    exchangeApimToken(choreoAccessToken: string, orgHandle: string): Promise<AccessToken>;
     exchangeVSCodeToken(apiAccessToken: string, orgHandle: string): Promise<AccessToken>;
     exchangeRefreshToken(refreshToken: string): Promise<AccessToken>;
     getAuthURL(callbackUri: Uri): string;
