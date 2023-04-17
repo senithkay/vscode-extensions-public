@@ -326,7 +326,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <InlineIcon>
                                 <Codicon name="info" />
                             </InlineIcon>{" "}
-                            To open the project clone in to your local machine
+                            To develop the project, clone it to your local machine.
                         </p>
                         <ActionContainer>
                             <VSCodeButton
@@ -343,7 +343,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                     <InlineIcon>
                                         <Codicon name="info" />
                                     </InlineIcon>{" "}
-                                    Open the architecture view to add components.{" "}
+                                    Open the architecture view to visualise your project components.{" "}
                                 </p>
                                 <ActionContainer>
                                     <VSCodeButton
@@ -371,6 +371,20 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                 onClick={handleOpenProjectClick}
                             >
                                 Open Project
+                            </VSCodeButton>
+                        </ActionContainer>
+                        <p>
+                            <InlineIcon>
+                                <Codicon name="info" />
+                            </InlineIcon>{" "}
+                            Open the architecture view to visualise your project components.{" "}
+                        </p>
+                        <ActionContainer>
+                            <VSCodeButton
+                                appearance="primary"
+                                onClick={handleOpenChoreoArchitectureViewClick}
+                            >
+                                Architecture View
                             </VSCodeButton>
                         </ActionContainer>
                     </>
@@ -428,9 +442,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         <InlineIcon>
                             <Codicon name="info" />
                         </InlineIcon>{" "}
-                        {(componentsListError as Error)?.message ||
-                            (componentStatusError as Error)?.message ||
-                            "No components found. Clone & Open the project to create components."}
+                        {(componentsListError as Error)?.message || (componentStatusError as Error)?.message || (
+                            (isActive) ?
+                                "No components found." :
+                                "No components found. Clone & Open the project to create components."
+                        )}
                     </p>
                 )}
 
