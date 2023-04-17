@@ -52,7 +52,7 @@ import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
-import { enrichConsoleDeploymentData} from "../../../utils";
+import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
 import { executeWithTaskRetryPrompt } from "../../../retry";
 
@@ -204,6 +204,8 @@ export class WebViewRpc {
                             enrichConsoleDeploymentData(model.services, finalVersion);
                             componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
                         } else  {
+                            componentModels[`${value.orgHandler}/${value.name}:${value.version}`] =
+                                mergeNonClonedProjectData(value);
                             diagnostics.push({name: `${value.displayName} Component`});
                         }
                     });

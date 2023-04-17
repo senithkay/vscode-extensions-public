@@ -403,7 +403,7 @@ export interface ComponentModel {
     };
     services: Map<string, Service>;
     entities: Map<string, Entity>;
-    functionEntryPoint: EntryPoint;
+    functionEntryPoint?: EntryPoint | undefined;
     hasCompilationErrors: boolean;
 }
 
