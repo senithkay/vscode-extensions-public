@@ -97,12 +97,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         onChangeInProgress(false);
     };
 
-    const paramNames: string[] = [];
-
-
     const paramComponents: React.ReactElement[] = [];
-
-
     function getReturnTypesArray() {
         const returnTypes = returnSource ? returnSource.replace("returns", "").split(/\|(?![^\{]*[\}])/gm) : [];
         return returnTypes;
@@ -159,49 +154,6 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             httpMethodName={model?.functionName?.value?.toUpperCase()}
         />
     );
-    // parameters
-    //     .forEach((param, index) => {
-    //         if (STKindChecker.isCommaToken(param)
-    //             || param.source.includes(RESOURCE_PAYLOAD_PREFIX)
-    //             || param.source.includes(RESOURCE_CALLER_TYPE)
-    //             || param.source.includes(RESOURCE_REQUEST_TYPE)
-    //             || param.source.includes(RESOURCE_HEADER_MAP_TYPE)
-    //         ) {
-    //             return;
-    //         }
-    //         if ((editingSegmentId !== index)) {
-    //             paramComponents.push(
-    //                 <ParamItem
-    //                     param={{
-    //                         id: index,
-    //                         name: getParameterNameFromModel(param),
-    //                         type: getParameterTypeFromModel(param),
-    //                         option: param.source.includes(RESOURCE_HEADER_PREFIX) ? PARAM_TYPES.HEADER : PARAM_TYPES.DEFAULT
-    //                     }}
-    //                     readonly={editingSegmentId !== -1 || readonly}
-    //                     onDelete={onDelete}
-    //                     onEditClick={onEdit}
-    //                 />
-    //             );
-    //         } else if (editingSegmentId === index) {
-    //             isEditing = true;
-    //             paramComponents.push(
-    //                 <ResponseEditor
-    //                     segmentId={index}
-    //                     syntaxDiagnostics={syntaxDiag}
-    //                     model={param}
-    //                     completions={completions}
-    //                     isEdit={true}
-    //                     alternativeName={param.source.includes(RESOURCE_HEADER_PREFIX) ? "Identifier Name" : "Name"}
-    //                     optionList={responseCodes}
-    //                     option={"200"}
-    //                     isTypeReadOnly={false}
-    //                     onChange={onParamChange}
-    //                     onCancel={onParamEditCancel}
-    //                 />
-    //             )
-    //         }
-    //     });
 
     return (
         <div>
@@ -220,11 +172,6 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                     </Button>
                 </div>
             )}
-            {/* {(editingSegmentId !== -1) && !isEditing && (
-                <div>
-                    <TextPreloaderVertical position="fixedMargin" />
-                </div>
-            )} */}
             {isNew && resourceForm}
         </div>
     );

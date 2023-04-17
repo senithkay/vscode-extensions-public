@@ -15,7 +15,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Button } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
-import {connectorStyles, TextPreloaderVertical} from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
+import { connectorStyles, TextPreloaderVertical } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { CommaToken, DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../models/definitions';
@@ -41,9 +41,25 @@ export function PayloadEditor(props: PayloadEditorProps) {
     const [paramIndex, setParamIndex] = useState(-1);
     const [addingParam, setAddingParam] = useState(false);
 
+    const [paramConfig, setParamConfig] = useState<ParameterConfig>({ id: -1, name: '' });
+
     useEffect(() => {
         const payloadEntry = parameters.findIndex((param) =>
             !STKindChecker.isCommaToken(param) && param.source.includes(RESOURCE_PAYLOAD_PREFIX));
+
+        if (payloadEntry > -1) {
+            const config: ParameterConfig = { id: -1, name: '' }
+            config.id = payloadEntry;
+            config.name = (parameters[payloadEntry] as DefaultableParam | RequiredParam
+                | IncludedRecordParam)?.paramName.value;
+            config.type = (parameters[payloadEntry] as DefaultableParam | RequiredParam
+                | IncludedRecordParam)?.typeName.source;
+            config.option = PARAM_TYPES.PAYLOAD;
+            config.defaultValue = STKindChecker.isDefaultableParam(parameters[payloadEntry]) ?
+                (parameters[payloadEntry] as DefaultableParam).expression.source
+                : '';
+            setParamConfig(config);
+        }
 
         setParamIndex(payloadEntry);
     }, [parameters]);
@@ -99,23 +115,6 @@ export function PayloadEditor(props: PayloadEditorProps) {
         onChangeInProgress(false);
     };
 
-    const paramConfig: ParameterConfig = {
-        id: -1,
-        name: ''
-    };
-
-    if (paramIndex > -1) {
-        paramConfig.id = paramIndex;
-        paramConfig.name = (parameters[paramIndex] as DefaultableParam | RequiredParam
-            | IncludedRecordParam)?.paramName.value;
-        paramConfig.type = (parameters[paramIndex] as DefaultableParam | RequiredParam
-            | IncludedRecordParam)?.typeName.source;
-        paramConfig.option = PARAM_TYPES.PAYLOAD;
-        paramConfig.defaultValue = STKindChecker.isDefaultableParam(parameters[paramIndex]) ?
-            (parameters[paramIndex] as DefaultableParam).expression.source
-            : '';
-    }
-
     return (
         <div>
             {paramIndex === -1 && (
@@ -156,7 +155,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
             )}
             {(paramIndex === -1) && addingParam && (
                 <div>
-                    <TextPreloaderVertical position="fixedMargin"/>
+                    <TextPreloaderVertical position="fixedMargin" />
                 </div>
             )}
         </div>

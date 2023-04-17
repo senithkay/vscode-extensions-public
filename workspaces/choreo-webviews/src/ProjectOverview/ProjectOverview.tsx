@@ -84,8 +84,11 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     const { data: validProject } = useQuery({
         queryKey: ["overview_project_opened_project_id", projectId],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getChoreoProject(),
-        select: (p) => p && p.id === projectId
+        queryFn: async () => {
+            const projectRes = await ChoreoWebViewAPI.getInstance().getChoreoProject();
+            return projectRes || null;
+        },
+        select: (p) => p?.id === projectId
     });
 
     const isActive = useMemo(() => {
@@ -324,16 +327,22 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             </VSCodeButton>
                         </ActionContainer>
                         {components?.length > 0 && (
-                            <ActionContainer>
+                            <>
                                 <p>
+                                    <InlineIcon>
+                                        <Codicon name="info" />
+                                    </InlineIcon>{" "}
+                                    Open the architecture view to add components.{" "}
+                                </p>
+                                <ActionContainer>
                                     <VSCodeButton
-                                        appearance="secondary"
+                                        appearance="primary"
                                         onClick={handleOpenChoreoArchitectureViewClick}
                                     >
                                         Architecture View
                                     </VSCodeButton>
-                                </p>
-                            </ActionContainer>
+                                </ActionContainer>
+                            </>
                         )}
                     </>
                 )}

@@ -93,10 +93,11 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	const projectPaths: WorkspaceFolder[] = [];
 	const choreoProjectFile = await workspace.findFiles('**/\.choreo-project');
 
+
 	if (choreoProjectFile.length > 0) {
-		const choreoProjectFolderPath = choreoProjectFile[0].fsPath.replace(/\/\.choreo-project$/, '');
+		const choreoProjectFolderPath = choreoProjectFile[0].path.replace(/\/\.choreo-project$/, '');
 		workspace.workspaceFolders.forEach((workspaceFolder) => {
-			if (workspaceFolder.uri.fsPath !== choreoProjectFolderPath) {
+			if (workspaceFolder.uri.path !== choreoProjectFolderPath) {
 				projectPaths.push(workspaceFolder);
 			}
 		});
@@ -664,16 +665,16 @@ export async function refreshDiagramForEditorChange(change: Change) {
 		diagramElement!.startLine = 0;
 		diagramElement!.startColumn = 0;
 	}
-	callUpdateDiagramMethod();
+	callUpdateDiagramMethod(true);
 }
 
-export function callUpdateDiagramMethod() {
+export function callUpdateDiagramMethod(isEditorChange: boolean = false) {
 	performDidOpen();
 	let ballerinaFilePath = diagramElement!.fileUri!.fsPath;
 	const fileName: string | undefined = getCurrentFileName();
 	DiagramPanel.currentPanel?.updateTitle(fileName ? `${fileName} Diagram` : `Ballerina Diagram`);
 	const args = [{
-		filePath: ballerinaFilePath,
+		filePath: isEditorChange ? undefined : ballerinaFilePath,
 		startLine: diagramElement!.startLine,
 		startColumn: diagramElement!.startColumn,
 		projectPaths: diagramElement!.projectPaths

@@ -51,8 +51,11 @@ export function ResourceBody(props: ResourceBodyProps) {
     const classes = useStyles();
     const [isExpanded, setIsExpanded] = useState(false);
     const [schema, setSchema] = useState({});
+    const [schemaParam, setSchemaParam] = useState({});
     const [responseArgs, setResponseArgs] = useState([]);
     const [types, setTypes] = useState([]);
+    const [paramArgs, setParamArgs] = useState([]);
+    const [payloadSchema, setPayloadSchema] = useState([]);
 
     useEffect(() => {
         getKeywordTypes(currentFile.path, getExpressionEditorLangClient).then(setTypes);
@@ -66,7 +69,8 @@ export function ResourceBody(props: ResourceBodyProps) {
         if (types.length > 0) {
             renderResponses(types).then(setResponseArgs);
         }
-    }, [schema]);
+        renderParameters().then(setParamArgs);
+    }, [schema, schemaParam]);
 
     useEffect(() => {
         if (types.length > 0) {
@@ -76,9 +80,11 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     useEffect(() => {
         setSchema({});
+        setSchemaParam({});
         if (types.length > 0) {
             renderResponses(types).then(setResponseArgs);
         }
+        renderParameters().then(setParamArgs);
     }, [model]);
 
     const handleIsExpand = () => {
@@ -118,8 +124,8 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <tr key={i} className={classes.signature}>
                         <td>
                             <div>
-                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
-                                {schema[i] && <pre className={classes.schema}>{schema[i]}  <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
+                                {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}  <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
                             </div>
                         </td>
                     </tr>
@@ -131,25 +137,6 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </div>
                 )
             }
-        }
-    });
-
-
-    const paramArgs: any[] = [];
-
-    model.functionSignature?.parameters?.forEach((param, i) => {
-        if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
-            const paramDetails = param.source.split(" ");
-            paramArgs.push(
-                <tr key={i} className={classes.signature}>
-                    <td>
-                        {paramDetails.length > 0 && param.source.split(" ")[0]}
-                    </td>
-                    <td>
-                        {paramDetails.length > 0 && param.source.split(" ")[1]}
-                    </td>
-                </tr>
-            )
         }
     });
 
@@ -223,6 +210,7 @@ export function ResourceBody(props: ResourceBodyProps) {
 
             if (value.includes("body")) {
                 recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
+                const recordInfo = await getRecord(value.trim(), langClient);
                 des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
                 responses.push(
                     <tr key={i} className={classes.signature}>
@@ -232,8 +220,16 @@ export function ResourceBody(props: ResourceBodyProps) {
                         <td>
                             {des}
                             <div>
-                                Record Schema : <span className={classes.schemaButton} onClick={() => recordEditor(recordName, i)}>{recordName}</span>
-                                {schema[i] && <pre className={classes.schema}>{schema[i]} <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                                Record Schema :
+                                <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                                    {recordName}
+                                </span>
+                                {schema[i] &&
+                                    <pre className={classes.schema}>
+                                        {schema[i]}
+                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </pre>
+                                }
                             </div>
                         </td>
                     </tr>
@@ -255,9 +251,16 @@ export function ResourceBody(props: ResourceBodyProps) {
                         <td>
                             {code}
                         </td>
-                        <td onClick={() => recordEditor(recordName, i)}>
-                            {value}
-                            {schema[i] && <pre className={classes.schema}>{schema[i]} <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                        <td>
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
+                                {recordName}
+                            </span>
+                            {schema[i] &&
+                                <pre className={classes.schema}>
+                                    {schema[i]}
+                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                </pre>
+                            }
                         </td>
                     </tr>
                 )
@@ -267,14 +270,46 @@ export function ResourceBody(props: ResourceBodyProps) {
         return responses;
     }
 
-    const recordEditor = async (record: any, key?: any) => {
+    async function renderParameters() {
+        const values = model.functionSignature?.parameters;
+        const langClient = await getDiagramEditorLangClient();
+        const responses = [];
+        for (const [i, param] of values.entries()) {
+            if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
+                const paramDetails = param.source.split(" ");
+                const recordName = param.source.split(" ")[0];
+                const recordInfo = await getRecord(recordName.trim(), langClient);
+                responses.push(
+                    <tr key={i} className={classes.signature}>
+                        <td>
+                            <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
+                                {recordName}
+                            </span>
+                            {schemaParam[i] &&
+                                <pre className={classes.schema}>
+                                    {schemaParam[i]}
+                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                </pre>
+                            }
+                        </td>
+                        <td>
+                            {paramDetails.length > 0 && param.source.split(" ")[1]}
+                        </td>
+                    </tr>
+                )
+            }
+        };
+        return responses;
+    }
+
+    const recordEditor = async (setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
         const recordInfo = await getRecord(record.trim(), langClient);
 
         if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
-            setSchema({ ...schema, [key]: [ST.source] })
+            setSchemaState({ ...schema, [key]: [ST.source] })
         }
     }
 

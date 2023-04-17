@@ -67,7 +67,7 @@ export function FunctionHeader() {
         // TODO: handle general funciton
         titleComponents.push(
             <div key={"title"} className="title-components">
-                {`Function Design - ${functionNode.functionName.value}`}
+                {`Function ${functionNode.functionName.value}`}
             </div>
         );
 
@@ -113,16 +113,6 @@ export function FunctionHeader() {
             }
         });
 
-        const queryParamComponents: React.ReactElement[] = functionNode.functionSignature.parameters
-            .filter((param) => isQueryParam(param))
-            .map((param: RequiredParam, i) => (
-                <span key={i}>
-                    {i !== 0 ? "&" : ""}
-                    {param.paramName.value}
-                    <sub className={'type-descriptor'}>{(param.typeName as any)?.name?.value}</sub>
-                </span>
-            ));
-
         functionNode.functionSignature.parameters
             .forEach((param, paramIndex) => {
                 if (STKindChecker.isRequiredParam(param)
@@ -136,11 +126,6 @@ export function FunctionHeader() {
                     );
                 }
             });
-
-        if (queryParamComponents.length > 0) {
-            resourceTitleContent.push(<span>?</span>);
-            resourceTitleContent.push(...queryParamComponents);
-        }
 
         titleComponents.push(
             <div key={"params"} className="title-components">
@@ -171,9 +156,8 @@ export function FunctionHeader() {
     }
 
     titleComponents.push(
-        <div key={"config"} className="config-form-icon" onClick={handleConfigFormClick}>
-            <SettingsIcon />
-            <div className="config-form-icon-text">Configure Interface</div>
+        <div key={"config"} className="config-form-btn" onClick={handleConfigFormClick}>
+            <SettingsIcon onClick={handleConfigFormClick}/>
         </div>
     );
 
