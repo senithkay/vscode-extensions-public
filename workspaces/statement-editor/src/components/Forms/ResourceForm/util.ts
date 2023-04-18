@@ -412,7 +412,7 @@ export function getPayloadString(payload: Payload): string {
 }
 
 export function generateParamString(queryParamString: string, payloadString: string,
-    advancedParamString: string): string {
+                                    advancedParamString: string): string {
     let paramString = "";
     if (advancedParamString && !payloadString && !queryParamString) {
         paramString = advancedParamString;
