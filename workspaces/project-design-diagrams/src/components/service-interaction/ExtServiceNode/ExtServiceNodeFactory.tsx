@@ -33,6 +33,6 @@ export class ExtServiceNodeFactory extends AbstractReactFactory<ExtServiceNodeMo
 	}
 
 	generateModel(event: { initialConfig: any }) {
-		return new ExtServiceNodeModel(event.initialConfig.connector);
+		return new ExtServiceNodeModel(event.initialConfig.id, event.initialConfig.label);
 	}
 }

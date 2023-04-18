@@ -89,9 +89,9 @@ async function setupWebviewPanel() {
         );
 
         let shouldUpdateDiagram: boolean = false;
-        const storeDocumentChanges = debounce(() => {
+        const storeDocumentChanges = () => {
             shouldUpdateDiagram = true;
-        }, 1000);
+        };
 
         const refreshDiagram = debounce(() => {
             if (designDiagramWebview) {
