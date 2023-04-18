@@ -60,6 +60,7 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
+import { SearchNode } from "../Node/Search";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
@@ -1193,6 +1194,14 @@ export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: strin
 		return getPrevOutputType(prevSTNodes.slice(0, -1), ballerinaVersion)
 	}
 	return prevOutputType;
+}
+
+export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
+	return nodes.filter(node => !(
+		node instanceof SearchNode
+		|| node instanceof LetExpressionNode
+		|| node instanceof LinkConnectorNode)
+	).length > 0;
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
