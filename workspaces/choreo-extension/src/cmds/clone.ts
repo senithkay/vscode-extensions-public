@@ -32,7 +32,7 @@ export function checkSSHAccessToGitHub() {
             return true;
         }
         window.showErrorMessage('Cannot access GitHub via SSH. Please check your SSH keys.');
-        getLogger().error("Error while checking SSH access to GitHub: " + error);
+        getLogger().error("Error while checking SSH access to GitHub: " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
         return false;
     }
 }
@@ -268,7 +268,7 @@ export const cloneProject = async (project: Project) => {
                     console.log(`Could not clone ${choreoManagedRepos.length} Choreo managed repos.\n`);
                 }
             } catch (error: any) {
-                getLogger().error("Error while cloning project: " + project.name + " " + error);
+                getLogger().error("Error while cloning project: " + project.name + " " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 window.showErrorMessage(`Error while cloning project: ${project.name}. ${error.message}`);
             } 
         } else {

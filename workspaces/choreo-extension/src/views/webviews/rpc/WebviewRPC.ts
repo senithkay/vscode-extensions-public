@@ -210,7 +210,9 @@ export class WebViewRpc {
                             diagnostics.push({name: `${value.displayName} Component`});
                         }
                     });
-                }).catch(serializeError);
+                }).catch((error: any) => {
+                    getLogger().error(`Error while getting diagram model for project ${params.projId}. ${error?.message} ${error?.cause ? error.cause : ""}`);
+                });
 
             return {
                 componentModels: componentModels,
