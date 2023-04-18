@@ -193,8 +193,8 @@ function mapDependencies(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
                     l2Links.push(link);
                 }
             }
-        } else if (dependency.connectorType) {
-            mapExtServices(l1Source, l2Source, cellSourceNode, dependency.connectorType, dependency.elementLocation);
+        } else if (dependency.serviceId || dependency.connectorType) {
+            mapExtServices(l1Source, l2Source, cellSourceNode, dependency);
         }
     })
 }
@@ -205,8 +205,8 @@ function mapInteractions(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
         sourceFunction.interactions.forEach(interaction => {
             if (l1Nodes.has(interaction.resourceId.serviceId) && l2Nodes.has(interaction.resourceId.serviceId) && cellNodes.has(interaction.resourceId.serviceId)) {
                 mapLinksByLevel(l1Source, l2Source, cellSourceNode, interaction, sourceFunction);
-            } else if (interaction.connectorType) {
-                mapExtServices(l1Source, l2Source, cellSourceNode, interaction.connectorType, interaction.elementLocation, sourceFunction);
+            } else if (interaction.resourceId?.serviceId || interaction.connectorType) {
+                mapExtServices(l1Source, l2Source, cellSourceNode, interaction, sourceFunction);
             }
         });
     })
@@ -292,49 +292,54 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
 }
 
 function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels, cellSource: ServiceNodeModels,
-    connectorType: string, location: Location, callingFunction?: ResourceFunction | RemoteFunction) {
+    interaction: Interaction | Dependency, callingFunction?: ResourceFunction | RemoteFunction) {
+    const identifier: string = ('resourceId' in interaction ? interaction.resourceId.serviceId : interaction.serviceId)
+        || interaction.connectorType;
+    const label: string = 'resourceId' in interaction && !validateUUID(interaction.resourceId.serviceId) ? undefined :
+        'serviceId' in interaction && !validateUUID(interaction.serviceId) ? undefined : interaction.connectorType;
+
     // create L1 external service node if not available
     let l1ExtService: ExtServiceNodeModel;
-    if (l1ExtNodes.has(connectorType)) {
-        l1ExtService = l1ExtNodes.get(connectorType);
+    if (l1ExtNodes.has(identifier)) {
+        l1ExtService = l1ExtNodes.get(identifier);
     } else {
-        l1ExtService = new ExtServiceNodeModel(connectorType);
-        l1ExtNodes.set(connectorType, l1ExtService);
+        l1ExtService = new ExtServiceNodeModel(identifier, label);
+        l1ExtNodes.set(identifier, l1ExtService);
     }
 
     // maps L1 links to external services
-    let l1Link: ServiceLinkModel = mapExtLinks(l1Source, l1ExtService, location, undefined);
+    let l1Link: ServiceLinkModel = mapExtLinks(l1Source, l1ExtService, interaction.elementLocation, undefined);
     if (l1Link) {
-        l1Links.set(`${l1Source.getID()}${connectorType}`, l1Link);
+        l1Links.set(`${l1Source.getID()}${identifier}`, l1Link);
     }
 
     // create cell external service node if not available
     let cellExtService: ExtServiceNodeModel;
-    if (cellExtNodes.has(connectorType)) {
-        cellExtService = cellExtNodes.get(connectorType);
+    if (cellExtNodes.has(identifier)) {
+        cellExtService = cellExtNodes.get(identifier);
     } else {
-        cellExtService = new ExtServiceNodeModel(connectorType);
-        cellExtNodes.set(connectorType, cellExtService);
+        cellExtService = new ExtServiceNodeModel(identifier, label);
+        cellExtNodes.set(identifier, cellExtService);
     }
 
     // maps cell links to external services
-    let cellLink: ServiceLinkModel = mapExtLinks(cellSource, cellExtService, location, undefined);
+    let cellLink: ServiceLinkModel = mapExtLinks(cellSource, cellExtService, interaction.elementLocation, undefined);
     if (cellLink) {
-        cellLinks.set(`${cellSource.getID()}${connectorType}`, cellLink);
+        cellLinks.set(`${cellSource.getID()}${identifier}`, cellLink);
     }
 
     // create L2 external service nodes and links
     let l2ExtService: ExtServiceNodeModel;
-    if (l2ExtNodes.has(connectorType)) {
-        l2ExtService = l2ExtNodes.get(connectorType);
+    if (l2ExtNodes.has(identifier)) {
+        l2ExtService = l2ExtNodes.get(identifier);
     } else {
-        l2ExtService = new ExtServiceNodeModel(connectorType);
-        l2ExtNodes.set(connectorType, l2ExtService);
+        l2ExtService = new ExtServiceNodeModel(identifier, label);
+        l2ExtNodes.set(identifier, l2ExtService);
     }
 
     let sourcePortID: string = !callingFunction ? undefined : isResource(callingFunction) ?
         `right-${callingFunction.resourceId.action}/${callingFunction.identifier}` : `right-${callingFunction.name}`;
-    let l2Link: ServiceLinkModel = mapExtLinks(l2Source, l2ExtService, location, sourcePortID);
+    let l2Link: ServiceLinkModel = mapExtLinks(l2Source, l2ExtService, interaction.elementLocation, sourcePortID);
     if (l2Link) {
         l2Links.push(l2Link);
     }
@@ -375,8 +380,8 @@ function mapEntryPointInteractions(l1Source: EntryNodeModel, l2Source: EntryNode
             const l2Target: ServiceNodeModel = l2Nodes.get(interaction.resourceId.serviceId);
             const l2Link: ServiceLinkModel = generateEntryPointLinks(l2Source, l2Target, interaction, Level.TWO);
             l2Links.push(l2Link);
-        } else if (interaction.connectorType) {
-            mapExtServices(l1Source, l2Source, cellSource, interaction.connectorType, interaction.elementLocation);
+        } else if (interaction.resourceId?.serviceId || interaction.connectorType) {
+            mapExtServices(l1Source, l2Source, cellSource, interaction);
         }
     });
 }
