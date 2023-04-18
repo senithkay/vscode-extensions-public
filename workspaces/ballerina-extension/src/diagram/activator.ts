@@ -412,6 +412,7 @@ class DiagramPanel {
 					const fileContent = args[1];
 					const skipForceSave = args.length > 2 ? args[2] : false;
 					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
+					commands.executeCommand(PALETTE_COMMANDS.REFRESH_SHOW_ARCHITECTURE_VIEW);
 					if (doc) {
 						const edit = new WorkspaceEdit();
 						edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
