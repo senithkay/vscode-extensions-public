@@ -40,6 +40,7 @@ export const setProjectRepository: RequestType<{ projId: string, repo: string },
 export const getProjectRepository: RequestType<string, string> = { method: 'getProjectRepository' };
 export const setPreferredProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setPreferredProjectRepository' };
 export const getPreferredProjectRepository: RequestType<string, string> = { method: 'getPreferredProjectRepository' };
+export const isProjectDeleted: RequestType<string, void> = { method: 'isProjectDeleted' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };

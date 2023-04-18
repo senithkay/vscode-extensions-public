@@ -115,13 +115,14 @@ export class ProjectRegistry {
     }
 
     async checkProjectDeleted(projectId: string, orgId: number): Promise<boolean> {
-        const project = await this.getProject(projectId, orgId);
+        const projects: Project[] = await executeWithTaskRetryPrompt(() => projectClient.getProjects({ orgId: orgId }));
+        const project = projects.find((project: Project) => project.id === projectId);
 
-        if (project) {
-            return true;
-        } else {
+        if (project === undefined) {
             return false;
         }
+
+        return true;
     }
 
     async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
