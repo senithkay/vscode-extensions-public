@@ -320,7 +320,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     </VSCodeButton>
                     <VSCodeTag title={inactiveMessage}>{isActive ? "Active" : "Inactive"}</VSCodeTag>
                 </HeaderContainer>
-                {location === undefined && (
+                {location === null && (
                     <>
                         <p>
                             <InlineIcon>
@@ -357,7 +357,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         )}
                     </>
                 )}
-                {location !== undefined && !isActive && (
+                {location !== null && !isActive && (
                     <>
                         <p>
                             <InlineIcon>
