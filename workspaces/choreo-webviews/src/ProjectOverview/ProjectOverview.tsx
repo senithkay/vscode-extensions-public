@@ -178,8 +178,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const { data: location } = useQuery({
         queryKey: ["overview_project_location", projectId],
         queryFn: async () => {
-            const location = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
-            return location || null;
+            return ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
         },
         enabled: isLoggedIn && validOrg
     });
