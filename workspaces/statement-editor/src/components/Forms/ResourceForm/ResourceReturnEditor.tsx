@@ -181,6 +181,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             if ((editingSegmentId !== index)) {
                 responses.push(
                     <ResponseItem
+                        key={index}
                         param={{
                             id: index,
                             name: recordName,

@@ -45,10 +45,6 @@ function TypeBrowserC(props: TypeBrowserProps) {
 
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState("");
 
-    useEffect(() => {
-        setSelectedTypeStr(type ? type : '');
-        setInputValue(type ? type : '');
-    }, [type])
 
     // Create new record and add it to the list
     const handleCreateNew = () => {
