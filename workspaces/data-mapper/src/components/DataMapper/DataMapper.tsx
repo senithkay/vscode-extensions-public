@@ -37,7 +37,7 @@ import "../../assets/fonts/Gilmer/gilmer.css";
 import { useDMSearchStore, useDMStore } from "../../store/store";
 import { DataMapperContext } from "../../utils/DataMapperContext/DataMapperContext";
 import DataMapperDiagram from "../Diagram/Diagram";
-import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
+import { hasIONodesPresent } from "../Diagram/utils/dm-utils";
 import { FunctionDefinitionStore } from "../Diagram/utils/fn-definition-store";
 import { handleDiagnostics } from "../Diagram/utils/ls-utils";
 import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
@@ -367,7 +367,8 @@ function DataMapperC(props: DataMapperProps) {
     useEffect(() => {
         if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
             if (fnST) {
-                if (nodes.length > 0) {
+                const ioNodesPresent = hasIONodesPresent(nodes);
+                if (ioNodesPresent) {
                     // When open the DM of an existing function using code lens
                     const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
                         || [];
