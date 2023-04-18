@@ -71,8 +71,8 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
                      const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.None));
                      return treeItems;
                  }
-             } catch (error) {
-                getLogger().error("Error while loading organizations of the user.", error);
+             } catch (error: any) {
+                getLogger().error("Error while loading organizations of the user." + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
              }
          }
          return [];

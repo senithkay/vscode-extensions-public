@@ -43,8 +43,8 @@ async function _init(context: ExtensionContext, disposables: Disposable[]): Prom
 
 	try {
 		ipcServer = await createIPCServer(context.storagePath);
-	} catch (err) {
-		getLogger().error(`Failed to create git IPC: ${err}`);
+	} catch (error: any) {
+		getLogger().error(`Failed to create git IPC: ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
 	}
 
 	const askpass = new Askpass(ipcServer);
@@ -106,7 +106,7 @@ export async function initGit(context: ExtensionContext): Promise<Git|undefined>
 		git = await _init(context, disposables);
 	} catch (err: any) {
 		if (!/Git installation not found/.test(err.message || '')) {
-			getLogger().error("Error initializing git. ", err);
+			getLogger().error("Error initializing git. " + err?.message  + (err?.cause ? "\nCause: " + err.cause.message : ""));
 			window.showErrorMessage(err.message);
 			return;
 		}

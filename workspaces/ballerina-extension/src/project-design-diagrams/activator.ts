@@ -54,6 +54,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         }
     });
 
+    commands.registerCommand(PALETTE_COMMANDS.REFRESH_SHOW_ARCHITECTURE_VIEW, async () => {
+        if(designDiagramWebview){
+            designDiagramWebview.webview.postMessage({ command: "refresh" });
+        }
+    });
+
     extInstance.context.subscriptions.push(designDiagramRenderer);
 }
 
@@ -89,9 +95,9 @@ async function setupWebviewPanel() {
         );
 
         let shouldUpdateDiagram: boolean = false;
-        const storeDocumentChanges = debounce(() => {
+        const storeDocumentChanges = () => {
             shouldUpdateDiagram = true;
-        }, 1000);
+        };
 
         const refreshDiagram = debounce(() => {
             if (designDiagramWebview) {

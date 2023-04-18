@@ -60,6 +60,7 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
+import { SearchNode } from "../Node/Search";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
@@ -1115,12 +1116,14 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type 
 			name: fieldName ? fieldName : null,
 			fields: (node.fields.filter(field => STKindChecker.isSpecificField(field)) as SpecificField[]).map(field => {
 				return constructTypeFromSTNode(field);
-			})
+			}),
+			originalTypeName: AnydataType
 		}
 	} else if (STKindChecker.isListConstructor(node)) {
 		type = {
 			typeName: PrimitiveBalType.Array,
-			name: fieldName ? fieldName : null
+			name: fieldName ? fieldName : null,
+			originalTypeName: AnydataType
 		}
 		if (node.expressions.length > 0) {
 			type.memberType = constructTypeFromSTNode(node.expressions[0]);
@@ -1193,6 +1196,14 @@ export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: strin
 		return getPrevOutputType(prevSTNodes.slice(0, -1), ballerinaVersion)
 	}
 	return prevOutputType;
+}
+
+export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
+	return nodes.filter(node => !(
+		node instanceof SearchNode
+		|| node instanceof LetExpressionNode
+		|| node instanceof LinkConnectorNode)
+	).length > 0;
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],

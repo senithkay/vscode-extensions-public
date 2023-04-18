@@ -29,7 +29,8 @@ import { FnDefPositions, RecordTypeFindingVisitor } from "../visitors/RecordType
 
 export class RecordTypeDescriptorStore {
 
-    recordTypeDescriptors: Map<NodePosition, Type>
+    recordTypeDescriptors: Map<NodePosition, Type>;
+    stNode: STNode;
     static instance : RecordTypeDescriptorStore;
 
     private constructor() {
@@ -43,7 +44,13 @@ export class RecordTypeDescriptorStore {
         return this.instance;
     }
 
-    public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext, isArraysSupported: boolean){
+    public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext, isArraysSupported: boolean) {
+        if (this.stNode
+            && isPositionsEquals(this.stNode.position, stNode.position)
+            && this.stNode.source === stNode.source) {
+            return;
+        }
+        this.stNode = stNode;
         this.recordTypeDescriptors.clear();
         const langClient = await context.langClientPromise;
         const fileUri = Uri.file(context.currentFile.path).toString();

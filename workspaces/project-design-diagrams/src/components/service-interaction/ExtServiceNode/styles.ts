@@ -30,9 +30,10 @@ export const Container: React.FC<any> = styled.div`
     justify-content: center;
     line-height: 16px;
 	min-height: 60px;
-	width: 60px;
+	min-width: 60px;
 	padding-inline: 6px;
     text-transform: capitalize;
+	text-align: center;
 `;
 
 export const IconContainer: React.FC<any> = styled.div`
