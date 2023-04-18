@@ -376,7 +376,7 @@ function DataMapperC(props: DataMapperProps) {
                 if (ioNodesPresent) {
                     // When open the DM of an existing function using code lens
                     const rootST = selection.selectedST.stNode as FunctionDefinition;
-                    const hasFnSignatureChanged = fnST.functionSignature.source !== rootST.functionSignature.source;
+                    const hasFnSignatureChanged = !(inputs && output) || fnST.functionSignature.source !== rootST.functionSignature.source;
                     const hasFnNameChanged = fnST.functionName.value !== rootST.functionName.value;
                     if (hasFnSignatureChanged) {
                         const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
