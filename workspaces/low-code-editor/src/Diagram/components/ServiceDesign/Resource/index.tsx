@@ -140,7 +140,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         }
     });
 
-    traversNode(model, RecordsFinderVisitor);
+    traversNode(fullST, RecordsFinderVisitor);
     const records = RecordsFinderVisitor.getRecords();
 
     function getReturnTypesArray() {
@@ -152,7 +152,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         recordName: any,
         langClient: DiagramEditorLangClientInterface,
     ): Promise<BallerinaSTModifyResponse> => {
-        const record: STNode = records.get(recordName);
+        const record: STNode = records.get(recordName.replace(/\[\]/g, "").trim());
         if (record) {
             const request: TextDocumentPositionParams = {
                 textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
@@ -186,7 +186,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     };
 
     function defaultResponseCode() {
-        const isPost =  model?.functionName.value.toUpperCase() === HTTP_POST;
+        const isPost = model?.functionName.value.toUpperCase() === HTTP_POST;
         return isPost ? "201" : "200";
     }
 
@@ -214,7 +214,7 @@ export function ResourceBody(props: ResourceBodyProps) {
 
             if (value.includes("body")) {
                 recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
-                const recordInfo = await getRecord(value.trim(), langClient);
+                const recordInfo = await getRecord(recordName, langClient);
                 des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
                 responses.push(
                     <tr key={i} className={classes.signature}>
@@ -239,7 +239,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </tr>
                 )
             } else {
-                const recordInfo = await getRecord(value.replace(/\[\]/g, "").trim(), langClient);
+                const recordInfo = await getRecord(value, langClient);
 
                 if (recordInfo && recordInfo.parseSuccess) {
                     const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
@@ -309,7 +309,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const recordEditor = async (setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
-        const recordInfo = await getRecord(record.replace(/\[\]/g, "").trim(), langClient);
+        const recordInfo = await getRecord(record, langClient);
 
         if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
@@ -320,7 +320,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const openRecordEditor = async (record: any) => {
 
         const langClient = await getDiagramEditorLangClient();
-        const recordInfo = await getRecord(record.replace(/\[\]/g, ""), langClient);
+        const recordInfo = await getRecord(record, langClient);
 
         if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;

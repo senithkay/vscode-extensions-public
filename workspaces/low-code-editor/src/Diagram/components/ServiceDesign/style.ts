@@ -153,7 +153,7 @@ export const useStyles = makeStyles(() =>
         schema: {
             background: "#f3efef",
             padding: 16,
-            width: 300,
+            width: "fit-content",
             marginRight: -250
         },
         schemaButton: {
