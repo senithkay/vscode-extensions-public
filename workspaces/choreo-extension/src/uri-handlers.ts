@@ -42,7 +42,7 @@ export function activateURIHandlers() {
                 if (authCode) {
                     getLogger().debug(`Github exchanging code for token`);
                     executeWithTaskRetryPrompt(() => githubAppClient.obatainAccessToken(authCode)).catch((err) => {
-                        getLogger().error(`Github App Auth Failed: ${err.message}`);
+                        getLogger().error(`Github App Auth Failed: ${err.message}` + (err?.cause ? "\nCause: " + err.cause.message : ""));
                         window.showErrorMessage(`Choreo Github Auth Failed: ${err.message}`);
                     });
                 } else if (installationId) {
