@@ -28,7 +28,7 @@ import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
 import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
-import { getKeywordTypes } from "../util";
+import { getKeywordTypes, HTTP_POST } from "../util";
 
 import { ResourceHeader } from "./ResourceHeader";
 
@@ -140,7 +140,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         }
     });
 
-    traversNode(model, RecordsFinderVisitor);
+    traversNode(fullST, RecordsFinderVisitor);
     const records = RecordsFinderVisitor.getRecords();
 
     function getReturnTypesArray() {
@@ -152,7 +152,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         recordName: any,
         langClient: DiagramEditorLangClientInterface,
     ): Promise<BallerinaSTModifyResponse> => {
-        const record: STNode = records.get(recordName);
+        const record: STNode = records.get(recordName.replace(/\[\]/g, "").trim());
         if (record) {
             const request: TextDocumentPositionParams = {
                 textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
@@ -185,6 +185,10 @@ export function ResourceBody(props: ResourceBodyProps) {
         );
     };
 
+    function defaultResponseCode() {
+        const isPost = model?.functionName.value.toUpperCase() === HTTP_POST;
+        return isPost ? "201" : "200";
+    }
 
     async function renderResponses(keywordTypes: CompletionResponse[]) {
         const values = await getReturnTypesArray();
@@ -203,14 +207,14 @@ export function ResourceBody(props: ResourceBodyProps) {
             });
 
             keywordTypes.forEach(item => {
-                if (recordName.trim() === item.insertText) {
-                    code = "200";
+                if (recordName.replace(/\[\]/g, "").trim() === item.insertText) {
+                    code = defaultResponseCode();
                 }
             })
 
             if (value.includes("body")) {
                 recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
-                const recordInfo = await getRecord(value.trim(), langClient);
+                const recordInfo = await getRecord(recordName, langClient);
                 des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
                 responses.push(
                     <tr key={i} className={classes.signature}>
@@ -235,11 +239,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </tr>
                 )
             } else {
-                const recordInfo = await getRecord(value.trim(), langClient);
+                const recordInfo = await getRecord(value, langClient);
 
                 if (recordInfo && recordInfo.parseSuccess) {
                     const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
-                    code = "200";
+                    code = defaultResponseCode();
                     responseCodes.forEach(item => {
                         if (ST.source.includes(item.source)) {
                             code = item.code.toString();
@@ -305,7 +309,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const recordEditor = async (setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
-        const recordInfo = await getRecord(record.trim(), langClient);
+        const recordInfo = await getRecord(record, langClient);
 
         if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
