@@ -178,7 +178,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const { data: location } = useQuery({
         queryKey: ["overview_project_location", projectId],
         queryFn: async () => {
-            return ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+            const location = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+            return location || null;
         },
         enabled: isLoggedIn && validOrg
     });
@@ -319,7 +320,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     </VSCodeButton>
                     <VSCodeTag title={inactiveMessage}>{isActive ? "Active" : "Inactive"}</VSCodeTag>
                 </HeaderContainer>
-                {location === undefined && (
+                {location === null && (
                     <>
                         <p>
                             <InlineIcon>
@@ -356,7 +357,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         )}
                     </>
                 )}
-                {location !== undefined && !isActive && (
+                {location !== null && !isActive && (
                     <>
                         <p>
                             <InlineIcon>
