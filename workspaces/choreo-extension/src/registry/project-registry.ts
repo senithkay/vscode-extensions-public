@@ -425,7 +425,11 @@ export class ProjectRegistry {
 
     getPreferredProjectRepository(projectId: string): string | undefined {
         const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
-        return projectRepositories ? projectRepositories[projectId] : undefined;
+        let preferredRepository: string | undefined = projectRepositories ? projectRepositories[projectId] : undefined;
+        if (preferredRepository === undefined) {
+            preferredRepository = this.getProjectRepository(projectId);
+        }
+        return preferredRepository;
     }
 
     pushLocalComponentsToChoreo(projectId: string, org: Organization): Thenable<void> {
