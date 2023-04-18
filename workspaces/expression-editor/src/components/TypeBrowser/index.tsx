@@ -45,10 +45,9 @@ function TypeBrowserC(props: TypeBrowserProps) {
 
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState("");
 
-
     // Create new record and add it to the list
     const handleCreateNew = () => {
-        const validName = selectedTypeStr.replace(/[\])}[{(]/g, '');
+        const validName = inputValue.replace(/[\])}[{(]/g, '');
         const completion: CompletionResponseWithModule = {
             detail: "Record",
             insertText: validName,
@@ -61,7 +60,7 @@ function TypeBrowserC(props: TypeBrowserProps) {
         }
         recordCompletions.push(completion);
         createNew(validName);
-        setSelectedTypeStr(selectedTypeStr);
+        setSelectedTypeStr(validName);
         setExpressionDiagnosticMsg("");
     }
 
@@ -121,7 +120,7 @@ function TypeBrowserC(props: TypeBrowserProps) {
                 blurOnSelect={true}
             />
             {isLoading && <LinearProgress />}
-            {selectedTypeStr && inputValue && expressionDiagnosticMsg && (
+            {expressionDiagnosticMsg && (
                 <>
                     {<DiagnosticView
                         handleCreateNew={handleCreateNew}
