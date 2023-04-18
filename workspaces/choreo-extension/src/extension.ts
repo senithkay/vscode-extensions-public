@@ -15,10 +15,19 @@ import * as vscode from 'vscode';
 import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
 
 import { activateAuth } from './auth';
-import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, signIn } from './auth/auth';
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
-import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId, refreshProjectsTreeViewCmdId, setSelectedOrgCmdId, STATUS_LOGGED_IN } from './constants';
+import {
+	choreoAccountTreeId,
+	choreoProjectOverview,
+	choreoProjectsTreeId,
+	cloneAllComponentsCmdId,
+	cloneRepoToCurrentProjectWorkspaceCmdId,
+	refreshProjectsTreeViewCmdId,
+	setSelectedOrgCmdId,
+	STATUS_LOGGED_IN
+} from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
 import { activateRegistry } from './registry/activate';
@@ -47,16 +56,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
 	setupEvents();
-	ext.projectsTreeView = createProjectTreeView();
-	ext.accountTreeView = createAccountTreeView();
-	activateAuth();
+	activateWizards();
+	await activateAuth();
 	ext.isPluginStartup = false;
 	activateBallerinaExtension();
-	activateWizards();
 	activateURIHandlers();
 	showChoreoProjectOverview();
 	activateStatusBarItem();
 	activateRegistry();
+	ext.projectsTreeView = createProjectTreeView();
+	ext.accountTreeView = createAccountTreeView();
 	getLogger().debug("Choreo Extension activated");
 	return ext.api;
 }
