@@ -68,8 +68,8 @@ export class ProjectsTreeProvider implements TreeDataProvider<ProjectTreeItem> {
             try {
                const projects = await ProjectRegistry.getInstance().refreshProjects() || [];
                return projects.map((proj) => new ChoreoProjectTreeItem(proj));
-            } catch (error) {
-                getLogger().error("Error loading projects for organization: " + selectedOrg?.name, error);
+            } catch (error: any) {
+                getLogger().error("Error loading projects for organization: " + selectedOrg?.name + ". " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 window.showErrorMessage("Error loading projects for organization: " + selectedOrg?.name);
             }
         } else {

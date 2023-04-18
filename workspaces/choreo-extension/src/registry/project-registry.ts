@@ -102,7 +102,7 @@ export class ProjectRegistry {
                 this._dataProjects.set(orgId, projects);
                 return projects;
             } catch (error: any) {
-                getLogger().error("Error while fetching projects", error);
+                getLogger().error("Error while fetching projects. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 window.showErrorMessage("Error while fetching projects ");
                 return [];
             }
@@ -143,9 +143,8 @@ export class ProjectRegistry {
             this._dataComponents.set(projectId, components);
 
             return components;
-        } catch (e) {
-            serializeError(e);
-            throw new Error("Failed to fetch component list");
+        } catch (error: any) {
+            throw new Error("Failed to fetch component list. "  + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
@@ -204,8 +203,9 @@ export class ProjectRegistry {
                     repoApp: nameApp,
                     subPath: appSubPath || ""
                 }));
-            } catch (e) {
+            } catch (error: any) {
                 console.error(`Failed to check isComponentInRepo for ${component.name}`);
+                getLogger().error(`Failed to check isComponentInRepo for ${component.name}. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 isInRemoteRepo = false;
             }
         }
@@ -268,9 +268,8 @@ export class ProjectRegistry {
             this._dataComponents.set(projectId, enrichedComponents);
 
             return enrichedComponents;
-        } catch (e) {
-            serializeError(e);
-            throw new Error("Failed to fetch the status of components");
+        } catch (error: any) {
+            throw new Error("Failed to fetch the status of components. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
@@ -315,8 +314,8 @@ export class ProjectRegistry {
                 }
                 vscode.window.showInformationMessage(successMsg);
             });
-        } catch (e) {
-            serializeError(e);
+        } catch (error: any) {
+            getLogger().error(`Failed to delete the component ${component?.name}. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
@@ -344,17 +343,16 @@ export class ProjectRegistry {
                 });
 
             }
-        } catch (e) {
-            serializeError(e);
+        } catch (error: any) {
+            getLogger().error("Failed to pull the changes from the remote repository. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
     async getComponentCount(orgId: number): Promise<ComponentCount> {
         try {
             return orgClient.getComponentCount(orgId);
-        } catch (e) {
-            serializeError(e);
-            throw (e);
+        } catch (error: any) {
+            throw new Error("Failed to fetch the component count. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
@@ -370,8 +368,8 @@ export class ProjectRegistry {
         return projectClient.getSwaggerExamples(spec)
             .then((result: any) => {
                 return result;
-            }).catch((e: any) => {
-                serializeError(e);
+            }).catch((error: any) => {
+                getLogger().error("Failed to fetch the swagger examples. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 return false;
             });
     }
@@ -459,8 +457,9 @@ export class ProjectRegistry {
                             await this._createComponent(componentMetadata);
                         }
                         choreoPM.removeLocalComponent(projectLocation, componentMetadata);
-                    } catch (error) {
+                    } catch (error: any) {
                         const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
+                        getLogger().error(errorMsg + " " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                         failures = `${failures} ${errorMsg}`;
                     }
                     _progress.report({ increment: 100 / localComponentMeta.length });
@@ -529,9 +528,8 @@ export class ProjectRegistry {
                     }
                     choreoPM.removeLocalComponent(projectLocation, componentMetadata);
                     vscode.window.showInformationMessage(`The component ${componentMetadata.displayName} has been successfully pushed to Choreo.`);
-                } catch (e) {
-                    serializeError(e);
-                    throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo.`);
+                } catch (error: any) {
+                    throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message} ${error?.cause ? "\nCause: " + error.cause.message : ""}`);
                 }
             }
         }
