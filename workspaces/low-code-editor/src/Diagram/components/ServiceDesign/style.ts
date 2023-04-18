@@ -164,7 +164,7 @@ export const useStyles = makeStyles(() =>
         },
         recordEdit: {
             textAlign: "end",
-            marginTop: -35,
+            marginTop: -15,
             cursor: "pointer"
         },
         editButton: {

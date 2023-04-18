@@ -28,7 +28,7 @@ import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
 import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
-import { getKeywordTypes } from "../util";
+import { getKeywordTypes, HTTP_POST } from "../util";
 
 import { ResourceHeader } from "./ResourceHeader";
 
@@ -185,6 +185,10 @@ export function ResourceBody(props: ResourceBodyProps) {
         );
     };
 
+    function defaultResponseCode() {
+        const isPost =  model?.functionName.value.toUpperCase() === HTTP_POST;
+        return isPost ? "201" : "200";
+    }
 
     async function renderResponses(keywordTypes: CompletionResponse[]) {
         const values = await getReturnTypesArray();
@@ -203,8 +207,8 @@ export function ResourceBody(props: ResourceBodyProps) {
             });
 
             keywordTypes.forEach(item => {
-                if (recordName.trim() === item.insertText) {
-                    code = "200";
+                if (recordName.replace(/\[\]/g, "").trim() === item.insertText) {
+                    code = defaultResponseCode();
                 }
             })
 
@@ -235,11 +239,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </tr>
                 )
             } else {
-                const recordInfo = await getRecord(value.trim(), langClient);
+                const recordInfo = await getRecord(value.replace(/\[\]/g, "").trim(), langClient);
 
                 if (recordInfo && recordInfo.parseSuccess) {
                     const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
-                    code = "200";
+                    code = defaultResponseCode();
                     responseCodes.forEach(item => {
                         if (ST.source.includes(item.source)) {
                             code = item.code.toString();
@@ -305,7 +309,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const recordEditor = async (setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
-        const recordInfo = await getRecord(record.trim(), langClient);
+        const recordInfo = await getRecord(record.replace(/\[\]/g, "").trim(), langClient);
 
         if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
@@ -316,7 +320,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const openRecordEditor = async (record: any) => {
 
         const langClient = await getDiagramEditorLangClient();
-        const recordInfo = await getRecord(record, langClient);
+        const recordInfo = await getRecord(record.replace(/\[\]/g, ""), langClient);
 
         if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
