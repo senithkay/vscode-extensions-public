@@ -57,6 +57,7 @@ import {
     RemoveDeletedComponents,
     GetComponentCount,
     ComponentCount,
+    isProjectDeleted,
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -160,6 +161,10 @@ export class ChoreoWebViewAPI {
 
     public async isSubpathAvailable(params: SubpathAvailableRequest): Promise<boolean> {
         return this._messenger.sendRequest(isSubpathAvailable, HOST_EXTENSION, params);
+    }
+
+    public async isProjectDeleted(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(isProjectDeleted, HOST_EXTENSION, projectId);
     }
 
     public async getChoreoProject(): Promise<Project | undefined> {

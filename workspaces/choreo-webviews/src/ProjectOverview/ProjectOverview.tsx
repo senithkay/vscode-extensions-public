@@ -175,6 +175,14 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         enabled: isActive
     });
 
+    useQuery({
+        queryKey: ["deleted_project_show_warning", projectId, isActive],
+        queryFn: async () => ChoreoWebViewAPI.getInstance().isProjectDeleted(projectId),
+        refetchOnWindowFocus: false,
+        refetchInterval: 15000, // Refetch component status every 15 seconds,
+        enabled: isActive
+    });
+
     const { data: location } = useQuery({
         queryKey: ["overview_project_location", projectId],
         queryFn: async () => {

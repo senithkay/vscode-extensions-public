@@ -41,7 +41,8 @@ import {
     setPreferredProjectRepository,
     PushedComponent,
     RemoveDeletedComponents,
-    GetComponentCount
+    GetComponentCount,
+    isProjectDeleted
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -90,6 +91,17 @@ export class WebViewRpc {
                 return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
             }
             return [];
+        });
+
+        this._messenger.onRequest(isProjectDeleted, (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                ProjectRegistry.getInstance().checkProjectDeleted(projectId, ext.api.selectedOrg?.id)
+                    .then((isAvailable: boolean) => {
+                        if (!isAvailable) {
+                            vscode.window.showInformationMessage("This project is deleted in Choreo. Please refresh the project list.");
+                        }
+                    });
+            }
         });
 
         this._messenger.onRequest(GetDeletedComponents, async (projectId: string) => {

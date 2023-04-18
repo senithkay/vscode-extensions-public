@@ -114,6 +114,16 @@ export class ProjectRegistry {
         }
     }
 
+    async checkProjectDeleted(projectId: string, orgId: number): Promise<boolean> {
+        const project = await this.getProject(projectId, orgId);
+
+        if (project) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
             const previousComponents = this._dataComponents.get(projectId) || [];
