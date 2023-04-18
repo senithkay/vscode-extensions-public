@@ -42,7 +42,7 @@ import {
     PushedComponent,
     RemoveDeletedComponents,
     GetComponentCount,
-    isProjectDeleted
+    CheckProjectDeleted,
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -93,7 +93,7 @@ export class WebViewRpc {
             return [];
         });
 
-        this._messenger.onRequest(isProjectDeleted, (projectId: string) => {
+        this._messenger.onRequest(CheckProjectDeleted, (projectId: string) => {
             if (ext.api.selectedOrg) {
                 ProjectRegistry.getInstance().checkProjectDeleted(projectId, ext.api.selectedOrg?.id)
                     .then((isAvailable: boolean) => {

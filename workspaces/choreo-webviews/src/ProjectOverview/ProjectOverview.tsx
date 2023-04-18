@@ -177,7 +177,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     useQuery({
         queryKey: ["deleted_project_show_warning", projectId, isActive],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().isProjectDeleted(projectId),
+        queryFn: async () => ChoreoWebViewAPI.getInstance().checkProjectDeleted(projectId),
         refetchOnWindowFocus: false,
         refetchInterval: 15000, // Refetch component status every 15 seconds,
         enabled: isActive
