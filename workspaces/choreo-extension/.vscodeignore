@@ -12,6 +12,10 @@ vsc-extension-quickstart.md
 **/*.ts
 .nyc_output
 coverage
+docs/
+.rush/
+config/
+**/*.log
 
 # Ignore all webview-ui files except the build directory
 webview-ui/src/**
