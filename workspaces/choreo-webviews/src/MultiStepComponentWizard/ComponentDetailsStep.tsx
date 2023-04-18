@@ -42,10 +42,10 @@ function sanitizeFolderName(folderName: string): string {
 
     // Remove any leading or trailing spaces
     const trimmed = sanitized.trim();
-  
+
     // Replace any consecutive spaces with a single space
     const final = trimmed.replace(/\s+/g, ' ');
-  
+
     return final;
 }
 
@@ -71,11 +71,12 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
         onFormDataChange(prevFormData => ({ ...prevFormData, accessibility }));
     };
 
-    const showAccessibility = formData?.type === ChoreoComponentType.Service 
+    const showAccessibility = formData?.type === ChoreoComponentType.Service
         || formData?.type === ChoreoComponentType.ByocService
         || formData?.type === ChoreoComponentType.RestApi
         || formData?.type === ChoreoComponentType.ByocRestApi
-        || formData?.type === ChoreoComponentType.Proxy;
+        || formData?.type === ChoreoComponentType.Webhook
+        || formData?.type === ChoreoComponentType.GraphQL;
 
     return (
         <StepContainer>
@@ -104,7 +105,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                         <VSCodeOption value={'external'}><b>External:</b> API is publicly accessible</VSCodeOption>
                         <VSCodeOption value={'internal'}><b>Internal:</b> API is accessible only within Choreo</VSCodeOption>
                     </VSCodeDropdown>
-                </DropDownContainer>    
+                </DropDownContainer>
             )}
         </StepContainer>
     );
@@ -125,7 +126,7 @@ export const ComponentDetailsStep: Step<Partial<ComponentWizardState>> = {
             field: 'name',
             message: 'Component name is already taken',
             rule: async (value: any, _formData, context) => {
-                const {  isChoreoProject, choreoProject }  = context;
+                const { isChoreoProject, choreoProject } = context;
                 if (isChoreoProject && choreoProject && choreoProject?.id) {
                     return ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isComponentNameAvailable(value);
                 }
