@@ -226,7 +226,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             isEdit={true}
             alternativeName={""}
             optionList={responseCodes}
-            option={"200"}
+            option={defaultResponseCode()}
             isTypeReadOnly={false}
             onChange={onParamChange}
             onCancel={onParamEditCancel}

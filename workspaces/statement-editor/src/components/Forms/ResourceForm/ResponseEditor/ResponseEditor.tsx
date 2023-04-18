@@ -166,7 +166,7 @@ export function ResponseEditor(props: ParamProps) {
             } else {
                 const responseCode = optionList.find(item => item.title === response);
                 const newResponse = `record {|*${responseCode.source}; ${typeValue} body;|}`;
-                const typeResponse = responseCode.code === 200 || responseCode.code === 201 ? typeValue : newResponse;
+                const typeResponse = responseCode.code === Number(option) ? typeValue : newResponse;
                 onChange(segmentId, responseCode.code, typeResponse);
             }
         } else {
