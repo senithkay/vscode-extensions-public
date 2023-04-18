@@ -40,7 +40,11 @@
                 "extensions": [
                     ".bal"
                 ],
-                "configuration": "./ballerina.configuration.json"
+                "configuration": "./ballerina.configuration.json",
+                "icon": {
+                    "light": "./resources/images/icons/ballerina.svg",
+                    "dark": "./resources/images/icons/ballerina-inverse.svg"
+                  }
             },
             {
                 "id": "toml",
