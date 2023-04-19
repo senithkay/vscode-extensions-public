@@ -265,7 +265,7 @@ export function ComponentList(props: ComponentListProps) {
                                         >
                                             {buildStatusMappedValue.text}
                                         </VSCodeLink>
-                                        &nbsp;
+                                        &nbsp;|&nbsp;
                                         <VSCodeLink
                                             href={`${gitHubBaseUrl}/commit/${component.buildStatus?.sourceCommitId}`}
                                             style={{ color: `var(${buildStatusMappedValue.color})` }}
