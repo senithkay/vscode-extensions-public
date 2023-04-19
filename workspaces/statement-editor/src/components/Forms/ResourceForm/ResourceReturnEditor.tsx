@@ -152,8 +152,12 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         const responses = [];
 
         for (const [index, value] of values.entries()) {
-            let code = "500";
+            let code = defaultResponseCode();
             let recordName = value.trim();
+
+            if (value.includes("error?")) {
+                code = "500";
+            }
 
             responseCodes.forEach(item => {
                 if (recordName.includes(item.source)) {
