@@ -472,7 +472,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         fetchingComponents={fetchingComponents}
                         isActive={isActive}
                         choreoUrl={choreoUrl}
-                        reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
+                        reachedChoreoLimit={0 >= (componentLimit - (usageData?.componentCount || 0))}
                         refreshComponentStatus={refetchComponents}
                     />
                 )}
