@@ -857,7 +857,7 @@ export interface ComponentModel {
     packageId: PackageID;
     services: Map<string, Service>;
     entities: Map<string, Entity>;
-    functionEntryPoint: EntryPoint;
+    functionEntryPoint?: EntryPoint;
     hasCompilationErrors: boolean;
 }
 
