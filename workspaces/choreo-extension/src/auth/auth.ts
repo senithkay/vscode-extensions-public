@@ -87,7 +87,7 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
                         getLogger().debug("Exchanged refresh token.");
                         await exchangeVSCodeToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
                     } else {
-                        throw new Error("Selected organization not found!");
+                        getLogger().error("Exchanged refresh token. No selected org found."); 
                     }
                 } else {
                     throw new Error("New token was not found in token store!");
