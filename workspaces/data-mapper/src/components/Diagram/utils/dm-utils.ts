@@ -52,6 +52,7 @@ import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
 import { MappingConstructorNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
+import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
 import { FromClauseNode } from "../Node/FromClause";
 import { JoinClauseNode } from "../Node/JoinClause";
 import { LetClauseNode } from "../Node/LetClause";
@@ -1203,8 +1204,12 @@ export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
 		node instanceof SearchNode
 		|| node instanceof LetExpressionNode
 		|| node instanceof QueryExpressionNode
-		|| node instanceof LinkConnectorNode)
-	).length > 0;
+		|| node instanceof LinkConnectorNode
+		|| node instanceof JoinClauseNode
+		|| node instanceof ExpandedMappingHeaderNode
+		|| node instanceof LetClauseNode
+		|| node instanceof ModuleVariableNode)
+	).length >= 2;
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
