@@ -54,6 +54,12 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         }
     });
 
+    commands.registerCommand(PALETTE_COMMANDS.REFRESH_SHOW_ARCHITECTURE_VIEW, async () => {
+        if(designDiagramWebview){
+            designDiagramWebview.webview.postMessage({ command: "refresh" });
+        }
+    });
+
     extInstance.context.subscriptions.push(designDiagramRenderer);
 }
 
@@ -89,9 +95,11 @@ async function setupWebviewPanel() {
         );
 
         let shouldUpdateDiagram: boolean = false;
-        const storeDocumentChanges = debounce(() => {
-            shouldUpdateDiagram = true;
-        }, 1000);
+        const handleDocumentChanges = () => {
+            if (designDiagramWebview && !designDiagramWebview.active) {
+                shouldUpdateDiagram = true;
+            }
+        };
 
         const refreshDiagram = debounce(() => {
             if (designDiagramWebview) {
@@ -106,7 +114,7 @@ async function setupWebviewPanel() {
             }
         });
 
-        workspace.onDidChangeTextDocument(storeDocumentChanges);
+        workspace.onDidChangeTextDocument(handleDocumentChanges);
         workspace.onDidChangeWorkspaceFolders(refreshDiagram);
 
         const remoteMethods: WebViewMethod[] = [

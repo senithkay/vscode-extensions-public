@@ -33,7 +33,17 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	const { node, engine } = props;
 	const [isSelected, setIsSelected] = useState<boolean>(false);
 
-	const displayName: string = node.getID().split('/')[1];
+	let displayName = node.getID();
+
+	// The external service node has a label only if the user has not annotated the client.
+	// In such cases, the org name and version should be removed from the display name.
+	if (node.label) {
+		const splitOrgName = node.label.substring(node.label.indexOf('/') + 1);
+		displayName = splitOrgName.substring(0, splitOrgName.lastIndexOf(':'));
+		if (displayName.toLowerCase().endsWith('client')) {
+			displayName = displayName.slice(0, -6);
+		}
+	}
 
 	useEffect(() => {
 		node.registerListener({
@@ -56,7 +66,7 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 
 	return (
 		<Container isSelected={isSelected}>
-			{displayName}
+			{displayName} Endpoint
 			<IconContainer isSelected={isSelected}>
 				<ServicePortWidget
 					port={node.getPort(`left-${node.getID()}`)}

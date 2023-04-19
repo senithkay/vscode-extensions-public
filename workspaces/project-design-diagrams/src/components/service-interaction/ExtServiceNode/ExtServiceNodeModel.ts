@@ -21,13 +21,15 @@ import { NodeModel, NodeModelGenerics, PortModelAlignment } from '@projectstorm/
 import { ServicePortModel } from '../ServicePort/ServicePortModel';
 
 export class ExtServiceNodeModel extends NodeModel<NodeModelGenerics> {
-	constructor(connectorType: string) {
+	readonly label: string;
+
+	constructor(id: string, label: string) {
 		super({
 			type: 'extServiceNode',
-			id: connectorType
+			id: id
 		});
-
-		this.addPort(new ServicePortModel(connectorType, PortModelAlignment.LEFT));
-		this.addPort(new ServicePortModel(connectorType, PortModelAlignment.RIGHT));
+		this.label = label;
+		this.addPort(new ServicePortModel(id, PortModelAlignment.LEFT));
+		this.addPort(new ServicePortModel(id, PortModelAlignment.RIGHT));
 	}
 }

@@ -122,7 +122,7 @@ export async function showChoreoProjectOverview() {
 					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
 				}
 			} catch (error: any) {
-				getLogger().error("Error while loading Choreo project overview. " + error.message);
+				getLogger().error("Error while loading Choreo project overview. " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
 				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
 			}
 		});
@@ -174,7 +174,7 @@ function createAccountTreeView() {
 				getLogger().debug("Exchanging access tokens for the organization " + treeItem.org.name);
 				await exchangeOrgAccessTokens(treeItem.org.handle);
 			} catch (error: any) {
-				getLogger().error("Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
+				getLogger().error("Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
 				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
 			}
 			ext.api.selectedOrg = treeItem.org;

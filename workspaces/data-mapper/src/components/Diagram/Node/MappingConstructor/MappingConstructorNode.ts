@@ -72,6 +72,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.typeDef = getSearchFilteredOutput(this.typeDef);
+
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)

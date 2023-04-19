@@ -21,6 +21,7 @@ import { BallerinaProject } from "../../core/extended-language-client";
 import { Terminal, window, workspace } from "vscode";
 import { isWindows } from "../../utils";
 
+
 export enum PALETTE_COMMANDS {
     ADD = 'ballerina.project.add',
     BUILD = 'ballerina.project.build',
@@ -44,6 +45,7 @@ export enum PALETTE_COMMANDS {
     OPEN_IN_DIAGRAM = 'ballerina.openIn.diagram',
     SHOW_DIAGRAM = 'ballerina.show.diagram',
     SHOW_ARCHITECTURE_VIEW = 'ballerina.view.architectureView',
+    REFRESH_SHOW_ARCHITECTURE_VIEW = "ballerina.view.architectureView.refresh",
 }
 
 

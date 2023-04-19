@@ -99,9 +99,13 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                     {label}
                 </span>
                 <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
-                    }
+                    {portOut && (
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portOut}
+                            dataTestId={`module-variable-port-${portOut.getName()}`}
+                        />
+                    )}
                 </span>
             </TreeHeader>
             {

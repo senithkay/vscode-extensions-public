@@ -63,7 +63,7 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
             }
 
             const choreoExt = await getChoreoExtAPI();
-            if (choreoExt && isChoreoProject) {
+            if (packageModels.size && choreoExt && isChoreoProject) {
                 packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
             }
             resolve(response);
