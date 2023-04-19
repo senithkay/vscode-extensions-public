@@ -55,7 +55,10 @@ export function usePopulateContext(): IChoreoWebViewContext {
         setLoginStatusPending(false);
       };
       checkLoginStatus();
-      rpcInstance.onLoginStatusChanged(setLoginStatus);
+      rpcInstance.onLoginStatusChanged((newLoginStatus) => {
+        console.log("Login status changed" + JSON.stringify(newLoginStatus));
+        setLoginStatus(newLoginStatus);
+      });
     }, []);
 
     useEffect(() => {
@@ -72,7 +75,10 @@ export function usePopulateContext(): IChoreoWebViewContext {
             setFetchingOrgInfo(false);
         };
         fetchOrgInfo();
-        rpcInstance.onSelectedOrgChanged(setSelectedOrg);
+        rpcInstance.onSelectedOrgChanged((newOrg) => {
+          console.log("Selected org changed" + JSON.stringify(newOrg));
+          setSelectedOrg(newOrg);
+        });
     }, []);
 
     return {
