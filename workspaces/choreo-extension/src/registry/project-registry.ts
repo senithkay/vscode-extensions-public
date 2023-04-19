@@ -248,9 +248,14 @@ export class ProjectRegistry {
                     ]);
 
                     let isRemoteOnly = true;
-                    if (component.repository?.appSubPath && isActive) {
-                        const { organizationApp, nameApp, appSubPath } = component.repository;
-                        isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
+                    if ((component.repository?.appSubPath || component.repository?.byocBuildConfig) && isActive) {
+                        if (component.repository?.appSubPath) {
+                            const { organizationApp, nameApp, appSubPath } = component.repository;
+                            isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
+                        } else if (component.repository?.byocBuildConfig) {
+                            const { organizationApp, nameApp } = component.repository;
+                            isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, component.repository?.byocBuildConfig?.dockerContext);
+                        }
                     }
 
                     return {
@@ -293,18 +298,23 @@ export class ProjectRegistry {
                         const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
                         const componentMetadata = localComponentMeta?.find(item => item.displayName === component.name);
                         if (componentMetadata) {
-                            const { orgApp, nameApp, appSubPath } = componentMetadata.repository;
-                            const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, appSubPath);
-                            if (existsSync(repoPath)) {
-                                rmdirSync(repoPath, { recursive: true });
-                                this._removeComponentFromWorkspace(projectLocation, componentMetadata.displayName);
+                            const { orgApp, nameApp } = componentMetadata.repository;
+                            const subPath = componentMetadata.repository?.appSubPath || componentMetadata.byocConfig?.dockerContext;
+                            if (subPath) {
+                                const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, subPath);
+                                if (existsSync(repoPath)) {
+                                    rmdirSync(repoPath, { recursive: true });
+                                    this._removeComponentFromWorkspace(projectLocation, componentMetadata.displayName);
+                                }
                             }
+                            
                         }
                     }
                 } else if (!component?.isRemoteOnly && component?.repository) {
-                    const { organizationApp, nameApp, appSubPath } = component.repository;
-                    if (projectLocation && appSubPath) {
-                        const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
+                    const { organizationApp, nameApp } = component.repository;
+                    const subPath = component.repository.appSubPath || component.repository.byocBuildConfig?.dockerContext;
+                    if (projectLocation && subPath) {
+                        const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, subPath);
                         if (existsSync(repoPath)) {
                             rmdirSync(repoPath, { recursive: true });
                             this._removeComponentFromWorkspace(projectLocation, component.name);
@@ -577,7 +587,7 @@ export class ProjectRegistry {
             const git = await initGit(ext.context);
             if (git) {
                 const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
-                const commits = await executeWithTaskRetryPrompt(() => git.getUnPushedCommits(repoPath, appSubPath));
+                const commits = await executeWithTaskRetryPrompt(() => git.getUnPushedCommits(repoPath, appSubPath || "."));
                 return commits.length > 0;
             }
             return false;
