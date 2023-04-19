@@ -96,9 +96,12 @@ export class WebViewRpc {
         this._messenger.onRequest(CheckProjectDeleted, (projectId: string) => {
             if (ext.api.selectedOrg) {
                 ProjectRegistry.getInstance().checkProjectDeleted(projectId, ext.api.selectedOrg?.id)
-                    .then((isAvailable: boolean) => {
+                    .then(async (isAvailable: boolean) => {
                         if (!isAvailable) {
-                            vscode.window.showInformationMessage("This project is deleted in Choreo. Please refresh the project list.");
+                            const answer = await vscode.window.showInformationMessage("This project is deleted in Choreo. Close the project?", "Yes", "No");
+                            if (answer === "Yes") {
+                                this.panel?.dispose();
+                            }
                         }
                     });
             }
