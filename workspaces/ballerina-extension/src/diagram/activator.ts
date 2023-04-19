@@ -93,10 +93,11 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	const projectPaths: WorkspaceFolder[] = [];
 	const choreoProjectFile = await workspace.findFiles('**/\.choreo-project');
 
+
 	if (choreoProjectFile.length > 0) {
-		const choreoProjectFolderPath = choreoProjectFile[0].fsPath.replace(/\/\.choreo-project$/, '');
+		const choreoProjectFolderPath = choreoProjectFile[0].path.replace(/\/\.choreo-project$/, '');
 		workspace.workspaceFolders.forEach((workspaceFolder) => {
-			if (workspaceFolder.uri.fsPath !== choreoProjectFolderPath) {
+			if (workspaceFolder.uri.path !== choreoProjectFolderPath) {
 				projectPaths.push(workspaceFolder);
 			}
 		});
@@ -411,6 +412,7 @@ class DiagramPanel {
 					const fileContent = args[1];
 					const skipForceSave = args.length > 2 ? args[2] : false;
 					const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
+					commands.executeCommand(PALETTE_COMMANDS.REFRESH_SHOW_ARCHITECTURE_VIEW);
 					if (doc) {
 						const edit = new WorkspaceEdit();
 						edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);

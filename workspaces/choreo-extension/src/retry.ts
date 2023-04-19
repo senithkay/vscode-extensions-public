@@ -58,15 +58,5 @@ export async function retry<T>(
 }
 
 export async function executeWithTaskRetryPrompt<T>(task: () => Promise<T>): Promise<T> {
-    try {
-        const result = await task();
-        return result;
-    } catch (error: any) {
-        const selection = await window.showErrorMessage(`Choreo extension error: ${error.message}`, "Retry", "Cancel");
-        if (selection && selection === "Retry") {
-            return task();
-        } else {
-            throw error;
-        }
-    }
+    return await task();
 }

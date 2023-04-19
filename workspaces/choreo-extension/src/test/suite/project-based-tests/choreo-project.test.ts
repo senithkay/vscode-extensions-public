@@ -35,13 +35,11 @@ async function wait(ms: number) {
 }
 
 suite('Choreo Project Tests', () => {
-    let apimTokenStub: sinon.SinonStub, vscodeTokenStub: sinon.SinonStub, keyChainGetTokenStub: sinon.SinonStub,
+    let vscodeTokenStub: sinon.SinonStub, keyChainGetTokenStub: sinon.SinonStub,
         getUserInfoStub: sinon.SinonStub, getProjectsStub: sinon.SinonStub, getComponentsStub: sinon.SinonStub;
 
     suiteSetup('Set up mocked environment', async () => {
         const mockAuthClient = new MockAuthClient();
-        apimTokenStub = sinon.stub(ChoreoAuthClient.prototype, 'exchangeApimToken').callsFake(async (params) =>
-            await mockAuthClient.exchangeApimToken(params[0], params[1]));
         vscodeTokenStub = sinon.stub(ChoreoAuthClient.prototype, 'exchangeVSCodeToken').callsFake(async (params) =>
             await mockAuthClient.exchangeVSCodeToken(params[0]));
 
@@ -80,7 +78,6 @@ suite('Choreo Project Tests', () => {
         assert.strictEqual(ext.api.selectedOrg, FOO_ORG, 'Failed to detect correct organization.');
 
         await wait(1000);
-        sinon.assert.called(apimTokenStub);
         sinon.assert.called(vscodeTokenStub);
         sinon.assert.called(getUserInfoStub);
         sinon.assert.called(getComponentsStub);
@@ -101,7 +98,6 @@ suite('Choreo Project Tests', () => {
     }).timeout(7500);
 
     suiteTeardown(() => {
-        apimTokenStub.restore();
         vscodeTokenStub.restore();
         keyChainGetTokenStub.restore();
         getUserInfoStub.restore();

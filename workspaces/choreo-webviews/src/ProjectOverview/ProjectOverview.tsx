@@ -128,7 +128,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
             fetchedProjects.find((i) => i.id === projectId),
     });
 
-    const { isLoading: isLoadingCompOnly, isRefetching: refetchingCompOnly, refetch: refetchComponentsOnly, isFetched } = useQuery({
+    const {
+        isLoading: isLoadingCompOnly,
+        isRefetching: refetchingCompOnly,
+        refetch: refetchComponentsOnly,
+        isFetched,
+        error: componentsListError
+    } = useQuery({
         queryKey: ["overview_component_list_only", projectId],
         queryFn: () => {
             refetchUsage();
@@ -138,6 +144,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         onSuccess: () => {
             refetchComponents();
         },
+        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
         refetchOnWindowFocus: false,
         enabled: validOrg && isLoggedIn,
     });
@@ -147,6 +154,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         isLoading: loadingComponents,
         isRefetching: refetchingComponents,
         refetch: refetchComponents,
+        error: componentStatusError
     } = useQuery({
         queryKey: ["overview_component_list", projectId],
         queryFn: () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
@@ -169,7 +177,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     const { data: location } = useQuery({
         queryKey: ["overview_project_location", projectId],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getProjectLocation(projectId),
+        queryFn: async () => {
+            const location = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+            return location || null;
+        },
         enabled: isLoggedIn && validOrg
     });
 
@@ -198,7 +209,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         onSuccess: async (_, name) => {
             await queryClient.cancelQueries({ queryKey: ["overview_component_list", projectId] })
             const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
-            const updatedComponents = previousComponents?.map(item => item.name === name ? ({ ...item, local: false }): item);
+            const updatedComponents = previousComponents?.map(item => item.name === name ? ({ ...item, local: false }) : item);
             queryClient.setQueryData(["overview_component_list", projectId], updatedComponents)
             refetchComponentsOnly()
         },
@@ -309,13 +320,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     </VSCodeButton>
                     <VSCodeTag title={inactiveMessage}>{isActive ? "Active" : "Inactive"}</VSCodeTag>
                 </HeaderContainer>
-                {location === undefined && (
+                {location === null && (
                     <>
                         <p>
                             <InlineIcon>
                                 <Codicon name="info" />
                             </InlineIcon>{" "}
-                            To open the project clone in to your local machine
+                            To develop the project, clone it to your local machine.
                         </p>
                         <ActionContainer>
                             <VSCodeButton
@@ -332,7 +343,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                     <InlineIcon>
                                         <Codicon name="info" />
                                     </InlineIcon>{" "}
-                                    Open the architecture view to add components.{" "}
+                                    Open the architecture view to visualise your project components.{" "}
                                 </p>
                                 <ActionContainer>
                                     <VSCodeButton
@@ -346,7 +357,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         )}
                     </>
                 )}
-                {location !== undefined && !isActive && (
+                {location !== null && !validProject && (
                     <>
                         <p>
                             <InlineIcon>
@@ -360,6 +371,20 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                 onClick={handleOpenProjectClick}
                             >
                                 Open Project
+                            </VSCodeButton>
+                        </ActionContainer>
+                        <p>
+                            <InlineIcon>
+                                <Codicon name="info" />
+                            </InlineIcon>{" "}
+                            Open the architecture view to visualise your project components.{" "}
+                        </p>
+                        <ActionContainer>
+                            <VSCodeButton
+                                appearance="primary"
+                                onClick={handleOpenChoreoArchitectureViewClick}
+                            >
+                                Architecture View
                             </VSCodeButton>
                         </ActionContainer>
                     </>
@@ -407,20 +432,40 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         </VSCodeButton>
                     )}
                 </ComponentsHeader>
-                <ComponentList
-                    components={components}
-                    projectId={projectId}
-                    orgName={orgName}
-                    openSourceControl={handleOpenSourceControlClick}
-                    onComponentDeleteClick={handleDeleteComponentClick}
-                    handlePushComponentClick={handlePushComponentClick}
-                    loading={pushingComponent || pushingSingleComponent || deletingComponent}
-                    fetchingComponents={fetchingComponents}
-                    isActive={isActive}
-                    choreoUrl={choreoUrl}
-                    reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
-                    refreshComponentStatus={refetchComponents}
-                />
+
+                {components.length === 0 && fetchingComponents && (
+                    <VSCodeProgressRing />
+                )}
+
+                {components.length === 0 && !fetchingComponents && (
+                    <p>
+                        <InlineIcon>
+                            <Codicon name="info" />
+                        </InlineIcon>{" "}
+                        {(componentsListError as Error)?.message || (componentStatusError as Error)?.message || (
+                            (isActive) ?
+                                "No components found." :
+                                "No components found. Clone & Open the project to create components."
+                        )}
+                    </p>
+                )}
+
+                {components.length > 0 && (
+                    <ComponentList
+                        components={components}
+                        projectId={projectId}
+                        orgName={orgName}
+                        openSourceControl={handleOpenSourceControlClick}
+                        onComponentDeleteClick={handleDeleteComponentClick}
+                        handlePushComponentClick={handlePushComponentClick}
+                        loading={pushingComponent || pushingSingleComponent || deletingComponent}
+                        fetchingComponents={fetchingComponents}
+                        isActive={isActive}
+                        choreoUrl={choreoUrl}
+                        reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
+                        refreshComponentStatus={refetchComponents}
+                    />
+                )}
 
                 {componentsOutOfSync && (
                     <>

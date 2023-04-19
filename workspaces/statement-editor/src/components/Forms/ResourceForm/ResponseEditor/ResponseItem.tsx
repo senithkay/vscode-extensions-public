@@ -49,7 +49,7 @@ export function ResponseItem(props: ParamItemProps) {
     const icon = (<QueryIcon />);
 
     const responseCode = responseCodes.find(item => param.name.trim().includes(item.source));
-    const staticCode = param.name.trim().includes("error") ? 500 : 200;
+    const staticCode = param.type;
 
     return (
         <div className={classes.headerWrapper} data-testid={`${label}-item`}>

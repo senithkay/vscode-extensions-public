@@ -102,7 +102,7 @@ export class ProjectRegistry {
                 this._dataProjects.set(orgId, projects);
                 return projects;
             } catch (error: any) {
-                getLogger().error("Error while fetching projects", error);
+                getLogger().error("Error while fetching projects. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 window.showErrorMessage("Error while fetching projects ");
                 return [];
             }
@@ -131,19 +131,20 @@ export class ProjectRegistry {
                 });
                 return {
                     ...component,
-                    deployments: matchingComponent?.deployments,
-                    isRemoteOnly: matchingComponent?.isRemoteOnly,
                     hasUnPushedLocalCommits: matchingComponent?.hasUnPushedLocalCommits,
-                    hasDirtyLocalRepo: matchingComponent?.hasDirtyLocalRepo
+                    hasDirtyLocalRepo: matchingComponent?.hasDirtyLocalRepo,
+                    isRemoteOnly: matchingComponent?.isRemoteOnly,
+                    isInRemoteRepo: matchingComponent?.isInRemoteRepo,
+                    deployments: matchingComponent?.deployments,
+                    buildStatus: matchingComponent?.buildStatus,
                 };
             });
 
             this._dataComponents.set(projectId, components);
 
             return components;
-        } catch (e) {
-            serializeError(e);
-            return this._dataComponents.get(projectId) || [];
+        } catch (error: any) {
+            throw new Error("Failed to fetch component list. "  + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
@@ -155,7 +156,7 @@ export class ProjectRegistry {
         if (projectLocation !== undefined) {
             const pushedComponents = (new ChoreoProjectManager()).getPushedComponents(projectLocation);
 
-            if(dataComponents && dataComponents.length < pushedComponents.length) {
+            if (dataComponents && dataComponents.length < pushedComponents.length) {
                 deletedComponents = pushedComponents.filter((pushedComponent: PushedComponent) => {
                     let isDeleted = true;
                     dataComponents.forEach((component: Component) => {
@@ -171,7 +172,7 @@ export class ProjectRegistry {
             }
         }
 
-        return deletedComponents;      
+        return deletedComponents;
     }
 
     removeDeletedComponents(components: PushedComponent[], projectId: string) {
@@ -186,14 +187,14 @@ export class ProjectRegistry {
                 }
             });
         }
-        
+
         const successMsg = " Please commit & push your local changes changes to ensure consistency with the remote repository.";
         vscode.window.showInformationMessage(successMsg);
     }
-        
+
     private async isComponentInRepo(component: Component): Promise<boolean> {
         let isInRemoteRepo = true;
-        if(component.local && component.repository){
+        if (component.local && component.repository) {
             const { appSubPath, branchApp, nameApp, organizationApp } = component.repository;
             try {
                 isInRemoteRepo = await executeWithTaskRetryPrompt(() => projectClient.isComponentInRepo({
@@ -202,8 +203,9 @@ export class ProjectRegistry {
                     repoApp: nameApp,
                     subPath: appSubPath || ""
                 }));
-            } catch (e) {
+            } catch (error: any) {
                 console.error(`Failed to check isComponentInRepo for ${component.name}`);
+                getLogger().error(`Failed to check isComponentInRepo for ${component.name}. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 isInRemoteRepo = false;
             }
         }
@@ -218,9 +220,9 @@ export class ProjectRegistry {
             const isActive = projectId === openedProject?.id;
 
             let envData = this._projectEnvs.get(projectId);
-            if(!envData){
+            if (!envData) {
                 envData = await executeWithTaskRetryPrompt(() => projectClient.getProjectEnv({ orgUuid, projId: projectId }));
-                if(envData){
+                if (envData) {
                     this._projectEnvs.set(projectId, envData);
                 }
             }
@@ -229,7 +231,7 @@ export class ProjectRegistry {
 
             const enrichedComponents: Component[] = await Promise.all(
                 components.map(async (component) => {
-                    const selectedVersion = component.apiVersions?.find(item=>item.latest);
+                    const selectedVersion = component.apiVersions?.find(item => item.latest);
                     const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo, buildStatus] = await Promise.all([
                         isActive && this.hasUnPushedLocalCommit(projectId, component),
                         isActive && this.hasDirtyLocalRepo(projectId, component),
@@ -241,8 +243,8 @@ export class ProjectRegistry {
                             projId: projectId,
                             versionId: selectedVersion.id
                         })),
-                        isActive && this.isComponentInRepo(component),
-                        !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({componentId: component.id, versionId: selectedVersion.id}))
+                        component.local && isActive && this.isComponentInRepo(component),
+                        !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({ componentId: component.id, versionId: selectedVersion.id }))
                     ]);
 
                     let isRemoteOnly = true;
@@ -251,11 +253,11 @@ export class ProjectRegistry {
                         isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
                     }
 
-                    return { 
-                        ...component, 
-                        hasUnPushedLocalCommits, 
-                        hasDirtyLocalRepo, 
-                        isRemoteOnly, 
+                    return {
+                        ...component,
+                        hasUnPushedLocalCommits,
+                        hasDirtyLocalRepo,
+                        isRemoteOnly,
                         isInRemoteRepo,
                         deployments: { dev: devDeployment },
                         buildStatus
@@ -266,9 +268,8 @@ export class ProjectRegistry {
             this._dataComponents.set(projectId, enrichedComponents);
 
             return enrichedComponents;
-        } catch (e) {
-            serializeError(e);
-            return this._dataComponents.get(projectId) || [];
+        } catch (error: any) {
+            throw new Error("Failed to fetch the status of components. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
@@ -313,8 +314,8 @@ export class ProjectRegistry {
                 }
                 vscode.window.showInformationMessage(successMsg);
             });
-        } catch (e) {
-            serializeError(e);
+        } catch (error: any) {
+            getLogger().error(`Failed to delete the component ${component?.name}. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
@@ -342,17 +343,16 @@ export class ProjectRegistry {
                 });
 
             }
-        } catch (e) {
-            serializeError(e);
+        } catch (error: any) {
+            getLogger().error("Failed to pull the changes from the remote repository. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
     async getComponentCount(orgId: number): Promise<ComponentCount> {
         try {
             return orgClient.getComponentCount(orgId);
-        } catch (e) {
-            serializeError(e);
-            throw (e);
+        } catch (error: any) {
+            throw new Error("Failed to fetch the component count. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         }
     }
 
@@ -368,8 +368,8 @@ export class ProjectRegistry {
         return projectClient.getSwaggerExamples(spec)
             .then((result: any) => {
                 return result;
-            }).catch((e: any) => {
-                serializeError(e);
+            }).catch((error: any) => {
+                getLogger().error("Failed to fetch the swagger examples. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 return false;
             });
     }
@@ -425,12 +425,16 @@ export class ProjectRegistry {
 
     getPreferredProjectRepository(projectId: string): string | undefined {
         const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
-        return projectRepositories ? projectRepositories[projectId] : undefined;
+        let preferredRepository: string | undefined = projectRepositories ? projectRepositories[projectId] : undefined;
+        if (preferredRepository === undefined) {
+            preferredRepository = this.getProjectRepository(projectId);
+        }
+        return preferredRepository;
     }
 
     pushLocalComponentsToChoreo(projectId: string, org: Organization): Thenable<void> {
         return window.withProgress({
-            title: `Pushing local components to Choreo.`,
+            title: `Pushing local components to Choreo`,
             location: ProgressLocation.Notification,
             cancellable: true
         }, async (_progress, cancellationToken) => {
@@ -438,7 +442,7 @@ export class ProjectRegistry {
             cancellationToken.onCancellationRequested(async () => {
                 getLogger().debug("Pushing to Choreo cancelled for project: " + projectId);
             });
-            
+
             const projectLocation: string | undefined = this.getProjectLocation(projectId);
             let failures: string = "";
             if (projectLocation !== undefined) {
@@ -449,7 +453,7 @@ export class ProjectRegistry {
                     if (cancellationToken.isCancellationRequested) {
                         break;
                     }
-                    _progress.report({ message: `Pushing ${componentMetadata.displayName} to Choreo.`});
+                    _progress.report({ message: `Uploading the ${componentMetadata.displayName} component from your local machine.` });
                     try {
                         if (componentMetadata.displayType.startsWith("byoc")) {
                             await this._createByoComponent(componentMetadata);
@@ -457,8 +461,9 @@ export class ProjectRegistry {
                             await this._createComponent(componentMetadata);
                         }
                         choreoPM.removeLocalComponent(projectLocation, componentMetadata);
-                    } catch (error) {
+                    } catch (error: any) {
                         const errorMsg: string = `Failed to push ${componentMetadata.displayName} to Choreo.`;
+                        getLogger().error(errorMsg + " " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                         failures = `${failures} ${errorMsg}`;
                     }
                     _progress.report({ increment: 100 / localComponentMeta.length });
@@ -469,26 +474,38 @@ export class ProjectRegistry {
                 }
             }
         });
-        
+
+    }
+
+    async fetchComponentsFromCache(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[] | undefined> {
+        try {
+            if (!this._dataComponents.get(projectId)?.length) {
+                await this.getComponents(projectId, orgHandle, orgUuid);
+            }
+            return this._dataComponents.get(projectId);
+        } catch (e) {
+            serializeError(e);
+            throw new Error("Failed to fetch components from cache");
+        }
     }
 
     private async _createComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
-            const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
-            const componentRequest: CreateComponentParams = {
-                name: componentMetadata.displayName,
-                displayName: componentMetadata.displayName,
-                displayType: componentMetadata.displayType,
-                description: componentMetadata.description,
-                orgId: componentMetadata.org.id,
-                orgHandle: componentMetadata.org.handle,
-                projectId: componentMetadata.projectId,
-                accessibility: componentMetadata.accessibility,
-                srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
-                repositorySubPath: appSubPath,
-                repositoryType: "UserManagedNonEmpty",
-                repositoryBranch: branchApp
-            };
-            await executeWithTaskRetryPrompt(() => projectClient.createComponent(componentRequest));
+        const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+        const componentRequest: CreateComponentParams = {
+            name: componentMetadata.displayName,
+            displayName: componentMetadata.displayName,
+            displayType: componentMetadata.displayType,
+            description: componentMetadata.description,
+            orgId: componentMetadata.org.id,
+            orgHandle: componentMetadata.org.handle,
+            projectId: componentMetadata.projectId,
+            accessibility: componentMetadata.accessibility,
+            srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+            repositorySubPath: appSubPath,
+            repositoryType: "UserManagedNonEmpty",
+            repositoryBranch: branchApp
+        };
+        await executeWithTaskRetryPrompt(() => projectClient.createComponent(componentRequest));
     }
 
     private async _createByoComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
@@ -527,9 +544,8 @@ export class ProjectRegistry {
                     }
                     choreoPM.removeLocalComponent(projectLocation, componentMetadata);
                     vscode.window.showInformationMessage(`The component ${componentMetadata.displayName} has been successfully pushed to Choreo.`);
-                } catch (e) {
-                    serializeError(e);
-                    throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo.`);
+                } catch (error: any) {
+                    throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message} ${error?.cause ? "\nCause: " + error.cause.message : ""}`);
                 }
             }
         }

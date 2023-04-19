@@ -10,7 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { monaco } from "react-monaco-editor";
+import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     CommaToken, DefaultableParam,
@@ -703,8 +704,14 @@ export function createNewRecord(newRecord: string, stNode: STNode, applyModifica
 export function createNewConstruct(codeSnippet: string, stNode: STNode, applyModifications: (modifications: STModification[]) => void) {
     const stNodeValue = (stNode as ModulePart);
     const nodePosition: NodePosition = stNodeValue.eofToken.position;
+    const lastMemberPosition: NodePosition = {
+        startLine: nodePosition.endLine,
+        startColumn: nodePosition.endColumn,
+        endLine: nodePosition.endLine,
+        endColumn: nodePosition.endColumn,
+    }
     applyModifications([
-        createPropertyStatement(codeSnippet, nodePosition, false)
+        createPropertyStatement(codeSnippet, lastMemberPosition, true)
     ]);
 }
 
@@ -721,4 +728,23 @@ export function createPropertyStatement(property: string, targetPosition?: NodeP
     };
 
     return propertyStatement;
+}
+
+export async function getKeywordTypes(docUri: string, getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
+    const completionParams: CompletionParams = {
+        textDocument: {
+            uri: monaco.Uri.file(docUri).toString()
+        },
+        context: {
+            triggerKind: 25,
+        },
+        position: {
+            character: 0,
+            line: 0
+        }
+    }
+
+    const langClient = await getLangClient();
+    const completions: CompletionResponse[] = await langClient.getCompletion(completionParams);
+    return completions.filter(value => value.kind === 25);
 }

@@ -42,8 +42,8 @@ export async function activateAuth() {
                 await signOut();
                 window.showErrorMessage("Unable to open external link for authentication.");
             }
-        } catch (error) {
-            getLogger().error("Error while signing in to Choreo", error);
+        } catch (error: any) {
+            getLogger().error("Error while signing in to Choreo. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }
@@ -55,8 +55,8 @@ export async function activateAuth() {
             getLogger().debug("Signing out from Choreo");
             await signOut();
             window.showInformationMessage('Successfully signed out from Choreo!');
-        } catch (error) {
-            getLogger().error("Error while signing out from Choreo", error);
+        } catch (error: any) {
+            getLogger().error("Error while signing out from Choreo. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }
@@ -72,6 +72,7 @@ async function initFromExistingChoreoSession() {
         getLogger().debug("Found existing Choreo session");
         await signIn();
     } else {
+        getLogger().debug("No existing Choreo session found");
         await signOut();
     }
 }

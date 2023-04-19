@@ -141,7 +141,8 @@ export class ChoreoExtensionApi {
             const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
             const projectID = workspaceConfig.metadata?.choreo?.projectID,
                 orgId = workspaceConfig.metadata?.choreo?.orgId;
-            if (projectID && orgId) {
+            const selectedOrg = ext.api.selectedOrg?.id;
+            if (projectID && orgId && orgId === selectedOrg) {
                 return ProjectRegistry.getInstance().getProject(projectID, orgId);
             }
         }
@@ -172,10 +173,10 @@ export class ChoreoExtensionApi {
                 const projectRoot = workspaceFileLocation.slice(0, workspaceFileLocation.lastIndexOf(path.sep));
 
                 if (workspaceFileConfig?.folders && projectRoot) {
-                    const choreoComponents = await ProjectRegistry.getInstance().getComponents(this._selectedProjectId,
+                    const choreoComponents = await ProjectRegistry.getInstance().fetchComponentsFromCache(this._selectedProjectId,
                         (this._selectedOrg as Organization).handle, (this._selectedOrg as Organization).uuid);
 
-                    choreoComponents.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {
+                    choreoComponents?.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {
                         const wsConfig = workspaceFileConfig.folders.find(component => component.name === name);
                         if (wsConfig && wsConfig.path) {
                             const componentPath: string = path.join(projectRoot, wsConfig.path);

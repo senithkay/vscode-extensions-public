@@ -123,9 +123,13 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                     )}
                 </span>
                 <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
-                    }
+                    {portOut && (
+                        <DataMapperPortWidget
+                            engine={engine}
+                            port={portOut}
+                            dataTestId={`local-variable-port-${portOut.getName()}`}
+                        />
+                    )}
                 </span>
             </TreeHeader>
             {

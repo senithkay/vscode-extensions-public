@@ -82,15 +82,24 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
             try {
                 await exchangeRefreshToken(currentChoreoToken.refreshToken);
                 const newChoreoToken = await tokenStore.getToken("choreo.token");
-                if (newChoreoToken?.accessToken && ext.api.selectedOrg) {
-                    getLogger().debug("Exchanged refresh token.");
-                    await exchangeApimToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
+                if (newChoreoToken?.accessToken) {
+                    if (ext.api.selectedOrg) {
+                        getLogger().debug("Exchanged refresh token.");
+                        await exchangeVSCodeToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
+                    } else {
+                        getLogger().error("Exchanged refresh token. No selected org found."); 
+                    }
+                } else {
+                    throw new Error("New token was not found in token store!");
                 }
             } catch (error: any) {
-                getLogger().error("Error while exchanging the refresh token! ", error);
+                getLogger().error("Error while exchanging the refresh token! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging the refresh token! " + error.message);
+                signOut();
             }
         }
+    } else {
+        getLogger().warn("Choreo token not found in keychain.");
     }
     lock.release();
     return tokenStore.getToken(tokenType);
@@ -104,49 +113,35 @@ export async function exchangeAuthToken(authCode: string) {
         // To bypass the self signed server error.
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
         try {
-            const response = await executeWithTaskRetryPrompt(() => authClient.exchangeAuthCode(authCode));
+            var currentTime = Date.now();
+            const response = await authClient.exchangeAuthCode(authCode);
+            getLogger().info("auth token exchange time: " + (Date.now() - currentTime));
+
             await tokenStore.setToken("choreo.token", response);
             getLogger().debug("Successfully exchanged auth code to token.");
             await signIn();
+            getLogger().info("Total sign in time: " + (Date.now() - currentTime));
             vscode.window.showInformationMessage(`Successfully signed into Choreo!`);
         } catch (error: any) {
-            getLogger().error("Error while exchanging the auth code! ", error);
+            getLogger().error("Error while exchanging the auth code! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
             vscode.window.showErrorMessage(error.message);
             signOut();
         }
     }
 }
 
-export async function exchangeApimToken(token: string, orgHandle: string) {
-    getLogger().debug("Exchanging access token to apim token.");
-    if (!token) {
-        vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + ACCESS_TOKEN_ERROR);
-        return;
-    }
-    try {
-        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeApimToken(token, orgHandle));
-        getLogger().debug("Successfully exchanged access token to apim token.");
-        await tokenStore.setToken("choreo.apim.token", response);
-        await exchangeVSCodeToken(response.accessToken);
-    } catch (error: any) {
-        getLogger().error("Error while exchanging the apim token! ", error);
-        vscode.window.showErrorMessage(error.message);
-        signOut();
-    }
-}
-
-export async function exchangeVSCodeToken(apimToken: string) {
+export async function exchangeVSCodeToken(apimToken: string, orgHandle: string) {
     getLogger().debug("Exchanging apim token to vscode token.");
     if (!apimToken) {
         vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + APIM_TOKEN_ERROR);
         return;
     }
     try {
-        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeVSCodeToken(apimToken));
+        const response = await authClient.exchangeVSCodeToken(apimToken, orgHandle);
         getLogger().debug("Successfully exchanged apim token to vscode token.");
-        await tokenStore.setToken("choreo.vscode.token", response);
+        await tokenStore.setToken("choreo.vscode.token", response);        
     } catch (error: any) {
-        getLogger().error("Error while exchanging the vscode token! ", error);
+        getLogger().error("Error while exchanging the vscode token! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         vscode.window.showErrorMessage(error.message);
     }
 }
@@ -159,11 +154,11 @@ export async function exchangeRefreshToken(refreshToken: string) {
         return;
     }
     try {
-        const response = await executeWithTaskRetryPrompt(() => authClient.exchangeRefreshToken(refreshToken));
+        const response = await authClient.exchangeRefreshToken(refreshToken);
         getLogger().debug("Successfully exchanged refresh token to access token.");
         await tokenStore.setToken("choreo.token", response);
     } catch (error: any) {
-        getLogger().error("Error while exchanging the refresh token! ", error);
+        getLogger().error("Error while exchanging the refresh token! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
         vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + SESSION_EXPIRED);
         signOut();
     }
@@ -176,23 +171,25 @@ export async function signIn() {
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
         try {
-            const userInfo = await executeWithTaskRetryPrompt(() => orgClient.getUserInfo());
+            var currentTime = Date.now();
+            const userInfo = await orgClient.getUserInfo();
+            getLogger().info("get user info request time: " + (Date.now() - currentTime));
             getLogger().debug("Successfully retrived user info.");
             ext.api.userName = userInfo.displayName;
             const selectedOrg = await getDefaultSelectedOrg(userInfo.organizations);
-            await exchangeApimToken(choreoTokenInfo?.accessToken, selectedOrg.handle);  
+            await exchangeVSCodeToken(choreoTokenInfo?.accessToken, selectedOrg.handle);
             ext.api.selectedOrg = selectedOrg;
             ext.api.status = STATUS_LOGGED_IN;
             showChoreoProjectOverview();
         } catch (error: any) {
-            getLogger().error("Error while signing in! ", error);
+            getLogger().error("Error while signing in! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
             vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
             signOut();
         }
     }
 }
 
-export async function getDefaultSelectedOrg(userOrgs: Organization[])  {
+export async function getDefaultSelectedOrg(userOrgs: Organization[]) {
     if (userOrgs.length === 0) {
         throw new Error("No organizations found for the user.");
     }
@@ -210,14 +207,15 @@ export async function exchangeOrgAccessTokens(orgHandle: string) {
     getLogger().debug("Exchanging apim token for the org " + orgHandle);
     const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken) {
-        await exchangeApimToken(choreoTokenInfo?.accessToken, orgHandle);
+        await exchangeVSCodeToken(choreoTokenInfo?.accessToken, orgHandle);
+    } else {
+        throw new Error("Choreo token not found in token store!");
     }
 }
 
 export async function signOut() {
     getLogger().debug("Clear current Choreo session.");
     await tokenStore.deleteToken("choreo.token");
-    await tokenStore.deleteToken("choreo.apim.token");
     await tokenStore.deleteToken("choreo.vscode.token");
     ext.api.status = STATUS_LOGGED_OUT;
     ext.api.userName = undefined;

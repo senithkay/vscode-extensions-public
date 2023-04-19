@@ -12,9 +12,11 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeProgressRing, VSCodeLink, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
-import { GithubOrgnization, GHAppAuthStatus, GithubRepository } from "@wso2-enterprise/choreo-client/lib/github/types";
-import React, { useCallback, useEffect, useState } from "react";
+import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
+import React, { useContext, useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { useQuery } from "@tanstack/react-query";
+import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
@@ -55,52 +57,27 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const { selectedRepo, onRepoSelect } = props;
 
-    const [authorizedOrgs, setAuthorizedOrgs] = useState<GithubOrgnization[]>([]);
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
-    const [isFetchingRepos, setIsFetchingRepos] = useState(false);
-    const [selectedRepository, setSelectedRepo] = useState<[GithubOrgnization, GithubRepository] | undefined>(undefined);
 
-    useEffect(() => {
-        if (selectedRepo?.org) {
-            const org = authorizedOrgs.find(org => org.orgName === selectedRepo.org);
-            if (org) {
-                const repo = org.repositories.find(repo => repo.name === selectedRepo.repo);
-                if (repo) {
-                    setSelectedRepo([org, repo]);
-                }
+    const { choreoProject } = useContext(ChoreoWebViewContext);
+
+    const {isLoading: isFetchingRepos, data: authorizedOrgs, refetch } = useQuery({
+        queryKey: [`repoData${choreoProject?.id}`],
+        queryFn: async () => {
+            const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
+            try {
+                return ghClient.getAuthorizedRepositories();
+            } catch (error: any) {
+                ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. Please authorize with GitHub.");
+                throw error;
             }
         }
-    }, [authorizedOrgs, selectedRepo?.org, selectedRepo?.repo]);
+    });
 
-    useEffect(() => {
-        if (selectedRepository) {
-            onRepoSelect(selectedRepository[0].orgName, selectedRepository[1].name);
-        } else {
-            onRepoSelect(undefined, undefined);
-        }
-    }, [onRepoSelect, selectedRepository]);
+    const filteredOrgs = authorizedOrgs?.filter(org => org.repositories.length > 0);
 
-    useEffect(() => {
-        if (authorizedOrgs.length > 0) {
-            setSelectedRepo([authorizedOrgs[0], authorizedOrgs[0].repositories[0]]);
-        } else {
-            setSelectedRepo(undefined);
-        }
-    }, [authorizedOrgs]);
+    const selectedOrg = filteredOrgs?.find(org => org.orgName === selectedRepo?.org) || filteredOrgs?.[0];
 
-    const getRepoList = useCallback(async () => {
-        setIsFetchingRepos(true);
-        setAuthorizedOrgs([]);
-        const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
-        try {
-            const repos = await ghClient.getAuthorizedRepositories();
-            setAuthorizedOrgs(repos);
-        } catch (error) {
-            setAuthorizedOrgs([]);
-            console.log("Error while fetching authorized repositories: " + error);
-        }
-        setIsFetchingRepos(false);
-    }, []);
 
     useEffect(() => {
         const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
@@ -112,12 +89,6 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         });
     }, []);
 
-    useEffect(() => {
-        if (ghStatus.status === "authorized" || ghStatus.status === "installed") {
-            getRepoList();
-        }
-    }, [getRepoList, ghStatus]);
-
     const handleAuthorizeWithGithub = () => {
         ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
     };
@@ -127,17 +98,16 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     };
 
     const handleGhOrgChange = (e: any) => {
-        const org = authorizedOrgs.find(org => org.orgName === e.target.value);
-        if (org) {
-            setSelectedRepo([org, org.repositories[0]]);
+        const org = filteredOrgs.find(org => org.orgName === e.target.value);
+        if (org && org.repositories.length > 0 ) {
+            onRepoSelect(org.orgName, org.repositories[0]?.name);
+        } else {
+            onRepoSelect(org?.orgName);
         }
     };
 
     const handleGhRepoChange = (e: any) => {
-        if (selectedRepository) {
-            // eslint-disable-next-line
-            setSelectedRepo([selectedRepository[0], selectedRepository[0].repositories.find(repo => repo.name === e.target.value)!]);
-        }
+        onRepoSelect(selectedOrg?.orgName, e.target.value);
     };
 
     const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
@@ -154,22 +124,21 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         <>
             <GhRepoSelectorActions>
                 {showAuthorizeButton && <VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink>}
-                {showRefreshButton && <VSCodeLink onClick={getRepoList}>Refresh Repositories</VSCodeLink>}
+                {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
                 {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
                 {showLoader && loaderMessage}
                 {showLoader && <VSCodeProgressRing />}
             </GhRepoSelectorActions>
             {showAuthorizeButton && <>Please authorize to get list of repositories.</>}
-            {authorizedOrgs && authorizedOrgs.length > 0 && (
+            {filteredOrgs && filteredOrgs.length > 0 && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Organization</label>
-                        <VSCodeDropdown id="org-drop-down" onChange={handleGhOrgChange}>
-                            {authorizedOrgs.map((org) => (
+                        <VSCodeDropdown id="org-drop-down" value={selectedRepo?.org} onChange={handleGhOrgChange}>
+                            {filteredOrgs.map((org) => (
                                 <VSCodeOption
                                     key={org.orgName}
                                     value={org.orgName}
-                                    selected={selectedRepository && selectedRepository[0]?.orgName === org.orgName}
                                 >
                                     {org.orgName}
                                 </VSCodeOption>
@@ -178,12 +147,11 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                     </GhRepoSelectorOrgContainer>
                     <GhRepoSelectorRepoContainer>
                         <label htmlFor="repo-drop-down">Repository</label>
-                        <VSCodeDropdown id="repo-drop-down" onChange={handleGhRepoChange}>
-                            {selectedRepository && selectedRepository[0].repositories.map((repo) => (
+                        <VSCodeDropdown id="repo-drop-down" value={selectedRepo?.repo} onChange={handleGhRepoChange}>
+                            {selectedOrg && selectedOrg.repositories.map((repo) => (
                                 <VSCodeOption
                                     key={repo.name}
                                     value={repo.name}
-                                    selected={selectedRepository[1]?.name === repo.name}
                                 >
                                     {repo.name}
                                 </VSCodeOption>

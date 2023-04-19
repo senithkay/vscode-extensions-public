@@ -15,10 +15,19 @@ import * as vscode from 'vscode';
 import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
 
 import { activateAuth } from './auth';
-import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, signIn } from './auth/auth';
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
-import { choreoAccountTreeId, choreoProjectsTreeId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId, refreshProjectsTreeViewCmdId, setSelectedOrgCmdId, STATUS_LOGGED_IN } from './constants';
+import {
+	choreoAccountTreeId,
+	choreoProjectOverview,
+	choreoProjectsTreeId,
+	cloneAllComponentsCmdId,
+	cloneRepoToCurrentProjectWorkspaceCmdId,
+	refreshProjectsTreeViewCmdId,
+	setSelectedOrgCmdId,
+	STATUS_LOGGED_IN
+} from './constants';
 import { ext } from './extensionVariables';
 import { GitExtension } from './git';
 import { activateRegistry } from './registry/activate';
@@ -47,24 +56,31 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
 	setupEvents();
-	ext.projectsTreeView = createProjectTreeView();
-	ext.accountTreeView = createAccountTreeView();
-	activateAuth();
+	activateWizards();
+	await activateAuth();
 	ext.isPluginStartup = false;
 	activateBallerinaExtension();
-	activateWizards();
 	activateURIHandlers();
 	showChoreoProjectOverview();
 	activateStatusBarItem();
 	activateRegistry();
+	ext.projectsTreeView = createProjectTreeView();
+	ext.accountTreeView = createAccountTreeView();
 	getLogger().debug("Choreo Extension activated");
 	return ext.api;
 }
+
+let isChoreoProjectBeingOpened: boolean = false;
 
 export async function showChoreoProjectOverview() {
 	getLogger().debug("Show Choreo Project Overview if a Choreo project is opened.");
 	const isChoreoProject = await ext.api.isChoreoProject();
 	if (isChoreoProject) {
+		if (isChoreoProjectBeingOpened) {
+			getLogger().debug("Choreo project is already being opened. Ignoring Choreo Project Overview.");
+			return;
+		}
+		isChoreoProjectBeingOpened = true;
 		getLogger().debug("Choreo project is opened. Showing Choreo Project Overview.");
 		await window.withProgress({
             title: `Opening Choreo Project Workspace.`,
@@ -106,11 +122,11 @@ export async function showChoreoProjectOverview() {
 					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
 				}
 			} catch (error: any) {
-				getLogger().error("Error while loading Choreo project overview. " + error.message);
+				getLogger().error("Error while loading Choreo project overview. " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
 				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
 			}
 		});
-		
+		isChoreoProjectBeingOpened = false;	
 	}
 }
 
@@ -158,7 +174,7 @@ function createAccountTreeView() {
 				getLogger().debug("Exchanging access tokens for the organization " + treeItem.org.name);
 				await exchangeOrgAccessTokens(treeItem.org.handle);
 			} catch (error: any) {
-				getLogger().error("Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
+				getLogger().error("Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
 				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
 			}
 			ext.api.selectedOrg = treeItem.org;
