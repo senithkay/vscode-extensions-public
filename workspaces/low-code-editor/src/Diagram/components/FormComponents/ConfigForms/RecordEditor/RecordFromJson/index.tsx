@@ -113,7 +113,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         const updateContent = getUpdatedSource(content, currentFile.content, targetPosition);
         const diagnostics = await checkDiagnostics(currentFile?.path, updateContent, ls, targetPosition);
         let filteredDiagnostics;
-        if ((diagnostics[0]?.severity === 1)
+        if ((diagnostics[0]?.severity === 1) && diagnostics[0].message.includes(event.target.value)
             && (diagnostics[0]?.range?.start?.line - 1) === targetPosition.startLine) {
             filteredDiagnostics = diagnostics;
         }
