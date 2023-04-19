@@ -82,15 +82,24 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
             try {
                 await exchangeRefreshToken(currentChoreoToken.refreshToken);
                 const newChoreoToken = await tokenStore.getToken("choreo.token");
-                if (newChoreoToken?.accessToken && ext.api.selectedOrg) {
-                    getLogger().debug("Exchanged refresh token.");
-                    await exchangeVSCodeToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
+                if (newChoreoToken?.accessToken) {
+                    if (ext.api.selectedOrg) {
+                        getLogger().debug("Exchanged refresh token.");
+                        await exchangeVSCodeToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
+                    } else {
+                        throw new Error("Selected organization not found!");
+                    }
+                } else {
+                    throw new Error("New token was not found in token store!");
                 }
             } catch (error: any) {
                 getLogger().error("Error while exchanging the refresh token! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging the refresh token! " + error.message);
+                signOut();
             }
         }
+    } else {
+        getLogger().warn("Choreo token not found in keychain.");
     }
     lock.release();
     return tokenStore.getToken(tokenType);
@@ -199,6 +208,8 @@ export async function exchangeOrgAccessTokens(orgHandle: string) {
     const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken) {
         await exchangeVSCodeToken(choreoTokenInfo?.accessToken, orgHandle);
+    } else {
+        throw new Error("Choreo token not found in token store!");
     }
 }
 
