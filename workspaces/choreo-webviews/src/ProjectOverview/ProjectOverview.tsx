@@ -152,7 +152,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         isLoading: isReloadComponents,
         isFetching: isRefetchingComponents
     } = useQuery({
-        queryKey: ['overview_component_list_auto_refresh', projectId],
+        queryKey: ['overview_component_list_auto_refresh', projectId, isFetched],
         queryFn: async () => {
             const compList = await ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
             queryClient.setQueryData(["overview_component_list", projectId], compList);
