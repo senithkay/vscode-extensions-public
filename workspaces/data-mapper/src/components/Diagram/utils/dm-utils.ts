@@ -50,7 +50,7 @@ import { isArraysSupported } from "../../DataMapper/utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
-import { MappingConstructorNode, RequiredParamNode } from "../Node";
+import { MappingConstructorNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { FromClauseNode } from "../Node/FromClause";
 import { JoinClauseNode } from "../Node/JoinClause";
@@ -1202,6 +1202,7 @@ export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
 	return nodes.filter(node => !(
 		node instanceof SearchNode
 		|| node instanceof LetExpressionNode
+		|| node instanceof QueryExpressionNode
 		|| node instanceof LinkConnectorNode)
 	).length > 0;
 }
