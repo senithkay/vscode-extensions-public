@@ -39,11 +39,10 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	// In such cases, the org name and version should be removed from the display name.
 	if (node.label) {
 		const splitOrgName = node.label.substring(node.label.indexOf('/') + 1);
-		let connectorName = splitOrgName.substring(0, splitOrgName.lastIndexOf(':'));
-		if (connectorName.toLowerCase().endsWith('client')) {
-			connectorName = connectorName.slice(0, -6);
+		displayName = splitOrgName.substring(0, splitOrgName.lastIndexOf(':'));
+		if (displayName.toLowerCase().endsWith('client')) {
+			displayName = displayName.slice(0, -6);
 		}
-		displayName = `${connectorName} Endpoint`;
 	}
 
 	useEffect(() => {
@@ -67,7 +66,7 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 
 	return (
 		<Container isSelected={isSelected}>
-			{displayName}
+			{displayName} Endpoint
 			<IconContainer isSelected={isSelected}>
 				<ServicePortWidget
 					port={node.getPort(`left-${node.getID()}`)}

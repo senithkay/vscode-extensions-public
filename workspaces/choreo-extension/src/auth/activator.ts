@@ -72,6 +72,7 @@ async function initFromExistingChoreoSession() {
         getLogger().debug("Found existing Choreo session");
         await signIn();
     } else {
+        getLogger().debug("No existing Choreo session found");
         await signOut();
     }
 }

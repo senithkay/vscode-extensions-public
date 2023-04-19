@@ -156,6 +156,7 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
         const isLastStep = currentStep === steps.length - 1;
         return (
             <WizardActionsContainer>
+                {(state.isStepValidating || state.isSaving ) && ( <VSCodeProgressRing style={{height: 24}}/> )}
                 {currentStep > 0 && (
                     <VSCodeButton onClick={handlePrevClick}>
                         Previous
@@ -171,7 +172,6 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
                         {saveButtonText ? saveButtonText : "Save"}
                     </VSCodeButton>
                 )}
-                {(state.isStepValidating || state.isSaving ) && ( <VSCodeProgressRing /> )}
             </WizardActionsContainer>
         );
     };

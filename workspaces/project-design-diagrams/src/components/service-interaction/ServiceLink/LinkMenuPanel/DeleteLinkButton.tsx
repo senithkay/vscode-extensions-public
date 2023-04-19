@@ -45,12 +45,13 @@ interface DeleteLinkProps {
 export function DeleteLinkButton(props: DeleteLinkProps) {
     const classes = useStyles();
     const { link, handleClose } = props;
-    const { editLayerAPI } = useContext(DiagramContext);
+    const { editLayerAPI, refreshDiagram } = useContext(DiagramContext);
 
     const handleOnClick = () => {
         editLayerAPI.deleteLink(link.location, (link.getSourcePort().getNode() as ServiceNodeModel).serviceObject.elementLocation)
             .then(() => {
                 handleClose();
+                refreshDiagram();
             });
     }
 
