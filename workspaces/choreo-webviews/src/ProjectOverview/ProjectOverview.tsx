@@ -357,7 +357,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         )}
                     </>
                 )}
-                {location !== null && !isActive && (
+                {location !== null && !validProject && (
                     <>
                         <p>
                             <InlineIcon>
