@@ -25,17 +25,13 @@ const recordTypeDescriptions: Map<string, STNode> = new Map();
 
 class RecordsFinderVisitor implements Visitor {
 
+    isReturn: boolean = false;
     public beginVisitReturnTypeDescriptor(node: ReturnTypeDescriptor) {
-        const typeData = node.typeData;
-        const typeSymbol = typeData.typeSymbol;
-        if (typeSymbol?.moduleID) {
-            const recordMapKey = `${typeSymbol.moduleID.orgName}/${typeSymbol.moduleID.moduleName}:${typeSymbol.moduleID.version}:${typeSymbol.name}`
-            recordTypeDescriptions.set(recordMapKey, node);
-        }
+        this.isReturn = true;
     }
 
     public beginVisitSimpleNameReference(node: SimpleNameReference, parent?: STNode): void {
-        if (node.typeData?.symbol?.typeKind === "typeReference") {
+        if (this.isReturn) {
             recordTypeDescriptions.set(node.name.value, node);
         }
     }

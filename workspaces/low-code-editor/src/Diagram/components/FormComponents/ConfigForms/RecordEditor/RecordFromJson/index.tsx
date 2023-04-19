@@ -115,7 +115,7 @@ export function RecordFromJson(recordFromJsonProps: RecordFromJsonProps) {
         let filteredDiagnostics;
         if ((diagnostics[0]?.severity === 1)
             && (diagnostics[0]?.range?.start?.line - 1) === targetPosition.startLine) {
-            filteredDiagnostics = diagnostics;
+            filteredDiagnostics = diagnostics.filter(diag => diag.message.includes(event.target.value));
         }
         dispatchFromState({
             type: 'recordNameChange', payload: {

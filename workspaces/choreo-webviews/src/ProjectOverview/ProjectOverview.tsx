@@ -133,7 +133,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         isRefetching: refetchingCompOnly,
         refetch: refetchComponentsOnly,
         isFetched,
-        error: componentsListError
+        isError: isComponentsListError
     } = useQuery({
         queryKey: ["overview_component_list_only", projectId],
         queryFn: () => {
@@ -154,7 +154,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         isLoading: loadingComponents,
         isRefetching: refetchingComponents,
         refetch: refetchComponents,
-        error: componentStatusError
+        isError: isComponentStatusError
     } = useQuery({
         queryKey: ["overview_component_list", projectId],
         queryFn: () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
@@ -306,6 +306,20 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     const fetchingComponents = reloadingRegistry || loadingComponents || refetchingComponents || isLoadingCompOnly || refetchingCompOnly;
 
+    const componentsPlaceholderLabel = useMemo(() => {
+        if (components.length === 0){
+            if (isComponentsListError) {
+                return "Failed to fetch component list"
+            } else if (isComponentStatusError) {
+                return "Failed to fetch the status of components."
+            } else if (!validProject){
+                return "No components found. Clone & Open the project to create components."
+            } else {
+                return "No components found."
+            }
+        }
+    }, [isComponentStatusError, isComponentsListError, components, validProject])
+
     return (
         <>
             <WizardContainer>
@@ -437,16 +451,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     <VSCodeProgressRing />
                 )}
 
-                {components.length === 0 && !fetchingComponents && (
+                {componentsPlaceholderLabel && !fetchingComponents && (
                     <p>
                         <InlineIcon>
                             <Codicon name="info" />
                         </InlineIcon>{" "}
-                        {(componentsListError as Error)?.message || (componentStatusError as Error)?.message || (
-                            (isActive) ?
-                                "No components found." :
-                                "No components found. Clone & Open the project to create components."
-                        )}
+                        {componentsPlaceholderLabel}
                     </p>
                 )}
 
@@ -462,7 +472,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         fetchingComponents={fetchingComponents}
                         isActive={isActive}
                         choreoUrl={choreoUrl}
-                        reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
+                        reachedChoreoLimit={0 >= (componentLimit - (usageData?.componentCount || 0))}
                         refreshComponentStatus={refetchComponents}
                     />
                 )}

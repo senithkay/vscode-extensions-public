@@ -201,7 +201,16 @@ export interface Repository {
     organizationConfig: string;
     isUserManage: boolean;
     appSubPath?: string;
-    byocBuildConfig?: unknown;
+    byocBuildConfig?: {
+        componentId: string;
+        containerId: string;
+        dockerContext: string;
+        dockerfilePath: string;
+        id: string;
+        isMainContainer: string;
+        oasFilePath: string;
+        repositoryId: string;
+    }
 }
 
 export interface Metadata {
