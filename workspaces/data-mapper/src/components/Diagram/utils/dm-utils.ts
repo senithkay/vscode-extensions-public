@@ -1452,31 +1452,30 @@ export const getSearchFilteredOutput = (type: Type) => {
 		return type;
 	}
 
-	const optionalRecordField = getOptionalRecordField(type);
-	if (optionalRecordField && type?.typeName === PrimitiveBalType.Union) {
-		const matchedSubFields: Type[] = optionalRecordField?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
-		return {
-			...type,
-			members: [
-				{ ...optionalRecordField, fields: matchedSubFields },
-				...type?.members?.filter(member => member.typeName !== PrimitiveBalType.Record)
-			]
-		};
-	} else if (type.typeName === PrimitiveBalType.Array) {
-		const subFields = type.memberType?.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+	let searchType: Type = type;
+
+	if (type?.typeName === PrimitiveBalType.Union) {
+		const filteredTypes = getFilteredUnionOutputTypes(type);
+		if (filteredTypes?.length === 1) {
+			searchType = filteredTypes[0];
+		}
+	}
+
+	if (searchType.typeName === PrimitiveBalType.Array) {
+		const subFields = searchType.memberType?.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
 
 		return {
-			...type,
+			...searchType,
 			memberType: {
-				...type.memberType,
+				...searchType.memberType,
 				fields: subFields || []
 			}
 		}
-	} else if (type.typeName === PrimitiveBalType.Record) {
-		const subFields = type.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+	} else if (searchType.typeName === PrimitiveBalType.Record) {
+		const subFields = searchType.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
 
 		return {
-			...type,
+			...searchType,
 			fields: subFields || []
 		}
 	}
