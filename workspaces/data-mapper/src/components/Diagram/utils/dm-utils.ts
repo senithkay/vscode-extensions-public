@@ -50,6 +50,7 @@ import { isArraysSupported } from "../../DataMapper/utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
+import { FieldAccessToSpecificFied } from "../Mappings/FieldAccessToSpecificFied";
 import { MappingConstructorNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
@@ -1270,6 +1271,16 @@ export function getFnDefForFnCall(node: FunctionCall): FnDefInfo {
 		offset: node.position.startColumn
 	};
 	return getFnDefFromStore(fnCallPosition);
+}
+
+export function getFilteredMappings(mappings: FieldAccessToSpecificFied[], searchValue: string) {
+	return mappings.filter(mapping => {
+		const lastField = mapping.fields[mapping.fields.length - 1];
+		const fieldName = STKindChecker.isSpecificField(lastField)
+			? lastField.fieldName?.value || lastField.fieldName.source
+			: lastField.source;
+		return searchValue === "" || fieldName.toLowerCase().includes(searchValue.toLowerCase());
+	});
 }
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
