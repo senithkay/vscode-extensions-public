@@ -56,6 +56,7 @@ import { cloneProject } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
 import { executeWithTaskRetryPrompt } from "../../../retry";
+import { refreshProjectsTreeViewCmdId } from "../../../constants";
 
 export class WebViewRpc {
 
@@ -101,6 +102,8 @@ export class WebViewRpc {
                             const answer = await vscode.window.showInformationMessage("This project is deleted in Choreo. Close the project?", "Yes", "No");
                             if (answer === "Yes") {
                                 this.panel?.dispose();
+                                await ProjectRegistry.getInstance().refreshProjects();
+                                commands.executeCommand(refreshProjectsTreeViewCmdId);
                             }
                         }
                     });
