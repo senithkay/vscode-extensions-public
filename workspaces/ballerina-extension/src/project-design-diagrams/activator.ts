@@ -95,8 +95,10 @@ async function setupWebviewPanel() {
         );
 
         let shouldUpdateDiagram: boolean = false;
-        const storeDocumentChanges = () => {
-            shouldUpdateDiagram = true;
+        const handleDocumentChanges = () => {
+            if (designDiagramWebview && !designDiagramWebview.active) {
+                shouldUpdateDiagram = true;
+            }
         };
 
         const refreshDiagram = debounce(() => {
@@ -112,7 +114,7 @@ async function setupWebviewPanel() {
             }
         });
 
-        workspace.onDidChangeTextDocument(storeDocumentChanges);
+        workspace.onDidChangeTextDocument(handleDocumentChanges);
         workspace.onDidChangeWorkspaceFolders(refreshDiagram);
 
         const remoteMethods: WebViewMethod[] = [

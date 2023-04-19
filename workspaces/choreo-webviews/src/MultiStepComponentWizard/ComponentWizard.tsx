@@ -21,13 +21,16 @@ import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
 import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType } from "@wso2-enterprise/choreo-core";
-import { ChoreoWebViewContext, IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
 
-const handleComponentCreation = async (formData: Partial<ComponentWizardState>, context: IChoreoWebViewContext) => {
+const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
     const { mode, name, type, repository: { org, repo, branch, subPath, dockerContext, dockerFile }, description, accessibility, trigger } = formData;
-    const { choreoProject, selectedOrg } = context;
+
+    const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
+    const selectedOrg = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
+
 
     const componentParams: ChoreoComponentCreationParams = {
         name: name,

@@ -488,6 +488,18 @@ export class ProjectRegistry {
 
     }
 
+    async fetchComponentsFromCache(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[] | undefined> {
+        try {
+            if (!this._dataComponents.get(projectId)?.length) {
+                await this.getComponents(projectId, orgHandle, orgUuid);
+            }
+            return this._dataComponents.get(projectId);
+        } catch (e) {
+            serializeError(e);
+            throw new Error("Failed to fetch components from cache");
+        }
+    }
+
     private async _createComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
         const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
         const componentRequest: CreateComponentParams = {

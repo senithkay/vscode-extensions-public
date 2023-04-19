@@ -80,7 +80,9 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
     const selectedRepoString = formData?.repository ? `${formData?.repository?.org}/${formData?.repository?.repo}` : undefined;
 
-    const selectedOrg = authorizedOrgs && authorizedOrgs.find((org) => org.orgName === formData?.repository?.org);
+    const filteredOrgs = authorizedOrgs?.filter(org => org.repositories.length > 0);
+
+    const selectedOrg = filteredOrgs && filteredOrgs.find((org) => org.orgName === formData?.repository?.org);
 
     const setRepository = (org: string, repo: string) => {
         onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, org, repo} }));
@@ -95,14 +97,14 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         const preferredRepo = await ChoreoWebViewAPI.getInstance().getPreferredProjectRepository(choreoProject?.id);
         onFormDataChange(prevFormData => {
             let repository = prevFormData?.repository;
-            if (!(prevFormData?.repository?.org && prevFormData?.repository?.repo) && authorizedOrgs && authorizedOrgs.length > 0) {
+            if (!(prevFormData?.repository?.org && prevFormData?.repository?.repo) && filteredOrgs && filteredOrgs.length > 0) {
                 if (preferredRepo) {
                     // split the repo string to org and repo
                     const parts = preferredRepo.split("/");
                     if (parts.length !== 2) {
                         throw new Error(`Invalid repo string: ${preferredRepo}`);
                     }
-                    const org = authorizedOrgs.find((org) => org.orgName === parts[0]);
+                    const org = filteredOrgs.find((org) => org.orgName === parts[0]);
                     if (org) {
                         const repo = org.repositories.find((repo) => repo.name === parts[1]);
                         if (repo) {
@@ -110,7 +112,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                         }
                     }
                 } else {
-                    const selectedOrg = authorizedOrgs.find((org) => org.repositories.length > 0);
+                    const selectedOrg = filteredOrgs.find((org) => org.repositories.length > 0);
                     if (!selectedOrg) {
                         throw new Error("No repositories found");
                     }
@@ -171,14 +173,14 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     };
 
     const handleGhOrgChange = (e: any) => {
-        const org = authorizedOrgs.find(org => org.orgName === e.target.value);
+        const org = filteredOrgs.find(org => org.orgName === e.target.value);
         if (org) {
             setRepository(org.orgName, org.repositories[0]?.name);
         }
     };
 
     const handleGhRepoChange = (e: any) => {
-        const currentOrg = authorizedOrgs && authorizedOrgs.find((org) => org.orgName === formData?.repository?.org);
+        const currentOrg = filteredOrgs && filteredOrgs.find((org) => org.orgName === formData?.repository?.org);
         if (currentOrg) {
             setRepository(currentOrg.orgName, currentOrg.repositories.find(repo => repo.name === e.target.value)!.name);
         }
@@ -221,12 +223,12 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
             </GhRepoSelectorActions>
             {showLoader && loaderMessage}
             {showLoader && <VSCodeProgressRing />}
-            {authorizedOrgs && authorizedOrgs.length > 0 && (
+            {filteredOrgs && filteredOrgs.length > 0 && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Organization</label>
                         <VSCodeDropdown id="org-drop-down" value={formData?.repository?.org} onChange={handleGhOrgChange}>
-                            {authorizedOrgs.map((org) => (
+                            {filteredOrgs.map((org) => (
                                 <VSCodeOption
                                     key={org.orgName}
                                     value={org.orgName}

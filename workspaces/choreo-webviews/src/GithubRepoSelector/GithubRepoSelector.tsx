@@ -74,7 +74,9 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         }
     });
 
-    const selectedOrg = authorizedOrgs?.find(org => org.orgName === selectedRepo?.org) || authorizedOrgs?.[0];
+    const filteredOrgs = authorizedOrgs?.filter(org => org.repositories.length > 0);
+
+    const selectedOrg = filteredOrgs?.find(org => org.orgName === selectedRepo?.org) || filteredOrgs?.[0];
 
 
     useEffect(() => {
@@ -96,7 +98,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     };
 
     const handleGhOrgChange = (e: any) => {
-        const org = authorizedOrgs.find(org => org.orgName === e.target.value);
+        const org = filteredOrgs.find(org => org.orgName === e.target.value);
         if (org && org.repositories.length > 0 ) {
             onRepoSelect(org.orgName, org.repositories[0]?.name);
         } else {
@@ -128,12 +130,12 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                 {showLoader && <VSCodeProgressRing />}
             </GhRepoSelectorActions>
             {showAuthorizeButton && <>Please authorize to get list of repositories.</>}
-            {authorizedOrgs && authorizedOrgs.length > 0 && (
+            {filteredOrgs && filteredOrgs.length > 0 && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Organization</label>
                         <VSCodeDropdown id="org-drop-down" value={selectedRepo?.org} onChange={handleGhOrgChange}>
-                            {authorizedOrgs.map((org) => (
+                            {filteredOrgs.map((org) => (
                                 <VSCodeOption
                                     key={org.orgName}
                                     value={org.orgName}

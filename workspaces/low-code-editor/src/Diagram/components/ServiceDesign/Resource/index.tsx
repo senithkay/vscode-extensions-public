@@ -140,7 +140,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         }
     });
 
-    traversNode(fullST, RecordsFinderVisitor);
+    traversNode(model, RecordsFinderVisitor);
     const records = RecordsFinderVisitor.getRecords();
 
     function getReturnTypesArray() {
