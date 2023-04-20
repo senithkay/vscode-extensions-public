@@ -230,6 +230,7 @@ function DataMapperC(props: DataMapperProps) {
     const { inputSearch, outputSearch, resetSearchStore } = useDMSearchStore();
     const [dmContext, setDmContext] = useState<DataMapperContext>();
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
+    const [shouldRestoreTypes, setShouldRestoreTypes] = useState(true);
 
     const classes = useStyles();
 
@@ -313,6 +314,7 @@ function DataMapperC(props: DataMapperProps) {
         }
         setFunctionST(fnST);
         setImports(importStatements);
+        setShouldRestoreTypes(true);
     }, [fnST]);
 
     useEffect(() => {
@@ -344,10 +346,13 @@ function DataMapperC(props: DataMapperProps) {
                         updateSelectedComponent
                     );
 
-                    const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                    await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
-                    const functionDefinitions = FunctionDefinitionStore.getInstance();
-                    await functionDefinitions.storeFunctionDefinitions(fnST, context);
+                    if (shouldRestoreTypes) {
+                        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                        await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
+                        const functionDefinitions = FunctionDefinitionStore.getInstance();
+                        await functionDefinitions.storeFunctionDefinitions(fnST, context);
+                        setShouldRestoreTypes(false);
+                    }
 
                     setDmContext(context);
                 }
