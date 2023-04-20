@@ -57,6 +57,8 @@ import {
     RemoveDeletedComponents,
     GetComponentCount,
     ComponentCount,
+    IsBareRepoRequestParams,
+    IsBareRepoRequest,
     CheckProjectDeleted,
 } from "@wso2-enterprise/choreo-core";
 
