@@ -15,7 +15,7 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
-import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteTextField } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createImportStatement,
     createServiceDeclartion,
@@ -241,37 +241,24 @@ export function HttpServiceForm(props: HttpServiceFormProps) {
     const getPathInput = () => (
         <>
             <FieldTitle title='Path' optional={false} />
-            <LiteExpressionEditor
-                focus={true}
-                testId="service-base-path"
-                diagnostics={currentComponentName === 'path' ?
-                    currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
-                defaultValue={basePath}
+            <LiteTextField
+                diagnostics={currentComponentName === 'path' ? currentComponentSyntaxDiag : []}
+                value={basePath}
                 onChange={onBasePathChange}
-                completions={[]}
                 onFocus={onBasePathFocus}
-                customProps={{
-                    index: 1,
-                    optional: false
-                }}
+                isLoading={false}
             />
         </>
     );
     const getPortInput = () => (
         <>
             <FieldTitle title='Port' optional={false} />
-            <LiteExpressionEditor
-                testId="port-number"
-                diagnostics={currentComponentName === 'port' ?
-                    currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
-                defaultValue={listenerPort}
+            <LiteTextField
+                diagnostics={currentComponentName === 'port' ? currentComponentSyntaxDiag : []}
+                value={listenerPort}
                 onChange={onPortChange}
-                completions={[]}
                 onFocus={onPortTextFieldFocus}
-                customProps={{
-                    index: 2,
-                    optional: false
-                }}
+                isLoading={false}
             />
         </>
     );
