@@ -13,7 +13,7 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { VSCodeDropdown, VSCodeLink, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { useEffect } from "react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
@@ -31,7 +31,12 @@ const BranchListContainer = styled.div`
     flex-direction: row;
     justify-content: flex-start;
     gap: 20px;
-`
+`;
+
+const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: calc(var(--design-unit) * 4px);
+    width: calc(var(--design-unit) * 4px);
+`;
 
 function getDefaultBranch(branches: string[], branch?: string): string {
     if (!branch) {
@@ -55,7 +60,7 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
     const { org, repo, branch } = formData?.repository || {};
     const repoId = `${org}/${repo}`;
 
-    const {isLoading: updatingBranchList, data: repoBranches, refetch } = useQuery({
+    const {isLoading: updatingBranchList, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery({
         queryKey: [`branchData-${repoId}`], 
         queryFn: async () => {
             try {
@@ -99,7 +104,8 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
                                 </VSCodeOption>
                             ))}
                         </VSCodeDropdown>
-                        <VSCodeLink onClick={() => refetch()}>Refresh</VSCodeLink>
+                        {!isRefetchingBranches && <VSCodeLink onClick={() => refetch()}>Refresh</VSCodeLink>}
+                        {isRefetchingBranches && <SmallProgressRing />}
                     </BranchListContainer>
                 </>
             )}
