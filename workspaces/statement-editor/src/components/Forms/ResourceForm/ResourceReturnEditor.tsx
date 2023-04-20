@@ -131,7 +131,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         recordName: any,
         langClient: DiagramEditorLangClientInterface,
     ): Promise<BallerinaSTModifyResponse> => {
-        const record: STNode = records.get(recordName.replace(/\[\]/g, "").trim());
+        const record: STNode = records.get(recordName.replace(/[\[\]\?]/g, "").trim());
         if (record) {
             const request: TextDocumentPositionParams = {
                 textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
@@ -155,10 +155,6 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             let code = defaultResponseCode();
             let recordName = value.trim();
 
-            if (value.includes("error?")) {
-                code = "500";
-            }
-
             responseCodes.forEach(item => {
                 if (recordName.includes(item.source)) {
                     code = item.code.toString();
@@ -180,6 +176,10 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                         code = item.code.toString();
                     }
                 });
+            }
+
+            if (value.includes("error")) {
+                code = "500";
             }
 
             if ((editingSegmentId !== index)) {
