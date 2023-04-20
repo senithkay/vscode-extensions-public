@@ -139,6 +139,10 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
     }
 
+    public async isBareRepo(params: IsBareRepoRequestParams): Promise<boolean> {
+        return this._messenger.sendRequest(IsBareRepoRequest, HOST_EXTENSION, params);
+    }
+
     public async setProjectRepository(projId: string, repo: string): Promise<void> {
         return this._messenger.sendRequest(setProjectRepository, HOST_EXTENSION, { projId, repo });
     }
