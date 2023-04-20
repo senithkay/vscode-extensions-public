@@ -42,6 +42,7 @@ export class SearchNodeFactory extends AbstractReactFactory<SearchNode, DiagramE
                 <SearchNodeWidget
                     searchText={dmStore.inputSearch}
                     onSearchTextChange={dmStore.setInputSearch}
+                    engine={this.engine}
                     focused={dmStore.inputSearchFocused}
                     setFocused={dmStore.setInputSearchFocused}
                     searchType={SearchType.Input}
@@ -52,6 +53,7 @@ export class SearchNodeFactory extends AbstractReactFactory<SearchNode, DiagramE
                 <SearchNodeWidget
                     searchText={dmStore.outputSearch}
                     onSearchTextChange={dmStore.setOutputSearch}
+                    engine={this.engine}
                     focused={dmStore.outputSearchFocused}
                     setFocused={dmStore.setOutputSearchFocused}
                     searchType={SearchType.Output}
