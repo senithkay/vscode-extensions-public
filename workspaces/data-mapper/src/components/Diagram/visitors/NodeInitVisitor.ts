@@ -227,8 +227,14 @@ export class NodeInitVisitor implements Visitor {
                         returnType
                     );
                 } else if (returnType.typeName === PrimitiveBalType.Union) {
-                    const acceptedTypes = getFilteredUnionOutputTypes(returnType);
+                    this.outputNode = new PrimitiveTypeNode(
+                        this.context,
+                        exprFuncBody,
+                        typeDesc,
+                        returnType
+                    );
                     // If union type, remove error/nil types and proceed if only one type is remaining
+                    const acceptedTypes = getFilteredUnionOutputTypes(returnType);
                     if (acceptedTypes.length === 1){
                         const unionReturnType = acceptedTypes[0];
                         if (unionReturnType.typeName === PrimitiveBalType.Record){
@@ -240,13 +246,6 @@ export class NodeInitVisitor implements Visitor {
                             );
                         } else if (unionReturnType.typeName === PrimitiveBalType.Array) {
                             this.outputNode = new ListConstructorNode(
-                                this.context,
-                                exprFuncBody,
-                                typeDesc,
-                                returnType
-                            );
-                        } else {
-                            this.outputNode = new PrimitiveTypeNode(
                                 this.context,
                                 exprFuncBody,
                                 typeDesc,

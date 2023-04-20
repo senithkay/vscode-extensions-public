@@ -196,9 +196,13 @@ export function ResourceBody(props: ResourceBodyProps) {
         const responses = [];
 
         for (const [i, value] of values.entries()) {
-            let code = "500";
+            let code = defaultResponseCode();
             let recordName = value.trim();
             let des = "";
+
+            if (value.includes("error?")) {
+                code = "500";
+            }
 
             responseCodes.forEach(item => {
                 if (recordName.includes(item.source)) {
