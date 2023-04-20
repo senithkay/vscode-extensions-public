@@ -162,14 +162,6 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                         branch: formData?.repository?.branch || "main"
                     });
                     setIsRepoCloned(isCloned);
-                    if (isCloned) {
-                        const isBareRepo = await ChoreoWebViewAPI.getInstance().isBareRepo({
-                            repoName: formData?.repository?.repo,
-                            orgName: formData?.repository?.org,
-                            projectID: choreoProject.id
-                        });
-                        setIsBareRepo(isBareRepo);
-                    }  
                 }
             }
         };
