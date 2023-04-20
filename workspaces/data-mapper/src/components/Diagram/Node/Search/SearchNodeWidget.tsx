@@ -17,6 +17,7 @@ import React, { useEffect, useRef } from "react";
 import { Box, createStyles, InputAdornment, makeStyles, TextField, Theme } from "@material-ui/core";
 import { SearchOutlined } from "@material-ui/icons";
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import debounce from "lodash.debounce";
 
 import { SearchType } from "./SearchNode";
@@ -24,6 +25,7 @@ import { SearchType } from "./SearchNode";
 export interface SearchNodeWidgetProps {
     searchText: string;
     onSearchTextChange: (newValue: string) => void;
+    engine?: DiagramEngine;
     focused?: boolean;
     setFocused?: (isFocused: boolean) => void;
     searchType?: SearchType;
@@ -57,7 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export function SearchNodeWidget(props: SearchNodeWidgetProps) {
-    const { searchText, onSearchTextChange, focused, setFocused, searchType, width = 385 } = props;
+    const { searchText, onSearchTextChange, focused, setFocused, searchType, width = 385, engine } = props;
     const classes = useStyles();
     const inputRef = useRef<HTMLInputElement>();
 
@@ -65,7 +67,12 @@ export function SearchNodeWidget(props: SearchNodeWidgetProps) {
         if (focused) {
             inputRef.current?.focus();
         }
-    }, [searchText, focused])
+    }, [searchText, focused]);
+
+    const handleFocus = () => {
+        engine.zoomToFitNodes({ margin: 20 });
+        setFocused(true);
+    };
 
     const debouncedOnChange = debounce((value: string) => onSearchTextChange(value), 500);
 
@@ -79,7 +86,7 @@ export function SearchNodeWidget(props: SearchNodeWidgetProps) {
                     className={classes.textField}
                     defaultValue={searchText}
                     onChange={(event) => debouncedOnChange(event.target.value)}
-                    onFocus={() => setFocused(true)}
+                    onFocus={handleFocus}
                     onBlur={() => setFocused(false)}
                     InputProps={{
                         startAdornment: (
