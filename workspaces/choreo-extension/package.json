@@ -4,11 +4,10 @@
   "description": "An extension for Signing in to Choreo and managing your projects",
   "version": "1.0.2023041705",
   "publisher": "wso2",
-  "icon": "resources/icons/choreo.png",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wso2/choreo-vscode"
+  "bugs": {
+      "url": "https://github.com/wso2/choreo-vscode/issues"
   },
+  "icon": "resources/icons/choreo.png",
   "engines": {
     "vscode": "^1.73.0"
   },
