@@ -379,7 +379,8 @@ function DataMapperC(props: DataMapperProps) {
         if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
             if (fnST) {
                 const ioNodesPresent = hasIONodesPresent(dmNodes);
-                if (ioNodesPresent) {
+                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                if (ioNodesPresent && recordTypeDescriptors.recordTypeDescriptors.size > 0) {
                     // When open the DM of an existing function using code lens
                     const hasFnSignatureChanged = !(inputs && output) || fnST.functionSignature.source !== fnSignature;
                     const hasFnNameChanged = fnST.functionName.value !== fnName;
