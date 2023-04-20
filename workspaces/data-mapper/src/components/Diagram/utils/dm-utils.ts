@@ -1202,7 +1202,7 @@ export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: strin
 
 export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
 	const inputSearchVal = useDMSearchStore.getState().inputSearch;
-	const nodeLength = nodes.filter(node => !(
+	const ioNodes = nodes.filter(node => !(
 		node instanceof SearchNode
 		|| node instanceof LetExpressionNode
 		|| node instanceof QueryExpressionNode
@@ -1211,9 +1211,12 @@ export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
 		|| node instanceof ExpandedMappingHeaderNode
 		|| node instanceof LetClauseNode
 		|| node instanceof ModuleVariableNode)
-	).length;
+	);
 
-	return inputSearchVal?.length > 0 ? nodeLength >= 1 : nodeLength >= 2;
+	const hasInputNodes = ioNodes.some(node => node instanceof RequiredParamNode || node instanceof FromClauseNode);
+
+	// returns true if there is an input search value and the input node is missing or if it has at least input and output nodes
+	return inputSearchVal?.length > 0 && !hasInputNodes && ioNodes.length >= 1  || ioNodes.length >= 2;
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
