@@ -25,8 +25,7 @@ import { Context } from "../../../../../Contexts/Diagram";
 import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
 import { FormGenerator } from "../../FormGenerator";
 import { isStatementEditorSupported } from "../../Utils";
-
-import { fetchConnectorInfo } from "./util";
+import { fetchConnectorInfo, getConnectorImports } from "./util";
 
 
 enum WizardStep {
@@ -40,7 +39,7 @@ enum WizardStep {
 
 export function ConnectorWizard(props: ConnectorWizardProps) {
     const {
-        props: { langServerURL, currentFile, ballerinaVersion },
+        props: { langServerURL, currentFile, ballerinaVersion, fullST },
         api: {
             ls: { getDiagramEditorLangClient },
             runBackgroundTerminalCommand,
@@ -71,39 +70,48 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     const showNewForms = isStatementEditorSupported(ballerinaVersion);
     const isLoading = fetchingMetadata || retrievingAction || pullingPackage;
     const isHttp = selectedConnector?.moduleName === "http";
-
+    
     useEffect(() => {
         setWizardStep(getInitialWizardStep());
     }, [wizardType]);
-
+    
     useEffect(() => {
         (async () => {
             await retrieveMissingInfo();
         })();
     }, [wizardStep]);
-
+    
     useEffect(() => {
         retrieveMissingInfo();
     }, [connectorInfo]);
-
+    
     useEffect(() => {
         if (!model && selectedConnector?.package?.organization && selectedConnector.package.name) {
             setPullingPackage(true);
-            const pullCommand = `bal pull ${selectedConnector.package.organization.trim()}/${selectedConnector.package.name.replace(" as _", "").trim()}`;
-            runBackgroundTerminalCommand(pullCommand)
-                .then((res) => {
-                    if (res.error && !res.message.includes("already exists")) {
-                        // TODO: Handle error properly
-                        console.error('Something wrong when pulling package: ', res.message)
+            const imports = getConnectorImports(fullST, selectedConnector.package.organization, selectedConnector.moduleName);
+            if (imports && imports?.size > 0) {
+                let pullCommand = "";
+                imports.forEach(function (impt) {
+                    if (pullCommand !== "") {
+                        pullCommand += ` && `;
                     }
-                })
-                .catch((err) => {
-                    // TODO: Handle error properly
-                    console.error('Something wrong when pulling package: ', err)
-                })
-                .finally(() => {
-                    setPullingPackage(false);
+                    pullCommand += `bal pull ${impt.replace(" as _", "")}`;
                 });
+                runBackgroundTerminalCommand(pullCommand)
+                    .then((res) => {
+                        if (res.error && !res.message.includes("already exists")) {
+                            // TODO: Handle error properly
+                            console.error('Something wrong when pulling package: ', res.message)
+                        }
+                    })
+                    .catch((err) => {
+                        // TODO: Handle error properly
+                        console.error('Something wrong when pulling package: ', err)
+                    })
+                    .finally(() => {
+                        setPullingPackage(false);
+                    });
+            }
         }
     }, [selectedConnector]);
 
