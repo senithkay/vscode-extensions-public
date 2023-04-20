@@ -86,7 +86,13 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     }, [connectorInfo]);
     
     useEffect(() => {
-        if (!pullingPackage && !model && selectedConnector?.package?.organization && selectedConnector.package.name) {
+        if (
+            wizardType === ConnectorWizardType.ENDPOINT &&
+            !pullingPackage &&
+            !model &&
+            selectedConnector?.package?.organization &&
+            selectedConnector.package.name
+        ) {
             setPullingPackage(true);
             const imports = getConnectorImports(fullST, selectedConnector.package.organization, selectedConnector.moduleName);
             if (imports && imports?.size > 0) {
@@ -98,15 +104,15 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     pullCommand += `bal pull ${impt.replace(" as _", "")}`;
                 });
                 runBackgroundTerminalCommand(pullCommand)
-                .then((res) => {
+                    .then((res) => {
                         if (res.error && !res.message.includes("already exists")) {
                             // TODO: Handle error properly
-                            console.error('Something wrong when pulling package: ', res.message)
+                            console.error('Something wrong when pulling package: ', res.message);
                         }
                     })
                     .catch((err) => {
                         // TODO: Handle error properly
-                        console.error('Something wrong when pulling package: ', err)
+                        console.error('Something wrong when pulling package: ', err);
                     })
                     .finally(() => {
                         setPullingPackage(false);
@@ -401,3 +407,4 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
         </>
     );
 }
+
