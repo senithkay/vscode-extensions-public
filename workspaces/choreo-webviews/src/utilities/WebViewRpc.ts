@@ -57,6 +57,8 @@ import {
     RemoveDeletedComponents,
     GetComponentCount,
     ComponentCount,
+    IsBareRepoRequestParams,
+    IsBareRepoRequest,
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -136,6 +138,10 @@ export class ChoreoWebViewAPI {
 
     public async cloneChoreoProject(projectId: string): Promise<void> {
         return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
+    }
+
+    public async isBareRepo(params: IsBareRepoRequestParams): Promise<boolean> {
+        return this._messenger.sendRequest(IsBareRepoRequest, HOST_EXTENSION, params);
     }
 
     public async setProjectRepository(projId: string, repo: string): Promise<void> {

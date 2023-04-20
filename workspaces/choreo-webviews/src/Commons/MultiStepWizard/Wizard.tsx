@@ -148,6 +148,7 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
             formData: state.formData,
             onFormDataChange: handleFormDataChange,
             stepValidationErrors: state.stepValidationErrors,
+            isStepValidating: state.isStepValidating,
         });
     };
 

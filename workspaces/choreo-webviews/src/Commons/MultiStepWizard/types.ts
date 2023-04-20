@@ -26,6 +26,7 @@ export interface WizardState<T> {
 
 export interface StepProps<T> {
     formData: T;
+    isStepValidating: boolean;
     stepValidationErrors: Record<keyof T, string>;
     onFormDataChange: (formDataUpdater: (prevFormData: T) => T) => Promise<void>;
 }
