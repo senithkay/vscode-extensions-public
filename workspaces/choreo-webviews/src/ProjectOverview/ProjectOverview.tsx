@@ -145,7 +145,8 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         },
         refetchOnWindowFocus: false,
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        enabled: isLoggedIn && validOrg
+        enabled: isLoggedIn && validOrg,
+        keepPreviousData: true
     });
 
     const {
