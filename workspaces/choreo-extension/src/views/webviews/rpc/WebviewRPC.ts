@@ -42,6 +42,7 @@ import {
     PushedComponent,
     RemoveDeletedComponents,
     GetComponentCount,
+    CheckProjectDeleted,
     IsBareRepoRequest,
     IsBareRepoRequestParams
 } from "@wso2-enterprise/choreo-core";
@@ -57,6 +58,7 @@ import { cloneProject } from "../../../cmds/clone";
 import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
 import { executeWithTaskRetryPrompt } from "../../../retry";
+import { refreshProjectsTreeViewCmdId } from "../../../constants";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
 
@@ -94,6 +96,22 @@ export class WebViewRpc {
                 return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
             }
             return [];
+        });
+
+        this._messenger.onRequest(CheckProjectDeleted, (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                ProjectRegistry.getInstance().checkProjectDeleted(projectId, ext.api.selectedOrg?.id)
+                    .then(async (isAvailable: boolean) => {
+                        if (!isAvailable) {
+                            const answer = await vscode.window.showInformationMessage("This project is deleted in Choreo. Close the project?", "Yes", "No");
+                            if (answer === "Yes") {
+                                this.panel?.dispose();
+                                await ProjectRegistry.getInstance().refreshProjects();
+                                commands.executeCommand(refreshProjectsTreeViewCmdId);
+                            }
+                        }
+                    });
+            }
         });
 
         this._messenger.onRequest(GetDeletedComponents, async (projectId: string) => {
