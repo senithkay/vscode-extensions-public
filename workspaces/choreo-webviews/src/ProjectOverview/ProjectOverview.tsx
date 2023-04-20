@@ -129,39 +129,39 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     });
 
     const {
-        isLoading: isLoadingCompOnly,
-        isRefetching: refetchingCompOnly,
-        refetch: refetchComponentsOnly,
-        isFetched,
-        isError: isComponentsListError
-    } = useQuery({
-        queryKey: ["overview_component_list_only", projectId],
-        queryFn: () => {
-            refetchUsage();
-            return ChoreoWebViewAPI.getInstance().getComponents(projectId)
-        },
-        refetchInterval: 120000, // check for new components every 2 minutes
-        onSuccess: () => {
-            refetchComponents();
-        },
-        onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        refetchOnWindowFocus: false,
-        enabled: validOrg && isLoggedIn,
-    });
-
-    const {
         data: components = [],
         isLoading: loadingComponents,
         isRefetching: refetchingComponents,
         refetch: refetchComponents,
-        isError: isComponentStatusError
+        isError: isComponentLoadError,
+        isFetched,
     } = useQuery({
         queryKey: ["overview_component_list", projectId],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
+        queryFn: async () => {
+            refetchUsage();
+            const compList = await ChoreoWebViewAPI.getInstance().getComponents(projectId);
+            queryClient.setQueriesData(["overview_component_list", projectId], compList);
+            return ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
+        },
+        refetchOnWindowFocus: false,
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        refetchInterval: 15000, // Refetch component status every 15 seconds
-        enabled: !refetchingCompOnly && isFetched && isLoggedIn && validOrg
+        enabled: isLoggedIn && validOrg,
+        keepPreviousData: true
     });
+
+    const {
+        isLoading: isReloadComponents,
+        isFetching: isRefetchingComponents
+    } = useQuery({
+        queryKey: ['overview_component_list_auto_refresh', projectId, isFetched],
+        queryFn: async () => {
+            const compList = await ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
+            queryClient.setQueryData(["overview_component_list", projectId], compList);
+            return null;
+        },
+        refetchInterval: 15000, // Refetch component status every 15 seconds
+        enabled: isLoggedIn && validOrg && isFetched && !refetchingComponents,
+    })
 
     useQuery({
         queryKey: ["deleted_component_show_prompt", projectId, isActive],
@@ -206,7 +206,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
                 const filteredComponents = previousComponents?.filter(item => data.local ? item.name !== data.name : item.id !== data.id);
                 queryClient.setQueryData(["overview_component_list", projectId], filteredComponents)
-                refetchComponentsOnly();
+                refetchComponents();
             }
         },
     });
@@ -219,14 +219,10 @@ export function ProjectOverview(props: ProjectOverviewProps) {
             const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
             const updatedComponents = previousComponents?.map(item => item.name === name ? ({ ...item, local: false }) : item);
             queryClient.setQueryData(["overview_component_list", projectId], updatedComponents)
-            refetchComponentsOnly()
+            refetchComponents()
         },
     });
 
-    const { mutate: handleRefreshComponentsClick, isLoading: reloadingRegistry } = useMutation({
-        mutationFn: () => ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.projects.registry.refresh"),
-        onSuccess: () => refetchComponentsOnly(),
-    });
 
     const { mutate: handlePushToChoreoClick, isLoading: pushingComponent } =
         useMutation({
@@ -237,7 +233,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
                 const updatedComponents = previousComponents?.map(item => ({ ...item, local: false }));
                 queryClient.setQueryData(["overview_component_list", projectId], updatedComponents)
-                refetchComponentsOnly()
+                refetchComponents()
             },
         });
 
@@ -312,21 +308,19 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         return false;
     }, [pushableComponentCount, usageData, componentLimit]);
 
-    const fetchingComponents = reloadingRegistry || loadingComponents || refetchingComponents || isLoadingCompOnly || refetchingCompOnly;
+    const fetchingComponents = loadingComponents || refetchingComponents || isReloadComponents || isRefetchingComponents;
 
     const componentsPlaceholderLabel = useMemo(() => {
         if (components.length === 0){
-            if (isComponentsListError) {
+            if (isComponentLoadError) {
                 return "Failed to fetch component list"
-            } else if (isComponentStatusError) {
-                return "Failed to fetch the status of components."
             } else if (!validProject){
                 return "No components found. Clone & Open the project to create components."
             } else {
                 return "No components found."
             }
         }
-    }, [isComponentStatusError, isComponentsListError, components, validProject])
+    }, [isComponentLoadError, components, validProject])
 
     return (
         <>
@@ -446,7 +440,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     {!fetchingComponents && (
                         <VSCodeButton
                             appearance="icon"
-                            onClick={() => refetchComponentsOnly()}
+                            onClick={() => refetchComponents()}
                             title="Refresh component list"
                             disabled={!isActive || fetchingComponents}
                         >
@@ -480,7 +474,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         fetchingComponents={fetchingComponents}
                         isActive={isActive}
                         choreoUrl={choreoUrl}
-                        reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
+                        reachedChoreoLimit={0 >= (componentLimit - (usageData?.componentCount || 0))}
                         refreshComponentStatus={refetchComponents}
                     />
                 )}
@@ -507,7 +501,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             </VSCodeButton>
                             <VSCodeButton
                                 appearance="secondary"
-                                onClick={() => handleRefreshComponentsClick()}
+                                onClick={() => refetchComponents()}
                                 disabled={fetchingComponents || !isActive}
                             >
                                 <Codicon name="refresh" />

@@ -215,7 +215,7 @@ export function ComponentList(props: ComponentListProps) {
                     const componentOverviewLink = `${componentBaseUrl}/overview`;
                     const componentDeployLink = `${componentBaseUrl}/deploy`;
                     const gitHubBaseUrl = `https://github.com/${repo.organizationApp}/${repo.nameApp}`;
-                    const repoLink = `${gitHubBaseUrl}/tree/${repo.branchApp}/${repo.appSubPath}`;
+                    const repoLink = `${gitHubBaseUrl}/tree/${repo.branchApp}${repo.appSubPath ? `/${repo.appSubPath}` : ''}`;
 
 
                     const deploymentStatus: DeploymentStatus =
@@ -265,7 +265,7 @@ export function ComponentList(props: ComponentListProps) {
                                         >
                                             {buildStatusMappedValue.text}
                                         </VSCodeLink>
-                                        &nbsp;
+                                        &nbsp;|&nbsp;
                                         <VSCodeLink
                                             href={`${gitHubBaseUrl}/commit/${component.buildStatus?.sourceCommitId}`}
                                             style={{ color: `var(${buildStatusMappedValue.color})` }}

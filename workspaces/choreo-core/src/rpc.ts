@@ -19,6 +19,11 @@ export interface SubpathAvailableRequest {
       repoName: string;
       projectID: string;
 }
+export interface IsBareRepoRequestParams {
+      orgName: string;
+      repoName: string;
+      projectID: string;
+}
 
 // request types 
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
@@ -52,6 +57,7 @@ export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: '
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
 export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };
 export const GetComponentCount: RequestType<number, ComponentCount> = { method: 'getComponentCount' };
+export const IsBareRepoRequest: RequestType<IsBareRepoRequestParams, boolean> = { method: 'isBareRepo' };
 
 export interface OpenDialogOptions {
    title: string,

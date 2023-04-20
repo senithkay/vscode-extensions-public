@@ -87,19 +87,21 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
         <GhRepoBranhSelectorContainer>
             <label htmlFor="branch-drop-down">Branch</label>
             {!updatingBranchList && repoBranches && repoBranches.length > 0 && (
-                <BranchListContainer>
-                    <VSCodeDropdown id="branch-drop-down" value={branch} onChange={handleBranchChange}>
-                        {repoBranches.map((branch) => (
-                            <VSCodeOption
-                                key={branch}
-                                value={branch}
-                            >
-                                {branch}
-                            </VSCodeOption>
-                        ))}
-                    </VSCodeDropdown>
-                    <VSCodeLink onClick={() => refetch()}>Refresh</VSCodeLink>
-                </BranchListContainer>
+                <>
+                    <BranchListContainer>
+                        <VSCodeDropdown id="branch-drop-down" value={branch} onChange={handleBranchChange}>
+                            {repoBranches.map((branch) => (
+                                <VSCodeOption
+                                    key={branch}
+                                    value={branch}
+                                >
+                                    {branch}
+                                </VSCodeOption>
+                            ))}
+                        </VSCodeDropdown>
+                        <VSCodeLink onClick={() => refetch()}>Refresh</VSCodeLink>
+                    </BranchListContainer>
+                </>
             )}
             {updatingBranchList && <span>Updating branch list...</span>}
         </GhRepoBranhSelectorContainer>

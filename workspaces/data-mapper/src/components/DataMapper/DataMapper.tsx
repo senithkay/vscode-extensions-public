@@ -48,7 +48,12 @@ import { StatementEditorComponent } from "../StatementEditorComponent/StatementE
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
 import { DataMapperInputParam, DataMapperOutputParam } from "./ConfigPanel/InputParamsPanel/types";
-import { getFnNameFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
+import {
+    getFnNameFromST,
+    getFnSignatureFromST,
+    getInputsFromST,
+    getOutputTypeFromST
+} from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
@@ -218,6 +223,7 @@ function DataMapperC(props: DataMapperProps) {
     const [inputs, setInputs] = useState<DataMapperInputParam[]>();
     const [output, setOutput] = useState<DataMapperOutputParam>();
     const [fnName, setFnName] = useState(getFnNameFromST(fnST));
+    const [fnSignature, setFnSignature] = useState(getFnSignatureFromST(fnST));
     const [nodeSetupCounter, setNodeSetupCounter] = useState(0);
     const [showLocalVarConfigPanel, setShowLocalVarConfigPanel] = useState(false);
     const { setFunctionST, setImports } = useDMStore();
@@ -375,9 +381,8 @@ function DataMapperC(props: DataMapperProps) {
                 const ioNodesPresent = hasIONodesPresent(dmNodes);
                 if (ioNodesPresent) {
                     // When open the DM of an existing function using code lens
-                    const rootST = selection.selectedST.stNode as FunctionDefinition;
-                    const hasFnSignatureChanged = !(inputs && output) || fnST.functionSignature.source !== rootST.functionSignature.source;
-                    const hasFnNameChanged = fnST.functionName.value !== rootST.functionName.value;
+                    const hasFnSignatureChanged = !(inputs && output) || fnST.functionSignature.source !== fnSignature;
+                    const hasFnNameChanged = fnST.functionName.value !== fnName;
                     if (hasFnSignatureChanged) {
                         const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
                             || [];
@@ -385,13 +390,15 @@ function DataMapperC(props: DataMapperProps) {
                         const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
                             || { type: undefined, isUnsupported: true };
                         setOutput(outputType);
-                    } else if (hasFnNameChanged) {
+                        setFnSignature(getFnSignatureFromST(fnST));
+                    }
+                    if (hasFnNameChanged) {
                         setFnName(getFnNameFromST(fnST));
                     }
                 } else {
                     // When open the DM of an existing incomplete function using code lens
-                    const hasNoParameter = fnST.functionSignature.parameters.length === 0;
-                    const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
+                    const hasNoParameter = !inputs && fnST.functionSignature.parameters.length === 0;
+                    const hasNoReturnType = !output && !fnST.functionSignature?.returnTypeDesc;
                     if (hasNoParameter) {
                         setInputs([]);
                     }
@@ -400,6 +407,7 @@ function DataMapperC(props: DataMapperProps) {
                     }
                     if (hasNoParameter || hasNoReturnType) {
                         setFnName(getFnNameFromST(fnST));
+                        setFnSignature(getFnSignatureFromST(fnST));
                     }
                 }
             } else {

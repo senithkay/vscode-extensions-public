@@ -21,6 +21,7 @@ export interface ComponentWizardState {
     accessibility: ComponentAccessibility;
     repository: {
         isCloned?: boolean;
+        isBareRepo?: boolean;
         org?: string;
         repo?: string;
         branch?: string;

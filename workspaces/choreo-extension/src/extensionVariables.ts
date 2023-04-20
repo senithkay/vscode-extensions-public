@@ -13,7 +13,6 @@
 import { ExtensionContext, StatusBarItem, TreeItem, TreeView } from "vscode";
 import { ChoreoExtensionApi } from "./ChoreoExtensionApi";
 import { ProjectsTreeProvider } from "./views/project-tree/ProjectTreeProvider";
-import { Git } from "./git/git";
 
 export class ExtensionVariables {
     public context!: ExtensionContext;

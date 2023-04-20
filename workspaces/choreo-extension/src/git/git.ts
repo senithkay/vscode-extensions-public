@@ -500,6 +500,21 @@ export class Git {
 		return commits;
 	}
 
+	async isEmptyRepository(repositoryPath: string): Promise<boolean> {
+		try {	
+			const result = await this.exec(repositoryPath, ['rev-parse', '--verify', 'HEAD']);
+			return result.exitCode !== 0;
+		} catch (error: any) {
+			// Check if std error contains msg 'fatal: Needed a single revision\n'
+			if (error.stderr && error.stderr.indexOf('fatal: Needed a single revision') !== -1) {
+				return true;
+			}
+			getLogger().error("Error while checking if repository is empty");
+			getLogger().error(error);
+		}
+		return false;
+	}
+
 	async getRepositoryRoot(repositoryPath: string): Promise<string> {
 		const result = await this.exec(repositoryPath, ['rev-parse', '--show-toplevel']);
 

@@ -155,7 +155,8 @@ export class ProjectRegistry {
 
             return components;
         } catch (error: any) {
-            throw new Error("Failed to fetch component list. "  + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            getLogger().error("Error while fetching components. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            throw new Error("Failed to fetch component list. "  + error?.message);
         }
     }
 
@@ -215,7 +216,6 @@ export class ProjectRegistry {
                     subPath: appSubPath || ""
                 }));
             } catch (error: any) {
-                console.error(`Failed to check isComponentInRepo for ${component.name}`);
                 getLogger().error(`Failed to check isComponentInRepo for ${component.name}. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 isInRemoteRepo = false;
             }
@@ -259,9 +259,14 @@ export class ProjectRegistry {
                     ]);
 
                     let isRemoteOnly = true;
-                    if (component.repository?.appSubPath && isActive) {
-                        const { organizationApp, nameApp, appSubPath } = component.repository;
-                        isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
+                    if ((component.repository?.appSubPath || component.repository?.byocBuildConfig) && isActive) {
+                        if (component.repository?.appSubPath) {
+                            const { organizationApp, nameApp, appSubPath } = component.repository;
+                            isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
+                        } else if (component.repository?.byocBuildConfig) {
+                            const { organizationApp, nameApp } = component.repository;
+                            isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, component.repository?.byocBuildConfig?.dockerContext);
+                        }
                     }
 
                     return {
@@ -280,7 +285,8 @@ export class ProjectRegistry {
 
             return enrichedComponents;
         } catch (error: any) {
-            throw new Error("Failed to fetch the status of components. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            getLogger().error("Error while fetching components. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            throw new Error("Failed to fetch the status of components. " + error?.message);
         }
     }
 
@@ -304,18 +310,23 @@ export class ProjectRegistry {
                         const localComponentMeta: WorkspaceComponentMetadata[] = choreoPM.getComponentMetadata(projectLocation);
                         const componentMetadata = localComponentMeta?.find(item => item.displayName === component.name);
                         if (componentMetadata) {
-                            const { orgApp, nameApp, appSubPath } = componentMetadata.repository;
-                            const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, appSubPath);
-                            if (existsSync(repoPath)) {
-                                rmdirSync(repoPath, { recursive: true });
-                                this._removeComponentFromWorkspace(projectLocation, componentMetadata.displayName);
+                            const { orgApp, nameApp } = componentMetadata.repository;
+                            const subPath = componentMetadata.repository?.appSubPath || componentMetadata.byocConfig?.dockerContext;
+                            if (subPath) {
+                                const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, subPath);
+                                if (existsSync(repoPath)) {
+                                    rmdirSync(repoPath, { recursive: true });
+                                    this._removeComponentFromWorkspace(projectLocation, componentMetadata.displayName);
+                                }
                             }
+                            
                         }
                     }
                 } else if (!component?.isRemoteOnly && component?.repository) {
-                    const { organizationApp, nameApp, appSubPath } = component.repository;
-                    if (projectLocation && appSubPath) {
-                        const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, appSubPath);
+                    const { organizationApp, nameApp } = component.repository;
+                    const subPath = component.repository.appSubPath || component.repository.byocBuildConfig?.dockerContext;
+                    if (projectLocation && subPath) {
+                        const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, subPath);
                         if (existsSync(repoPath)) {
                             rmdirSync(repoPath, { recursive: true });
                             this._removeComponentFromWorkspace(projectLocation, component.name);
@@ -363,7 +374,8 @@ export class ProjectRegistry {
         try {
             return orgClient.getComponentCount(orgId);
         } catch (error: any) {
-            throw new Error("Failed to fetch the component count. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            getLogger().error("Failed to fetch the component count. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            throw new Error("Failed to fetch the component count. " + error?.message);
         }
     }
 
@@ -556,7 +568,8 @@ export class ProjectRegistry {
                     choreoPM.removeLocalComponent(projectLocation, componentMetadata);
                     vscode.window.showInformationMessage(`The component ${componentMetadata.displayName} has been successfully pushed to Choreo.`);
                 } catch (error: any) {
-                    throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message} ${error?.cause ? "\nCause: " + error.cause.message : ""}`);
+                    getLogger().error(`Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message} ${error?.cause ? "\nCause: " + error.cause.message : ""}`);
+                    throw new Error(`Failed to push ${componentMetadata.displayName} to Choreo. ${error?.message}`);
                 }
             }
         }
@@ -588,7 +601,7 @@ export class ProjectRegistry {
             const git = await initGit(ext.context);
             if (git) {
                 const repoPath = join(dirname(projectLocation), 'repos', organizationApp, nameApp);
-                const commits = await executeWithTaskRetryPrompt(() => git.getUnPushedCommits(repoPath, appSubPath));
+                const commits = await executeWithTaskRetryPrompt(() => git.getUnPushedCommits(repoPath, appSubPath || "."));
                 return commits.length > 0;
             }
             return false;

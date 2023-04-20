@@ -43,6 +43,8 @@ import {
     RemoveDeletedComponents,
     GetComponentCount,
     CheckProjectDeleted,
+    IsBareRepoRequest,
+    IsBareRepoRequestParams
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -57,6 +59,8 @@ import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../..
 import { getLogger } from "../../../logger/logger";
 import { executeWithTaskRetryPrompt } from "../../../retry";
 import { refreshProjectsTreeViewCmdId } from "../../../constants";
+import { initGit } from "../../../git/main";
+import { dirname, join } from "path";
 
 export class WebViewRpc {
 
@@ -176,6 +180,22 @@ export class WebViewRpc {
                         }
                     });
             }
+        });
+
+        this._messenger.onRequest(IsBareRepoRequest, async (params: IsBareRepoRequestParams) => {
+            const projectLocation: string | undefined = ProjectRegistry.getInstance().getProjectLocation(params.projectID);
+            if (projectLocation) {
+                const repoPath = join(dirname(projectLocation), 'repos', params.orgName, params.repoName);
+                const git = await initGit(ext.context);
+                if (git) {
+                    return git.isEmptyRepository(repoPath);
+                } else {
+                    getLogger().error("Git is not initialized, cannot check if the repo is bare.");
+                }
+            } else {
+                getLogger().error("Project location is not found for the project: " + params.projectID);
+            }
+            return false;
         });
 
         this._messenger.onRequest(setProjectRepository, async (params) => {
