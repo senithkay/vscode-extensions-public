@@ -86,7 +86,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     }, [connectorInfo]);
     
     useEffect(() => {
-        if (!model && selectedConnector?.package?.organization && selectedConnector.package.name) {
+        if (!pullingPackage && !model && selectedConnector?.package?.organization && selectedConnector.package.name) {
             setPullingPackage(true);
             const imports = getConnectorImports(fullST, selectedConnector.package.organization, selectedConnector.moduleName);
             if (imports && imports?.size > 0) {
@@ -98,7 +98,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     pullCommand += `bal pull ${impt.replace(" as _", "")}`;
                 });
                 runBackgroundTerminalCommand(pullCommand)
-                    .then((res) => {
+                .then((res) => {
                         if (res.error && !res.message.includes("already exists")) {
                             // TODO: Handle error properly
                             console.error('Something wrong when pulling package: ', res.message)
