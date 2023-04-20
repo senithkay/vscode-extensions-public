@@ -7,7 +7,7 @@
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
         "url": "https://github.com/wso2/ballerina-plugin-vscode/issues"
-	},
+    },
     "qna": "https://discord.com/invite/ballerinalang",
     "icon": "resources/images/ballerina.png",
     "galleryBanner": {
