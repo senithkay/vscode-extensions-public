@@ -16,3 +16,4 @@ export { default as TickIcon } from "./TickIcon";
 export { default as DeleteIcon } from "./DeleteIcon";
 export { default as QuestionMark } from "./QuestionMark";
 export { default as ArrowDown } from "./ArrowDown";
+export { default as EditIcon } from "./EditIcon";
