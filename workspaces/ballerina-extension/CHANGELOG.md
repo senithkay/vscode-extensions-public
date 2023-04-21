@@ -1,5 +1,17 @@
 # Change Log
-##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
+## **4.0.0** - 2023-04-21
+##### Please refer to the [release notes](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.0.0/) for further information.
+### New Features
+- New Unified Visual and Code Editing Experience
+- HTTP API Designer
+- GraphQL API Designer
+- Architecture View
+- Type Diagram
+- Choreo Plugin Integration
+
+### Improvements
+- Data Mapper Improvements
+- Language Server Updates
 
 ## **3.3.7**
 ### Fixed
@@ -58,6 +70,7 @@
 - Try it button not working for services with comments issue.
 
 ## **3.3.0**
+##### Please refer to the [release notes](https://github.com/wso2/ballerina-plugin-vscode/blob/main/docs/release-notes/3.3.0-release-note.md) for further information.
 ### Added
 - Visual Data Mapper - Helps you write and visualize data transformations easily
 - GraphQL Tryit - Facilitates  trying out the GraphQL services with the integrated client

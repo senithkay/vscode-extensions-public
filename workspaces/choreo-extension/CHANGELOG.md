@@ -1,9 +1,5 @@
 # Change Log
-
-All notable changes to the "choreo" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
+## **1.0.0** - 2023-04-21
 
 - Initial release
+##### Please refer to the [release notes](https://github.com/wso2/choreo-vscode/blob/main/docs/choreo-extension/release-notes/version-1.0.0.md) for further information.
