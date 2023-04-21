@@ -11,7 +11,7 @@ export const SYMBOL_KIND_CONSTANT = "CONSTANT";
 export const OFFSETS = {
     SOURCE_NODE: {
         X: 50,
-        Y: 150,
+        Y: 100,
     },
     TARGET_NODE: {
         X: 950,

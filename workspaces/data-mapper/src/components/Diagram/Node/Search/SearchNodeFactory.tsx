@@ -26,7 +26,6 @@ import {
     SearchType,
     SEARCH_NODE_TYPE
 } from './SearchNode';
-import { SearchNodeWidget } from './SearchNodeWidget';
 
 @injectable()
 @singleton()
@@ -36,30 +35,31 @@ export class SearchNodeFactory extends AbstractReactFactory<SearchNode, DiagramE
     }
 
     generateReactWidget(event: { model: SearchNode; }): JSX.Element {
-        const dmStore = useDMSearchStore.getState();
-        if (event.model.type === SearchType.Input){
-            return (
-                <SearchNodeWidget
-                    searchText={dmStore.inputSearch}
-                    onSearchTextChange={dmStore.setInputSearch}
-                    engine={this.engine}
-                    focused={dmStore.inputSearchFocused}
-                    setFocused={dmStore.setInputSearchFocused}
-                    searchType={SearchType.Input}
-                />
-             );
-        } else if (event.model.type === SearchType.Output){
-            return (
-                <SearchNodeWidget
-                    searchText={dmStore.outputSearch}
-                    onSearchTextChange={dmStore.setOutputSearch}
-                    engine={this.engine}
-                    focused={dmStore.outputSearchFocused}
-                    setFocused={dmStore.setOutputSearchFocused}
-                    searchType={SearchType.Output}
-                />
-             );
-        }
+        // TODO: Add search functionality by fixing the node positioning issues
+        // const dmStore = useDMSearchStore.getState();
+        // if (event.model.type === SearchType.Input){
+        //     return (
+        //         <SearchNodeWidget
+        //             searchText={dmStore.inputSearch}
+        //             onSearchTextChange={dmStore.setInputSearch}
+        //             engine={this.engine}
+        //             focused={dmStore.inputSearchFocused}
+        //             setFocused={dmStore.setInputSearchFocused}
+        //             searchType={SearchType.Input}
+        //         />
+        //      );
+        // } else if (event.model.type === SearchType.Output){
+        //     return (
+        //         <SearchNodeWidget
+        //             searchText={dmStore.outputSearch}
+        //             onSearchTextChange={dmStore.setOutputSearch}
+        //             engine={this.engine}
+        //             focused={dmStore.outputSearchFocused}
+        //             setFocused={dmStore.setOutputSearchFocused}
+        //             searchType={SearchType.Output}
+        //         />
+        //      );
+        // }
         return null;
     }
 
