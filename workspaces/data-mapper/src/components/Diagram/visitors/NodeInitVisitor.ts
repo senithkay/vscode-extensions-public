@@ -527,6 +527,7 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         const selectedSTNode = this.selection.selectedST.stNode;
+        let valueExpr: STNode = node.valueExpr;
         if ((selectedSTNode.position as NodePosition).startLine !== (node.position as NodePosition).startLine
             && (selectedSTNode.position as NodePosition).startColumn !== (node.position as NodePosition).startColumn) {
             this.mapIdentifiers.push(node)
@@ -534,14 +535,15 @@ export class NodeInitVisitor implements Visitor {
         if (this.isWithinQuery === 0
             && (this.isWithinLetVarDecl === 0
                 || (this.isWithinLetVarDecl > 0 && STKindChecker.isLetVarDecl(this.selection.selectedST.stNode)))
-            && node.valueExpr
-            && !STKindChecker.isMappingConstructor(node.valueExpr)
-            && !STKindChecker.isListConstructor(node.valueExpr)
+            && valueExpr
+            && !STKindChecker.isMappingConstructor(valueExpr)
+            && !STKindChecker.isListConstructor(valueExpr)
         ) {
-            const inputNodes = getInputNodes(node.valueExpr);
-            const fnDefForFnCall = STKindChecker.isFunctionCall(node.valueExpr) && getFnDefForFnCall(node.valueExpr);
+            const inputNodes = getInputNodes(valueExpr);
+            valueExpr = STKindChecker.isCheckExpression(valueExpr) ? valueExpr.expression : valueExpr;
+            const fnDefForFnCall = STKindChecker.isFunctionCall(valueExpr) && getFnDefForFnCall(valueExpr);
             if (inputNodes.length > 1
-                || (inputNodes.length === 1 && (isComplexExpression(node.valueExpr) || fnDefForFnCall))) {
+                || (inputNodes.length === 1 && (isComplexExpression(valueExpr) || fnDefForFnCall))) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
@@ -559,9 +561,10 @@ export class NodeInitVisitor implements Visitor {
     beginVisitListConstructor(node: ListConstructor, parent?: STNode): void {
         this.mapIdentifiers.push(node);
         if (this.isWithinQuery === 0 && node.expressions) {
-            node.expressions.forEach((expr) => {
+            node.expressions.forEach((expr: STNode) => {
                 if (!STKindChecker.isMappingConstructor(expr) && !STKindChecker.isListConstructor(expr)) {
                     const inputNodes = getInputNodes(expr);
+                    expr = STKindChecker.isCheckExpression(expr) ? expr.expression : expr;
                     const fnDefForFnCall = STKindChecker.isFunctionCall(expr) && getFnDefForFnCall(expr);
                     if (inputNodes.length > 1
                         || (inputNodes.length === 1 && (isComplexExpression(expr) || fnDefForFnCall))) {
