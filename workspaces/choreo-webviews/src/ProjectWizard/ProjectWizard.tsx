@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useContext, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
@@ -38,6 +38,12 @@ const ErrorMessageContainer = styled.div`
     color: var(--vscode-errorForeground);
 `;
 
+const GhRepoSelectorActions = styled.div`
+    display  : flex;
+    flex-direction: row;
+    gap: 10px;
+`;
+
 export function ProjectWizard() {
 
     const { loginStatus, loginStatusPending, selectedOrg, error } = useContext(ChoreoWebViewContext);
@@ -49,6 +55,7 @@ export function ProjectWizard() {
     const [initMonoRepo, setInitMonoRepo] = useState(true);
     const [selectedGHOrgName, setSelectedGHOrgName] = useState("");
     const [selectedGHRepo, setSelectedGHRepo] = useState("");
+    const [isBareRepo, setIsBareRepo] = useState(false);
 
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
@@ -60,6 +67,17 @@ export function ProjectWizard() {
         const projectClient = webviewAPI.getProjectClient();
         if (selectedOrg) {
             try {
+                // check if the repo is empty
+                const repoMetaData = await projectClient.getRepoMetadata({
+                    repo: selectedGHRepo,
+                    organization: selectedGHOrgName,
+                    branch: "main"
+                });
+                if (repoMetaData?.isBareRepo) {
+                    setIsBareRepo(true);
+                    setCreationInProgress(false);
+                    return;
+                }
                 const createdProject = await projectClient.createProject({
                     name: projectName,
                     description: projectDescription,
@@ -83,6 +101,13 @@ export function ProjectWizard() {
     const handleRepoSelect = (org?: string, repo?: string) => { 
         setSelectedGHOrgName(org || "");
         setSelectedGHRepo(repo || "");
+    };
+
+    const handleRepoInit = async () => {
+        // open github repo in browser with vscode open external
+        if (selectedGHOrgName && selectedGHRepo) {
+            ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedGHOrgName}/${selectedGHRepo}`);
+        }
     };
 
     const isValid: boolean = projectName.length > 0;
@@ -126,6 +151,19 @@ export function ProjectWizard() {
                         Initialize a mono repo
                     </VSCodeCheckbox>
                     {initMonoRepo && <GithubRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} />}
+                    {initMonoRepo && isBareRepo &&
+                        (<>
+                            Repository is not initialized. Please initialize the repository before cloning can continue.
+                            <GhRepoSelectorActions>
+                                <VSCodeLink onClick={handleRepoInit}>
+                                    Initialize
+                                </VSCodeLink> 
+                                <VSCodeLink onClick={handleCreateProject}>
+                                    Recheck & Create Project
+                                </VSCodeLink>    
+                            </GhRepoSelectorActions>
+                        </>)
+                    }
                     {errorMsg !== "" && <ErrorMessageContainer>{errorMsg}</ErrorMessageContainer>}
                     {error && (
                         <ErrorMessageContainer>

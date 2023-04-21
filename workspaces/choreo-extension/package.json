@@ -2,13 +2,12 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.0.2023041705",
+  "version": "1.0.2023042007",
   "publisher": "wso2",
-  "icon": "resources/icons/choreo.png",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wso2/choreo-vscode"
+  "bugs": {
+      "url": "https://github.com/wso2/choreo-vscode/issues"
   },
+  "icon": "resources/icons/choreo.png",
   "engines": {
     "vscode": "^1.73.0"
   },
@@ -183,7 +182,7 @@
     "lint": "eslint src --ext ts",
     "test-nyc-cli": "nyc --reporter=html node ./dist/test/runTest.js",
     "test": "rm -rf .vscode-test/extensions && node ./dist/test/runTest.js && nyc report && nyc report --reporter=html",
-    "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
+    "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release --baseImagesUrl https://github.com/wso2/choreo-vscode/raw/HEAD/; else vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/choreo-vscode/raw/HEAD/; fi",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../..",
     "postbuild": "pnpm run copyVSIX"

@@ -33,7 +33,7 @@ const useStyles = makeStyles(() =>
 
 function SearchHighlight({ children, searchText }: SearchHighlightRootProps) {
     const classes = useStyles();
-    const parts = children.split(new RegExp(`(${searchText})`, "gi"));
+    const parts = children.split(new RegExp(`(${escapeRegExp(searchText)})`, 'gi'));
     return (
         <>
             {parts.map((part, index) => (
@@ -57,4 +57,8 @@ export function InputSearchHighlight({ children }: SearchHighlightProps) {
 export function OutputSearchHighlight({ children }: SearchHighlightProps) {
     const outputSearch = useDMSearchStore((state) => state.outputSearch);
     return <SearchHighlight searchText={outputSearch}>{children}</SearchHighlight>
+}
+
+function escapeRegExp(str: string) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }

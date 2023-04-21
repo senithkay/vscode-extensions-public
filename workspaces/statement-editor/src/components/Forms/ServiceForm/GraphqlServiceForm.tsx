@@ -15,7 +15,7 @@ import React, { useContext, useState } from "react";
 import { FormattedMessage } from "react-intl";
 
 import { FormHelperText } from "@material-ui/core";
-import { LiteExpressionEditor } from "@wso2-enterprise/ballerina-expression-editor";
+import { LiteTextField } from "@wso2-enterprise/ballerina-expression-editor";
 import {
     createImportStatement,
     createServiceDeclartion,
@@ -254,36 +254,24 @@ export function GraphqlServiceForm(props: GraphqlServiceFormProps) {
     const getPathInput = () => (
         <>
             <FieldTitle title="Path" optional={false}/>
-            <LiteExpressionEditor
-                testId="service-base-path"
-                diagnostics={currentComponentName === 'path' ?
-                    currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
-                defaultValue={basePath}
+            <LiteTextField
                 onChange={onBasePathChange}
-                completions={[]}
+                isLoading={false}
+                diagnostics={currentComponentName === 'path' ? currentComponentSyntaxDiag : []}
+                value={basePath}
                 onFocus={onBasePathFocus}
-                customProps={{
-                    index: 1,
-                    optional: false
-                }}
             />
         </>
     );
     const getPortInput = () => (
         <>
             <FieldTitle title="Port" optional={false}/>
-            <LiteExpressionEditor
-                testId="port-number"
-                diagnostics={currentComponentName === 'port' ?
-                    currentComponentSyntaxDiag || serviceModel?.viewState?.diagnosticsInRange : []}
-                defaultValue={listenerPort}
+            <LiteTextField
                 onChange={onPortChange}
-                completions={[]}
+                isLoading={false}
+                diagnostics={currentComponentName === 'port' ? currentComponentSyntaxDiag : []}
+                value={listenerPort}
                 onFocus={onPortTextFieldFocus}
-                customProps={{
-                    index: 2,
-                    optional: false
-                }}
             />
         </>
     );

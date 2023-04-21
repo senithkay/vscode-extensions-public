@@ -148,7 +148,7 @@ export class NodeInitVisitor implements Visitor {
                         const expandedHeaderPorts: RightAnglePortModel[] = [];
                         const fromClauseNode = new FromClauseNode(this.context, bodyExpr.queryPipeline.fromClause);
                         if (fromClauseNode.getSourceType()){
-                            fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN + 100);
+                            fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
                             this.inputNodes.push(fromClauseNode);
 
                             const fromClauseNodeValueLabel = (bodyExpr.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
@@ -158,9 +158,10 @@ export class NodeInitVisitor implements Visitor {
                             fromClauseNode.addPort(fromClausePort);
                         }
 
-                        const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-                        inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
-                        this.inputNodes.push(inputSearchNode);
+                        // TODO: Add search functionality by fixing the node positioning issues
+                        // const inputSearchNode = new SearchNode(this.context, SearchType.Input)
+                        // inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                        // this.inputNodes.push(inputSearchNode);
 
                         const letClauses = bodyExpr.queryPipeline.intermediateClauses?.filter((item) => {
                             return (
@@ -269,7 +270,7 @@ export class NodeInitVisitor implements Visitor {
                         returnType
                     );
                 }
-                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
             }
         }
         // create input nodes
@@ -292,9 +293,10 @@ export class NodeInitVisitor implements Visitor {
                     }
                 }
             }
-            const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-            inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.QUERY_VIEW_TOP_MARGIN);
-            this.inputNodes.push(inputSearchNode);
+            // TODO: Add search functionality by fixing the node positioning issues
+            // const inputSearchNode = new SearchNode(this.context, SearchType.Input)
+            // inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.QUERY_VIEW_TOP_MARGIN);
+            // this.inputNodes.push(inputSearchNode);
         }
 
         // create node for configuring local variables
@@ -420,7 +422,7 @@ export class NodeInitVisitor implements Visitor {
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(this.context, node.queryPipeline.fromClause);
                 if (fromClauseNode.getSourceType()){
-                    fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN + 100);
+                    fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
                     this.inputNodes.push(fromClauseNode);
 
                     const fromClauseNodeValueLabel = (
@@ -431,9 +433,10 @@ export class NodeInitVisitor implements Visitor {
                     fromClauseNode.addPort(fromClausePort);
                 }
 
-                const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-                inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
-                this.inputNodes.push(inputSearchNode);
+                // TODO: Add search functionality by fixing the node positioning issues
+                // const inputSearchNode = new SearchNode(this.context, SearchType.Input)
+                // inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                // this.inputNodes.push(inputSearchNode);
 
                 const letClauses = node.queryPipeline.intermediateClauses?.filter((item) => {
                     return (
@@ -527,6 +530,7 @@ export class NodeInitVisitor implements Visitor {
 
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         const selectedSTNode = this.selection.selectedST.stNode;
+        let valueExpr: STNode = node.valueExpr;
         if ((selectedSTNode.position as NodePosition).startLine !== (node.position as NodePosition).startLine
             && (selectedSTNode.position as NodePosition).startColumn !== (node.position as NodePosition).startColumn) {
             this.mapIdentifiers.push(node)
@@ -534,14 +538,15 @@ export class NodeInitVisitor implements Visitor {
         if (this.isWithinQuery === 0
             && (this.isWithinLetVarDecl === 0
                 || (this.isWithinLetVarDecl > 0 && STKindChecker.isLetVarDecl(this.selection.selectedST.stNode)))
-            && node.valueExpr
-            && !STKindChecker.isMappingConstructor(node.valueExpr)
-            && !STKindChecker.isListConstructor(node.valueExpr)
+            && valueExpr
+            && !STKindChecker.isMappingConstructor(valueExpr)
+            && !STKindChecker.isListConstructor(valueExpr)
         ) {
-            const inputNodes = getInputNodes(node.valueExpr);
-            const fnDefForFnCall = STKindChecker.isFunctionCall(node.valueExpr) && getFnDefForFnCall(node.valueExpr);
+            const inputNodes = getInputNodes(valueExpr);
+            valueExpr = STKindChecker.isCheckExpression(valueExpr) ? valueExpr.expression : valueExpr;
+            const fnDefForFnCall = STKindChecker.isFunctionCall(valueExpr) && getFnDefForFnCall(valueExpr);
             if (inputNodes.length > 1
-                || (inputNodes.length === 1 && (isComplexExpression(node.valueExpr) || fnDefForFnCall))) {
+                || (inputNodes.length === 1 && (isComplexExpression(valueExpr) || fnDefForFnCall))) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
                     node,
@@ -559,9 +564,10 @@ export class NodeInitVisitor implements Visitor {
     beginVisitListConstructor(node: ListConstructor, parent?: STNode): void {
         this.mapIdentifiers.push(node);
         if (this.isWithinQuery === 0 && node.expressions) {
-            node.expressions.forEach((expr) => {
+            node.expressions.forEach((expr: STNode) => {
                 if (!STKindChecker.isMappingConstructor(expr) && !STKindChecker.isListConstructor(expr)) {
                     const inputNodes = getInputNodes(expr);
+                    expr = STKindChecker.isCheckExpression(expr) ? expr.expression : expr;
                     const fnDefForFnCall = STKindChecker.isFunctionCall(expr) && getFnDefForFnCall(expr);
                     if (inputNodes.length > 1
                         || (inputNodes.length === 1 && (isComplexExpression(expr) || fnDefForFnCall))) {

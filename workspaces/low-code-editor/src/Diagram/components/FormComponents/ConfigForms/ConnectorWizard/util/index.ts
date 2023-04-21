@@ -555,11 +555,19 @@ export function getConnectorFromVisibleEp(endpoint: VisibleEndpoint) {
 }
 
 export function getConnectorImports(syntaxTree: STNode, organization: string, moduleName: string) {
+    let isModuleImported = false;
     let isDriverImported = false;
-    const imports = new Set<string>([ `${organization}/${moduleName}` ]);
+    const imports = new Set<string>();
 
     if (STKindChecker.isModulePart(syntaxTree)) {
-        (syntaxTree as ModulePart).imports?.forEach((imp) => {
+        (syntaxTree as ModulePart).imports?.forEach((imp: any) => {
+            if (
+                STKindChecker.isImportDeclaration(imp) &&
+                imp.orgName?.orgName.value === organization &&
+                imp.typeData?.symbol?.moduleID?.moduleName === `${moduleName}`
+            ) {
+                isModuleImported = true;
+            }
             if (
                 STKindChecker.isImportDeclaration(imp) &&
                 imp.orgName?.orgName.value === organization &&
@@ -568,6 +576,9 @@ export function getConnectorImports(syntaxTree: STNode, organization: string, mo
                 isDriverImported = true;
             }
         });
+        if (!isModuleImported) {
+            imports.add(`${organization}/${moduleName}`);
+        }
         if (!isDriverImported && isDependOnDriver(moduleName)) {
             imports.add(`${organization}/${moduleName}.driver as _`);
         }

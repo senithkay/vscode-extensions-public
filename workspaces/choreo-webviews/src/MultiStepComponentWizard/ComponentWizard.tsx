@@ -85,6 +85,8 @@ export const ComponentWizard: React.FC = () => {
                 dockerContext: '',
                 dockerFile: '',
                 subPath: '',
+                isBareRepo: false,
+                isCloned: false,
             }
         },
         isFormValid: false,
