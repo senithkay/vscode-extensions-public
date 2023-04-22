@@ -1,0 +1,246 @@
+{
+  "name": "choreo",
+  "displayName": "Choreo",
+  "description": "An extension for Signing in to Choreo and managing your projects",
+  "version": "1.0.1",
+  "publisher": "wso2",
+  "bugs": {
+    "url": "https://github.com/wso2/choreo-vscode/issues"
+  },
+  "icon": "resources/icons/choreo.png",
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:.choreo-project",
+    "onCommand:wso2.choreo.sign.in",
+    "onView:choreo-projects",
+    "onView:choreo-account",
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "wso2.choreo.sign.in",
+        "title": "Sign In",
+        "category": "Choreo"
+      },
+      {
+        "command": "wso2.choreo.sign.out",
+        "title": "Sign Out",
+        "category": "Choreo"
+      },
+      {
+        "command": "wso2.choreo.org.setAsSelected",
+        "title": "Select",
+        "icon": "$(check)"
+      },
+      {
+        "command": "wso2.choreo.component.clone",
+        "title": "Clone"
+      },
+      {
+        "command": "wso2.choreo.project.clone",
+        "title": "Clone to new Workspace"
+      },
+      {
+        "command": "wso2.choreo.project.repo.clone",
+        "title": "Clone a repo to current Project Workspace"
+      },
+      {
+        "command": "wso2.choreo.projects.registry.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "wso2.choreo.projects.tree.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "wso2.choreo.project.create",
+        "title": "Create New Project",
+        "category": "Choreo",
+        "icon": "$(add)"
+      },
+      {
+        "command": "wso2.choreo.component.create",
+        "title": "Create New Component",
+        "category": "Choreo",
+        "icon": "$(add)"
+      },
+      {
+        "command": "wso2.choreo.architecture.view",
+        "title": "View Choreo Project Architecture",
+        "category": "Choreo"
+      },
+      {
+        "command": "wso2.choreo.project.overview",
+        "title": "Project Overview",
+        "category": "Choreo"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "wso2-choreo",
+          "title": "WSO2 Choreo",
+          "icon": "resources/icons/choreo-2.svg"
+        }
+      ]
+    },
+    "views": {
+      "wso2-choreo": [
+        {
+          "id": "choreo-projects",
+          "name": "Projects"
+        },
+        {
+          "id": "choreo-account",
+          "name": "Account"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "choreo-projects",
+        "contents": "Sign in to retrieve projects.\n[Sign In](command:wso2.choreo.sign.in)",
+        "when": "choreoLoginStatus == LoggedOut"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "wso2.choreo.project.create",
+          "when": "view == choreo-projects",
+          "group": "navigation"
+        },
+        {
+          "command": "wso2.choreo.projects.tree.refresh",
+          "when": "view == choreo-projects",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "wso2.choreo.org.setAsSelected",
+          "when": "view == choreo-account && viewItem == choreo.org",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "wso2.choreo.architecture.view",
+          "when": "false"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Choreo",
+      "properties": {
+        "Logging.loggingLevel": {
+          "type": "string",
+          "enum": [
+            "off",
+            "fatal",
+            "error",
+            "warn",
+            "info",
+            "debug",
+            "trace"
+          ],
+          "default": "error",
+          "description": "The verbosity of logging. The Order is off < fatal < error < warn < info < debug < trace.",
+          "scope": "window"
+        },
+        "Logging.sourceLocationTracking": {
+          "type": "boolean",
+          "default": false,
+          "description": "Should Source Code Location Info be added to log entries, DANGER - May be very slow, only use in debugging scenarios",
+          "scope": "window"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "clean": "del-cli ./dist ./out ./resources/jslibs ./choreo-*.vsix ./coverage ./.nyc_output",
+    "compile": "webpack --mode production",
+    "watch-choreo": "npx webpack --watch",
+    "build": "pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm run package && pnpm run postbuild",
+    "rebuild": "pnpm run clean && pnpm run compile && pnpm run lint && pnpm run copy-webview-lib && pnpm run postbuild",
+    "copy-webview-lib": "mkdir -p ./resources/jslibs && copyfiles -f ../choreo-webviews/build/*.js ./resources/jslibs",
+    "compile-tests": "tsc -p . --outDir dist",
+    "watch-tests": "tsc -p . -w --outDir dist",
+    "ui-test-setup": "npx extest get-vscode -c 1.75.0 && npx extest get-chromedriver && npx extest install-vsix -f $(ls *.vsix) && npx extest install-vsix -f $(ls ../../*.vsix)",
+    "ui-test": "pnpm run compile-tests && npx extest run-tests 'dist/ui-test/*.test.js' --mocha_config src/ui-test/.mocharc.js -o src/ui-test/settings.json",
+    "pretest": "pnpm run clean && pnpm run compile-tests && pnpm run lint && pnpm run copy-webview-lib",
+    "lint": "eslint src --ext ts",
+    "test-nyc-cli": "nyc --reporter=html node ./dist/test/runTest.js",
+    "test": "rm -rf .vscode-test/extensions && node ./dist/test/runTest.js && nyc report && nyc report --reporter=html",
+    "package": "if [ $isPreRelease = true ]; then vsce package --no-dependencies --pre-release --baseImagesUrl https://github.com/wso2/choreo-vscode/raw/HEAD/; else vsce package --no-dependencies --baseImagesUrl https://github.com/wso2/choreo-vscode/raw/HEAD/; fi",
+    "copyVSIX": "copyfiles *.vsix ./vsix",
+    "copyVSIXToRoot": "copyfiles -f ./vsix/* ../..",
+    "postbuild": "pnpm run copyVSIX"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/byline": "^4.2.33",
+    "@types/glob": "^8.0.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^18.11.19",
+    "@types/sinon": "^10.0.0",
+    "@types/vscode": "^1.73.0",
+    "@typescript-eslint/eslint-plugin": "~5.48.2",
+    "@typescript-eslint/parser": "~5.48.2",
+    "@types/which": "^2.0.2",
+    "@vscode/test-electron": "^2.2.0",
+    "@vscode/vsce": "^2.17.0",
+    "axios": "^1.2.2",
+    "copy-webpack-plugin": "^11.0.0",
+    "copyfiles": "^2.4.1",
+    "del-cli": "^5.0.0",
+    "eslint": "^8.32.0",
+    "glob": "^7.2.0",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "sinon": "^15.0.1",
+    "source-map-support": "^0.5.21",
+    "ts-loader": "^9.4.1",
+    "typescript": "^4.9.4",
+    "vscode-extension-tester": "^5.4.0",
+    "webpack": "^5.56.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-permissions-plugin": "^1.0.9",
+    "yarn": "^1.22.19"
+  },
+  "dependencies": {
+    "@vscode-logging/logger": "^1.2.3",
+    "@vscode-logging/types": "^0.1.4",
+    "@vscode-logging/wrapper": "^1.0.2",
+    "@vscode/iconv-lite-umd": "^0.7.0",
+    "@vscode/webview-ui-toolkit": "^1.2.0",
+    "@wso2-enterprise/choreo-client": "workspace:*",
+    "@wso2-enterprise/choreo-core": "workspace:*",
+    "@wso2-enterprise/choreo-vscode-webviews": "workspace:*",
+    "gql-query-builder": "^3.8.0",
+    "graphql": "^16.6.0",
+    "graphql-request": "~5.1.0",
+    "jwt-decode": "^3.1.2",
+    "simple-git": "^3.15.1",
+    "vscode-messenger": "^0.4.4",
+    "lodash": "^4.17.11",
+    "@types/lodash": "^4.14.189",
+    "vscode-messenger-common": "^0.4.3",
+    "chai": "^4.3.4",
+    "@types/chai": "^4.2.18",
+    "byline": "^5.0.0",
+    "file-type": "^18.2.1",
+    "jschardet": "^3.0.0",
+    "which": "^3.0.0"
+  }
+}

@@ -5,71 +5,91 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Extension",
+            "name": "Ballerina Extension",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}"
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/ballerina-extension"
             ],
             "env": {
                 "LS_EXTENSIONS_PATH": "",
                 "LSDEBUG": "false",
-                "COMPOSER_DEBUG": "false",
-                "COMPOSER_DEV_HOST": "http://localhost:9000",
+                "WEB_VIEW_WATCH_MODE": "false",
+                "WEB_VIEW_DEV_HOST": "http://localhost:9000",
                 "BALLERINA_STAGE_CENTRAL": "false"
             },
             "outFiles": [
-                "${workspaceFolder}/dist/**/*.js"
+                "${workspaceFolder}/workspaces/ballerina-extension/dist/**/*.js"
             ],
             "preLaunchTask": "npm: watch"
         },
         {
-            "name": "Extension Tests",
+            "name": "Ballerina Extension Tests",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "env": {
                 "LS_EXTENSIONS_PATH": "",
                 "LSDEBUG": "false",
-                "COMPOSER_DEBUG": "false"
+                "WEB_VIEW_WATCH_MODE": "false"
             },
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}",
-                "--extensionTestsPath=${workspaceFolder}/out/test"
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/ballerina-extension",
+                "--extensionTestsPath=${workspaceFolder}/workspaces/ballerina-extension/out/test"
             ],
             "outFiles": [
-                "${workspaceFolder}/out/test/**/*.js"
-            ],
-            "preLaunchTask": "npm: test-compile"
+                "${workspaceFolder}/workspaces/ballerina-extension/out/test/**/*.js"
+            ]
         },
         {
-            "name": "Debug UI Tests",
+            "name": "Choreo Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_DEV_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/choreo-extension"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/choreo-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "npm: watch-choreo"
+        },
+        {
+            "name": "Choreo Extension Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "env": {
+                "WEB_VIEW_DEV_MODE": "true",
+                "WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
+            },
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/workspaces/choreo-extension",
+                "--extensionTestsPath=${workspaceFolder}/workspaces/choreo-extension/dist/test/suite/index"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/workspaces/choreo-extension/out/**/*.js",
+                "${workspaceFolder}/workspaces/choreo-extension/dist/**/*.js"
+            ],
+            "preLaunchTask": "tasks: watch-tests"
+        },
+        {
+            "name": "Debug Ballerina UI Tests",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/node_modules/.bin/extest",
+            "program": "${workspaceFolder}/workspaces/ballerina-extension/node_modules/.bin/extest",
             "args": [
                 "run-tests",
-                "${workspaceFolder}/out/ui-test/*.js",
+                "${workspaceFolder}/workspaces/ballerina-extension/out/ui-test/*.js",
                 "--mocha_config",
-                "${workspaceFolder}/ui-test/.mocharc.js"
+                "${workspaceFolder}/workspaces/ballerina-extension/ui-test/.mocharc.js"
             ],
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "preLaunchTask": "npm: test-compile"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Server",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/src/debugger/index.js",
-            "args": [
-                "--server=4711"
-            ],
-            "outFiles": [
-                "${workspaceFolder}/out/src/debugger/**/*.js"
-            ],
-        },
+        }
     ]
 }

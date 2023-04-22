@@ -1,0 +1,23 @@
+{
+  "name": "@wso2-enterprise/choreo-core",
+  "version": "1.0.0",
+  "description": "Contains models related to Choreo APIs",
+  "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "pnpm run lint && tsc --pretty",
+    "watch": "tsc --pretty --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "WSO2",
+  "devDependencies": {
+    "typescript": "^4.9.4",
+    "@typescript-eslint/eslint-plugin": "~5.48.2",
+    "eslint": "^8.32.0",
+    "@typescript-eslint/parser": "~5.48.2"
+  },
+  "dependencies": {
+    "vscode-messenger-common": "^0.4.3",
+    "@wso2-enterprise/ballerina-languageclient": "workspace:*"
+  }
+}

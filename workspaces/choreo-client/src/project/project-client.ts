@@ -1,0 +1,259 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * 
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
+ */
+import { GraphQLClient } from 'graphql-request';
+import { Component, Project, Repository, Environment, Deployment, BuildStatus } from "@wso2-enterprise/choreo-core";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams } from "./types";
+import {
+    getComponentBuildStatus,
+    getComponentDeploymentQuery,
+    getComponentEnvsQuery,
+    getComponentsByProjectIdQuery,
+    getComponentsWithCellDiagramQuery,
+    getDeleteComponentQuery,
+    getProjectsByOrgIdQuery,
+    getRepoMetadataQuery,
+} from './project-queries';
+import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation } from './project-mutations';
+import { IReadOnlyTokenStorage } from '../auth';
+import { getHttpClient } from '../http-client';
+import { AxiosResponse } from 'axios';
+
+const API_CALL_ERROR = "API CALL ERROR";
+
+export class ChoreoProjectClient implements IChoreoProjectClient {
+
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI: string, private _swaggerExamplesAPI: string) {
+    }
+
+    private async _getClient() {
+        const token = await this._tokenStore.getToken("choreo.vscode.token");
+        if (!token) {
+            throw new Error('User is not logged in');
+        }
+        const client = new GraphQLClient(this._baseURL, {
+            headers: {
+                Authorization: 'Bearer ' + token.accessToken,
+            },
+        });
+        return client;
+    }
+
+    async getProjects(params: GetProjectsParams): Promise<Project[]> {
+        const query = getProjectsByOrgIdQuery(params.orgId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.projects;
+        } catch (error) {
+            throw new Error("Error while fetching projects. ", { cause: error });
+        }
+
+    }
+
+    async deleteComponent(params: DeleteComponentParams): Promise<void> {
+        const query = getDeleteComponentQuery(params.orgHandler, params.component?.id, params.projectId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.projects;
+        } catch (error) {
+            throw new Error("Error while deleting component ", { cause: error });
+        }
+    }
+
+    async getComponents(params: GetComponentsParams): Promise<Component[]> {
+        const { orgHandle, projId } = params;
+        const query = getComponentsByProjectIdQuery(orgHandle, projId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.components;
+        } catch (error) {
+            throw new Error("Error while fetching components.", { cause: error });
+        }
+    }
+
+    async getProjectEnv(params: GetProjectEnvParams): Promise<Environment[]> {
+        const client = await this._getClient();
+        try {
+            const envQuery = getComponentEnvsQuery(params.orgUuid, params.projId);
+            const envDataRes = await client.request(envQuery);
+            return envDataRes?.environments;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async getComponentBuildStatus(params: GetComponentBuildStatusParams): Promise<BuildStatus | null> {
+        const client = await this._getClient();
+        try {
+            const query = getComponentBuildStatus(params.componentId, params.versionId);
+            const response = await client.request(query);
+            return response?.deploymentStatusByVersion?.[0] || null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            // If the component has never been built, this call would return a 404
+            if (error.response?.status === 404) {
+                return null;
+            }
+            throw new Error(`Failed to get component build details for ${params.componentId}` , { cause: error });
+        }
+    }
+
+    async getComponentDeploymentStatus(params: GetComponentDeploymentStatusParams): Promise<Deployment | null> {
+        const client = await this._getClient();
+        try {
+            const queryData = {
+                componentId: params.component.id,
+                orgHandler: params.orgHandle,
+                versionId: params.versionId,
+                orgUuid: params.orgUuid,
+                environmentId: params.envId
+            }
+
+            const query = getComponentDeploymentQuery(queryData);
+            const deploymentData = await client.request(query);
+
+            return deploymentData?.componentDeployment;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            // If the component has never been deployed, this call would return a 404
+            if (error.response?.status === 404) {
+                return null;
+            }
+            throw new Error(`Failed to get component deployment details for ${params.component.displayName}`, { cause: error });
+        }
+    }
+
+    async createProject(params: CreateProjectParams): Promise<Project> {
+        const mutation = getCreateProjectMutation(params);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            return data.createProject;
+        } catch (error) {
+            throw new Error("Error while creating project.", { cause: error });
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async createComponent(params: CreateComponentParams): Promise<Component> {
+        const mutation = getCreateComponentMutation(params);
+        console.log(mutation);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            console.log(data);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async createByocComponent(params: CreateByocComponentParams): Promise<Component> {
+        const mutation = getCreateByocComponentMutation(params);
+        console.log(mutation);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            console.log(data);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async getPerformanceForecastData(data: string): Promise<AxiosResponse> {
+        const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
+        if (!choreoToken) {
+            throw new Error('User is not logged in');
+        }
+
+        console.log(`Calling perf API - ${new Date()}`);
+        try {
+            return await getHttpClient()
+                .post(this._perfAPI, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        'Authorization': `Bearer ${choreoToken.accessToken}`
+                    }
+                });
+        } catch (err) {
+            throw new Error(API_CALL_ERROR, { cause: err });
+        }
+    }
+
+    async getSwaggerExamples(data: string): Promise<AxiosResponse> {
+        const choreoToken = await this._tokenStore.getToken("choreo.vscode.token");
+        if (!choreoToken) {
+            throw new Error('User is not logged in');
+        }
+
+        console.log(`Calling swagger sample generator API - ${new Date()}`);
+        try {
+            return await getHttpClient()
+                .post(this._swaggerExamplesAPI, data, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        'Authorization': `Bearer ${choreoToken.accessToken}`
+                    },
+                    timeout: 15000
+                });
+        } catch (err) {
+            throw new Error(API_CALL_ERROR, { cause: err });
+        }
+    }
+
+    async isComponentInRepo(params: RepoParams): Promise<boolean> {
+        const { orgApp, repoApp, branchApp, subPath } = params;
+        const query = getRepoMetadataQuery(orgApp, repoApp, branchApp, subPath);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.repoMetadata.isSubPathValid;
+        } catch (error) {
+            throw new Error("Error while executing " + query, { cause: error, });
+        }
+    }
+
+    async getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
+        const { organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId } = params;
+        const query = getRepoMetadataQuery(organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.repoMetadata;
+        } catch (error) {
+            throw new Error("Error while executing " + query, { cause: error, });
+        }
+    }
+
+    async getDiagramModel(params: GetDiagramModelParams): Promise<Component[]> {
+        const { orgHandle, projId } = params;
+        const query = getComponentsWithCellDiagramQuery(orgHandle, projId);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(query);
+            return data.components;
+        } catch (error) {
+            throw new Error("Error while fetching components.", { cause: error });
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    linkRepo(_params: LinkRepoMutationParams): Promise<Repository> {
+        throw new Error("Method not implemented."); // TODO: Kavith
+    }
+}
