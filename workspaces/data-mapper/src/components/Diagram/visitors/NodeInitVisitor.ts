@@ -73,6 +73,7 @@ export class NodeInitVisitor implements Visitor {
     private inputNodes: DataMapperNodeModel[] = [];
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
+    private searchNodes: DataMapperNodeModel[] = [];
     private queryNode: DataMapperNodeModel;
     private mapIdentifiers: STNode[] = [];
     private isWithinQuery = 0;
@@ -269,7 +270,10 @@ export class NodeInitVisitor implements Visitor {
                         returnType
                     );
                 }
-                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                const outputSearchNode = new SearchNode(this.context, SearchType.Output)
+                outputSearchNode.setPosition(OFFSETS.TARGET_NODE.X, 10);
+                this.searchNodes.push(outputSearchNode);
+                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
             }
         }
         // create input nodes
@@ -293,7 +297,7 @@ export class NodeInitVisitor implements Visitor {
                 }
             }
             const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-            inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.QUERY_VIEW_TOP_MARGIN);
+            inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X, 10);
             this.inputNodes.push(inputSearchNode);
         }
 
@@ -669,7 +673,7 @@ export class NodeInitVisitor implements Visitor {
         if (this.outputNode) {
             nodes.push(this.outputNode);
         }
-        nodes.push(...this.intermediateNodes);
+        nodes.push(...this.intermediateNodes, ...this.searchNodes);
         if (this.queryNode){
             nodes.unshift(this.queryNode);
         }
