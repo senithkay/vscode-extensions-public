@@ -26,23 +26,23 @@ export interface CMLocation {
     endPosition: LinePosition;
 }
 
-interface CMNodeAttributes {
+interface CMNode {
     elementLocation: CMLocation;
     diagnostics?: CMDiagnostics[];
 }
 
-interface CMFunctionAttributes extends CMNodeAttributes {
+interface CMFunctionNode extends CMNode {
     interactions: CMInteraction[];
     parameters: CMParameter[];
     returns: string[];
 }
 
-export interface CMEntryPoint extends CMFunctionAttributes {
+export interface CMEntryPoint extends CMFunctionNode {
     annotation: CMAnnotation;
     type?: 'scheduledTask' | 'manualTrigger';
 }
 
-export interface CMService extends CMNodeAttributes {
+export interface CMService extends CMNode {
     annotation: CMAnnotation;
     path: string;
     serviceId: string;
@@ -53,31 +53,31 @@ export interface CMService extends CMNodeAttributes {
     serviceType: string;
 }
 
-export interface CMAnnotation extends CMNodeAttributes {
+export interface CMAnnotation extends CMNode {
     id: string;
     label: string;
 }
 
-export interface CMDependency extends CMNodeAttributes {
+export interface CMDependency extends CMNode {
     connectorType: string;
     serviceId: string;
 }
 
-export interface CMResourceFunction extends CMFunctionAttributes {
+export interface CMResourceFunction extends CMFunctionNode {
     identifier: string;
     resourceId: CMResourceId;
 }
 
-export interface CMRemoteFunction extends CMFunctionAttributes {
+export interface CMRemoteFunction extends CMFunctionNode {
     name: string;
 }
 
-export interface CMInteraction extends CMNodeAttributes {
+export interface CMInteraction extends CMNode {
     resourceId: CMResourceId;
     connectorType: string;
 }
 
-export interface CMParameter extends CMNodeAttributes {
+export interface CMParameter extends CMNode {
     in?: string;
     isRequired: boolean;
     name: string;
@@ -90,13 +90,13 @@ export interface CMResourceId {
     serviceId: string;
 }
 
-export interface CMEntity extends CMNodeAttributes {
+export interface CMEntity extends CMNode {
     attributes: CMAttribute[];
     inclusions: string[];
     isAnonymous: boolean;
 }
 
-export interface CMAttribute extends CMNodeAttributes {
+export interface CMAttribute extends CMNode {
     name: string;
     type: string;
     defaultValue: string;
