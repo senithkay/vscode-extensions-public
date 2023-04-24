@@ -17,6 +17,7 @@ import {
     BallerinaAST, BallerinaASTNode, BallerinaEndpoint,
     BallerinaSourceFragment
 } from "./ast-models";
+import { ComponentModel, CMDiagnostics } from "./IComponentModel";
 
 export enum EXTENDED_APIS {
     DOCUMENT_ST_NODE = 'ballerinaDocument/syntaxTreeNode',
@@ -844,136 +845,7 @@ export interface GetComponentModelResponse {
     componentModels: {
         [key: string]: ComponentModel;
     };
-    diagnostics: ComponentModelDiagnostics[];
-}
-
-export interface ComponentModelDiagnostics {
-    name: string;
-    message?: string;
-    severity?: string;
-}
-
-export interface ComponentModel {
-    packageId: PackageID;
-    services: Map<string, Service>;
-    entities: Map<string, Entity>;
-    functionEntryPoint?: EntryPoint;
-    hasCompilationErrors: boolean;
-}
-
-export interface PackageID {
-    name: string,
-    org: string,
-    version: string
-}
-
-export interface ElementLocation {
-    filePath: string;
-    startPosition: LinePosition;
-    endPosition: LinePosition;
-}
-
-export interface ModelAttributes {
-    elementLocation: ElementLocation;
-    diagnostics?: ComponentModelDiagnostics[];
-}
-
-export interface EntryPoint extends ModelAttributes {
-    annotation: ServiceAnnotation;
-    parameters: FunctionParameter[];
-    returns: string[];
-    type: 'scheduledTask' | 'manualTrigger';
-    interactions: Interaction[];
-}
-
-export interface Service extends ModelAttributes {
-    annotation: ServiceAnnotation;
-    path: string;
-    serviceId: string;
-    resources: ServiceResourceFunction[];
-    remoteFunctions: ServiceRemoteFunction[];
-    serviceType: string;
-    dependencies: Dependency[];
-    deploymentMetadata: DeploymentMetadata;
-}
-
-export interface ServiceAnnotation extends ModelAttributes {
-    id: string;
-    label: string;
-}
-
-export interface Dependency extends ModelAttributes {
-    serviceId: string;
-    connectorType: string;
-}
-
-export interface ServiceResourceFunction extends ModelAttributes {
-    identifier: string;
-    resourceId: ResourceId;
-    parameters: FunctionParameter[];
-    returns: string[];
-    interactions: Interaction[];
-}
-
-export interface ServiceRemoteFunction extends ModelAttributes {
-    name: string;
-    parameters: FunctionParameter[];
-    returns: string[];
-    interactions: Interaction[];
-}
-
-export interface Interaction extends ModelAttributes {
-    resourceId: ResourceId;
-    connectorType: string;
-}
-
-export interface FunctionParameter extends ModelAttributes {
-    name: string;
-    type: string[];
-    in?: string;
-    isRequired: boolean;
-}
-
-export interface ResourceId {
-    serviceId: string;
-    path: string;
-    action: string;
-}
-
-export interface Entity extends ModelAttributes {
-    attributes: Attribute[];
-    inclusions: string[];
-    isAnonymous: boolean;
-}
-
-export interface Attribute extends ModelAttributes {
-    name: string;
-    type: string;
-    defaultValue: string;
-    required: boolean;
-    nillable: boolean;
-    associations: Association[];
-}
-
-export interface Association {
-    associate: string;
-    cardinality: Cardinality;
-}
-
-export interface Cardinality {
-    self: string;
-    associate: string;
-}
-
-export interface DeploymentMetadata {
-    gateways: {
-        internet: {
-            isExposed: boolean;
-        },
-        intranet: {
-            isExposed: boolean;
-        }
-    }
+    diagnostics: CMDiagnostics[];
 }
 
 export interface IBallerinaLangClient {

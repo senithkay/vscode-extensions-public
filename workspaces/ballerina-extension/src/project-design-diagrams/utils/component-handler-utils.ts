@@ -22,7 +22,7 @@ import { existsSync, readFile, rmSync, unlinkSync, writeFile, writeFileSync } fr
 import * as path from "path";
 import child_process from "child_process";
 import { compile } from "handlebars";
-import { BallerinaTriggerResponse, ElementLocation, STModification, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggerResponse, CMLocation as Location, STModification, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
 import { BallerinaComponentTypes, TriggerDetails, WorkspaceConfig, WorkspaceItem } from "@wso2-enterprise/choreo-core";
 import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { ExtendedLangClient } from "../../core";
@@ -186,7 +186,7 @@ export function deleteBallerinaPackage(filePath: string): void {
     });
 }
 
-export async function deleteService(location: ElementLocation) {
+export async function deleteService(location: Location) {
     const modifications: STModification[] = [];
     modifications.push({
         startLine: location.startPosition.line,
@@ -307,7 +307,7 @@ export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLin
     showActionableMessage(userFeedback, linkLocation);
 }
 
-function showActionableMessage(message: string, location: ElementLocation) {
+function showActionableMessage(message: string, location: Location) {
     const action = 'Go to source';
     window.showInformationMessage(message, action).then((selection) => {
         if (action === selection) {

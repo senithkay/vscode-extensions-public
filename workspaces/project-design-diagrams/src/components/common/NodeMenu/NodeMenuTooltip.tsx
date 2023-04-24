@@ -18,7 +18,7 @@
  */
 
 import React, { useState } from 'react';
-import { ElementLocation, ServiceRemoteFunction, ServiceResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMLocation as Location, CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import { NodeMenuPanel } from './NodeMenuPanel';
@@ -27,9 +27,9 @@ import { ServiceNodeModel } from '../../service-interaction';
 
 interface NodeMenuProps {
     background: string;
-    location: ElementLocation;
+    location: Location;
     linkingEnabled?: boolean;
-    resourceFunction?: ServiceResourceFunction | ServiceRemoteFunction; // TODO: Figure out a way to merge resource and service
+    resourceFunction?: RemoteFunction | ResourceFunction; // TODO: Figure out a way to merge resource and service
     serviceNode?: ServiceNodeModel;
 }
 

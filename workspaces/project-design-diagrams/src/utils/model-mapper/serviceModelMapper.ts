@@ -20,7 +20,8 @@
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { v4 as uuid, validate as validateUUID } from 'uuid';
 import {
-    ComponentModel, Dependency, ElementLocation, Interaction,  ServiceRemoteFunction, ServiceResourceFunction, Service
+    ComponentModel, CMDependency as Dependency, CMLocation as Location, CMInteraction as Interaction,
+    CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service
 } from '@wso2-enterprise/ballerina-languageclient';
 import { Level, ServiceModels, ServiceTypes } from '../../resources';
 import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
@@ -199,8 +200,8 @@ function mapDependencies(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 }
 
 function mapInteractions(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, cellSourceNode: ServiceNodeModel,
-    functions: ServiceResourceFunction[] | ServiceRemoteFunction[]) {
-    functions.forEach((sourceFunction: ServiceResourceFunction | ServiceRemoteFunction) => {
+    functions: ResourceFunction[] | RemoteFunction[]) {
+    functions.forEach((sourceFunction: ResourceFunction | RemoteFunction) => {
         sourceFunction.interactions.forEach(interaction => {
             if (l1Nodes.has(interaction.resourceId.serviceId) && l2Nodes.has(interaction.resourceId.serviceId) && cellNodes.has(interaction.resourceId.serviceId)) {
                 mapLinksByLevel(l1Source, l2Source, cellSourceNode, interaction, sourceFunction);
@@ -212,7 +213,7 @@ function mapInteractions(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel,
 }
 
 function mapLinksByLevel(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, cellSource: ServiceNodeModel, interaction: Interaction,
-    sourceFunction: ServiceResourceFunction | ServiceRemoteFunction) {
+    sourceFunction: ResourceFunction | RemoteFunction) {
     // create L1 service links if not created already
     let linkID: string = `${l1Source.getID()}-${interaction.resourceId.serviceId}`;
     if (!l1Links.has(linkID)) {
@@ -256,8 +257,8 @@ export function createLinks(sourcePort: ServicePortModel, targetPort: ServicePor
     return link;
 }
 
-function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel, location: ElementLocation, interaction?: Interaction,
-    sourceFunction?: ServiceRemoteFunction | ServiceResourceFunction): ServiceLinkModel {
+function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel, location: Location, interaction?: Interaction,
+    sourceFunction?: RemoteFunction | ResourceFunction): ServiceLinkModel {
     let sourcePort: ServicePortModel = undefined;
     let targetPort: ServicePortModel = undefined;
 
@@ -291,7 +292,7 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
 }
 
 function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels, cellSource: ServiceNodeModels,
-    interaction: Interaction | Dependency, callingFunction?: ServiceResourceFunction | ServiceRemoteFunction) {
+    interaction: Interaction | Dependency, callingFunction?: ResourceFunction | RemoteFunction) {
     const identifier: string = ('resourceId' in interaction ? interaction.resourceId.serviceId : interaction.serviceId)
         || interaction.connectorType;
     const label: string = 'resourceId' in interaction && !validateUUID(interaction.resourceId.serviceId) ? undefined :
@@ -344,7 +345,7 @@ function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels
     }
 }
 
-function mapExtLinks(source: ServiceNodeModels, target: ExtServiceNodeModel, location: ElementLocation, sourcePortID?: string)
+function mapExtLinks(source: ServiceNodeModels, target: ExtServiceNodeModel, location: Location, sourcePortID?: string)
     : ServiceLinkModel {
     let sourcePort: ServicePortModel;
     let targetPort: ServicePortModel = target.getPortFromID(`left-${target.getID()}`);
@@ -408,8 +409,8 @@ function generateEntryPointLinks(source: EntryNodeModel, target: ServiceNodeMode
     }
 }
 
-function isResource(functionObject: ServiceResourceFunction | ServiceRemoteFunction): functionObject is ServiceResourceFunction {
-    return (functionObject as ServiceResourceFunction).resourceId !== undefined;
+function isResource(functionObject: ResourceFunction | RemoteFunction): functionObject is ResourceFunction {
+    return (functionObject as ResourceFunction).resourceId !== undefined;
 }
 
 function generateLabels(packageName: string, serviceId: string): string {

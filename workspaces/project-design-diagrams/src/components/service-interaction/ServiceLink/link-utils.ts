@@ -17,13 +17,13 @@
  *
  */
 
-import { FunctionParameter, ServiceRemoteFunction, ServiceResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMParameter as Parameter, CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import { PortModel } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNode/ServiceNodeModel';
 
-export function findCallingFunction(targetPort: PortModel): ServiceRemoteFunction | ServiceResourceFunction | undefined {
+export function findCallingFunction(targetPort: PortModel): RemoteFunction | ResourceFunction | undefined {
     let targetService: ServiceNodeModel = targetPort.getNode() as ServiceNodeModel;
-    let targetFunc: ServiceResourceFunction | ServiceRemoteFunction | undefined;
+    let targetFunc: ResourceFunction | RemoteFunction | undefined;
 
     if (targetService.serviceObject.resources.length > 0) {
         targetFunc = targetService.serviceObject.resources.find(resource =>
@@ -38,7 +38,7 @@ export function findCallingFunction(targetPort: PortModel): ServiceRemoteFunctio
     return targetFunc;
 }
 
-export function mapUnionTypes(parameter: FunctionParameter) {
+export function mapUnionTypes(parameter: Parameter) {
     let displayParam: Map<string[], boolean> = new Map<string[], boolean>();
 
     parameter.type.map((paramType) => {

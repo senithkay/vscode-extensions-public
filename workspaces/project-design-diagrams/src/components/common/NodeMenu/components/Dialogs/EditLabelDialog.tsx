@@ -18,7 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
-import { ElementLocation, Service, ServiceAnnotation } from '@wso2-enterprise/ballerina-languageclient';
+import { CMLocation as Location, CMService as Service, CMAnnotation as Annotation } from '@wso2-enterprise/ballerina-languageclient';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -40,7 +40,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
 
     const [serviceLabel, updateServiceLabel] = useState<string>(service.annotation?.label);
 
-    const getAnnotationLocation = (): ElementLocation => {
+    const getAnnotationLocation = (): Location => {
         if (service.annotation?.elementLocation) {
             return service.annotation.elementLocation;
         } else if (service.elementLocation) {
@@ -52,7 +52,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
     }
 
     const editComponentLabel = async () => {
-        const updatedAnnotation: ServiceAnnotation = {
+        const updatedAnnotation: Annotation = {
             label: serviceLabel,
             id: service.annotation?.id,
             elementLocation: getAnnotationLocation()

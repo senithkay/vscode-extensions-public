@@ -18,7 +18,7 @@
  */
 
 import { decimal } from "vscode-languageclient";
-import { ElementLocation } from "@wso2-enterprise/ballerina-languageclient";
+import { CMLocation as Location } from "@wso2-enterprise/ballerina-languageclient";
 
 export enum ServiceTypes {
     HTTP = "http",
@@ -39,8 +39,8 @@ export interface CommandResponse {
 }
 
 export interface DeleteLinkArgs {
-    linkLocation: ElementLocation;
-    serviceLocation: ElementLocation;
+    linkLocation: Location;
+    serviceLocation: Location;
 }
 
 export const ERROR_MESSAGE = "Architecture View: Failed to generate view.";

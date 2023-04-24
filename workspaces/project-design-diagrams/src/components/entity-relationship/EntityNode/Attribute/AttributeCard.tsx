@@ -19,7 +19,7 @@
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import { Attribute } from '@wso2-enterprise/ballerina-languageclient';
+import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-languageclient';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';

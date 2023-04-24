@@ -17,7 +17,7 @@
  *
  */
 
-import { Service } from '@wso2-enterprise/ballerina-languageclient';
+import { CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { ServicePortModel } from '../ServicePort/ServicePortModel';
 import { Level, ServiceTypes } from '../../../resources';

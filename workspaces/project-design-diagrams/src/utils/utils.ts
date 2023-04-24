@@ -18,7 +18,7 @@
  */
 
 import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
-import { Service } from '@wso2-enterprise/ballerina-languageclient';
+import { CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import {
     EntryNodeFactory,

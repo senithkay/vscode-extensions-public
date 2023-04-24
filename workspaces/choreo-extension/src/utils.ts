@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { ComponentModel, ElementLocation, Service } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentModel, CMLocation as Location, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { ApiVersion, Component } from "@wso2-enterprise/choreo-core";
 
 export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
@@ -112,7 +112,7 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
     };
 }
 
-function getMockElementLocation(): ElementLocation {
+function getMockElementLocation(): Location {
     return {
         filePath: "",
         startPosition: {

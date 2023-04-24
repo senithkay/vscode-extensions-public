@@ -19,7 +19,9 @@
 
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { BallerinaComponentCreationParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
-import { BallerinaTriggerResponse, BallerinaTriggersResponse, ElementLocation, Service, ServiceAnnotation } from "@wso2-enterprise/ballerina-languageclient";
+import {
+    BallerinaTriggerResponse, BallerinaTriggersResponse, CMLocation as Location, CMService as Service, CMAnnotation as Annotation
+} from "@wso2-enterprise/ballerina-languageclient";
 import { Messenger } from "vscode-messenger";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
@@ -112,11 +114,11 @@ export class EditLayerRPC {
             return langClient.getTrigger({ id: triggerId });
         });
 
-        this._messenger.onRequest({ method: 'editDisplayLabel' }, async (annotation: ServiceAnnotation): Promise<boolean> => {
+        this._messenger.onRequest({ method: 'editDisplayLabel' }, async (annotation: Annotation): Promise<boolean> => {
             return editDisplayLabel(langClient, annotation);
         });
 
-        this._messenger.onNotification({ method: 'go2source' }, (location: ElementLocation): void => {
+        this._messenger.onNotification({ method: 'go2source' }, (location: Location): void => {
             go2source(location);
         });
 

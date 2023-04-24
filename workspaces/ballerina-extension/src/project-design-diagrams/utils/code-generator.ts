@@ -22,7 +22,7 @@ import { randomUUID } from "crypto";
 import { ExtendedLangClient } from "src/core";
 import { Position, Range, Uri, window, workspace, WorkspaceEdit } from "vscode";
 import { camelCase } from "lodash";
-import { Service, ServiceAnnotation } from "@wso2-enterprise/ballerina-languageclient";
+import { CMService as Service, CMAnnotation as Annotation } from "@wso2-enterprise/ballerina-languageclient";
 import { BallerinaConnectorInfo, Connector, GetSyntaxTreeResponse, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { getFormattedModuleName } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
 import { STResponse } from "../activator";
@@ -184,7 +184,7 @@ async function fetchConnectorInfo(langClient: ExtendedLangClient, connector: Con
     return undefined;
 }
 
-export async function editDisplayLabel(langClient: ExtendedLangClient, annotation: ServiceAnnotation): Promise<boolean> {
+export async function editDisplayLabel(langClient: ExtendedLangClient, annotation: Annotation): Promise<boolean> {
     const stObject = {
         position: {
             startLine: annotation.elementLocation.startPosition.line,

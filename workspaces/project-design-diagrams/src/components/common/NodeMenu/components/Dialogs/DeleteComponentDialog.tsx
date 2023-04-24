@@ -18,7 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
-import { ElementLocation } from '@wso2-enterprise/ballerina-languageclient';
+import { CMLocation as Location } from '@wso2-enterprise/ballerina-languageclient';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -32,7 +32,7 @@ import { DiagramContext } from '../../../DiagramContext/DiagramContext';
 import { ContentTextProps, DefaultTextProps, TitleTextProps } from '../styles/styles';
 
 interface DeleteDialogProps {
-    location: ElementLocation;
+    location: Location;
     showDialog: boolean;
     updateShowDialog: (status: boolean) => void;
 }

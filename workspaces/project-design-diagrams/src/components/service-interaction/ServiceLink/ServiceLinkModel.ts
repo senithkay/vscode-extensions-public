@@ -17,15 +17,15 @@
  *
  */
 
-import { ElementLocation } from '@wso2-enterprise/ballerina-languageclient';
+import { CMLocation as Location } from '@wso2-enterprise/ballerina-languageclient';
 import { SharedLinkModel } from '../../common/shared-link/shared-link';
 import { Level } from '../../../resources';
 
 export class ServiceLinkModel extends SharedLinkModel {
 	readonly level: Level;
-	readonly location: ElementLocation;
+	readonly location: Location;
 
-	constructor(level: Level, location: ElementLocation) {
+	constructor(level: Level, location: Location) {
 		super('serviceLink');
 		this.level = level;
 		this.location = location;

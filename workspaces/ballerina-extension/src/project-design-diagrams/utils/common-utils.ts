@@ -22,7 +22,7 @@ import { existsSync } from "fs";
 import { join } from "path";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ComponentModel, ElementLocation, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { ExtendedLangClient } from "../../core";
 import { terminateActivation } from "../activator";
 import { ERROR_MESSAGE } from "../resources";
@@ -98,7 +98,7 @@ export async function showChoreoProjectOverview(project: Project | undefined): P
     window.showErrorMessage('Error while loading Choreo project overview.');
 }
 
-export async function deleteProjectComponent(projectId: string, location: ElementLocation, deletePkg: boolean): Promise<void> {
+export async function deleteProjectComponent(projectId: string, location: Location, deletePkg: boolean): Promise<void> {
     if (deletePkg) {
         if (projectId) {
             const choreoExt = await getChoreoExtAPI();
@@ -113,7 +113,7 @@ export async function deleteProjectComponent(projectId: string, location: Elemen
     }
 }
 
-export function go2source(location: ElementLocation) {
+export function go2source(location: Location) {
     if (location && existsSync(location.filePath)) {
         workspace.openTextDocument(location.filePath).then((sourceFile) => {
             window.showTextDocument(sourceFile, { preview: false }).then((textEditor) => {

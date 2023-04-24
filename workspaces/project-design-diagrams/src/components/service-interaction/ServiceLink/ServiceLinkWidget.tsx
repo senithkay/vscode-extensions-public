@@ -18,7 +18,7 @@
  */
 
 import React, { useContext, useEffect, useState } from 'react';
-import { ServiceRemoteFunction, ServiceResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import Popover from '@mui/material/Popover';
 import { DiagramContext } from '../../common';
@@ -40,7 +40,7 @@ export function ServiceLinkWidget(props: WidgetProps) {
 	const [isSelected, setIsSelected] = useState<boolean>(false);
 	const [position, setPosition] = useState({ x: undefined, y: undefined });
 	const [anchorElement, setAnchorElement] = useState<SVGPathElement | HTMLDivElement>(null);
-	const [callingFunction, setCallingFunction] = useState<ServiceResourceFunction | ServiceRemoteFunction>(undefined);
+	const [callingFunction, setCallingFunction] = useState<RemoteFunction | ResourceFunction>(undefined);
 
 	useEffect(() => {
 		link.initLinks(engine);

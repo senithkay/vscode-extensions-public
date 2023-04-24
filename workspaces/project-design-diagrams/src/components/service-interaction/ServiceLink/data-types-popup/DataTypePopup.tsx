@@ -18,7 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
-import { ServiceRemoteFunction, ServiceResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { DiagramContext } from '../../../common';
 import { ServiceLinkMenu } from '../LinkMenuPanel/LinkMenuPanel';
@@ -28,7 +28,7 @@ import { Container, clickableType, defaultType, MenuButton } from './styles';
 import { ServiceLinkModel } from '../ServiceLinkModel';
 
 interface DataTypeProps {
-    callingFunction: ServiceResourceFunction | ServiceRemoteFunction;
+    callingFunction: RemoteFunction | ResourceFunction;
     link: ServiceLinkModel;
 }
 

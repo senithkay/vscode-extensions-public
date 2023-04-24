@@ -18,7 +18,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ComponentModel, ElementLocation, GetComponentModelResponse, Service } from '@wso2-enterprise/ballerina-languageclient';
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
@@ -51,7 +51,7 @@ interface DiagramProps {
     selectedNodeId?: string;
     getComponentModel(): Promise<GetComponentModelResponse>;
     showChoreoProjectOverview?: () => Promise<void>;
-    deleteComponent?: (location: ElementLocation, deletePkg: boolean) => Promise<void>;
+    deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void>;
     editLayerAPI?: EditLayerAPI;
     consoleView?: ConsoleView;
     addComponent?: () => void;

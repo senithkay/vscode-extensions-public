@@ -18,7 +18,7 @@
  */
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { ServiceRemoteFunction, ServiceResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
+import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { RemoteFunctionWidget } from './RemoteFunction';
@@ -30,7 +30,7 @@ import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../com
 interface FunctionCardProps {
     engine: DiagramEngine;
     node: ServiceNodeModel;
-    functionElement: ServiceResourceFunction | ServiceRemoteFunction;
+    functionElement: RemoteFunction | ResourceFunction;
     isSelected: boolean;
 }
 
@@ -86,6 +86,6 @@ export function FunctionCard(props: FunctionCardProps) {
     )
 }
 
-function isResource(functionObject: ServiceResourceFunction | ServiceRemoteFunction): functionObject is ServiceResourceFunction {
-    return (functionObject as ServiceResourceFunction).resourceId !== undefined;
+function isResource(functionObject: RemoteFunction | ResourceFunction): functionObject is ResourceFunction {
+    return (functionObject as ResourceFunction).resourceId !== undefined;
 }

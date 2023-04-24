@@ -18,13 +18,13 @@
  */
 
 import React, { useContext } from "react";
-import { ElementLocation } from "@wso2-enterprise/ballerina-languageclient";
+import { CMLocation as Location } from "@wso2-enterprise/ballerina-languageclient";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
 import { useStyles } from "./styles/styles";
 
-export function Go2SourceButton(props: { location: ElementLocation }) {
+export function Go2SourceButton(props: { location: Location }) {
     const { location } = props;
     const classes = useStyles();
     const { editLayerAPI } = useContext(DiagramContext);

@@ -19,7 +19,7 @@
 
 import React, { useContext, useState } from "react";
 import ReactDOM from "react-dom";
-import { Service } from "@wso2-enterprise/ballerina-languageclient";
+import { CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
