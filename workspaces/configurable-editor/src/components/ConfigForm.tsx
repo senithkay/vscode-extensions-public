@@ -18,7 +18,7 @@
  */
 import React, { ReactElement, useEffect, useState } from "react";
 
-import { Box,  Card, CardActions, CardContent, Collapse, FormLabel } from "@material-ui/core";
+import { Box,  Card, CardActions, CardContent, Collapse, FormLabel, Typography } from "@material-ui/core";
 
 import Button from "./ChoreoSystem/Button/Button";
 import ConfigElement, { ConfigElementProps } from "./ConfigElement";
@@ -192,11 +192,27 @@ export const ConfigForm = (props: ConfigFormProps) => {
         );
     }
 
+    const bannerTextForSensitiveFields = (
+        <Box className={classes.primaryContained}>
+            <Box className={classes.notificationInner}>
+                <Box className={classes.notificationContent}>
+                <Box>
+                    <Typography variant="body2">
+                        Updating sensitive content results in the removal of previously
+                        added content and cannot be recovered.
+                    </Typography>
+                </Box>
+                </Box>
+            </Box>
+        </Box>
+    );
+
     return (
         <Box width="100%">
             <form className="ConfigForm" onSubmit={handleSubmit}>
                 {requiredElements.map(ConfigElement)}
                 {defaultableFields}
+                {!isLowCode && isFeaturePreview && bannerTextForSensitiveFields}
                 <CardActions>
                     <ButtonContainer justifyContent="flex-end" size="small">
                         <Button
