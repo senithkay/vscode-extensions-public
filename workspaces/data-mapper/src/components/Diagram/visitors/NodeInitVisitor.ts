@@ -148,7 +148,7 @@ export class NodeInitVisitor implements Visitor {
                         const expandedHeaderPorts: RightAnglePortModel[] = [];
                         const fromClauseNode = new FromClauseNode(this.context, bodyExpr.queryPipeline.fromClause);
                         if (fromClauseNode.getSourceType()){
-                            fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                            fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN + 100);
                             this.inputNodes.push(fromClauseNode);
 
                             const fromClauseNodeValueLabel = (bodyExpr.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
@@ -158,10 +158,9 @@ export class NodeInitVisitor implements Visitor {
                             fromClauseNode.addPort(fromClausePort);
                         }
 
-                        // TODO: Add search functionality by fixing the node positioning issues
-                        // const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-                        // inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
-                        // this.inputNodes.push(inputSearchNode);
+                        const inputSearchNode = new SearchNode(this.context, SearchType.Input)
+                        inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                        this.inputNodes.push(inputSearchNode);
 
                         const letClauses = bodyExpr.queryPipeline.intermediateClauses?.filter((item) => {
                             return (
@@ -270,7 +269,7 @@ export class NodeInitVisitor implements Visitor {
                         returnType
                     );
                 }
-                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
+                this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.QUERY_VIEW_TOP_MARGIN);
             }
         }
         // create input nodes
@@ -293,10 +292,9 @@ export class NodeInitVisitor implements Visitor {
                     }
                 }
             }
-            // TODO: Add search functionality by fixing the node positioning issues
-            // const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-            // inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.QUERY_VIEW_TOP_MARGIN);
-            // this.inputNodes.push(inputSearchNode);
+            const inputSearchNode = new SearchNode(this.context, SearchType.Input)
+            inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X, OFFSETS.QUERY_VIEW_TOP_MARGIN);
+            this.inputNodes.push(inputSearchNode);
         }
 
         // create node for configuring local variables
@@ -422,7 +420,7 @@ export class NodeInitVisitor implements Visitor {
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(this.context, node.queryPipeline.fromClause);
                 if (fromClauseNode.getSourceType()){
-                    fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                    fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN + 100);
                     this.inputNodes.push(fromClauseNode);
 
                     const fromClauseNodeValueLabel = (
@@ -433,10 +431,9 @@ export class NodeInitVisitor implements Visitor {
                     fromClauseNode.addPort(fromClausePort);
                 }
 
-                // TODO: Add search functionality by fixing the node positioning issues
-                // const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-                // inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
-                // this.inputNodes.push(inputSearchNode);
+                const inputSearchNode = new SearchNode(this.context, SearchType.Input)
+                inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
+                this.inputNodes.push(inputSearchNode);
 
                 const letClauses = node.queryPipeline.intermediateClauses?.filter((item) => {
                     return (

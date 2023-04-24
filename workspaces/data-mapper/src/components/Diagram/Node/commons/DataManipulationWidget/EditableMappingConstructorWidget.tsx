@@ -27,6 +27,8 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { getNewFieldAdditionModification, isEmptyValue } from "../../../utils/dm-utils";
+import { SearchType } from '../../Search';
+import { SearchNodeWidget } from '../../Search/SearchNodeWidget';
 import { AddRecordFieldButton } from '../AddRecordFieldButton';
 import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainer, TreeContainerWithTopMargin, TreeHeader } from '../Tree/Tree';
@@ -200,18 +202,16 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 
 	return (
 		<>
-			{/* TODO: Add search functionality by fixing the node positioning issues */}
-			{/*<SearchNodeWidget*/}
-			{/*	searchText={dmStore.outputSearch}*/}
-			{/*	onSearchTextChange={dmStore.setOutputSearch}*/}
-			{/*	engine={engine}*/}
-			{/*	focused={dmStore.outputSearchFocused}*/}
-			{/*	setFocused={dmStore.setOutputSearchFocused}*/}
-			{/*	searchType={SearchType.Output}*/}
-			{/*	width='100%'*/}
-			{/*/>*/}
-			{/*<TreeContainerWithTopMargin data-testid={`${id}-node`}>*/}
-			<TreeContainer data-testid={`${id}-node`}>
+			<SearchNodeWidget
+				searchText={dmStore.outputSearch}
+				onSearchTextChange={dmStore.setOutputSearch}
+				engine={engine}
+				focused={dmStore.outputSearchFocused}
+				setFocused={dmStore.setOutputSearchFocused}
+				searchType={SearchType.Output}
+				width='100%'
+			/>
+			<TreeContainerWithTopMargin data-testid={`${id}-node`}>
 				<TreeHeader
 					isSelected={portState !== PortState.Unselected}
 					id={"recordfield-" + id}
@@ -268,8 +268,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						/>
 					)}
 				</TreeBody>
-			</TreeContainer>
-			{/*</TreeContainerWithTopMargin>*/}
+			</TreeContainerWithTopMargin>
 		</>
 	);
 }
