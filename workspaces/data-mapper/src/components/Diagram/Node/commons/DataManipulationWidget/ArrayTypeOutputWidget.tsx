@@ -200,7 +200,6 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 			<SearchNodeWidget
 				searchText={dmStore.outputSearch}
 				onSearchTextChange={dmStore.setOutputSearch}
-				engine={engine}
 				focused={dmStore.outputSearchFocused}
 				setFocused={dmStore.setOutputSearchFocused}
 				searchType={SearchType.Output}
