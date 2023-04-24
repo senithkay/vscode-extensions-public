@@ -241,6 +241,7 @@
     "byline": "^5.0.0",
     "file-type": "^18.2.1",
     "jschardet": "^3.0.0",
-    "which": "^3.0.0"
+    "which": "^3.0.0",
+    "@vscode/extension-telemetry": "~0.7.7"
   }
 }
