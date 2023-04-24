@@ -15,7 +15,7 @@ import * as vscode from 'vscode';
 import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
 
 import { activateAuth } from './auth';
-import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens } from './auth/auth';
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, githubAppClient } from './auth/auth';
 import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
 import {
@@ -66,8 +66,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	activateRegistry();
 	ext.projectsTreeView = createProjectTreeView();
 	ext.accountTreeView = createAccountTreeView();
+	setupGithubAuthStatusCheck();
 	getLogger().debug("Choreo Extension activated");
 	return ext.api;
+}
+
+function setupGithubAuthStatusCheck() {
+	ext.api.onStatusChanged(() => {
+		githubAppClient.checkAuthStatus();
+	});
 }
 
 let isChoreoProjectBeingOpened: boolean = false;

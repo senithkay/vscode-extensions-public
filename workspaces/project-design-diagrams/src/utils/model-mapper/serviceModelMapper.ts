@@ -295,8 +295,7 @@ function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels
     interaction: Interaction | Dependency, callingFunction?: ResourceFunction | RemoteFunction) {
     const identifier: string = ('resourceId' in interaction ? interaction.resourceId.serviceId : interaction.serviceId)
         || interaction.connectorType;
-    const label: string = 'resourceId' in interaction && !validateUUID(interaction.resourceId.serviceId) ? undefined :
-        'serviceId' in interaction && !validateUUID(interaction.serviceId) ? undefined : interaction.connectorType;
+    const label: string = validateUUID(identifier) || identifier === interaction.connectorType ? interaction.connectorType : undefined;
 
     // create L1 external service node if not available
     let l1ExtService: ExtServiceNodeModel;

@@ -57,13 +57,13 @@ export class RecordTypeDescriptorStore {
         const visitor = new RecordTypeFindingVisitor(isArraysSupported);
         traversNode(stNode, visitor);
 
+        const fnDefPositions = visitor.getFnDefPositions();
         const expressionNodesRanges = visitor.getExpressionNodesRanges();
         const symbolNodesPositions = visitor.getSymbolNodesPositions();
-        const fnDefPositions = visitor.getFnDefPositions();
 
+        await this.setTypesForFnParamsAndReturnType(langClient, fileUri, fnDefPositions);
         await this.setTypesForSymbol(langClient, fileUri, symbolNodesPositions);
         await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges);
-        await this.setTypesForFnParamsAndReturnType(langClient, fileUri, fnDefPositions);
     }
 
     async setTypesForExpressions(langClient: IBallerinaLangClient,

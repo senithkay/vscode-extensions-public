@@ -152,7 +152,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         recordName: any,
         langClient: DiagramEditorLangClientInterface,
     ): Promise<BallerinaSTModifyResponse> => {
-        const record: STNode = records.get(recordName.replace(/\[\]/g, "").trim());
+        const record: STNode = records.get(recordName.replace(/[\[\]\?]/g, "").trim());
         if (record) {
             const request: TextDocumentPositionParams = {
                 textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
@@ -200,10 +200,6 @@ export function ResourceBody(props: ResourceBodyProps) {
             let recordName = value.trim();
             let des = "";
 
-            if (value.includes("error?")) {
-                code = "500";
-            }
-
             responseCodes.forEach(item => {
                 if (recordName.includes(item.source)) {
                     code = item.code.toString();
@@ -215,6 +211,10 @@ export function ResourceBody(props: ResourceBodyProps) {
                     code = defaultResponseCode();
                 }
             })
+
+            if (value.includes("error")) {
+                code = "500";
+            }
 
             if (value.includes("body")) {
                 recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();

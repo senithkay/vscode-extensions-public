@@ -50,6 +50,7 @@ import { isArraysSupported } from "../../DataMapper/utils";
 import { ExpressionLabelModel } from "../Label";
 import { DataMapperLinkModel } from "../Link";
 import { ArrayElement, EditableRecordField } from "../Mappings/EditableRecordField";
+import { FieldAccessToSpecificFied } from "../Mappings/FieldAccessToSpecificFied";
 import { MappingConstructorNode, QueryExpressionNode, RequiredParamNode } from "../Node";
 import { DataMapperNodeModel, TypeDescriptor } from "../Node/commons/DataMapperNode";
 import { ExpandedMappingHeaderNode } from "../Node/ExpandedMappingHeader";
@@ -1200,7 +1201,8 @@ export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: strin
 }
 
 export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
-	return nodes.filter(node => !(
+	const inputSearchVal = useDMSearchStore.getState().inputSearch;
+	const ioNodes = nodes.filter(node => !(
 		node instanceof SearchNode
 		|| node instanceof LetExpressionNode
 		|| node instanceof QueryExpressionNode
@@ -1209,7 +1211,12 @@ export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
 		|| node instanceof ExpandedMappingHeaderNode
 		|| node instanceof LetClauseNode
 		|| node instanceof ModuleVariableNode)
-	).length >= 2;
+	);
+
+	const hasInputNodes = ioNodes.some(node => node instanceof RequiredParamNode || node instanceof FromClauseNode);
+
+	// returns true if there is an input search value and the input node is missing or if it has at least input and output nodes
+	return inputSearchVal?.length > 0 && !hasInputNodes && ioNodes.length >= 1  || ioNodes.length >= 2;
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
@@ -1270,6 +1277,16 @@ export function getFnDefForFnCall(node: FunctionCall): FnDefInfo {
 		offset: node.position.startColumn
 	};
 	return getFnDefFromStore(fnCallPosition);
+}
+
+export function getFilteredMappings(mappings: FieldAccessToSpecificFied[], searchValue: string) {
+	return mappings.filter(mapping => {
+		const lastField = mapping.fields[mapping.fields.length - 1];
+		const fieldName = STKindChecker.isSpecificField(lastField)
+			? lastField.fieldName?.value || lastField.fieldName.source
+			: lastField.source;
+		return searchValue === "" || fieldName.toLowerCase().includes(searchValue.toLowerCase());
+	});
 }
 
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
@@ -1452,31 +1469,30 @@ export const getSearchFilteredOutput = (type: Type) => {
 		return type;
 	}
 
-	const optionalRecordField = getOptionalRecordField(type);
-	if (optionalRecordField && type?.typeName === PrimitiveBalType.Union) {
-		const matchedSubFields: Type[] = optionalRecordField?.fields?.map(fieldItem => getFilteredSubFields(fieldItem, searchValue)).filter(fieldItem => fieldItem);
-		return {
-			...type,
-			members: [
-				{ ...optionalRecordField, fields: matchedSubFields },
-				...type?.members?.filter(member => member.typeName !== PrimitiveBalType.Record)
-			]
-		};
-	} else if (type.typeName === PrimitiveBalType.Array) {
-		const subFields = type.memberType?.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+	let searchType: Type = type;
+
+	if (type?.typeName === PrimitiveBalType.Union) {
+		const filteredTypes = getFilteredUnionOutputTypes(type);
+		if (filteredTypes?.length === 1) {
+			searchType = filteredTypes[0];
+		}
+	}
+
+	if (searchType.typeName === PrimitiveBalType.Array) {
+		const subFields = searchType.memberType?.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
 
 		return {
-			...type,
+			...searchType,
 			memberType: {
-				...type.memberType,
+				...searchType.memberType,
 				fields: subFields || []
 			}
 		}
-	} else if (type.typeName === PrimitiveBalType.Record) {
-		const subFields = type.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
+	} else if (searchType.typeName === PrimitiveBalType.Record) {
+		const subFields = searchType.fields?.map(item => getFilteredSubFields(item, searchValue)).filter(item => item);
 
 		return {
-			...type,
+			...searchType,
 			fields: subFields || []
 		}
 	}
