@@ -26,28 +26,31 @@ export interface CMLocation {
     endPosition: LinePosition;
 }
 
-export interface CMNodeAttributes {
+interface CMNodeAttributes {
     elementLocation: CMLocation;
     diagnostics?: CMDiagnostics[];
 }
 
-export interface CMEntryPoint extends CMNodeAttributes {
-    annotation: CMAnnotation;
+interface CMFunctionAttributes extends CMNodeAttributes {
+    interactions: CMInteraction[];
     parameters: CMParameter[];
     returns: string[];
-    type: 'scheduledTask' | 'manualTrigger';
-    interactions: CMInteraction[];
+}
+
+export interface CMEntryPoint extends CMFunctionAttributes {
+    annotation: CMAnnotation;
+    type?: 'scheduledTask' | 'manualTrigger';
 }
 
 export interface CMService extends CMNodeAttributes {
     annotation: CMAnnotation;
     path: string;
     serviceId: string;
-    resources: CMResourceFunction[];
-    remoteFunctions: CMRemoteFunction[];
-    serviceType: string;
     dependencies: CMDependency[];
     deploymentMetadata: CMDeploymentMetadata;
+    remoteFunctions: CMRemoteFunction[];
+    resources: CMResourceFunction[];
+    serviceType: string;
 }
 
 export interface CMAnnotation extends CMNodeAttributes {
@@ -56,23 +59,17 @@ export interface CMAnnotation extends CMNodeAttributes {
 }
 
 export interface CMDependency extends CMNodeAttributes {
-    serviceId: string;
     connectorType: string;
+    serviceId: string;
 }
 
-export interface CMResourceFunction extends CMNodeAttributes {
+export interface CMResourceFunction extends CMFunctionAttributes {
     identifier: string;
     resourceId: CMResourceId;
-    parameters: CMParameter[];
-    returns: string[];
-    interactions: CMInteraction[];
 }
 
-export interface CMRemoteFunction extends CMNodeAttributes {
+export interface CMRemoteFunction extends CMFunctionAttributes {
     name: string;
-    parameters: CMParameter[];
-    returns: string[];
-    interactions: CMInteraction[];
 }
 
 export interface CMInteraction extends CMNodeAttributes {
@@ -81,16 +78,16 @@ export interface CMInteraction extends CMNodeAttributes {
 }
 
 export interface CMParameter extends CMNodeAttributes {
-    name: string;
-    type: string[];
     in?: string;
     isRequired: boolean;
+    name: string;
+    type: string[];
 }
 
 export interface CMResourceId {
-    serviceId: string;
-    path: string;
     action: string;
+    path: string;
+    serviceId: string;
 }
 
 export interface CMEntity extends CMNodeAttributes {
@@ -114,8 +111,8 @@ export interface CMAssociation {
 }
 
 export interface CMCardinality {
-    self: string;
     associate: string;
+    self: string;
 }
 
 export interface CMDeploymentMetadata {
