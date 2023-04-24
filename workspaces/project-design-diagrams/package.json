@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/project-design-diagrams",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Generates the design diagrams for Ballerina projects.",
   "files": [
     "lib"
