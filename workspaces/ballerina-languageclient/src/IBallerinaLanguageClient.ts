@@ -3,13 +3,12 @@ import {
     CodeAction,
     CodeActionParams,
     DefinitionParams,
-    Diagnostic,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     DocumentSymbol,
     DocumentSymbolParams,
-    InitializeParams, InitializeResult, Location, LocationLink, Position,
+    Location, LocationLink, Position,
     PublishDiagnosticsParams,
     Range, SymbolInformation, TextDocumentPositionParams, WorkspaceEdit, RenameParams
 } from "vscode-languageserver-protocol";
@@ -18,6 +17,7 @@ import {
     BallerinaAST, BallerinaASTNode, BallerinaEndpoint,
     BallerinaSourceFragment
 } from "./ast-models";
+import { ComponentModel, CMDiagnostics } from "./IComponentModel";
 
 export enum EXTENDED_APIS {
     DOCUMENT_ST_NODE = 'ballerinaDocument/syntaxTreeNode',
@@ -52,6 +52,7 @@ export enum EXTENDED_APIS {
     SYMBOL_GET_TYPE_FROM_SYMBOL = 'ballerinaSymbol/getTypeFromSymbol',
     SYMBOL_GET_TYPES_FROM_FN_DEFINITION = 'ballerinaSymbol/getTypesFromFnDefinition',
     GRAPHQL_DESIGN_MODEL = 'graphqlDesignService/getGraphqlModel',
+    COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
 }
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -836,6 +837,17 @@ export interface TypesFromSymbolResponse {
     types: ResolvedTypeForSymbol[];
 }
 
+export interface GetComponentModelRequest {
+    documentUris: string[];
+}
+
+export interface GetComponentModelResponse {
+    componentModels: {
+        [key: string]: ComponentModel;
+    };
+    diagnostics: CMDiagnostics[];
+}
+
 export interface IBallerinaLangClient {
 
     didOpen: (Params: DidOpenTextDocumentParams) => void;
@@ -921,6 +933,8 @@ export interface IBallerinaLangClient {
     convert: (params: JsonToRecordRequest) => Thenable<JsonToRecordResponse>;
 
     rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
+
+    getPackageComponentModels: (params: GetComponentModelRequest) => Promise<GetComponentModelResponse>;
 
     getGraphqlModel: (params: GraphqlDesignServiceRequest) => Thenable<GraphqlDesignServiceResponse>;
     // close: () => void;

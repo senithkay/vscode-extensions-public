@@ -17,28 +17,7 @@
  *
  */
 
-export { Colors, ConsoleView, DagreLayout, GRAPHQL_SUBSCRIBE_ACTION, Level, ServiceTypes, Views } from './model';
-
-export type {
-    Attribute,
-    Cardinality,
-    ComponentModel,
-    ComponentModelDiagnostics,
-    ElementDiagnostics,
-    Dependency,
-    EditLayerAPI,
-    Entity,
-    GetComponentModelResponse,
-    EntryPoint,
-    Interaction,
-    Location,
-    RemoteFunction,
-    ResourceFunction,
-    ResourceId,
-    Parameter,
-    Service,
-    ServiceAnnotation,
-    ServiceModels
-} from './model';
+export { Colors, ConsoleView, DagreLayout, GRAPHQL_SUBSCRIBE_ACTION, Level, ServiceTypes, Views } from './types';
+export type { EditLayerAPI, ServiceModels } from './types';
 
 export * from './assets/icons';

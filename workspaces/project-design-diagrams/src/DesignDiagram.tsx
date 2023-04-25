@@ -18,17 +18,17 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { DesignDiagramContext, DiagramContainer, DiagramHeader, PromptScreen } from './components/common';
 import { ConnectorWizard } from './components/connector/ConnectorWizard';
-import { Colors, ComponentModel, DagreLayout, EditLayerAPI, Location, GetComponentModelResponse, Service, Views } from './resources';
+import { Colors, ConsoleView, DagreLayout, EditLayerAPI, Views } from './resources';
 import { createRenderPackageObject, generateCompositionModel } from './utils';
 import { EditForm } from './editing';
 
 import './resources/assets/font/fonts.css';
-import { ConsoleView } from "./resources/model";
 
 interface ContainerStyleProps {
     backgroundColor?: string;
@@ -70,7 +70,7 @@ export function DesignDiagram(props: DiagramProps) {
         addComponent = undefined
     } = props;
 
-    const currentViewDefaultValue = (consoleView ===  ConsoleView.COMPONENTS ||
+    const currentViewDefaultValue = (consoleView === ConsoleView.COMPONENTS ||
         consoleView === ConsoleView.PROJECT_HOME) ? Views.CELL_VIEW : Views.L1_SERVICES;
     const [currentView, setCurrentView] = useState<Views>(currentViewDefaultValue);
     const [layout, switchLayout] = useState<DagreLayout>(DagreLayout.TREE);

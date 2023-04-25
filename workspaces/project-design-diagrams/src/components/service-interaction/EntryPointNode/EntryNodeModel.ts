@@ -18,9 +18,10 @@
  */
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
+import { CMEntryPoint as EntryPoint } from '@wso2-enterprise/ballerina-languageclient';
 import { ServicePortModel } from '../ServicePort/ServicePortModel';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
-import { Level, EntryPoint } from '../../../resources';
+import { Level } from '../../../resources';
 
 export class EntryNodeModel extends SharedNodeModel {
     level: Level;

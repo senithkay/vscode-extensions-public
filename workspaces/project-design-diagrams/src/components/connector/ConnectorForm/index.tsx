@@ -12,9 +12,10 @@
  */
 
 import React, { useContext, useEffect, useState } from "react";
-import { Colors, Service } from "../../../resources";
+import { CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import PullingModuleLoader from "./PullingModuleLoader";
+import { Colors } from "../../../resources";
 import ModuleIcon from "../Marketplace/ModuleIcon";
 import { CreateButton } from "../../../editing/EditForm/components";
 import {

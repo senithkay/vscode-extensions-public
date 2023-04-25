@@ -18,9 +18,9 @@
  */
 
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
+import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
 import { EntityPortModel } from '../EntityPort/EntityPortModel';
-import { Entity } from '../../../resources';
 
 export class EntityModel extends SharedNodeModel {
     readonly entityObject: Entity;

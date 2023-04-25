@@ -28,6 +28,8 @@ import {
     CompletionResponse,
     ExpressionTypeRequest,
     ExpressionTypeResponse,
+    GetComponentModelRequest,
+    GetComponentModelResponse
 } from "@wso2-enterprise/ballerina-languageclient";
 import {
     BallerinaConnectorsRequest,
@@ -43,7 +45,6 @@ import { BallerinaExtension } from "./index";
 import { debug } from "../utils";
 import { CMP_LS_CLIENT_COMPLETIONS, CMP_LS_CLIENT_DIAGNOSTICS, getMessageObject, sendTelemetryEvent, TM_EVENT_LANG_CLIENT } from "../telemetry";
 import { DefinitionParams, Location, LocationLink, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
-import { ComponentModel } from "../project-design-diagrams/resources";
 import { getChoreoExtAPI } from "../choreo-features/activate";
 
 export const CONNECTOR_LIST_CACHE = "CONNECTOR_LIST_CACHE";
@@ -269,21 +270,6 @@ export interface Range {
 export interface Position {
     line: number;
     character: number;
-}
-
-export interface GetPackageComponentModelsRequest {
-    documentUris: string[];
-}
-
-export interface GetPackageComponentModelsResponse {
-    componentModels: Map<string, ComponentModel>;
-    diagnostics: ComponentModelDiagnostics[];
-}
-
-export interface ComponentModelDiagnostics {
-    name?: string;
-    message: string;
-    severity?: DIAGNOSTIC_SEVERITY;
 }
 
 export interface GraphqlDesignServiceRequest {
@@ -525,7 +511,7 @@ export class ExtendedLangClient extends LanguageClient {
                 Promise.resolve(NOT_SUPPORTED);
         });
     }
-    async getPackageComponentModels(params: GetPackageComponentModelsRequest): Promise<GetPackageComponentModelsResponse> {
+    async getPackageComponentModels(params: GetComponentModelRequest): Promise<GetComponentModelResponse> {
         return this.sendRequest(EXTENDED_APIS.COMPONENT_MODEL_ENDPOINT, params);
     }
     async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE> {

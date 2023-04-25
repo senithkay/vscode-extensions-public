@@ -13,7 +13,7 @@
 
 import React from "react";
 import styled from "@emotion/styled";
-import { GetComponentModelResponse } from "@wso2-enterprise/choreo-core";
+import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { DesignDiagram } from "@wso2-enterprise/project-design-diagrams";
 

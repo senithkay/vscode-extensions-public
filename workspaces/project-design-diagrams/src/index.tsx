@@ -19,10 +19,9 @@
 
 import React from "react";
 import { render } from "react-dom";
+import { CMLocation as Location, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { DesignDiagram } from "./DesignDiagram";
-import { Location } from "./resources";
 import { WebviewEditLayerAPI } from "./editing";
-import { GetComponentModelResponse } from "./resources";
 
 export function renderDesignDiagrams(
     isEditable: boolean,
