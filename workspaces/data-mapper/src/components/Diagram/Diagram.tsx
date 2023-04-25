@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/await-thenable */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -47,6 +46,7 @@ import { ModuleVariableNode } from "./Node/ModuleVariable";
 import { PrimitiveTypeNode } from './Node/PrimitiveType';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import { RequiredParamNode } from './Node/RequiredParam';
+import { SearchNode, SearchType } from "./Node/Search";
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
@@ -190,11 +190,14 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				if (node instanceof MappingConstructorNode
 					|| node instanceof ListConstructorNode
 					|| node instanceof PrimitiveTypeNode) {
+						const outputSearchNode = nodes.find(n => n instanceof SearchNode && n.type === SearchType.Output);
 						if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
-							node.setPosition(OFFSETS.TARGET_NODE.X, 0);
+							node.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
+							outputSearchNode.setPosition(OFFSETS.TARGET_NODE.X, 10);
 						} else {
 							// Bring mapping constructor node close to input node, if it doesn't have any links
-							node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 0);
+							node.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, OFFSETS.TARGET_NODE.Y);
+							outputSearchNode.setPosition(OFFSETS.TARGET_NODE_WITHOUT_MAPPING.X, 10);
 						}
 				}
 				if (node instanceof LinkConnectorNode || node instanceof QueryExpressionNode) {
