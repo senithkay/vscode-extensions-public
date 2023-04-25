@@ -45,10 +45,11 @@ export class SearchNode extends DataMapperNodeModel {
         // This node does not have any links
     }
 
-    getID(): string {
-        return `${SEARCH_NODE_TYPE}-${this.type}`
+    public updatePosition() {
+        if (this.type === SearchType.Output) {
+            this.setPosition(this.position.x, this.position.y);
+        }
     }
-
 
     setPosition(point: Point): void;
     setPosition(x: number, y: number): void;
