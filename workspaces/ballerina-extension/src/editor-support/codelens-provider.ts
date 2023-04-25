@@ -105,7 +105,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
     }
 
     provideCodeLenses(_document: TextDocument, _token: CancellationToken): ProviderResult<any[]> {
-        if (this.ballerinaExtension.langClient && (window.activeTextEditor || this.activeTextEditorUri)) {
+        if (this.ballerinaExtension.langClient && window.activeTextEditor) {
             return this.getCodeLensList();
         }
         return [];
@@ -119,8 +119,7 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
             return codeLenses;
         }
 
-        const activeEditorUri = this.activeTextEditorUri ? this.activeTextEditorUri
-            : window.activeTextEditor!.document.uri;
+        const activeEditorUri = window.activeTextEditor!.document.uri;
         const fileUri = activeEditorUri.toString();
         await langClient!.getExecutorPositions({
             documentIdentifier: {

@@ -30,21 +30,35 @@ export interface TextFieldInputProps {
     name?: string;
     value: any;
     valueRef?: string;
+    isSensitiveField?: boolean;
     disabled?: boolean;
     type: string;
     inputProps?: object;
     placeholder?: string;
-    setTextFieldValue?: (id: string, value: any, valuRef: any) => void;
+    setTextFieldValue?: (id: string, value: any, valuRef: any, isSensitiveField: boolean) => void;
 }
 
 export function TextFieldInput(props: TextFieldInputProps) {
     const classes = useStyles();
-    const { id, isRequired, value, valueRef, type, inputProps, placeholder, setTextFieldValue, name, disabled } = props;
+    const {
+        id,
+        isRequired,
+        value,
+        valueRef,
+        type,
+        inputProps,
+        placeholder,
+        setTextFieldValue,
+        name,
+        disabled,
+        isSensitiveField,
+    } = props;
     const [inputValue, setInputValue] = useState(value ? String(value) : undefined);
     const [inputValueRef, setInputValueRef] = useState(valueRef ? String(valueRef) : undefined);
+    const [inputSensitiveField, setInputSensitiveField] = useState(isSensitiveField ? isSensitiveField : false);
 
     useEffect(() => {
-        setTextFieldValue(id, inputValue, inputValueRef);
+        setTextFieldValue(id, inputValue, inputValueRef, inputSensitiveField);
     }, [inputValue]);
 
     useEffect(() => {
@@ -55,9 +69,9 @@ export function TextFieldInput(props: TextFieldInputProps) {
         setInputValue(value);
     }, [value]);
 
-    // useEffect(() => {
-    //     setInputValueRef(valueRef);
-    // }, [valueRef]);
+    useEffect(() => {
+        setInputSensitiveField(isSensitiveField);
+    }, [isSensitiveField]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let newValue = e.target.value;

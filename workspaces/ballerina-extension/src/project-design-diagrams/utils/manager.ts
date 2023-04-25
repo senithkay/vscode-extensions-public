@@ -17,7 +17,10 @@
  *
  */
 
-import { IProjectManager, Project, Component, BallerinaComponentCreationParams, BallerinaComponentTypes, IsRepoClonedRequestParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
+import {
+    IProjectManager, Project, Component, BallerinaComponentCreationParams, BallerinaComponentTypes,
+    IsRepoClonedRequestParams, ChoreoComponentCreationParams
+} from "@wso2-enterprise/choreo-core";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import path, { join } from "path";

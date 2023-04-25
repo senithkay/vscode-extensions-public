@@ -19,12 +19,14 @@
 
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { BallerinaComponentCreationParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
-import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
+import {
+    BallerinaTriggerResponse, BallerinaTriggersResponse, CMLocation as Location, CMService as Service, CMAnnotation as Annotation
+} from "@wso2-enterprise/ballerina-languageclient";
 import { Messenger } from "vscode-messenger";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { BallerinaProjectManager } from "./manager";
-import { DIAGNOSTICS_WARNING, DeleteLinkArgs, Location, Service, ServiceAnnotation } from "../resources";
+import { DIAGNOSTICS_WARNING, DeleteLinkArgs } from "../resources";
 import { ExtendedLangClient } from "../../core";
 import { addConnector, editDisplayLabel, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -112,7 +114,7 @@ export class EditLayerRPC {
             return langClient.getTrigger({ id: triggerId });
         });
 
-        this._messenger.onRequest({ method: 'editDisplayLabel' }, async (annotation: ServiceAnnotation): Promise<boolean> => {
+        this._messenger.onRequest({ method: 'editDisplayLabel' }, async (annotation: Annotation): Promise<boolean> => {
             return editDisplayLabel(langClient, annotation);
         });
 

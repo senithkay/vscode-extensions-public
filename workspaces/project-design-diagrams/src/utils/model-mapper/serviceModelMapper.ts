@@ -20,11 +20,11 @@
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { v4 as uuid, validate as validateUUID } from 'uuid';
 import {
-    ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes
-} from '../../resources';
-import {
-    EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel
-} from '../../components/service-interaction';
+    ComponentModel, CMDependency as Dependency, CMLocation as Location, CMInteraction as Interaction,
+    CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service
+} from '@wso2-enterprise/ballerina-languageclient';
+import { Level, ServiceModels, ServiceTypes } from '../../resources';
+import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
 import { extractGateways } from "../utils";
 
 type ServiceNodeModels = ServiceNodeModel | EntryNodeModel;

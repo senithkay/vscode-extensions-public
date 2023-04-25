@@ -22,14 +22,14 @@ import { existsSync, readFile, rmSync, unlinkSync, writeFile, writeFileSync } fr
 import * as path from "path";
 import child_process from "child_process";
 import { compile } from "handlebars";
-import { BallerinaTriggerResponse, STModification, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
-import { BallerinaComponentTypes, TriggerDetails } from "@wso2-enterprise/choreo-core";
+import { BallerinaTriggerResponse, CMLocation as Location, STModification, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaComponentTypes, TriggerDetails, WorkspaceConfig, WorkspaceItem } from "@wso2-enterprise/choreo-core";
 import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { ExtendedLangClient } from "../../core";
 import { getLangClient, STResponse } from "../activator";
 import {
-    CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, DeleteLinkArgs, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, Location,
-    SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION, WorkspaceConfig, WorkspaceItem
+    CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, DeleteLinkArgs, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, 
+    SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION
 } from "../resources";
 import { getInitFunction, updateSourceFile } from "./code-generator";
 import { go2source } from "./common-utils";
