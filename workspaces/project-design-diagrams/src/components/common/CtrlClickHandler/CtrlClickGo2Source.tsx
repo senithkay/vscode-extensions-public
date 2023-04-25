@@ -18,9 +18,9 @@
  */
 
 import React, { PropsWithChildren, useContext } from 'react';
+import { CMLocation as Location } from '@wso2-enterprise/ballerina-languageclient';
 import { CtrlClickWrapper } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
-import { Location } from '../../../resources';
 
 interface CtrlClickProps {
     location: Location;

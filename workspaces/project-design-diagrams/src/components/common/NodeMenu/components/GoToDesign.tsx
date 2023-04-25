@@ -18,14 +18,14 @@
  */
 
 import React from 'react';
-import EditIcon from '@mui/icons-material/Edit';
-import { RemoteFunction, ResourceFunction, Service } from '../../../../resources';
+import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
+import EditIcon from '@mui/icons-material/Edit';
 import { ListItemIcon, ListItemText, MenuItem } from '@mui/material';
 import { useStyles } from "./styles/styles";
 import { useDiagramContext } from '../../DiagramContext/DiagramContext';
 
-export function GoToDesign(props: { element: Service | ResourceFunction | RemoteFunction }) {
+export function GoToDesign(props: { element: Service | RemoteFunction | ResourceFunction }) {
     const classes = useStyles();
     const { element } = props;
     const { editLayerAPI } = useDiagramContext();

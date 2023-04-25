@@ -20,7 +20,7 @@ import { BallerinaExtension } from "src/core";
 import { URLSearchParams } from "url";
 import { window, Uri, ProviderResult, extensions } from "vscode";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ComponentModel } from "../project-design-diagrams/resources";
+import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { AxiosResponse } from "axios";
 
 export interface IChoreoExtensionAPI {

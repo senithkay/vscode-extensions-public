@@ -39,6 +39,8 @@ import {
     GetASTParams,
     GetASTResponse,
     GetBallerinaProjectParams,
+    GetComponentModelRequest,
+    GetComponentModelResponse,
     GetProjectASTParams,
     GetProjectASTResponse,
     GetSyntaxTreeParams,
@@ -310,7 +312,12 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
     public getBallerinaProjectComponents(params: GetBallerinaPackagesParams): Promise<BallerinaProjectComponents> {
         return this._clientConnection.sendRequest("ballerinaPackage/components", params);
     }
+
     public getGraphqlModel(params: GraphqlDesignServiceRequest): Thenable<GraphqlDesignServiceResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.GRAPHQL_DESIGN_MODEL, params);
+    }
+
+    public getPackageComponentModels(params: GetComponentModelRequest): Promise<GetComponentModelResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.COMPONENT_MODEL_ENDPOINT, params);
     }
 }
