@@ -26,7 +26,7 @@ import { Messenger } from "vscode-messenger";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { AddLinkArgs, DIAGNOSTICS_WARNING, DeleteLinkArgs } from "../resources";
+import { AddConnectorArgs, AddLinkArgs, DIAGNOSTICS_WARNING, DeleteLinkArgs } from "../resources";
 import { ExtendedLangClient } from "../../core";
 import { PALETTE_COMMANDS } from "../../project/cmds/cmd-runner";
 import { deleteLink, editDisplayLabel } from "./component-utils";
@@ -79,12 +79,12 @@ export class EditLayerRPC {
             });
         });
 
-        this._messenger.onRequest({ method: 'addConnector' }, (args: any[]): Promise<boolean> => {
-            return addConnector(langClient, args[0], args[1]);
+        this._messenger.onRequest({ method: 'addConnector' }, (args: AddConnectorArgs): Promise<boolean> => {
+            return addConnector(langClient, args);
         });
 
-        this._messenger.onRequest({ method: 'pullConnector' }, (args: any[]): Promise<boolean> => {
-            return pullConnector(langClient, args[0], args[1]);
+        this._messenger.onRequest({ method: 'pullConnector' }, (args: AddConnectorArgs): Promise<boolean> => {
+            return pullConnector(langClient, args);
         });
 
         this._messenger.onRequest({ method: 'addLink' }, (args: AddLinkArgs): Promise<boolean> => {

@@ -20,25 +20,25 @@
 import { ExtendedLangClient } from "src/core";
 import { Uri } from "vscode";
 import { camelCase } from "lodash";
-import { CMEntryPoint as EntryPoint, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { STResponse } from "../../activator";
 import { AddLinkArgs, ServiceTypes } from "../../resources";
 import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-utils";
 import { genClientName, getMissingImports, getServiceDeclaration } from "./shared-utils";
 
 let clientName: string;
-let filePath: string;
-let langClient: ExtendedLangClient;
+let sourceFilePath: string;
+let extLangClient: ExtendedLangClient;
 
 // TODO: Handle errors from the FE
 export async function linkServices(langClient: ExtendedLangClient, args: AddLinkArgs): Promise<boolean> {
     const { source, target } = args;
-    filePath = source.elementLocation.filePath;
-    langClient = langClient;
+    sourceFilePath = source.elementLocation.filePath;
+    extLangClient = langClient;
 
     const stResponse: STResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
-            uri: Uri.file(filePath).toString()
+            uri: Uri.file(sourceFilePath).toString()
         }
     }) as STResponse;
 
@@ -50,30 +50,30 @@ export async function linkServices(langClient: ExtendedLangClient, args: AddLink
         const clientDecl: string = generateClientDecl(target, targetType, 'serviceId' in source);
 
         if ('serviceId' in source) {
-            linkFromService(stResponse, source, clientDecl, missingImports);
+            return linkFromService(stResponse, source, clientDecl, missingImports);
         } else {
-            linkFromMain(stResponse, clientDecl, missingImports);
+            return linkFromMain(stResponse, clientDecl, missingImports);
         }
     }
     return false;
 }
 
-async function linkFromService(stResponse: STResponse, source: Service, clientDecl: string, missingImports: Set<string>) {
+async function linkFromService(stResponse: STResponse, source: Service, clientDecl: string, imports: Set<string>) {
     const serviceDecl = getServiceDeclaration(stResponse.syntaxTree.members, source, true);
     const initMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
 
     let modifiedST: STResponse;
     if (initMember) {
-        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, clientDecl) as STResponse;
+        modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken, clientDecl) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
             const members: any[] = modifiedST.syntaxTree.members;
             const serviceDecl = getServiceDeclaration(members, source, false);
             const updatedInitMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
             if (updatedInitMember) {
-                modifiedST = await updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken,
-                    generateClientInit(), missingImports) as STResponse;
+                modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, updatedInitMember.functionBody.openBraceToken,
+                    generateClientInit(), imports) as STResponse;
                 if (modifiedST && modifiedST.parseSuccess) {
-                    return updateSourceFile(langClient, filePath, modifiedST.source);
+                    return updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
                 }
             }
         }
@@ -82,9 +82,9 @@ async function linkFromService(stResponse: STResponse, source: Service, clientDe
                     ${clientDecl}
                     ${generateServiceInit()}
                 `;
-        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode, missingImports) as STResponse;
+        modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken, genCode, imports) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
-            return updateSourceFile(langClient, filePath, modifiedST.source);
+            return updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
         }
     }
 }
@@ -93,9 +93,9 @@ async function linkFromMain(stResponse: STResponse, clientDecl: string, missingI
     const mainFunc = stResponse.syntaxTree.members.find((member: any) => member.kind === 'FunctionDefinition'
         && member.functionName.value === 'main');
     if (mainFunc) {
-        const modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.openBraceToken, clientDecl, missingImports) as STResponse;
+        const modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionBody.openBraceToken, clientDecl, missingImports) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
-            return updateSourceFile(langClient, filePath, modifiedST.source);
+            return updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
         }
     }
 }
@@ -120,7 +120,7 @@ function generateClientDecl(targetService: Service, targetType: ServiceTypes, is
             label: "${targetService.annotation.label}",
             id: "${targetService.annotation.id}"
         }
-        ${targetType}:Client ${clientName}${isServiceSource ? '' : ' = check new("")'}};
+        ${targetType}:Client ${clientName}${isServiceSource ? '' : ' = check new("")'};
     `;
 
     return clientDeclaration;

@@ -63,12 +63,12 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
         return this._messenger.sendRequest({ method: 'getConnectors' }, HOST_EXTENSION, [params]);
     }
 
-    public async pullConnector(connector: Connector, targetService: Service): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'pullConnector' }, HOST_EXTENSION, [connector, targetService]);
+    public async pullConnector(connector: Connector, source: Service | EntryPoint): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'pullConnector' }, HOST_EXTENSION, { connector, source });
     }
 
-    public async addConnector(connector: Connector, targetService: Service): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'addConnector' }, HOST_EXTENSION, [connector, targetService]);
+    public async addConnector(connector: Connector, source: EntryPoint | Service): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'addConnector' }, HOST_EXTENSION, { connector, source });
     }
 
     public async addLink(source: Service | EntryPoint, target: Service): Promise<boolean> {

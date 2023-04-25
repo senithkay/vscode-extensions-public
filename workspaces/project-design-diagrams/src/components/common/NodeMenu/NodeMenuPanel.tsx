@@ -67,7 +67,7 @@ export function NodeMenuPanel(props: MenuProps) {
                     <>
                         <Divider />
                         <LinkingButton node={node} />
-                        {node instanceof ServiceNodeModel && <AddConnectorButton service={node.nodeObject} />}
+                        <AddConnectorButton node={node.nodeObject} />
                     </>
                 )}
             </MenuList>

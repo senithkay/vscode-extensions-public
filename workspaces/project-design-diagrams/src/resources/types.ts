@@ -75,8 +75,8 @@ export interface EditLayerAPI {
     getProjectRoot: () => Promise<string | undefined>;
     createComponent: (args: BallerinaComponentCreationParams) => Promise<string>;
     getConnectors: (args: BallerinaConnectorsRequest) => Promise<BallerinaConnectorsResponse>;
-    pullConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
-    addConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
+    pullConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
+    addConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
     addLink: (source: Service | EntryPoint, target: Service) => Promise<boolean>;
     deleteLink: (linkLocation: Location, serviceLocation: Location) => Promise<boolean>;
     pickDirectory: () => Promise<string | undefined>;

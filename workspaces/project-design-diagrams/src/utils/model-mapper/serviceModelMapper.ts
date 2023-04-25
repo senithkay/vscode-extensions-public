@@ -48,6 +48,7 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l1Nodes = new Map<string, ServiceNodeModel>();
     l2Nodes = new Map<string, ServiceNodeModel>();
     cellNodes = new Map<string, ServiceNodeModel>();
+
     l1EntryNodes = new Map<string, EntryNodeModel>();
     l2EntryNodes = new Map<string, EntryNodeModel>();
     cellEntryNodes = new Map<string, EntryNodeModel>();
@@ -55,16 +56,17 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l1ExtNodes = new Map<string, ExtServiceNodeModel>();
     l2ExtNodes = new Map<string, ExtServiceNodeModel>();
     cellExtNodes = new Map<string, ExtServiceNodeModel>();
+
     l1Links = new Map<string, ServiceLinkModel>();
     cellLinks = new Map<string, ServiceLinkModel>();
     l2Links = []
 
-    // convert services to nodes
+    // convert service and main entrypoints to nodes
     generateNodes(projectComponents, projectPackages);
     // convert interactions to links and detect external services
     generateLinks(projectComponents, projectPackages);
 
-    // setup L1 model
+    // set L1 model
     let l1Model = new DiagramModel();
     l1Model.addAll(
         ...Array.from(l1Nodes.values()),
@@ -153,18 +155,20 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                     }
                 }
             });
+
             if (projectComponents.get(packageName).functionEntryPoint) {
                 const l1EntryNode: EntryNodeModel = l1EntryNodes.get(packageName);
                 const l2EntryNode: EntryNodeModel = l2EntryNodes.get(packageName);
                 const cellEntryNode: EntryNodeModel = cellEntryNodes.get(packageName);
-                const { interactions } = projectComponents.get(packageName).functionEntryPoint;
+                const { interactions, dependencies } = projectComponents.get(packageName).functionEntryPoint;
                 mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, interactions);
+                mapDependencies(l1EntryNode, l2EntryNode, cellEntryNode, dependencies);
             }
         }
     });
 }
 
-function mapDependencies(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, cellSourceNode: ServiceNodeModel, dependencies: Dependency[]) {
+function mapDependencies(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels, cellSourceNode: ServiceNodeModels, dependencies: Dependency[]) {
     dependencies.forEach((dependency) => {
         if (dependency.serviceId && l1Nodes.has(dependency.serviceId) && l2Nodes.has(dependency.serviceId) && cellNodes.has(dependency.serviceId)) {
             let linkID: string = `${l1Source.getID()}-${dependency.serviceId}`;
@@ -257,7 +261,7 @@ export function createLinks(sourcePort: ServicePortModel, targetPort: ServicePor
     return link;
 }
 
-function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel, location: Location, interaction?: Interaction,
+function setLinkPorts(sourceNode: ServiceNodeModels, targetNode: ServiceNodeModel, location: Location, interaction?: Interaction,
     sourceFunction?: RemoteFunction | ResourceFunction): ServiceLinkModel {
     let sourcePort: ServicePortModel = undefined;
     let targetPort: ServicePortModel = undefined;
@@ -279,10 +283,10 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
 
     // Also redirects L2 links to service heads, if the interacting resources cannot be detected
     if (!sourcePort) {
-        sourcePort = sourceNode.getPortFromID(`right-${sourceNode.nodeObject.serviceId}`);
+        sourcePort = sourceNode.getPortFromID(`right-${sourceNode.getID()}`);
     }
     if (!targetPort) {
-        targetPort = targetNode.getPortFromID(`left-${targetNode.nodeObject.serviceId}`);
+        targetPort = targetNode.getPortFromID(`left-${targetNode.getID()}`);
     }
 
     if (sourcePort && targetPort) {
@@ -399,7 +403,7 @@ function generateEntryPointLinks(source: EntryNodeModel, target: ServiceNodeMode
 
     const sourcePort: ServicePortModel = source.getPortFromID(`right-${source.getID()}`);
     if (!targetPort) {
-        targetPort = target.getPortFromID(`left-${target.nodeObject.serviceId}`);
+        targetPort = target.getPortFromID(`left-${target.getID()}`);
     }
 
     if (sourcePort && targetPort) {
