@@ -18,8 +18,8 @@
  */
 
 import React, { useContext } from "react";
+import { CMLocation as Location, CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMAnnotation as Annotation } from "@wso2-enterprise/ballerina-languageclient";
 import { Paper, MenuList, Divider } from "@mui/material";
-import { Location, RemoteFunction, ResourceFunction, ServiceAnnotation } from "../../../resources";
 import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton, EditLabelButton, DeleteComponentButton } from "./components";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { ServiceNodeModel } from "../../service-interaction";
@@ -44,7 +44,7 @@ export function NodeMenuPanel(props: MenuProps) {
     } = props;
     const { deleteComponent } = useContext(DiagramContext);
 
-    const serviceAnnotation: ServiceAnnotation = serviceNode?.serviceObject.annotation;
+    const serviceAnnotation: Annotation = serviceNode?.serviceObject.annotation;
 
     return (
         <Paper sx={{ maxWidth: "100%" }}>

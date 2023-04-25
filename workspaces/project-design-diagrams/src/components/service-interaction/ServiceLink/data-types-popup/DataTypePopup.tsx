@@ -18,16 +18,17 @@
  */
 
 import React, { useContext, useState } from 'react';
+import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { DiagramContext } from '../../../common';
 import { ServiceLinkMenu } from '../LinkMenuPanel/LinkMenuPanel';
 import { mapUnionTypes } from '../link-utils';
-import { Colors, RemoteFunction, ResourceFunction } from '../../../../resources';
+import { Colors } from '../../../../resources';
 import { Container, clickableType, defaultType, MenuButton } from './styles';
 import { ServiceLinkModel } from '../ServiceLinkModel';
 
 interface DataTypeProps {
-    callingFunction: ResourceFunction | RemoteFunction;
+    callingFunction: RemoteFunction | ResourceFunction;
     link: ServiceLinkModel;
 }
 

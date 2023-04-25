@@ -18,7 +18,8 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { ConsoleView, EditLayerAPI, Location, Service, Views } from '../../../resources';
+import { CMLocation as Location, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import { ConsoleView, EditLayerAPI, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;

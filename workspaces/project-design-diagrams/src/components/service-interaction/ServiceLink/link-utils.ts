@@ -17,9 +17,9 @@
  *
  */
 
+import { CMParameter as Parameter, CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import { PortModel } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNode/ServiceNodeModel';
-import { Parameter, RemoteFunction, ResourceFunction } from '../../../resources';
 
 export function findCallingFunction(targetPort: PortModel): RemoteFunction | ResourceFunction | undefined {
     let targetService: ServiceNodeModel = targetPort.getNode() as ServiceNodeModel;

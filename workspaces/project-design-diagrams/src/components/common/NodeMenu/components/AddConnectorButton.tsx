@@ -19,8 +19,8 @@
 
 import React, { useContext } from "react";
 import AddLinkIcon from "@mui/icons-material/AddLink";
+import { CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { Service } from "../../../../resources";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import { useStyles } from "./styles/styles";
 

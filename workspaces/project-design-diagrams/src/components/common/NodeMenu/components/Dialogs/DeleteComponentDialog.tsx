@@ -18,6 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
+import { CMLocation as Location } from '@wso2-enterprise/ballerina-languageclient';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -28,7 +29,6 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { DiagramContext } from '../../../DiagramContext/DiagramContext';
-import { Location } from '../../../../../resources';
 import { ContentTextProps, DefaultTextProps, TitleTextProps } from '../styles/styles';
 
 interface DeleteDialogProps {

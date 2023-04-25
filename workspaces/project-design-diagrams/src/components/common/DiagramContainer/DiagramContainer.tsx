@@ -19,9 +19,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { DiagramModel } from '@projectstorm/react-diagrams';
+import { ComponentModel } from '@wso2-enterprise/ballerina-languageclient';
 import CircularProgress from '@mui/material/CircularProgress/CircularProgress';
 import { DiagramCanvasWidget } from '../DiagramCanvas/CanvasWidget';
-import { ComponentModel, DagreLayout, ServiceModels, Views } from '../../../resources';
+import { DagreLayout, ServiceModels, Views } from '../../../resources';
 import { entityModeller, serviceModeller } from '../../../utils';
 import { CellDiagram } from "../CellDiagram/CellDiagram";
 
