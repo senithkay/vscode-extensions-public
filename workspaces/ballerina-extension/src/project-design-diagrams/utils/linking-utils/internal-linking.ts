@@ -20,18 +20,21 @@
 import { ExtendedLangClient } from "src/core";
 import { Uri } from "vscode";
 import { camelCase } from "lodash";
-import { CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { CMEntryPoint as EntryPoint, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { STResponse } from "../../activator";
-import { ServiceTypes } from "../../resources";
+import { AddLinkArgs, ServiceTypes } from "../../resources";
 import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-utils";
 import { genClientName, getMissingImports, getServiceDeclaration } from "./shared-utils";
 
 let clientName: string;
+let filePath: string;
+let langClient: ExtendedLangClient;
 
 // TODO: Handle errors from the FE
-export async function linkServices(langClient: ExtendedLangClient, sourceService: Service, targetService: Service)
-    : Promise<boolean> {
-    const filePath: string = sourceService.elementLocation.filePath;
+export async function linkServices(langClient: ExtendedLangClient, args: AddLinkArgs): Promise<boolean> {
+    const { source, target } = args;
+    filePath = source.elementLocation.filePath;
+    langClient = langClient;
 
     const stResponse: STResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
@@ -40,46 +43,62 @@ export async function linkServices(langClient: ExtendedLangClient, sourceService
     }) as STResponse;
 
     if (stResponse && stResponse.parseSuccess) {
-        clientName = genClientName(stResponse.source,
-            transformLabel(targetService.annotation.label || targetService.path || targetService.serviceId));
-
-        const targetType: ServiceTypes = getServiceType(targetService.serviceType);
+        clientName = genClientName(stResponse.source, transformLabel(target.annotation.label || target.path || target.serviceId));
+        const targetType: ServiceTypes = getServiceType(target.serviceType);
         const imports = new Set<string>([`ballerina/${targetType}`]);
-        const members: any[] = stResponse.syntaxTree.members;
-        const serviceDecl = getServiceDeclaration(members, sourceService, true);
-        const initMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
+        const missingImports: Set<string> = getMissingImports(stResponse.source, imports);
+        const clientDecl: string = generateClientDecl(target, targetType, 'serviceId' in source);
 
-        let modifiedST: STResponse;
-        if (initMember) {
-            modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken,
-                generateClientDecl(targetService, targetType)) as STResponse;
-            if (modifiedST && modifiedST.parseSuccess) {
-                const members: any[] = modifiedST.syntaxTree.members;
-                const serviceDecl = getServiceDeclaration(members, sourceService, false);
-                const updatedInitMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
-                if (updatedInitMember) {
-                    modifiedST = await updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken,
-                        generateClientInit(), getMissingImports(modifiedST.source, imports)) as STResponse;
-                    if (modifiedST && modifiedST.parseSuccess) {
-                        return updateSourceFile(langClient, filePath, modifiedST.source);
-                    }
-                }
-            }
+        if ('serviceId' in source) {
+            linkFromService(stResponse, source, clientDecl, missingImports);
         } else {
-            let genCode = `
-                    ${generateClientDecl(targetService, targetType)}
-                    ${generateServiceInit()}
-                `;
-            modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode,
-                getMissingImports(stResponse.source, imports)) as STResponse;
-            if (modifiedST && modifiedST.parseSuccess) {
-                return updateSourceFile(langClient, filePath, modifiedST.source);
-            }
+            linkFromMain(stResponse, clientDecl, missingImports);
         }
     }
     return false;
 }
 
+async function linkFromService(stResponse: STResponse, source: Service, clientDecl: string, missingImports: Set<string>) {
+    const serviceDecl = getServiceDeclaration(stResponse.syntaxTree.members, source, true);
+    const initMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
+
+    let modifiedST: STResponse;
+    if (initMember) {
+        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, clientDecl) as STResponse;
+        if (modifiedST && modifiedST.parseSuccess) {
+            const members: any[] = modifiedST.syntaxTree.members;
+            const serviceDecl = getServiceDeclaration(members, source, false);
+            const updatedInitMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
+            if (updatedInitMember) {
+                modifiedST = await updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken,
+                    generateClientInit(), missingImports) as STResponse;
+                if (modifiedST && modifiedST.parseSuccess) {
+                    return updateSourceFile(langClient, filePath, modifiedST.source);
+                }
+            }
+        }
+    } else {
+        let genCode = `
+                    ${clientDecl}
+                    ${generateServiceInit()}
+                `;
+        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode, missingImports) as STResponse;
+        if (modifiedST && modifiedST.parseSuccess) {
+            return updateSourceFile(langClient, filePath, modifiedST.source);
+        }
+    }
+}
+
+async function linkFromMain(stResponse: STResponse, clientDecl: string, missingImports: Set<string>) {
+    const mainFunc = stResponse.syntaxTree.members.find((member: any) => member.kind === 'FunctionDefinition'
+        && member.functionName.value === 'main');
+    if (mainFunc) {
+        const modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.openBraceToken, clientDecl, missingImports) as STResponse;
+        if (modifiedST && modifiedST.parseSuccess) {
+            return updateSourceFile(langClient, filePath, modifiedST.source);
+        }
+    }
+}
 
 function getServiceType(serviceType: string): ServiceTypes {
     if (serviceType.includes('ballerina/grpc:')) {
@@ -95,13 +114,13 @@ function getServiceType(serviceType: string): ServiceTypes {
     }
 }
 
-function generateClientDecl(targetService: Service, targetType: ServiceTypes): string {
+function generateClientDecl(targetService: Service, targetType: ServiceTypes, isServiceSource: boolean): string {
     let clientDeclaration: string = `
         @display {
             label: "${targetService.annotation.label}",
             id: "${targetService.annotation.id}"
         }
-        ${targetType}:Client ${clientName};
+        ${targetType}:Client ${clientName}${isServiceSource ? '' : ' = check new("")'}};
     `;
 
     return clientDeclaration;

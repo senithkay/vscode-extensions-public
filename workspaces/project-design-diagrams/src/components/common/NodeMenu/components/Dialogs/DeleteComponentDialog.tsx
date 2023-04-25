@@ -32,6 +32,7 @@ import { DiagramContext } from '../../../DiagramContext/DiagramContext';
 import { ContentTextProps, DefaultTextProps, TitleTextProps } from '../styles/styles';
 
 interface DeleteDialogProps {
+    isService: boolean;
     location: Location;
     showDialog: boolean;
     updateShowDialog: (status: boolean) => void;
@@ -41,7 +42,7 @@ const DELETE_COMPONENT_VALUE = 'deleteComp';
 const DELETE_PKG_VALUE = 'deletePkg';
 
 export function DeleteComponentDialog(props: DeleteDialogProps) {
-    const { location, showDialog, updateShowDialog } = props;
+    const { isService, location, showDialog, updateShowDialog } = props;
     const { deleteComponent, refreshDiagram } = useContext(DiagramContext);
 
     const [deletePkg, setDeletePkg] = useState<boolean>(true);
@@ -70,25 +71,27 @@ export function DeleteComponentDialog(props: DeleteDialogProps) {
             <DialogTitle sx={TitleTextProps}>Delete Component</DialogTitle>
             <DialogContent>
                 <DialogContentText sx={ContentTextProps}>
-                    Please select an option.
+                    {isService ? "Please select an option." : "Are you sure you want to delete this component?"}
                 </DialogContentText>
 
-                <RadioGroup
-                    value={deletePkg ? DELETE_PKG_VALUE : DELETE_COMPONENT_VALUE}
-                    id="delete-radio-buttons-group"
-                    onChange={handleDeleteChoiceChange}
-                >
-                    <FormControlLabel
-                        value={DELETE_PKG_VALUE}
-                        control={<Radio />}
-                        label={<span style={DefaultTextProps}>Delete the entire package</span>}
-                    />
-                    <FormControlLabel
-                        value={DELETE_COMPONENT_VALUE}
-                        control={<Radio />}
-                        label={<span style={DefaultTextProps}>Delete only the service</span>}
-                    />
-                </RadioGroup>
+                {isService &&
+                    <RadioGroup
+                        value={deletePkg ? DELETE_PKG_VALUE : DELETE_COMPONENT_VALUE}
+                        id="delete-radio-buttons-group"
+                        onChange={handleDeleteChoiceChange}
+                    >
+                        <FormControlLabel
+                            value={DELETE_PKG_VALUE}
+                            control={<Radio />}
+                            label={<span style={DefaultTextProps}>Delete the entire package</span>}
+                        />
+                        <FormControlLabel
+                            value={DELETE_COMPONENT_VALUE}
+                            control={<Radio />}
+                            label={<span style={DefaultTextProps}>Delete only the service</span>}
+                        />
+                    </RadioGroup>
+                }
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleDialogClose} sx={DefaultTextProps}>Cancel</Button>

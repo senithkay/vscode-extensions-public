@@ -21,14 +21,17 @@ import styled from '@emotion/styled';
 import { Colors, Level } from '../../../resources';
 
 interface StyleProps {
+    awaitLinking: boolean;
     isSelected: boolean;
     level: Level;
 }
 
 export const Container: React.FC<any> = styled.div`
     align-items: center;
-    background-color: ${(props: StyleProps) => props.level === Level.ONE ? '#FFFFFF' : props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
-    border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
+    background-color: ${(props: StyleProps) => props.level === Level.ONE ? '#FFFFFF' : props.isSelected ?
+        Colors.SECONDARY_SELECTED : '#FFFFFF'};
+    border: ${(props: StyleProps) => props.awaitLinking ? `2px solid green` : `1px solid ${props.isSelected ?
+        Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
     border-radius: 2px;
     color: ${Colors.PRIMARY};
     cursor: pointer;

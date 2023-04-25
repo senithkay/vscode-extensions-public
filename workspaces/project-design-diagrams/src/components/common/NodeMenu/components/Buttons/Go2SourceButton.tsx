@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 LLC. licenses this file to you under the Apache License,
+ * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,24 +18,23 @@
  */
 
 import React, { useContext } from "react";
-import AddLinkIcon from "@mui/icons-material/AddLink";
-import { CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
-import { DiagramContext } from "../../DiagramContext/DiagramContext";
+import { CMLocation as Location } from "@wso2-enterprise/ballerina-languageclient";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { useStyles } from "./styles/styles";
+import CodeIcon from "@mui/icons-material/Code";
+import { DiagramContext } from "../../../DiagramContext/DiagramContext";
+import { useStyles } from "../styles/styles";
 
-export function AddConnectorButton(props: { service: Service }) {
-    const { service } = props;
+export function Go2SourceButton(props: { location: Location }) {
+    const { location } = props;
     const classes = useStyles();
-
-    const { setConnectorTarget } = useContext(DiagramContext);
+    const { editLayerAPI } = useContext(DiagramContext);
 
     return (
-        <MenuItem onClick={() => setConnectorTarget(service)}>
+        <MenuItem onClick={() => editLayerAPI?.go2source(location)}>
             <ListItemIcon>
-                <AddLinkIcon fontSize="small" />
+                <CodeIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText className={classes.listItemText}>Use External API</ListItemText>
+            <ListItemText className={classes.listItemText}>Go to source</ListItemText>
         </MenuItem>
     );
 }

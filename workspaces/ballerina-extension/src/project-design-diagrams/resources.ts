@@ -18,7 +18,7 @@
  */
 
 import { decimal } from "vscode-languageclient";
-import { CMLocation as Location } from "@wso2-enterprise/ballerina-languageclient";
+import { CMEntryPoint as EntryPoint, CMService as Service, CMLocation as Location } from "@wso2-enterprise/ballerina-languageclient";
 
 export enum ServiceTypes {
     HTTP = "http",
@@ -36,6 +36,11 @@ export interface BallerinaVersion {
 export interface CommandResponse {
     error: boolean;
     message: string;
+}
+
+export interface AddLinkArgs {
+    source: Service | EntryPoint;
+    target: Service;
 }
 
 export interface DeleteLinkArgs {

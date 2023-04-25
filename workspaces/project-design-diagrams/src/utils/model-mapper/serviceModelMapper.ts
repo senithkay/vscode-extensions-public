@@ -269,20 +269,20 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
         sourcePort = sourceNode.getPortFromID(sourcePortID);
 
         // since HTTP and GraphQL can both have either resource or remote functions
-        if (targetNode.serviceType !== ServiceTypes.GRPC && targetNode.serviceObject.resources.length > 0) {
+        if (targetNode.serviceType !== ServiceTypes.GRPC && targetNode.nodeObject.resources.length > 0) {
             targetPort = targetNode.getPortFromID(`left-${interaction.resourceId.action}/${interaction.resourceId.path}`);
         }
-        if (!targetPort && targetNode.serviceObject.remoteFunctions.length > 0) {
+        if (!targetPort && targetNode.nodeObject.remoteFunctions.length > 0) {
             targetPort = targetNode.getPortFromID(`left-${interaction.resourceId.action}`);
         }
     }
 
     // Also redirects L2 links to service heads, if the interacting resources cannot be detected
     if (!sourcePort) {
-        sourcePort = sourceNode.getPortFromID(`right-${sourceNode.serviceObject.serviceId}`);
+        sourcePort = sourceNode.getPortFromID(`right-${sourceNode.nodeObject.serviceId}`);
     }
     if (!targetPort) {
-        targetPort = targetNode.getPortFromID(`left-${targetNode.serviceObject.serviceId}`);
+        targetPort = targetNode.getPortFromID(`left-${targetNode.nodeObject.serviceId}`);
     }
 
     if (sourcePort && targetPort) {
@@ -389,17 +389,17 @@ function generateEntryPointLinks(source: EntryNodeModel, target: ServiceNodeMode
     let targetPort: ServicePortModel;
     if (level === Level.TWO && interaction) {
         // since HTTP and GraphQL can both have either resource or remote functions
-        if (target.serviceType !== ServiceTypes.GRPC && target.serviceObject.resources.length > 0) {
+        if (target.serviceType !== ServiceTypes.GRPC && target.nodeObject.resources.length > 0) {
             targetPort = target.getPortFromID(`left-${interaction.resourceId.action}/${interaction.resourceId.path}`);
         }
-        if (!targetPort && target.serviceObject.remoteFunctions.length > 0) {
+        if (!targetPort && target.nodeObject.remoteFunctions.length > 0) {
             targetPort = target.getPortFromID(`left-${interaction.resourceId.action}`);
         }
     }
 
     const sourcePort: ServicePortModel = source.getPortFromID(`right-${source.getID()}`);
     if (!targetPort) {
-        targetPort = target.getPortFromID(`left-${target.serviceObject.serviceId}`);
+        targetPort = target.getPortFromID(`left-${target.nodeObject.serviceId}`);
     }
 
     if (sourcePort && targetPort) {
@@ -415,9 +415,9 @@ function isResource(functionObject: ResourceFunction | RemoteFunction): function
 function generateLabels(packageName: string, serviceId: string): string {
     if (untrackedPkgComponents.length === 1 && l1Nodes.has(untrackedPkgComponents[0]) &&
         l2Nodes.has(untrackedPkgComponents[0]) && cellNodes.has(untrackedPkgComponents[0])) {
-        l1Nodes.get(untrackedPkgComponents[0]).serviceObject.annotation.label = `${packageName} Component1`;
-        l2Nodes.get(untrackedPkgComponents[0]).serviceObject.annotation.label = `${packageName} Component1`;
-        cellNodes.get(untrackedPkgComponents[0]).serviceObject.annotation.label = `${packageName} Component1`;
+        [l1Nodes, l2Nodes, cellNodes].forEach((nodes) => {
+            nodes.get(untrackedPkgComponents[0]).nodeObject.annotation.label = `${packageName} Component1`;
+        });
     }
     const label: string = `${packageName} Component${untrackedPkgComponents.length > 0 ? untrackedPkgComponents.length + 1 : ''}`;
     untrackedPkgComponents.push(serviceId);

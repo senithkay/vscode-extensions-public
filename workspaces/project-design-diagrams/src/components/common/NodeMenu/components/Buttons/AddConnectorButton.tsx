@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,27 +18,24 @@
  */
 
 import React, { useContext } from "react";
-import { CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
-import TurnRightIcon from "@mui/icons-material/TurnRight";
+import AddLinkIcon from "@mui/icons-material/AddLink";
+import { CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import { DiagramContext } from "../../../DiagramContext/DiagramContext";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { useStyles } from "./styles/styles";
+import { useStyles } from "../styles/styles";
 
-export function LinkingButton(props: { service: Service }) {
+export function AddConnectorButton(props: { service: Service }) {
     const { service } = props;
     const classes = useStyles();
-    const { setNewLinkNodes } = useContext(DiagramContext);
+
+    const { setConnectorTarget } = useContext(DiagramContext);
 
     return (
-        <MenuItem
-            onClick={() => {
-                setNewLinkNodes({ source: service, target: undefined });
-            }}
-        >
+        <MenuItem onClick={() => setConnectorTarget(service)}>
             <ListItemIcon>
-                <TurnRightIcon fontSize="small" />
+                <AddLinkIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText className={classes.listItemText}>Use Internal API</ListItemText>
+            <ListItemText className={classes.listItemText}>Use External API</ListItemText>
         </MenuItem>
     );
 }

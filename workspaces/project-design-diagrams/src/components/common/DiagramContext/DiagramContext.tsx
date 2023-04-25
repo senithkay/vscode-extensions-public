@@ -19,6 +19,7 @@
 
 import React, { createContext, ReactNode, useState } from 'react';
 import { CMLocation as Location, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import { EntryNodeModel, ServiceNodeModel } from '../../service-interaction';
 import { ConsoleView, EditLayerAPI, Views } from '../../../resources';
 
 interface DiagramContextProps {
@@ -59,8 +60,8 @@ interface IDiagramContext {
 }
 
 interface LinkedNodes {
-    source: Service | undefined;
-    target: Service | undefined;
+    source: ServiceNodeModel | EntryNodeModel;
+    target: ServiceNodeModel;
 }
 
 const defaultState: any = {};

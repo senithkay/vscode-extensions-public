@@ -27,7 +27,7 @@ import { GatewayType } from "../../gateway/types";
 export class ServiceNodeModel extends SharedNodeModel {
 	isLinked: boolean;
 	readonly level: Level;
-	readonly serviceObject: Service;
+	readonly nodeObject: Service;
 	readonly serviceType: ServiceTypes;
 	readonly targetGateways: GatewayType[];
 
@@ -35,24 +35,24 @@ export class ServiceNodeModel extends SharedNodeModel {
 		super('serviceNode', serviceObject.serviceId);
 
 		this.level = level;
-		this.serviceObject = serviceObject;
+		this.nodeObject = serviceObject;
 		this.serviceType = this.getServiceType();
 		this.targetGateways = targetGateways;
 
-		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.LEFT));
-		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.RIGHT));
+		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.LEFT));
+		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.RIGHT));
 
 		if (targetGateways) {
-			this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.TOP));
-			this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.LEFT, true));
+			this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.TOP));
+			this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.LEFT, true));
 		}
 
 		if (level === Level.TWO) {
-			this.serviceObject.resources.forEach(resource => {
+			this.nodeObject.resources.forEach(resource => {
 				this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.LEFT));
 				this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.RIGHT));
 			});
-			this.serviceObject.remoteFunctions.forEach(remoteFunc => {
+			this.nodeObject.remoteFunctions.forEach(remoteFunc => {
 				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.LEFT));
 				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.RIGHT));
 			})
@@ -60,14 +60,14 @@ export class ServiceNodeModel extends SharedNodeModel {
 	}
 
 	getServiceType = (): ServiceTypes => {
-		if (this.serviceObject.serviceType) {
-			if (this.serviceObject.serviceType.includes('ballerina/grpc:')) {
+		if (this.nodeObject.serviceType) {
+			if (this.nodeObject.serviceType.includes('ballerina/grpc:')) {
 				return ServiceTypes.GRPC;
-			} else if (this.serviceObject.serviceType.includes('ballerina/http:')) {
+			} else if (this.nodeObject.serviceType.includes('ballerina/http:')) {
 				return ServiceTypes.HTTP;
-			} else if (this.serviceObject.serviceType.includes('ballerina/graphql:')) {
+			} else if (this.nodeObject.serviceType.includes('ballerina/graphql:')) {
 				return ServiceTypes.GRAPHQL;
-			} else if (this.serviceObject.serviceType.includes('ballerina/websocket:')) {
+			} else if (this.nodeObject.serviceType.includes('ballerina/websocket:')) {
 				return ServiceTypes.WEBSOCKET
 			}
 		}
