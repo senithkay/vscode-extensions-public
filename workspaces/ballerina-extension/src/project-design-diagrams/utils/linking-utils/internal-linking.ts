@@ -64,6 +64,9 @@ async function linkFromService(stResponse: STResponse, source: Service, clientDe
 
     let modifiedST: STResponse;
     if (initMember) {
+        if (!initMember.functionSignature.returnTypeDesc) {
+            modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, initMember.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+        }
         modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken, clientDecl) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
             const members: any[] = modifiedST.syntaxTree.members;

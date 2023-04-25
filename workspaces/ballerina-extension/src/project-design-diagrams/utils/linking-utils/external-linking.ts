@@ -95,7 +95,11 @@ async function linkFromService(stResponse: STResponse, source: Service, imports:
     const serviceDecl = getServiceDeclaration(stResponse.syntaxTree.members, source, true);
     const initMember = getInitFunction(serviceDecl);
     if (initMember) {
-        const updatedSTRes = await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken,
+        let updatedSTRes: STResponse;
+        if (!initMember.functionSignature.returnTypeDesc) {
+            updatedSTRes = await updateSyntaxTree(extLangClient, sourceFilePath, initMember.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+        }
+        updatedSTRes = await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken,
             generateClientDecl4Service(connectorInfo)) as STResponse;
         if (updatedSTRes?.parseSuccess && updatedSTRes.syntaxTree.members) {
             await updateSourceFile(extLangClient, sourceFilePath, updatedSTRes.source);
