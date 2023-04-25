@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
+import { Tooltip } from "@material-ui/core";
 import {
     BallerinaSTModifyResponse, CompletionResponse, ConfigOverlayFormStatus, CtrlClickWrapper, DiagramEditorLangClientInterface,
     LabelEditIcon, responseCodes, STModification
@@ -47,6 +48,8 @@ export function ResourceBody(props: ResourceBodyProps) {
             ls: { getDiagramEditorLangClient, getExpressionEditorLangClient },
         },
     } = useContext(Context);
+
+    const editStatementTxt = "Edit in statement editor";
 
     const classes = useStyles();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -125,7 +128,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                         <td>
                             <div>
                                 Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
-                                {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}  <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                                {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}
+                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                        <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </Tooltip>
+                                </pre>}
                             </div>
                         </td>
                     </tr>
@@ -235,7 +242,9 @@ export function ResourceBody(props: ResourceBodyProps) {
                                 {schema[i] &&
                                     <pre className={classes.schema}>
                                         {schema[i]}
-                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                        <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                            <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                        </Tooltip>
                                     </pre>
                                 }
                             </div>
@@ -266,7 +275,9 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {schema[i] &&
                                 <pre className={classes.schema}>
                                     {schema[i]}
-                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </Tooltip>
                                 </pre>
                             }
                         </td>
@@ -296,7 +307,9 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {schemaParam[i] &&
                                 <pre className={classes.schema}>
                                     {schemaParam[i]}
-                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </Tooltip>
                                 </pre>
                             }
                         </td>
