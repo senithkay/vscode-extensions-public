@@ -169,7 +169,7 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
 }
 
 function mapDependencies(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels, cellSourceNode: ServiceNodeModels, dependencies: Dependency[]) {
-    dependencies.forEach((dependency) => {
+    dependencies?.forEach((dependency) => {
         if (dependency.serviceId && l1Nodes.has(dependency.serviceId) && l2Nodes.has(dependency.serviceId) && cellNodes.has(dependency.serviceId)) {
             let linkID: string = `${l1Source.getID()}-${dependency.serviceId}`;
             if (!l1Links.has(linkID)) {
@@ -367,7 +367,7 @@ function mapExtLinks(source: ServiceNodeModels, target: ExtServiceNodeModel, loc
 }
 
 function mapEntryPointInteractions(l1Source: EntryNodeModel, l2Source: EntryNodeModel, cellSource: EntryNodeModel, interactions: Interaction[]) {
-    interactions.forEach((interaction) => {
+    interactions?.forEach((interaction) => {
         if (l1Nodes.has(interaction.resourceId.serviceId) && l2Nodes.has(interaction.resourceId.serviceId)) {
             const linkID: string = `${l1Source.getID()}-${interaction.resourceId.serviceId}`;
             if (!l1Links.has(linkID) && !cellLinks.has(linkID)) {
