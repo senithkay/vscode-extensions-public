@@ -12,12 +12,120 @@
  */
 
 // TODO: Move these utils to a common repo.
-
+import { randomUUID } from "crypto";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { FormField, FormFieldReturnType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/types";
+import { Connector, FormField, FormFieldReturnType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/types";
 import { getFormattedModuleName, keywords } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
+import { ExtendedLangClient } from "../../../core";
+import { BallerinaConnectorInfo, GetSyntaxTreeResponse, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { Uri } from "vscode";
+import { STResponse } from "../../activator";
+import { runBackgroundTerminalCommand } from "../../../utils/runCommand";
+import { genClientName, getMissingImports, getServiceDeclaration } from "./shared-utils";
+import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-utils";
 
 const EXPR_PLACEHOLDER = "()";
+let clientName: string;
+
+export async function pullConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {
+    const filePath: string = targetService.elementLocation.filePath;
+    const stResponse = (await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString(),
+        },
+    })) as GetSyntaxTreeResponse;
+    if (!(stResponse?.parseSuccess && connector.moduleName)) {
+        return false;
+    }
+
+    const imports = getConnectorImports(stResponse.syntaxTree, connector.package.organization, connector.moduleName);
+    if (imports && imports?.size > 0) {
+        let pullCommand = "";
+        imports.forEach(function (impt) {
+            if (pullCommand !== "") {
+                pullCommand += ` && `;
+            }
+            pullCommand += `bal pull ${impt.replace(" as _", "")}`;
+        });
+        console.log("running terminal command:", pullCommand);
+        const cmdRes = await runBackgroundTerminalCommand(pullCommand);
+        console.log("terminal command message:", cmdRes);
+        if (cmdRes.error && cmdRes.message.indexOf("package already exists") < 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+export async function addConnector(langClient: ExtendedLangClient, connector: Connector, targetService: Service): Promise<boolean> {
+    const filePath: string = targetService.elementLocation.filePath;
+    const stResponse = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString(),
+        },
+    }) as GetSyntaxTreeResponse;
+    if (!stResponse?.parseSuccess) {
+        return false;
+    }
+
+    clientName = genClientName(stResponse.syntaxTree.source, "Ep", connector);
+    const members: any[] = (stResponse as GetSyntaxTreeResponse).syntaxTree.members;
+    const serviceDecl = getServiceDeclaration(members, targetService, true);
+    const connectorInfo = await fetchConnectorInfo(langClient, connector);
+    if (!(connectorInfo && connectorInfo.moduleName)) {
+        return false;
+    }
+
+    const imports = getConnectorImports(stResponse.syntaxTree, connectorInfo.package.organization, connectorInfo.moduleName);
+
+    const initMember = getInitFunction(serviceDecl);
+    if (initMember) {
+        const updatedSTRes = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken,
+            generateConnectorClientDecl(connectorInfo));
+        let updatedST = updatedSTRes as STResponse;
+        if (updatedST?.parseSuccess && updatedST.syntaxTree.members) {
+            await updateSourceFile(langClient, filePath, updatedST.source);
+            const serviceDecl = getServiceDeclaration(updatedST.syntaxTree.members, targetService, false);
+
+            const updatedInitMember = getInitFunction(serviceDecl);
+            if (updatedInitMember) {
+                const modifiedST = (await updateSyntaxTree(
+                    langClient,
+                    filePath,
+                    updatedInitMember.functionBody.openBraceToken,
+                    generateConnectorClientInit(connectorInfo),
+                    getMissingImports(updatedST.source, imports)
+                )) as STResponse;
+                if (modifiedST && modifiedST.parseSuccess) {
+                    return await updateSourceFile(langClient, filePath, modifiedST.source);
+                }
+            }
+        }
+    } else {
+        const template = `
+            ${generateConnectorClientDecl(connectorInfo)}
+            ${generateServiceInit(connectorInfo)}
+        `;
+        const modifiedST = (await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, template, imports)) as STResponse;
+        if (modifiedST && modifiedST.parseSuccess) {
+            return await updateSourceFile(langClient, filePath, modifiedST.source);
+        }
+    }
+
+    return false;
+}
+
+async function fetchConnectorInfo(langClient: ExtendedLangClient, connector: Connector): Promise<BallerinaConnectorInfo | undefined> {
+    const connectorRes = await langClient.getConnector({
+        name: connector.name,
+        package: connector.package,
+        id: connector.id,
+    });
+    if ((connectorRes as BallerinaConnectorInfo)?.functions?.length > 0) {
+        return connectorRes as BallerinaConnectorInfo;
+    }
+    return undefined;
+}
 
 export function getConnectorImports(syntaxTree: STNode, organization: string, moduleName: string) {
     let isModuleImported = false;
@@ -406,4 +514,42 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
         response.hasReturn = true;
     }
     return response;
+}
+
+function generateServiceInit(connectorInfo: BallerinaConnectorInfo): string {
+    return `function init() returns error? {
+        ${generateConnectorClientInit(connectorInfo)}
+    }`;
+}
+
+function generateConnectorClientDecl(connector: BallerinaConnectorInfo): string {
+    if (!connector?.moduleName) {
+        return "";
+    }
+    const moduleName = getFormattedModuleName(connector.moduleName);
+    let clientDeclaration: string = `
+        @display {
+            label: "${connector.displayName || moduleName}",
+            id: "${moduleName}-${randomUUID()}"
+        }
+        ${moduleName}:${connector.name} ${clientName};
+    `;
+
+    return clientDeclaration;
+}
+
+function generateConnectorClientInit(connector: BallerinaConnectorInfo): string {
+    if (!connector?.moduleName) {
+        return "";
+    }
+
+    const initFunction = connector.functions?.find((func) => func.name === "init");
+    let returnType;
+
+    const defaultParameters = getDefaultParams(initFunction.parameters);
+    if (initFunction.returnType) {
+        returnType = getFormFieldReturnType(initFunction.returnType);
+    }
+
+    return `self.${clientName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
 }

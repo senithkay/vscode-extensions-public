@@ -25,14 +25,14 @@ import {
 import { Messenger } from "vscode-messenger";
 import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { BallerinaProjectManager } from "./manager";
+import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DIAGNOSTICS_WARNING, DeleteLinkArgs } from "../resources";
 import { ExtendedLangClient } from "../../core";
-import { addConnector, editDisplayLabel, linkServices, pullConnector } from "./code-generator";
-import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PALETTE_COMMANDS } from "../../project/cmds/cmd-runner";
-import { deleteLink } from "./component-handler-utils";
-import { go2source } from "./common-utils";
+import { deleteLink, editDisplayLabel } from "./component-utils";
+import { addConnector, linkServices, pullConnector } from "./linking-utils";
+import { BallerinaProjectManager } from "./project-utils/manager";
+import { go2source } from "./shared-utils";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,

@@ -18,159 +18,15 @@
  */
 
 import { Uri, window, workspace } from "vscode";
-import { existsSync, readFile, rmSync, unlinkSync, writeFile, writeFileSync } from "fs";
+import { existsSync, readFile, rmSync, writeFile } from "fs";
 import * as path from "path";
-import child_process from "child_process";
-import { compile } from "handlebars";
-import { BallerinaTriggerResponse, CMLocation as Location, STModification, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
-import { BallerinaComponentTypes, TriggerDetails, WorkspaceConfig, WorkspaceItem } from "@wso2-enterprise/choreo-core";
+import { CMLocation as Location, CMAnnotation as Annotation, STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { WorkspaceConfig, WorkspaceItem } from "@wso2-enterprise/choreo-core";
 import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import { ExtendedLangClient } from "../../core";
-import { getLangClient, STResponse } from "../activator";
-import {
-    CommandResponse, DEFAULT_SERVICE_TEMPLATE_SUFFIX, DeleteLinkArgs, GRAPHQL_SERVICE_TEMPLATE_SUFFIX, 
-    SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION
-} from "../resources";
-import { getInitFunction, updateSourceFile } from "./code-generator";
-import { go2source } from "./common-utils";
-import { visitor as STNodeFindingVisitor } from "./node-visitor";
-
-export function createBallerinaPackage(name: string, pkgRoot: string, type: BallerinaComponentTypes): Promise<CommandResponse> {
-    const cmd = `bal new "${name}" ${getBalCommandSuffix(type)}`;
-    return runCommand(cmd, pkgRoot);
-}
-
-export function getBalCommandSuffix(componentType: BallerinaComponentTypes): string {
-    switch (componentType) {
-        case BallerinaComponentTypes.GRAPHQL:
-            return GRAPHQL_SERVICE_TEMPLATE_SUFFIX;
-        case BallerinaComponentTypes.REST_API:
-        case BallerinaComponentTypes.WEBHOOK:
-            return DEFAULT_SERVICE_TEMPLATE_SUFFIX;
-        default:
-            return '';
-    }
-}
-
-export async function runCommand(cmd: string, cwd?: string): Promise<CommandResponse> {
-    return new Promise(function (resolve) {
-        child_process.exec(`${cmd}`, { cwd: cwd }, async (err, stdout, stderror) => {
-            if (err) {
-                resolve({
-                    error: true,
-                    message: stderror
-                });
-            } else {
-                resolve({
-                    error: false,
-                    message: stdout
-                });
-            }
-        });
-    });
-}
-
-export function processTomlFiles(pkgRoot: string, orgName: string, version: string): boolean {
-    let didFail: boolean;
-
-    // Remove Dependencies.toml
-    const dependenciesTomlPath = path.join(pkgRoot, 'Dependencies.toml');
-    if (existsSync(dependenciesTomlPath)) {
-        unlinkSync(dependenciesTomlPath);
-    }
-
-    // Update org and version in Ballerina.toml   
-    const balToml: string = path.join(pkgRoot, 'Ballerina.toml');
-    readFile(balToml, 'utf-8', function (err, contents) {
-        if (err) {
-            didFail = true;
-            return;
-        }
-        let replaced = contents.replace(/org = "[a-z,A-Z,0-9,_]+"/, `org = \"${orgName}\"`);
-        replaced = replaced.replace(/version = "[0-9].[0-9].[0-9]"/, `version = "${version}"`);
-        writeFileSync(balToml, replaced);
-    });
-    return didFail;
-}
-
-export function getAnnotatedContent(content: string, label: string, serviceId: string): string {
-    const preText = 'service / on new';
-    const processedText = `@display {\n\tlabel: "${label}",\n\tid: "${serviceId}"\n}\n${preText}`;
-    return content.replace(preText, processedText);
-}
-
-export function addDisplayAnnotation(pkgPath: string, label: string, id: string, type: BallerinaComponentTypes): boolean {
-    let didFail: boolean;
-    const serviceFileName = type === BallerinaComponentTypes.GRAPHQL ? 'sample.bal' : 'service.bal';
-    const serviceFilePath = path.join(pkgPath, serviceFileName);
-    readFile(serviceFilePath, 'utf-8', (err, contents) => {
-        if (err) {
-            didFail = true;
-            return;
-        }
-        const replaced = getAnnotatedContent(contents, label, id);
-        writeFileSync(serviceFilePath, replaced);
-    });
-    return didFail;
-}
-
-const triggerSource =
-    "import ballerinax/{{moduleName}};\n\n" +
-    "configurable {{triggerType}}:ListenerConfig config = ?;\n\n" +
-    "listener {{triggerType}}:Listener webhookListener =  new(config);\n\n" +
-
-    "{{#each selectedServices}}" +
-    "@display {\n" +
-        "label: \"{{ this.name }}\",\n" +
-        "id: \"{{ this.name }}\"\n" +
-    "}\n" +
-    "service {{../triggerType}}:{{ this.name }} on webhookListener {\n" +
-        "{{#each this.functions}}" +
-        "remote function {{ this.name }}({{#each this.parameters}}{{#if @index}}, {{/if}}{{../../../triggerType}}:{{this.typeInfo.name}} {{this.name}}{{/each}}) returns error? {\n" +
-            "// Not Implemented\n" +
-        "}\n" +
-        "{{/each}}\n" +
-    "}\n\n" +
-    "{{/each}}\n";
-
-export async function buildWebhookTemplate(pkgPath: string, trigger: TriggerDetails): Promise<string> {
-    const langClient: ExtendedLangClient = getLangClient();
-    const template = compile(triggerSource);
-    const triggerData: BallerinaTriggerResponse | {} = await langClient.getTrigger({ id: trigger.id });
-    if ('serviceTypes' in triggerData && triggerData.serviceTypes.length) {
-        const selectedServices = getFilteredTriggerData(triggerData, trigger.services);
-        const moduleName = triggerData.moduleName;
-        const cmdResponse = await runCommand(`bal pull ballerinax/${moduleName}`, pkgPath);
-        if (!cmdResponse.error || cmdResponse.message.includes("package already exists")) {
-            return template({
-                ...triggerData,
-                triggerType: moduleName.slice(moduleName.lastIndexOf('.') + 1),
-                selectedServices
-            });
-        }
-    }
-    return "";
-}
-
-function getFilteredTriggerData(triggerData: BallerinaTriggerResponse, services: string[]|undefined): ServiceType[] {
-    if (triggerData && triggerData.serviceTypes.length && services) {
-        return triggerData.serviceTypes.filter((service) => services.includes(service.name));
-    }
-    return [];
-}
-
-export function writeWebhookTemplate(pkgPath: string, template: string): boolean {
-    let didFail: boolean;
-    const serviceFilePath = path.join(pkgPath, 'service.bal');
-    readFile(serviceFilePath, 'utf-8', (err) => {
-        if (err) {
-            didFail = true;
-            return;
-        }
-        writeFileSync(serviceFilePath, template);
-    });
-    return didFail;
-}
+import { ExtendedLangClient } from "../../../core";
+import { getLangClient, STResponse } from "../../activator";
+import { DeleteLinkArgs,  SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION } from "../../resources";
+import { getInitFunction, go2source, updateSyntaxTree, updateSourceFile, visitor as STNodeFindingVisitor } from "../shared-utils";
 
 export function deleteBallerinaPackage(filePath: string): void {
     let basePath: string = path.dirname(filePath);
@@ -178,7 +34,7 @@ export function deleteBallerinaPackage(filePath: string): void {
         basePath = path.dirname(basePath);
     }
     rmSync(basePath, { recursive: true });
-    updateWorkspaceFile(basePath).then(() => {
+    updateWorkspaceFileOnDelete(basePath).then(() => {
         window.showInformationMessage('Component was deleted successfully');
     }).catch((err) => {
         console.log(err);
@@ -211,7 +67,7 @@ export async function deleteService(location: Location) {
     }
 }
 
-async function updateWorkspaceFile(componentPath: string): Promise<void> {
+async function updateWorkspaceFileOnDelete(componentPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
         const workspaceFile: string = workspace.workspaceFile?.fsPath;
         readFile(workspaceFile, 'utf-8', function (err, contents) {
@@ -314,4 +170,30 @@ function showActionableMessage(message: string, location: Location) {
             go2source(location);
         }
     });
+}
+
+export async function editDisplayLabel(langClient: ExtendedLangClient, annotation: Annotation): Promise<boolean> {
+    const stObject = {
+        position: {
+            startLine: annotation.elementLocation.startPosition.line,
+            startColumn: annotation.elementLocation.startPosition.offset,
+            endLine: annotation.elementLocation.endPosition.line,
+            endColumn: annotation.elementLocation.endPosition.offset
+        }
+    }
+
+    const displayAnnotation: string = `
+        @display {
+            label: "${annotation.label}",
+            id: "${annotation.id}"
+        }
+    `;
+
+    const response: STResponse = await updateSyntaxTree(
+        langClient, annotation.elementLocation.filePath, stObject, displayAnnotation, undefined, true) as STResponse;
+    if (response.parseSuccess && response.source) {
+        return updateSourceFile(langClient, annotation.elementLocation.filePath, response.source);
+    }
+    window.showErrorMessage('Architecture View: Failed to update display annotation.');
+    return false;
 }
