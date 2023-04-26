@@ -22,14 +22,15 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
     }
 
     generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
-        if (event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record) {
+        if ((event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record) || event.model.hasNoMatchingFields) {
             return (
                 <RecordTypeTreeWidget
                     engine={this.engine}
-                    id={event.model.value.paramName.value}
+                    id={event.model.value && event.model.value.paramName.value}
                     typeDesc={event.model.typeDef}
                     getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
                     handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                    hasNoMatchingFields={event.model.hasNoMatchingFields}
                 />
             );
         }
