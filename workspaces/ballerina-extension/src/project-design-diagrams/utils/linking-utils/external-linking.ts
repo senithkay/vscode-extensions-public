@@ -22,7 +22,7 @@ import { BallerinaConnectorInfo, GetSyntaxTreeResponse, CMService as Service } f
 import { AddConnectorArgs } from "../../resources";
 import { STResponse } from "../../activator";
 import { runBackgroundTerminalCommand } from "../../../utils/runCommand";
-import { genClientName, getMissingImports, getServiceDeclaration } from "./shared-utils";
+import { genClientName, getMainFunction, getMissingImports, getServiceDeclaration } from "./shared-utils";
 import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-utils";
 
 const EXPR_PLACEHOLDER = "()";
@@ -98,6 +98,8 @@ async function linkFromService(stResponse: STResponse, source: Service, imports:
         let updatedSTRes: STResponse;
         if (!initMember.functionSignature.returnTypeDesc) {
             updatedSTRes = await updateSyntaxTree(extLangClient, sourceFilePath, initMember.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+        } else if (!initMember.functionSignature.returnTypeDesc.type.source.replace(/\s/g, "").includes('error?')) {
+            updatedSTRes = await updateSyntaxTree(extLangClient, sourceFilePath, initMember.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
         }
         updatedSTRes = await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken,
             generateClientDecl4Service(connectorInfo)) as STResponse;
@@ -133,10 +135,17 @@ async function linkFromService(stResponse: STResponse, source: Service, imports:
 }
 
 async function linkFromMain(stResponse: STResponse, connector: BallerinaConnectorInfo, imports: Set<string>) {
-    const mainFunc = stResponse.syntaxTree.members.find((member: any) => member.kind === 'FunctionDefinition'
-        && member.functionName.value === 'main');
+    let mainFunc = getMainFunction(stResponse);
     if (mainFunc) {
-        const modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionBody.openBraceToken,
+        let modifiedST: STResponse;
+        if (!mainFunc.functionSignature.returnTypeDesc) {
+            modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+            mainFunc = getMainFunction(modifiedST);
+        } else if (!mainFunc.functionSignature.returnTypeDesc.type.source.replace(/\s/g, "").includes('error?')) {
+            modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
+            mainFunc = getMainFunction(modifiedST);
+        }
+        modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionBody.openBraceToken,
             generateClientDecl4Main(connector), imports) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
             return updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
