@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Box, createStyles, InputAdornment, makeStyles, TextField, Theme } from "@material-ui/core";
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
@@ -85,11 +85,18 @@ export default function FieldFilter(props: FieldFilterProps) {
 
     const handleOnFocus = () => {
         setIsFocused(true);
+        setFilterText(searchText);
     };
 
     const handleOnBlur = () => {
         setIsFocused(false);
     };
+
+    useEffect(() => {
+        if (!focused && searchText !== "") {
+            setFilterText(`${searchType === SearchType.Input ? `input: ` : `output: `}${searchText}`);
+        }
+    }, [focused, searchText]);
 
     const debouncedOnChange = debounce((value: string) => onSearchTextChange(value), 400);
 
@@ -104,7 +111,7 @@ export default function FieldFilter(props: FieldFilterProps) {
             >
                 <TextField
                     id={`search-${searchType}`}
-                    placeholder={`filter ${searchType === SearchType.Input ? 'input' : 'output'} fields`}
+                    placeholder={`filter ${searchType === SearchType.Input ? 'input' : 'output'}`}
                     className={classes.textField}
                     value={filterText}
                     onChange={handleOnChange}
