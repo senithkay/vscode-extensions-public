@@ -51,7 +51,7 @@ export interface AddLinkArgs {
 
 export interface DeleteLinkArgs {
     linkLocation: Location;
-    serviceLocation: Location;
+    nodeLocation: Location;
 }
 
 export const ERROR_MESSAGE = "Architecture View: Failed to generate view.";

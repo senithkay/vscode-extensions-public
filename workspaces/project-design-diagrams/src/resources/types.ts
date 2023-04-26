@@ -78,7 +78,7 @@ export interface EditLayerAPI {
     pullConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
     addConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
     addLink: (source: Service | EntryPoint, target: Service) => Promise<boolean>;
-    deleteLink: (linkLocation: Location, serviceLocation: Location) => Promise<boolean>;
+    deleteLink: (linkLocation: Location, nodeLocation: Location) => Promise<boolean>;
     pickDirectory: () => Promise<string | undefined>;
     executeCommand: (cmd: string) => Promise<boolean>;
     go2source: (location: Location) => void;

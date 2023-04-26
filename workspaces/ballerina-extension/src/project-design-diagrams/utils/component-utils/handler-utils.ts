@@ -25,7 +25,7 @@ import { WorkspaceConfig, WorkspaceItem } from "@wso2-enterprise/choreo-core";
 import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { ExtendedLangClient } from "../../../core";
 import { getLangClient, STResponse } from "../../activator";
-import { DeleteLinkArgs,  SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION } from "../../resources";
+import { DeleteLinkArgs, SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION } from "../../resources";
 import { getInitFunction, go2source, updateSyntaxTree, updateSourceFile, visitor as STNodeFindingVisitor } from "../shared-utils";
 
 export function deleteBallerinaPackage(filePath: string): void {
@@ -97,7 +97,7 @@ async function updateWorkspaceFileOnDelete(componentPath: string): Promise<void>
 }
 
 export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLinkArgs): Promise<void> {
-    const { linkLocation, serviceLocation } = args;
+    const { linkLocation, nodeLocation } = args;
     let userFeedback = UNSUPPORTED_LINK_DELETION;
     const stResponse: STResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
@@ -105,6 +105,7 @@ export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLin
         }
     }) as STResponse;
     if (stResponse.parseSuccess) {
+        let modifications: STModification[] = [];
         STNodeFindingVisitor.setPosition({
             startColumn: linkLocation.startPosition.offset,
             startLine: linkLocation.startPosition.line,
@@ -116,10 +117,10 @@ export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLin
         if (STKindChecker.isObjectField(node) && node.typeData.isEndpoint) {
             const identifierName: string = node.fieldName.value;
             STNodeFindingVisitor.setPosition({
-                startColumn: serviceLocation.startPosition.offset,
-                startLine: serviceLocation.startPosition.line,
-                endColumn: serviceLocation.endPosition.offset,
-                endLine: serviceLocation.endPosition.line
+                startColumn: nodeLocation.startPosition.offset,
+                startLine: nodeLocation.startPosition.line,
+                endColumn: nodeLocation.endPosition.offset,
+                endLine: nodeLocation.endPosition.line
             });
             traversNode(stResponse.syntaxTree, STNodeFindingVisitor);
             const serviceNode: STNode = STNodeFindingVisitor.getSTNode();
@@ -131,7 +132,7 @@ export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLin
             );
 
             if (initStatement) {
-                const modifications: STModification[] = [
+                modifications = [
                     {
                         startLine: linkLocation.startPosition.line,
                         startColumn: linkLocation.startPosition.offset,
@@ -144,19 +145,31 @@ export async function deleteLink(langClient: ExtendedLangClient, args: DeleteLin
                         ...initStatement.position
                     }
                 ];
-
-                const updatedST: STResponse = (await langClient.stModify({
-                    astModifications: modifications,
-                    documentIdentifier: {
-                        uri: Uri.file(linkLocation.filePath).toString(),
-                    }
-                })) as STResponse;
-
-                if (updatedST.parseSuccess && updatedST.source) {
-                    await updateSourceFile(langClient, linkLocation.filePath, updatedST.source).then(() => {
-                        userFeedback = SUCCESSFUL_LINK_DELETION;
-                    })
+            }
+        } else if (STKindChecker.isLocalVarDecl(node) && node.typeData.isEndpoint) {
+            modifications = [
+                {
+                    startLine: linkLocation.startPosition.line,
+                    startColumn: linkLocation.startPosition.offset,
+                    endLine: linkLocation.endPosition.line,
+                    endColumn: linkLocation.endPosition.offset,
+                    type: "DELETE"
                 }
+            ];
+        }
+
+        if (modifications.length) {
+            const updatedST: STResponse = (await langClient.stModify({
+                astModifications: modifications,
+                documentIdentifier: {
+                    uri: Uri.file(linkLocation.filePath).toString(),
+                }
+            })) as STResponse;
+
+            if (updatedST.parseSuccess && updatedST.source) {
+                await updateSourceFile(langClient, linkLocation.filePath, updatedST.source).then(() => {
+                    userFeedback = SUCCESSFUL_LINK_DELETION;
+                });
             }
         }
     }
