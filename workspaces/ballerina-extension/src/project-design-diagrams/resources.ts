@@ -43,6 +43,8 @@ export interface DeleteLinkArgs {
     serviceLocation: Location;
 }
 
+export const GLOBAL_STATE_FLAG = "LOAD_ARCHITECTURE_VIEW";
+
 export const ERROR_MESSAGE = "Architecture View: Failed to generate view.";
 export const USER_TIP = "Architecture View: If you want to generate the diagrams for multiple packages, add them to your workspace.";
 export const INCOMPATIBLE_VERSIONS_MESSAGE = "Architecture View: Incompatible Ballerina version. Update to Ballerina version 2201.2.2 or above to activate the feature.";

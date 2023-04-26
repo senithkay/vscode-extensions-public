@@ -23,10 +23,10 @@ import {
     BallerinaTriggerResponse, BallerinaTriggersResponse, CMLocation as Location, CMService as Service, CMAnnotation as Annotation
 } from "@wso2-enterprise/ballerina-languageclient";
 import { Messenger } from "vscode-messenger";
-import { commands, OpenDialogOptions, WebviewPanel, window, workspace } from "vscode";
+import { commands, ExtensionContext, OpenDialogOptions, WebviewPanel, window, workspace } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { BallerinaProjectManager } from "./manager";
-import { DIAGNOSTICS_WARNING, DeleteLinkArgs, MULTI_ROOT_WORKSPACE_PROMPT } from "../resources";
+import { DIAGNOSTICS_WARNING, DeleteLinkArgs, GLOBAL_STATE_FLAG, MULTI_ROOT_WORKSPACE_PROMPT } from "../resources";
 import { ExtendedLangClient } from "../../core";
 import { addConnector, editDisplayLabel, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -46,7 +46,7 @@ export class EditLayerRPC {
     private _messenger: Messenger = new Messenger();
     private _projectManager: ChoreoProjectManager | BallerinaProjectManager;
 
-    constructor(webview: WebviewPanel, langClient: ExtendedLangClient, isChoreoProject: boolean) {
+    constructor(webview: WebviewPanel, langClient: ExtendedLangClient, context: ExtensionContext, isChoreoProject: boolean) {
         this._messenger.registerWebviewPanel(webview);
         if (isChoreoProject) {
             this._projectManager = new ChoreoProjectManager();
@@ -149,13 +149,14 @@ export class EditLayerRPC {
             window.showInformationMessage(MULTI_ROOT_WORKSPACE_PROMPT, saveAction).then(async (selection) => {
                 if (saveAction === selection) {
                     disposeDiagramWebview();
+                    context.globalState.update(GLOBAL_STATE_FLAG, true);
                     commands.executeCommand('workbench.action.saveWorkspaceAs');
                 }
             });
         })
     }
 
-    static create(webview: WebviewPanel, langClient: ExtendedLangClient, isChoreoProject: boolean) {
-        return new EditLayerRPC(webview, langClient, isChoreoProject);
+    static create(webview: WebviewPanel, langClient: ExtendedLangClient, context: ExtensionContext, isChoreoProject: boolean) {
+        return new EditLayerRPC(webview, langClient, context, isChoreoProject);
     }
 }
