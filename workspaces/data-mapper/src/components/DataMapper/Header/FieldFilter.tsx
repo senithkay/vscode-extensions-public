@@ -14,9 +14,11 @@
 import React, { useState } from "react";
 
 import { Box, createStyles, InputAdornment, makeStyles, TextField, Theme } from "@material-ui/core";
-import { SearchOutlined } from "@material-ui/icons";
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
+import classnames from "classnames";
 import debounce from "lodash.debounce";
+
+import FilterIcon from "../../../assets/icons/FilterIcon";
 
 export enum SearchType {
     Input,
@@ -32,16 +34,24 @@ export interface FieldFilterProps {
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         searchContainer: {
-            borderRadius: 12,
-            border: `1px solid ${theme.palette.grey[100]}`,
-            padding: '0 24px',
+            borderRadius: 5,
+            border: `1px solid #E6E7EC`,
+            padding: '0 8px',
+            height: '32px',
             background: theme.palette.common.white,
-            height: '80%',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            boxShadow: 'inset 0 2px 2px rgba(29, 32, 40, 0.07)',
+            marginRight: '1rem',
+        },
+        searchContainerFocused: {
+            border: `2px solid #A6B3FF`,
         },
         textField: {
             width: '100%'
+        },
+        resize: {
+            fontSize: '12px'
         },
         clearBtn: {
             color: theme.palette.grey[300],
@@ -50,6 +60,9 @@ const useStyles = makeStyles((theme: Theme) =>
             '&:hover': {
                 color: theme.palette.grey[600],
             },
+        },
+        filterIcon: {
+            height: '10px',
         }
     }),
 );
@@ -57,7 +70,8 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function FieldFilter(props: FieldFilterProps) {
     const { searchText, onSearchTextChange, searchType } = props;
     const classes = useStyles();
-    const [filterText, setFilterText] = useState<string>(searchText);
+    const [filterText, setFilterText] = useState(searchText);
+    const [focused, setIsFocused] = useState(false);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         debouncedOnChange(event.target.value);
@@ -69,21 +83,40 @@ export default function FieldFilter(props: FieldFilterProps) {
         setFilterText("");
     };
 
+    const handleOnFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleOnBlur = () => {
+        setIsFocused(false);
+    };
+
     const debouncedOnChange = debounce((value: string) => onSearchTextChange(value), 400);
 
     return (
         <>
-            <Box className={classes.searchContainer} width={200} key={`search-${searchType}-wrap`}>
+            <Box
+                className={classnames(classes.searchContainer,
+                    focused && classes.searchContainerFocused
+                )}
+                width={200}
+                key={`search-${searchType}-wrap`}
+            >
                 <TextField
                     id={`search-${searchType}`}
-                    placeholder="Search"
+                    placeholder={`filter ${searchType === SearchType.Input ? 'input' : 'output'} fields`}
                     className={classes.textField}
                     value={filterText}
                     onChange={handleOnChange}
+                    onFocus={handleOnFocus}
+                    onBlur={handleOnBlur}
                     InputProps={{
+                        classes: {
+                            input: classes.resize
+                        },
                         startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchOutlined />
+                            <InputAdornment position="start" className={classes.filterIcon}>
+                                <FilterIcon height={"12px"} width={"12px"}/>
                             </InputAdornment>
                         ),
                         endAdornment: searchText ? (

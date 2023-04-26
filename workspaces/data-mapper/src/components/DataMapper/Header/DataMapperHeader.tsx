@@ -57,6 +57,8 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     selection={selection}
                     changeSelection={changeSelection}
                 />
+            </BreadCrumb>
+            <FilterBar>
                 <FieldFilter
                     searchText={dmStore.inputSearch}
                     onSearchTextChange={dmStore.setInputSearch}
@@ -67,7 +69,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     onSearchTextChange={dmStore.setOutputSearch}
                     searchType={SearchType.Output}
                 />
-            </BreadCrumb>
+            </FilterBar>
             {dmSupported && (
                 <TooltipComponent
                     interactive={false}
@@ -127,6 +129,11 @@ const ConfBtnText = styled.div`
 `;
 
 const BreadCrumb = styled.div`
-    width: 90%;
+    width: 50%;
+    display: flex;
+`;
+
+const FilterBar = styled.div`
+    width: 30%;
     display: flex;
 `;
