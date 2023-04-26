@@ -235,6 +235,10 @@ export function ResourceForm(props: FunctionProps) {
         setCurrentComponentName("Path");
     }
 
+    const onReturnFocus = () => {
+        setCurrentComponentName("Return");
+    }
+
     const handlePathChange = async (value: string) => {
         setShouldUpdatePath(false);
         setResourcePath(value);
@@ -396,12 +400,13 @@ export function ResourceForm(props: FunctionProps) {
                         <ConfigPanelSection title='Responses'>
                             <ResourceReturnEditor
                                 returnSource={model.functionSignature?.returnTypeDesc?.source}
-                                syntaxDiag={currentComponentSyntaxDiag}
+                                syntaxDiag={(currentComponentName === "Return" && currentComponentSyntaxDiag) || []}
                                 onChange={onReturnTypeChange}
                                 completions={completions}
                                 readonly={isEditInProgress} // todo: implement the disable logic
                                 onChangeInProgress={setIsEditInProgress}
                                 model={model}
+                                onFocus={onReturnFocus}
                             />
                         </ConfigPanelSection>
                         <div className={classes.serviceFooterWrapper}>
