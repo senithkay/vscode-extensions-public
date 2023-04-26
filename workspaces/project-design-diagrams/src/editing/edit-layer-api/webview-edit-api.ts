@@ -114,4 +114,12 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
     public goToDesign(filePath: string, position: NodePosition): void {
         return this._messenger.sendNotification({ method: 'goToDesign' }, HOST_EXTENSION, { filePath, position })
     }
+
+    public checkIsMultiRootWs(): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'checkIsMultiRootWs' }, HOST_EXTENSION, '');
+    }
+
+    public promptWorkspaceConversion(): void {
+        return this._messenger.sendNotification({ method: 'promptWorkspaceConversion' }, HOST_EXTENSION, '');
+    }
 }

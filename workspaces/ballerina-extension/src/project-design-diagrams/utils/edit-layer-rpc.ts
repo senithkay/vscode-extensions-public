@@ -20,19 +20,22 @@
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { BallerinaComponentCreationParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
 import {
-    BallerinaTriggerResponse, BallerinaTriggersResponse, CMLocation as Location, CMService as Service, CMAnnotation as Annotation
+    BallerinaTriggerResponse, BallerinaTriggersResponse, CMLocation as Location, CMAnnotation as Annotation
 } from "@wso2-enterprise/ballerina-languageclient";
 import { Messenger } from "vscode-messenger";
-import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
+import { commands, ExtensionContext, OpenDialogOptions, WebviewPanel, window, workspace } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { AddConnectorArgs, AddLinkArgs, DIAGNOSTICS_WARNING, DeleteLinkArgs } from "../resources";
+import {
+    AddConnectorArgs, AddLinkArgs, DIAGNOSTICS_WARNING, DeleteLinkArgs, GLOBAL_STATE_FLAG, MULTI_ROOT_WORKSPACE_PROMPT
+} from "../resources";
 import { ExtendedLangClient } from "../../core";
+import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PALETTE_COMMANDS } from "../../project/cmds/cmd-runner";
 import { deleteLink, editDisplayLabel } from "./component-utils";
 import { addConnector, linkServices, pullConnector } from "./linking-utils";
 import { BallerinaProjectManager } from "./project-utils/manager";
 import { go2source } from "./shared-utils";
+import { disposeDiagramWebview } from "../activator";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -45,7 +48,7 @@ export class EditLayerRPC {
     private _messenger: Messenger = new Messenger();
     private _projectManager: ChoreoProjectManager | BallerinaProjectManager;
 
-    constructor(webview: WebviewPanel, langClient: ExtendedLangClient, isChoreoProject: boolean) {
+    constructor(webview: WebviewPanel, langClient: ExtendedLangClient, context: ExtensionContext, isChoreoProject: boolean) {
         this._messenger.registerWebviewPanel(webview);
         if (isChoreoProject) {
             this._projectManager = new ChoreoProjectManager();
@@ -138,9 +141,24 @@ export class EditLayerRPC {
         this._messenger.onNotification({ method: 'showErrorMsg' }, (msg: string) => {
             window.showErrorMessage(msg);
         });
+
+        this._messenger.onRequest({ method: 'checkIsMultiRootWs' }, async (): Promise<boolean> => {
+            return workspace.workspaceFile ? true : false;
+        })
+
+        this._messenger.onNotification({ method: 'promptWorkspaceConversion' }, (): void => {
+            const saveAction = 'Save As Workspace';
+            window.showInformationMessage(MULTI_ROOT_WORKSPACE_PROMPT, saveAction).then(async (selection) => {
+                if (saveAction === selection) {
+                    disposeDiagramWebview();
+                    context.globalState.update(GLOBAL_STATE_FLAG, true);
+                    commands.executeCommand('workbench.action.saveWorkspaceAs');
+                }
+            });
+        })
     }
 
-    static create(webview: WebviewPanel, langClient: ExtendedLangClient, isChoreoProject: boolean) {
-        return new EditLayerRPC(webview, langClient, isChoreoProject);
+    static create(webview: WebviewPanel, langClient: ExtendedLangClient, context: ExtensionContext, isChoreoProject: boolean) {
+        return new EditLayerRPC(webview, langClient, context, isChoreoProject);
     }
 }

@@ -39,7 +39,8 @@ export interface QueryParamEditorProps {
     syntaxDiag?: StatementSyntaxDiagnostics[];
     readonly?: boolean;
     onChangeInProgress?: (isInProgress: boolean) => void;
-    model: ResourceAccessorDefinition
+    model: ResourceAccessorDefinition,
+    onFocus: () => void
 }
 
 export const RESOURCE_PAYLOAD_PREFIX = "@http:Payload";
@@ -49,7 +50,7 @@ export const RESOURCE_CALLER_TYPE = "http:Caller";
 export const RESOURCE_HEADER_MAP_TYPE = "http:Headers";
 
 export function ResourceReturnEditor(props: QueryParamEditorProps) {
-    const { returnSource, completions, onChange, syntaxDiag, readonly, onChangeInProgress, model } = props;
+    const { returnSource, completions, onChange, syntaxDiag, readonly, onChangeInProgress, model, onFocus } = props;
     const connectorClasses = connectorStyles();
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState<boolean>(false);
@@ -70,6 +71,9 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
     useEffect(() => {
         if (types.length > 0) {
             renderResponses(types).then(setParamComponents);
+        }
+        if (editingSegmentId !== -1) {
+            onFocus();
         }
     }, [model, types, editingSegmentId]);
 

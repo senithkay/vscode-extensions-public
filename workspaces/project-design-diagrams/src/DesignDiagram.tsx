@@ -144,6 +144,7 @@ export function DesignDiagram(props: DiagramProps) {
         consoleView,
         currentView,
         hasDiagnostics: hasDiagnostics.current,
+        workspaceFolders: projectPkgs?.size,
         setCurrentView,
         refreshDiagram,
         getTypeComposition,

@@ -41,7 +41,6 @@ import { activateWizards } from './wizards/activate';
 
 import { getLogger, initLogger } from "./logger/logger";
 import { choreoSignInCmdId } from './constants';
-import { activateTelemetry } from './telemetry/telemetry';
 
 export function activateBallerinaExtension() {
 	const ext = extensions.getExtension("wso2.ballerina");
@@ -55,7 +54,6 @@ export async function activate(context: vscode.ExtensionContext) {
   	getLogger().debug("Activating Choreo Extension");
 	ext.isPluginStartup = true;
 	ext.context = context;
-	activateTelemetry(context);
 	ext.api = new ChoreoExtensionApi();
 	setupEvents();
 	activateWizards();

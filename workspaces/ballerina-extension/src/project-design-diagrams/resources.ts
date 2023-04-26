@@ -54,12 +54,15 @@ export interface DeleteLinkArgs {
     nodeLocation: Location;
 }
 
+export const GLOBAL_STATE_FLAG = "LOAD_ARCHITECTURE_VIEW";
+
 export const ERROR_MESSAGE = "Architecture View: Failed to generate view.";
 export const USER_TIP = "Architecture View: If you want to generate the diagrams for multiple packages, add them to your workspace.";
 export const INCOMPATIBLE_VERSIONS_MESSAGE = "Architecture View: Incompatible Ballerina version. Update to Ballerina version 2201.2.2 or above to activate the feature.";
 export const DIAGNOSTICS_WARNING = "Architecture View: Please resolve the diagnostics in your workspace for a better representation of your project.";
 export const UNSUPPORTED_LINK_DELETION = "Architecture View: Cannot delete link as changes lead to errors in the source.";
 export const SUCCESSFUL_LINK_DELETION = "Architecture View: Link was deleted successfully.";
+export const MULTI_ROOT_WORKSPACE_PROMPT = "Architecture View: Save current workspace as a multi-root workspace to add components.";
 
 export const DEFAULT_SERVICE_TEMPLATE_SUFFIX = "-t service";
 export const GRAPHQL_SERVICE_TEMPLATE_SUFFIX = "-t choreo/graphql_service";

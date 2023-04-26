@@ -17,40 +17,10 @@ const BG_COLOR = "#FFF";
 
 export function GatewayIcon() {
     return (
-        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
-             x="0px" y="0px" viewBox="0 0 160 160"
-             xmlSpace="preserve">
-            <symbol id="Arrow_26" viewBox="-22.86 -13.14 45.72 26.28">
-                <rect x="-22.86" y="-13.14" style={{fill: "none"}} width="45.72" height="26.28"/>
-                <g>
-                    <polygon
-                        style={{fill: ICON_COLOR}}
-                        points="-22.86,-6.34 0.07,-6.34 0.07,-13.14 22.86,0 0.07,13.14 0.07,6.34 -22.86,6.34"
-                    />
-                </g>
-            </symbol>
-            <circle
-                style={{fill: BG_COLOR, stroke: ICON_COLOR, strokeWidth: 5, strokeMiterlimit: 10}}
-                cx="80"
-                cy="80"
-                r="74.68"
-            />
-            <g>
-                <use
-                    xlinkHref="#Arrow_26" width="45.72" height="26.28" id="XMLID_1_" x="-22.86" y="-13.14"
-                    transform="matrix(1.7329 0 0 -1.7329 82.8319 99.1286)"
-                    style={{overflow: "visible"}}
-                />
-                <use
-                    xlinkHref="#Arrow_26"
-                    width="45.72"
-                    height="26.28"
-                    x="-22.86"
-                    y="-13.14"
-                    transform="matrix(-1.7329 0 0 -1.7329 77.1681 60.8714)"
-                    style={{overflow: "visible"}}
-                />
-            </g>
+        <svg width="60" height="60" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0.5" y="31.5" width="31" height="31" rx="15.5" transform="rotate(-90 0.5 31.5)" fill={BG_COLOR}/>
+            <path d="M21 20L9 20M9 20L12.4452 23.5M9 20L12.4452 16.5M11 12L23 12M23 12L19.5548 8.5M23 12L19.5548 15.5" stroke={ICON_COLOR} strokeLinecap="round"/>
+            <rect x="0.5" y="31.5" width="31" height="31" rx="15.5" transform="rotate(-90 0.5 31.5)" stroke={ICON_COLOR}/>
         </svg>
     );
 }
