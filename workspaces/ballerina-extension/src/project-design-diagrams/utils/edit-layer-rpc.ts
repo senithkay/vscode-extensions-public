@@ -23,16 +23,17 @@ import {
     BallerinaTriggerResponse, BallerinaTriggersResponse, CMLocation as Location, CMService as Service, CMAnnotation as Annotation
 } from "@wso2-enterprise/ballerina-languageclient";
 import { Messenger } from "vscode-messenger";
-import { commands, OpenDialogOptions, WebviewPanel, window } from "vscode";
+import { commands, OpenDialogOptions, WebviewPanel, window, workspace } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { BallerinaProjectManager } from "./manager";
-import { DIAGNOSTICS_WARNING, DeleteLinkArgs } from "../resources";
+import { DIAGNOSTICS_WARNING, DeleteLinkArgs, MULTI_ROOT_WORKSPACE_PROMPT } from "../resources";
 import { ExtendedLangClient } from "../../core";
 import { addConnector, editDisplayLabel, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PALETTE_COMMANDS } from "../../project/cmds/cmd-runner";
 import { deleteLink } from "./component-handler-utils";
 import { go2source } from "./common-utils";
+import { disposeDiagramWebview } from "../activator";
 
 const directoryPickOptions: OpenDialogOptions = {
     canSelectMany: false,
@@ -138,6 +139,20 @@ export class EditLayerRPC {
         this._messenger.onNotification({ method: 'showErrorMsg' }, (msg: string) => {
             window.showErrorMessage(msg);
         });
+
+        this._messenger.onRequest({ method: 'checkIsMultiRootWs' }, async (): Promise<boolean> => {
+            return workspace.workspaceFile ? true : false;
+        })
+
+        this._messenger.onRequest({ method: 'promptWorkspaceConversion' }, (): void => {
+            const saveAction = 'Save As Workspace';
+            window.showInformationMessage(MULTI_ROOT_WORKSPACE_PROMPT, saveAction).then(async (selection) => {
+                if (saveAction === selection) {
+                    disposeDiagramWebview();
+                    commands.executeCommand('workbench.action.saveWorkspaceAs');
+                }
+            });
+        })
     }
 
     static create(webview: WebviewPanel, langClient: ExtendedLangClient, isChoreoProject: boolean) {

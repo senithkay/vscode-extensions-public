@@ -162,6 +162,12 @@ export function terminateActivation(message: string) {
     }
 }
 
+export function disposeDiagramWebview() {
+    if (designDiagramWebview) {
+        designDiagramWebview.dispose();
+    }
+}
+
 function isCompatible(majorVersion: decimal, patchVersion: number): boolean {
     if (!balVersion) {
         getVersion();

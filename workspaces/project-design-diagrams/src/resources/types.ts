@@ -86,6 +86,8 @@ export interface EditLayerAPI {
     editDisplayLabel: (annotation: Annotation) => Promise<boolean>;
     fetchTriggers: () => Promise<BallerinaTriggersResponse>;
     fetchTrigger: (triggerId: string) => Promise<BallerinaTriggerResponse>;
+    checkIsMultiRootWs: () => Promise<boolean>;
+    promptWorkspaceConversion: () => void;
 }
 
 export enum ConsoleView {

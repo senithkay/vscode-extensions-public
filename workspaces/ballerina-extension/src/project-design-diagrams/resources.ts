@@ -49,6 +49,7 @@ export const INCOMPATIBLE_VERSIONS_MESSAGE = "Architecture View: Incompatible Ba
 export const DIAGNOSTICS_WARNING = "Architecture View: Please resolve the diagnostics in your workspace for a better representation of your project.";
 export const UNSUPPORTED_LINK_DELETION = "Architecture View: Cannot delete link as changes lead to errors in the source.";
 export const SUCCESSFUL_LINK_DELETION = "Architecture View: Link was deleted successfully.";
+export const MULTI_ROOT_WORKSPACE_PROMPT = "Architecture View: Save as a multi-root workspace to add components.";
 
 export const DEFAULT_SERVICE_TEMPLATE_SUFFIX = "-t service";
 export const GRAPHQL_SERVICE_TEMPLATE_SUFFIX = "-t choreo/graphql_service";
