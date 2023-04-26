@@ -7,7 +7,8 @@
     "lint": "eslint .",
     "build": "pnpm run lint && tsc --pretty",
     "watch": "tsc --pretty --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "npm publish"
   },
   "author": "WSO2",
   "devDependencies": {
@@ -19,5 +20,12 @@
   "dependencies": {
     "vscode-messenger-common": "^0.4.3",
     "@wso2-enterprise/ballerina-languageclient": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   }
 }
