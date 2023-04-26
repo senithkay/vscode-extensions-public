@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2023, WSO2 Inc. (http://www.wso2.com). All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
  *
- * This software is the property of WSO2 Inc. and its suppliers, if any.
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
  * herein is strictly forbidden, unless permitted by WSO2 in accordance with
  * the WSO2 Commercial License available at http://wso2.com/licenses.
@@ -11,7 +11,6 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-// tslint:disable: jsx-no-lambda
 import React, { useEffect, useRef } from "react";
 
 import { Box, createStyles, InputAdornment, makeStyles, TextField, Theme } from "@material-ui/core";
@@ -19,9 +18,12 @@ import { SearchOutlined } from "@material-ui/icons";
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import debounce from "lodash.debounce";
 
-import { SearchType } from "./SearchNode";
+export enum SearchType {
+    Input,
+    Output
+}
 
-export interface SearchNodeWidgetProps {
+export interface FieldFilterProps {
     searchText: string;
     onSearchTextChange: (newValue: string) => void;
     focused?: boolean;
@@ -30,7 +32,6 @@ export interface SearchNodeWidgetProps {
     width?: number | string;
 }
 
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         searchContainer: {
@@ -38,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
             border: `1px solid ${theme.palette.grey[100]}`,
             padding: '0 24px',
             background: theme.palette.common.white,
-            height: 60,
+            height: '80%',
             display: 'flex',
             alignItems: 'center'
         },
@@ -56,8 +57,8 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export function SearchNodeWidget(props: SearchNodeWidgetProps) {
-    const { searchText, onSearchTextChange, focused, setFocused, searchType, width = 385 } = props;
+export default function FieldFilter(props: FieldFilterProps) {
+    const { searchText, onSearchTextChange, focused, setFocused, searchType, width = 200 } = props;
     const classes = useStyles();
     const inputRef = useRef<HTMLInputElement>();
 
@@ -67,11 +68,23 @@ export function SearchNodeWidget(props: SearchNodeWidgetProps) {
         }
     }, [searchText, focused]);
 
-    const handleFocus = () => {
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        debouncedOnChange(event.target.value);
+    };
+
+    const handleOnFocus = () => {
         setFocused(true);
     };
 
-    const debouncedOnChange = debounce((value: string) => onSearchTextChange(value), 500);
+    const handleOnBlur = () => {
+        setFocused(false);
+    };
+
+    const handleOnSearchTextChange = () => {
+        onSearchTextChange("");
+    };
+
+    const debouncedOnChange = debounce((value: string) => onSearchTextChange(value), 400);
 
     return (
         <>
@@ -82,9 +95,9 @@ export function SearchNodeWidget(props: SearchNodeWidgetProps) {
                     placeholder="Search"
                     className={classes.textField}
                     defaultValue={searchText}
-                    onChange={(event) => debouncedOnChange(event.target.value)}
-                    onFocus={handleFocus}
-                    onBlur={() => setFocused(false)}
+                    onChange={handleOnChange}
+                    onFocus={handleOnFocus}
+                    onBlur={handleOnBlur}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
@@ -95,7 +108,7 @@ export function SearchNodeWidget(props: SearchNodeWidgetProps) {
                             <InputAdornment position="end">
                                 <CloseRoundedIcon
                                     fontSize='small'
-                                    onClick={() => onSearchTextChange("")}
+                                    onClick={handleOnSearchTextChange}
                                     className={classes.clearBtn}
                                     data-testid={`search-clear-${searchType}`}
                                 />
