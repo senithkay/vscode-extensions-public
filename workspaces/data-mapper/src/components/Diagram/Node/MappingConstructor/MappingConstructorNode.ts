@@ -58,6 +58,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     public typeName: string;
     public rootName: string;
     public mappings: FieldAccessToSpecificFied[];
+    public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
 
@@ -74,9 +75,19 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        const originalTypeDef = this.typeDef;
         this.typeDef = getSearchFilteredOutput(this.typeDef);
 
         if (this.typeDef) {
+            const searchValue = useDMSearchStore.getState().outputSearch;
+            if (!!searchValue
+                && originalTypeDef?.fields
+                && originalTypeDef.fields.length > 0
+                && this.typeDef?.fields
+                && this.typeDef.fields.length === 0)
+            {
+                this.hasNoMatchingFields = true;
+            }
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)
                 && this.typeDef.typeName === PrimitiveBalType.Array

@@ -114,7 +114,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
             }
 
             this.getModel().getNodes().map((node) => {
-                if (node instanceof RequiredParamNode && node.value.paramName.value === paramName) {
+                if (node instanceof RequiredParamNode && node?.value && node.value.paramName.value === paramName) {
                     this.sourcePort = node.getPort(fieldId + ".OUT") as RecordFieldPortModel;
                 } else if (node instanceof FromClauseNode
                     && STKindChecker.isCaptureBindingPattern(node.value.typedBindingPattern.bindingPattern)

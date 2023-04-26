@@ -31,6 +31,7 @@ import {
     Visitor
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMSearchStore } from "../../../store/store";
 import { DataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { SelectionState } from "../../DataMapper/DataMapper";
@@ -68,10 +69,10 @@ import { QueryParentFindingVisitor } from "./QueryParentFindingVisitor"
 
 export class NodeInitVisitor implements Visitor {
 
-    private inputNodes: DataMapperNodeModel[] = [];
+    private inputParamNodes: DataMapperNodeModel[] = [];
     private outputNode: DataMapperNodeModel;
     private intermediateNodes: DataMapperNodeModel[] = [];
-    private searchNodes: DataMapperNodeModel[] = [];
+    private otherInputNodes: DataMapperNodeModel[] = [];
     private queryNode: DataMapperNodeModel;
     private mapIdentifiers: STNode[] = [];
     private isWithinQuery = 0;
@@ -148,7 +149,7 @@ export class NodeInitVisitor implements Visitor {
                         const fromClauseNode = new FromClauseNode(this.context, bodyExpr.queryPipeline.fromClause);
                         if (fromClauseNode.getSourceType()){
                             fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN + 100);
-                            this.inputNodes.push(fromClauseNode);
+                            this.inputParamNodes.push(fromClauseNode);
 
                             const fromClauseNodeValueLabel = (bodyExpr.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
                             )?.variableName?.value;
@@ -169,7 +170,7 @@ export class NodeInitVisitor implements Visitor {
                                 const paramNode = new LetClauseNode(this.context, item as LetClause);
                                 if (paramNode.getSourceType()){
                                     paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
-                                    this.inputNodes.push(paramNode);
+                                    this.inputParamNodes.push(paramNode);
                                     const letClauseValueLabel = (
                                         ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
                                             ?.bindingPattern as CaptureBindingPattern
@@ -182,7 +183,7 @@ export class NodeInitVisitor implements Visitor {
                                 const paramNode = new JoinClauseNode(this.context, item as JoinClause);
                                 if (paramNode.getSourceType()){
                                     paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
-                                    this.inputNodes.push(paramNode);
+                                    this.inputParamNodes.push(paramNode);
                                     const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
                                     const joinClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
                                     expandedHeaderPorts.push(joinClausePort);
@@ -280,7 +281,7 @@ export class NodeInitVisitor implements Visitor {
                         );
                         if (paramNode.getSourceType()){
                             paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
-                            this.inputNodes.push(paramNode);
+                            this.inputParamNodes.push(paramNode);
                         }
                     } else {
                         // TODO for other param types
@@ -295,7 +296,7 @@ export class NodeInitVisitor implements Visitor {
             exprFuncBody
         );
         letExprNode.setPosition(OFFSETS.SOURCE_NODE.X + (isFnBodyQueryExpr ? 80 : 0), 0);
-        this.inputNodes.push(letExprNode);
+        this.otherInputNodes.push(letExprNode);
 
         // create node for module variables
         if (moduleVariables.size > 0) {
@@ -304,7 +305,7 @@ export class NodeInitVisitor implements Visitor {
                 moduleVariables
             );
             moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X + (isFnBodyQueryExpr ? 80 : 0), 0);
-            this.inputNodes.push(moduleVarNode);
+            this.otherInputNodes.push(moduleVarNode);
         }
     }
 
@@ -413,7 +414,7 @@ export class NodeInitVisitor implements Visitor {
                 const fromClauseNode = new FromClauseNode(this.context, node.queryPipeline.fromClause);
                 if (fromClauseNode.getSourceType()){
                     fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN + 100);
-                    this.inputNodes.push(fromClauseNode);
+                    this.inputParamNodes.push(fromClauseNode);
 
                     const fromClauseNodeValueLabel = (
                         node.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
@@ -435,7 +436,7 @@ export class NodeInitVisitor implements Visitor {
                         const paramNode = new LetClauseNode(this.context, item as LetClause);
                         if (paramNode.getSourceType()){
                             paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
-                            this.inputNodes.push(paramNode);
+                            this.inputParamNodes.push(paramNode);
 
                             const letClauseValueLabel = (
                                 ((item as LetClause)?.letVarDeclarations[0] as LetVarDecl)?.typedBindingPattern
@@ -449,7 +450,7 @@ export class NodeInitVisitor implements Visitor {
                         const paramNode = new JoinClauseNode(this.context, item as JoinClause);
                         if (paramNode.getSourceType()){
                             paramNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
-                            this.inputNodes.push(paramNode);
+                            this.inputParamNodes.push(paramNode);
 
                             const joinClauseValueLabel = ((item as JoinClause)?.typedBindingPattern?.bindingPattern as CaptureBindingPattern)?.variableName?.value;
                             const joinClausePort = new RightAnglePortModel(true, `${EXPANDED_QUERY_INPUT_NODE_PREFIX}.${joinClauseValueLabel}`);
@@ -472,7 +473,7 @@ export class NodeInitVisitor implements Visitor {
                     true
                 );
                 letExprNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
-                this.inputNodes.push(letExprNode);
+                this.otherInputNodes.push(letExprNode);
 
                 // create node for module variables
                 const moduleVariables: Map<string, ModuleVariable> = getModuleVariables(node.selectClause.expression, this.context.stSymbolInfo);
@@ -482,7 +483,7 @@ export class NodeInitVisitor implements Visitor {
                         moduleVariables
                     );
                     moduleVarNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, 0);
-                    this.inputNodes.push(moduleVarNode);
+                    this.otherInputNodes.push(moduleVarNode);
                 }
             }
         } else if (this.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY && !isLetVarDecl && parentNode) {
@@ -652,11 +653,21 @@ export class NodeInitVisitor implements Visitor {
     }
 
     getNodes() {
-        const nodes = [...this.inputNodes];
+        if (this.inputParamNodes.length === 0 && !!useDMSearchStore.getState().inputSearch) {
+            const paramNode = new RequiredParamNode(
+                this.context,
+                undefined,
+                undefined,
+                true
+            );
+            paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
+            this.inputParamNodes.push(paramNode);
+        }
+        const nodes = [...this.inputParamNodes];
         if (this.outputNode) {
             nodes.push(this.outputNode);
         }
-        nodes.push(...this.intermediateNodes, ...this.searchNodes);
+        nodes.push(...this.intermediateNodes, ...this.otherInputNodes);
         if (this.queryNode){
             nodes.unshift(this.queryNode);
         }

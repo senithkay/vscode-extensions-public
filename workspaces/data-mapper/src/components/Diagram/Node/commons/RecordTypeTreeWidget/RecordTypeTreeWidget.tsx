@@ -20,6 +20,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { useDMSearchStore } from "../../../../../store/store";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../../utils/constants';
 import { getTypeName } from "../../../utils/dm-utils";
@@ -86,12 +87,14 @@ export interface RecordTypeTreeWidgetProps {
     engine: DiagramEngine;
     getPort: (portId: string) => RecordFieldPortModel;
     handleCollapse: (portName: string, isExpanded?: boolean) => void;
+    hasNoMatchingFields?: boolean;
     valueLabel?: string;
     nodeHeaderSuffix?: string;
 }
 
 export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
-    const { engine, typeDesc, id, getPort, handleCollapse, valueLabel, nodeHeaderSuffix } = props;
+    const { engine, typeDesc, id, getPort, handleCollapse, hasNoMatchingFields, valueLabel, nodeHeaderSuffix } = props;
+    const searchValue = useDMSearchStore.getState().inputSearch;
     const classes = useStyles();
 
     const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
@@ -143,52 +146,60 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
 
     return (
         <TreeContainer data-testid={`${id}-node`}>
-            <div className={classes.queryPortWrap}>
-                {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
-            </div>
-            <TreeHeader
-                id={"recordfield-" + id}
-                isSelected={portState !== PortState.Unselected}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
-            >
-                <span className={classes.label}>
-                    <IconButton
-                        id={"button-wrapper-" + id}
-                        className={classes.expandIcon}
-                        onClick={handleExpand}
-                        data-testid={`${id}-expand-icon-record-source-node`}
+            {hasNoMatchingFields ? (
+                <span>
+                    {`No matching input field found with name '${searchValue}'`}
+                </span>
+            ) : (
+                <>
+                    <div className={classes.queryPortWrap}>
+                        {invisiblePort && <PortWidget port={invisiblePort} engine={engine} />}
+                    </div>
+                    <TreeHeader
+                        id={"recordfield-" + id}
+                        isSelected={portState !== PortState.Unselected}
+                        onMouseEnter={onMouseEnter}
+                        onMouseLeave={onMouseLeave}
                     >
-                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                    </IconButton>
-                    {label}
-                    <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
-                </span>
-                <span className={classes.treeLabelOutPort}>
-                    {portOut &&
-                        <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
-                    }
-                </span>
-            </TreeHeader>
-            <TreeBody>
-                {expanded &&
-                    typeDesc?.fields?.map((field, index) => {
-                        return (
-                            <RecordFieldTreeItemWidget
-                                key={index}
-                                engine={engine}
-                                field={field}
-                                getPort={getPort}
-                                parentId={id}
-                                handleCollapse={handleCollapse}
-                                treeDepth={0}
-                                isOptional={typeDesc.optional}
-                                hasHoveredParent={isHovered}
-                            />
-                        );
-                    })
-                }
-            </TreeBody>
+                        <span className={classes.label}>
+                            <IconButton
+                                id={"button-wrapper-" + id}
+                                className={classes.expandIcon}
+                                onClick={handleExpand}
+                                data-testid={`${id}-expand-icon-record-source-node`}
+                            >
+                                {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                            </IconButton>
+                            {label}
+                            <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
+                        </span>
+                        <span className={classes.treeLabelOutPort}>
+                            {portOut &&
+                                <DataMapperPortWidget engine={engine} port={portOut} handlePortState={handlePortState} />
+                            }
+                        </span>
+                    </TreeHeader>
+                    <TreeBody>
+                        {expanded &&
+                            typeDesc?.fields?.map((field, index) => {
+                                return (
+                                    <RecordFieldTreeItemWidget
+                                        key={index}
+                                        engine={engine}
+                                        field={field}
+                                        getPort={getPort}
+                                        parentId={id}
+                                        handleCollapse={handleCollapse}
+                                        treeDepth={0}
+                                        isOptional={typeDesc.optional}
+                                        hasHoveredParent={isHovered}
+                                    />
+                                );
+                            })
+                        }
+                    </TreeBody>
+                </>
+            )}
         </TreeContainer>
     );
 }

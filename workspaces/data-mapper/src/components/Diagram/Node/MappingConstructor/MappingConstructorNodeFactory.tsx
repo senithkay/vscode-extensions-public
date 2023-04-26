@@ -56,6 +56,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 				value={mappingConstruct}
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 				context={event.model.context}
+				hasNoMatchingFields={event.model.hasNoMatchingFields}
 				mappings={event.model.mappings}
 				valueLabel={valueLabel}
 				deleteField={(node: STNode) => event.model.deleteField(node)}

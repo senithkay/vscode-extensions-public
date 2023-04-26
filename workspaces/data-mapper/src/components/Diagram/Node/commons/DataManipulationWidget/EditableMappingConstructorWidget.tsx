@@ -101,6 +101,7 @@ export interface EditableMappingConstructorWidgetProps {
 	engine: DiagramEngine;
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
+	hasNoMatchingFields: boolean;
 	valueLabel?: string;
 	mappings?: FieldAccessToSpecificFied[];
 	deleteField?: (node: STNode) => Promise<void>;
@@ -117,6 +118,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		engine,
 		getPort,
 		context,
+		hasNoMatchingFields,
 		mappings,
 		valueLabel,
 		deleteField,
@@ -138,6 +140,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		return true;
 	}));
 	const isAnyData = originalTypeName === AnydataType;
+	const searchValue = useDMSearchStore.getState().outputSearch;
 
 	const portIn = getPort(`${id}.IN`);
 
@@ -201,62 +204,70 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 	return (
 		<>
 			<TreeContainer data-testid={`${id}-node`}>
-				<TreeHeader
-					isSelected={portState !== PortState.Unselected}
-					id={"recordfield-" + id}
-					onMouseEnter={onMouseEnter}
-					onMouseLeave={onMouseLeave}
-				>
-					<span className={classes.treeLabelInPort}>
-						{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
-								|| !expanded
-								|| !isBodyMappingConstructor
-								|| hasEmptyFields
-							) &&
-							<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
-						}
+				{hasNoMatchingFields ? (
+					<span>
+						{`No matching output field found with name '${searchValue}'`}
 					</span>
-					<span className={classes.label}>
-						<IconButton
-							id={"button-wrapper-" + id}
-							className={classes.expandIcon}
-							style={{ marginLeft: indentation }}
-							onClick={handleExpand}
-							data-testid={`${id}-expand-icon-mapping-target-node`}
+				) : (
+					<>
+						<TreeHeader
+							isSelected={portState !== PortState.Unselected}
+							id={"recordfield-" + id}
+							onMouseEnter={onMouseEnter}
+							onMouseLeave={onMouseLeave}
 						>
-							{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-						</IconButton>
-						{label}
-					</span>
-				</TreeHeader>
-				<TreeBody>
-					{expanded && editableRecordFields &&
-						editableRecordFields.map((item, index) => {
-							return (
-								<EditableRecordFieldWidget
-									key={index}
-									engine={engine}
-									field={item}
-									getPort={getPort}
-									parentId={id}
-									parentMappingConstruct={value}
-									context={context}
-									treeDepth={0}
-									deleteField={deleteField}
-									hasHoveredParent={isHovered}
+							<span className={classes.treeLabelInPort}>
+								{portIn && (isBodyMappingConstructor || !hasSyntaxDiagnostics) && (!hasValue
+										|| !expanded
+										|| !isBodyMappingConstructor
+										|| hasEmptyFields
+									) &&
+									<DataMapperPortWidget engine={engine} port={portIn} handlePortState={handlePortState} />
+								}
+							</span>
+							<span className={classes.label}>
+								<IconButton
+									id={"button-wrapper-" + id}
+									className={classes.expandIcon}
+									style={{ marginLeft: indentation }}
+									onClick={handleExpand}
+									data-testid={`${id}-expand-icon-mapping-target-node`}
+								>
+									{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+								</IconButton>
+								{label}
+							</span>
+						</TreeHeader>
+						<TreeBody>
+							{expanded && editableRecordFields &&
+								editableRecordFields.map((item, index) => {
+									return (
+										<EditableRecordFieldWidget
+											key={index}
+											engine={engine}
+											field={item}
+											getPort={getPort}
+											parentId={id}
+											parentMappingConstruct={value}
+											context={context}
+											treeDepth={0}
+											deleteField={deleteField}
+											hasHoveredParent={isHovered}
+										/>
+									);
+								})
+							}
+							{isAnyData && (
+								<AddRecordFieldButton
+									addNewField={addNewField}
+									indentation={0}
+									existingFieldNames={subFieldNames}
+									fieldId={id}
 								/>
-							);
-						})
-					}
-					{isAnyData && (
-						<AddRecordFieldButton
-							addNewField={addNewField}
-							indentation={0}
-							existingFieldNames={subFieldNames}
-							fieldId={id}
-						/>
-					)}
-				</TreeBody>
+							)}
+						</TreeBody>
+					</>
+				)}
 			</TreeContainer>
 		</>
 	);
