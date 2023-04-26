@@ -144,7 +144,7 @@ export class EditLayerRPC {
             return workspace.workspaceFile ? true : false;
         })
 
-        this._messenger.onRequest({ method: 'promptWorkspaceConversion' }, (): void => {
+        this._messenger.onNotification({ method: 'promptWorkspaceConversion' }, (): void => {
             const saveAction = 'Save As Workspace';
             window.showInformationMessage(MULTI_ROOT_WORKSPACE_PROMPT, saveAction).then(async (selection) => {
                 if (saveAction === selection) {
