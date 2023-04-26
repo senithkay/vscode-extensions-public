@@ -21,7 +21,7 @@ import RoundEditIcon from "../../../assets/icons/RoundEditIcon";
 import { useDMSearchStore } from "../../../store/store";
 import { SelectionState, ViewOption } from "../DataMapper";
 
-import FieldFilter from "./FieldFilter";
+import FieldFilter, { SearchType } from "./FieldFilter";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 
 export const headerStyles = {
@@ -60,10 +60,12 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 <FieldFilter
                     searchText={dmStore.inputSearch}
                     onSearchTextChange={dmStore.setInputSearch}
+                    searchType={SearchType.Input}
                 />
                 <FieldFilter
                     searchText={dmStore.outputSearch}
                     onSearchTextChange={dmStore.setOutputSearch}
+                    searchType={SearchType.Output}
                 />
             </BreadCrumb>
             {dmSupported && (

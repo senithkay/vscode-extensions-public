@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useRef } from "react";
+import React, { useState } from "react";
 
 import { Box, createStyles, InputAdornment, makeStyles, TextField, Theme } from "@material-ui/core";
 import { SearchOutlined } from "@material-ui/icons";
@@ -26,10 +26,7 @@ export enum SearchType {
 export interface FieldFilterProps {
     searchText: string;
     onSearchTextChange: (newValue: string) => void;
-    focused?: boolean;
-    setFocused?: (isFocused: boolean) => void;
     searchType?: SearchType;
-    width?: number | string;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -58,46 +55,31 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function FieldFilter(props: FieldFilterProps) {
-    const { searchText, onSearchTextChange, focused, setFocused, searchType, width = 200 } = props;
+    const { searchText, onSearchTextChange, searchType } = props;
     const classes = useStyles();
-    const inputRef = useRef<HTMLInputElement>();
-
-    useEffect(() => {
-        if (focused) {
-            inputRef.current?.focus();
-        }
-    }, [searchText, focused]);
+    const [filterText, setFilterText] = useState<string>(searchText);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         debouncedOnChange(event.target.value);
-    };
-
-    const handleOnFocus = () => {
-        setFocused(true);
-    };
-
-    const handleOnBlur = () => {
-        setFocused(false);
+        setFilterText(event.target.value);
     };
 
     const handleOnSearchTextChange = () => {
         onSearchTextChange("");
+        setFilterText("");
     };
 
     const debouncedOnChange = debounce((value: string) => onSearchTextChange(value), 400);
 
     return (
         <>
-            <Box className={classes.searchContainer} width={width} key={`search-${searchType}-wrap`}>
+            <Box className={classes.searchContainer} width={200} key={`search-${searchType}-wrap`}>
                 <TextField
-                    inputRef={inputRef}
                     id={`search-${searchType}`}
                     placeholder="Search"
                     className={classes.textField}
-                    defaultValue={searchText}
+                    value={filterText}
                     onChange={handleOnChange}
-                    onFocus={handleOnFocus}
-                    onBlur={handleOnBlur}
                     InputProps={{
                         startAdornment: (
                             <InputAdornment position="start">
