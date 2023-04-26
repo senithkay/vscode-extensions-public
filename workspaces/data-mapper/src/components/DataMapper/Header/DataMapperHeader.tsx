@@ -14,14 +14,14 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { IconButton } from "@material-ui/core";
-import { createStyles, makeStyles, Theme, withStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import TooltipBase from "@material-ui/core/Tooltip";
-import HomeIcon from '@material-ui/icons/Home';
 
 import RoundEditIcon from "../../../assets/icons/RoundEditIcon";
+import { useDMSearchStore } from "../../../store/store";
 import { SelectionState, ViewOption } from "../DataMapper";
 
+import FieldFilter from "./FieldFilter";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 
 export const headerStyles = {
@@ -47,6 +47,7 @@ export interface DataMapperHeaderProps {
 export function DataMapperHeader(props: DataMapperHeaderProps) {
     const { selection, dmSupported, changeSelection, onConfigOpen } = props;
     const TooltipComponent = withStyles(headerStyles)(TooltipBase);
+    const dmStore = useDMSearchStore.getState();
 
     return (
         <HeaderContainer>
@@ -55,6 +56,14 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 <HeaderBreadcrumb
                     selection={selection}
                     changeSelection={changeSelection}
+                />
+                <FieldFilter
+                    searchText={dmStore.inputSearch}
+                    onSearchTextChange={dmStore.setInputSearch}
+                />
+                <FieldFilter
+                    searchText={dmStore.outputSearch}
+                    onSearchTextChange={dmStore.setOutputSearch}
                 />
             </BreadCrumb>
             {dmSupported && (
@@ -80,7 +89,7 @@ const HeaderContainer = styled.div`
     height: 50px;
     display: flex;
     padding: 15px;
-    background-color: white;
+    background-color: #f7f8fb;
     align-items: center;
     border-bottom: 1px solid rgba(102,103,133,0.15);
 `;

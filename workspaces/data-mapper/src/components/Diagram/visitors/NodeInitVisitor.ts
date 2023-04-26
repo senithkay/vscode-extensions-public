@@ -24,7 +24,6 @@ import {
     NodePosition,
     QueryExpression,
     SelectClause,
-    SimpleNameReference,
     SpecificField,
     STKindChecker,
     STNode,
@@ -50,7 +49,6 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
-import { SearchNode, SearchType } from "../Node/Search";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
@@ -159,10 +157,6 @@ export class NodeInitVisitor implements Visitor {
                             fromClauseNode.addPort(fromClausePort);
                         }
 
-                        const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-                        inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
-                        this.inputNodes.push(inputSearchNode);
-
                         const letClauses = bodyExpr.queryPipeline.intermediateClauses?.filter((item) => {
                             return (
                                 (STKindChecker.isLetClause(item) && item.typeData?.diagnostics?.length === 0) ||
@@ -270,9 +264,6 @@ export class NodeInitVisitor implements Visitor {
                         returnType
                     );
                 }
-                const outputSearchNode = new SearchNode(this.context, SearchType.Output)
-                outputSearchNode.setPosition(OFFSETS.TARGET_NODE.X, 10);
-                this.searchNodes.push(outputSearchNode);
                 this.outputNode.setPosition(OFFSETS.TARGET_NODE.X, OFFSETS.TARGET_NODE.Y);
             }
         }
@@ -296,9 +287,6 @@ export class NodeInitVisitor implements Visitor {
                     }
                 }
             }
-            const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-            inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X, 10);
-            this.inputNodes.push(inputSearchNode);
         }
 
         // create node for configuring local variables
@@ -434,10 +422,6 @@ export class NodeInitVisitor implements Visitor {
                     expandedHeaderPorts.push(fromClausePort);
                     fromClauseNode.addPort(fromClausePort);
                 }
-
-                const inputSearchNode = new SearchNode(this.context, SearchType.Input)
-                inputSearchNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
-                this.inputNodes.push(inputSearchNode);
 
                 const letClauses = node.queryPipeline.intermediateClauses?.filter((item) => {
                     return (

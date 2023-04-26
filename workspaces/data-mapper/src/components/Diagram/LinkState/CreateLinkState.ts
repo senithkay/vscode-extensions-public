@@ -11,7 +11,6 @@ import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { LinkConnectorNode } from '../Node/LinkConnector';
 import { ModuleVariableNode } from "../Node/ModuleVariable";
-import { SearchNode } from "../Node/Search";
 import { IntermediatePortModel } from '../Port';
 import { RecordFieldPortModel } from '../Port/model/RecordFieldPortModel';
 
@@ -135,8 +134,6 @@ export class CreateLinkState extends State<DiagramEngine> {
 						this.link?.remove();
 						this.clearState();
 						this.eject();
-					} else if (element instanceof SearchNode) {
-						return;
 					}
 
 					this.engine.repaintCanvas();

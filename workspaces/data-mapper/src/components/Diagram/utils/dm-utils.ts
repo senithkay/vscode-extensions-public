@@ -62,7 +62,6 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
-import { SearchNode } from "../Node/Search";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
@@ -1203,8 +1202,7 @@ export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: strin
 export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
 	const inputSearchVal = useDMSearchStore.getState().inputSearch;
 	const ioNodes = nodes.filter(node => !(
-		node instanceof SearchNode
-		|| node instanceof LetExpressionNode
+		node instanceof LetExpressionNode
 		|| node instanceof QueryExpressionNode
 		|| node instanceof LinkConnectorNode
 		|| node instanceof JoinClauseNode
