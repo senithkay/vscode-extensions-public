@@ -16,12 +16,8 @@ export interface DataMapperState {
 export interface DataMapperSearchState {
   inputSearch: string;
   setInputSearch: (inputSearch: string) => void;
-  inputSearchFocused: boolean;
-  setInputSearchFocused: (focused: boolean) => void;
   outputSearch: string;
   setOutputSearch: (outputSearch: string) => void;
-  outputSearchFocused: boolean;
-  setOutputSearchFocused: (focused: boolean) => void;
   resetSearchStore: () => void;
 }
 
@@ -39,12 +35,8 @@ export const useDMStore = create<DataMapperState>((set) => ({
 
 export const useDMSearchStore = create<DataMapperSearchState>((set) => ({
   inputSearch: "",
-  inputSearchFocused: false,
   outputSearch: "",
-  outputSearchFocused: false,
   setInputSearch: (inputSearch: string) => set({ inputSearch }),
-  setInputSearchFocused: (inputSearchFocused: boolean) => set({ inputSearchFocused }),
   setOutputSearch: (outputSearch: string) => set({ outputSearch }),
-  setOutputSearchFocused: (outputSearchFocused: boolean) => set({ outputSearchFocused }),
-  resetSearchStore: () => set({ inputSearch: '', inputSearchFocused: false, outputSearch: '', outputSearchFocused: false })
+  resetSearchStore: () => set({ inputSearch: '', outputSearch: '' })
 }));
