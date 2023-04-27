@@ -67,8 +67,8 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	}, [node])
 
 	const checkLinkStatus = (): boolean => {
-		return currentView === Views.L1_SERVICES && editingEnabled && newLinkNodes.source?.getID() === node.getID()
-			|| newLinkNodes.target?.getID() === node.getID();
+		return currentView === Views.L1_SERVICES && editingEnabled &&
+			(newLinkNodes.source?.getID() === node.getID() || newLinkNodes.target?.getID() === node.getID());
 	}
 
 	const setLinkStatus = async () => {
