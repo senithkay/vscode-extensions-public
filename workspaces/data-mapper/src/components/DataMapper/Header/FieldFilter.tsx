@@ -104,15 +104,14 @@ export default function FieldFilter(props: FieldFilterProps) {
 
     return (
         <>
-            {/*<SearchBox onSearch={undefined} />*/}
-            <Box
-                className={classnames(classes.searchContainer,
-                    focused && classes.searchContainerFocused
-                )}
-                width={200}
-                key={`search-${searchType}-wrap`}
-            >
-                <SearchBox onSearch={undefined} />
+            <SearchBox onSearch={undefined} />
+            {/*<Box*/}
+            {/*    className={classnames(classes.searchContainer,*/}
+            {/*        focused && classes.searchContainerFocused*/}
+            {/*    )}*/}
+            {/*    width={200}*/}
+            {/*    key={`search-${searchType}-wrap`}*/}
+            {/*>*/}
                 {/*<TextField*/}
                 {/*    id={`search-${searchType}`}*/}
                 {/*    placeholder={`filter ${searchType === SearchType.Input ? 'input' : 'output'}`}*/}
@@ -142,7 +141,7 @@ export default function FieldFilter(props: FieldFilterProps) {
                 {/*        ) : null*/}
                 {/*    }}*/}
                 {/*/>*/}
-            </Box>
+            {/*</Box>*/}
         </>
     );
 }
