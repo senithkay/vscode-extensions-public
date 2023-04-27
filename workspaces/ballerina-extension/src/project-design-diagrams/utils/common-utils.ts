@@ -22,15 +22,16 @@ import { existsSync } from "fs";
 import { join } from "path";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ExtendedLangClient, GetPackageComponentModelsResponse } from "../../core";
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { ExtendedLangClient } from "../../core";
 import { terminateActivation } from "../activator";
-import { ComponentModel, ERROR_MESSAGE, Location } from "../resources";
+import { ERROR_MESSAGE } from "../resources";
 import { getChoreoExtAPI } from "../../choreo-features/activate";
 import { deleteBallerinaPackage, deleteService } from "./component-handler-utils";
 
 const ballerinaToml = "Ballerina.toml";
 
-export function getComponentModel(langClient: ExtendedLangClient, isChoreoProject: boolean): Promise<GetPackageComponentModelsResponse> {
+export function getComponentModel(langClient: ExtendedLangClient, isChoreoProject: boolean): Promise<GetComponentModelResponse> {
     return new Promise((resolve, reject) => {
         let ballerinaFiles: string[] = [];
         let workspaceFolders = workspace.workspaceFolders;
@@ -55,7 +56,7 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
                 for (let [_key, packageModel] of packageModels) {
                     if (packageModel.hasCompilationErrors) {
                         response.diagnostics.push({
-                            message: `Compilation errors found in ${packageModel.packageId.name}`,
+                            name: packageModel.packageId.name
                         });
                         break;
                     }
@@ -63,7 +64,7 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
             }
 
             const choreoExt = await getChoreoExtAPI();
-            if (choreoExt && isChoreoProject) {
+            if (packageModels.size && choreoExt && isChoreoProject) {
                 packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
             }
             resolve(response);

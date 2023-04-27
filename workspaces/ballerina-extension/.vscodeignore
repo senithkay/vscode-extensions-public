@@ -69,3 +69,5 @@ ballerina-low-code-editor/
 **/*.deb
 *.code-workspace
 .rush/
+config/
+**/*.log

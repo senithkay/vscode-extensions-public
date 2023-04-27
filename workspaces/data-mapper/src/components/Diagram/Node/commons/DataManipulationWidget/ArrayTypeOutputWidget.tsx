@@ -26,6 +26,7 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getExprBodyFromLetExpression, isConnectedViaLink } from "../../../utils/dm-utils";
+import { OutputSearchHighlight } from '../SearchHighlight';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
@@ -172,7 +173,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		<span style={{ marginRight: "auto" }}>
 			{valueLabel && (
 				<span className={classnames(classes.valueLabel, isDisabled ? classes.valueLabelDisabled : "")}>
-					{valueLabel}
+					<OutputSearchHighlight>{valueLabel}</OutputSearchHighlight>
 					{typeName && ":"}
 				</span>
 			)}
@@ -193,44 +194,59 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 	};
 
 	return (
-		<TreeContainer>
-			<TreeHeader isSelected={portState !== PortState.Unselected} isDisabled={isDisabled} id={"recordfield-" + id}>
-				<span className={classes.treeLabelInPort}>
-					{portIn && shouldPortVisible && (
-						<DataMapperPortWidget
+		<>
+			{/* TODO: Add search functionality by fixing the node positioning issues */}
+			{/*<SearchNodeWidget*/}
+			{/*	searchText={dmStore.outputSearch}*/}
+			{/*	onSearchTextChange={dmStore.setOutputSearch}*/}
+			{/*	engine={engine}*/}
+			{/*	focused={dmStore.outputSearchFocused}*/}
+			{/*	setFocused={dmStore.setOutputSearchFocused}*/}
+			{/*	searchType={SearchType.Output}*/}
+			{/*	width='100%'*/}
+			{/*/>*/}
+			{/*<TreeContainerWithTopMargin data-testid={`${id}-node`}>*/}
+			<TreeContainer data-testid={`${id}-node`}>
+				<TreeHeader isSelected={portState !== PortState.Unselected} isDisabled={isDisabled} id={"recordfield-" + id}>
+					<span className={classes.treeLabelInPort}>
+						{portIn && shouldPortVisible && (
+							<DataMapperPortWidget
+								engine={engine}
+								port={portIn}
+								disable={isDisabled}
+								handlePortState={handlePortState}
+							/>
+						)}
+					</span>
+					<span className={classes.label}>
+						<IconButton
+							className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
+							style={{ marginLeft: indentation }}
+							onClick={handleExpand}
+							data-testid={`${id}-expand-icon-mapping-target-node`}
+						>
+							{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+						</IconButton>
+						{label}
+					</span>
+				</TreeHeader>
+				<TreeBody>
+					{expanded && field && isBodyListConstructor && (
+						<ArrayTypedEditableRecordFieldWidget
+							key={id}
 							engine={engine}
-							port={portIn}
-							disable={isDisabled}
-							handlePortState={handlePortState}
+							field={field}
+							getPort={getPort}
+							parentId={id}
+							parentMappingConstruct={undefined}
+							context={context}
+							deleteField={deleteField}
+							isReturnTypeDesc={true}
 						/>
 					)}
-				</span>
-				<span className={classes.label}>
-					<IconButton
-						className={classnames(classes.expandIcon, isDisabled ? classes.expandIconDisabled : "")}
-						style={{ marginLeft: indentation }}
-						onClick={handleExpand}
-					>
-						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-					</IconButton>
-					{label}
-				</span>
-			</TreeHeader>
-			<TreeBody>
-				{expanded && field && isBodyListConstructor && (
-					<ArrayTypedEditableRecordFieldWidget
-						key={id}
-						engine={engine}
-						field={field}
-						getPort={getPort}
-						parentId={id}
-						parentMappingConstruct={undefined}
-						context={context}
-						deleteField={deleteField}
-						isReturnTypeDesc={true}
-					/>
-				)}
-			</TreeBody>
-		</TreeContainer>
+				</TreeBody>
+			</TreeContainer>
+			{/*</TreeContainerWithTopMargin>*/}
+		</>
 	);
 }

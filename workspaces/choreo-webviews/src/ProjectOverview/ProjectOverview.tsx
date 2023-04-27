@@ -128,32 +128,40 @@ export function ProjectOverview(props: ProjectOverviewProps) {
             fetchedProjects.find((i) => i.id === projectId),
     });
 
-    const { isLoading: isLoadingCompOnly, isRefetching: refetchingCompOnly, refetch: refetchComponentsOnly, isFetched } = useQuery({
-        queryKey: ["overview_component_list_only", projectId],
-        queryFn: () => {
-            refetchUsage();
-            return ChoreoWebViewAPI.getInstance().getComponents(projectId)
-        },
-        refetchInterval: 120000, // check for new components every 2 minutes
-        onSuccess: () => {
-            refetchComponents();
-        },
-        refetchOnWindowFocus: false,
-        enabled: validOrg && isLoggedIn,
-    });
-
     const {
         data: components = [],
         isLoading: loadingComponents,
         isRefetching: refetchingComponents,
         refetch: refetchComponents,
+        isError: isComponentLoadError,
+        isFetched,
     } = useQuery({
         queryKey: ["overview_component_list", projectId],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId),
+        queryFn: async () => {
+            refetchUsage();
+            const compList = await ChoreoWebViewAPI.getInstance().getComponents(projectId);
+            queryClient.setQueriesData(["overview_component_list", projectId], compList);
+            return ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
+        },
+        refetchOnWindowFocus: false,
         onError: (error: Error) => ChoreoWebViewAPI.getInstance().showErrorMsg(error.message),
-        refetchInterval: 15000, // Refetch component status every 15 seconds
-        enabled: !refetchingCompOnly && isFetched && isLoggedIn && validOrg
+        enabled: isLoggedIn && validOrg,
+        keepPreviousData: true
     });
+
+    const {
+        isLoading: isReloadComponents,
+        isFetching: isRefetchingComponents
+    } = useQuery({
+        queryKey: ['overview_component_list_auto_refresh', projectId, isFetched],
+        queryFn: async () => {
+            const compList = await ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
+            queryClient.setQueryData(["overview_component_list", projectId], compList);
+            return null;
+        },
+        refetchInterval: 15000, // Refetch component status every 15 seconds
+        enabled: isLoggedIn && validOrg && isFetched && !refetchingComponents,
+    })
 
     useQuery({
         queryKey: ["deleted_component_show_prompt", projectId, isActive],
@@ -167,9 +175,20 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         enabled: isActive
     });
 
+    useQuery({
+        queryKey: ["deleted_project_show_warning", projectId, isActive],
+        queryFn: async () => ChoreoWebViewAPI.getInstance().checkProjectDeleted(projectId),
+        refetchOnWindowFocus: false,
+        refetchInterval: 15000, // Refetch component status every 15 seconds,
+        enabled: isActive
+    });
+
     const { data: location } = useQuery({
         queryKey: ["overview_project_location", projectId],
-        queryFn: () => ChoreoWebViewAPI.getInstance().getProjectLocation(projectId),
+        queryFn: async () => {
+            const location = await ChoreoWebViewAPI.getInstance().getProjectLocation(projectId);
+            return location || null;
+        },
         enabled: isLoggedIn && validOrg
     });
 
@@ -187,7 +206,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
                 const filteredComponents = previousComponents?.filter(item => data.local ? item.name !== data.name : item.id !== data.id);
                 queryClient.setQueryData(["overview_component_list", projectId], filteredComponents)
-                refetchComponentsOnly();
+                refetchComponents();
             }
         },
     });
@@ -198,16 +217,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         onSuccess: async (_, name) => {
             await queryClient.cancelQueries({ queryKey: ["overview_component_list", projectId] })
             const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
-            const updatedComponents = previousComponents?.map(item => item.name === name ? ({ ...item, local: false }): item);
+            const updatedComponents = previousComponents?.map(item => item.name === name ? ({ ...item, local: false }) : item);
             queryClient.setQueryData(["overview_component_list", projectId], updatedComponents)
-            refetchComponentsOnly()
+            refetchComponents()
         },
     });
 
-    const { mutate: handleRefreshComponentsClick, isLoading: reloadingRegistry } = useMutation({
-        mutationFn: () => ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.projects.registry.refresh"),
-        onSuccess: () => refetchComponentsOnly(),
-    });
 
     const { mutate: handlePushToChoreoClick, isLoading: pushingComponent } =
         useMutation({
@@ -218,7 +233,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                 const previousComponents: Component[] = queryClient.getQueryData(["overview_component_list", projectId])
                 const updatedComponents = previousComponents?.map(item => ({ ...item, local: false }));
                 queryClient.setQueryData(["overview_component_list", projectId], updatedComponents)
-                refetchComponentsOnly()
+                refetchComponents()
             },
         });
 
@@ -293,7 +308,19 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         return false;
     }, [pushableComponentCount, usageData, componentLimit]);
 
-    const fetchingComponents = reloadingRegistry || loadingComponents || refetchingComponents || isLoadingCompOnly || refetchingCompOnly;
+    const fetchingComponents = loadingComponents || refetchingComponents || isReloadComponents || isRefetchingComponents;
+
+    const componentsPlaceholderLabel = useMemo(() => {
+        if (components.length === 0){
+            if (isComponentLoadError) {
+                return "Failed to fetch component list"
+            } else if (!validProject){
+                return "No components found. Clone & Open the project to create components."
+            } else {
+                return "No components found."
+            }
+        }
+    }, [isComponentLoadError, components, validProject])
 
     return (
         <>
@@ -309,13 +336,13 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     </VSCodeButton>
                     <VSCodeTag title={inactiveMessage}>{isActive ? "Active" : "Inactive"}</VSCodeTag>
                 </HeaderContainer>
-                {location === undefined && (
+                {location === null && (
                     <>
                         <p>
                             <InlineIcon>
                                 <Codicon name="info" />
                             </InlineIcon>{" "}
-                            To open the project clone in to your local machine
+                            To develop the project, clone it to your local machine.
                         </p>
                         <ActionContainer>
                             <VSCodeButton
@@ -332,7 +359,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                     <InlineIcon>
                                         <Codicon name="info" />
                                     </InlineIcon>{" "}
-                                    Open the architecture view to add components.{" "}
+                                    Open the architecture view to visualise your project components.{" "}
                                 </p>
                                 <ActionContainer>
                                     <VSCodeButton
@@ -346,7 +373,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         )}
                     </>
                 )}
-                {location !== undefined && !isActive && (
+                {location !== null && !validProject && (
                     <>
                         <p>
                             <InlineIcon>
@@ -360,6 +387,20 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                 onClick={handleOpenProjectClick}
                             >
                                 Open Project
+                            </VSCodeButton>
+                        </ActionContainer>
+                        <p>
+                            <InlineIcon>
+                                <Codicon name="info" />
+                            </InlineIcon>{" "}
+                            Open the architecture view to visualise your project components.{" "}
+                        </p>
+                        <ActionContainer>
+                            <VSCodeButton
+                                appearance="primary"
+                                onClick={handleOpenChoreoArchitectureViewClick}
+                            >
+                                Architecture View
                             </VSCodeButton>
                         </ActionContainer>
                     </>
@@ -399,7 +440,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                     {!fetchingComponents && (
                         <VSCodeButton
                             appearance="icon"
-                            onClick={() => refetchComponentsOnly()}
+                            onClick={() => refetchComponents()}
                             title="Refresh component list"
                             disabled={!isActive || fetchingComponents}
                         >
@@ -407,20 +448,36 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         </VSCodeButton>
                     )}
                 </ComponentsHeader>
-                <ComponentList
-                    components={components}
-                    projectId={projectId}
-                    orgName={orgName}
-                    openSourceControl={handleOpenSourceControlClick}
-                    onComponentDeleteClick={handleDeleteComponentClick}
-                    handlePushComponentClick={handlePushComponentClick}
-                    loading={pushingComponent || pushingSingleComponent || deletingComponent}
-                    fetchingComponents={fetchingComponents}
-                    isActive={isActive}
-                    choreoUrl={choreoUrl}
-                    reachedChoreoLimit={pushableComponentCount > (componentLimit - (usageData?.componentCount || 0))}
-                    refreshComponentStatus={refetchComponents}
-                />
+
+                {components.length === 0 && fetchingComponents && (
+                    <VSCodeProgressRing />
+                )}
+
+                {componentsPlaceholderLabel && !fetchingComponents && (
+                    <p>
+                        <InlineIcon>
+                            <Codicon name="info" />
+                        </InlineIcon>{" "}
+                        {componentsPlaceholderLabel}
+                    </p>
+                )}
+
+                {components.length > 0 && (
+                    <ComponentList
+                        components={components}
+                        projectId={projectId}
+                        orgName={orgName}
+                        openSourceControl={handleOpenSourceControlClick}
+                        onComponentDeleteClick={handleDeleteComponentClick}
+                        handlePushComponentClick={handlePushComponentClick}
+                        loading={pushingComponent || pushingSingleComponent || deletingComponent}
+                        fetchingComponents={fetchingComponents}
+                        isActive={isActive}
+                        choreoUrl={choreoUrl}
+                        reachedChoreoLimit={0 >= (componentLimit - (usageData?.componentCount || 0))}
+                        refreshComponentStatus={refetchComponents}
+                    />
+                )}
 
                 {componentsOutOfSync && (
                     <>
@@ -444,7 +501,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             </VSCodeButton>
                             <VSCodeButton
                                 appearance="secondary"
-                                onClick={() => handleRefreshComponentsClick()}
+                                onClick={() => refetchComponents()}
                                 disabled={fetchingComponents || !isActive}
                             >
                                 <Codicon name="refresh" />

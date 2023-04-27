@@ -18,6 +18,7 @@
  */
 
 import createEngine, { DiagramEngine, NodeModel } from '@projectstorm/react-diagrams';
+import { CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
 import { EntityFactory, EntityLinkFactory, EntityPortFactory } from '../components/entity-relationship';
 import {
     EntryNodeFactory,
@@ -34,7 +35,6 @@ import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeM
 import { GatewayLinkFactory } from "../components/gateway/GatewayLink/GatewayLinkFactory";
 import { Point } from "@projectstorm/geometry";
 import { GatewayType } from "../components/gateway/types";
-import { Service } from "../resources";
 import { GatewayPortModel } from "../components/gateway/GatewayPort/GatewayPortModel";
 import { GatewayLinkModel } from "../components/gateway/GatewayLink/GatewayLinkModel";
 
@@ -43,8 +43,10 @@ export const diagramTopXOffset = 600;
 export const diagramTopYOffset = 190;
 export const diagramLeftXOffset = 30;
 export const diagramLeftYOffset = 0;
-export const CELL_DIAGRAM_MARGIN_X = 100;
-export const CELL_DIAGRAM_MARGIN_Y = 0;
+export const CELL_DIAGRAM_MIN_WIDTH = 400;
+export const CELL_DIAGRAM_MAX_WIDTH = 800;
+export const CELL_DIAGRAM_MIN_HEIGHT = 250;
+export const CELL_DIAGRAM_MAX_HEIGHT = 600;
 
 export interface ZoomOffset {
     topXOffset: number;
@@ -232,8 +234,22 @@ export function cellDiagramZoomToFit(diagramEngine: DiagramEngine) {
         node => !(node instanceof GatewayNodeModel)
     );
     const nodesRect = diagramEngine.getBoundingNodesRect(nodesWithoutGW);
-    diagramEngine.getModel().setOffset((nodesRect.getWidth() / 2) + CELL_DIAGRAM_MARGIN_X,
-        (nodesRect.getHeight() / 2) + CELL_DIAGRAM_MARGIN_Y);
+    let modelWidthOffset = nodesRect.getWidth() / 2;
+    if (modelWidthOffset < CELL_DIAGRAM_MIN_WIDTH) {
+        modelWidthOffset = CELL_DIAGRAM_MIN_WIDTH;
+    } else if (modelWidthOffset > CELL_DIAGRAM_MAX_WIDTH) {
+        modelWidthOffset = CELL_DIAGRAM_MAX_WIDTH;
+    }
+    let modelHeightOffset = nodesRect.getHeight() / 2;
+    if (modelWidthOffset < CELL_DIAGRAM_MIN_HEIGHT) {
+        modelHeightOffset = CELL_DIAGRAM_MIN_HEIGHT;
+    } else if (modelWidthOffset > CELL_DIAGRAM_MAX_HEIGHT) {
+        modelHeightOffset = CELL_DIAGRAM_MAX_HEIGHT;
+    }
+    modelHeightOffset = modelHeightOffset > 300  ? modelHeightOffset - (nodesRect.getHeight() * 0.5)
+        : modelHeightOffset;
+    diagramEngine.getModel().setOffset(modelWidthOffset - (nodesRect.getWidth() * 0.4),
+        modelHeightOffset);
     positionGatewayNodes(diagramEngine);
     diagramEngine.repaintCanvas();
 }

@@ -21,10 +21,10 @@ import React, { ChangeEvent } from 'react';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
 import Popover from '@mui/material/Popover';
-import { PackageLabel, PopupContainer } from '../styles/styles';
-import { DagreLayout } from '../../../../resources';
 import RadioGroup from '@mui/material/RadioGroup';
 import Radio from '@mui/material/Radio';
+import { PackageLabel, PopupContainer } from '../styles/styles';
+import { DagreLayout } from '../../../../resources';
 
 interface PopoverProps {
     anchorElement: HTMLButtonElement;

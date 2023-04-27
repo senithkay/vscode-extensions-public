@@ -12,7 +12,7 @@
  */
 import { IProjectManager, serializeError } from "@wso2-enterprise/choreo-core";
 import { Messenger } from "vscode-messenger";
-import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTrigger, FetchBallerinaTriggers, GetBallerinaVersion, GetProjectDetails, GetProjectRoot, GetRepoPathRequest, IsRepoClonedRequest } from "./types";
+import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTrigger, FetchBallerinaTriggers, GetBallerinaVersion, GetProjectDetails, GetProjectRoot, GetRepoPathRequest, IsComponentNameAvailableRequest, IsRepoClonedRequest } from "./types";
 
 export function registerChoreoProjectManagerRPCHandlers(messenger: Messenger, manager: IProjectManager) {
     messenger.onRequest(CreateLocalComponentRequest, (params) => manager.createLocalComponent(params).catch(serializeError));
@@ -22,6 +22,7 @@ export function registerChoreoProjectManagerRPCHandlers(messenger: Messenger, ma
     messenger.onRequest(GetProjectRoot, () => manager.getProjectRoot().catch(serializeError));
     messenger.onRequest(GetProjectDetails, () => manager.getProjectDetails().catch(serializeError));
     messenger.onRequest(IsRepoClonedRequest, (params) => manager.isRepoCloned(params).catch(serializeError));
+    messenger.onRequest(IsComponentNameAvailableRequest, (cmpName) => manager.isComponentNameAvailable(cmpName));
     messenger.onRequest(GetRepoPathRequest, (repo) => manager.getRepoPath(repo));
     messenger.onRequest(CloneRepoRequeset, (params) => manager.cloneRepo(params).catch(serializeError));
     messenger.onRequest(GetBallerinaVersion, () => manager.getBalVersion().catch(serializeError));

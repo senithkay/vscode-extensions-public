@@ -11,10 +11,16 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project, Component, GetComponentModelResponse, PushedComponent, ComponentCount } from './types';
+import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
+import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
+      orgName: string;
+      repoName: string;
+      projectID: string;
+}
+export interface IsBareRepoRequestParams {
       orgName: string;
       repoName: string;
       projectID: string;
@@ -40,6 +46,7 @@ export const setProjectRepository: RequestType<{ projId: string, repo: string },
 export const getProjectRepository: RequestType<string, string> = { method: 'getProjectRepository' };
 export const setPreferredProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setPreferredProjectRepository' };
 export const getPreferredProjectRepository: RequestType<string, string> = { method: 'getPreferredProjectRepository' };
+export const CheckProjectDeleted: RequestType<string, void> = { method: 'CheckProjectDeleted' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
@@ -51,6 +58,7 @@ export const ExecuteCommandRequest: RequestType<string[], unknown> = { method: '
 export const UpdateProjectOverview: RequestType<string, void> = { method: 'updateProjectOverview' };
 export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };
 export const GetComponentCount: RequestType<number, ComponentCount> = { method: 'getComponentCount' };
+export const IsBareRepoRequest: RequestType<IsBareRepoRequestParams, boolean> = { method: 'isBareRepo' };
 
 export interface OpenDialogOptions {
    title: string,

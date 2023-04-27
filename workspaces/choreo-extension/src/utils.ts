@@ -11,7 +11,8 @@
  *  associated services.
  */
 
-import { ApiVersion, Service } from "@wso2-enterprise/choreo-core";
+import { ComponentModel, CMLocation as Location, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { ApiVersion, Component } from "@wso2-enterprise/choreo-core";
 
 export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
     isLocal: boolean, accessibility?: string): boolean {
@@ -75,4 +76,52 @@ export function enrichConsoleDeploymentData(pkgServices: Map<string, Service>, a
         };
     }
     return services.length > 0;
+}
+
+export function mergeNonClonedProjectData(component: Component): ComponentModel {
+    const pkgServices: { [key: string]: Service } = {};
+    pkgServices[component.id] = {
+        serviceId: component.displayName,
+        serviceType: component.displayType,
+        annotation: {
+            id: component.id,
+            label: component.displayName,
+            elementLocation: getMockElementLocation()
+        },
+        elementLocation: getMockElementLocation(),
+        deploymentMetadata: {
+            gateways: {
+                internet: {
+                    isExposed: false
+                },
+                intranet: {
+                    isExposed: false
+                }
+            }
+        },
+        path: "",
+        dependencies: [],
+        remoteFunctions: [],
+        resources: []
+    };
+    return {
+        packageId: { name: component.name, org: component.orgHandler, version: component.version },
+        services: pkgServices as any,
+        entities: new Map(),
+        hasCompilationErrors: false
+    };
+}
+
+function getMockElementLocation(): Location {
+    return {
+        filePath: "",
+        startPosition: {
+            line: 0,
+            offset: 0
+        },
+        endPosition: {
+            line: 0,
+            offset: 0
+        }
+    };
 }

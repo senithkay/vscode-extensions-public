@@ -18,6 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
+import { CMLocation as Location, CMService as Service, CMAnnotation as Annotation } from '@wso2-enterprise/ballerina-languageclient';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -25,7 +26,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { DiagramContext } from '../../../DiagramContext/DiagramContext';
-import { Location, Service, ServiceAnnotation } from '../../../../../resources';
 import { DefaultTextProps, TitleTextProps } from '../styles/styles';
 
 interface EditLabelDialogProps {
@@ -38,7 +38,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
     const { service, showDialog, updateShowDialog } = props;
     const { editLayerAPI, refreshDiagram } = useContext(DiagramContext);
 
-    const [serviceLabel, updateServiceLabel] = useState<string>(undefined);
+    const [serviceLabel, updateServiceLabel] = useState<string>(service.annotation?.label);
 
     const getAnnotationLocation = (): Location => {
         if (service.annotation?.elementLocation) {
@@ -52,7 +52,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
     }
 
     const editComponentLabel = async () => {
-        const updatedAnnotation: ServiceAnnotation = {
+        const updatedAnnotation: Annotation = {
             label: serviceLabel,
             id: service.annotation?.id,
             elementLocation: getAnnotationLocation()
@@ -67,7 +67,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
     }
 
     const handleDialogClose = () => {
-        updateServiceLabel(undefined);
+        updateServiceLabel(service.annotation?.label);
         updateShowDialog(false);
     }
 
@@ -79,17 +79,17 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
                     autoFocus
                     fullWidth
                     variant='standard'
-                    value={serviceLabel || service.annotation?.label}
+                    value={serviceLabel}
                     onChange={handleLabelInput}
                     InputProps={{ sx: DefaultTextProps }}
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleDialogClose} sx={DefaultTextProps} >Cancel</Button>
+                <Button onClick={handleDialogClose} sx={DefaultTextProps}>Cancel</Button>
                 <Button
                     sx={DefaultTextProps}
                     onClick={editComponentLabel}
-                    disabled={serviceLabel === undefined || serviceLabel === service.annotation?.label}
+                    disabled={!serviceLabel || serviceLabel === service.annotation?.label}
                 >
                     Update
                 </Button>

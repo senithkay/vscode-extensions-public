@@ -42,7 +42,6 @@ import {
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
-    GetComponentModelResponse,
     getDiagramComponentModel,
     DeleteComponent,
     PullComponent,
@@ -57,8 +56,11 @@ import {
     RemoveDeletedComponents,
     GetComponentCount,
     ComponentCount,
+    IsBareRepoRequestParams,
+    IsBareRepoRequest,
+    CheckProjectDeleted,
 } from "@wso2-enterprise/choreo-core";
-
+import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
@@ -138,6 +140,10 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(CloneChoreoProject, HOST_EXTENSION, projectId);
     }
 
+    public async isBareRepo(params: IsBareRepoRequestParams): Promise<boolean> {
+        return this._messenger.sendRequest(IsBareRepoRequest, HOST_EXTENSION, params);
+    }
+
     public async setProjectRepository(projId: string, repo: string): Promise<void> {
         return this._messenger.sendRequest(setProjectRepository, HOST_EXTENSION, { projId, repo });
     }
@@ -160,6 +166,10 @@ export class ChoreoWebViewAPI {
 
     public async isSubpathAvailable(params: SubpathAvailableRequest): Promise<boolean> {
         return this._messenger.sendRequest(isSubpathAvailable, HOST_EXTENSION, params);
+    }
+
+    public async checkProjectDeleted(projectId: string): Promise<void> {
+        return this._messenger.sendRequest(CheckProjectDeleted, HOST_EXTENSION, projectId);
     }
 
     public async getChoreoProject(): Promise<Project | undefined> {

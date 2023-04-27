@@ -18,7 +18,8 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { ConsoleView, EditLayerAPI, Location, Service, Views } from '../../../resources';
+import { CMLocation as Location, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import { ConsoleView, EditLayerAPI, Views } from '../../../resources';
 
 interface DiagramContextProps {
     children?: ReactNode;
@@ -26,6 +27,7 @@ interface DiagramContextProps {
     editingEnabled: boolean;
     isChoreoProject: boolean;
     hasDiagnostics: boolean;
+    workspaceFolders: number;
     setCurrentView: (view: Views) => void;
     refreshDiagram: () => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
@@ -43,7 +45,9 @@ interface IDiagramContext {
     consoleView: ConsoleView;
     currentView: Views;
     hasDiagnostics: boolean;
+    isMultiRootWs: boolean;
     refreshDiagram: () => void;
+    setIsMultiRootWs: (status: boolean) => void;
     setCurrentView: (view: Views) => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
@@ -72,6 +76,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         editingEnabled,
         hasDiagnostics,
         isChoreoProject,
+        workspaceFolders,
         consoleView,
         editLayerAPI,
         setCurrentView,
@@ -84,6 +89,7 @@ export function DesignDiagramContext(props: DiagramContextProps) {
     } = props;
     const [newComponentID, setNewComponentID] = useState<string | undefined>(undefined);
     const [newLinkNodes, setNewLinkNodes] = useState<LinkedNodes>({ source: undefined, target: undefined });
+    const [isMultiRootWs, setIsMultiRootWs] = useState<boolean>(workspaceFolders > 1 ? true : undefined);
 
     let context: IDiagramContext = {
         currentView,
@@ -91,7 +97,9 @@ export function DesignDiagramContext(props: DiagramContextProps) {
         isChoreoProject,
         consoleView,
         hasDiagnostics,
+        isMultiRootWs,
         setCurrentView,
+        setIsMultiRootWs,
         refreshDiagram,
         getTypeComposition,
         showChoreoProjectOverview,

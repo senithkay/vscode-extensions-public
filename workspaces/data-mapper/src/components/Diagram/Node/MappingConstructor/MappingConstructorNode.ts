@@ -25,6 +25,7 @@ import {
     traversNode
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
@@ -36,6 +37,7 @@ import {
     enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
+    getFilteredMappings,
     getFilteredUnionOutputTypes,
     getInputNodeExpr,
     getInputPortsForExpr,
@@ -72,6 +74,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.typeDef = getSearchFilteredOutput(this.typeDef);
+
         if (this.typeDef) {
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (STKindChecker.isSelectClause(this.value)
@@ -121,7 +125,9 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
-        this.mappings = this.genMappings(this.value.expression as MappingConstructor);
+        const searchValue = useDMSearchStore.getState().outputSearch;
+        const mappings = this.genMappings(this.value.expression);
+        this.mappings = getFilteredMappings(mappings, searchValue);
         this.createLinks(this.mappings);
     }
 

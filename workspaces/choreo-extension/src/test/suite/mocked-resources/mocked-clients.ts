@@ -26,9 +26,6 @@ export class MockAuthClient implements IAuthClient {
     async exchangeAuthCode(_authCode: string): Promise<AccessToken> {
         return this.generateMockToken();
     }
-    async exchangeApimToken(_choreoAccessToken: string, _orgHandle: string): Promise<AccessToken> {
-        return this.generateMockToken();
-    }
     async exchangeVSCodeToken(_apiAccessToken: string): Promise<AccessToken> {
         return this.generateMockToken();
     }

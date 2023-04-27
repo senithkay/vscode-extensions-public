@@ -21,10 +21,11 @@ import { commands, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { decimal } from "vscode-languageclient";
 import { debounce } from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { BallerinaExtension, ExtendedLangClient, GetPackageComponentModelsResponse } from "../core";
+import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../utils";
 import { render } from "./renderer";
-import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion } from "./resources";
+import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, GLOBAL_STATE_FLAG } from "./resources";
 import { getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
 import { PALETTE_COMMANDS } from "../project/activator";
 import { deleteProjectComponent } from "./utils/common-utils";
@@ -54,7 +55,18 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         }
     });
 
+    commands.registerCommand(PALETTE_COMMANDS.REFRESH_SHOW_ARCHITECTURE_VIEW, async () => {
+        if (designDiagramWebview) {
+            designDiagramWebview.webview.postMessage({ command: "refresh" });
+        }
+    });
+
     extInstance.context.subscriptions.push(designDiagramRenderer);
+
+    if (extInstance.context.globalState.get(GLOBAL_STATE_FLAG) === true && workspace.workspaceFile) {
+        commands.executeCommand(PALETTE_COMMANDS.SHOW_ARCHITECTURE_VIEW);
+        extInstance.context.globalState.update(GLOBAL_STATE_FLAG, false);
+    }
 }
 
 export function getLangClient(): ExtendedLangClient {
@@ -88,19 +100,33 @@ async function setupWebviewPanel() {
             getCommonWebViewOptions()
         );
 
+        let shouldUpdateDiagram: boolean = false;
+        const handleDocumentChanges = () => {
+            if (designDiagramWebview && !designDiagramWebview.active) {
+                shouldUpdateDiagram = true;
+            }
+        };
+
         const refreshDiagram = debounce(() => {
             if (designDiagramWebview) {
                 designDiagramWebview.webview.postMessage({ command: "refresh" });
             }
         }, 500);
 
-        workspace.onDidChangeTextDocument(refreshDiagram);
+        designDiagramWebview.onDidChangeViewState(() => {
+            if (designDiagramWebview && designDiagramWebview.active && shouldUpdateDiagram) {
+                refreshDiagram();
+                shouldUpdateDiagram = false;
+            }
+        });
+
+        workspace.onDidChangeTextDocument(handleDocumentChanges);
         workspace.onDidChangeWorkspaceFolders(refreshDiagram);
 
         const remoteMethods: WebViewMethod[] = [
             {
                 methodName: "getComponentModel",
-                handler: (): Promise<GetPackageComponentModelsResponse> => {
+                handler: (): Promise<GetComponentModelResponse> => {
                     return getComponentModel(langClient, isChoreoProject);
                 }
             },
@@ -126,7 +152,7 @@ async function setupWebviewPanel() {
         WebViewRPCHandler.create(designDiagramWebview, langClient, remoteMethods);
 
         isChoreoProject = await checkIsChoreoProject();
-        EditLayerRPC.create(designDiagramWebview, langClient, isChoreoProject);
+        EditLayerRPC.create(designDiagramWebview, langClient, extInstance.context, isChoreoProject);
 
         designDiagramWebview.onDidDispose(() => {
             designDiagramWebview = undefined;
@@ -136,6 +162,12 @@ async function setupWebviewPanel() {
 
 export function terminateActivation(message: string) {
     window.showErrorMessage(message);
+    if (designDiagramWebview) {
+        designDiagramWebview.dispose();
+    }
+}
+
+export function disposeDiagramWebview() {
     if (designDiagramWebview) {
         designDiagramWebview.dispose();
     }

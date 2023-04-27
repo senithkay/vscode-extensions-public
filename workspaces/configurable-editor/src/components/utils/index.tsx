@@ -217,8 +217,14 @@ export function setConfigValue(configProperties: ConfigElementProps[], configVal
             if (value.hasOwnProperty("value")) {
                 configProperties[key].value = value.value;
                 configProperties[key].valueRef = value.valueReference;
+                configProperties[key].isSensitive = value.isSensitive;
             } else {
-                configProperties[key].value = value;
+                if (value.hasOwnProperty("isSensitive")) {
+                    configProperties[key].isSensitive = value.isSensitive;
+                    configProperties[key].value = undefined;
+                } else {
+                    configProperties[key].value = value;
+                }
             }
         }
     });

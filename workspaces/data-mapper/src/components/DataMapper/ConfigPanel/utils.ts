@@ -105,6 +105,10 @@ export function getFnNameFromST(fnST: FunctionDefinition) {
     return fnST && fnST.functionName.value;
 }
 
+export function getFnSignatureFromST(fnST: FunctionDefinition) {
+    return fnST && fnST.functionSignature.source;
+}
+
 export function getInputsFromST(fnST: FunctionDefinition, balVersion: string): DataMapperInputParam[] {
     let params: DataMapperInputParam[] = [];
     if (fnST) {

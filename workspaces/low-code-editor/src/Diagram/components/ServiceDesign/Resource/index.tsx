@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
+import { Tooltip } from "@material-ui/core";
 import {
     BallerinaSTModifyResponse, CompletionResponse, ConfigOverlayFormStatus, CtrlClickWrapper, DiagramEditorLangClientInterface,
     LabelEditIcon, responseCodes, STModification
@@ -28,7 +29,7 @@ import { removeStatement } from "../../../utils";
 import { visitor as RecordsFinderVisitor } from "../../../visitors/records-finder-visitor";
 import { RecordEditor } from "../../FormComponents/ConfigForms";
 import { useStyles } from "../style";
-import { getKeywordTypes } from "../util";
+import { getKeywordTypes, HTTP_POST } from "../util";
 
 import { ResourceHeader } from "./ResourceHeader";
 
@@ -47,6 +48,8 @@ export function ResourceBody(props: ResourceBodyProps) {
             ls: { getDiagramEditorLangClient, getExpressionEditorLangClient },
         },
     } = useContext(Context);
+
+    const editStatementTxt = "Edit in statement editor";
 
     const classes = useStyles();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -125,7 +128,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                         <td>
                             <div>
                                 Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
-                                {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}  <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                                {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}
+                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                        <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </Tooltip>
+                                </pre>}
                             </div>
                         </td>
                     </tr>
@@ -152,7 +159,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         recordName: any,
         langClient: DiagramEditorLangClientInterface,
     ): Promise<BallerinaSTModifyResponse> => {
-        const record: STNode = records.get(recordName);
+        const record: STNode = records.get(recordName.replace(/[\[\]\?]/g, "").trim());
         if (record) {
             const request: TextDocumentPositionParams = {
                 textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
@@ -185,6 +192,10 @@ export function ResourceBody(props: ResourceBodyProps) {
         );
     };
 
+    function defaultResponseCode() {
+        const isPost = model?.functionName.value.toUpperCase() === HTTP_POST;
+        return isPost ? "201" : "200";
+    }
 
     async function renderResponses(keywordTypes: CompletionResponse[]) {
         const values = await getReturnTypesArray();
@@ -192,7 +203,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         const responses = [];
 
         for (const [i, value] of values.entries()) {
-            let code = "500";
+            let code = defaultResponseCode();
             let recordName = value.trim();
             let des = "";
 
@@ -203,14 +214,18 @@ export function ResourceBody(props: ResourceBodyProps) {
             });
 
             keywordTypes.forEach(item => {
-                if (recordName.trim() === item.insertText) {
-                    code = "200";
+                if (recordName.replace(/\[\]/g, "").trim() === item.insertText) {
+                    code = defaultResponseCode();
                 }
             })
 
+            if (value.includes("error")) {
+                code = "500";
+            }
+
             if (value.includes("body")) {
                 recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
-                const recordInfo = await getRecord(value.trim(), langClient);
+                const recordInfo = await getRecord(recordName, langClient);
                 des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
                 responses.push(
                     <tr key={i} className={classes.signature}>
@@ -227,7 +242,9 @@ export function ResourceBody(props: ResourceBodyProps) {
                                 {schema[i] &&
                                     <pre className={classes.schema}>
                                         {schema[i]}
-                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                        <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                            <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                        </Tooltip>
                                     </pre>
                                 }
                             </div>
@@ -235,11 +252,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </tr>
                 )
             } else {
-                const recordInfo = await getRecord(value.trim(), langClient);
+                const recordInfo = await getRecord(value, langClient);
 
                 if (recordInfo && recordInfo.parseSuccess) {
                     const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;
-                    code = "200";
+                    code = defaultResponseCode();
                     responseCodes.forEach(item => {
                         if (ST.source.includes(item.source)) {
                             code = item.code.toString();
@@ -258,7 +275,9 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {schema[i] &&
                                 <pre className={classes.schema}>
                                     {schema[i]}
-                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </Tooltip>
                                 </pre>
                             }
                         </td>
@@ -288,7 +307,9 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {schemaParam[i] &&
                                 <pre className={classes.schema}>
                                     {schemaParam[i]}
-                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </Tooltip>
                                 </pre>
                             }
                         </td>
@@ -305,7 +326,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const recordEditor = async (setSchemaState: React.Dispatch<React.SetStateAction<{}>>, record: any, key?: any) => {
 
         const langClient = await getDiagramEditorLangClient();
-        const recordInfo = await getRecord(record.trim(), langClient);
+        const recordInfo = await getRecord(record, langClient);
 
         if (recordInfo && recordInfo.parseSuccess) {
             const ST: TypeDefinition = recordInfo.syntaxTree as TypeDefinition;

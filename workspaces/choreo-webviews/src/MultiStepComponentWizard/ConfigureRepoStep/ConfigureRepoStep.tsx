@@ -57,15 +57,20 @@ const GhRepoSelectorRepoContainer = styled.div`
     width: 300px;
 `;
 
+const SmallProgressRing = styled(VSCodeProgressRing)`
+    height: calc(var(--design-unit) * 4px);
+    width: calc(var(--design-unit) * 4px);
+`;
+
 export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
-    const { formData, onFormDataChange } = props;
+    const { formData, onFormDataChange  } = props;
 
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
     const [isCloneInProgress, setIsCloneInProgress] = useState<boolean>(false);
 
     const { choreoProject } = useContext(ChoreoWebViewContext);
 
-    const {isLoading: isFetchingRepos, data: authorizedOrgs, refetch } = useQuery({
+    const {isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching: isRefetchingRepos } = useQuery({
         queryKey: [`repoData${choreoProject?.id}`], //TODO: add userId to the key instead of choreoProjectId
         queryFn: async () => {
             const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
@@ -80,7 +85,9 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
     const selectedRepoString = formData?.repository ? `${formData?.repository?.org}/${formData?.repository?.repo}` : undefined;
 
-    const selectedOrg = authorizedOrgs && authorizedOrgs.find((org) => org.orgName === formData?.repository?.org);
+    const filteredOrgs = authorizedOrgs?.filter(org => org.repositories.length > 0);
+
+    const selectedOrg = filteredOrgs && filteredOrgs.find((org) => org.orgName === formData?.repository?.org);
 
     const setRepository = (org: string, repo: string) => {
         onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, org, repo} }));
@@ -91,18 +98,22 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isCloned} }));
     };
 
+    const setIsBareRepo = (isBareRepo: boolean ) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isBareRepo} }));
+    };
+
     const setDefaultSelection = async () => {
         const preferredRepo = await ChoreoWebViewAPI.getInstance().getPreferredProjectRepository(choreoProject?.id);
         onFormDataChange(prevFormData => {
             let repository = prevFormData?.repository;
-            if (!(prevFormData?.repository?.org && prevFormData?.repository?.repo) && authorizedOrgs && authorizedOrgs.length > 0) {
+            if (!(prevFormData?.repository?.org && prevFormData?.repository?.repo) && filteredOrgs && filteredOrgs.length > 0) {
                 if (preferredRepo) {
                     // split the repo string to org and repo
                     const parts = preferredRepo.split("/");
                     if (parts.length !== 2) {
                         throw new Error(`Invalid repo string: ${preferredRepo}`);
                     }
-                    const org = authorizedOrgs.find((org) => org.orgName === parts[0]);
+                    const org = filteredOrgs.find((org) => org.orgName === parts[0]);
                     if (org) {
                         const repo = org.repositories.find((repo) => repo.name === parts[1]);
                         if (repo) {
@@ -110,7 +121,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                         }
                     }
                 } else {
-                    const selectedOrg = authorizedOrgs.find((org) => org.repositories.length > 0);
+                    const selectedOrg = filteredOrgs.find((org) => org.repositories.length > 0);
                     if (!selectedOrg) {
                         throw new Error("No repositories found");
                     }
@@ -171,22 +182,34 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     };
 
     const handleGhOrgChange = (e: any) => {
-        const org = authorizedOrgs.find(org => org.orgName === e.target.value);
+        const org = filteredOrgs.find(org => org.orgName === e.target.value);
         if (org) {
             setRepository(org.orgName, org.repositories[0]?.name);
         }
     };
 
     const handleGhRepoChange = (e: any) => {
-        const currentOrg = authorizedOrgs && authorizedOrgs.find((org) => org.orgName === formData?.repository?.org);
+        const currentOrg = filteredOrgs && filteredOrgs.find((org) => org.orgName === formData?.repository?.org);
         if (currentOrg) {
             setRepository(currentOrg.orgName, currentOrg.repositories.find(repo => repo.name === e.target.value)!.name);
         }
     };
 
     const handleRepoClone = async () => {
-        if (choreoProject?.id && selectedRepoString && formData?.repository?.branch) {
+        if (choreoProject?.id && selectedRepoString) {
+            setIsBareRepo(false);
             setIsCloneInProgress(true);
+            // check if the repo is empty
+            const repoMetaData = await ChoreoWebViewAPI.getInstance().getProjectClient().getRepoMetadata({
+                repo: formData?.repository?.repo,
+                organization: formData?.repository?.org,
+                branch: formData?.repository?.branch
+            });
+            if (repoMetaData?.isBareRepo) {
+                setIsBareRepo(true);
+                setIsCloneInProgress(false);
+                return;
+            }
             const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(choreoProject?.id);
             if (projectPath) {
                 const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
@@ -197,6 +220,13 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                 setIsRepoCloned(isCloned);
             }
             setIsCloneInProgress(false);
+        }
+    };
+
+    const handleRepoInit = async () => {
+        // open github repo in browser with vscode open external
+        if (choreoProject?.id && selectedRepoString) {
+            ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedRepoString}`);
         }
     };
 
@@ -214,19 +244,19 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     return (
         <StepContainer>
             <GhRepoSelectorActions>
-                {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh</span>}
+                {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh repo list or to configure a new repository.</span>}
                 {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
                 {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
-
+                {!showLoader && isRefetchingRepos && <SmallProgressRing />}
             </GhRepoSelectorActions>
             {showLoader && loaderMessage}
             {showLoader && <VSCodeProgressRing />}
-            {authorizedOrgs && authorizedOrgs.length > 0 && (
+            {filteredOrgs && filteredOrgs.length > 0 && (
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Organization</label>
                         <VSCodeDropdown id="org-drop-down" value={formData?.repository?.org} onChange={handleGhOrgChange}>
-                            {authorizedOrgs.map((org) => (
+                            {filteredOrgs.map((org) => (
                                 <VSCodeOption
                                     key={org.orgName}
                                     value={org.orgName}
@@ -251,30 +281,41 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                     </GhRepoSelectorRepoContainer>
                 </GhRepoSelectorContainer>
             )}
-            {selectedRepoString && !isFetchingRepos && (
+            {!isFetchingRepos && !formData?.repository?.isCloned && !formData?.repository?.isBareRepo && !isCloneInProgress &&
+                <>
+                    Selected Repository is not available locally in Project folder. Clone the repository to continue.
+                    <VSCodeLink onClick={handleRepoClone}>
+                        Clone Repository
+                    </VSCodeLink>
+                </>
+            }
+            {!isFetchingRepos && formData?.repository?.isBareRepo &&
+                <>
+                    Repository is not initialized. Please initialize the repository before cloning can continue.
+                    <GhRepoSelectorActions>
+                        <VSCodeLink onClick={handleRepoInit}>
+                            Initialize
+                        </VSCodeLink> 
+                        <VSCodeLink onClick={handleRepoClone}>
+                            Recheck & Clone
+                        </VSCodeLink>
+                    </GhRepoSelectorActions>
+                </>
+            }
+            {isCloneInProgress &&
+                <>
+                    <span>Cloning Repository...</span>
+                    <VSCodeProgressRing />
+                </>
+            }
+
+            {selectedRepoString && !isFetchingRepos && formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
                 <GithubRepoBranchSelector 
                     formData={formData}
                     onFormDataChange={onFormDataChange}
                 />
             )}
-            {(selectedRepoString && !isFetchingRepos  && !formData?.repository?.isCloned) &&
-                <>
-                    Selected Repository is not available locally in Project folder. Clone the repository to continue.
-                    {!isCloneInProgress &&
-                        <VSCodeLink onClick={handleRepoClone}>
-                            Clone Repository
-                        </VSCodeLink>
-                    }
-                    {isCloneInProgress &&
-                        <>
-                            <span>Cloning Repository...</span>
-                            <VSCodeProgressRing />
-                        </>
-                    }
-
-                </>
-            }
-            {formData?.repository?.isCloned && (
+            {formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
                 <RepoStructureConfig
                     formData={formData}
                     onFormDataChange={onFormDataChange}
@@ -291,22 +332,22 @@ export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
         {
             field: 'repository',
             message: 'Repository is not cloned. Please clone the repository to continue.',
-            rule: async (_value: any, formData, context) => {
-                const { isChoreoProject, choreoProject } = context;
-                if (choreoProject && formData?.repository?.repo && isChoreoProject) {
-                    const projectPath = await ChoreoWebViewAPI.getInstance().getProjectLocation(choreoProject.id);
-                    if (projectPath) {
-                        const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
-                            repository: `${formData?.repository?.org}/${formData?.repository?.repo}`,
-                            workspaceFilePath: projectPath,
-                            // TODO: Handle this properly from the backend
-                            // Currently, backend is not validating the branch name
-                            branch: formData?.repository?.branch || "main"
-                        });
-                        return isCloned;
-                    }
-                }
-                return false;
+            rule: async (_value: any, formData) => {
+                return formData?.repository?.isCloned;
+            }
+        },
+        {
+            field: 'repository',
+            message: 'Repository is not initialized. Please initialize the repository to continue.',
+            rule: async (_value: any, formData) => {
+                return formData?.repository?.isBareRepo === false;
+            }
+        },
+        {
+            field: 'repository',
+            message: 'A branch must be selected to continue.',
+            rule: async (_value: any, formData) => {
+                return formData?.repository?.branch !== undefined;
             }
         },
     ]

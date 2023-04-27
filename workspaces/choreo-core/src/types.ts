@@ -201,7 +201,16 @@ export interface Repository {
     organizationConfig: string;
     isUserManage: boolean;
     appSubPath?: string;
-    byocBuildConfig?: unknown;
+    byocBuildConfig?: {
+        componentId: string;
+        containerId: string;
+        dockerContext: string;
+        dockerfilePath: string;
+        id: string;
+        isMainContainer: string;
+        oasFilePath: string;
+        repositoryId: string;
+    }
 }
 
 export interface Metadata {
@@ -325,88 +334,6 @@ export interface BYOCRepositoryDetails extends RepositoryDetails {
     dockerContext: string;
 }
 
-export interface Location {
-    filePath: string;
-    startPosition: LinePosition;
-    endPosition: LinePosition;
-}
-
-export interface DeploymentMetadata {
-    gateways: {
-        internet: {
-            isExposed: boolean;
-        },
-        intranet: {
-            isExposed: boolean;
-        }
-    };
-}
-
-export interface Service {
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    annotation: any;
-    path: string;
-    serviceId: string;
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    resources: any[];
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    remoteFunctions: any[];
-    serviceType: string;
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    dependencies: any[];
-    deploymentMetadata: DeploymentMetadata;
-    elementLocation: Location;
-}
-
-interface LinePosition {
-    line: number;
-    offset: number;
-}
-export interface Entity {
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    attributes: any[];
-    inclusions: string[];
-    elementLocation: Location;
-    isAnonymous: boolean;
-}
-
-export interface GetComponentModelResponse {
-    componentModels: {
-        [key: string]: ComponentModel;
-    };
-    diagnostics: ComponentModelDiagnostics[];
-}
-
-export interface ComponentModelDiagnostics {
-    name: string;
-    message?: string;
-    severity?: string;
-}
-
-interface EntryPoint {
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    annotation: any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    parameters: any[];
-    type: EntryPointType;
-    returns: string[];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    interactions: any[];
-    elementLocation: Location;
-}
-
-export interface ComponentModel {
-    packageId: {
-        name: string,
-        org: string,
-        version: string
-    };
-    services: Map<string, Service>;
-    entities: Map<string, Entity>;
-    functionEntryPoint: EntryPoint;
-    hasCompilationErrors: boolean;
-}
-
 export enum DeploymentStatus {
     NotDeployed = 'NOT_DEPLOYED',
     Active = 'ACTIVE',
@@ -420,5 +347,3 @@ export enum Status {
     UnavailableLocally= "NOT_AVAILABLE_LOCALLY",
     ChoreoAndLocal= "CHOREO_AND_LOCAL"
 }
-
-export type EntryPointType = ChoreoComponentType.ManualTrigger | ChoreoComponentType.ScheduledTask;

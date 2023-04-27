@@ -17,7 +17,7 @@ import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandRequest,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    CloseWebViewNotification, serializeError,
+    CloseWebViewNotification,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
     ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
@@ -27,22 +27,23 @@ import {
     isSubpathAvailable,
     SubpathAvailableRequest,
     getDiagramComponentModel,
-    ComponentModel,
     DeleteComponent,
     PullComponent,
     PushLocalComponentToChoreo,
     showOpenDialogRequest,
     OpenDialogOptions,
-    GetComponentModelResponse,
-    ComponentModelDiagnostics,
     GetDeletedComponents,
     GetEnrichedComponents,
     getPreferredProjectRepository,
     setPreferredProjectRepository,
     PushedComponent,
     RemoveDeletedComponents,
-    GetComponentCount
+    GetComponentCount,
+    CheckProjectDeleted,
+    IsBareRepoRequest,
+    IsBareRepoRequestParams
 } from "@wso2-enterprise/choreo-core";
+import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';
@@ -52,9 +53,12 @@ import { githubAppClient, orgClient, projectClient } from "../../../auth/auth";
 import { ProjectRegistry } from "../../../registry/project-registry";
 import * as vscode from 'vscode';
 import { cloneProject } from "../../../cmds/clone";
-import { enrichConsoleDeploymentData} from "../../../utils";
+import { enrichConsoleDeploymentData, mergeNonClonedProjectData } from "../../../utils";
 import { getLogger } from "../../../logger/logger";
 import { executeWithTaskRetryPrompt } from "../../../retry";
+import { refreshProjectsTreeViewCmdId } from "../../../constants";
+import { initGit } from "../../../git/main";
+import { dirname, join } from "path";
 
 export class WebViewRpc {
 
@@ -89,6 +93,23 @@ export class WebViewRpc {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
             }
+            return [];
+        });
+
+        this._messenger.onRequest(CheckProjectDeleted, (projectId: string) => {
+            if (ext.api.selectedOrg) {
+                ProjectRegistry.getInstance().checkProjectDeleted(projectId, ext.api.selectedOrg?.id)
+                    .then(async (isAvailable: boolean) => {
+                        if (!isAvailable) {
+                            const answer = await vscode.window.showInformationMessage("This project is deleted in Choreo. Close the project?", "Yes", "No");
+                            if (answer === "Yes") {
+                                this.panel?.dispose();
+                                await ProjectRegistry.getInstance().refreshProjects();
+                                commands.executeCommand(refreshProjectsTreeViewCmdId);
+                            }
+                        }
+                    });
+            }
         });
 
         this._messenger.onRequest(GetDeletedComponents, async (projectId: string) => {
@@ -97,23 +118,24 @@ export class WebViewRpc {
             }
         });
 
-        this._messenger.onRequest(RemoveDeletedComponents, async (params: {projectId: string, components: PushedComponent[]}) => {
+        this._messenger.onRequest(RemoveDeletedComponents, async (params: { projectId: string, components: PushedComponent[] }) => {
             const answer = await vscode.window.showInformationMessage("Some components are deleted in Choreo. Do you want to remove them from workspace?", "Yes", "No");
             if (answer === "Yes") {
                 ProjectRegistry.getInstance().removeDeletedComponents(params.components, params.projectId);
             }
         });
-        
+
         this._messenger.onRequest(GetEnrichedComponents, async (projectId: string) => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getEnrichedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
             }
+            return [];
         });
 
-        this._messenger.onRequest(DeleteComponent, async (params: {projectId: string, component: Component}) => {
+        this._messenger.onRequest(DeleteComponent, async (params: { projectId: string, component: Component }) => {
             if (ext.api.selectedOrg) {
                 const answer = await vscode.window.showInformationMessage("Are you sure you want to remove the component? This action will be irreversible and all related details will be lost.", "Delete Component", "Cancel");
-                if(answer === "Delete Component"){
+                if (answer === "Delete Component") {
                     await ProjectRegistry.getInstance().deleteComponent(params.component, ext.api.selectedOrg.handle, params.projectId);
                     return params.component;
                 }
@@ -121,12 +143,12 @@ export class WebViewRpc {
             }
         });
 
-        this._messenger.onRequest(PullComponent, async (params: {projectId: string, componentId: string}) => {
+        this._messenger.onRequest(PullComponent, async (params: { projectId: string, componentId: string }) => {
             await ProjectRegistry.getInstance().pullComponent(params.componentId, params.projectId);
         });
 
         this._messenger.onRequest(GetComponentCount, async () => {
-            if (ext.api.selectedOrg) { 
+            if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getComponentCount(ext.api.selectedOrg.id);
             }
         });
@@ -156,6 +178,22 @@ export class WebViewRpc {
                         }
                     });
             }
+        });
+
+        this._messenger.onRequest(IsBareRepoRequest, async (params: IsBareRepoRequestParams) => {
+            const projectLocation: string | undefined = ProjectRegistry.getInstance().getProjectLocation(params.projectID);
+            if (projectLocation) {
+                const repoPath = join(dirname(projectLocation), 'repos', params.orgName, params.repoName);
+                const git = await initGit(ext.context);
+                if (git) {
+                    return git.isEmptyRepository(repoPath);
+                } else {
+                    getLogger().error("Git is not initialized, cannot check if the repo is bare.");
+                }
+            } else {
+                getLogger().error("Project location is not found for the project: " + params.projectID);
+            }
+            return false;
         });
 
         this._messenger.onRequest(setProjectRepository, async (params) => {
@@ -203,11 +241,14 @@ export class WebViewRpc {
                             const model: ComponentModel = JSON.parse(decodedString.toString());
                             enrichConsoleDeploymentData(model.services, finalVersion);
                             componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
-                        } else  {
-                            diagnostics.push({name: `${value.displayName} Component`});
+                        } else {
+                            componentModels[`${value.orgHandler}/${value.name}:${value.version}`] = mergeNonClonedProjectData(value);
+                            diagnostics.push({ name: `${value.displayName} Component` });
                         }
                     });
-                }) .catch(serializeError);
+                }).catch((error: any) => {
+                    getLogger().error(`Error while getting diagram model for project ${params.projId}. ${error?.message} ${error?.cause ? error.cause : ""}`);
+                });
 
             return {
                 componentModels: componentModels,
@@ -225,9 +266,9 @@ export class WebViewRpc {
             }
         });
 
-        this._messenger.onRequest(PushLocalComponentToChoreo, async (params: {projectId: string, componentName: string}): Promise<void> => {
+        this._messenger.onRequest(PushLocalComponentToChoreo, async (params: { projectId: string, componentName: string }): Promise<void> => {
             return window.withProgress({
-                title: `Pushing local component to Choreo.`,
+                title: `Pushing the ${params.componentName} component from your local machine to Choreo.`,
                 location: ProgressLocation.Notification,
                 cancellable: false
             }, async (_progress, cancellationToken) => {
@@ -262,7 +303,7 @@ export class WebViewRpc {
 
         this._messenger.onRequest(showOpenDialogRequest, async (options: OpenDialogOptions) => {
             try {
-                const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri)});
+                const result = await window.showOpenDialog({ ...options, defaultUri: Uri.parse(options.defaultUri) });
                 return result?.map((file) => file.fsPath);
             } catch (error: any) {
                 getLogger().error(error.message);

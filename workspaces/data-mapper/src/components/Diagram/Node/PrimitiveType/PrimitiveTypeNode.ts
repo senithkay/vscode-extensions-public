@@ -22,6 +22,7 @@ import {
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
@@ -32,6 +33,7 @@ import { OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constant
 import {
     getDefaultValue,
     getEnrichedRecordType,
+    getFilteredMappings,
     getFilteredUnionOutputTypes,
     getInputNodeExpr,
     getInputPortsForExpr,
@@ -91,8 +93,10 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     }
 
     initLinks(): void {
+        const searchValue = useDMSearchStore.getState().outputSearch;
         const mappings = this.genMappings(this.value.expression);
-        this.createLinks(mappings);
+        const filteredMappings = getFilteredMappings(mappings, searchValue);
+        this.createLinks(filteredMappings);
     }
 
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
@@ -179,7 +183,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
             if (!this.x || !this.y) {
                 this.x = x;
                 this.y = y;
-                super.setPosition(x, y + OFFSETS.TARGET_NODE.Y);
+                super.setPosition(x, y);
             }
         }
     }

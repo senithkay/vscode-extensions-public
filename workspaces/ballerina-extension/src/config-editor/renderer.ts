@@ -63,7 +63,7 @@ export function render(data: any, existingData: any, primaryButton: string, webV
         `;
 
     const webViewOptions: WebViewOptions = {
-        ...getComposerWebViewOptions("ConfigEditor", webView, { disableComDebug: false, devHost: "http://localhost:8080" }),
+        ...getComposerWebViewOptions("ConfigEditor", webView),
         body, scripts, styles, bodyCss
     };
 

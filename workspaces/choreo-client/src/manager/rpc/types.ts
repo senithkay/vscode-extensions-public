@@ -19,6 +19,7 @@ export const CreateLocalComponentFromExistingSourceRequest: RequestType<ChoreoCo
 export const GetProjectRoot: RequestType<string, string | undefined> = { method: 'manager/getProjectRoot' };
 export const GetProjectDetails: RequestType<string, Project> = { method: 'manager/getProjectDetails' };
 export const IsRepoClonedRequest: RequestType<IsRepoClonedRequestParams, boolean> = { method: 'manager/isRepoCloned' };
+export const IsComponentNameAvailableRequest: RequestType<string, boolean> = { method: 'manager/isComponentNameAvailable' };
 export const CloneRepoRequeset: RequestType<RepoCloneRequestParams, boolean> = { method: 'manager/cloneRepo' };
 export const GetRepoPathRequest: RequestType<string, string> = { method: 'manager/getRepoPath' };
 export const FetchBallerinaTriggers: RequestType<string, BallerinaTriggersResponse | undefined> = { method: 'manager/fetchBallerinaTriggers' };

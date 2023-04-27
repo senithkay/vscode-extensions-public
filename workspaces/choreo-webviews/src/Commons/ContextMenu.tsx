@@ -72,7 +72,7 @@ export const ContextMenu: React.FC<Props> = ({ items }) => {
                                     opacity: item.disabled ? 0.5 : 1,
                                 }}
                             >
-                                <VSCodeDataGridCell style={{ textAlign: 'left', width: 200 }}>
+                                <VSCodeDataGridCell style={{ textAlign: 'left', width: 220 }}>
                                     {item.label}
                                 </VSCodeDataGridCell>
                             </VSCodeDataGridRow>

@@ -25,6 +25,7 @@ import {
     traversNode
 } from "@wso2-enterprise/syntax-tree";
 
+import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { ExpressionLabelModel } from "../../Label";
 import { DataMapperLinkModel } from "../../Link";
@@ -37,6 +38,7 @@ import {
     getBalRecFieldName,
     getDefaultValue,
     getExprBodyFromLetExpression,
+    getFilteredMappings,
     getFilteredUnionOutputTypes,
     getInputNodeExpr,
     getInputPortsForExpr,
@@ -72,6 +74,8 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        this.typeDef = getSearchFilteredOutput(this.typeDef);
+
         if (this.typeDef) {
             const isSelectClause = STKindChecker.isSelectClause(this.value);
             this.rootName = this.typeDef?.name ? getBalRecFieldName(this.typeDef.name) : this.typeDef.typeName;
@@ -111,8 +115,10 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     async initLinks() {
-        const mappings = this.genMappings(this.value.expression as ListConstructor);
-        this.createLinks(mappings);
+        const searchValue = useDMSearchStore.getState().outputSearch;
+        const mappings = this.genMappings(this.value.expression);
+        const filteredMappings = getFilteredMappings(mappings, searchValue);
+        this.createLinks(filteredMappings);
     }
 
     private createLinks(mappings: FieldAccessToSpecificFied[]) {
