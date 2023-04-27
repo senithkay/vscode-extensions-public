@@ -20,6 +20,7 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { CaptureBindingPattern, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import SquareEditIcon from "../../../../assets/icons/SquareEditIcon";
+import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { RecordFieldPortModel } from '../../Port';
 import { LET_EXPRESSION_SOURCE_PORT_PREFIX } from "../../utils/constants";
@@ -40,6 +41,7 @@ export interface LetExpressionTreeWidgetProps {
 
 export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
     const { engine, letVarDecls, context, isWithinQuery, getPort, handleCollapse } = props;
+    const searchValue = useDMSearchStore.getState().inputSearch;
     const classes = useStyles();
     const selectedST = context.selection.selectedST.stNode;
 
@@ -90,7 +92,7 @@ export function LetExpressionTreeWidget(props: LetExpressionTreeWidgetProps) {
                     </LocalVarsHeader>
                     {letVarDeclItems}
                 </TreeContainer>
-            ) : !isWithinQuery && (
+            ) : !isWithinQuery && !searchValue && (
                 <LocalVarAddButton>
                     <Button
                         id={"add-local-variable"}
