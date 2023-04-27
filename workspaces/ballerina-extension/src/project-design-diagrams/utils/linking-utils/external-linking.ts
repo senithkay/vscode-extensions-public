@@ -28,24 +28,21 @@ import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-u
 const EXPR_PLACEHOLDER = "()";
 
 let clientName: string;
-let extLangClient: ExtendedLangClient;
-let sourceFilePath: string;
 
 export async function addConnector(langClient: ExtendedLangClient, args: AddConnectorArgs): Promise<boolean> {
     const { source, connector } = args;
-    sourceFilePath = source.elementLocation.filePath;
-    extLangClient = langClient;
+    const filePath: string = source.elementLocation.filePath;
 
     const stResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
-            uri: Uri.file(sourceFilePath).toString(),
+            uri: Uri.file(filePath).toString(),
         },
     }) as GetSyntaxTreeResponse;
     if (!stResponse?.parseSuccess) {
         return false;
     }
 
-    const connectorInfo = await fetchConnectorInfo(connector);
+    const connectorInfo = await fetchConnectorInfo(connector, langClient);
     if (!(connectorInfo && connectorInfo.moduleName)) {
         return false;
     }
@@ -54,9 +51,9 @@ export async function addConnector(langClient: ExtendedLangClient, args: AddConn
     const imports = getConnectorImports(stResponse.syntaxTree, connectorInfo.package.organization, connectorInfo.moduleName);
 
     if ("serviceId" in source) {
-        return linkFromService(stResponse as STResponse, source, imports, connectorInfo);
+        return linkFromService(stResponse as STResponse, source, imports, connectorInfo, filePath, langClient);
     } else {
-        return linkFromMain(stResponse as STResponse, connectorInfo, imports);
+        return linkFromMain(stResponse as STResponse, connectorInfo, imports, filePath, langClient);
     }
 }
 
@@ -91,33 +88,35 @@ export async function pullConnector(langClient: ExtendedLangClient, args: AddCon
     return true;
 }
 
-async function linkFromService(stResponse: STResponse, source: Service, imports: Set<string>, connectorInfo: BallerinaConnectorInfo) {
+async function linkFromService(stResponse: STResponse, source: Service, imports: Set<string>, connectorInfo: BallerinaConnectorInfo,
+    filePath: string, langClient: ExtendedLangClient): Promise<boolean> {
     const serviceDecl = getServiceDeclaration(stResponse.syntaxTree.members, source, true);
     const initMember = getInitFunction(serviceDecl);
     if (initMember) {
         let updatedSTRes: STResponse;
-        if (!initMember.functionSignature.returnTypeDesc) {
-            updatedSTRes = await updateSyntaxTree(extLangClient, sourceFilePath, initMember.functionSignature.closeParenToken, ` returns error?`) as STResponse;
-        } else if (!initMember.functionSignature.returnTypeDesc.type.source.replace(/\s/g, "").includes('error?')) {
-            updatedSTRes = await updateSyntaxTree(extLangClient, sourceFilePath, initMember.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
+        const doesConnectorReturnError = checkErrorReturn(connectorInfo);
+        if (doesConnectorReturnError && !initMember.functionSignature.returnTypeDesc) {
+            updatedSTRes = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+        } else if (doesConnectorReturnError && !initMember.functionSignature.returnTypeDesc.type.source.replace(/\s/g, '').includes('error')) {
+            updatedSTRes = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
         }
-        updatedSTRes = await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken,
+        updatedSTRes = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken,
             generateClientDecl4Service(connectorInfo)) as STResponse;
         if (updatedSTRes?.parseSuccess && updatedSTRes.syntaxTree.members) {
-            await updateSourceFile(extLangClient, sourceFilePath, updatedSTRes.source);
+            await updateSourceFile(langClient, filePath, updatedSTRes.source);
             const serviceDecl = getServiceDeclaration(updatedSTRes.syntaxTree.members, source, false);
 
             const updatedInitMember = getInitFunction(serviceDecl);
             if (updatedInitMember) {
                 const modifiedST = (await updateSyntaxTree(
-                    extLangClient,
-                    sourceFilePath,
+                    langClient,
+                    filePath,
                     updatedInitMember.functionBody.openBraceToken,
                     generateConnectorClientInit(connectorInfo),
                     getMissingImports(updatedSTRes.source, imports)
                 )) as STResponse;
                 if (modifiedST && modifiedST.parseSuccess) {
-                    return await updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
+                    return await updateSourceFile(langClient, filePath, modifiedST.source);
                 }
             }
         }
@@ -126,35 +125,37 @@ async function linkFromService(stResponse: STResponse, source: Service, imports:
             ${generateClientDecl4Service(connectorInfo)}
             ${generateServiceInit(connectorInfo)}
         `;
-        const modifiedST = (await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken, template,
+        const modifiedST = (await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, template,
             imports)) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
-            return await updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
+            return await updateSourceFile(langClient, filePath, modifiedST.source);
         }
     }
 }
 
-async function linkFromMain(stResponse: STResponse, connector: BallerinaConnectorInfo, imports: Set<string>) {
+async function linkFromMain(stResponse: STResponse, connector: BallerinaConnectorInfo, imports: Set<string>, filePath: string,
+    langClient: ExtendedLangClient): Promise<boolean> {
     let mainFunc = getMainFunction(stResponse);
     if (mainFunc) {
         let modifiedST: STResponse;
-        if (!mainFunc.functionSignature.returnTypeDesc) {
-            modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+        const doesConnectorReturnError = checkErrorReturn(connector);
+        if (doesConnectorReturnError && !mainFunc.functionSignature.returnTypeDesc) {
+            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.closeParenToken, ` returns error?`) as STResponse;
             mainFunc = getMainFunction(modifiedST);
-        } else if (!mainFunc.functionSignature.returnTypeDesc.type.source.replace(/\s/g, "").includes('error?')) {
-            modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
+        } else if (doesConnectorReturnError && !mainFunc.functionSignature.returnTypeDesc.type.source.replace(/\s/g, '').includes('error')) {
+            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
             mainFunc = getMainFunction(modifiedST);
         }
-        modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionBody.openBraceToken,
+        modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionBody.openBraceToken,
             generateClientDecl4Main(connector), imports) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
-            return updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
+            return updateSourceFile(langClient, filePath, modifiedST.source);
         }
     }
 }
 
-async function fetchConnectorInfo(connector: Connector): Promise<BallerinaConnectorInfo | undefined> {
-    const connectorRes = await extLangClient.getConnector({
+async function fetchConnectorInfo(connector: Connector, langClient: ExtendedLangClient): Promise<BallerinaConnectorInfo | undefined> {
+    const connectorRes = await langClient.getConnector({
         name: connector.name,
         package: connector.package,
         id: connector.id,
@@ -609,4 +610,13 @@ function generateConnectorClientInit(connector: BallerinaConnectorInfo): string 
     }
 
     return `self.${clientName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
+}
+
+function checkErrorReturn(connector: BallerinaConnectorInfo) {
+    const initFunction = connector.functions?.find((func) => func.name === "init");
+    if (initFunction.returnType) {
+        const returnType: FormFieldReturnType = getFormFieldReturnType(initFunction.returnType);
+        return returnType.hasError;
+    }
+    return false;
 }

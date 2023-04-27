@@ -27,18 +27,14 @@ import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-u
 import { genClientName, getMainFunction, getMissingImports, getServiceDeclaration } from "./shared-utils";
 
 let clientName: string;
-let sourceFilePath: string;
-let extLangClient: ExtendedLangClient;
 
-// TODO: Handle errors from the FE
 export async function linkServices(langClient: ExtendedLangClient, args: AddLinkArgs): Promise<boolean> {
     const { source, target } = args;
-    sourceFilePath = source.elementLocation.filePath;
-    extLangClient = langClient;
+    const filePath: string = args.source.elementLocation.filePath;
 
     const stResponse: STResponse = await langClient.getSyntaxTree({
         documentIdentifier: {
-            uri: Uri.file(sourceFilePath).toString()
+            uri: Uri.file(filePath).toString()
         }
     }) as STResponse;
 
@@ -50,35 +46,36 @@ export async function linkServices(langClient: ExtendedLangClient, args: AddLink
         const clientDecl: string = generateClientDecl(target, targetType, 'serviceId' in source);
 
         if ('serviceId' in source) {
-            return linkFromService(stResponse, source, clientDecl, missingImports);
+            return linkFromService(stResponse, source, clientDecl, missingImports, filePath, langClient);
         } else {
-            return linkFromMain(stResponse, clientDecl, missingImports);
+            return linkFromMain(stResponse, clientDecl, missingImports, filePath, langClient);
         }
     }
     return false;
 }
 
-async function linkFromService(stResponse: STResponse, source: Service, clientDecl: string, imports: Set<string>) {
+async function linkFromService(stResponse: STResponse, source: Service, clientDecl: string, imports: Set<string>,
+    filePath: string, langClient: ExtendedLangClient): Promise<boolean> {
     const serviceDecl = getServiceDeclaration(stResponse.syntaxTree.members, source, true);
     const initMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
 
     let modifiedST: STResponse;
     if (initMember) {
         if (!initMember.functionSignature.returnTypeDesc) {
-            modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, initMember.functionSignature.closeParenToken, ` returns error?`) as STResponse;
-        } else if (!initMember.functionSignature.returnTypeDesc.type.source.replace(/\s/g, "").includes('error?')) {
-            modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, initMember.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
+            modifiedST = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+        } else if (!initMember.functionSignature.returnTypeDesc.type.source.replace(/\s/g, '').includes('error')) {
+            modifiedST = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
         }
-        modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken, clientDecl) as STResponse;
+        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, clientDecl) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
             const members: any[] = modifiedST.syntaxTree.members;
             const serviceDecl = getServiceDeclaration(members, source, false);
             const updatedInitMember = serviceDecl ? getInitFunction(serviceDecl) : undefined;
             if (updatedInitMember) {
-                modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, updatedInitMember.functionBody.openBraceToken,
+                modifiedST = await updateSyntaxTree(langClient, filePath, updatedInitMember.functionBody.openBraceToken,
                     generateClientInit(), imports) as STResponse;
                 if (modifiedST && modifiedST.parseSuccess) {
-                    return updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
+                    return updateSourceFile(langClient, filePath, modifiedST.source);
                 }
             }
         }
@@ -87,27 +84,28 @@ async function linkFromService(stResponse: STResponse, source: Service, clientDe
                     ${clientDecl}
                     ${generateServiceInit()}
                 `;
-        modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, serviceDecl.openBraceToken, genCode, imports) as STResponse;
+        modifiedST = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, genCode, imports) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
-            return updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
+            return updateSourceFile(langClient, filePath, modifiedST.source);
         }
     }
 }
 
-async function linkFromMain(stResponse: STResponse, clientDecl: string, missingImports: Set<string>) {
+async function linkFromMain(stResponse: STResponse, clientDecl: string, missingImports: Set<string>, filePath: string,
+    langClient: ExtendedLangClient): Promise<boolean> {
     let mainFunc = getMainFunction(stResponse);
     if (mainFunc) {
         let modifiedST: STResponse;
         if (!mainFunc.functionSignature.returnTypeDesc) {
-            modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.closeParenToken, ` returns error?`) as STResponse;
             mainFunc = getMainFunction(modifiedST);
-        } else if (!mainFunc.functionSignature.returnTypeDesc.type.source.replace(/\s/g, "").includes('error?')) {
-            modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
+        } else if (!mainFunc.functionSignature.returnTypeDesc.type.source.replace(/\s/g, '').includes('error')) {
+            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
             mainFunc = getMainFunction(modifiedST);
         }
-        modifiedST = await updateSyntaxTree(extLangClient, sourceFilePath, mainFunc.functionBody.openBraceToken, clientDecl, missingImports) as STResponse;
+        modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionBody.openBraceToken, clientDecl, missingImports) as STResponse;
         if (modifiedST && modifiedST.parseSuccess) {
-            return updateSourceFile(extLangClient, sourceFilePath, modifiedST.source);
+            return updateSourceFile(langClient, filePath, modifiedST.source);
         }
     }
 }
