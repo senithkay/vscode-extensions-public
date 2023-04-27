@@ -88,13 +88,13 @@ export interface LowCodeEditorAPI {
         onEvent?: (event: any) => void;
     }
     code: {
-        modifyDiagram: (mutations: STModification[], options?: any) => Promise<void>;
+        modifyDiagram: (mutations: STModification[], filePath?: string, options?: any) => Promise<void>;
         onMutate?: (type: string, options: any) => void;
         // Reuse go-to-def from LangServer?
         setCodeLocationToHighlight?: (position: NodePosition) => void;
         gotoSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
         getFunctionDef: (lineRange: Range, defFilePath: string) => Promise<FunctionDef>;
-        updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
+        updateFileContent: (content: string, skipForceSave?: boolean, filePath?: string) => Promise<boolean>;
         // isMutationInProgress: boolean;
         // isModulePullInProgress: boolean;
         // loaderText: string;
