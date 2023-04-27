@@ -64,11 +64,6 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     onSearchTextChange={dmStore.setInputSearch}
                     searchType={SearchType.Input}
                 />
-                <FieldFilter
-                    searchText={dmStore.outputSearch}
-                    onSearchTextChange={dmStore.setOutputSearch}
-                    searchType={SearchType.Output}
-                />
             </FilterBar>
             {dmSupported && (
                 <TooltipComponent
