@@ -295,7 +295,7 @@ function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels
     interaction: Interaction | Dependency, callingFunction?: ResourceFunction | RemoteFunction) {
     const identifier: string = ('resourceId' in interaction ? interaction.resourceId.serviceId : interaction.serviceId)
         || interaction.connectorType;
-    const label: string = getExternalNodeLabel(interaction, identifier);
+    const label: string = getExternalNodeLabel(interaction);
 
     // create L1 external service node if not available
     let l1ExtService: ExtServiceNodeModel;
@@ -424,9 +424,9 @@ function generateLabels(packageName: string, serviceId: string): string {
     return label;
 }
 
-function getExternalNodeLabel(interaction: Dependency | Interaction, id: string): string {
-    let label: string = 'resourceId' in interaction ? interaction.resourceId.serviceLabel : interaction.serviceLabel ||
-        !validateUUID(id) ? id : interaction.connectorType;
+function getExternalNodeLabel(interaction: Dependency | Interaction): string {
+    let label: string = ('resourceId' in interaction ? interaction.resourceId.serviceLabel : interaction.serviceLabel)
+        || interaction.connectorType;
     if (label === interaction.connectorType) {
         // removes prefix org name
         label = label.substring(label.indexOf('/') + 1);
