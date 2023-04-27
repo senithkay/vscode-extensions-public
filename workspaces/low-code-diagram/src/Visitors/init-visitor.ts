@@ -297,7 +297,6 @@ export class InitVisitor implements Visitor {
     }
 
     public beginVisitLocalVarDecl(node: LocalVarDecl, parent?: STNode) {
-        console.log('local var decl >>>', node);
         const stmtViewState = new StatementViewState();
 
         if (isEndpointNode(node)) {
@@ -320,7 +319,6 @@ export class InitVisitor implements Visitor {
         const stmtViewState = node.viewState as StatementViewState;
 
         if (node.initializer && stmtViewState.isAction) {
-            console.log('ado no >>>', node.initializer?.viewState);
             stmtViewState.action = node.initializer.viewState.action;
         }
     }
