@@ -20,6 +20,8 @@ import debounce from "lodash.debounce";
 
 import FilterIcon from "../../../assets/icons/FilterIcon";
 
+import SearchBox from "./newSearchBox";
+
 export enum SearchType {
     Input,
     Output
@@ -102,6 +104,7 @@ export default function FieldFilter(props: FieldFilterProps) {
 
     return (
         <>
+            {/*<SearchBox onSearch={undefined} />*/}
             <Box
                 className={classnames(classes.searchContainer,
                     focused && classes.searchContainerFocused
@@ -109,35 +112,36 @@ export default function FieldFilter(props: FieldFilterProps) {
                 width={200}
                 key={`search-${searchType}-wrap`}
             >
-                <TextField
-                    id={`search-${searchType}`}
-                    placeholder={`filter ${searchType === SearchType.Input ? 'input' : 'output'}`}
-                    className={classes.textField}
-                    value={filterText}
-                    onChange={handleOnChange}
-                    onFocus={handleOnFocus}
-                    onBlur={handleOnBlur}
-                    InputProps={{
-                        classes: {
-                            input: classes.resize
-                        },
-                        startAdornment: (
-                            <InputAdornment position="start" className={classes.filterIcon}>
-                                <FilterIcon height={"12px"} width={"12px"}/>
-                            </InputAdornment>
-                        ),
-                        endAdornment: searchText ? (
-                            <InputAdornment position="end">
-                                <CloseRoundedIcon
-                                    fontSize='small'
-                                    onClick={handleOnSearchTextChange}
-                                    className={classes.clearBtn}
-                                    data-testid={`search-clear-${searchType}`}
-                                />
-                            </InputAdornment>
-                        ) : null
-                    }}
-                />
+                <SearchBox onSearch={undefined} />
+                {/*<TextField*/}
+                {/*    id={`search-${searchType}`}*/}
+                {/*    placeholder={`filter ${searchType === SearchType.Input ? 'input' : 'output'}`}*/}
+                {/*    className={classes.textField}*/}
+                {/*    value={filterText}*/}
+                {/*    onChange={handleOnChange}*/}
+                {/*    onFocus={handleOnFocus}*/}
+                {/*    onBlur={handleOnBlur}*/}
+                {/*    InputProps={{*/}
+                {/*        classes: {*/}
+                {/*            input: classes.resize*/}
+                {/*        },*/}
+                {/*        startAdornment: (*/}
+                {/*            <InputAdornment position="start" className={classes.filterIcon}>*/}
+                {/*                <FilterIcon height={"12px"} width={"12px"}/>*/}
+                {/*            </InputAdornment>*/}
+                {/*        ),*/}
+                {/*        endAdornment: searchText ? (*/}
+                {/*            <InputAdornment position="end">*/}
+                {/*                <CloseRoundedIcon*/}
+                {/*                    fontSize='small'*/}
+                {/*                    onClick={handleOnSearchTextChange}*/}
+                {/*                    className={classes.clearBtn}*/}
+                {/*                    data-testid={`search-clear-${searchType}`}*/}
+                {/*                />*/}
+                {/*            </InputAdornment>*/}
+                {/*        ) : null*/}
+                {/*    }}*/}
+                {/*/>*/}
             </Box>
         </>
     );
