@@ -1,90 +1,21 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ * the WSO2 Commercial License available at http://wso2.com/licenses.
+ * For specific language governing the permissions and limitations under
+ * this license, please see the license as well as any agreement you’ve
+ * entered into with WSO2 governing the purchase of this software and any
+ * associated services.
+ */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-// import React, { useState } from 'react';
-//
-// import { Checkbox, FormControlLabel, TextField } from '@material-ui/core';
-// import { makeStyles } from '@material-ui/core/styles';
-//
-// const useStyles = makeStyles((theme) => ({
-//     root: {
-//         display: 'flex',
-//         alignItems: 'center',
-//     },
-//     searchBox: {
-//         flex: '1',
-//         marginRight: theme.spacing(2),
-//     },
-// }));
-//
-// function SearchBox(props: any) {
-//     const classes = useStyles();
-//     const [searchTerm, setSearchTerm] = useState('');
-//     const [searchInInputs, setSearchInInputs] = useState(true);
-//     const [searchInOutputs, setSearchInOutputs] = useState(true);
-//
-//     const handleSearchInputChange = (event: any) => {
-//         setSearchTerm(event.target.value);
-//     };
-//
-//     const handleSearchInInputsChange = (event: any) => {
-//         setSearchInInputs(event.target.checked);
-//     };
-//
-//     const handleSearchInOutputsChange = (event: any) => {
-//         setSearchInOutputs(event.target.checked);
-//     };
-//
-//     const handleSearch = () => {
-//         props.onSearch({
-//             searchTerm,
-//             searchInInputs,
-//             searchInOutputs,
-//         });
-//     };
-//
-//     return (
-//         <div className={classes.root}>
-//             <TextField
-//                 className={classes.searchBox}
-//                 variant="outlined"
-//                 label="Search"
-//                 value={searchTerm}
-//                 onChange={handleSearchInputChange}
-//                 onKeyPress={(event) => {
-//                     if (event.key === 'Enter') {
-//                         handleSearch();
-//                     }
-//                 }}
-//             />
-//             <FormControlLabel
-//                 control={(
-//                     <Checkbox
-//                         checked={searchInInputs}
-//                         onChange={handleSearchInInputsChange}
-//                     />
-//                 )}
-//                 label="Search in Inputs"
-//             />
-//             <FormControlLabel
-//                 control={(
-//                     <Checkbox
-//                         checked={searchInOutputs}
-//                         onChange={handleSearchInOutputsChange}
-//                     />
-//                 )}
-//                 label="Search in Outputs"
-//             />
-//         </div>
-//     );
-// }
-//
-// export default SearchBox;
-
 import React, { useState } from 'react';
 
 import {
     Checkbox,
     FormControl, InputAdornment,
-    InputLabel,
     ListItemText,
     makeStyles,
     MenuItem,
@@ -93,6 +24,8 @@ import {
 } from '@material-ui/core';
 import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
 
+import FilterIcon from "../../../assets/icons/FilterIcon";
+
 const useStyles = makeStyles((theme) => ({
     searchBox: {
         display: 'flex',
@@ -100,27 +33,64 @@ const useStyles = makeStyles((theme) => ({
         height: 30,
     },
     textField: {
+        width: '100%',
+        background: theme.palette.common.white,
         flex: 1,
-        marginRight: 16,
         '& .MuiOutlinedInput-root': {
             '& fieldset': {
                 borderWidth: 1,
             },
-            '&.Mui-focused fieldset': {
-                borderWidth: 2,
+            '&:hover fieldset': {
+                border: `2px solid #ccc`,
             },
+            '&.Mui-focused fieldset': {
+                border: `2px solid #A6B3FF`
+            }
         },
         '& .MuiOutlinedInput-input': {
             padding: '6px 7px',
         },
+        '&. MuiMenuItem-root': {
+            fontSize: '10px'
+        }
     },
+    menuItem: {
+        height: 30,
+        paddingLeft: '6px',
+        paddingRight: '6px',
+        '& .MuiTypography-displayBlock': {
+            fontSize: '11px'
+        },
+        '& .MuiCheckbox-root': {
+            height: '5px',
+            width: '5px',
+            marginRight: '5px',
+            color: theme.palette.grey[300],
+        },
+        '& .MuiListItem-gutters': {
+            paddingLeft: '5px',
+            paddingRight: '5px',
+        }
+    },
+    clearBtn: {
+        color: theme.palette.grey[300],
+        cursor: 'pointer',
+        transition: "all 0.2s",
+        '&:hover': {
+            color: theme.palette.grey[600],
+        },
+    },
+    filterIcon: {
+        height: '10px',
+    }
 }));
 
 interface Props {
     onSearch: (searchData: { searchTerm: string; searchOption: string }) => void;
 }
 
-const SearchBox: React.FC<Props> = ({ onSearch }) => {
+export default function SearchBox(props: Props) {
+    const { onSearch } = props;
     const classes = useStyles();
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
@@ -147,9 +117,10 @@ const SearchBox: React.FC<Props> = ({ onSearch }) => {
     return (
         <>
             <TextField
+                id={`search-${searchOption}`}
+                placeholder={`filter input and output fields`}
                 className={classes.textField}
                 variant="outlined"
-                // label="Search"
                 value={searchTerm}
                 onChange={handleSearchInputChange}
                 onKeyPress={(event) => {
@@ -158,6 +129,11 @@ const SearchBox: React.FC<Props> = ({ onSearch }) => {
                     }
                 }}
                 InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start" className={classes.filterIcon}>
+                            <FilterIcon height={"12px"} width={"12px"}/>
+                        </InputAdornment>
+                    ),
                     endAdornment: (
                         <>
                             {searchTerm && (
@@ -165,6 +141,7 @@ const SearchBox: React.FC<Props> = ({ onSearch }) => {
                                     <CloseRoundedIcon
                                         fontSize='small'
                                         onClick={undefined}
+                                        className={classes.clearBtn}
                                         data-testid={`search-clear-${searchTerm}`}
                                     />
                                 </InputAdornment>
@@ -185,13 +162,13 @@ const SearchBox: React.FC<Props> = ({ onSearch }) => {
                                         },
                                     }}
                                 >
-                                    <MenuItem value="inputs">
+                                    <MenuItem value="inputs" className={classes.menuItem}>
                                         <Checkbox checked={searchOption.indexOf('inputs') > -1} />
-                                        <ListItemText primary="Inputs" />
+                                        <ListItemText primary="Filter in inputs"/>
                                     </MenuItem>
-                                    <MenuItem value="outputs">
+                                    <MenuItem value="outputs" className={classes.menuItem}>
                                         <Checkbox checked={searchOption.indexOf('outputs') > -1} />
-                                        <ListItemText primary="Outputs" />
+                                        <ListItemText primary="Filter in output" />
                                     </MenuItem>
                                 </Select>
                             </FormControl>
@@ -202,5 +179,3 @@ const SearchBox: React.FC<Props> = ({ onSearch }) => {
         </>
     );
 };
-
-export default SearchBox;
