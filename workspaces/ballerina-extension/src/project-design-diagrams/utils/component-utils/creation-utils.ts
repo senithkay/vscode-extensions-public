@@ -21,7 +21,7 @@ import { existsSync, readFile, unlinkSync, writeFileSync } from "fs";
 import * as path from "path";
 import child_process from "child_process";
 import { compile } from "handlebars";
-import { BallerinaTriggerResponse, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
+import { BallerinaTriggerResponse, Parameter, ServiceType } from "@wso2-enterprise/ballerina-languageclient";
 import { BallerinaComponentTypes, TriggerDetails } from "@wso2-enterprise/choreo-core";
 import { ExtendedLangClient } from "../../../core";
 import { getLangClient } from "../../activator";
@@ -108,8 +108,10 @@ export function addDisplayAnnotation(pkgPath: string, label: string, id: string,
 
 const triggerSource =
     "import ballerinax/{{moduleName}};\n\n" +
-    "configurable {{triggerType}}:ListenerConfig config = ?;\n\n" +
-    "listener {{triggerType}}:Listener webhookListener =  new(config);\n\n" +
+    "{{#if listenerConfigName}}" +
+    "configurable {{triggerType}}:{{listenerConfigName}} config = ?;\n\n" +
+    "{{/if}}" +
+    "listener {{triggerType}}:Listener webhookListener =  new({{#if listenerConfigName}}config{{/if}});\n\n" +
 
     "{{#each selectedServices}}" +
     "@display {\n" +
@@ -131,13 +133,15 @@ export async function buildWebhookTemplate(pkgPath: string, trigger: TriggerDeta
     const triggerData: BallerinaTriggerResponse | {} = await langClient.getTrigger({ id: trigger.id });
     if ('serviceTypes' in triggerData && triggerData.serviceTypes.length) {
         const selectedServices = getFilteredTriggerData(triggerData, trigger.services);
+        const listenerConfigName = getTriggerListenerConfigName(triggerData.listenerParams);
         const moduleName = triggerData.moduleName;
         const cmdResponse = await runCommand(`bal pull ballerinax/${moduleName}`, pkgPath);
         if (!cmdResponse.error || cmdResponse.message.includes("package already exists")) {
             return template({
                 ...triggerData,
                 triggerType: moduleName.slice(moduleName.lastIndexOf('.') + 1),
-                selectedServices
+                selectedServices,
+                listenerConfigName
             });
         }
     }
@@ -149,6 +153,16 @@ function getFilteredTriggerData(triggerData: BallerinaTriggerResponse, services:
         return triggerData.serviceTypes.filter((service) => services.includes(service.name));
     }
     return [];
+}
+
+function getTriggerListenerConfigName(listenerParams: Parameter[]): string | undefined {
+    if (listenerParams && listenerParams.length > 1) {
+        const listener = listenerParams.find((param) => param.name !== "listenOn" && param.typeName === "record");
+        if (listener && listener.typeInfo) {
+            return listener.typeInfo.name;
+        }
+    }
+    return undefined;
 }
 
 export function writeWebhookTemplate(pkgPath: string, template: string): boolean {
