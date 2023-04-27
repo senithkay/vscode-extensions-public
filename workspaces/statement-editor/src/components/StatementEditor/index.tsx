@@ -289,7 +289,7 @@ export function StatementEditor(props: StatementEditorProps) {
         const stmtIndex = getStatementIndex(updatedContent, statement, targetPosition);
         const newTargetPosition = getStatementPosition(updatedContent, statement, stmtIndex);
 
-        await updateFileContent(updatedContent, true);
+        await updateFileContent(updatedContent, true, currentFile.path);
 
         setDraftSource(updatedContent);
         setDraftPosition(newTargetPosition);
@@ -357,7 +357,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     const updateStatementModel = async (updatedStatement: string, updatedSource: string, position: NodePosition) => {
-        await updateFileContent(updatedSource, true);
+        await updateFileContent(updatedSource, true, currentFile.path);
         setDraftSource(updatedSource);
         setDraftPosition(position);
         const partialST = isModuleMember(model)
@@ -545,7 +545,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }
 
     async function handleOnCancel(){
-        await updateFileContent(currentFile.content);
+        await updateFileContent(currentFile.content, undefined, currentFile.path);
         onCancel();
     }
 

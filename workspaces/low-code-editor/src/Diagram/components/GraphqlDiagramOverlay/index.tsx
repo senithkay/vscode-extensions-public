@@ -64,16 +64,17 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
 
     const isVisualizerSupported = isGraphqlVisualizerSupported(ballerinaVersion);
 
-    const renderFunctionForm = (position: NodePosition, functionType: string, functionModel?: STNode) => {
+    const renderFunctionForm = (position: NodePosition, functionType: string, functionModel?: STNode, filePath?: string, completeST?: STNode) => {
         if (STKindChecker.isServiceDeclaration(model) || STKindChecker.isClassDefinition(model)) {
             setFormConfig({
                 model: functionModel,
                 configOverlayFormStatus: { formType: "GraphqlConfigForm", formName: functionType, isLoading: false },
                 targetPosition: position,
+                filePath,
+                currentST: completeST,
                 onCancel: () => {
                     setEnableFormGenerator(false);
                 },
-
             });
             setEnableFormGenerator(true);
         }
@@ -88,18 +89,19 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 onCancel: () => {
                     setEnableFormGenerator(false);
                 },
-
             });
             setEnableFormGenerator(true);
         }
     }
 
-    const renderRecordEditor = (recordModel: STNode) => {
+    const renderRecordEditor = (recordModel: STNode, filePath?: string, completeST?: STNode) => {
         if (STKindChecker.isRecordTypeDesc(recordModel) || STKindChecker.isTypeDefinition(recordModel)) {
             setFormConfig({
                 model: recordModel,
                 configOverlayFormStatus: { formType: "RecordEditor", isLoading: false },
                 targetPosition: recordModel.position,
+                filePath,
+                currentST: completeST,
                 onCancel: () => {
                     setEnableFormGenerator(false);
                 },
@@ -109,10 +111,11 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
         }
     }
 
-    const handleDesignOperationClick = (functionPosition: NodePosition) => {
+    const handleDesignOperationClick = (functionPosition: NodePosition, filePath?: string) => {
         const currentElementInfo = history[history.length - 1];
+        const filePathToOpen = filePath ? filePath : currentElementInfo.file;
         const componentViewInfo: ComponentViewInfo = {
-            filePath: currentElementInfo.file,
+            filePath: filePathToOpen,
             position: functionPosition
         }
         updateSelectedComponent(componentViewInfo);

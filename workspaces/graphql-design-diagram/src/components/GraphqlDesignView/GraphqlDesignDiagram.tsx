@@ -38,13 +38,13 @@ export interface GraphqlDesignDiagramProps {
     };
     ballerinaVersion?: string;
     syntaxTree?: STNode;
-    functionPanel?: (position: NodePosition, functionType: string, model?: STNode) => void;
+    functionPanel?: (position: NodePosition, functionType: string, model?: STNode, filePath?: string, completeST?: STNode) => void;
     servicePanel?: () => void;
-    operationDesignView?: (functionPosition: NodePosition) => void;
+    operationDesignView?: (functionPosition: NodePosition, filePath?: string) => void;
     onDelete?: (position: NodePosition) => void;
     fullST?: STNode;
     goToSource?: (filePath: string, position: NodePosition) => void;
-    recordEditor?: (recordModel: STNode) => void;
+    recordEditor?: (recordModel: STNode, filePath?: string, completeST?: STNode) => void;
 }
 
 export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
@@ -90,7 +90,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         onDelete,
         fullST,
         goToSource,
-        recordEditor
+        recordEditor,
+        langClientPromise
     };
 
     return (

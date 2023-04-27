@@ -30,6 +30,8 @@ export interface FormGeneratorProps {
     onCancel?: () => void;
     onSave?: () => void;
     onBack?: () => void;
+    filePath?: string;
+    currentST?: STNode;
     configOverlayFormStatus: ConfigOverlayFormStatus; // FixMe : There are lot of unwanted properties passed through
     // this model clean up or remove this
 }

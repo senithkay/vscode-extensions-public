@@ -54,10 +54,14 @@ export function GraphqlClassForm(props: ClassFormProps) {
         const classNamePosition = getClassNamePosition();
         const workspaceEdit = await getRenameEdits(currentFile.path, className.trim(), classNamePosition, getLangClient);
 
-        const modifications: STModification[] = [];
-
-        Object.values(workspaceEdit?.changes).forEach((edits) => {
-            edits.forEach((edit) => {
+        const changes = Object.values(workspaceEdit?.changes);
+        for (const changesKey of Object.keys(changes)) {
+            const prefix = "file://";
+            const key = Object.keys(workspaceEdit?.changes)[changesKey];
+            const filePath = key.substring(key.indexOf(prefix) + prefix.length);
+            const edits = changes[changesKey];
+            const modifications: STModification[] = [];
+            edits.forEach((edit: any) => {
                 modifications.push({
                     type: "INSERT",
                     config: { STATEMENT: edit.newText },
@@ -67,10 +71,10 @@ export function GraphqlClassForm(props: ClassFormProps) {
                     startLine: edit.range.start.line,
                 });
             });
-        });
 
-        modifications.sort((a, b) => a.startLine - b.startLine)
-        await applyModifications(modifications);
+            modifications.sort((a, b) => a.startLine - b.startLine);
+            await applyModifications(modifications, filePath);
+        }
 
         onSave();
     };

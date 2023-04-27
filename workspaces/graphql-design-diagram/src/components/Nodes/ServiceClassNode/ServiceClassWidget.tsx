@@ -12,10 +12,14 @@
  */
 
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { DiagramContext } from "../../DiagramContext/GraphqlDiagramContext";
+import { getParentSTNodeFromRange } from "../../utils/common-util";
+import { getSyntaxTree } from "../../utils/ls-util";
 import { ServiceNode } from "../GraphqlServiceNode/styles/styles";
 
 import { ServiceClassHeadWidget } from "./ClassHead/ClassHead";
@@ -29,13 +33,34 @@ interface ServiceClassNodeWidgetProps {
 
 export function ServiceClassNodeWidget(props: ServiceClassNodeWidgetProps) {
     const { node, engine } = props;
+    const { langClientPromise } = useContext(DiagramContext);
+
+    const [parentModel, setParentModel] = useState<STNode>(null);
+    const [st, setST] = useState<STNode>(null);
+
+    useEffect(() => {
+        const location = node.classObject.position;
+        const nodePosition: NodePosition = {
+            endColumn: location.endLine.offset,
+            endLine: location.endLine.line,
+            startColumn: location.startLine.offset,
+            startLine: location.startLine.line
+        };
+        (async () => {
+            // parent node is retrieved as the classObject.position only contains the position of the class name
+            const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
+            const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
+            setParentModel(parentNode);
+            setST(syntaxTree)
+        })();
+    }, [node.classObject.position]);
 
     return (
         <ServiceNode>
-            <ServiceClassHeadWidget node={node} engine={engine}/>
+            <ServiceClassHeadWidget node={node} engine={engine} parentModel={parentModel} st={st}/>
             {node.classObject.functions?.map((classFunction, index) => {
                 return (
-                    <ServiceField key={index} node={node} engine={engine} functionElement={classFunction}/>
+                    <ServiceField key={index} node={node} engine={engine} functionElement={classFunction} parentModel={parentModel} st={st}/>
                 );
             })}
         </ServiceNode>
