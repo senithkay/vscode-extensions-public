@@ -32,21 +32,18 @@ import { useDMSearchStore } from "../../../store/store";
 import { getInputOutputSearchTerms, SearchTerm } from "./utils";
 
 const useStyles = makeStyles((theme) => ({
-    searchBox: {
-        display: 'flex',
-        alignItems: 'center',
-        height: 30,
-    },
     textField: {
         width: '100%',
         background: theme.palette.common.white,
         flex: 1,
+        borderRadius: 5,
+        boxShadow: 'inset 0 2px 2px rgba(29, 32, 40, 0.07)',
         '& .MuiOutlinedInput-root': {
             '& fieldset': {
-                borderWidth: 1,
+                border: `1px solid #E6E7EC`,
             },
             '&:hover fieldset': {
-                border: `2px solid #ccc`,
+                border: `2px solid #E6E7EC`,
             },
             '&.Mui-focused fieldset': {
                 border: `2px solid #A6B3FF`
