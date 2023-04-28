@@ -148,7 +148,7 @@ export class NodeInitVisitor implements Visitor {
                         const expandedHeaderPorts: RightAnglePortModel[] = [];
                         const fromClauseNode = new FromClauseNode(this.context, bodyExpr.queryPipeline.fromClause);
                         if (fromClauseNode.getSourceType()){
-                            fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN + 100);
+                            fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
                             this.inputParamNodes.push(fromClauseNode);
 
                             const fromClauseNodeValueLabel = (bodyExpr.queryPipeline.fromClause?.typedBindingPattern?.bindingPattern as CaptureBindingPattern
@@ -413,7 +413,7 @@ export class NodeInitVisitor implements Visitor {
                 // create input nodes
                 const fromClauseNode = new FromClauseNode(this.context, node.queryPipeline.fromClause);
                 if (fromClauseNode.getSourceType()){
-                    fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN + 100);
+                    fromClauseNode.setPosition(OFFSETS.SOURCE_NODE.X + OFFSETS.QUERY_VIEW_LEFT_MARGIN, intermediateClausesHeight + OFFSETS.QUERY_VIEW_TOP_MARGIN);
                     this.inputParamNodes.push(fromClauseNode);
 
                     const fromClauseNodeValueLabel = (
