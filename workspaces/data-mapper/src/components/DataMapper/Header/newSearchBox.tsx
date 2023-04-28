@@ -15,7 +15,8 @@ import React, { useEffect, useState } from 'react';
 
 import {
     Checkbox,
-    FormControl, InputAdornment,
+    FormControl,
+    InputAdornment,
     ListItemText,
     makeStyles,
     MenuItem,
@@ -148,6 +149,11 @@ export default function SearchBox() {
         dmStore.setOutputSearch(outSearchTerm.searchText.trim());
     };
 
+    const handleOnSearchTextClear = () => {
+        handleSearch("");
+        setSearchTerm("");
+    };
+
     useEffect(() => {
         const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(searchTerm);
         let modifiedSearchTerm = searchTerm;
@@ -196,7 +202,7 @@ export default function SearchBox() {
                                 <InputAdornment position="end">
                                     <CloseRoundedIcon
                                         fontSize='small'
-                                        onClick={undefined}
+                                        onClick={handleOnSearchTextClear}
                                         className={classes.clearBtn}
                                         data-testid={`search-clear-${searchTerm}`}
                                     />
