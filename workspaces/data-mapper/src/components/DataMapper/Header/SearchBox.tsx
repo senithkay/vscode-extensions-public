@@ -29,7 +29,7 @@ import debounce from "lodash.debounce";
 import FilterIcon from "../../../assets/icons/FilterIcon";
 import { useDMSearchStore } from "../../../store/store";
 
-import { getInputOutputSearchTerms, SearchTerm } from "./utils";
+import { getInputOutputSearchTerms } from "./utils";
 
 const useStyles = makeStyles((theme) => ({
     textField: {
@@ -86,6 +86,17 @@ const useStyles = makeStyles((theme) => ({
         height: '10px',
     }
 }));
+
+export enum SearchType {
+    INPUT,
+    OUTPUT,
+}
+
+export interface SearchTerm {
+    searchText: string;
+    searchType: SearchType;
+    isLabelAvailable: boolean;
+}
 
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
