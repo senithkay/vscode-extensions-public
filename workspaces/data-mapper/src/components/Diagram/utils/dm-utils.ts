@@ -700,6 +700,11 @@ export function getOutputPortForField(fields: STNode[],
 		}
 	}
 
+	const outputSearchValue = useDMSearchStore.getState().outputSearch;
+	const lastPortIdSegment = portIdBuffer.split('.').slice(-1)[0];
+	if (outputSearchValue !== '' && !lastPortIdSegment.includes(outputSearchValue)) {
+		return [undefined, undefined];
+	}
 	const portId = `${portIdBuffer}.IN`;
 	const port = (node.getPort(portId) as RecordFieldPortModel);
 	let mappedPort = port;
