@@ -26,6 +26,7 @@ import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
 import debounce from "lodash.debounce";
 
 import FilterIcon from "../../../assets/icons/FilterIcon";
+import { useDMSearchStore } from "../../../store/store";
 
 import { getInputOutputSearchTerms, SearchTerm } from "./utils";
 
@@ -91,17 +92,13 @@ const useStyles = makeStyles((theme) => ({
 export const INPUT_FIELD_FILTER_LABEL = "in:";
 export const OUTPUT_FIELD_FILTER_LABEL = "out:";
 
-interface Props {
-    onSearch: (searchData: { searchTerm: string; searchOption: string }) => void;
-}
-
-export default function SearchBox(props: Props) {
-    const { onSearch } = props;
+export default function SearchBox() {
     const classes = useStyles();
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
     const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
+    const dmStore = useDMSearchStore.getState();
 
     const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         debouncedOnChange(event.target.value);
@@ -111,13 +108,6 @@ export default function SearchBox(props: Props) {
     const handleSearchOptionChange = (event:  React.ChangeEvent<{value: string[]}>) => {
         setSearchOption(event.target.value);
     };
-
-    // const handleSearch = () => {
-    //     onSearch({
-    //         searchTerm,
-    //         searchOption: searchOption.length > 0 ? searchOption.join(',') : '',
-    //     });
-    // };
 
     const handleSearch = (term: string) => {
         const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(term);
@@ -154,6 +144,8 @@ export default function SearchBox(props: Props) {
         }
         setInputSearchTerm(inSearchTerm);
         setOutputSearchTerm(outSearchTerm);
+        dmStore.setInputSearch(inSearchTerm.searchText.trim());
+        dmStore.setOutputSearch(outSearchTerm.searchText.trim());
     };
 
     useEffect(() => {
@@ -177,6 +169,7 @@ export default function SearchBox(props: Props) {
                 modifiedSearchTerm = modifiedSearchTerm.replace(`${OUTPUT_FIELD_FILTER_LABEL}${outSearchTerm.searchText}`, '');
             }
         }
+        handleSearch(modifiedSearchTerm);
         setSearchTerm(modifiedSearchTerm);
     }, [searchOption]);
 
@@ -191,11 +184,6 @@ export default function SearchBox(props: Props) {
                 variant="outlined"
                 value={searchTerm}
                 onChange={handleSearchInputChange}
-                // onKeyPress={(event) => {
-                //     if (event.key === 'Enter') {
-                //         handleSearch();
-                //     }
-                // }}
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start" className={classes.filterIcon}>

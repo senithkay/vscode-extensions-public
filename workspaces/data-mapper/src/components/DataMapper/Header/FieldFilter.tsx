@@ -104,7 +104,7 @@ export default function FieldFilter(props: FieldFilterProps) {
 
     return (
         <>
-            <SearchBox onSearch={undefined} />
+            <SearchBox />
             {/*<Box*/}
             {/*    className={classnames(classes.searchContainer,*/}
             {/*        focused && classes.searchContainerFocused*/}
