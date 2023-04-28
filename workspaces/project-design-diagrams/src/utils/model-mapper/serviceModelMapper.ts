@@ -111,26 +111,27 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
                 }
 
                 // create the L1 service nodes
-                const l1Node = new ServiceNodeModel(service, Level.ONE);
+                const l1Node = new ServiceNodeModel(service, Level.ONE, packageModel.version);
                 l1Nodes.set(service.serviceId, l1Node);
 
                 // create the cell diagram nodes
-                const cellNode = new ServiceNodeModel(service, Level.ONE, extractGateways(service));
+                const cellNode = new ServiceNodeModel(service, Level.ONE, packageModel.version, extractGateways(service));
                 cellNodes.set(service.serviceId, cellNode);
 
                 // create the L2 service nodes
-                const l2Node = new ServiceNodeModel(service, Level.TWO);
+                const l2Node = new ServiceNodeModel(service, Level.TWO, packageModel.version);
                 l2Nodes.set(service.serviceId, l2Node);
             });
 
             if (packageModel.functionEntryPoint) {
-                const l1EntryNode = new EntryNodeModel(packageName, packageModel.functionEntryPoint, Level.ONE);
+                const { functionEntryPoint, version } = packageModel;
+                const l1EntryNode = new EntryNodeModel(packageName, functionEntryPoint, Level.ONE, version);
                 l1EntryNodes.set(packageName, l1EntryNode);
 
-                const cellEntryNode = new EntryNodeModel(packageName, packageModel.functionEntryPoint, Level.ONE);
+                const cellEntryNode = new EntryNodeModel(packageName, functionEntryPoint, Level.ONE, version);
                 cellEntryNodes.set(packageName, cellEntryNode);
 
-                const l2EntryNode = new EntryNodeModel(packageName, packageModel.functionEntryPoint, Level.TWO);
+                const l2EntryNode = new EntryNodeModel(packageName, functionEntryPoint, Level.TWO, version);
                 l2EntryNodes.set(packageName, l2EntryNode);
             }
         }

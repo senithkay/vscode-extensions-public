@@ -2,8 +2,10 @@ import { LinePosition } from "./IBallerinaLanguageClient";
 
 export interface ComponentModel {
     packageId: CMPackageID;
+    version?: string;
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
+    diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
 }

@@ -37,6 +37,7 @@ export class EntryNodeFactory extends AbstractReactFactory<EntryNodeModel, Diagr
 	}
 
 	generateModel(event: { initialConfig: any }) {
-		return new EntryNodeModel(event.initialConfig.packageName, event.initialConfig.level, event.initialConfig.location);
+		return new EntryNodeModel(event.initialConfig.packageName, event.initialConfig.level,
+			event.initialConfig.location, event.initialConfig.version);
 	}
 }

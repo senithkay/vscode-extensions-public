@@ -71,27 +71,25 @@ export function DeleteComponentDialog(props: DeleteDialogProps) {
             <DialogTitle sx={TitleTextProps}>Delete Component</DialogTitle>
             <DialogContent>
                 <DialogContentText sx={ContentTextProps}>
-                    {isService ? "Please select an option." : "Are you sure you want to delete this component?"}
+                    Please select an option.
                 </DialogContentText>
 
-                {isService &&
-                    <RadioGroup
-                        value={deletePkg ? DELETE_PKG_VALUE : DELETE_COMPONENT_VALUE}
-                        id="delete-radio-buttons-group"
-                        onChange={handleDeleteChoiceChange}
-                    >
-                        <FormControlLabel
-                            value={DELETE_PKG_VALUE}
-                            control={<Radio />}
-                            label={<span style={DefaultTextProps}>Delete the entire package</span>}
-                        />
-                        <FormControlLabel
-                            value={DELETE_COMPONENT_VALUE}
-                            control={<Radio />}
-                            label={<span style={DefaultTextProps}>Delete only the service</span>}
-                        />
-                    </RadioGroup>
-                }
+                <RadioGroup
+                    value={deletePkg ? DELETE_PKG_VALUE : DELETE_COMPONENT_VALUE}
+                    id="delete-radio-buttons-group"
+                    onChange={handleDeleteChoiceChange}
+                >
+                    <FormControlLabel
+                        value={DELETE_PKG_VALUE}
+                        control={<Radio />}
+                        label={<span style={DefaultTextProps}>Delete the entire package</span>}
+                    />
+                    <FormControlLabel
+                        value={DELETE_COMPONENT_VALUE}
+                        control={<Radio />}
+                        label={<span style={DefaultTextProps}>Delete only the {isService ? 'service' : 'main entrypoint'}</span>}
+                    />
+                </RadioGroup>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleDialogClose} sx={DefaultTextProps}>Cancel</Button>

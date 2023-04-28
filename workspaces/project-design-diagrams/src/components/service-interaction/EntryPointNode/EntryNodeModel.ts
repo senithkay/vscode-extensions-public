@@ -26,11 +26,13 @@ import { Level } from '../../../resources';
 export class EntryNodeModel extends SharedNodeModel {
     level: Level;
     nodeObject: EntryPoint;
+    readonly modelVersion: string;
 
-    constructor(id: string, entryPoint: EntryPoint, level: Level) {
+    constructor(id: string, entryPoint: EntryPoint, level: Level, version: string) {
         super('entryPointNode', id);
 
         this.level = level;
+        this.modelVersion = version;
         this.nodeObject = entryPoint;
 
         this.addPort(new ServicePortModel(id, PortModelAlignment.LEFT));
