@@ -23,6 +23,7 @@ import {
     TextField,
 } from '@material-ui/core';
 import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
+import debounce from "lodash.debounce";
 
 import FilterIcon from "../../../assets/icons/FilterIcon";
 
@@ -103,6 +104,7 @@ export default function SearchBox(props: Props) {
     const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
 
     const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        debouncedOnChange(event.target.value);
         setSearchTerm(event.target.value);
     };
 
@@ -110,47 +112,49 @@ export default function SearchBox(props: Props) {
         setSearchOption(event.target.value);
     };
 
-    const handleSearch = () => {
-        onSearch({
-            searchTerm,
-            searchOption: searchOption.length > 0 ? searchOption.join(',') : '',
-        });
-    };
+    // const handleSearch = () => {
+    //     onSearch({
+    //         searchTerm,
+    //         searchOption: searchOption.length > 0 ? searchOption.join(',') : '',
+    //     });
+    // };
 
-    useEffect(() => {
-        const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(searchTerm);
-        const hasInputFilterLabelChanged = inputSearchTerm
-            && inSearchTerm
-            && inputSearchTerm.isLabelAvailable !== inSearchTerm.isLabelAvailable;
-        const hasOutputFilterLabelChanged = outputSearchTerm
-            && outSearchTerm
-            && outputSearchTerm.isLabelAvailable !== outSearchTerm.isLabelAvailable;
+    const handleSearch = (term: string) => {
+        const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(term);
+        const hasInputFilterLabelChanged = !inputSearchTerm
+            || (inputSearchTerm && inSearchTerm && inputSearchTerm.isLabelAvailable !== inSearchTerm.isLabelAvailable);
+        const hasOutputFilterLabelChanged = !outputSearchTerm
+            || (outputSearchTerm && outSearchTerm && outputSearchTerm.isLabelAvailable !== outSearchTerm.isLabelAvailable);
 
-        if (hasInputFilterLabelChanged) {
-            if (!searchOption.includes(INPUT_FIELD_FILTER_LABEL)) {
-                if (inSearchTerm && inSearchTerm.isLabelAvailable) {
-                    setSearchOption([...searchOption, INPUT_FIELD_FILTER_LABEL]);
-                }
-            } else {
-                if (!inSearchTerm || !inSearchTerm.isLabelAvailable) {
-                    setSearchOption(searchOption.filter(option => option !== INPUT_FIELD_FILTER_LABEL));
+        if (hasInputFilterLabelChanged || hasOutputFilterLabelChanged) {
+            let modifiedSearchOptions: string[] = searchOption;
+            if (hasInputFilterLabelChanged) {
+                if (!searchOption.includes(INPUT_FIELD_FILTER_LABEL)) {
+                    if (inSearchTerm && inSearchTerm.isLabelAvailable) {
+                        modifiedSearchOptions.push(INPUT_FIELD_FILTER_LABEL);
+                    }
+                } else {
+                    if (!inSearchTerm || !inSearchTerm.isLabelAvailable) {
+                        modifiedSearchOptions = modifiedSearchOptions.filter(option => option !== INPUT_FIELD_FILTER_LABEL);
+                    }
                 }
             }
-        }
-        if (hasOutputFilterLabelChanged) {
-            if (!searchOption.includes(OUTPUT_FIELD_FILTER_LABEL)) {
-                if (outSearchTerm && outSearchTerm.isLabelAvailable) {
-                    setSearchOption([...searchOption, OUTPUT_FIELD_FILTER_LABEL]);
-                }
-            } else {
-                if (!outSearchTerm || !outSearchTerm.isLabelAvailable) {
-                    setSearchOption(searchOption.filter(option => option !== OUTPUT_FIELD_FILTER_LABEL));
+            if (hasOutputFilterLabelChanged) {
+                if (!searchOption.includes(OUTPUT_FIELD_FILTER_LABEL)) {
+                    if (outSearchTerm && outSearchTerm.isLabelAvailable) {
+                        modifiedSearchOptions.push(OUTPUT_FIELD_FILTER_LABEL);
+                    }
+                } else {
+                    if (!outSearchTerm || !outSearchTerm.isLabelAvailable) {
+                        modifiedSearchOptions = modifiedSearchOptions.filter(option => option !== OUTPUT_FIELD_FILTER_LABEL);
+                    }
                 }
             }
+            setSearchOption(modifiedSearchOptions);
         }
         setInputSearchTerm(inSearchTerm);
         setOutputSearchTerm(outSearchTerm);
-    }, [searchTerm]);
+    };
 
     useEffect(() => {
         const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(searchTerm);
@@ -176,6 +180,8 @@ export default function SearchBox(props: Props) {
         setSearchTerm(modifiedSearchTerm);
     }, [searchOption]);
 
+    const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
+
     return (
         <>
             <TextField
@@ -185,11 +191,11 @@ export default function SearchBox(props: Props) {
                 variant="outlined"
                 value={searchTerm}
                 onChange={handleSearchInputChange}
-                onKeyPress={(event) => {
-                    if (event.key === 'Enter') {
-                        handleSearch();
-                    }
-                }}
+                // onKeyPress={(event) => {
+                //     if (event.key === 'Enter') {
+                //         handleSearch();
+                //     }
+                // }}
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start" className={classes.filterIcon}>
