@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
     Checkbox,
@@ -25,6 +25,8 @@ import {
 import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
 
 import FilterIcon from "../../../assets/icons/FilterIcon";
+
+import { getInputOutputSearchTerms, SearchTerm } from "./utils";
 
 const useStyles = makeStyles((theme) => ({
     searchBox: {
@@ -85,6 +87,9 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+export const INPUT_FIELD_FILTER_LABEL = "in:";
+export const OUTPUT_FIELD_FILTER_LABEL = "out:";
+
 interface Props {
     onSearch: (searchData: { searchTerm: string; searchOption: string }) => void;
 }
@@ -94,17 +99,15 @@ export default function SearchBox(props: Props) {
     const classes = useStyles();
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
+    const [inputSearchTerm, setInputSearchTerm] = useState<SearchTerm>();
+    const [outputSearchTerm, setOutputSearchTerm] = useState<SearchTerm>();
 
-    const handleSearchInputChange = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };
 
-    const handleSearchOptionChange = (
-        event: React.ChangeEvent<{ value: unknown }>
-    ) => {
-        setSearchOption(event.target.value as string[]);
+    const handleSearchOptionChange = (event:  React.ChangeEvent<{value: string[]}>) => {
+        setSearchOption(event.target.value);
     };
 
     const handleSearch = () => {
@@ -113,6 +116,65 @@ export default function SearchBox(props: Props) {
             searchOption: searchOption.length > 0 ? searchOption.join(',') : '',
         });
     };
+
+    useEffect(() => {
+        const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(searchTerm);
+        const hasInputFilterLabelChanged = inputSearchTerm
+            && inSearchTerm
+            && inputSearchTerm.isLabelAvailable !== inSearchTerm.isLabelAvailable;
+        const hasOutputFilterLabelChanged = outputSearchTerm
+            && outSearchTerm
+            && outputSearchTerm.isLabelAvailable !== outSearchTerm.isLabelAvailable;
+
+        if (hasInputFilterLabelChanged) {
+            if (!searchOption.includes(INPUT_FIELD_FILTER_LABEL)) {
+                if (inSearchTerm && inSearchTerm.isLabelAvailable) {
+                    setSearchOption([...searchOption, INPUT_FIELD_FILTER_LABEL]);
+                }
+            } else {
+                if (!inSearchTerm || !inSearchTerm.isLabelAvailable) {
+                    setSearchOption(searchOption.filter(option => option !== INPUT_FIELD_FILTER_LABEL));
+                }
+            }
+        }
+        if (hasOutputFilterLabelChanged) {
+            if (!searchOption.includes(OUTPUT_FIELD_FILTER_LABEL)) {
+                if (outSearchTerm && outSearchTerm.isLabelAvailable) {
+                    setSearchOption([...searchOption, OUTPUT_FIELD_FILTER_LABEL]);
+                }
+            } else {
+                if (!outSearchTerm || !outSearchTerm.isLabelAvailable) {
+                    setSearchOption(searchOption.filter(option => option !== OUTPUT_FIELD_FILTER_LABEL));
+                }
+            }
+        }
+        setInputSearchTerm(inSearchTerm);
+        setOutputSearchTerm(outSearchTerm);
+    }, [searchTerm]);
+
+    useEffect(() => {
+        const [inSearchTerm, outSearchTerm] = getInputOutputSearchTerms(searchTerm);
+        let modifiedSearchTerm = searchTerm;
+        if (searchOption.includes(INPUT_FIELD_FILTER_LABEL)) {
+            if (inSearchTerm && !inSearchTerm.isLabelAvailable) {
+                modifiedSearchTerm += ` ${INPUT_FIELD_FILTER_LABEL}`;
+            }
+        } else {
+            if (inSearchTerm && inSearchTerm.isLabelAvailable) {
+                modifiedSearchTerm = modifiedSearchTerm.replace(`${INPUT_FIELD_FILTER_LABEL}${inSearchTerm.searchText}`, '');
+            }
+        }
+        if (searchOption.includes(OUTPUT_FIELD_FILTER_LABEL)) {
+            if (outSearchTerm && !outSearchTerm.isLabelAvailable) {
+                modifiedSearchTerm += ` ${OUTPUT_FIELD_FILTER_LABEL}`;
+            }
+        } else {
+            if (outSearchTerm && outSearchTerm.isLabelAvailable) {
+                modifiedSearchTerm = modifiedSearchTerm.replace(`${OUTPUT_FIELD_FILTER_LABEL}${outSearchTerm.searchText}`, '');
+            }
+        }
+        setSearchTerm(modifiedSearchTerm);
+    }, [searchOption]);
 
     return (
         <>
@@ -162,12 +224,12 @@ export default function SearchBox(props: Props) {
                                         },
                                     }}
                                 >
-                                    <MenuItem value="inputs" className={classes.menuItem}>
-                                        <Checkbox checked={searchOption.indexOf('inputs') > -1} />
+                                    <MenuItem value={INPUT_FIELD_FILTER_LABEL} className={classes.menuItem}>
+                                        <Checkbox checked={searchOption.indexOf(INPUT_FIELD_FILTER_LABEL) > -1} />
                                         <ListItemText primary="Filter in inputs"/>
                                     </MenuItem>
-                                    <MenuItem value="outputs" className={classes.menuItem}>
-                                        <Checkbox checked={searchOption.indexOf('outputs') > -1} />
+                                    <MenuItem value={OUTPUT_FIELD_FILTER_LABEL} className={classes.menuItem}>
+                                        <Checkbox checked={searchOption.indexOf(OUTPUT_FIELD_FILTER_LABEL) > -1} />
                                         <ListItemText primary="Filter in output" />
                                     </MenuItem>
                                 </Select>
