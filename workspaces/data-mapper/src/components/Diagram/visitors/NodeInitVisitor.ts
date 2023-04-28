@@ -531,8 +531,7 @@ export class NodeInitVisitor implements Visitor {
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         const selectedSTNode = this.selection.selectedST.stNode;
         let valueExpr: STNode = node.valueExpr;
-        if ((selectedSTNode.position as NodePosition).startLine !== (node.position as NodePosition).startLine
-            && (selectedSTNode.position as NodePosition).startColumn !== (node.position as NodePosition).startColumn) {
+        if (!isPositionsEquals(selectedSTNode.position as NodePosition, node.position as NodePosition)) {
             this.mapIdentifiers.push(node)
         }
         if (this.isWithinQuery === 0
