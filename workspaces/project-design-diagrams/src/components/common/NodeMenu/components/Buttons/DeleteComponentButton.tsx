@@ -20,8 +20,8 @@
 import React, { useContext } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { useStyles } from "./styles/styles";
+import { DiagramContext } from "../../../DiagramContext/DiagramContext";
+import { useStyles } from "../styles/styles";
 
 interface DeleteComponentProps {
     handleDialogStatus: (status: boolean) => void;

@@ -67,23 +67,18 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 	}, [node])
 
 	const checkLinkStatus = (): boolean => {
-		if (currentView === Views.L1_SERVICES && editingEnabled) {
-			if (newLinkNodes.source?.serviceId === node.getID() || newLinkNodes.target?.serviceId === node.getID()) {
-				return true;
-			}
-		}
-		return false;
+		return currentView === Views.L1_SERVICES && editingEnabled &&
+			(newLinkNodes.source?.getID() === node.getID() || newLinkNodes.target?.getID() === node.getID());
 	}
 
 	const setLinkStatus = async () => {
 		if (currentView === Views.L1_SERVICES &&
 			editingEnabled &&
-			newLinkNodes.source &&
-			newLinkNodes.source.serviceId !== node.getID() &&
+			newLinkNodes.source && newLinkNodes.source?.getID() !== node.getID() &&
 			node.serviceType !== ServiceTypes.OTHER
 		) {
-			setNewLinkNodes({ ...newLinkNodes, target: node.serviceObject });
-			await editLayerAPI?.addLink(newLinkNodes.source, node.serviceObject);
+			setNewLinkNodes({ ...newLinkNodes, target: node });
+			await editLayerAPI?.addLink(newLinkNodes.source.nodeObject, node.nodeObject);
 			setNewLinkNodes({ source: undefined, target: undefined });
 			refreshDiagram();
 		}
@@ -106,7 +101,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			/>
 
 			{node.level === Level.TWO &&
-				node.serviceObject.resources.map((resource, index) => {
+				node.nodeObject.resources.map((resource, index) => {
 					return (
 						<FunctionCard
 							key={index}
@@ -119,7 +114,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 				})
 			}
 			{node.level === Level.TWO &&
-				node.serviceObject.remoteFunctions.map((remoteFunc, index) => {
+				node.nodeObject.remoteFunctions.map((remoteFunc, index) => {
 					return (
 						<FunctionCard
 							key={index}

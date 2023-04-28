@@ -12,14 +12,161 @@
  */
 
 // TODO: Move these utils to a common repo.
-
+import { Uri } from "vscode";
+import { randomUUID } from "crypto";
 import { ModulePart, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
-import { FormField, FormFieldReturnType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/types";
+import { Connector, FormField, FormFieldReturnType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/types";
 import { getFormattedModuleName, keywords } from "@wso2-enterprise/ballerina-low-code-edtior-commons/src/utils/Diagram/modification-util";
+import { ExtendedLangClient } from "../../../core";
+import { BallerinaConnectorInfo, GetSyntaxTreeResponse, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { AddConnectorArgs } from "../../resources";
+import { STResponse } from "../../activator";
+import { runBackgroundTerminalCommand } from "../../../utils/runCommand";
+import { genClientName, getMainFunction, getMissingImports, getServiceDeclaration } from "./shared-utils";
+import { getInitFunction, updateSourceFile, updateSyntaxTree } from "../shared-utils";
 
 const EXPR_PLACEHOLDER = "()";
 
-export function getConnectorImports(syntaxTree: STNode, organization: string, moduleName: string) {
+let clientName: string;
+
+export async function addConnector(langClient: ExtendedLangClient, args: AddConnectorArgs): Promise<boolean> {
+    const { source, connector } = args;
+    const filePath: string = source.elementLocation.filePath;
+
+    const stResponse = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString(),
+        },
+    }) as GetSyntaxTreeResponse;
+    if (!stResponse?.parseSuccess) {
+        return false;
+    }
+
+    const connectorInfo = await fetchConnectorInfo(connector, langClient);
+    if (!(connectorInfo && connectorInfo.moduleName)) {
+        return false;
+    }
+
+    clientName = genClientName(stResponse.syntaxTree.source, "Ep", connector);
+    const imports = getConnectorImports(stResponse.syntaxTree, connectorInfo.package.organization, connectorInfo.moduleName);
+
+    if ("serviceId" in source) {
+        return linkFromService(stResponse as STResponse, source, imports, connectorInfo, filePath, langClient);
+    } else {
+        return linkFromMain(stResponse as STResponse, connectorInfo, imports, filePath, langClient);
+    }
+}
+
+export async function pullConnector(langClient: ExtendedLangClient, args: AddConnectorArgs): Promise<boolean> {
+    const { source, connector } = args;
+    const filePath: string = source.elementLocation.filePath;
+    const stResponse = (await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString(),
+        },
+    })) as GetSyntaxTreeResponse;
+    if (!(stResponse?.parseSuccess && connector.moduleName)) {
+        return false;
+    }
+
+    const imports = getConnectorImports(stResponse.syntaxTree, connector.package.organization, connector.moduleName);
+    if (imports && imports?.size > 0) {
+        let pullCommand = "";
+        imports.forEach(function (impt) {
+            if (pullCommand !== "") {
+                pullCommand += ` && `;
+            }
+            pullCommand += `bal pull ${impt.replace(" as _", "")}`;
+        });
+        console.log("running terminal command:", pullCommand);
+        const cmdRes = await runBackgroundTerminalCommand(pullCommand);
+        console.log("terminal command message:", cmdRes);
+        if (cmdRes.error && cmdRes.message.indexOf("package already exists") < 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+async function linkFromService(stResponse: STResponse, source: Service, imports: Set<string>, connectorInfo: BallerinaConnectorInfo,
+    filePath: string, langClient: ExtendedLangClient): Promise<boolean> {
+    const serviceDecl = getServiceDeclaration(stResponse.syntaxTree.members, source, true);
+    const initMember = getInitFunction(serviceDecl);
+    if (initMember) {
+        let updatedSTRes: STResponse;
+        const doesConnectorReturnError = checkErrorReturn(connectorInfo);
+        if (doesConnectorReturnError && !initMember.functionSignature.returnTypeDesc) {
+            updatedSTRes = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+        } else if (doesConnectorReturnError && !initMember.functionSignature.returnTypeDesc.type.source.replace(/\s/g, '').includes('error')) {
+            updatedSTRes = await updateSyntaxTree(langClient, filePath, initMember.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
+        }
+        updatedSTRes = await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken,
+            generateClientDecl4Service(connectorInfo)) as STResponse;
+        if (updatedSTRes?.parseSuccess && updatedSTRes.syntaxTree.members) {
+            await updateSourceFile(langClient, filePath, updatedSTRes.source);
+            const serviceDecl = getServiceDeclaration(updatedSTRes.syntaxTree.members, source, false);
+
+            const updatedInitMember = getInitFunction(serviceDecl);
+            if (updatedInitMember) {
+                const modifiedST = (await updateSyntaxTree(
+                    langClient,
+                    filePath,
+                    updatedInitMember.functionBody.openBraceToken,
+                    generateConnectorClientInit(connectorInfo),
+                    getMissingImports(updatedSTRes.source, imports)
+                )) as STResponse;
+                if (modifiedST && modifiedST.parseSuccess) {
+                    return await updateSourceFile(langClient, filePath, modifiedST.source);
+                }
+            }
+        }
+    } else {
+        const template = `
+            ${generateClientDecl4Service(connectorInfo)}
+            ${generateServiceInit(connectorInfo)}
+        `;
+        const modifiedST = (await updateSyntaxTree(langClient, filePath, serviceDecl.openBraceToken, template,
+            imports)) as STResponse;
+        if (modifiedST && modifiedST.parseSuccess) {
+            return await updateSourceFile(langClient, filePath, modifiedST.source);
+        }
+    }
+}
+
+async function linkFromMain(stResponse: STResponse, connector: BallerinaConnectorInfo, imports: Set<string>, filePath: string,
+    langClient: ExtendedLangClient): Promise<boolean> {
+    let mainFunc = getMainFunction(stResponse);
+    if (mainFunc) {
+        let modifiedST: STResponse;
+        const doesConnectorReturnError = checkErrorReturn(connector);
+        if (doesConnectorReturnError && !mainFunc.functionSignature.returnTypeDesc) {
+            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.closeParenToken, ` returns error?`) as STResponse;
+            mainFunc = getMainFunction(modifiedST);
+        } else if (doesConnectorReturnError && !mainFunc.functionSignature.returnTypeDesc.type.source.replace(/\s/g, '').includes('error')) {
+            modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionSignature.returnTypeDesc.type, ` | error?`) as STResponse;
+            mainFunc = getMainFunction(modifiedST);
+        }
+        modifiedST = await updateSyntaxTree(langClient, filePath, mainFunc.functionBody.openBraceToken,
+            generateClientDecl4Main(connector), imports) as STResponse;
+        if (modifiedST && modifiedST.parseSuccess) {
+            return updateSourceFile(langClient, filePath, modifiedST.source);
+        }
+    }
+}
+
+async function fetchConnectorInfo(connector: Connector, langClient: ExtendedLangClient): Promise<BallerinaConnectorInfo | undefined> {
+    const connectorRes = await langClient.getConnector({
+        name: connector.name,
+        package: connector.package,
+        id: connector.id,
+    });
+    if ((connectorRes as BallerinaConnectorInfo)?.functions?.length > 0) {
+        return connectorRes as BallerinaConnectorInfo;
+    }
+    return undefined;
+}
+
+function getConnectorImports(syntaxTree: STNode, organization: string, moduleName: string) {
     let isModuleImported = false;
     let isDriverImported = false;
     const imports = new Set<string>();
@@ -51,7 +198,7 @@ export function getConnectorImports(syntaxTree: STNode, organization: string, mo
     return imports;
 }
 
-export function isDependOnDriver(connectorModule: string): boolean {
+function isDependOnDriver(connectorModule: string): boolean {
     const dbConnectors = ["mysql", "mssql", "postgresql", "oracledb", "cdata.connect", "snowflake"];
     if (dbConnectors.includes(connectorModule)) {
         return true;
@@ -59,7 +206,7 @@ export function isDependOnDriver(connectorModule: string): boolean {
     return false;
 }
 
-export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly = false): string[] {
+function getDefaultParams(parameters: FormField[], depth = 1, valueOnly = false): string[] {
     if (!parameters) {
         return [];
     }
@@ -154,10 +301,6 @@ export function getDefaultParams(parameters: FormField[], depth = 1, valueOnly =
 }
 
 function getFieldValuePair(parameter: FormField, defaultValue: string, depth: number, valueOnly = false, useParamValue = true): string {
-    let value = defaultValue || EXPR_PLACEHOLDER;
-    if (useParamValue && parameter.value) {
-        value = parameter.value;
-    }
     if (depth === 1 && !valueOnly && parameter.name) {
         // Handle named args
         return `${getFieldName(parameter.name)} = ${defaultValue}`;
@@ -168,19 +311,19 @@ function getFieldValuePair(parameter: FormField, defaultValue: string, depth: nu
     return defaultValue;
 }
 
-export function isAllDefaultableFields(recordFields: FormField[]): boolean {
+function isAllDefaultableFields(recordFields: FormField[]): boolean {
     return recordFields?.every((field) => field.defaultable || (field.fields && isAllDefaultableFields(field.fields)));
 }
 
-export function isAnyFieldSelected(recordFields: FormField[]): boolean {
+function isAnyFieldSelected(recordFields: FormField[]): boolean {
     return recordFields?.some((field) => field.selected || (field.fields && isAnyFieldSelected(field.fields)));
 }
 
-export function getFieldName(fieldName: string): string {
+function getFieldName(fieldName: string): string {
     return keywords.includes(fieldName) ? "'" + fieldName : fieldName;
 }
 
-export function getUnionFormFieldName(field: FormField): string {
+function getUnionFormFieldName(field: FormField): string {
     let name = field.name;
     if (!name) {
         name = field.typeInfo?.name;
@@ -191,7 +334,7 @@ export function getUnionFormFieldName(field: FormField): string {
     return name;
 }
 
-export function getSelectedUnionMember(unionFields: FormField): FormField | undefined {
+function getSelectedUnionMember(unionFields: FormField): FormField | undefined {
     let selectedMember = unionFields.members?.find((member) => member.selected === true);
     if (!selectedMember) {
         selectedMember = unionFields.members?.find((member) => getUnionFormFieldName(member) === unionFields.selectedDataType);
@@ -205,7 +348,7 @@ export function getSelectedUnionMember(unionFields: FormField): FormField | unde
     return selectedMember;
 }
 
-export function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldReturnType {
+function getFormFieldReturnType(formField: FormField, depth = 1): FormFieldReturnType {
     const response: FormFieldReturnType = {
         hasError: formField?.isErrorType ? true : false,
         hasReturn: false,
@@ -406,4 +549,74 @@ export function getFormFieldReturnType(formField: FormField, depth = 1): FormFie
         response.hasReturn = true;
     }
     return response;
+}
+
+function generateServiceInit(connectorInfo: BallerinaConnectorInfo): string {
+    return `function init() returns error? {
+        ${generateConnectorClientInit(connectorInfo)}
+    }`;
+}
+
+function generateClientDecl4Service(connector: BallerinaConnectorInfo): string {
+    if (!connector?.moduleName) {
+        return "";
+    }
+    const moduleName = getFormattedModuleName(connector.moduleName);
+    let clientDeclaration: string = `
+        @display {
+            label: "${connector.displayName || moduleName}",
+            id: "${moduleName}-${randomUUID()}"
+        }
+        ${moduleName}:${connector.name} ${clientName};
+    `;
+    return clientDeclaration;
+}
+
+function generateClientDecl4Main(connector: BallerinaConnectorInfo): string {
+    if (!connector?.moduleName) {
+        return "";
+    }
+    const moduleName = getFormattedModuleName(connector.moduleName);
+
+    const initFunction = connector.functions?.find((func) => func.name === "init");
+    let returnType: FormFieldReturnType;
+
+    const defaultParameters = getDefaultParams(initFunction.parameters);
+    if (initFunction.returnType) {
+        returnType = getFormFieldReturnType(initFunction.returnType);
+    }
+    let clientDeclaration: string = `
+        @display {
+            label: "${connector.displayName || moduleName}",
+            id: "${moduleName}-${randomUUID()}"
+        }
+        ${moduleName}:${connector.name} ${clientName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});
+    `;
+
+    return clientDeclaration;
+}
+
+function generateConnectorClientInit(connector: BallerinaConnectorInfo): string {
+    if (!connector?.moduleName) {
+        return "";
+    }
+
+    const initFunction = connector.functions?.find((func) => func.name === "init");
+    let returnType: FormFieldReturnType;
+
+    const defaultParameters = getDefaultParams(initFunction.parameters);
+    if (initFunction.returnType) {
+        returnType = getFormFieldReturnType(initFunction.returnType);
+    }
+
+    return `self.${clientName} = ${returnType?.hasError ? "check" : ""} new (${defaultParameters.join()});`;
+}
+
+function checkErrorReturn(connector: BallerinaConnectorInfo) {
+    const initFunction = connector.functions?.find((func) => func.name === "init");
+    if (initFunction.returnType) {
+        const returnType: FormFieldReturnType = getFormFieldReturnType(initFunction.returnType);
+        return returnType.hasError;
+    }
+    return false;
 }

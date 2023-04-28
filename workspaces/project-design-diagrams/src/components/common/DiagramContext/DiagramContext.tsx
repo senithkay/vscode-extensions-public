@@ -18,7 +18,8 @@
  */
 
 import React, { createContext, ReactNode, useState } from 'react';
-import { CMLocation as Location, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import { CMEntryPoint as EntryPoint, CMLocation as Location, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import { EntryNodeModel, ServiceNodeModel } from '../../service-interaction';
 import { ConsoleView, EditLayerAPI, Views } from '../../../resources';
 
 interface DiagramContextProps {
@@ -32,7 +33,7 @@ interface DiagramContextProps {
     refreshDiagram: () => void;
     showChoreoProjectOverview: (() => Promise<void>) | undefined;
     getTypeComposition: (entityID: string) => void;
-    setConnectorTarget: (service: Service) => void;
+    setConnectorTarget?: (source: EntryPoint | Service) => void;
     editLayerAPI: EditLayerAPI | undefined;
     deleteComponent: (location: Location, deletePkg: boolean) => Promise<void>;
     consoleView: ConsoleView;
@@ -56,14 +57,14 @@ interface IDiagramContext {
     newLinkNodes?: LinkedNodes;
     setNewComponentID?: (name: string | undefined) => void;
     setNewLinkNodes?: (nodes: LinkedNodes) => void;
-    setConnectorTarget?: (service: Service) => void;
+    setConnectorTarget?: (source: EntryPoint | Service) => void;
     deleteComponent?: (location: Location, deletePkg: boolean) => Promise<void> | undefined;
     addComponent?: () => void;
 }
 
 interface LinkedNodes {
-    source: Service | undefined;
-    target: Service | undefined;
+    source: ServiceNodeModel | EntryNodeModel;
+    target: ServiceNodeModel;
 }
 
 const defaultState: any = {};

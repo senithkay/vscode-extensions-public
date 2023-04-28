@@ -21,12 +21,14 @@ import {
     IProjectManager, Project, Component, BallerinaComponentCreationParams, BallerinaComponentTypes,
     IsRepoClonedRequestParams, ChoreoComponentCreationParams
 } from "@wso2-enterprise/choreo-core";
+import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { ProgressLocation, window, workspace } from "vscode";
 import { randomUUID } from "crypto";
 import path, { join } from "path";
-import { addToWorkspace } from "../../utils/project-utils";
-import { addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate } from "./component-handler-utils";
-import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { addToWorkspace } from "../../../utils/project-utils";
+import {
+    addDisplayAnnotation, buildWebhookTemplate, createBallerinaPackage, processTomlFiles, runCommand, writeWebhookTemplate
+} from "../component-utils";
 
 export class BallerinaProjectManager implements IProjectManager {
     isComponentNameAvailable(componentName: string): Promise<boolean> {
