@@ -1273,11 +1273,13 @@ export function getFnDefForFnCall(node: FunctionCall): FnDefInfo {
 
 export function getFilteredMappings(mappings: FieldAccessToSpecificFied[], searchValue: string) {
 	return mappings.filter(mapping => {
-		const lastField = mapping.fields[mapping.fields.length - 1];
-		const fieldName = STKindChecker.isSpecificField(lastField)
-			? lastField.fieldName?.value || lastField.fieldName.source
-			: lastField.source;
-		return searchValue === "" || fieldName.toLowerCase().includes(searchValue.toLowerCase());
+		if (mapping) {
+			const lastField = mapping.fields[mapping.fields.length - 1];
+			const fieldName = STKindChecker.isSpecificField(lastField)
+				? lastField.fieldName?.value || lastField.fieldName.source
+				: lastField.source;
+			return searchValue === "" || fieldName.toLowerCase().includes(searchValue.toLowerCase());
+		}
 	});
 }
 
