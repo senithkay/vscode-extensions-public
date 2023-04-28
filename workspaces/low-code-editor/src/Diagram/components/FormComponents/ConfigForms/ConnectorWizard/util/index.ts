@@ -554,7 +554,7 @@ export function getConnectorFromVisibleEp(endpoint: VisibleEndpoint) {
     return connector;
 }
 
-export function getConnectorImports(syntaxTree: STNode, organization: string, moduleName: string) {
+export function getConnectorImports(syntaxTree: STNode, organization: string, moduleName: string, withExistingImports = false) {
     let isModuleImported = false;
     let isDriverImported = false;
     const imports = new Set<string>();
@@ -576,7 +576,7 @@ export function getConnectorImports(syntaxTree: STNode, organization: string, mo
                 isDriverImported = true;
             }
         });
-        if (!isModuleImported) {
+        if (withExistingImports || !isModuleImported) {
             imports.add(`${organization}/${moduleName}`);
         }
         if (!isDriverImported && isDependOnDriver(moduleName)) {
