@@ -28,7 +28,7 @@ import { ExtendedLangClient } from "../../../core";
 import { STResponse, terminateActivation } from "../../activator";
 import { ERROR_MESSAGE } from "../../resources";
 import { getChoreoExtAPI } from "../../../choreo-features/activate";
-import { deleteBallerinaPackage, deleteService } from "../component-utils";
+import { deleteBallerinaPackage, deleteComponentOnly } from "../component-utils";
 
 const ballerinaToml = "Ballerina.toml";
 
@@ -110,7 +110,7 @@ export async function deleteProjectComponent(projectId: string, location: Locati
             deleteBallerinaPackage(location.filePath);
         }
     } else {
-        await deleteService(location);
+        await deleteComponentOnly(location);
     }
 }
 
