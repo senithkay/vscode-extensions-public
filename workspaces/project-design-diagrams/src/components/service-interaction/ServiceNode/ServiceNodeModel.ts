@@ -27,14 +27,16 @@ import { GatewayType } from "../../gateway/types";
 export class ServiceNodeModel extends SharedNodeModel {
 	isLinked: boolean;
 	readonly level: Level;
+	readonly modelVersion: string;
 	readonly nodeObject: Service;
 	readonly serviceType: ServiceTypes;
 	readonly targetGateways: GatewayType[];
 
-	constructor(serviceObject: Service, level: Level, targetGateways?: GatewayType[]) {
+	constructor(serviceObject: Service, level: Level, version: string, targetGateways?: GatewayType[]) {
 		super('serviceNode', serviceObject.serviceId);
 
 		this.level = level;
+		this.modelVersion = version;
 		this.nodeObject = serviceObject;
 		this.serviceType = this.getServiceType();
 		this.targetGateways = targetGateways;
