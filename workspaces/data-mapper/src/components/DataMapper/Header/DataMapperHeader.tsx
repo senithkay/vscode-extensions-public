@@ -21,8 +21,8 @@ import RoundEditIcon from "../../../assets/icons/RoundEditIcon";
 import { useDMSearchStore } from "../../../store/store";
 import { SelectionState, ViewOption } from "../DataMapper";
 
-import FieldFilter, { SearchType } from "./FieldFilter";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
+import SearchBox from "./SearchBox";
 
 export const headerStyles = {
     tooltip: {
@@ -59,11 +59,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 />
             </BreadCrumb>
             <FilterBar>
-                <FieldFilter
-                    searchText={dmStore.inputSearch}
-                    onSearchTextChange={dmStore.setInputSearch}
-                    searchType={SearchType.Input}
-                />
+                <SearchBox />
             </FilterBar>
             {dmSupported && (
                 <TooltipComponent

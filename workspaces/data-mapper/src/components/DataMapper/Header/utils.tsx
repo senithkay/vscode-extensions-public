@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL } from "./newSearchBox";
+import { INPUT_FIELD_FILTER_LABEL, OUTPUT_FIELD_FILTER_LABEL } from "./SearchBox";
 
 enum SearchType {
     INPUT,
