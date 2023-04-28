@@ -18,7 +18,9 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { CMLocation as Location, CMService as Service, CMAnnotation as Annotation } from '@wso2-enterprise/ballerina-languageclient';
+import {
+    CMEntryPoint as EntryPoint, CMLocation as Location, CMService as Service, CMAnnotation as Annotation
+} from '@wso2-enterprise/ballerina-languageclient';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
@@ -73,10 +75,10 @@ export interface EditLayerAPI {
     getProjectRoot: () => Promise<string | undefined>;
     createComponent: (args: BallerinaComponentCreationParams) => Promise<string>;
     getConnectors: (args: BallerinaConnectorsRequest) => Promise<BallerinaConnectorsResponse>;
-    pullConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
-    addConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
-    addLink: (source: Service, target: Service) => Promise<boolean>;
-    deleteLink: (linkLocation: Location, serviceLocation: Location) => Promise<boolean>;
+    pullConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
+    addConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
+    addLink: (source: Service | EntryPoint, target: Service) => Promise<boolean>;
+    deleteLink: (linkLocation: Location, nodeLocation: Location) => Promise<boolean>;
     pickDirectory: () => Promise<string | undefined>;
     executeCommand: (cmd: string) => Promise<boolean>;
     go2source: (location: Location) => void;

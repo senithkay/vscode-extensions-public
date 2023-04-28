@@ -26,9 +26,10 @@ import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { getCommonWebViewOptions, WebViewMethod, WebViewRPCHandler } from "../utils";
 import { render } from "./renderer";
 import { ERROR_MESSAGE, INCOMPATIBLE_VERSIONS_MESSAGE, USER_TIP, BallerinaVersion, GLOBAL_STATE_FLAG } from "./resources";
-import { getComponentModel, EditLayerRPC, checkIsChoreoProject, getActiveChoreoProject, showChoreoProjectOverview } from "./utils";
+import {
+    getComponentModel, EditLayerRPC, checkIsChoreoProject, deleteProjectComponent, getActiveChoreoProject, showChoreoProjectOverview
+} from "./utils";
 import { PALETTE_COMMANDS } from "../project/activator";
-import { deleteProjectComponent } from "./utils/common-utils";
 
 let extInstance: BallerinaExtension;
 let langClient: ExtendedLangClient;

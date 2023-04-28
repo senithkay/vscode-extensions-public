@@ -20,19 +20,21 @@
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { BallerinaComponentCreationParams, ChoreoComponentCreationParams } from "@wso2-enterprise/choreo-core";
 import {
-    BallerinaTriggerResponse, BallerinaTriggersResponse, CMLocation as Location, CMService as Service, CMAnnotation as Annotation
+    BallerinaTriggerResponse, BallerinaTriggersResponse, CMLocation as Location, CMAnnotation as Annotation
 } from "@wso2-enterprise/ballerina-languageclient";
 import { Messenger } from "vscode-messenger";
 import { commands, ExtensionContext, OpenDialogOptions, WebviewPanel, window, workspace } from "vscode";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
-import { BallerinaProjectManager } from "./manager";
-import { DIAGNOSTICS_WARNING, DeleteLinkArgs, GLOBAL_STATE_FLAG, MULTI_ROOT_WORKSPACE_PROMPT } from "../resources";
+import {
+    AddConnectorArgs, AddLinkArgs, DIAGNOSTICS_WARNING, DeleteLinkArgs, GLOBAL_STATE_FLAG, MULTI_ROOT_WORKSPACE_PROMPT
+} from "../resources";
 import { ExtendedLangClient } from "../../core";
-import { addConnector, editDisplayLabel, linkServices, pullConnector } from "./code-generator";
 import { BallerinaConnectorsResponse, BallerinaConnectorsRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PALETTE_COMMANDS } from "../../project/cmds/cmd-runner";
-import { deleteLink } from "./component-handler-utils";
-import { go2source } from "./common-utils";
+import { deleteLink, editDisplayLabel } from "./component-utils";
+import { addConnector, linkServices, pullConnector } from "./linking-utils";
+import { BallerinaProjectManager } from "./project-utils/manager";
+import { go2source } from "./shared-utils";
 import { disposeDiagramWebview } from "../activator";
 
 const directoryPickOptions: OpenDialogOptions = {
@@ -80,16 +82,16 @@ export class EditLayerRPC {
             });
         });
 
-        this._messenger.onRequest({ method: 'addConnector' }, (args: any[]): Promise<boolean> => {
-            return addConnector(langClient, args[0], args[1]);
+        this._messenger.onRequest({ method: 'addConnector' }, (args: AddConnectorArgs): Promise<boolean> => {
+            return addConnector(langClient, args);
         });
 
-        this._messenger.onRequest({ method: 'pullConnector' }, (args: any[]): Promise<boolean> => {
-            return pullConnector(langClient, args[0], args[1]);
+        this._messenger.onRequest({ method: 'pullConnector' }, (args: AddConnectorArgs): Promise<boolean> => {
+            return pullConnector(langClient, args);
         });
 
-        this._messenger.onRequest({ method: 'addLink' }, (args: Service[]): Promise<boolean> => {
-            return linkServices(langClient, args[0], args[1]);
+        this._messenger.onRequest({ method: 'addLink' }, (args: AddLinkArgs): Promise<boolean> => {
+            return linkServices(langClient, args);
         });
 
         this._messenger.onRequest({ method: 'deleteLink' }, (args: DeleteLinkArgs): Promise<void> => {

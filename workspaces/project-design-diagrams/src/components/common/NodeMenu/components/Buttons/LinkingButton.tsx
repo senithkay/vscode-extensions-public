@@ -18,21 +18,25 @@
  */
 
 import React, { useContext } from "react";
-import { CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import TurnRightIcon from "@mui/icons-material/TurnRight";
 import { MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import { DiagramContext } from "../../DiagramContext/DiagramContext";
-import { useStyles } from "./styles/styles";
+import { DiagramContext } from "../../../DiagramContext/DiagramContext";
+import { useStyles } from "../styles/styles";
+import { EntryNodeModel, ServiceNodeModel } from "../../../../service-interaction";
 
-export function LinkingButton(props: { service: Service }) {
-    const { service } = props;
+interface LinkingButtonProps {
+    node: ServiceNodeModel | EntryNodeModel;
+}
+
+export function LinkingButton(props: LinkingButtonProps) {
+    const { node } = props;
     const classes = useStyles();
     const { setNewLinkNodes } = useContext(DiagramContext);
 
     return (
         <MenuItem
             onClick={() => {
-                setNewLinkNodes({ source: service, target: undefined });
+                setNewLinkNodes({ source: node, target: undefined });
             }}
         >
             <ListItemIcon>

@@ -38,7 +38,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
-    const displayName: string = node.serviceObject.annotation?.label || node.serviceObject.path || node.serviceObject.serviceId;
+    const displayName: string = node.nodeObject.annotation?.label || node.nodeObject.path || node.nodeObject.serviceId;
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
@@ -51,7 +51,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     }
 
     return (
-        <CtrlClickGo2Source location={node.serviceObject.elementLocation}>
+        <CtrlClickGo2Source location={node.nodeObject.elementLocation}>
             <ServiceHead
                 level={node.level}
                 isSelected={isSelected}
@@ -71,12 +71,12 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     engine={engine}
                 />
                     <ServiceName>{displayName}</ServiceName>
-                    {isHovered && node.serviceObject.elementLocation && editingEnabled &&
+                    {isHovered && node.nodeObject.elementLocation && editingEnabled &&
                         <NodeMenuWidget
                             background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
-                            location={node.serviceObject.elementLocation}
+                            location={node.nodeObject.elementLocation}
                             linkingEnabled={currentView === Views.L1_SERVICES}
-                            serviceNode={node}
+                            node={node}
                         />
                     }
                 <ServicePortWidget

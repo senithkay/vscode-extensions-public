@@ -203,9 +203,9 @@ function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeMode
         const sourcePort: GatewayPortModel = gatewayNode.getPortFromID(`${sourceGWType}-in`);
         let targetPort: ServicePortModel;
         if (sourceGWType === "WEST") {
-            targetPort = targetNode.getPortFromID(`left-gw-${targetNode.serviceObject.serviceId}`);
+            targetPort = targetNode.getPortFromID(`left-gw-${targetNode.nodeObject.serviceId}`);
         } else if (sourceGWType === "NORTH") {
-            targetPort = targetNode.getPortFromID(`top-${targetNode.serviceObject.serviceId}`);
+            targetPort = targetNode.getPortFromID(`top-${targetNode.nodeObject.serviceId}`);
         }
         if (sourcePort && targetPort) {
             engine.getModel().addLink(createGWLinks(sourcePort, targetPort, link));

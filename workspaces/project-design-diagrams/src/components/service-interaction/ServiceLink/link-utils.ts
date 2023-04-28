@@ -25,14 +25,14 @@ export function findCallingFunction(targetPort: PortModel): RemoteFunction | Res
     let targetService: ServiceNodeModel = targetPort.getNode() as ServiceNodeModel;
     let targetFunc: ResourceFunction | RemoteFunction | undefined;
 
-    if (targetService.serviceObject.resources.length > 0) {
-        targetFunc = targetService.serviceObject.resources.find(resource =>
+    if (targetService.nodeObject.resources.length > 0) {
+        targetFunc = targetService.nodeObject.resources.find(resource =>
             `${resource.resourceId.action}/${resource.identifier}` ===
             targetPort.getID().split(`${targetPort.getOptions().alignment}-`)[1]
         );
     }
-    if (!targetFunc && targetService.serviceObject.remoteFunctions.length > 0) {
-        targetFunc = targetService.serviceObject.remoteFunctions.find(remoteFunc =>
+    if (!targetFunc && targetService.nodeObject.remoteFunctions.length > 0) {
+        targetFunc = targetService.nodeObject.remoteFunctions.find(remoteFunc =>
             remoteFunc.name === targetPort.getID().split(`${targetPort.getOptions().alignment}-`)[1]);
     }
     return targetFunc;
