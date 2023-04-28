@@ -70,8 +70,8 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 model: functionModel,
                 configOverlayFormStatus: { formType: "GraphqlConfigForm", formName: functionType, isLoading: false },
                 targetPosition: position,
-                filePath,
-                currentST: completeST,
+                filePath: (filePath !== currentFile.path) ? filePath : undefined,
+                currentST: (filePath !== currentFile.path) ? completeST : undefined,
                 onCancel: () => {
                     setEnableFormGenerator(false);
                 },
@@ -100,8 +100,8 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 model: recordModel,
                 configOverlayFormStatus: { formType: "RecordEditor", isLoading: false },
                 targetPosition: recordModel.position,
-                filePath,
-                currentST: completeST,
+                filePath: (filePath !== currentFile.path) ? filePath : undefined,
+                currentST: (filePath !== currentFile.path) ? completeST : undefined,
                 onCancel: () => {
                     setEnableFormGenerator(false);
                 },

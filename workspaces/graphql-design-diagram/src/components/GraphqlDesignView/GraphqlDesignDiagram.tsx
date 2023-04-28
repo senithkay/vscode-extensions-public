@@ -91,7 +91,8 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         fullST,
         goToSource,
         recordEditor,
-        langClientPromise
+        langClientPromise,
+        currentFile
     };
 
     return (

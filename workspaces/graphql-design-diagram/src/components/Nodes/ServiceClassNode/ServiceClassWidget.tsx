@@ -33,10 +33,10 @@ interface ServiceClassNodeWidgetProps {
 
 export function ServiceClassNodeWidget(props: ServiceClassNodeWidgetProps) {
     const { node, engine } = props;
-    const { langClientPromise } = useContext(DiagramContext);
+    const { langClientPromise, currentFile, fullST } = useContext(DiagramContext);
 
     const [parentModel, setParentModel] = useState<STNode>(null);
-    const [st, setST] = useState<STNode>(null);
+    const [st, setST] = useState<STNode>(fullST);
 
     useEffect(() => {
         const location = node.classObject.position;
@@ -46,13 +46,18 @@ export function ServiceClassNodeWidget(props: ServiceClassNodeWidgetProps) {
             startColumn: location.startLine.offset,
             startLine: location.startLine.line
         };
-        (async () => {
-            // parent node is retrieved as the classObject.position only contains the position of the class name
-            const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
-            const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
+        if  (location.filePath === currentFile.path) {
+            const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
             setParentModel(parentNode);
-            setST(syntaxTree)
-        })();
+        } else {
+            (async () => {
+                // parent node is retrieved as the classObject.position only contains the position of the class name
+                const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
+                const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
+                setParentModel(parentNode);
+                setST(syntaxTree)
+            })();
+        }
     }, [node.classObject.position]);
 
     return (

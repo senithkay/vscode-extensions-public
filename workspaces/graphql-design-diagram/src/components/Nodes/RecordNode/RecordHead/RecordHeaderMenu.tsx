@@ -34,11 +34,11 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
     const { location } = props;
     const classes = useStyles();
 
-    const { recordEditor, langClientPromise } = useContext(DiagramContext);
+    const { recordEditor, langClientPromise, fullST, currentFile } = useContext(DiagramContext);
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
     const [model, setModel] = useState<STNode>(null);
-    const [st, setST] = useState<STNode>(null);
+    const [st, setST] = useState<STNode>(fullST);
 
     useEffect(() => {
         const nodePosition: NodePosition = {
@@ -47,12 +47,17 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
             startColumn: location.startLine.offset,
             startLine: location.startLine.line
         };
-        (async () => {
-            const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
-            const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
+        if  (location.filePath === currentFile.path) {
+            const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
             setModel(parentNode);
-            setST(syntaxTree)
-        })();
+        } else {
+            (async () => {
+                const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
+                const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
+                setModel(parentNode);
+                setST(syntaxTree)
+            })();
+        }
     }, [location]);
 
     const handleEditRecord = () => {
