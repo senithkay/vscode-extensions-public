@@ -28,6 +28,7 @@ import debounce from "lodash.debounce";
 
 import FilterIcon from "../../../assets/icons/FilterIcon";
 import { useDMSearchStore } from "../../../store/store";
+import { SelectionState } from "../DataMapper";
 
 import { getInputOutputSearchTerms } from "./utils";
 
@@ -87,6 +88,9 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+export const INPUT_FIELD_FILTER_LABEL = "in:";
+export const OUTPUT_FIELD_FILTER_LABEL = "out:";
+
 export enum SearchType {
     INPUT,
     OUTPUT,
@@ -98,10 +102,12 @@ export interface SearchTerm {
     isLabelAvailable: boolean;
 }
 
-export const INPUT_FIELD_FILTER_LABEL = "in:";
-export const OUTPUT_FIELD_FILTER_LABEL = "out:";
+interface SearchBoxProps {
+    selection: SelectionState;
+}
 
-export default function SearchBox() {
+export default function SearchBox(props: SearchBoxProps) {
+    const { selection } = props;
     const classes = useStyles();
     const [searchTerm, setSearchTerm] = useState('');
     const [searchOption, setSearchOption] = useState<string[]>([]);
@@ -186,6 +192,10 @@ export default function SearchBox() {
         handleSearch(modifiedSearchTerm);
         setSearchTerm(modifiedSearchTerm);
     }, [searchOption]);
+
+    useEffect(() => {
+        handleOnSearchTextClear();
+    }, [selection.selectedST.fieldPath]);
 
     const debouncedOnChange = debounce((value: string) => handleSearch(value), 400);
 

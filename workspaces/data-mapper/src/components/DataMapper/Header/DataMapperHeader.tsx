@@ -18,7 +18,6 @@ import { withStyles } from "@material-ui/core/styles";
 import TooltipBase from "@material-ui/core/Tooltip";
 
 import RoundEditIcon from "../../../assets/icons/RoundEditIcon";
-import { useDMSearchStore } from "../../../store/store";
 import { SelectionState, ViewOption } from "../DataMapper";
 
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
@@ -47,7 +46,6 @@ export interface DataMapperHeaderProps {
 export function DataMapperHeader(props: DataMapperHeaderProps) {
     const { selection, dmSupported, changeSelection, onConfigOpen } = props;
     const TooltipComponent = withStyles(headerStyles)(TooltipBase);
-    const dmStore = useDMSearchStore.getState();
 
     return (
         <HeaderContainer>
@@ -59,7 +57,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                 />
             </BreadCrumb>
             <FilterBar>
-                <SearchBox />
+                <SearchBox selection={selection} />
             </FilterBar>
             {dmSupported && (
                 <TooltipComponent
