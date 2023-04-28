@@ -5,7 +5,7 @@ export interface ComponentModel {
     version?: string;
     services: Map<string, CMService>;
     entities: Map<string, CMEntity>;
-    diagnostics: CMDiagnostics[];
+    diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
 }
