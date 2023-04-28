@@ -16,7 +16,6 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 import {
     ExpressionFunctionBody,
     IdentifierToken,
-    MappingConstructor,
     NodePosition,
     QueryExpression,
     SelectClause,
@@ -79,17 +78,17 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         this.typeDef = getSearchFilteredOutput(this.typeDef);
 
         if (this.typeDef) {
+            const isSelectClause = STKindChecker.isSelectClause(this.value);
             const searchValue = useDMSearchStore.getState().outputSearch;
             if (!!searchValue
-                && originalTypeDef?.fields
-                && originalTypeDef.fields.length > 0
-                && this.typeDef?.fields
-                && this.typeDef.fields.length === 0)
+                && ((originalTypeDef?.fields && originalTypeDef.fields.length > 0 && this.typeDef?.fields && this.typeDef.fields.length === 0)
+                    || (isSelectClause && originalTypeDef?.memberType && originalTypeDef.memberType?.fields.length > 0 && this.typeDef?.memberType && this.typeDef.memberType?.fields.length === 0)
+                ))
             {
                 this.hasNoMatchingFields = true;
             }
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
-            if (STKindChecker.isSelectClause(this.value)
+            if (isSelectClause
                 && this.typeDef.typeName === PrimitiveBalType.Array
                 && this.typeDef?.memberType
                 && this.typeDef.memberType.typeName === PrimitiveBalType.Record) {
@@ -109,7 +108,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
-                STKindChecker.isSelectClause(this.value), valueEnrichedType);
+                isSelectClause, valueEnrichedType);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordField = valueEnrichedType;
                 if (this.recordField.childrenTypes.length) {
@@ -119,9 +118,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                             this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
-            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
-                && STKindChecker.isSelectClause(this.value)
-            ) {
+            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && isSelectClause) {
                 // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
                 this.recordField = valueEnrichedType.elements[0].member;
                 if (this.recordField.childrenTypes.length) {
