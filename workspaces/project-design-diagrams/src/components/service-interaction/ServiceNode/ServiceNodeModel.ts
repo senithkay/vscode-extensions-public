@@ -71,6 +71,8 @@ export class ServiceNodeModel extends SharedNodeModel {
 				return ServiceTypes.GRAPHQL;
 			} else if (this.nodeObject.serviceType.includes('ballerina/websocket:')) {
 				return ServiceTypes.WEBSOCKET
+			} else if (this.nodeObject.serviceType.includes('ballerinax/trigger.')) {
+				return ServiceTypes.WEBHOOK;
 			}
 		}
 		return ServiceTypes.OTHER;

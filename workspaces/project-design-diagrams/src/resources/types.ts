@@ -54,6 +54,7 @@ export enum ServiceTypes {
     GRPC = "GRPC",
     WEBSOCKET = "Websocket",
     GRAPHQL = "GraphQL",
+    WEBHOOK = "Webhook",
     OTHER = "other"
 }
 
