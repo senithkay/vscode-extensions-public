@@ -141,7 +141,7 @@ export function ResourceForm(props: FunctionProps) {
                 viewState?.diagnosticsInRange[0]?.message;
             pathTypeSemDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
                 typeDescriptor?.viewState?.diagnosticsInRange[0]?.message;
-        } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
+        } else if (diagPath && diagPath?.viewState?.diagnostics?.length > 0 && STKindChecker.isIdentifierToken(diagPath)) {
             pathNameSemDiagnostics = diagPath?.viewState?.diagnostics[0]?.message;
         }
         paramDiagnostics = getParamDiagnostics(model.functionSignature?.parameters)
