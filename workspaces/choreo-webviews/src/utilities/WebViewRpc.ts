@@ -59,6 +59,10 @@ import {
     IsBareRepoRequestParams,
     IsBareRepoRequest,
     CheckProjectDeleted,
+    SendTelemetryEventParams,
+    SendTelemetryEventNotification,
+    SendTelemetryExceptionParams,
+    SendTelemetryExceptionNotification,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -245,5 +249,13 @@ export class ChoreoWebViewAPI {
 
     public async getComponentCount(): Promise<ComponentCount> {
         return this._messenger.sendRequest(GetComponentCount, HOST_EXTENSION, undefined);
+    }
+
+    public sentTelemetryEvent(params: SendTelemetryEventParams) {
+        return this._messenger.sendNotification(SendTelemetryEventNotification, HOST_EXTENSION, params);
+    }
+
+    public sendTelemetryException(params: SendTelemetryExceptionParams) {
+        return this._messenger.sendNotification(SendTelemetryExceptionNotification, HOST_EXTENSION, params);
     }
 }
