@@ -39,6 +39,9 @@ const useStyles = makeStyles((theme) => ({
         flex: 1,
         borderRadius: 5,
         boxShadow: 'inset 0 2px 2px rgba(29, 32, 40, 0.07)',
+        '& .MuiInputBase-input': {
+            lineHeight: '1.7'
+        },
         '& .MuiOutlinedInput-root': {
             '& fieldset': {
                 border: `1px solid #E6E7EC`,
