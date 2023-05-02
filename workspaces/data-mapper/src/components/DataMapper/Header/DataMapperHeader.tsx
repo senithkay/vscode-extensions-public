@@ -14,8 +14,6 @@
 import React from "react";
 
 import styled from "@emotion/styled";
-import { withStyles } from "@material-ui/core/styles";
-import TooltipBase from "@material-ui/core/Tooltip";
 
 import { SelectionState, ViewOption } from "../DataMapper";
 
@@ -45,7 +43,6 @@ export interface DataMapperHeaderProps {
 
 export function DataMapperHeader(props: DataMapperHeaderProps) {
     const { selection, dmSupported, changeSelection, onConfigOpen } = props;
-    const TooltipComponent = withStyles(headerStyles)(TooltipBase);
 
     return (
         <HeaderContainer>
@@ -61,13 +58,7 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     <FilterBar>
                         <SearchBox selection={selection} />
                     </FilterBar>
-                    <TooltipComponent
-                        interactive={false}
-                        arrow={true}
-                        title={"Edit data mapper name, inputs and the output"}
-                    >
-                        <ConfigureButton onClick={onConfigOpen}/>
-                    </TooltipComponent>
+                    <ConfigureButton onClick={onConfigOpen}/>
                 </>
             )}
         </HeaderContainer>
