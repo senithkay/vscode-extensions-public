@@ -23,7 +23,7 @@ import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
-import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes, Views } from '../../../../resources';
+import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes, Views, WebhookIcon } from '../../../../resources';
 import { ServiceHead, ServiceName } from '../styles/styles';
 
 interface ServiceHeadProps {
@@ -64,7 +64,9 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                         <GraphQLIcon /> :
                         node.serviceType === ServiceTypes.HTTP ?
                             <HttpServiceIcon /> :
-                            <MiscellaneousServicesIcon fontSize='medium' />
+                            node.serviceType === ServiceTypes.WEBHOOK ?
+                                <WebhookIcon /> :
+                                <MiscellaneousServicesIcon fontSize='medium' />
                 }
                 <ServicePortWidget
                     port={node.getPort(`left-${node.getID()}`)}

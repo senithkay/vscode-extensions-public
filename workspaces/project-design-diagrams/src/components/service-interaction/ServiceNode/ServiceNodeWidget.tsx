@@ -75,7 +75,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		if (currentView === Views.L1_SERVICES &&
 			editingEnabled &&
 			newLinkNodes.source && newLinkNodes.source?.getID() !== node.getID() &&
-			node.serviceType !== ServiceTypes.OTHER
+			node.serviceType !== ServiceTypes.WEBHOOK && node.serviceType !== ServiceTypes.OTHER
 		) {
 			setNewLinkNodes({ ...newLinkNodes, target: node });
 			await editLayerAPI?.addLink(newLinkNodes.source.nodeObject, node.nodeObject);
