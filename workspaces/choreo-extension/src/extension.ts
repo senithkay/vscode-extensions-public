@@ -55,6 +55,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = true;
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
+	ext.projectsTreeView = createProjectTreeView();
+	ext.accountTreeView = createAccountTreeView();
 	setupEvents();
 	activateWizards();
 	await activateAuth();
@@ -64,8 +66,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	showChoreoProjectOverview();
 	activateStatusBarItem();
 	activateRegistry();
-	ext.projectsTreeView = createProjectTreeView();
-	ext.accountTreeView = createAccountTreeView();
 	setupGithubAuthStatusCheck();
 	getLogger().debug("Choreo Extension activated");
 	return ext.api;
