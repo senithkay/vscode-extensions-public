@@ -86,7 +86,7 @@ export function ParamEditor(props: ParamProps) {
 
     const [inputValue, setInputValue] = useState(model?.paramName?.value.trim());
     const [typeValue, setTypeValue] = useState(model?.typeName?.source.trim());
-    const [defaultParamValue, setDefaultParamValue] = useState((STKindChecker.isDefaultableParam(model) && model.expression?.source.trim()) || "");
+    const [defaultParamValue, setDefaultParamValue] = useState(STKindChecker.isDefaultableParam(model) ? model.expression?.source.trim() : "");
 
     const [isRequired, setIsRequiredType] = useState(!STKindChecker.isOptionalTypeDesc(model?.typeName));
 
