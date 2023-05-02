@@ -17,9 +17,9 @@ import styled from "@emotion/styled";
 import { withStyles } from "@material-ui/core/styles";
 import TooltipBase from "@material-ui/core/Tooltip";
 
-import RoundEditIcon from "../../../assets/icons/RoundEditIcon";
 import { SelectionState, ViewOption } from "../DataMapper";
 
+import ConfigureButton from "./ConfigureButton";
 import HeaderBreadcrumb from "./HeaderBreadcrumb";
 import SearchBox from "./SearchBox";
 
@@ -56,33 +56,30 @@ export function DataMapperHeader(props: DataMapperHeaderProps) {
                     changeSelection={changeSelection}
                 />
             </BreadCrumb>
-            <FilterBar>
-                <SearchBox selection={selection} />
-            </FilterBar>
             {dmSupported && (
-                <TooltipComponent
-                    interactive={false}
-                    arrow={true}
-                    title={"Edit data mapper name, inputs and the output"}
-                >
-                    <ConfigurationButton
-                        onClick={onConfigOpen}
+                <>
+                    <FilterBar>
+                        <SearchBox selection={selection} />
+                    </FilterBar>
+                    <TooltipComponent
+                        interactive={false}
+                        arrow={true}
+                        title={"Edit data mapper name, inputs and the output"}
                     >
-                        <RoundEditIcon/>
-                        <ConfBtnText>Configure</ConfBtnText>
-                    </ConfigurationButton>
-                </TooltipComponent>
+                        <ConfigureButton onClick={onConfigOpen}/>
+                    </TooltipComponent>
+                </>
             )}
         </HeaderContainer>
     );
 }
 
 const HeaderContainer = styled.div`
-    width: 100%;
     height: 50px;
     display: flex;
     padding: 15px;
     background-color: #f7f8fb;
+    justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(102,103,133,0.15);
 `;
@@ -92,37 +89,15 @@ const Title = styled.div`
     margin-right: 10px;
 `;
 
-const ConfigurationButton = styled.div`
-    :hover {
-        background: #e5e6ea;
-        cursor: pointer;
-    },
-    box-sizing: border-box;
-    padding: 4px 16px 4px 10px;
-    background: #F7F8FB;
-    border: 1px solid #E0E2E9;
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
-    border-radius: 5px;
-    display: inline-flex;
-    color: #40404B;
-    align-items: center;
-    position: absolute;
-    right: 15px;
-`;
-
-const ConfBtnText = styled.div`
-    font-weight: 400;
-    font-size: 13px;
-    line-height: 24px;
-    margin-left: 5px;
-`;
-
 const BreadCrumb = styled.div`
-    width: 50%;
+    width: 60%;
     display: flex;
 `;
 
 const FilterBar = styled.div`
-    width: 30%;
-    display: flex;
+  flex: 3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 20px;
 `;
