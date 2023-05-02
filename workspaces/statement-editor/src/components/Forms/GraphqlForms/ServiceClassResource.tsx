@@ -366,7 +366,7 @@ export function ServiceClassResourceForm(props: FunctionProps) {
 
     const createConstruct = (newCodeSnippet: string) => {
         if (newCodeSnippet) {
-            createNewConstruct(newCodeSnippet, fullST, applyModifications)
+            createNewConstruct(newCodeSnippet, fullST, applyModifications, currentFile.path)
             setNewlyCreatedConstruct(returnType);
         }
     }
