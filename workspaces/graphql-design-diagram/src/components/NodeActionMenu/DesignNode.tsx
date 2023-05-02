@@ -21,22 +21,24 @@ import {
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
+import { Position } from "../resources/model";
 
 import { useStyles } from "./styles";
 
 interface DesignNodeProps {
     model: STNode;
+    location: Position;
 }
 
 export function DesignNode(props: DesignNodeProps) {
-    const { model } = props;
+    const { model, location } = props;
     const { operationDesignView } = useContext(DiagramContext);
 
     const menuStyles = useStyles();
 
     const openFunctionDesignPanel = (evt: React.MouseEvent) => {
         evt.stopPropagation();
-        operationDesignView(model.position);
+        operationDesignView(model.position, location.filePath);
     };
 
 
@@ -47,7 +49,7 @@ export function DesignNode(props: DesignNodeProps) {
                 <ListItemIcon className={menuStyles.menuIcon}>
                     <DesignViewIcon/>
                 </ListItemIcon>
-                <ListItemText className={menuStyles.listItemText}>{"Design Operation"}</ListItemText>
+                <ListItemText className={menuStyles.listItemText}>{"Design Field"}</ListItemText>
             </MenuItem>
             }
         </>

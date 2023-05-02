@@ -31,15 +31,16 @@ interface NodeMenuItemProps {
     position: Position;
     model: STNode;
     functionType: FunctionType;
+    filePath?: string;
+    currentST?: STNode;
 }
 
 export function NodeMenuItem(props: NodeMenuItemProps) {
-    const { position, model, functionType } = props;
+    const { position, model, functionType, filePath, currentST } = props;
     const { functionPanel } = useContext(DiagramContext);
 
     const menuStyles = useStyles();
 
-    // TODO : if not being used for all the graphql nodes, remove the  mutation type ones
     const openFunctionPanel = () => {
         if (model && STKindChecker.isClassDefinition(model)) {
             const lastMemberPosition: NodePosition = {
@@ -48,37 +49,9 @@ export function NodeMenuItem(props: NodeMenuItemProps) {
                 startColumn: model.closeBrace.position.startColumn,
                 startLine: model.closeBrace.position.startLine
             };
-            if (functionType === FunctionType.QUERY) {
-                functionPanel(lastMemberPosition, "GraphqlResource");
-            } else if (functionType === FunctionType.MUTATION) {
-                functionPanel(lastMemberPosition, "GraphqlMutation");
-            } else if (functionType === FunctionType.SUBSCRIPTION) {
-                functionPanel(lastMemberPosition, "GraphqlSubscription");
-            } else if (functionType === FunctionType.CLASS_RESOURCE) {
-                functionPanel(lastMemberPosition, "ServiceClassResource");
+            if (functionType === FunctionType.CLASS_RESOURCE) {
+                functionPanel(lastMemberPosition, "ServiceClassResource", undefined, filePath, currentST);
             }
-        }
-    };
-
-    const popupTitle = () => {
-        if (functionType === FunctionType.QUERY) {
-            return "Add Query";
-        } else if (functionType === FunctionType.MUTATION) {
-            return "Add Mutation";
-        } else if (functionType === FunctionType.SUBSCRIPTION) {
-            return "Add Subscription";
-        } else if (functionType === FunctionType.CLASS_RESOURCE) {
-            return "Add Field";
-        }
-    };
-
-    const popupIcon = () => {
-        if (functionType === FunctionType.QUERY || functionType === FunctionType.CLASS_RESOURCE) {
-            return <GraphqlQueryIcon/>;
-        } else if (functionType === FunctionType.MUTATION) {
-            return <GraphqlMutationIcon/>;
-        } else {
-            return <GraphqlSubscriptionIcon/>;
         }
     };
 
@@ -87,9 +60,9 @@ export function NodeMenuItem(props: NodeMenuItemProps) {
             {position &&
             <MenuItem onClick={() => openFunctionPanel()} className={menuStyles.menuItem}>
                 <ListItemIcon className={menuStyles.menuIcon}>
-                    {popupIcon()}
+                    <GraphqlQueryIcon/>
                 </ListItemIcon>
-                <ListItemText className={menuStyles.listItemText}>{popupTitle()}</ListItemText>
+                <ListItemText className={menuStyles.listItemText}>Add Field</ListItemText>
             </MenuItem>
             }
         </>

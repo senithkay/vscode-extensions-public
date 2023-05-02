@@ -15,7 +15,7 @@ import React, { useContext } from 'react';
 
 import { FormControl } from "@material-ui/core";
 import { StatementEditorWrapper } from "@wso2-enterprise/ballerina-statement-editor";
-import { NodePosition, RecordTypeDesc, TypeDefinition } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, RecordTypeDesc, STNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
 import { createPropertyStatement } from "../../../../utils";
@@ -35,12 +35,14 @@ export interface RecordEditorProps {
     onCancel: (createdNewRecord?: string) => void;
     onSave: (typeDesc: string, recModel: RecordModel) => void;
     showHeader?: boolean;
+    filePath?: string;
+    currentST?: STNode;
 }
 
 const undoRedoManager = new UndoRedoManager();
 
 export function RecordEditor(props: RecordEditorProps) {
-    const { onCancel, model, targetPosition, formType, isDataMapper, showHeader } = props;
+    const { onCancel, model, targetPosition, formType, isDataMapper, showHeader, filePath, currentST } = props;
 
     const overlayClasses = wizardStyles();
 
@@ -62,6 +64,14 @@ export function RecordEditor(props: RecordEditorProps) {
         }
     } = useContext(Context);
 
+    const getUpdatedCurrentFile = () => {
+        return {
+            content: currentST.source,
+            path: filePath,
+            size: 1
+        };
+    }
+
     const getStatementEditor = () => {
         return StatementEditorWrapper(
             {
@@ -74,12 +84,12 @@ export function RecordEditor(props: RecordEditorProps) {
                 config: { type: formType, model},
                 onWizardClose: onCancel,
                 onCancel,
-                currentFile,
+                currentFile: !filePath ? currentFile : getUpdatedCurrentFile(),
                 getLangClient: getExpressionEditorLangClient,
                 applyModifications: modifyDiagram,
                 updateFileContent,
                 library,
-                syntaxTree: fullST,
+                syntaxTree: !filePath ? fullST : currentST,
                 stSymbolInfo,
                 importStatements,
                 experimentalEnabled,

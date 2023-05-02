@@ -14,35 +14,41 @@
 // tslint:disable: no-empty jsx-no-multiline-js
 import React, { createContext } from "react";
 
-import { NodePosition, RecordTypeDesc, STNode } from "@wso2-enterprise/syntax-tree";
+import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { CurrentFile } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 interface GraphqlDiagramContextProps {
     children?: React.ReactNode,
-    functionPanel?: (position: NodePosition, functionType: string, model?: STNode) => void;
+    functionPanel?: (position: NodePosition, functionType: string, model?: STNode, filePath?: string, completeST?: STNode) => void;
     servicePanel?: () => void;
     model?: STNode;
-    operationDesignView?: (functionPosition: NodePosition) => void;
+    operationDesignView?: (functionPosition: NodePosition, filePath?: string) => void;
     onDelete?: (position: NodePosition) => void;
     fullST?: STNode;
     goToSource?: (filePath: string, position: NodePosition) => void
-    recordEditor?: (recordModel: STNode) => void;
+    recordEditor?: (recordModel: STNode, filePath?: string, completeST?: STNode) => void;
+    langClientPromise?: Promise<IBallerinaLangClient>;
+    currentFile?: CurrentFile;
 }
 
 export const DiagramContext = createContext({
-        functionPanel: (position: NodePosition, functionType: string, model?: STNode) => {},
+        functionPanel: (position: NodePosition, functionType: string, model?: STNode, filePath?: string, completeST?: STNode) => {},
         servicePanel: () => {},
         model: undefined,
-        operationDesignView: (functionPosition: NodePosition) => {},
+        operationDesignView: (functionPosition: NodePosition, filePath?: string) => {},
         onDelete: (position: NodePosition) => {},
         fullST: undefined,
         goToSource: (filePath: string, position: NodePosition) => {},
-        recordEditor: (recordModel: STNode) => {}
+        recordEditor: (recordModel: STNode, filePath?: string, completeST?: STNode) => {},
+        langClientPromise: undefined,
+        currentFile: undefined
     }
 );
 
 export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
 
-    const { children, functionPanel, servicePanel, model, operationDesignView, onDelete, fullST, goToSource, recordEditor } = props;
+    const { children, functionPanel, servicePanel, model, operationDesignView, onDelete, fullST, goToSource, recordEditor, langClientPromise, currentFile } = props;
 
     return (
         <DiagramContext.Provider
@@ -54,7 +60,9 @@ export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
                 onDelete,
                 fullST,
                 goToSource,
-                recordEditor
+                recordEditor,
+                langClientPromise,
+                currentFile
             }}
         >
             {children}

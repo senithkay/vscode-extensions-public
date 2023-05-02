@@ -52,7 +52,7 @@ export function ParameterEditor(props: ParameterEditorProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
 
-    const { applyModifications, fullST } = useContext(FormEditorContext);
+    const { applyModifications, fullST, currentFile } = useContext(FormEditorContext);
 
     const [newlyCreatedConstruct, setNewlyCreatedConstruct] = useState(undefined);
 
@@ -64,7 +64,7 @@ export function ParameterEditor(props: ParameterEditorProps) {
 
     const createConstruct = (newCodeSnippet: string) => {
         if (newCodeSnippet) {
-            createNewConstruct(newCodeSnippet, fullST, applyModifications)
+            createNewConstruct(newCodeSnippet, fullST, applyModifications, currentFile.path)
             setNewlyCreatedConstruct(segmentType);
         }
     }

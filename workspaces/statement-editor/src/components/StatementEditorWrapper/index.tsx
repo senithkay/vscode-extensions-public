@@ -36,7 +36,7 @@ import { useStatementEditorStyles } from '../styles';
 export interface LowCodeEditorProps {
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     applyModifications: (modifications: STModification[]) => void;
-    updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
+    updateFileContent: (content: string, skipForceSave?: boolean, filePath?: string) => Promise<boolean>;
     currentFile: {
         content: string,
         path: string,
