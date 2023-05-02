@@ -18,7 +18,7 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useCallback, useMemo, useState } from "react";
-import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Component, OPEN_CLONED_PROJECT_EVENT, OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT, OPEN_CONSOLE_PROJECT_OVERVIEW_PAGE_EVENT, OPEN_EDITABLE_ARCHITECTURE_DIAGRAM_EVENT, OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT, OPEN_SOURCE_CONTROL_VIEW_EVENT, OPEN_UPGRADE_PLAN_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
+import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Component, DELETE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, OPEN_CLONED_PROJECT_EVENT, OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT, OPEN_CONSOLE_PROJECT_OVERVIEW_PAGE_EVENT, OPEN_EDITABLE_ARCHITECTURE_DIAGRAM_EVENT, OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT, OPEN_SOURCE_CONTROL_VIEW_EVENT, OPEN_UPGRADE_PLAN_PAGE_EVENT, PUSH_ALL_COMPONENTS_TO_CHOREO_EVENT, PUSH_COMPONENT_TO_CHOREO_EVENT } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
 import { Codicon } from "../Codicon/Codicon";
@@ -501,8 +501,24 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         projectId={projectId}
                         orgName={orgName}
                         openSourceControl={handleOpenSourceControlClick}
-                        onComponentDeleteClick={handleDeleteComponentClick}
-                        handlePushComponentClick={handlePushComponentClick}
+                        onComponentDeleteClick={(cmp) => {
+                            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                                eventName: DELETE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT,
+                                properties: {
+                                    component: cmp.name,
+                                },
+                            });
+                            handleDeleteComponentClick(cmp);
+                        }}
+                        handlePushComponentClick={(cmp) => {
+                            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                                eventName: PUSH_COMPONENT_TO_CHOREO_EVENT,
+                                properties: {
+                                    component: cmp,
+                                },
+                            });
+                            handlePushComponentClick(cmp);
+                        }}
                         loading={pushingComponent || pushingSingleComponent || deletingComponent}
                         fetchingComponents={fetchingComponents}
                         isActive={isActive}
@@ -579,7 +595,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                 <VSCodeButton
                                     appearance="primary"
                                     disabled={pushingComponent || fetchingComponents || pushingSingleComponent || !isActive}
-                                    onClick={() => handlePushToChoreoClick()}
+                                    onClick={() => {
+                                        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                                            eventName: PUSH_ALL_COMPONENTS_TO_CHOREO_EVENT
+                                        });
+                                        handlePushToChoreoClick();
+                                    }}
                                 >
                                     <Codicon name="cloud-upload" />
                                     &nbsp; Push to Choreo
