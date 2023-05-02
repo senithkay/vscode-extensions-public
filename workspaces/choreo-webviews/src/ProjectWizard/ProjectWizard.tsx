@@ -12,12 +12,13 @@
  */
 import { VSCodeTextField, VSCodeTextArea, VSCodeCheckbox, VSCodeButton, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { RequiredFormInput } from "../Commons/RequiredInput";
+import { CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT } from "@wso2-enterprise/choreo-core";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -57,6 +58,12 @@ export function ProjectWizard() {
     const [selectedGHRepo, setSelectedGHRepo] = useState("");
     const [isBareRepo, setIsBareRepo] = useState(false);
 
+    useEffect(() => {
+        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+            eventName: CREATE_PROJECT_START_EVENT
+        });
+    }, []);
+
     const handleInitiMonoRepoCheckChange = (e: any) => {
         setInitMonoRepo(e.target.checked);
     };
@@ -87,11 +94,24 @@ export function ProjectWizard() {
                 if (initMonoRepo) {
                     await webviewAPI.setProjectRepository(createdProject.id, `${selectedGHOrgName}/${selectedGHRepo}`);
                 }
+                ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+                    eventName: CREATE_PROJECT_SUCCESS_EVENT, 
+                    properties: {
+                        name: createdProject?.name,
+                    }
+                });
                 await webviewAPI.triggerCmd("wso2.choreo.projects.registry.refresh");
                 await webviewAPI.triggerCmd("wso2.choreo.project.overview", createdProject);
                 await webviewAPI.triggerCmd("wso2.choreo.projects.tree.refresh");
                 webviewAPI.closeWebView();
             } catch (error: any) {
+                ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+                    eventName: CREATE_PROJECT_FAILURE_EVENT, 
+                    properties: {
+                        name: projectName,
+                        cause: error.message + " " + error.cause
+                    }
+                });
                 setErrorMsg(error.message + " " + error.cause);
             }
         }
@@ -174,7 +194,12 @@ export function ProjectWizard() {
 
                         <VSCodeButton
                             appearance="secondary"
-                            onClick={() => { ChoreoWebViewAPI.getInstance().closeWebView(); }}
+                            onClick={() => { 
+                                ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+                                    eventName: CREATE_COMPONENT_CANCEL_EVENT
+                                });
+                                ChoreoWebViewAPI.getInstance().closeWebView();
+                            }}
                         >
                                 Cancel
                         </VSCodeButton>

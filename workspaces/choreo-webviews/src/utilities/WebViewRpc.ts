@@ -63,6 +63,7 @@ import {
     SendTelemetryEventNotification,
     SendTelemetryExceptionParams,
     SendTelemetryExceptionNotification,
+    SendProjectTelemetryEventNotification,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -251,7 +252,11 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetComponentCount, HOST_EXTENSION, undefined);
     }
 
-    public sentTelemetryEvent(params: SendTelemetryEventParams) {
+    public sendProjectTelemetryEvent(params: SendTelemetryEventParams) {
+        return this._messenger.sendNotification(SendProjectTelemetryEventNotification, HOST_EXTENSION, params);
+    }
+
+    public sendTelemetryEvent(params: SendTelemetryEventParams) {
         return this._messenger.sendNotification(SendTelemetryEventNotification, HOST_EXTENSION, params);
     }
 
