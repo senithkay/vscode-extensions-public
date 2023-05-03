@@ -663,11 +663,11 @@ export class NodeInitVisitor implements Visitor {
             paramNode.setPosition(OFFSETS.SOURCE_NODE.X, 0);
             this.inputParamNodes.push(paramNode);
         }
-        const nodes = [...this.inputParamNodes];
+        const nodes = [...this.inputParamNodes, ...this.otherInputNodes];
         if (this.outputNode) {
             nodes.push(this.outputNode);
         }
-        nodes.push(...this.intermediateNodes, ...this.otherInputNodes);
+        nodes.push(...this.intermediateNodes);
         if (this.queryNode){
             nodes.unshift(this.queryNode);
         }
