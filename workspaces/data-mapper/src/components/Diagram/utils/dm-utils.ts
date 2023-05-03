@@ -701,8 +701,13 @@ export function getOutputPortForField(fields: STNode[],
 	}
 
 	const outputSearchValue = useDMSearchStore.getState().outputSearch;
+	const memberAccessRegex = /\.\d+$/;
+	const isMemberAccessPattern = memberAccessRegex.test(portIdBuffer);
 	const lastPortIdSegment = portIdBuffer.split('.').slice(-1)[0];
-	if (outputSearchValue !== '' && !lastPortIdSegment.toLowerCase().includes(outputSearchValue.toLowerCase())) {
+	if (outputSearchValue !== ''
+		&& !isMemberAccessPattern
+		&& !lastPortIdSegment.toLowerCase().includes(outputSearchValue.toLowerCase()))
+	{
 		return [undefined, undefined];
 	}
 	const portId = `${portIdBuffer}.IN`;
