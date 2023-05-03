@@ -20,7 +20,6 @@ import { ChoreoExtensionApi } from './ChoreoExtensionApi';
 import { cloneProject, cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
 import {
 	choreoAccountTreeId,
-	choreoProjectOverview,
 	choreoProjectsTreeId,
 	cloneAllComponentsCmdId,
 	cloneRepoToCurrentProjectWorkspaceCmdId,
@@ -41,6 +40,9 @@ import { activateWizards } from './wizards/activate';
 
 import { getLogger, initLogger } from "./logger/logger";
 import { choreoSignInCmdId } from './constants';
+import { activateTelemetry } from './telemetry/telemetry';
+import { sendProjectTelemetryEvent, sendTelemetryEvent } from './telemetry/utils';
+import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT, REFRESH_PROJECTS_EVENT, SWITCH_ORGANIZATION_EVENT } from '@wso2-enterprise/choreo-core';
 
 export function activateBallerinaExtension() {
 	const ext = extensions.getExtension("wso2.ballerina");
@@ -50,6 +52,7 @@ export function activateBallerinaExtension() {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
+	activateTelemetry(context);
 	await initLogger(context);
   	getLogger().debug("Activating Choreo Extension");
 	ext.isPluginStartup = true;
@@ -86,7 +89,8 @@ export async function showChoreoProjectOverview() {
 		if (isChoreoProjectBeingOpened) {
 			getLogger().debug("Choreo project is already being opened. Ignoring Choreo Project Overview.");
 			return;
-		}
+		}	
+		sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT);
 		isChoreoProjectBeingOpened = true;
 		getLogger().debug("Choreo project is opened. Showing Choreo Project Overview.");
 		await window.withProgress({
@@ -97,6 +101,7 @@ export async function showChoreoProjectOverview() {
             let cancelled: boolean = false;
 
             cancellationToken.onCancellationRequested(async () => {
+				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT);
 				getLogger().debug("Choreo Project Overview loading cancelled.");
                 cancelled = true;
             });
@@ -125,10 +130,12 @@ export async function showChoreoProjectOverview() {
 					return;
 				}
 				getLogger().debug("Choreo Project Metadata loaded. Opening Choreo Project Overview.");
+				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT);
 				if (project) {
 					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
 				}
 			} catch (error: any) {
+				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, { cause: error?.message })
 				getLogger().error("Error while loading Choreo project overview. " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
 				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
 			}
@@ -151,6 +158,7 @@ function createProjectTreeView() {
 	ext.projectsTreeProvider = choreoResourcesProvider;
 
 	vscode.commands.registerCommand(refreshProjectsTreeViewCmdId, () => {
+		sendTelemetryEvent(REFRESH_PROJECTS_EVENT);
 		choreoResourcesProvider.refresh();
 	});
 
@@ -173,6 +181,7 @@ function createAccountTreeView() {
 	getLogger().debug("Creating Choreo Account Tree View");
 	const accountTreeProvider = new AccountTreeProvider();
 	vscode.commands.registerCommand(setSelectedOrgCmdId, async (treeItem) => {
+		sendTelemetryEvent(SWITCH_ORGANIZATION_EVENT, { org: treeItem.org.name })
 		getLogger().debug("Setting selected organization to " + treeItem.org.name);
 		if (treeItem instanceof ChoreoOrgTreeItem) {
 			treeItem.iconPath = new ThemeIcon('loading~spin');
@@ -195,8 +204,8 @@ function createAccountTreeView() {
 	ext.context.subscriptions.push(ext.api.onStatusChanged((newStatus) => {
 		getLogger().debug("Updating Choreo Account Tree View description based on the new status " + newStatus);
 		let description = '';
-		if (newStatus === STATUS_LOGGED_IN && ext.api.userName) {
-			description = ext.api.userName;
+		if (newStatus === STATUS_LOGGED_IN && ext.api.userInfo) {
+			description = ext.api.userInfo?.displayName;
 		}
 		treeView.description = description;
 	}));

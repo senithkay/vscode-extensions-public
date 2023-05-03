@@ -41,7 +41,12 @@ import {
     GetComponentCount,
     CheckProjectDeleted,
     IsBareRepoRequest,
-    IsBareRepoRequestParams
+    IsBareRepoRequestParams,
+    SendTelemetryEventNotification,
+    SendTelemetryEventParams,
+    SendTelemetryExceptionNotification,
+    SendTelemetryExceptionParams,
+    SendProjectTelemetryEventNotification
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -59,6 +64,7 @@ import { executeWithTaskRetryPrompt } from "../../../retry";
 import { refreshProjectsTreeViewCmdId } from "../../../constants";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
+import { sendProjectTelemetryEvent, sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
 
 export class WebViewRpc {
 
@@ -309,6 +315,18 @@ export class WebViewRpc {
                 getLogger().error(error.message);
                 return [];
             }
+        });
+
+        this._messenger.onNotification(SendTelemetryEventNotification, (event: SendTelemetryEventParams) => {
+            sendTelemetryEvent(event.eventName, event.properties, event.measurements);
+        });
+
+        this._messenger.onNotification(SendProjectTelemetryEventNotification, (event: SendTelemetryEventParams) => {
+            sendProjectTelemetryEvent(event.eventName, event.properties, event.measurements);
+        });
+
+        this._messenger.onNotification(SendTelemetryExceptionNotification, (event: SendTelemetryExceptionParams) => {
+            sendTelemetryException(event.error, event.properties, event.measurements);
         });
 
         // Register RPC handlers for Choreo project client

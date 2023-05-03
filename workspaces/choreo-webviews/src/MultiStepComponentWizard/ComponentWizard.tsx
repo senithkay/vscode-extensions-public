@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
@@ -20,7 +20,7 @@ import { TriggerConfigStep } from "./WebhookTriggerSelectorStep/WebhookTriggerSe
 import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType } from "@wso2-enterprise/choreo-core";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
@@ -52,6 +52,14 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
 
         const response: any = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponent(componentParams);
         if (response !== true) {
+            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                eventName: CREATE_COMPONENT_FAILURE_EVENT,
+                properties: {
+                    type: formData?.type,
+                    mode: formData?.mode,
+                    cause: response.message
+                }
+            });
             throw new Error("Failed to create component. Error: " + response.message);
         }
     } else {
@@ -65,10 +73,24 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
         }
         const response: any = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().createLocalComponentFromExistingSource(componentParams);
         if (response !== true) {
+            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                eventName: CREATE_COMPONENT_FAILURE_EVENT,
+                properties: {
+                    type: formData?.type,
+                    mode: formData?.mode,
+                    cause: response.message
+                }
+            });
             throw new Error("Failed to create component. Error: " + response.message);
         }
     }
-
+    ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+        eventName: CREATE_COMPONENT_SUCCESS_EVENT,
+        properties: {
+            type: formData?.type,
+            mode: formData?.mode,
+        }
+    });
 };
 
 export const ComponentWizard: React.FC = () => {
@@ -96,6 +118,12 @@ export const ComponentWizard: React.FC = () => {
         isStepValidating: false,
     };
 
+    useEffect(() => {
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: CREATE_COMPONENT_START_EVENT,
+        });
+    }, []);
+
     return (
         <>
             {loginStatus === "LoggedIn" ?
@@ -105,7 +133,15 @@ export const ComponentWizard: React.FC = () => {
                     initialState={initialState}
                     validationRules={[]}
                     onSave={handleComponentCreation}
-                    onCancel={() => { }}
+                    onCancel={(formData) => {
+                        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                            eventName: CREATE_COMPONENT_CANCEL_EVENT,
+                            properties: {
+                                type: formData?.type,
+                                mode: formData?.mode,
+                            }
+                        });
+                    }}
                     saveButtonText="Create"
                     closeOnSave={true}
                 /> :

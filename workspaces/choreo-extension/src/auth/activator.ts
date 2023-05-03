@@ -16,6 +16,8 @@ import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } f
 import { ext } from '../extensionVariables';
 import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
+import { sendTelemetryEvent, sendTelemetryException } from '../telemetry/utils';
+import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
 
 export async function activateAuth() {
     await initFromExistingChoreoSession();
@@ -23,6 +25,7 @@ export async function activateAuth() {
     commands.registerCommand(choreoSignInCmdId, async () => {
         try {
             getLogger().debug("Signing in to Choreo");
+            sendTelemetryEvent(SIGN_IN_START_EVENT);
             ext.api.status = STATUS_LOGGING_IN;
             const openSuccess = await openAuthURL();
             if (openSuccess) {
@@ -33,6 +36,7 @@ export async function activateAuth() {
                 }, async (_progress, cancellationToken) => {
                     cancellationToken.onCancellationRequested(async () => {
                         getLogger().warn("Signing in to Choreo cancelled");
+                        sendTelemetryEvent(SIGN_IN_CANCEL_EVENT);
                         await signOut();
                     });
                     await ext.api.waitForLogin();
@@ -43,6 +47,7 @@ export async function activateAuth() {
                 window.showErrorMessage("Unable to open external link for authentication.");
             }
         } catch (error: any) {
+            sendTelemetryEvent(SIGN_IN_FAILURE_EVENT, { cause: error?.message });
             getLogger().error("Error while signing in to Choreo. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
@@ -53,9 +58,12 @@ export async function activateAuth() {
     commands.registerCommand(choreoSignOutCmdId, async () => {
         try {
             getLogger().debug("Signing out from Choreo");
+            sendTelemetryEvent(SIGN_OUT_START_EVENT);
             await signOut();
+            sendTelemetryEvent(SIGN_OUT_SUCCESS_EVENT);
             window.showInformationMessage('Successfully signed out from Choreo!');
         } catch (error: any) {
+            sendTelemetryEvent(SIGN_OUT_FAILURE_EVENT, { cause: error?.message });
             getLogger().error("Error while signing out from Choreo. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
@@ -69,8 +77,10 @@ async function initFromExistingChoreoSession() {
     const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
+        sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_START_EVENT);
         getLogger().debug("Found existing Choreo session");
-        await signIn();
+        await signIn(true);
+        sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT);
     } else {
         getLogger().debug("No existing Choreo session found");
         await signOut();
