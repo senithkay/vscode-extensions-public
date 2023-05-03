@@ -20,11 +20,10 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { useDMSearchStore } from "../../../../../store/store";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { OutputSearchHighlight } from '../SearchHighlight';
+import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { PrimitiveTypedEditableElementWidget } from "./PrimitiveTypedEditableElementWidget";
@@ -99,20 +98,18 @@ export interface PrimitiveTypeOutputWidgetProps {
 	getPort: (portId: string) => RecordFieldPortModel;
 	context: IDataMapperContext;
 	typeName: string;
-	hasNoMatchingFields: boolean;
 	valueLabel?: string;
 	deleteField?: (node: STNode) => Promise<void>;
 }
 
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, hasNoMatchingFields, valueLabel, deleteField } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField } = props;
 	const classes = useStyles();
 
 	const type = typeName || field?.type?.typeName;
 	const fieldId = `${id}.${type}`;
 	const portIn = getPort(`${fieldId}.IN`);
-	const searchValue = useDMSearchStore.getState().outputSearch;
 
 	let expanded = true;
 	if ((portIn && portIn.collapsed)) {
@@ -144,45 +141,37 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 
 	return (
 		<TreeContainer data-testid={`${id}-node`}>
-			{hasNoMatchingFields ? (
-				<span>
-					{`No matching output value found with string '${searchValue}'`}
+			<TreeHeader>
+				<span className={classes.treeLabelInPort}>
+					{portIn && !expanded &&
+						<DataMapperPortWidget engine={engine} port={portIn} />
+					}
 				</span>
-			) : (
-				<>
-					<TreeHeader>
-						<span className={classes.treeLabelInPort}>
-							{portIn && !expanded &&
-								<DataMapperPortWidget engine={engine} port={portIn} />
-							}
-						</span>
-							<span className={classes.label}>
-							<IconButton
-								className={classes.expandIcon}
-								style={{ marginLeft: indentation }}
-								onClick={handleExpand}
-								data-testid={`${id}-expand-icon-primitive-type`}
-							>
-								{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-							</IconButton>
-							{label}
-						</span>
-					</TreeHeader>
-					<TreeBody>
-						{expanded && field && (
-							<PrimitiveTypedEditableElementWidget
-								key={id}
-								parentId={id}
-								engine={engine}
-								field={field}
-								getPort={getPort}
-								context={context}
-								deleteField={deleteField}
-							/>
-						)}
-					</TreeBody>
-				</>
-			)}
+				<span className={classes.label}>
+					<IconButton
+						className={classes.expandIcon}
+						style={{ marginLeft: indentation }}
+						onClick={handleExpand}
+						data-testid={`${id}-expand-icon-primitive-type`}
+					>
+						{expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+					</IconButton>
+					{label}
+				</span>
+			</TreeHeader>
+			<TreeBody>
+				{expanded && field && (
+					<PrimitiveTypedEditableElementWidget
+						key={id}
+						parentId={id}
+						engine={engine}
+						field={field}
+						getPort={getPort}
+						context={context}
+						deleteField={deleteField}
+					/>
+				)}
+			</TreeBody>
 		</TreeContainer>
 	);
 }

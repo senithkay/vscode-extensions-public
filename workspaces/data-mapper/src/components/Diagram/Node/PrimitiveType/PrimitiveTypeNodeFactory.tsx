@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-lambda
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
@@ -23,11 +23,9 @@ import { RecordFieldPortModel } from '../../Port';
 import { FUNCTION_BODY_QUERY, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
+import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
-import {
-	PrimitiveTypeNode,
-	PRIMITIVE_TYPE_NODE_TYPE
-} from './PrimitiveTypeNode';
+import { PrimitiveTypeNode, PRIMITIVE_TYPE_NODE_TYPE } from './PrimitiveTypeNode';
 
 @injectable()
 @singleton()
@@ -44,17 +42,22 @@ export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveType
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
 		return (
-			<PrimitiveTypeOutputWidget
-				id={PRIMITIVE_TYPE_TARGET_PORT_PREFIX}
-				engine={this.engine}
-				field={event.model.recordField}
-				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-				context={event.model.context}
-				typeName={event.model.typeName}
-				hasNoMatchingFields={event.model.hasNoMatchingFields}
-				valueLabel={valueLabel}
-				deleteField={(node: STNode) => event.model.deleteField(node)}
-			/>
+			<>
+				{event.model.hasNoMatchingFields ? (
+					<OutputSearchNoResultFound kind={SearchNoResultFoundKind.OutputValue} />
+				) : (
+					<PrimitiveTypeOutputWidget
+						id={PRIMITIVE_TYPE_TARGET_PORT_PREFIX}
+						engine={this.engine}
+						field={event.model.recordField}
+						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+						context={event.model.context}
+						typeName={event.model.typeName}
+						valueLabel={valueLabel}
+						deleteField={(node: STNode) => event.model.deleteField(node)}
+					/>
+				)}
+			</>
 		);
 	}
 
