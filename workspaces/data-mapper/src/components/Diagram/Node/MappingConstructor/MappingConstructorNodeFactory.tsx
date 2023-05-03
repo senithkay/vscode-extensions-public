@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-lambda
+// tslint:disable: jsx-no-lambda  jsx-no-multiline-js
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
@@ -24,11 +24,9 @@ import { FUNCTION_BODY_QUERY, MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from '../
 import { getExprBodyFromLetExpression } from "../../utils/dm-utils";
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
+import { OutputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
-import {
-	MappingConstructorNode,
-	MAPPING_CONSTRUCTOR_NODE_TYPE
-} from './MappingConstructorNode';
+import { MappingConstructorNode, MAPPING_CONSTRUCTOR_NODE_TYPE } from './MappingConstructorNode';
 
 @injectable()
 @singleton()
@@ -48,20 +46,25 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 			? getExprBodyFromLetExpression(event.model.value.expression)
 			: event.model.value.expression;
 		return (
-			<EditableMappingConstructorWidget
-				engine={this.engine}
-				id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-				editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
-				typeName={event.model.typeName}
-				value={mappingConstruct}
-				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-				context={event.model.context}
-				hasNoMatchingFields={event.model.hasNoMatchingFields}
-				mappings={event.model.mappings}
-				valueLabel={valueLabel}
-				deleteField={(node: STNode) => event.model.deleteField(node)}
-				originalTypeName={event.model.typeDef.originalTypeName}
-			/>
+			<>
+				{event.model.hasNoMatchingFields ? (
+					<OutputSearchNoResultFound kind={SearchNoResultFoundKind.OutputField}/>
+				) : (
+					<EditableMappingConstructorWidget
+						engine={this.engine}
+						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
+						editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
+						typeName={event.model.typeName}
+						value={mappingConstruct}
+						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+						context={event.model.context}
+						mappings={event.model.mappings}
+						valueLabel={valueLabel}
+						deleteField={(node: STNode) => event.model.deleteField(node)}
+						originalTypeName={event.model.typeDef.originalTypeName}
+					/>
+				)}
+			</>
 		);
 	}
 

@@ -20,6 +20,7 @@ import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
+import { InputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { ModuleVariableNode, MODULE_VAR_SOURCE_NODE_TYPE } from "./ModuleVariableNode";
 import { ModuleVariableTreeWidget } from "./ModuleVariableTreeWidget";
@@ -33,13 +34,19 @@ export class ModuleVariableNodeFactory extends AbstractReactFactory<ModuleVariab
 
     generateReactWidget(event: { model: ModuleVariableNode; }): JSX.Element {
         return (
-            <ModuleVariableTreeWidget
-                engine={this.engine}
-                moduleVariables={event.model.moduleVarDecls}
-                context={event.model.context}
-                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-            />
+            <>
+                {event.model.hasNoMatchingFields ? (
+                    <InputSearchNoResultFound kind={SearchNoResultFoundKind.ModuleVariable}/>
+                ) : (
+                    <ModuleVariableTreeWidget
+                        engine={this.engine}
+                        moduleVariables={event.model.moduleVarDecls}
+                        context={event.model.context}
+                        getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                        handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                    />
+                )}
+            </>
         );
     }
 

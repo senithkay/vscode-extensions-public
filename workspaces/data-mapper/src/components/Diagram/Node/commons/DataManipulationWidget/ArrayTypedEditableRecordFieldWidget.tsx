@@ -45,7 +45,7 @@ import {
     isConnectedViaLink,
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
-import { OutputSearchHighlight } from "../SearchHighlight";
+import { OutputSearchHighlight } from "../Search";
 import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
