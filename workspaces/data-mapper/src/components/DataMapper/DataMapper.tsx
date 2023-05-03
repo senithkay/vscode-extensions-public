@@ -315,6 +315,9 @@ function DataMapperC(props: DataMapperProps) {
         setFunctionST(fnST);
         setImports(importStatements);
         setShouldRestoreTypes(true);
+        if (!(inputs && output) || (fnST && fnST.functionSignature.source !== fnSignature)) {
+            setFnSignature(getFnSignatureFromST(fnST));
+        }
     }, [fnST]);
 
     useEffect(() => {
@@ -423,6 +426,105 @@ function DataMapperC(props: DataMapperProps) {
             }
         }
     }, [nodeSetupCounter])
+
+    // useEffect(() => {
+    //     if (selection.prevST.length === 0) {
+    //         let inputParams: DataMapperInputParam[];
+    //         let outputType: DataMapperOutputParam;
+    //         if (fnST) {
+    //             const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+    //             if (recordTypeDescriptors.recordTypeDescriptors.size > 0) {
+    //                 // When open the DM of an existing function using code lens
+    //                 inputParams = getInputsFromST(fnST, ballerinaVersion) || [];
+    //                 outputType = getOutputTypeFromST(fnST, ballerinaVersion) || { type: undefined, isUnsupported: true };
+    //                 if (fnST.functionName.value !== fnName) {
+    //                     setFnName(getFnNameFromST(fnST));
+    //                 }
+    //             }
+    //             // When open the DM of an existing incomplete function using code lens
+    //             const hasNoParameter = !inputParams && fnST.functionSignature.parameters.length === 0;
+    //             if (hasNoParameter) {
+    //                 setInputs([]);
+    //             }
+    //             const hasNoReturnType = !outputType && !fnST.functionSignature?.returnTypeDesc;
+    //             if (hasNoReturnType) {
+    //                 setOutput({ type: undefined, isUnsupported: true });
+    //             }
+    //             setInputs(inputParams || []);
+    //             setOutput(outputType || { type: undefined, isUnsupported: true });
+    //             setFnName(getFnNameFromST(fnST));
+    //         } else {
+    //             // When open the DM using the main menu
+    //             setInputs([]);
+    //             setOutput({ type: undefined, isUnsupported: true });
+    //         }
+    //     }
+    // }, [fnSignature])
+
+    // useEffect(() => {
+    //     if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
+    //         if (fnST) {
+    //             const ioNodesPresent = hasIONodesPresent(dmNodes);
+    //             const hasNoParameter = !inputs && fnST.functionSignature.parameters.length === 0;
+    //             const hasNoReturnType = !output && !fnST.functionSignature?.returnTypeDesc;
+    //             const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+    //             if (recordTypeDescriptors.recordTypeDescriptors.size > 0) {
+    //                 // When open the DM of an existing function using code lens
+    //                 if (ioNodesPresent) {
+    //                     const hasFnSignatureChanged = !(inputs && output) || fnST.functionSignature.source !== fnSignature;
+    //                     const hasFnNameChanged = fnST.functionName.value !== fnName;
+    //                     if (hasFnSignatureChanged) {
+    //                         const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
+    //                             || [];
+    //                         setInputs(inputParams);
+    //                         const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
+    //                             || { type: undefined, isUnsupported: true };
+    //                         setOutput(outputType);
+    //                         setFnSignature(getFnSignatureFromST(fnST));
+    //                     }
+    //                     if (hasFnNameChanged) {
+    //                         setFnName(getFnNameFromST(fnST));
+    //                     }
+    //                 } else {
+    //                     if (hasNoParameter) {
+    //                         setInputs([]);
+    //                     } else {
+    //                         const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
+    //                             || [];
+    //                         setInputs(inputParams);
+    //                     }
+    //                     if (hasNoReturnType) {
+    //                         setOutput({ type: undefined, isUnsupported: true });
+    //                     } else {
+    //                         const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
+    //                             || { type: undefined, isUnsupported: true };
+    //                         setOutput(outputType);
+    //                     }
+    //                     if (!hasNoParameter || !hasNoReturnType) {
+    //                         setFnName(getFnNameFromST(fnST));
+    //                         setFnSignature(getFnSignatureFromST(fnST));
+    //                     }
+    //                 }
+    //             } else {
+    //                 // When open the DM of an existing incomplete function using code lens
+    //                 if (hasNoParameter) {
+    //                     setInputs([]);
+    //                 }
+    //                 if (hasNoReturnType) {
+    //                     setOutput({ type: undefined, isUnsupported: true });
+    //                 }
+    //                 if (hasNoParameter || hasNoReturnType) {
+    //                     setFnName(getFnNameFromST(fnST));
+    //                     setFnSignature(getFnSignatureFromST(fnST));
+    //                 }
+    //             }
+    //         } else {
+    //             // When open the DM using the main menu
+    //             setInputs([]);
+    //             setOutput({ type: undefined, isUnsupported: true });
+    //         }
+    //     }
+    // }, [nodeSetupCounter])
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {
