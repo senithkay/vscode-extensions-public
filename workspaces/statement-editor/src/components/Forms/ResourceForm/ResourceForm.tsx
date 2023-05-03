@@ -108,10 +108,9 @@ export function ResourceForm(props: FunctionProps) {
 
 
     const updateDiag = () => {
-        const updatedDiagnostics = (model?.viewState.diagnosticsInRange.concat(model?.functionSignature?.returnTypeDesc?.viewState.diagnosticsInRange.concat(model?.functionBody?.viewState.diagnosticsInRange)));
-        const typeRelated: Diagnostic[] = updatedDiagnostics?.filter((diag: any) => diag?.message.includes("unknown type"));
+        const updatedDiagnostics: Diagnostic[] = (model?.viewState.diagnosticsInRange.concat(model?.functionSignature?.returnTypeDesc?.viewState.diagnosticsInRange.concat(model?.functionBody?.viewState.diagnosticsInRange)));
         const componentDiag: StatementSyntaxDiagnostics[] = [];
-        typeRelated.forEach(diag => {
+        updatedDiagnostics.forEach(diag => {
             const newDiag: StatementSyntaxDiagnostics = {
                 message: diag.message,
             };
@@ -251,10 +250,7 @@ export function ResourceForm(props: FunctionProps) {
     };
 
     const handleParamEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
-        // if (!avoidValueCommit) {
-        //     setQueryParam(value);
-        // }
-        // setCurrentComponentName("QueryParam");
+        setCurrentComponentName("QueryParam");
         await handleResourceParamChange(
             model.functionName.value,
             getResourcePath(model.relativeResourcePath),

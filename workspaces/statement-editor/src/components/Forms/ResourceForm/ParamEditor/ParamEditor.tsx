@@ -78,7 +78,7 @@ export function ParamEditor(props: ParamProps) {
     const classes = useStyles();
 
     // States related to syntax diagnostics
-    const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.NONE);
+    const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.PARAM_NAME);
     const [originalSource] = useState<string>(model.source);
 
     const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
@@ -222,6 +222,7 @@ export function ParamEditor(props: ParamProps) {
                         onChange={handleNameChange}
                         value={inputValue}
                         isLoading={false}
+                        onFocus={onNameEditorFocus}
                         diagnostics={
                             (currentComponentName === ParamEditorInputTypes.PARAM_NAME && syntaxDiagnostics) ||
                             model.paramName?.viewState?.diagnosticsInRange
@@ -238,6 +239,7 @@ export function ParamEditor(props: ParamProps) {
                                 onChange={handleDefaultValueChange}
                                 value={defaultParamValue}
                                 isLoading={false}
+                                onFocus={onDefaultValueEditorFocus}
                                 diagnostics={
                                     (currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && syntaxDiagnostics) ||
                                     model.paramName?.viewState?.diagnosticsInRange
