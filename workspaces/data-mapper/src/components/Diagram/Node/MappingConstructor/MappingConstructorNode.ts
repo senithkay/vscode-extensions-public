@@ -43,7 +43,8 @@ import {
     getOutputPortForField,
     getSearchFilteredOutput,
     getTypeName,
-    getTypeOfValue
+    getTypeOfValue,
+    hasNoMatchFound
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
@@ -79,14 +80,6 @@ export class MappingConstructorNode extends DataMapperNodeModel {
 
         if (this.typeDef) {
             const isSelectClause = STKindChecker.isSelectClause(this.value);
-            const searchValue = useDMSearchStore.getState().outputSearch;
-            if (!!searchValue
-                && ((originalTypeDef?.fields && originalTypeDef.fields.length > 0 && this.typeDef?.fields && this.typeDef.fields.length === 0)
-                    || (isSelectClause && originalTypeDef?.memberType && originalTypeDef.memberType?.fields.length > 0 && this.typeDef?.memberType && this.typeDef.memberType?.fields.length === 0)
-                ))
-            {
-                this.hasNoMatchingFields = true;
-            }
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
             if (isSelectClause
                 && this.typeDef.typeName === PrimitiveBalType.Array
@@ -105,6 +98,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
+            this.hasNoMatchingFields = hasNoMatchFound(originalTypeDef, valueEnrichedType);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,

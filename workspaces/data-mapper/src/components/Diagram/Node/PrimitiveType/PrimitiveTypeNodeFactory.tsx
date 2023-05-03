@@ -51,6 +51,7 @@ export class PrimitiveTypeNodeFactory extends AbstractReactFactory<PrimitiveType
 				getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 				context={event.model.context}
 				typeName={event.model.typeName}
+				hasNoMatchingFields={event.model.hasNoMatchingFields}
 				valueLabel={valueLabel}
 				deleteField={(node: STNode) => event.model.deleteField(node)}
 			/>
