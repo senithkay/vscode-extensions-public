@@ -1224,23 +1224,33 @@ export function hasNoMatchFound(originalTypeDef: Type, valueEnrichedType: Editab
 	} else if (originalTypeDef.typeName === PrimitiveBalType.Record && filteredTypeDef.typeName === PrimitiveBalType.Record) {
 		return valueEnrichedType?.childrenTypes.length === 0;
 	} else if (originalTypeDef.typeName === PrimitiveBalType.Array && filteredTypeDef.typeName === PrimitiveBalType.Array) {
-		if (valueEnrichedType?.elements) {
-			if (valueEnrichedType.elements.length === 0) {
-				return true;
-			}
-			return valueEnrichedType.elements.every(element => {
-				if (element.member.type.typeName === PrimitiveBalType.Record) {
-					return element.member?.childrenTypes.length === 0;
-				} else if (element.member.type.typeName === PrimitiveBalType.Array) {
-					return element.member.elements && element.member.elements.length === 0
-				} else if (element.member.value) {
-					const value = element.member.value.value || element.member.value.source;
-					return !value.includes(searchValue);
-				}
-			});
+		return hasNoMatchFoundInArray(valueEnrichedType?.elements, searchValue);
+	} else if (originalTypeDef.typeName === PrimitiveBalType.Union) {
+		if (filteredTypeDef.typeName === PrimitiveBalType.Record) {
+			return valueEnrichedType?.childrenTypes.length === 0;
+		} else if (filteredTypeDef.typeName === PrimitiveBalType.Array) {
+			return hasNoMatchFoundInArray(valueEnrichedType?.elements, searchValue);
 		}
 	}
 	return false;
+}
+
+function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {
+	if (!elements) {
+		return false;
+	} else if (elements.length === 0) {
+		return true;
+	}
+	return elements.every(element => {
+		if (element.member.type.typeName === PrimitiveBalType.Record) {
+			return element.member?.childrenTypes.length === 0;
+		} else if (element.member.type.typeName === PrimitiveBalType.Array) {
+			return element.member.elements && element.member.elements.length === 0
+		} else if (element.member.value) {
+			const value = element.member.value.value || element.member.value.source;
+			return !value.toLowerCase().includes(searchValue.toLowerCase());
+		}
+	});
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
