@@ -20,6 +20,7 @@ import { container, injectable, singleton } from "tsyringe";
 
 import { RecordFieldPortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
+import { InputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { LetExpressionNode, LET_EXPR_SOURCE_NODE_TYPE } from "./LetExpressionNode";
 import { LetExpressionTreeWidget } from "./LetExpressionTreeWidget";
@@ -33,14 +34,20 @@ export class LetExpressionNodeFactory extends AbstractReactFactory<LetExpression
 
     generateReactWidget(event: { model: LetExpressionNode; }): JSX.Element {
         return (
-            <LetExpressionTreeWidget
-                engine={this.engine}
-                letVarDecls={event.model.letVarDecls}
-                context={event.model.context}
-                getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-                isWithinQuery={event.model.isWithinQuery}
-            />
+            <>
+                {event.model.hasNoMatchingFields ? (
+                    <InputSearchNoResultFound kind={SearchNoResultFoundKind.LocalVariable} />
+                ) : (
+                    <LetExpressionTreeWidget
+                        engine={this.engine}
+                        letVarDecls={event.model.letVarDecls}
+                        context={event.model.context}
+                        getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                        handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                        isWithinQuery={event.model.isWithinQuery}
+                    />
+                )}
+            </>
         );
     }
 

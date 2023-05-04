@@ -45,7 +45,8 @@ import {
     getOutputPortForField,
     getSearchFilteredOutput,
     getTypeName,
-    getTypeOfValue
+    getTypeOfValue,
+    hasNoMatchFound
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
@@ -58,6 +59,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
     public recordField: EditableRecordField;
     public typeName: string;
     public rootName: string;
+    public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
 
@@ -74,6 +76,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        const originalTypeDef = this.typeDef;
         this.typeDef = getSearchFilteredOutput(this.typeDef);
 
         if (this.typeDef) {
@@ -92,6 +95,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
             const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
+            this.hasNoMatchingFields = hasNoMatchFound(originalTypeDef, valueEnrichedType);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (this.typeDef.typeName === PrimitiveBalType.Union) {

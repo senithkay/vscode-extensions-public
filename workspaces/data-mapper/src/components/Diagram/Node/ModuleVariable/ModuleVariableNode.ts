@@ -49,6 +49,7 @@ export interface DMModuleVarDecl {
 
 export class ModuleVariableNode extends DataMapperNodeModel {
     public moduleVarDecls: DMModuleVarDecl[];
+    public hasNoMatchingFields: boolean;
     public x: number;
     public numberOfFields:  number;
 
@@ -100,7 +101,9 @@ export class ModuleVariableNode extends DataMapperNodeModel {
                 })).type
             }
         });
-        this.moduleVarDecls = this.getSearchFilteredVariables(allModuleVarDecls)
+        this.moduleVarDecls = this.getSearchFilteredVariables(allModuleVarDecls);
+        const searchValue = useDMSearchStore.getState().inputSearch;
+        this.hasNoMatchingFields = searchValue && allModuleVarDecls.length > 0 && this.moduleVarDecls.length === 0;
 
         this.moduleVarDecls.forEach(moduleVar => {
             const { varName, type } = moduleVar;

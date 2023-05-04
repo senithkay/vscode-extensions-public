@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/await-thenable */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -20,7 +19,18 @@ import * as React from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
 import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
-import { DagreEngine, DefaultDiagramState, DefaultLabelFactory, DefaultLinkFactory, DefaultNodeFactory, DefaultPortFactory, DiagramEngine, DiagramModel, NodeLayerFactory, PathFindingLinkFactory } from '@projectstorm/react-diagrams';
+import {
+	DagreEngine,
+	DefaultDiagramState,
+	DefaultLabelFactory,
+	DefaultLinkFactory,
+	DefaultNodeFactory,
+	DefaultPortFactory,
+	DiagramEngine,
+	DiagramModel,
+	NodeLayerFactory,
+	PathFindingLinkFactory
+} from '@projectstorm/react-diagrams';
 import "reflect-metadata";
 import { container } from "tsyringe";
 

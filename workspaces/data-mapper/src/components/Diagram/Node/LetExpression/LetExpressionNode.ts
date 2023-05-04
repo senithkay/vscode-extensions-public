@@ -39,6 +39,7 @@ export interface DMLetVarDecl {
 export class LetExpressionNode extends DataMapperNodeModel {
     public letExpr: LetExpression;
     public letVarDecls: DMLetVarDecl[];
+    public hasNoMatchingFields: boolean;
     public x: number;
     public numberOfFields:  number;
 
@@ -61,6 +62,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
         this.letExpr = this.value.expression;
         const letExpressions = getLetExpressions(this.letExpr);
         const balVersion = this.context.ballerinaVersion;
+        const searchValue = useDMSearchStore.getState().inputSearch;
 
         letExpressions.forEach(expr => {
             const letVarDecls = expr.letVarDeclarations;
@@ -101,6 +103,7 @@ export class LetExpressionNode extends DataMapperNodeModel {
                 }
             });
         });
+        this.hasNoMatchingFields = searchValue && letExpressions.length > 0 && this.letVarDecls.length === 0;
     }
 
     async initLinks() {

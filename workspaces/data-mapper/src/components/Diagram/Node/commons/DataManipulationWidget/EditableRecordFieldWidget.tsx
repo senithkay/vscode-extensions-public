@@ -36,7 +36,7 @@ import {
     isConnectedViaLink
 } from "../../../utils/dm-utils";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
-import { OutputSearchHighlight } from "../SearchHighlight";
+import { OutputSearchHighlight } from "../Search";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
 import { useStyles } from "./styles";
