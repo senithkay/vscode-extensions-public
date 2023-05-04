@@ -25,12 +25,7 @@ import {
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import {
-    FunctionDefinition,
-    NodePosition,
-    STNode,
-    traversNode,
-} from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { useDMSearchStore, useDMStore } from "../../store/store";
@@ -47,13 +42,8 @@ import { ViewStateSetupVisitor } from "../Diagram/visitors/ViewStateSetupVisitor
 import { StatementEditorComponent } from "../StatementEditorComponent/StatementEditorComponent"
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
-import { DataMapperInputParam, DataMapperOutputParam } from "./ConfigPanel/InputParamsPanel/types";
-import {
-    getFnNameFromST,
-    getFnSignatureFromST,
-    getInputsFromST,
-    getOutputTypeFromST
-} from "./ConfigPanel/utils";
+import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./ConfigPanel/InputParamsPanel/types";
+import { getFnNameFromST, getFnSignatureFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
@@ -111,6 +101,7 @@ export interface DataMapperProps {
         path: string,
         size: number
     };
+    openedViaPlus?: boolean;
     ballerinaVersion?: string;
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => Promise<void>;
@@ -196,6 +187,7 @@ function DataMapperC(props: DataMapperProps) {
         langClientPromise,
         filePath,
         currentFile,
+        openedViaPlus,
         stSymbolInfo,
         applyModifications,
         updateFileContent,
@@ -231,6 +223,9 @@ function DataMapperC(props: DataMapperProps) {
     const [dmContext, setDmContext] = useState<DataMapperContext>();
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
     const [shouldRestoreTypes, setShouldRestoreTypes] = useState(true);
+    const [typeDescriptorStoreStatus, setTypeDescriptorStoreStatus] = useState("INIT");
+
+    const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
 
     const classes = useStyles();
 
@@ -350,10 +345,11 @@ function DataMapperC(props: DataMapperProps) {
                     );
 
                     if (shouldRestoreTypes) {
-                        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+                        setTypeDescriptorStoreStatus(recordTypeDescriptors.getStatus());
                         await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
                         const functionDefinitions = FunctionDefinitionStore.getInstance();
                         await functionDefinitions.storeFunctionDefinitions(fnST, context);
+                        setTypeDescriptorStoreStatus(recordTypeDescriptors.getStatus());
                         setShouldRestoreTypes(false);
                     }
 
@@ -384,147 +380,35 @@ function DataMapperC(props: DataMapperProps) {
         } does not support the Data Mapper feature. Please update your Ballerina versions to 2201.1.2, 2201.2.1, or higher version.`;
 
     useEffect(() => {
-        if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
+        let inputParams: DataMapperInputParam[] = [];
+        let outputType: DataMapperOutputParam = { type: undefined, isUnsupported: true, typeNature: TypeNature.DUMMY };
+        if (selection.prevST.length === 0 && typeDescriptorStoreStatus === "LOADED") {
             if (fnST) {
-                const ioNodesPresent = hasIONodesPresent(dmNodes);
-                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                if (ioNodesPresent && recordTypeDescriptors.recordTypeDescriptors.size > 0) {
-                    // When open the DM of an existing function using code lens
-                    const hasFnSignatureChanged = !(inputs && output) || fnST.functionSignature.source !== fnSignature;
-                    const hasFnNameChanged = fnST.functionName.value !== fnName;
-                    if (hasFnSignatureChanged) {
-                        const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
-                            || [];
-                        setInputs(inputParams);
-                        const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
-                            || { type: undefined, isUnsupported: true };
-                        setOutput(outputType);
-                        setFnSignature(getFnSignatureFromST(fnST));
-                    }
-                    if (hasFnNameChanged) {
-                        setFnName(getFnNameFromST(fnST));
-                    }
-                } else {
-                    // When open the DM of an existing incomplete function using code lens
-                    const hasNoParameter = !inputs && fnST.functionSignature.parameters.length === 0;
-                    const hasNoReturnType = !output && !fnST.functionSignature?.returnTypeDesc;
-                    if (hasNoParameter) {
-                        setInputs([]);
-                    }
-                    if (hasNoReturnType) {
-                        setOutput({ type: undefined, isUnsupported: true });
-                    }
-                    if (hasNoParameter || hasNoReturnType) {
-                        setFnName(getFnNameFromST(fnST));
-                        setFnSignature(getFnSignatureFromST(fnST));
-                    }
+                // When open the DM of an existing function using code lens
+                const hasNoParameter = fnST.functionSignature.parameters.length === 0;
+                const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
+                if (!hasNoParameter) {
+                    inputParams = getInputsFromST(fnST, ballerinaVersion) || inputParams;
+                    setInputs(inputParams);
                 }
-            } else {
-                // When open the DM using the main menu
-                setInputs([]);
-                setOutput({ type: undefined, isUnsupported: true });
+                if (!hasNoReturnType) {
+                    outputType = getOutputTypeFromST(fnST, ballerinaVersion) || outputType;
+                    setOutput(outputType);
+                }
+                if (fnST.functionName.value !== fnName) {
+                    setFnName(getFnNameFromST(fnST));
+                }
+                if (!inputs && !output) {
+                    setInputs(inputParams);
+                    setOutput(outputType);
+                }
             }
+        } else if (typeDescriptorStoreStatus === "INIT" && openedViaPlus) {
+            // When creating a new DM using plus menu
+            setInputs(inputParams);
+            setOutput(outputType);
         }
-    }, [nodeSetupCounter])
-
-    // useEffect(() => {
-    //     if (selection.prevST.length === 0) {
-    //         let inputParams: DataMapperInputParam[];
-    //         let outputType: DataMapperOutputParam;
-    //         if (fnST) {
-    //             const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-    //             if (recordTypeDescriptors.recordTypeDescriptors.size > 0) {
-    //                 // When open the DM of an existing function using code lens
-    //                 inputParams = getInputsFromST(fnST, ballerinaVersion) || [];
-    //                 outputType = getOutputTypeFromST(fnST, ballerinaVersion) || { type: undefined, isUnsupported: true };
-    //                 if (fnST.functionName.value !== fnName) {
-    //                     setFnName(getFnNameFromST(fnST));
-    //                 }
-    //             }
-    //             // When open the DM of an existing incomplete function using code lens
-    //             const hasNoParameter = !inputParams && fnST.functionSignature.parameters.length === 0;
-    //             if (hasNoParameter) {
-    //                 setInputs([]);
-    //             }
-    //             const hasNoReturnType = !outputType && !fnST.functionSignature?.returnTypeDesc;
-    //             if (hasNoReturnType) {
-    //                 setOutput({ type: undefined, isUnsupported: true });
-    //             }
-    //             setInputs(inputParams || []);
-    //             setOutput(outputType || { type: undefined, isUnsupported: true });
-    //             setFnName(getFnNameFromST(fnST));
-    //         } else {
-    //             // When open the DM using the main menu
-    //             setInputs([]);
-    //             setOutput({ type: undefined, isUnsupported: true });
-    //         }
-    //     }
-    // }, [fnSignature])
-
-    // useEffect(() => {
-    //     if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
-    //         if (fnST) {
-    //             const ioNodesPresent = hasIONodesPresent(dmNodes);
-    //             const hasNoParameter = !inputs && fnST.functionSignature.parameters.length === 0;
-    //             const hasNoReturnType = !output && !fnST.functionSignature?.returnTypeDesc;
-    //             const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-    //             if (recordTypeDescriptors.recordTypeDescriptors.size > 0) {
-    //                 // When open the DM of an existing function using code lens
-    //                 if (ioNodesPresent) {
-    //                     const hasFnSignatureChanged = !(inputs && output) || fnST.functionSignature.source !== fnSignature;
-    //                     const hasFnNameChanged = fnST.functionName.value !== fnName;
-    //                     if (hasFnSignatureChanged) {
-    //                         const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
-    //                             || [];
-    //                         setInputs(inputParams);
-    //                         const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
-    //                             || { type: undefined, isUnsupported: true };
-    //                         setOutput(outputType);
-    //                         setFnSignature(getFnSignatureFromST(fnST));
-    //                     }
-    //                     if (hasFnNameChanged) {
-    //                         setFnName(getFnNameFromST(fnST));
-    //                     }
-    //                 } else {
-    //                     if (hasNoParameter) {
-    //                         setInputs([]);
-    //                     } else {
-    //                         const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
-    //                             || [];
-    //                         setInputs(inputParams);
-    //                     }
-    //                     if (hasNoReturnType) {
-    //                         setOutput({ type: undefined, isUnsupported: true });
-    //                     } else {
-    //                         const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
-    //                             || { type: undefined, isUnsupported: true };
-    //                         setOutput(outputType);
-    //                     }
-    //                     if (!hasNoParameter || !hasNoReturnType) {
-    //                         setFnName(getFnNameFromST(fnST));
-    //                         setFnSignature(getFnSignatureFromST(fnST));
-    //                     }
-    //                 }
-    //             } else {
-    //                 // When open the DM of an existing incomplete function using code lens
-    //                 if (hasNoParameter) {
-    //                     setInputs([]);
-    //                 }
-    //                 if (hasNoReturnType) {
-    //                     setOutput({ type: undefined, isUnsupported: true });
-    //                 }
-    //                 if (hasNoParameter || hasNoReturnType) {
-    //                     setFnName(getFnNameFromST(fnST));
-    //                     setFnSignature(getFnSignatureFromST(fnST));
-    //                 }
-    //             }
-    //         } else {
-    //             // When open the DM using the main menu
-    //             setInputs([]);
-    //             setOutput({ type: undefined, isUnsupported: true });
-    //         }
-    //     }
-    // }, [nodeSetupCounter])
+    }, [fnSignature, typeDescriptorStoreStatus]);
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {

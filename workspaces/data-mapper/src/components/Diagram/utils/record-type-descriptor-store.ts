@@ -31,6 +31,7 @@ export class RecordTypeDescriptorStore {
 
     recordTypeDescriptors: Map<NodePosition, Type>;
     stNode: STNode;
+    status: "LOADING" | "LOADED";
     static instance : RecordTypeDescriptorStore;
 
     private constructor() {
@@ -45,6 +46,7 @@ export class RecordTypeDescriptorStore {
     }
 
     public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext, isArraysSupported: boolean) {
+        this.status = "LOADING";
         if (this.stNode
             && isPositionsEquals(this.stNode.position, stNode.position)
             && this.stNode.source === stNode.source) {
@@ -64,6 +66,7 @@ export class RecordTypeDescriptorStore {
         await this.setTypesForFnParamsAndReturnType(langClient, fileUri, fnDefPositions);
         await this.setTypesForSymbol(langClient, fileUri, symbolNodesPositions);
         await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges);
+        this.status = "LOADED";
     }
 
     async setTypesForExpressions(langClient: IBallerinaLangClient,
@@ -134,5 +137,9 @@ export class RecordTypeDescriptorStore {
                 return value;
             }
         }
+    }
+
+    public getStatus() {
+        return this.status;
     }
 }
