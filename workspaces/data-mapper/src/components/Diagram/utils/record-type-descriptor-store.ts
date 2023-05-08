@@ -61,7 +61,7 @@ export class RecordTypeDescriptorStore {
         const expressionNodesRanges = visitor.getExpressionNodesRanges();
         const symbolNodesPositions = visitor.getSymbolNodesPositions();
 
-        const noOfTypes = visitor.getNoOfParams() + 1 + expressionNodesRanges.length + symbolNodesPositions.length;
+        const noOfTypes = this.getNoOfTypes(visitor.getNoOfParams(), expressionNodesRanges.length, symbolNodesPositions.length);
         const langClient = await context.langClientPromise;
         const fileUri = Uri.file(context.currentFile.path).toString();
 
@@ -147,6 +147,12 @@ export class RecordTypeDescriptorStore {
                 this.recordTypeDescriptors.set(position, type);
             }
         }
+    }
+
+    getNoOfTypes(noOfParams: number, noOfExpressions: number, noOfSymbols: number) {
+        const hasReturnType = this.stNode.functionSignature?.returnTypeDesc
+            && this.stNode.functionSignature.returnTypeDesc.type;
+        return noOfParams + noOfExpressions + noOfSymbols + (hasReturnType ? 1 : 0);
     }
 
     public getTypeDescriptor(position : NodePosition) : Type {
