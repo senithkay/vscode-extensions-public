@@ -311,14 +311,16 @@ function DataMapperC(props: DataMapperProps) {
         setShouldRestoreTypes(true);
         const fnSignatureFromFnST = getFnSignatureFromST(fnST);
         const fnNameFromFnST = getFnNameFromST(fnST);
-        if (fnST && fnSignatureFromFnST !== fnSignature && fnNameFromFnST !== fnName) {
+        if (!(inputs && output) || (fnST && fnSignatureFromFnST !== fnSignature && fnNameFromFnST !== fnName)) {
             const fnSTFromTypeStore = recordTypeDescriptors.getSTNode();
-            const hasFnSwitched = fnSTFromTypeStore && (
+            const hasFnSwitched = fnST && fnSTFromTypeStore && (
                 fnNameFromFnST !== getFnNameFromST(fnSTFromTypeStore)
                 || fnSignatureFromFnST !== getFnSignatureFromST(fnSTFromTypeStore)
             );
-            if (hasFnSwitched) {
+            if (hasFnSwitched || (!(inputs && output) && !fnSTFromTypeStore)) {
                 recordTypeDescriptors.resetStatus();
+                setInputs(undefined);
+                setOutput(undefined);
             }
             setFnSignature(fnSignatureFromFnST);
             setFnName(fnNameFromFnST);
