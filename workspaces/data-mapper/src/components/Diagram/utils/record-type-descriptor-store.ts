@@ -17,8 +17,8 @@ import {
     Type
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    FunctionDefinition,
     NodePosition,
-    STNode,
     traversNode
 } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "monaco-editor";
@@ -30,8 +30,8 @@ import { FnDefPositions, RecordTypeFindingVisitor } from "../visitors/RecordType
 export class RecordTypeDescriptorStore {
 
     recordTypeDescriptors: Map<NodePosition, Type>;
-    stNode: STNode;
-    status: "LOADING" | "LOADED";
+    stNode: FunctionDefinition;
+    status: "INIT" | "LOADING" | "LOADED";
     static instance : RecordTypeDescriptorStore;
 
     private constructor() {
@@ -45,17 +45,15 @@ export class RecordTypeDescriptorStore {
         return this.instance;
     }
 
-    public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext, isArraysSupported: boolean) {
-        this.status = "LOADING";
+    public async storeTypeDescriptors(stNode: FunctionDefinition, context: IDataMapperContext, isArraysSupported: boolean) {
         if (this.stNode
             && isPositionsEquals(this.stNode.position, stNode.position)
             && this.stNode.source === stNode.source) {
             return;
         }
+        this.status = "LOADING";
         this.stNode = stNode;
         this.recordTypeDescriptors.clear();
-        const langClient = await context.langClientPromise;
-        const fileUri = Uri.file(context.currentFile.path).toString();
         const visitor = new RecordTypeFindingVisitor(isArraysSupported);
         traversNode(stNode, visitor);
 
@@ -63,10 +61,20 @@ export class RecordTypeDescriptorStore {
         const expressionNodesRanges = visitor.getExpressionNodesRanges();
         const symbolNodesPositions = visitor.getSymbolNodesPositions();
 
-        await this.setTypesForFnParamsAndReturnType(langClient, fileUri, fnDefPositions);
-        await this.setTypesForSymbol(langClient, fileUri, symbolNodesPositions);
-        await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges);
-        this.status = "LOADED";
+        const noOfTypes = visitor.getNoOfParams() + 1 + expressionNodesRanges.length + symbolNodesPositions.length;
+        const langClient = await context.langClientPromise;
+        const fileUri = Uri.file(context.currentFile.path).toString();
+
+        const promises = [
+            await this.setTypesForFnParamsAndReturnType(langClient, fileUri, fnDefPositions),
+            await this.setTypesForSymbol(langClient, fileUri, symbolNodesPositions),
+            await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges)
+        ];
+
+        await Promise.allSettled(promises);
+        if (this.recordTypeDescriptors.size === noOfTypes) {
+            this.status = "LOADED";
+        }
     }
 
     async setTypesForExpressions(langClient: IBallerinaLangClient,
@@ -127,7 +135,17 @@ export class RecordTypeDescriptorStore {
                 endLine: endPosition ? endPosition.line : startPosition.line,
                 endColumn: endPosition ? endPosition.offset : startPosition.offset,
             };
-            this.recordTypeDescriptors.set(position, type);
+
+            // Check if a matching position already exists in the map
+            const existingPosition = Array.from(this.recordTypeDescriptors.keys()).find(
+                pos => isPositionsEquals(pos, position)
+            );
+
+            if (existingPosition) {
+                this.recordTypeDescriptors.set(existingPosition, type);
+            } else {
+                this.recordTypeDescriptors.set(position, type);
+            }
         }
     }
 
@@ -141,5 +159,13 @@ export class RecordTypeDescriptorStore {
 
     public getStatus() {
         return this.status;
+    }
+
+    public getSTNode() {
+        return this.stNode;
+    }
+
+    public resetStatus() {
+        this.status = "INIT";
     }
 }
