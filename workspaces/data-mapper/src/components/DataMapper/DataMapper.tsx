@@ -392,7 +392,7 @@ function DataMapperC(props: DataMapperProps) {
     useEffect(() => {
         let inputParams: DataMapperInputParam[] = [];
         let outputType: DataMapperOutputParam = { type: undefined, isUnsupported: true, typeNature: TypeNature.DUMMY };
-        if (selection.prevST.length === 0 && recordTypeDescriptors.getStatus() === "LOADED") {
+        if (selection.prevST.length === 0 && recordTypeDescriptors.getStatus() === "LOADED" && !isConfigPanelOpen) {
             if (fnST) {
                 // When open the DM of an existing function using code lens
                 const hasNoParameter = fnST.functionSignature.parameters.length === 0;
