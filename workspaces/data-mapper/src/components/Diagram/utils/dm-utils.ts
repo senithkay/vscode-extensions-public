@@ -76,7 +76,7 @@ import {
 } from "./constants";
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
-import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
+import { TypeDescriptorStore } from "./type-descriptor-store";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -1099,7 +1099,7 @@ export function getTypeOfOutput(typeIdentifier: TypeDescriptor | IdentifierToken
 }
 
 export function getTypeFromStore(position: NodePosition): Type {
-	const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
 	return recordTypeDescriptors.getTypeDescriptor(position);
 }
 
