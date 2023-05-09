@@ -25,7 +25,7 @@ import { Uri } from "monaco-editor";
 
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
-import { FnDefPositions, RecordTypeFindingVisitor } from "../visitors/RecordTypeFindingVisitor";
+import { FnDefPositions, TypeFindingVisitor } from "../visitors/TypeFindingVisitor";
 
 export enum TypeStoreStatus {
     Init,
@@ -33,20 +33,20 @@ export enum TypeStoreStatus {
     Loaded
 }
 
-export class RecordTypeDescriptorStore {
+export class TypeDescriptorStore {
 
-    recordTypeDescriptors: Map<NodePosition, Type>;
+    typeDescriptors: Map<NodePosition, Type>;
     stNode: FunctionDefinition;
     status: TypeStoreStatus;
-    static instance : RecordTypeDescriptorStore;
+    static instance : TypeDescriptorStore;
 
     private constructor() {
-        this.recordTypeDescriptors = new Map();
+        this.typeDescriptors = new Map();
     }
 
     public static getInstance() {
         if (!this.instance){
-            this.instance = new RecordTypeDescriptorStore();
+            this.instance = new TypeDescriptorStore();
         }
         return this.instance;
     }
@@ -59,8 +59,8 @@ export class RecordTypeDescriptorStore {
         }
         this.status = TypeStoreStatus.Loading;
         this.stNode = stNode;
-        this.recordTypeDescriptors.clear();
-        const visitor = new RecordTypeFindingVisitor(isArraysSupported);
+        this.typeDescriptors.clear();
+        const visitor = new TypeFindingVisitor(isArraysSupported);
         traversNode(stNode, visitor);
 
         const fnDefPositions = visitor.getFnDefPositions();
@@ -78,7 +78,7 @@ export class RecordTypeDescriptorStore {
         ];
 
         await Promise.allSettled(promises);
-        if (this.recordTypeDescriptors.size === noOfTypes) {
+        if (this.typeDescriptors.size === noOfTypes) {
             this.status = TypeStoreStatus.Loaded;
         }
     }
@@ -143,14 +143,14 @@ export class RecordTypeDescriptorStore {
             };
 
             // Check if a matching position already exists in the map
-            const existingPosition = Array.from(this.recordTypeDescriptors.keys()).find(
+            const existingPosition = Array.from(this.typeDescriptors.keys()).find(
                 pos => isPositionsEquals(pos, position)
             );
 
             if (existingPosition) {
-                this.recordTypeDescriptors.set(existingPosition, type);
+                this.typeDescriptors.set(existingPosition, type);
             } else {
-                this.recordTypeDescriptors.set(position, type);
+                this.typeDescriptors.set(position, type);
             }
         }
     }
@@ -162,7 +162,7 @@ export class RecordTypeDescriptorStore {
     }
 
     public getTypeDescriptor(position : NodePosition) : Type {
-        for (const [key, value] of this.recordTypeDescriptors) {
+        for (const [key, value] of this.typeDescriptors) {
             if (isPositionsEquals(key, position)) {
                 return value;
             }

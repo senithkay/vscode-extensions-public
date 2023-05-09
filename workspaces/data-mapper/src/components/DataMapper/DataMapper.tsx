@@ -35,7 +35,7 @@ import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { hasIONodesPresent } from "../Diagram/utils/dm-utils";
 import { FunctionDefinitionStore } from "../Diagram/utils/fn-definition-store";
 import { handleDiagnostics } from "../Diagram/utils/ls-utils";
-import { RecordTypeDescriptorStore, TypeStoreStatus } from "../Diagram/utils/record-type-descriptor-store";
+import { TypeDescriptorStore, TypeStoreStatus } from "../Diagram/utils/type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
 import { ViewStateSetupVisitor } from "../Diagram/visitors/ViewStateSetupVisitor";
@@ -223,7 +223,8 @@ function DataMapperC(props: DataMapperProps) {
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
     const [shouldRestoreTypes, setShouldRestoreTypes] = useState(true);
 
-    const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+    const typeStore = TypeDescriptorStore.getInstance();
+    const typeStoreStatus = typeStore.getStatus();
 
     const classes = useStyles();
 
@@ -311,13 +312,13 @@ function DataMapperC(props: DataMapperProps) {
         const fnSignatureFromFnST = getFnSignatureFromST(fnST);
         const fnNameFromFnST = getFnNameFromST(fnST);
         if (!(inputs && output) || (fnST && fnSignatureFromFnST !== fnSignature && fnNameFromFnST !== fnName)) {
-            const fnSTFromTypeStore = recordTypeDescriptors.getSTNode();
+            const fnSTFromTypeStore = typeStore.getSTNode();
             const hasFnSwitched = fnST && fnSTFromTypeStore && (
                 fnNameFromFnST !== getFnNameFromST(fnSTFromTypeStore)
                 || fnSignatureFromFnST !== getFnSignatureFromST(fnSTFromTypeStore)
             );
             if (hasFnSwitched || (!(inputs && output) && (!fnSTFromTypeStore || openedViaPlus))) {
-                recordTypeDescriptors.resetStatus();
+                typeStore.resetStatus();
                 setInputs(undefined);
                 setOutput(undefined);
             }
@@ -355,7 +356,7 @@ function DataMapperC(props: DataMapperProps) {
                 );
 
                 if (shouldRestoreTypes) {
-                    await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
+                    await typeStore.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
                     const functionDefinitions = FunctionDefinitionStore.getInstance();
                     await functionDefinitions.storeFunctionDefinitions(fnST, context);
                     setShouldRestoreTypes(false);
@@ -371,13 +372,13 @@ function DataMapperC(props: DataMapperProps) {
             const nodeInitVisitor = new NodeInitVisitor(dmContext, selection)
             traversNode(selection.selectedST.stNode, nodeInitVisitor);
             const nodes = nodeInitVisitor.getNodes();
-            if (hasIONodesPresent(nodes) && recordTypeDescriptors.getStatus() === TypeStoreStatus.Loaded) {
+            if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
                 setDmNodes(nodes);
             }
         } else {
             setDmNodes([]);
         }
-    }, [selection?.selectedST?.stNode, dmContext, inputSearch, outputSearch, recordTypeDescriptors.getStatus()]);
+    }, [selection?.selectedST?.stNode, dmContext, inputSearch, outputSearch, typeStoreStatus]);
 
     const dMSupported = isDMSupported(ballerinaVersion);
     const dmUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
@@ -388,7 +389,7 @@ function DataMapperC(props: DataMapperProps) {
         let inputParams: DataMapperInputParam[] = [];
         let outputType: DataMapperOutputParam = { type: undefined, isUnsupported: true, typeNature: TypeNature.DUMMY };
         if (selection.prevST.length === 0
-            && recordTypeDescriptors.getStatus() === TypeStoreStatus.Loaded
+            && typeStoreStatus === TypeStoreStatus.Loaded
             && !isConfigPanelOpen && !showConfigPanel) {
             if (fnST) {
                 // When open the DM of an existing function using code lens
@@ -407,12 +408,12 @@ function DataMapperC(props: DataMapperProps) {
                     setOutput(outputType);
                 }
             }
-        } else if (recordTypeDescriptors.getStatus() === TypeStoreStatus.Init && openedViaPlus) {
+        } else if (typeStoreStatus === TypeStoreStatus.Init && openedViaPlus) {
             // When creating a new DM using plus menu
             setInputs(inputParams);
             setOutput(outputType);
         }
-    }, [fnSignature, recordTypeDescriptors.getStatus()]);
+    }, [fnSignature, typeStoreStatus]);
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {

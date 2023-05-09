@@ -35,7 +35,7 @@ export interface FnDefPositions {
     returnTypeDescPosition: LinePosition;
 }
 
-export class RecordTypeFindingVisitor implements Visitor {
+export class TypeFindingVisitor implements Visitor {
     private readonly expressionNodeRanges: ExpressionRange[];
     private readonly symbolNodesPositions: LinePosition[];
     private fnDefPositions: FnDefPositions;
