@@ -42,9 +42,9 @@ interface ControlsProps {
 
 export function AddButton(props: ControlsProps) {
     const { setShowEditForm } = props;
-    const { currentView, isChoreoProject, editLayerAPI, addComponent } = useContext(DiagramContext);
+    const { currentView, isChoreoProject, editLayerAPI, isMultiRootWs, setIsMultiRootWs, addComponent } = useContext(DiagramContext);
 
-    const onComponentAdd = () => {
+    const onComponentAdd = async () => {
         if (isChoreoProject && editLayerAPI) {
             editLayerAPI.executeCommand('wso2.choreo.component.create').catch((error: Error) => {
                 editLayerAPI.showErrorMessage(error.message);
@@ -52,7 +52,18 @@ export function AddButton(props: ControlsProps) {
         } else if (addComponent) {
             addComponent();
         } else {
-            setShowEditForm(true);
+            let multiRootWs: boolean = isMultiRootWs;
+            if (isMultiRootWs === undefined) {
+                await editLayerAPI.checkIsMultiRootWs().then((response: boolean) => {
+                    multiRootWs = response;
+                    setIsMultiRootWs(response);
+                });
+            }
+            if (multiRootWs) {
+                setShowEditForm(true);
+            } else {
+                editLayerAPI.promptWorkspaceConversion();
+            }
         }
     }
 

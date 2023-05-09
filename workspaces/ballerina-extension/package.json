@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "4.0.0",
+    "version": "4.1.0",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -126,7 +126,7 @@
                 },
                 "ballerina.enableConfigurableEditor": {
                     "type": "boolean",
-                    "default": true,
+                    "default": false,
                     "description": "Enable the configurable editor in code view."
                 },
                 "ballerina.experimental": {

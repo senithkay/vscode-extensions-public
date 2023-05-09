@@ -17,7 +17,7 @@
  *
  */
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { alpha, createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -112,6 +112,14 @@ export const useStyles = makeStyles((theme: Theme) =>
         labelTag: {
             display: "flex",
         },
+        linkStyle: {
+            fontSize: theme.spacing(1.8),
+            paddingBottom: theme.spacing(1.5),
+            paddingTop: theme.spacing(1.5),
+        },
+        linkTextSytle: {
+            paddingLeft: theme.spacing(0.5),
+        },
         mainLabel: {
             alignItems: "center",
             display: "flex",
@@ -146,11 +154,29 @@ export const useStyles = makeStyles((theme: Theme) =>
             "borderTop": 0,
             "padding": theme.spacing(0.8, 1),
         },
+        notificationContent: {
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: theme.spacing(1.5, 0),
+            textAlign: "left",
+        },
+        notificationInner: {
+            display: "flex",
+            gap: theme.spacing(1.5),
+        },
         popOver: {
             minWidth: theme.spacing(40),
             overflow: "auto",
             padding: theme.spacing(2),
             position: "relative",
+        },
+        primaryContained: {
+            alignItems: "flex-start",
+            backgroundColor: alpha(theme.palette.primary.main, 0.05),
+            borderLeftColor: theme.palette.primary.main,
+            boxShadow: `inset 2px 0px 0px ${theme.palette.primary.main}`,
+            padding: theme.spacing(0, 0, 0, 1.5),
         },
         textInputRoot: {
             "& .MuiInputBase-root": {

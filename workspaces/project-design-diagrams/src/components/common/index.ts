@@ -24,3 +24,5 @@ export { CtrlClickGo2Source } from './CtrlClickHandler/CtrlClickGo2Source';
 export { DesignDiagramContext, DiagramContext } from './DiagramContext/DiagramContext';
 
 export { NodeMenuWidget } from './NodeMenu/NodeMenuTooltip';
+
+export { OverlayLayerFactory } from './OverlayLoader';

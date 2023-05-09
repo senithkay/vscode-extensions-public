@@ -37,6 +37,6 @@ export class ServiceNodeFactory extends AbstractReactFactory<ServiceNodeModel, D
 	}
 
 	generateModel(event: { initialConfig: any }) {
-		return new ServiceNodeModel(event.initialConfig.model, event.initialConfig.level);
+		return new ServiceNodeModel(event.initialConfig.model, event.initialConfig.level, event.initialConfig.version);
 	}
 }

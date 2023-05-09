@@ -17,7 +17,7 @@ import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandRequest,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    CloseWebViewNotification, serializeError,
+    CloseWebViewNotification,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
     ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
@@ -27,14 +27,11 @@ import {
     isSubpathAvailable,
     SubpathAvailableRequest,
     getDiagramComponentModel,
-    ComponentModel,
     DeleteComponent,
     PullComponent,
     PushLocalComponentToChoreo,
     showOpenDialogRequest,
     OpenDialogOptions,
-    GetComponentModelResponse,
-    ComponentModelDiagnostics,
     GetDeletedComponents,
     GetEnrichedComponents,
     getPreferredProjectRepository,
@@ -47,6 +44,7 @@ import {
     IsBareRepoRequestParams,
     HasChoreoSubscription
 } from "@wso2-enterprise/choreo-core";
+import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';
@@ -252,7 +250,7 @@ export class WebViewRpc {
                             componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
                         } else {
                             componentModels[`${value.orgHandler}/${value.name}:${value.version}`] = mergeNonClonedProjectData(value);
-                            diagnostics.push({name: `${value.displayName} Component`});
+                            diagnostics.push({ name: `${value.displayName} Component` });
                         }
                     });
                 }).catch((error: any) => {

@@ -20,11 +20,11 @@
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { v4 as uuid, validate as validateUUID } from 'uuid';
 import {
-    ComponentModel, Dependency, Interaction, Level, Location, RemoteFunction, ResourceFunction, Service, ServiceModels, ServiceTypes
-} from '../../resources';
-import {
-    EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel
-} from '../../components/service-interaction';
+    ComponentModel, CMDependency as Dependency, CMLocation as Location, CMInteraction as Interaction,
+    CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service
+} from '@wso2-enterprise/ballerina-languageclient';
+import { Level, ServiceModels, ServiceTypes } from '../../resources';
+import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
 import { extractGateways } from "../utils";
 
 type ServiceNodeModels = ServiceNodeModel | EntryNodeModel;
@@ -48,6 +48,7 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l1Nodes = new Map<string, ServiceNodeModel>();
     l2Nodes = new Map<string, ServiceNodeModel>();
     cellNodes = new Map<string, ServiceNodeModel>();
+
     l1EntryNodes = new Map<string, EntryNodeModel>();
     l2EntryNodes = new Map<string, EntryNodeModel>();
     cellEntryNodes = new Map<string, EntryNodeModel>();
@@ -55,16 +56,17 @@ export function serviceModeller(projectComponents: Map<string, ComponentModel>, 
     l1ExtNodes = new Map<string, ExtServiceNodeModel>();
     l2ExtNodes = new Map<string, ExtServiceNodeModel>();
     cellExtNodes = new Map<string, ExtServiceNodeModel>();
+
     l1Links = new Map<string, ServiceLinkModel>();
     cellLinks = new Map<string, ServiceLinkModel>();
     l2Links = []
 
-    // convert services to nodes
+    // convert service and main entrypoints to nodes
     generateNodes(projectComponents, projectPackages);
     // convert interactions to links and detect external services
     generateLinks(projectComponents, projectPackages);
 
-    // setup L1 model
+    // set L1 model
     let l1Model = new DiagramModel();
     l1Model.addAll(
         ...Array.from(l1Nodes.values()),
@@ -109,26 +111,27 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
                 }
 
                 // create the L1 service nodes
-                const l1Node = new ServiceNodeModel(service, Level.ONE);
+                const l1Node = new ServiceNodeModel(service, Level.ONE, packageModel.version);
                 l1Nodes.set(service.serviceId, l1Node);
 
                 // create the cell diagram nodes
-                const cellNode = new ServiceNodeModel(service, Level.ONE, extractGateways(service));
+                const cellNode = new ServiceNodeModel(service, Level.ONE, packageModel.version, extractGateways(service));
                 cellNodes.set(service.serviceId, cellNode);
 
                 // create the L2 service nodes
-                const l2Node = new ServiceNodeModel(service, Level.TWO);
+                const l2Node = new ServiceNodeModel(service, Level.TWO, packageModel.version);
                 l2Nodes.set(service.serviceId, l2Node);
             });
 
             if (packageModel.functionEntryPoint) {
-                const l1EntryNode = new EntryNodeModel(packageName, packageModel.functionEntryPoint, Level.ONE);
+                const { functionEntryPoint, version } = packageModel;
+                const l1EntryNode = new EntryNodeModel(packageName, functionEntryPoint, Level.ONE, version);
                 l1EntryNodes.set(packageName, l1EntryNode);
 
-                const cellEntryNode = new EntryNodeModel(packageName, packageModel.functionEntryPoint, Level.ONE);
+                const cellEntryNode = new EntryNodeModel(packageName, functionEntryPoint, Level.ONE, version);
                 cellEntryNodes.set(packageName, cellEntryNode);
 
-                const l2EntryNode = new EntryNodeModel(packageName, packageModel.functionEntryPoint, Level.TWO);
+                const l2EntryNode = new EntryNodeModel(packageName, functionEntryPoint, Level.TWO, version);
                 l2EntryNodes.set(packageName, l2EntryNode);
             }
         }
@@ -153,19 +156,21 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
                     }
                 }
             });
+
             if (projectComponents.get(packageName).functionEntryPoint) {
                 const l1EntryNode: EntryNodeModel = l1EntryNodes.get(packageName);
                 const l2EntryNode: EntryNodeModel = l2EntryNodes.get(packageName);
                 const cellEntryNode: EntryNodeModel = cellEntryNodes.get(packageName);
-                const { interactions } = projectComponents.get(packageName).functionEntryPoint;
+                const { interactions, dependencies } = projectComponents.get(packageName).functionEntryPoint;
                 mapEntryPointInteractions(l1EntryNode, l2EntryNode, cellEntryNode, interactions);
+                mapDependencies(l1EntryNode, l2EntryNode, cellEntryNode, dependencies);
             }
         }
     });
 }
 
-function mapDependencies(l1Source: ServiceNodeModel, l2Source: ServiceNodeModel, cellSourceNode: ServiceNodeModel, dependencies: Dependency[]) {
-    dependencies.forEach((dependency) => {
+function mapDependencies(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels, cellSourceNode: ServiceNodeModels, dependencies: Dependency[]) {
+    dependencies?.forEach((dependency) => {
         if (dependency.serviceId && l1Nodes.has(dependency.serviceId) && l2Nodes.has(dependency.serviceId) && cellNodes.has(dependency.serviceId)) {
             let linkID: string = `${l1Source.getID()}-${dependency.serviceId}`;
             if (!l1Links.has(linkID)) {
@@ -257,7 +262,7 @@ export function createLinks(sourcePort: ServicePortModel, targetPort: ServicePor
     return link;
 }
 
-function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel, location: Location, interaction?: Interaction,
+function setLinkPorts(sourceNode: ServiceNodeModels, targetNode: ServiceNodeModel, location: Location, interaction?: Interaction,
     sourceFunction?: RemoteFunction | ResourceFunction): ServiceLinkModel {
     let sourcePort: ServicePortModel = undefined;
     let targetPort: ServicePortModel = undefined;
@@ -269,20 +274,20 @@ function setLinkPorts(sourceNode: ServiceNodeModel, targetNode: ServiceNodeModel
         sourcePort = sourceNode.getPortFromID(sourcePortID);
 
         // since HTTP and GraphQL can both have either resource or remote functions
-        if (targetNode.serviceType !== ServiceTypes.GRPC && targetNode.serviceObject.resources.length > 0) {
+        if (targetNode.serviceType !== ServiceTypes.GRPC && targetNode.nodeObject.resources.length > 0) {
             targetPort = targetNode.getPortFromID(`left-${interaction.resourceId.action}/${interaction.resourceId.path}`);
         }
-        if (!targetPort && targetNode.serviceObject.remoteFunctions.length > 0) {
+        if (!targetPort && targetNode.nodeObject.remoteFunctions.length > 0) {
             targetPort = targetNode.getPortFromID(`left-${interaction.resourceId.action}`);
         }
     }
 
     // Also redirects L2 links to service heads, if the interacting resources cannot be detected
     if (!sourcePort) {
-        sourcePort = sourceNode.getPortFromID(`right-${sourceNode.serviceObject.serviceId}`);
+        sourcePort = sourceNode.getPortFromID(`right-${sourceNode.getID()}`);
     }
     if (!targetPort) {
-        targetPort = targetNode.getPortFromID(`left-${targetNode.serviceObject.serviceId}`);
+        targetPort = targetNode.getPortFromID(`left-${targetNode.getID()}`);
     }
 
     if (sourcePort && targetPort) {
@@ -363,7 +368,7 @@ function mapExtLinks(source: ServiceNodeModels, target: ExtServiceNodeModel, loc
 }
 
 function mapEntryPointInteractions(l1Source: EntryNodeModel, l2Source: EntryNodeModel, cellSource: EntryNodeModel, interactions: Interaction[]) {
-    interactions.forEach((interaction) => {
+    interactions?.forEach((interaction) => {
         if (l1Nodes.has(interaction.resourceId.serviceId) && l2Nodes.has(interaction.resourceId.serviceId)) {
             const linkID: string = `${l1Source.getID()}-${interaction.resourceId.serviceId}`;
             if (!l1Links.has(linkID) && !cellLinks.has(linkID)) {
@@ -389,17 +394,17 @@ function generateEntryPointLinks(source: EntryNodeModel, target: ServiceNodeMode
     let targetPort: ServicePortModel;
     if (level === Level.TWO && interaction) {
         // since HTTP and GraphQL can both have either resource or remote functions
-        if (target.serviceType !== ServiceTypes.GRPC && target.serviceObject.resources.length > 0) {
+        if (target.serviceType !== ServiceTypes.GRPC && target.nodeObject.resources.length > 0) {
             targetPort = target.getPortFromID(`left-${interaction.resourceId.action}/${interaction.resourceId.path}`);
         }
-        if (!targetPort && target.serviceObject.remoteFunctions.length > 0) {
+        if (!targetPort && target.nodeObject.remoteFunctions.length > 0) {
             targetPort = target.getPortFromID(`left-${interaction.resourceId.action}`);
         }
     }
 
     const sourcePort: ServicePortModel = source.getPortFromID(`right-${source.getID()}`);
     if (!targetPort) {
-        targetPort = target.getPortFromID(`left-${target.serviceObject.serviceId}`);
+        targetPort = target.getPortFromID(`left-${target.getID()}`);
     }
 
     if (sourcePort && targetPort) {
@@ -415,9 +420,9 @@ function isResource(functionObject: ResourceFunction | RemoteFunction): function
 function generateLabels(packageName: string, serviceId: string): string {
     if (untrackedPkgComponents.length === 1 && l1Nodes.has(untrackedPkgComponents[0]) &&
         l2Nodes.has(untrackedPkgComponents[0]) && cellNodes.has(untrackedPkgComponents[0])) {
-        l1Nodes.get(untrackedPkgComponents[0]).serviceObject.annotation.label = `${packageName} Component1`;
-        l2Nodes.get(untrackedPkgComponents[0]).serviceObject.annotation.label = `${packageName} Component1`;
-        cellNodes.get(untrackedPkgComponents[0]).serviceObject.annotation.label = `${packageName} Component1`;
+        [l1Nodes, l2Nodes, cellNodes].forEach((nodes) => {
+            nodes.get(untrackedPkgComponents[0]).nodeObject.annotation.label = `${packageName} Component1`;
+        });
     }
     const label: string = `${packageName} Component${untrackedPkgComponents.length > 0 ? untrackedPkgComponents.length + 1 : ''}`;
     untrackedPkgComponents.push(serviceId);

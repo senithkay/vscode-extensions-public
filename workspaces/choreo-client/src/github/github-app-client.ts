@@ -13,7 +13,7 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import { IReadOnlyTokenStorage } from "../auth";
 import { GHAppAuthStatus, GHAppConfig, GithubOrgnization, IChoreoGithubAppClient } from "./types";
-import { EventEmitter, env, Uri } from 'vscode';
+import { EventEmitter, env, Uri, window } from 'vscode';
 
 const extensionId = 'wso2.choreo';
 
@@ -77,11 +77,16 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
     }
 
     async triggerInstallFlow(): Promise<boolean> {
-        this._onGHAppAuthCallback.fire({ status: 'install-inprogress'});
         const { installUrl }  = this._appConfig;
         const state = await this._getAuthState()
         const ghURL = Uri.parse(`${installUrl}?state=${state}`);
-        return env.openExternal(ghURL);
+        const success = await env.openExternal(ghURL);
+        window.showInformationMessage(`Please check your browser for Choreo Github App installation page.`, "Copy URL").then((selection) => {
+            if (selection === "Copy URL") {
+                env.clipboard.writeText(ghURL.toString());
+            }
+        });
+        return success;
     }
 
     async obatainAccessToken(authCode: string): Promise<void> {

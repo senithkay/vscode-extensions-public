@@ -18,10 +18,11 @@
  */
 
 import React from 'react';
+import { CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
-import { GraphQLQueryIcon, GraphQLSubscriptionIcon, GRAPHQL_SUBSCRIBE_ACTION, ResourceFunction, ServiceTypes } from '../../../../resources';
+import { GraphQLQueryIcon, GraphQLSubscriptionIcon, GRAPHQL_SUBSCRIBE_ACTION, ServiceTypes } from '../../../../resources';
 import { ActionColors, ResourceAction, ResourceName } from '../styles/styles';
 
 interface ResourceFunctionProps {

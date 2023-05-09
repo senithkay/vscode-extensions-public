@@ -2,7 +2,7 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -224,6 +224,7 @@
     "@vscode-logging/wrapper": "^1.0.2",
     "@vscode/iconv-lite-umd": "^0.7.0",
     "@vscode/webview-ui-toolkit": "^1.2.0",
+    "@wso2-enterprise/ballerina-languageclient": "workspace:*",
     "@wso2-enterprise/choreo-client": "workspace:*",
     "@wso2-enterprise/choreo-core": "workspace:*",
     "@wso2-enterprise/choreo-vscode-webviews": "workspace:*",

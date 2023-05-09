@@ -12,9 +12,10 @@
  */
 
 import React, { useContext, useEffect, useState } from "react";
-import { Colors, Service } from "../../../resources";
+import { CMEntryPoint as EntryPoint, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import PullingModuleLoader from "./PullingModuleLoader";
+import { Colors } from "../../../resources";
 import ModuleIcon from "../Marketplace/ModuleIcon";
 import { CreateButton } from "../../../editing/EditForm/components";
 import {
@@ -36,12 +37,12 @@ import { DiagramContext } from "../../common";
 
 interface ConnectorFormProps {
     connector: Connector;
-    service: Service;
+    source: EntryPoint | Service;
     onSave: () => void;
 }
 
 function ConnectorForm(props: ConnectorFormProps) {
-    const { connector, service, onSave } = props;
+    const { connector, source, onSave } = props;
     const { editLayerAPI } = useContext(DiagramContext);
 
     const [pulling, setPulling] = useState(true);
@@ -53,7 +54,7 @@ function ConnectorForm(props: ConnectorFormProps) {
     const moduleName = (connector.displayAnnotation?.label || `${connector.package?.name} / ${connector.name}`).replace(/["']/g, "");
 
     useEffect(() => {
-        editLayerAPI?.pullConnector(connector, service)
+        editLayerAPI?.pullConnector(connector, source)
             .then((pulled) => {
                 console.log('pullConnector', pulled)
                 if (!pulled) {
@@ -67,7 +68,7 @@ function ConnectorForm(props: ConnectorFormProps) {
 
     const handleConnectorSave = () => {
         setShowLoader(true);
-        editLayerAPI?.addConnector(connector, service)
+        editLayerAPI?.addConnector(connector, source)
             .then((res) => {
                 console.log('addConnector', res)
                 if (!res) {

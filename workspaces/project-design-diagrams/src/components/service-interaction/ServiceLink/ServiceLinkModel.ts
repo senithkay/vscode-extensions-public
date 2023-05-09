@@ -17,8 +17,9 @@
  *
  */
 
+import { CMLocation as Location } from '@wso2-enterprise/ballerina-languageclient';
 import { SharedLinkModel } from '../../common/shared-link/shared-link';
-import { Level, Location } from '../../../resources';
+import { Level } from '../../../resources';
 
 export class ServiceLinkModel extends SharedLinkModel {
 	readonly level: Level;

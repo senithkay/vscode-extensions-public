@@ -20,9 +20,14 @@
 import { Messenger } from 'vscode-messenger-webview';
 import { HOST_EXTENSION } from 'vscode-messenger-common';
 import { WebviewApi } from 'vscode-webview';
+import {
+    CMAnnotation as Annotation, CMEntryPoint as EntryPoint, CMLocation as Location, CMService as Service
+} from '@wso2-enterprise/ballerina-languageclient';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
-import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { Location, Service, EditLayerAPI, ServiceAnnotation } from '../../resources';
+import {
+    BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector
+} from '@wso2-enterprise/ballerina-low-code-edtior-commons';
+import { EditLayerAPI } from '../../resources';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 
 export class WebviewEditLayerAPI implements EditLayerAPI {
@@ -58,20 +63,20 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
         return this._messenger.sendRequest({ method: 'getConnectors' }, HOST_EXTENSION, [params]);
     }
 
-    public async pullConnector(connector: Connector, targetService: Service): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'pullConnector' }, HOST_EXTENSION, [connector, targetService]);
+    public async pullConnector(connector: Connector, source: Service | EntryPoint): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'pullConnector' }, HOST_EXTENSION, { connector, source });
     }
 
-    public async addConnector(connector: Connector, targetService: Service): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'addConnector' }, HOST_EXTENSION, [connector, targetService]);
+    public async addConnector(connector: Connector, source: EntryPoint | Service): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'addConnector' }, HOST_EXTENSION, { connector, source });
     }
 
-    public async addLink(source: Service, target: Service): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'addLink' }, HOST_EXTENSION, [source, target]);
+    public async addLink(source: Service | EntryPoint, target: Service): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'addLink' }, HOST_EXTENSION, { source, target });
     }
 
-    public async deleteLink(linkLocation: Location, serviceLocation: Location): Promise<boolean> {
-        return this._messenger.sendRequest({ method: 'deleteLink' }, HOST_EXTENSION, { linkLocation, serviceLocation });
+    public async deleteLink(linkLocation: Location, nodeLocation: Location): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'deleteLink' }, HOST_EXTENSION, { linkLocation, nodeLocation });
     }
 
     public async pickDirectory(): Promise<string | undefined> {
@@ -90,7 +95,7 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
         return this._messenger.sendRequest({ method: 'executeCommand' }, HOST_EXTENSION, cmd);
     }
 
-    public async editDisplayLabel(annotation: ServiceAnnotation): Promise<boolean> {
+    public async editDisplayLabel(annotation: Annotation): Promise<boolean> {
         return this._messenger.sendRequest({ method: 'editDisplayLabel' }, HOST_EXTENSION, annotation);
     }
 
@@ -108,5 +113,13 @@ export class WebviewEditLayerAPI implements EditLayerAPI {
 
     public goToDesign(filePath: string, position: NodePosition): void {
         return this._messenger.sendNotification({ method: 'goToDesign' }, HOST_EXTENSION, { filePath, position })
+    }
+
+    public checkIsMultiRootWs(): Promise<boolean> {
+        return this._messenger.sendRequest({ method: 'checkIsMultiRootWs' }, HOST_EXTENSION, '');
+    }
+
+    public promptWorkspaceConversion(): void {
+        return this._messenger.sendNotification({ method: 'promptWorkspaceConversion' }, HOST_EXTENSION, '');
     }
 }

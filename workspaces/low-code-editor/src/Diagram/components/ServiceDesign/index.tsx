@@ -13,7 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
-import { Grid, Typography } from "@material-ui/core";
+import { Grid, Tooltip, Typography } from "@material-ui/core";
 import UnfoldLessIcon from '@material-ui/icons/UnfoldLess';
 import UnfoldMoreIcon from '@material-ui/icons/UnfoldMore';
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
@@ -155,12 +155,12 @@ export function ServiceDesign(props: ServiceDesignProps) {
             className={classes.gridContainer}
         >
             <Grid item={true}>
-                <Typography variant="h3"  component="div">
+                <Typography variant="h3" component="div">
                     Service list is empty
                 </Typography>
             </Grid>
             <Grid item={true}>
-                <Typography variant="subtitle1"  component="div">
+                <Typography variant="subtitle1" component="div">
                     Add a new resource
                 </Typography>
             </Grid>
@@ -172,7 +172,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
             {serviceST && (
                 <>
                     <div className={classes.serviceTitle}>
-                        <div  className={classes.flexRow}>
+                        <div className={classes.flexRow}>
                             <Typography variant="h4">
                                 Service {servicePath}
                             </Typography>
@@ -180,14 +180,16 @@ export function ServiceDesign(props: ServiceDesignProps) {
                                 {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ""}
                             </Typography>
                         </div>
-                        <div  className={classes.flexRow}>
+                        <div className={classes.flexRow}>
                             <div className={classes.resourceAdd} onClick={handlePlusClick} >
                                 <AddIcon />
                                 <div>Resource</div>
                             </div>
-                            <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
-                                <SettingsIcon onClick={handleServiceConfigureFormClick}/>
-                            </div>
+                            <Tooltip title="Service Config" placement="top" enterDelay={1000} enterNextDelay={1000}>
+                                <div className={classes.serviceConfigure} onClick={handleServiceConfigureFormClick} >
+                                    <SettingsIcon onClick={handleServiceConfigureFormClick} />
+                                </div>
+                            </Tooltip>
                         </div>
                     </div>
                     {children.length > 0 && (

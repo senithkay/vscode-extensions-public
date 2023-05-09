@@ -19,11 +19,11 @@
 
 import React, { useContext, useState } from "react";
 import ReactDOM from "react-dom";
+import { CMEntryPoint as EntryPoint, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
-import { Service } from "../../../resources";
 import { Header, Container, TitleText } from "../../../editing/EditForm/resources/styles";
 import {
     BallerinaConstruct,
@@ -35,12 +35,12 @@ import { DiagramContext } from "../../common";
 import ConnectorForm from "../ConnectorForm";
 
 interface ConnectorWizardProps {
-    service: Service;
+    source: EntryPoint | Service;
     onClose: () => void;
 }
 
 export function ConnectorWizard(props: ConnectorWizardProps) {
-    const { service, onClose } = props;
+    const { source, onClose } = props;
     const { editLayerAPI } = useContext(DiagramContext);
 
     // const [showLoader, setShowLoader] = useState(false);
@@ -114,7 +114,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
                     />
                 )}
 
-                {selectedCon && <ConnectorForm connector={selectedCon} onSave={handleConnectorSave} service={service}/>}
+                {selectedCon && <ConnectorForm connector={selectedCon} onSave={handleConnectorSave} source={source} />}
             </Container>
         </Drawer>,
         document.body

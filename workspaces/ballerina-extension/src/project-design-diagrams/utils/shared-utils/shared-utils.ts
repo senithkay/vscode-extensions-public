@@ -17,20 +17,22 @@
  *
  */
 
-import { commands, Position, Range, Selection, TextEditorRevealType, window, workspace } from "vscode";
-import { existsSync } from "fs";
+import { commands, Position, Range, Selection, TextEditorRevealType, Uri, window, workspace, WorkspaceEdit } from "vscode";
+import { existsSync, writeFileSync } from "fs";
 import { join } from "path";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ExtendedLangClient, GetPackageComponentModelsResponse } from "../../core";
-import { terminateActivation } from "../activator";
-import { ComponentModel, ERROR_MESSAGE, Location } from "../resources";
-import { getChoreoExtAPI } from "../../choreo-features/activate";
-import { deleteBallerinaPackage, deleteService } from "./component-handler-utils";
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { ExtendedLangClient } from "../../../core";
+import { STResponse, terminateActivation } from "../../activator";
+import { ERROR_MESSAGE } from "../../resources";
+import { getChoreoExtAPI } from "../../../choreo-features/activate";
+import { deleteBallerinaPackage, deleteComponentOnly } from "../component-utils";
 
 const ballerinaToml = "Ballerina.toml";
 
-export function getComponentModel(langClient: ExtendedLangClient, isChoreoProject: boolean): Promise<GetPackageComponentModelsResponse> {
+export function getComponentModel(langClient: ExtendedLangClient, isChoreoProject: boolean): Promise<GetComponentModelResponse> {
     return new Promise((resolve, reject) => {
         let ballerinaFiles: string[] = [];
         let workspaceFolders = workspace.workspaceFolders;
@@ -55,7 +57,7 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
                 for (let [_key, packageModel] of packageModels) {
                     if (packageModel.hasCompilationErrors) {
                         response.diagnostics.push({
-                            message: `Compilation errors found in ${packageModel.packageId.name}`,
+                            name: packageModel.packageId.name
                         });
                         break;
                     }
@@ -108,7 +110,7 @@ export async function deleteProjectComponent(projectId: string, location: Locati
             deleteBallerinaPackage(location.filePath);
         }
     } else {
-        await deleteService(location);
+        await deleteComponentOnly(location);
     }
 }
 
@@ -124,4 +126,82 @@ export function go2source(location: Location) {
             });
         });
     }
+}
+
+export async function updateSyntaxTree(
+    langClient: ExtendedLangClient,
+    filePath: string,
+    stObject: any,
+    generatedCode: string,
+    imports?: Set<string>,
+    isReplace: boolean = false
+): Promise<STResponse | {}> {
+    const modifications: STModification[] = [];
+
+    if (imports && imports?.size > 0) {
+        imports.forEach(function (stmt) {
+            modifications.push({
+                startLine: 0,
+                startColumn: 0,
+                endLine: 0,
+                endColumn: 0,
+                type: "INSERT",
+                config: {
+                    STATEMENT: `import ${stmt};\n`,
+                },
+                isImport: true,
+            });
+        });
+    }
+
+    modifications.push({
+        startLine: isReplace ? stObject.position.startLine : stObject.position.endLine,
+        startColumn: isReplace ? stObject.position.startColumn : stObject.position.endColumn,
+        endLine: stObject.position.endLine,
+        endColumn: stObject.position.endColumn,
+        type: "INSERT",
+        config: {
+            STATEMENT: generatedCode,
+        }
+    });
+
+    return langClient.stModify({
+        astModifications: modifications,
+        documentIdentifier: {
+            uri: Uri.file(filePath).toString(),
+        }
+    });
+}
+
+export async function updateSourceFile(langClient: ExtendedLangClient, filePath: string, fileContent: string): Promise<boolean> {
+    const doc = workspace.textDocuments.find((doc) => doc.fileName === filePath);
+    if (doc) {
+        const edit = new WorkspaceEdit();
+        edit.replace(Uri.file(filePath), new Range(new Position(0, 0), doc.lineAt(doc.lineCount - 1).range.end), fileContent);
+        await workspace.applyEdit(edit);
+        langClient.updateStatusBar();
+        return doc.save();
+    } else {
+        langClient.didChange({
+            contentChanges: [
+                {
+                    text: fileContent
+                }
+            ],
+            textDocument: {
+                uri: Uri.file(filePath).toString(),
+                version: 1
+            }
+        });
+        writeFileSync(filePath, fileContent);
+        langClient.updateStatusBar();
+    }
+    return false;
+}
+
+export function getInitFunction(serviceDeclaration: any): any {
+    const serviceNodeMembers: any[] = serviceDeclaration.members;
+    return serviceNodeMembers.find((member) =>
+        (member.kind === "ObjectMethodDefinition" && member.functionName.value === "init")
+    );
 }

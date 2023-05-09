@@ -11,7 +11,8 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project, Component, GetComponentModelResponse, PushedComponent, ComponentCount } from './types';
+import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
+import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;

@@ -145,6 +145,7 @@ export const PlusOptionsSelector = (props: PlusOptionsProps) => {
                     // }}
                     ballerinaVersion={ballerinaVersion}
                     onCancel={handleOnClose}
+                    openedViaPlus={true}
                 />
             )}
         </>

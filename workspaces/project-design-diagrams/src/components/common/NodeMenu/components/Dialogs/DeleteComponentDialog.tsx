@@ -18,6 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
+import { CMLocation as Location } from '@wso2-enterprise/ballerina-languageclient';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -28,10 +29,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { DiagramContext } from '../../../DiagramContext/DiagramContext';
-import { Location } from '../../../../../resources';
 import { ContentTextProps, DefaultTextProps, TitleTextProps } from '../styles/styles';
 
 interface DeleteDialogProps {
+    isService: boolean;
     location: Location;
     showDialog: boolean;
     updateShowDialog: (status: boolean) => void;
@@ -41,7 +42,7 @@ const DELETE_COMPONENT_VALUE = 'deleteComp';
 const DELETE_PKG_VALUE = 'deletePkg';
 
 export function DeleteComponentDialog(props: DeleteDialogProps) {
-    const { location, showDialog, updateShowDialog } = props;
+    const { isService, location, showDialog, updateShowDialog } = props;
     const { deleteComponent, refreshDiagram } = useContext(DiagramContext);
 
     const [deletePkg, setDeletePkg] = useState<boolean>(true);
@@ -86,7 +87,7 @@ export function DeleteComponentDialog(props: DeleteDialogProps) {
                     <FormControlLabel
                         value={DELETE_COMPONENT_VALUE}
                         control={<Radio />}
-                        label={<span style={DefaultTextProps}>Delete only the service</span>}
+                        label={<span style={DefaultTextProps}>Delete only the {isService ? 'service' : 'main entrypoint'}</span>}
                     />
                 </RadioGroup>
             </DialogContent>

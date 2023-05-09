@@ -12,12 +12,12 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { GraphqlDesignDiagram } from "@wso2-enterprise/ballerina-graphql-design-diagram";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
-    ConfigOverlayFormStatus, STModification,
+    ConfigOverlayFormStatus, DiagramEditorLangClientInterface, STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     NodePosition, STKindChecker,
@@ -25,6 +25,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context, useDiagramContext } from "../../../Contexts/Diagram";
+import { getSyntaxTree } from "../../../DiagramGenerator/generatorUtil";
 import { useHistoryContext } from "../../../DiagramViewManager/context/history";
 import { ComponentViewInfo } from "../../../OverviewDiagram/util";
 import { removeStatement } from "../../utils";
@@ -64,16 +65,17 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
 
     const isVisualizerSupported = isGraphqlVisualizerSupported(ballerinaVersion);
 
-    const renderFunctionForm = (position: NodePosition, functionType: string, functionModel?: STNode) => {
+    const renderFunctionForm = (position: NodePosition, functionType: string, functionModel?: STNode, filePath?: string, completeST?: STNode) => {
         if (STKindChecker.isServiceDeclaration(model) || STKindChecker.isClassDefinition(model)) {
             setFormConfig({
                 model: functionModel,
                 configOverlayFormStatus: { formType: "GraphqlConfigForm", formName: functionType, isLoading: false },
                 targetPosition: position,
+                filePath: (filePath !== currentFile.path) ? filePath : undefined,
+                currentST: (filePath !== currentFile.path) ? completeST : undefined,
                 onCancel: () => {
                     setEnableFormGenerator(false);
                 },
-
             });
             setEnableFormGenerator(true);
         }
@@ -88,18 +90,19 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 onCancel: () => {
                     setEnableFormGenerator(false);
                 },
-
             });
             setEnableFormGenerator(true);
         }
     }
 
-    const renderRecordEditor = (recordModel: STNode) => {
+    const renderRecordEditor = (recordModel: STNode, filePath?: string, completeST?: STNode) => {
         if (STKindChecker.isRecordTypeDesc(recordModel) || STKindChecker.isTypeDefinition(recordModel)) {
             setFormConfig({
                 model: recordModel,
                 configOverlayFormStatus: { formType: "RecordEditor", isLoading: false },
                 targetPosition: recordModel.position,
+                filePath: (filePath !== currentFile.path) ? filePath : undefined,
+                currentST: (filePath !== currentFile.path) ? completeST : undefined,
                 onCancel: () => {
                     setEnableFormGenerator(false);
                 },
@@ -109,10 +112,11 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
         }
     }
 
-    const handleDesignOperationClick = (functionPosition: NodePosition) => {
+    const handleDesignOperationClick = (functionPosition: NodePosition, filePath?: string) => {
         const currentElementInfo = history[history.length - 1];
+        const filePathToOpen = filePath ? filePath : currentElementInfo.file;
         const componentViewInfo: ComponentViewInfo = {
-            filePath: currentElementInfo.file,
+            filePath: filePathToOpen,
             position: functionPosition
         }
         updateSelectedComponent(componentViewInfo);
@@ -126,6 +130,21 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
         modifications.push(deleteAction);
         modifyDiagram(modifications);
     }
+
+    // This will re-fetch the ST when user has added a new component to a file other than the active file
+    useEffect(() => {
+        if (formConfig?.filePath &&
+            currentFile.path !== formConfig.filePath && formConfig?.configOverlayFormStatus?.formName === "ServiceClassResource") {
+            (async () => {
+                const langClientPromise: DiagramEditorLangClientInterface  = await getDiagramEditorLangClient();
+                const syntaxTree: STNode = await getSyntaxTree(formConfig.filePath, langClientPromise);
+                setFormConfig({
+                    ...formConfig,
+                    currentST: syntaxTree
+                });
+            })();
+        }
+    }, [fullST]);
 
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>

@@ -21,9 +21,12 @@ import React, { ReactElement, useEffect, useState } from "react";
 
 import {
     Box,
+    Checkbox,
     Collapse,
+    FormControlLabel,
     Grid,
     IconButton,
+    Link,
     List,
     ListItem,
     ListItemText,
@@ -35,7 +38,7 @@ import {
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 
-import { SelectIcon } from "../../../assets/icons";
+import { EditIcon, SelectIcon } from "../../../assets/icons";
 import Chip from "../../ChoreoSystem/Chip/Chip";
 import MenuSelectedIcon from "../../elements/MenuSelectedIcon";
 import { TextFieldInput, TextFieldInputProps } from "../../elements/TextFieldInput";
@@ -50,10 +53,12 @@ export interface IntegerTypeProps extends SimpleTypeProps {
     connectionConfig?: ConnectionSchema[];
     value?: number;
     valueRef?: string;
+    isSensitive?: boolean;
     setIntegerConfig: (id: string, intValue: number, valueRef: any) => void;
     isInsideArray?: boolean;
     isLowCode?: boolean;
     isFeaturePreview?: boolean;
+    isSensitiveValue?: boolean;
 }
 
 const IntegerType = (props: IntegerTypeProps): ReactElement => {
@@ -81,9 +86,11 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
     const ids = open ? "simple-popover" : undefined;
     const classes = useStyles();
 
+    const [isSensitive, setIsSensitive] = React.useState(props.isSensitive);
+    const [isMarkedSensitive, setIsMarkedSensitive] = React.useState(props.isSensitive ? props.isSensitive : false);
     const [openConnection, setOpenConnection] = React.useState(true);
-    const [selectedValue, setSelectedValue] = useState<string | number>(props.value);
-    const [selectedValueRef, setSelectedValueRef] = useState(props.valueRef);
+    const [selectedValue, setSelectedValue] = useState<string | number>(props.isSensitive ? undefined : props.value);
+    const [selectedValueRef, setSelectedValueRef] = useState(props.isSensitive ? undefined : props.valueRef);
     const [selectedIndex, setSelectedIndex] = React.useState("");
     const [textInputDisabledState, setTextInputDisabledState] = React.useState(false);
     const handleClickOpenConnection = () => {
@@ -107,7 +114,18 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                 setSelectedIndex(selectedValue.substring(selectedValue.indexOf(".") + 1).replace("}", ""));
             }
         }
+        if (props.isSensitive) {
+            setSelectedValue(undefined);
+            setSelectedValueRef(undefined);
+        }
     }, []);
+
+    useEffect(() => {
+        if (isSensitive) {
+            setSelectedValue(undefined);
+            setSelectedValueRef(undefined);
+        }
+    }, [selectedValue]);
 
     const textFieldInputProps: TextFieldInputProps = {
         id,
@@ -149,6 +167,15 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
         } else {
             setIsOpenCollapse(clickedIndex);
         }
+    };
+
+    const handleClickSensitive = () => {
+        setIsSensitive(false);
+        setIsMarkedSensitive(false);
+    };
+
+    const handleChange = () => {
+        setIsMarkedSensitive(!isMarkedSensitive);
     };
 
     const getConnection = connectionConfigs?.map((connections, index) => {
@@ -282,61 +309,122 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
         </Box>
     );
 
-    returnElement.push(
-        (
-            <div key={id + "-FIELD"}>
-                {/* <TextFieldInput {...textFieldInputProps} /> */}
-                <Box
-                    flexGrow={1}
-                    display="flex"
-                    gridGap={4}
-                    alignItems="center"
-                >
-                    <Box flexGrow={1}>
-                        <TextFieldInput
-                            id={id}
-                            isRequired={isRequired}
-                            inputProps={
-                                (connectionClick || selectedValueRef !== "")
-                                    ? { inputMode: "text" }
-                                    : {
-                                        inputMode: "numeric",
-                                        pattern: "[-+]?[0-9]",
-                                    }
-                            }
-                            placeholder="Select config or Enter a value"
-                            setTextFieldValue={setIntegerConfig}
-                            type={(connectionClick || selectedValueRef !== "") ? "text" : "number"}
-                            disabled={textInputDisabledState}
-                            value={selectedValue}
-                            valueRef={selectedValueRef}
-                        />
-                    </Box>
-                    {!isInsideArray &&
-                        !isLowCode &&
-                        !isFeaturePreview &&
-                        iconButton}
-                </Box>
-                <Box>
-                    <Popover
-                        id={ids}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClose}
-                        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-                        transformOrigin={{ horizontal: "right", vertical: "top" }}
-                        className={classes.popOver}
-                    >
-                        <Box>
-                            <Typography className={classes.popOver}>
-                                {getConnection}
-                            </Typography>
-                        </Box>
-                    </Popover>
-                </Box>
-            </div>
-        ),
+    const markSensitiveCheckbox = (
+        <Box>
+            <FormControlLabel
+                control={<Checkbox color={"primary"} />}
+                onChange={handleChange}
+                label="Mark as Sensitive"
+            />
+        </Box>
     );
+
+    if (!isSensitive) {
+        returnElement.push(
+            (
+                <div key={id + "-FIELD"}>
+                    {/* <TextFieldInput {...textFieldInputProps} /> */}
+                    <Box
+                        flexGrow={1}
+                        display="flex"
+                        gridGap={4}
+                        alignItems="center"
+                    >
+                        <Box flexGrow={1}>
+                            <TextFieldInput
+                                id={id}
+                                isRequired={isRequired}
+                                inputProps={
+                                    (connectionClick || selectedValueRef !== "")
+                                        ? { inputMode: "text" }
+                                        : {
+                                            inputMode: "numeric",
+                                            pattern: "[-+]?[0-9]",
+                                        }
+                                }
+                                placeholder="Select config or Enter a value"
+                                setTextFieldValue={setIntegerConfig}
+                                type={isMarkedSensitive ? "password" : ((connectionClick || selectedValueRef !== "") ? "text" : "number")}
+                                disabled={textInputDisabledState}
+                                value={selectedValue}
+                                valueRef={selectedValueRef}
+                                isSensitiveField={isMarkedSensitive || props.isSensitive}
+                            />
+                        </Box>
+                        {!isInsideArray &&
+                            !isLowCode &&
+                            iconButton}
+                    </Box>
+                    {
+                        !isLowCode &&
+                        isFeaturePreview &&
+                        (selectedValueRef == undefined || selectedValueRef == "") &&
+                        markSensitiveCheckbox
+                    }
+                    <Box>
+                        <Popover
+                            id={ids}
+                            open={open}
+                            anchorEl={anchorEl}
+                            onClose={handleClose}
+                            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                            transformOrigin={{ horizontal: "right", vertical: "top" }}
+                            className={classes.popOver}
+                        >
+                            <Box>
+                                <Typography className={classes.popOver}>
+                                    {getConnection}
+                                </Typography>
+                            </Box>
+                        </Popover>
+                    </Box>
+                </div>
+            ),
+        );
+    } else {
+        returnElement.push(
+            (
+                <div key={id + "-FIELD"}>
+                    <Box
+                        flexGrow={1}
+                        display="flex"
+                        gridGap={4}
+                        alignItems="center"
+                    >
+                        <Box flexGrow={1}>
+                            <Link
+                                component="button"
+                                variant="inherit"
+                                underline="none"
+                                onClick={handleClickSensitive}
+                                className={classes.linkStyle}
+                            >
+                                <EditIcon />
+                                <span className={classes.linkTextSytle}>Update Sensitive Content</span>
+                            </Link>
+                        </Box>
+                    </Box>
+                    <Box>
+                        <Popover
+                            id={ids}
+                            open={open}
+                            anchorEl={anchorEl}
+                            onClose={handleClose}
+                            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                            transformOrigin={{ horizontal: "right", vertical: "top" }}
+                            className={classes.popOver}
+                        >
+                            <Box>
+                                <Typography className={classes.popOver}>
+                                    {getConnection}
+                                </Typography>
+                            </Box>
+                        </Popover>
+                    </Box>
+                </div>
+            ),
+        );
+    }
 
     return <>{returnElement}</>;
 };

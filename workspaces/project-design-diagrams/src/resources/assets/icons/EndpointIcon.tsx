@@ -11,7 +11,7 @@
  * associated services.
  */
 import React from 'react';
-import { Colors } from '../../model';
+import { Colors } from '../../types';
 
 export function EndpointIcon() {
     return (

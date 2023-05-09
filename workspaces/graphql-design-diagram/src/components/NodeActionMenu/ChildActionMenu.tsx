@@ -19,7 +19,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { FunctionType } from "../resources/model";
+import { FunctionType, Position } from "../resources/model";
 
 import { DesignNode } from "./DesignNode";
 import { EditNode } from "./EditNode";
@@ -27,10 +27,12 @@ import { EditNode } from "./EditNode";
 interface ChildActionMenuProps {
     model: STNode;
     functionType: FunctionType;
+    location: Position;
+    st: STNode;
 }
 
 export function ChildActionMenu(props: ChildActionMenuProps) {
-    const { model, functionType } = props;
+    const { model, functionType, st, location } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
@@ -43,8 +45,8 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
                 title={
                     <Paper style={{ maxWidth: "100%" }}>
                         <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                            <EditNode model={model} functionType={functionType}/>
-                            <DesignNode model={model}/>
+                            <EditNode model={model} functionType={functionType} location={location} st={st}/>
+                            <DesignNode model={model} location={location}/>
                         </MenuList>
                     </Paper>
                 }

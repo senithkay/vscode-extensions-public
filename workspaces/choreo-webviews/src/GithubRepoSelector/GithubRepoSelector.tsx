@@ -131,7 +131,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                 {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh repo list or to configure a new repository.</span>}
                 {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
                 {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
-                {isRefetching && <SmallProgressRing />}
+                {!showLoader && isRefetching && <SmallProgressRing />}
                 {showLoader && loaderMessage}
                 {showLoader && <VSCodeProgressRing />}
             </GhRepoSelectorActions>

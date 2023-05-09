@@ -42,7 +42,6 @@ import {
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
-    GetComponentModelResponse,
     getDiagramComponentModel,
     DeleteComponent,
     PullComponent,
@@ -62,7 +61,7 @@ import {
     CheckProjectDeleted,
     HasChoreoSubscription,
 } from "@wso2-enterprise/choreo-core";
-
+import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";

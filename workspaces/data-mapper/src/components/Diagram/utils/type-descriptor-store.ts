@@ -17,53 +17,70 @@ import {
     Type
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+    FunctionDefinition,
     NodePosition,
-    STNode,
     traversNode
 } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "monaco-editor";
 
 import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperContext";
 import { isPositionsEquals } from "../../../utils/st-utils";
-import { FnDefPositions, RecordTypeFindingVisitor } from "../visitors/RecordTypeFindingVisitor";
+import { FnDefPositions, TypeFindingVisitor } from "../visitors/TypeFindingVisitor";
 
-export class RecordTypeDescriptorStore {
+export enum TypeStoreStatus {
+    Init,
+    Loading,
+    Loaded
+}
 
-    recordTypeDescriptors: Map<NodePosition, Type>;
-    stNode: STNode;
-    static instance : RecordTypeDescriptorStore;
+export class TypeDescriptorStore {
+
+    typeDescriptors: Map<NodePosition, Type>;
+    stNode: FunctionDefinition;
+    status: TypeStoreStatus;
+    static instance : TypeDescriptorStore;
 
     private constructor() {
-        this.recordTypeDescriptors = new Map();
+        this.typeDescriptors = new Map();
     }
 
     public static getInstance() {
         if (!this.instance){
-            this.instance = new RecordTypeDescriptorStore();
+            this.instance = new TypeDescriptorStore();
         }
         return this.instance;
     }
 
-    public async storeTypeDescriptors(stNode: STNode, context: IDataMapperContext, isArraysSupported: boolean) {
+    public async storeTypeDescriptors(stNode: FunctionDefinition, context: IDataMapperContext, isArraysSupported: boolean) {
         if (this.stNode
             && isPositionsEquals(this.stNode.position, stNode.position)
             && this.stNode.source === stNode.source) {
             return;
         }
+        this.status = TypeStoreStatus.Loading;
         this.stNode = stNode;
-        this.recordTypeDescriptors.clear();
-        const langClient = await context.langClientPromise;
-        const fileUri = Uri.file(context.currentFile.path).toString();
-        const visitor = new RecordTypeFindingVisitor(isArraysSupported);
+        this.typeDescriptors.clear();
+        const visitor = new TypeFindingVisitor(isArraysSupported);
         traversNode(stNode, visitor);
 
         const fnDefPositions = visitor.getFnDefPositions();
         const expressionNodesRanges = visitor.getExpressionNodesRanges();
         const symbolNodesPositions = visitor.getSymbolNodesPositions();
 
-        await this.setTypesForFnParamsAndReturnType(langClient, fileUri, fnDefPositions);
-        await this.setTypesForSymbol(langClient, fileUri, symbolNodesPositions);
-        await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges);
+        const noOfTypes = this.getNoOfTypes(visitor.getNoOfParams(), expressionNodesRanges.length, symbolNodesPositions.length);
+        const langClient = await context.langClientPromise;
+        const fileUri = Uri.file(context.currentFile.path).toString();
+
+        const promises = [
+            await this.setTypesForFnParamsAndReturnType(langClient, fileUri, fnDefPositions),
+            await this.setTypesForSymbol(langClient, fileUri, symbolNodesPositions),
+            await this.setTypesForExpressions(langClient, fileUri, expressionNodesRanges)
+        ];
+
+        await Promise.allSettled(promises);
+        if (this.typeDescriptors.size === noOfTypes) {
+            this.status = TypeStoreStatus.Loaded;
+        }
     }
 
     async setTypesForExpressions(langClient: IBallerinaLangClient,
@@ -124,15 +141,43 @@ export class RecordTypeDescriptorStore {
                 endLine: endPosition ? endPosition.line : startPosition.line,
                 endColumn: endPosition ? endPosition.offset : startPosition.offset,
             };
-            this.recordTypeDescriptors.set(position, type);
+
+            // Check if a matching position already exists in the map
+            const existingPosition = Array.from(this.typeDescriptors.keys()).find(
+                pos => isPositionsEquals(pos, position)
+            );
+
+            if (existingPosition) {
+                this.typeDescriptors.set(existingPosition, type);
+            } else {
+                this.typeDescriptors.set(position, type);
+            }
         }
     }
 
+    getNoOfTypes(noOfParams: number, noOfExpressions: number, noOfSymbols: number) {
+        const hasReturnType = this.stNode.functionSignature?.returnTypeDesc
+            && this.stNode.functionSignature.returnTypeDesc.type;
+        return noOfParams + noOfExpressions + noOfSymbols + (hasReturnType ? 1 : 0);
+    }
+
     public getTypeDescriptor(position : NodePosition) : Type {
-        for (const [key, value] of this.recordTypeDescriptors) {
+        for (const [key, value] of this.typeDescriptors) {
             if (isPositionsEquals(key, position)) {
                 return value;
             }
         }
+    }
+
+    public getStatus() {
+        return this.status;
+    }
+
+    public getSTNode() {
+        return this.stNode;
+    }
+
+    public resetStatus() {
+        this.status = TypeStoreStatus.Init;
     }
 }

@@ -65,8 +65,7 @@ export const useStyles = makeStyles((theme: Theme) =>
             expandIcon: {
                 color: theme.palette.common.black,
                 height: "25px",
-                width: "25px",
-                marginLeft: "auto"
+                width: "25px"
             },
             queryPortWrap: {
                 position: 'absolute',
