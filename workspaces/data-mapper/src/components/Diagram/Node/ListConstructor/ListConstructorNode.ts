@@ -73,7 +73,10 @@ export class ListConstructorNode extends DataMapperNodeModel {
             context,
             LIST_CONSTRUCTOR_NODE_TYPE
         );
-        this.innermostExpr = getInnermostExpressionBody(this.queryExpr || this.value.expression);
+        this.innermostExpr = getInnermostExpressionBody(this.queryExpr
+            ? this.queryExpr.selectClause.expression
+            : this.value.expression
+        );
     }
 
     async initPorts() {
