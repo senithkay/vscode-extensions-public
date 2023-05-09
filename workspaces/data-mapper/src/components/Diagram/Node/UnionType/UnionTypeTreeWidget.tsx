@@ -21,7 +21,7 @@ import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapp
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { UnionTypeLabel } from "../../utils/union-type-utils";
 import { TypeDescriptor } from "../commons/DataMapperNode";
-import { OutputSearchHighlight } from "../commons/SearchHighlight";
+import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
 
 import { useStyles } from "./style";
