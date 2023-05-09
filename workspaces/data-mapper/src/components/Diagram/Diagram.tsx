@@ -53,6 +53,7 @@ import { ModuleVariableNode } from "./Node/ModuleVariable";
 import { PrimitiveTypeNode } from './Node/PrimitiveType';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import { RequiredParamNode } from './Node/RequiredParam';
+import { UnionTypeNode } from "./Node/UnionType";
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
@@ -195,7 +196,8 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			nodes.forEach((node) => {
 				if (node instanceof MappingConstructorNode
 					|| node instanceof ListConstructorNode
-					|| node instanceof PrimitiveTypeNode) {
+					|| node instanceof PrimitiveTypeNode
+					|| node instanceof UnionTypeNode) {
 						if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
 							node.setPosition(OFFSETS.TARGET_NODE.X, 0);
 						} else {
