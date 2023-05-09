@@ -164,7 +164,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		}
 	}, [body]);
 
-	let isDisabled = portIn.descendantHasValue;
+	let isDisabled = portIn?.descendantHasValue;
 	if (expanded && !isDisabled && isBodyListConstructor && body.expressions.length > 0) {
 		portIn.setDescendantHasValue();
 		isDisabled = true;
