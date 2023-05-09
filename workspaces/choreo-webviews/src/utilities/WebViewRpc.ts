@@ -60,6 +60,7 @@ import {
     IsBareRepoRequestParams,
     IsBareRepoRequest,
     CheckProjectDeleted,
+    HasChoreoSubscription,
 } from "@wso2-enterprise/choreo-core";
 
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -246,5 +247,9 @@ export class ChoreoWebViewAPI {
 
     public async getComponentCount(): Promise<ComponentCount> {
         return this._messenger.sendRequest(GetComponentCount, HOST_EXTENSION, undefined);
+    }
+
+    public async hasChoreoSubscription(): Promise<boolean> {
+        return this._messenger.sendRequest(HasChoreoSubscription, HOST_EXTENSION, undefined);
     }
 }

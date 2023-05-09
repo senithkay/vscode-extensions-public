@@ -44,7 +44,8 @@ import {
     GetComponentCount,
     CheckProjectDeleted,
     IsBareRepoRequest,
-    IsBareRepoRequestParams
+    IsBareRepoRequestParams,
+    HasChoreoSubscription
 } from "@wso2-enterprise/choreo-core";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
@@ -152,6 +153,12 @@ export class WebViewRpc {
         this._messenger.onRequest(GetComponentCount, async () => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getComponentCount(ext.api.selectedOrg.id);
+            }
+        });
+
+        this._messenger.onRequest(HasChoreoSubscription, async () => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().hasChoreoSubscription(ext.api.selectedOrg.uuid);
             }
         });
 

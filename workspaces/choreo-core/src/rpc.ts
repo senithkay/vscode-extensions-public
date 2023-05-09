@@ -58,6 +58,7 @@ export const UpdateProjectOverview: RequestType<string, void> = { method: 'updat
 export const showOpenDialogRequest: RequestType<OpenDialogOptions, string[]> = { method: 'showOpenDialog' };
 export const GetComponentCount: RequestType<number, ComponentCount> = { method: 'getComponentCount' };
 export const IsBareRepoRequest: RequestType<IsBareRepoRequestParams, boolean> = { method: 'isBareRepo' };
+export const HasChoreoSubscription: RequestType<string, boolean> = { method: 'hasChoreoSubscription' };
 
 export interface OpenDialogOptions {
    title: string,
