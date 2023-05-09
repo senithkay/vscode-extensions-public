@@ -35,7 +35,7 @@ import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { hasIONodesPresent } from "../Diagram/utils/dm-utils";
 import { FunctionDefinitionStore } from "../Diagram/utils/fn-definition-store";
 import { handleDiagnostics } from "../Diagram/utils/ls-utils";
-import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
+import { RecordTypeDescriptorStore, TypeStoreStatus } from "../Diagram/utils/record-type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
 import { ViewStateSetupVisitor } from "../Diagram/visitors/ViewStateSetupVisitor";
@@ -376,7 +376,7 @@ function DataMapperC(props: DataMapperProps) {
             const nodeInitVisitor = new NodeInitVisitor(dmContext, selection)
             traversNode(selection.selectedST.stNode, nodeInitVisitor);
             const nodes = nodeInitVisitor.getNodes();
-            if (hasIONodesPresent(nodes) && recordTypeDescriptors.getStatus() === "LOADED") {
+            if (hasIONodesPresent(nodes) && recordTypeDescriptors.getStatus() === TypeStoreStatus.Loaded) {
                 setDmNodes(nodes);
             }
         } else {
@@ -392,7 +392,9 @@ function DataMapperC(props: DataMapperProps) {
     useEffect(() => {
         let inputParams: DataMapperInputParam[] = [];
         let outputType: DataMapperOutputParam = { type: undefined, isUnsupported: true, typeNature: TypeNature.DUMMY };
-        if (selection.prevST.length === 0 && recordTypeDescriptors.getStatus() === "LOADED" && !isConfigPanelOpen && !showConfigPanel) {
+        if (selection.prevST.length === 0
+            && recordTypeDescriptors.getStatus() === TypeStoreStatus.Loaded
+            && !isConfigPanelOpen && !showConfigPanel) {
             if (fnST) {
                 // When open the DM of an existing function using code lens
                 const hasNoParameter = fnST.functionSignature.parameters.length === 0;
@@ -410,7 +412,7 @@ function DataMapperC(props: DataMapperProps) {
                     setOutput(outputType);
                 }
             }
-        } else if (recordTypeDescriptors.getStatus() === "INIT" && openedViaPlus) {
+        } else if (recordTypeDescriptors.getStatus() === TypeStoreStatus.Init && openedViaPlus) {
             // When creating a new DM using plus menu
             setInputs(inputParams);
             setOutput(outputType);

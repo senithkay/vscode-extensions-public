@@ -27,11 +27,17 @@ import { IDataMapperContext } from "../../../utils/DataMapperContext/DataMapperC
 import { isPositionsEquals } from "../../../utils/st-utils";
 import { FnDefPositions, RecordTypeFindingVisitor } from "../visitors/RecordTypeFindingVisitor";
 
+export enum TypeStoreStatus {
+    Init,
+    Loading,
+    Loaded
+}
+
 export class RecordTypeDescriptorStore {
 
     recordTypeDescriptors: Map<NodePosition, Type>;
     stNode: FunctionDefinition;
-    status: "INIT" | "LOADING" | "LOADED";
+    status: TypeStoreStatus;
     static instance : RecordTypeDescriptorStore;
 
     private constructor() {
@@ -51,7 +57,7 @@ export class RecordTypeDescriptorStore {
             && this.stNode.source === stNode.source) {
             return;
         }
-        this.status = "LOADING";
+        this.status = TypeStoreStatus.Loading;
         this.stNode = stNode;
         this.recordTypeDescriptors.clear();
         const visitor = new RecordTypeFindingVisitor(isArraysSupported);
@@ -73,7 +79,7 @@ export class RecordTypeDescriptorStore {
 
         await Promise.allSettled(promises);
         if (this.recordTypeDescriptors.size === noOfTypes) {
-            this.status = "LOADED";
+            this.status = TypeStoreStatus.Loaded;
         }
     }
 
@@ -172,6 +178,6 @@ export class RecordTypeDescriptorStore {
     }
 
     public resetStatus() {
-        this.status = "INIT";
+        this.status = TypeStoreStatus.Init;
     }
 }
