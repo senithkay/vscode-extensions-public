@@ -25,6 +25,7 @@ import { toJpeg } from 'html-to-image';
 import debounce from 'lodash.debounce';
 import { DiagramControls } from './ControlLayer';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
+import { OverlayLayerModel } from '../OverlayLoader';
 import { GatewayLinkModel } from '../../gateway/GatewayLink/GatewayLinkModel';
 import { GatewayNodeModel } from '../../gateway/GatewayNode/GatewayNodeModel';
 import { ConsoleView, DagreLayout, Views } from '../../../resources';
@@ -131,6 +132,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     useEffect(() => {
         if (diagramEngine.getModel()) {
             if (currentView === type) {
+                model.addLayer(new OverlayLayerModel());
                 diagramEngine.setModel(model);
                 autoDistribute();
             } else {
@@ -142,6 +144,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     // Initial distribution of the nodes when the screen is on display (refer note above)
     useEffect(() => {
         if (!diagramModel && currentView === type) {
+            model.addLayer(new OverlayLayerModel());
             diagramEngine.setModel(model);
             setDiagramModel(model);
             autoDistribute();
@@ -165,6 +168,8 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 positionGatewayNodes(diagramEngine);
             }
             zoomToFit();
+            diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
+            diagramEngine.setModel(model);
         }, 30);
     };
 

@@ -29,6 +29,7 @@ import {
     ServicePortFactory,
     ServicePortModel
 } from '../components/service-interaction';
+import { OverlayLayerFactory } from '../components/common';
 import { GatewayNodeFactory } from "../components/gateway/GatewayNode/GatewayNodeFactory";
 import { GatewayPortFactory } from "../components/gateway/GatewayPort/GatewayPortFactory";
 import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeModel";
@@ -79,6 +80,7 @@ export function createServicesEngine(): DiagramEngine {
     diagramEngine.getNodeFactories().registerFactory(new ServiceNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new ExtServiceNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntryNodeFactory());
+    diagramEngine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return diagramEngine;
 }
 
@@ -90,6 +92,7 @@ export function createEntitiesEngine(): DiagramEngine {
     diagramEngine.getLinkFactories().registerFactory(new EntityLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntityFactory());
+    diagramEngine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return diagramEngine;
 }
 
