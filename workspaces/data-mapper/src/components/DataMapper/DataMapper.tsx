@@ -216,7 +216,6 @@ function DataMapperC(props: DataMapperProps) {
     const [output, setOutput] = useState<DataMapperOutputParam>();
     const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [fnSignature, setFnSignature] = useState(getFnSignatureFromST(fnST));
-    const [nodeSetupCounter, setNodeSetupCounter] = useState(0);
     const [showLocalVarConfigPanel, setShowLocalVarConfigPanel] = useState(false);
     const { setFunctionST, setImports } = useDMStore();
     const { inputSearch, outputSearch, resetSearchStore } = useDMSearchStore();
@@ -317,7 +316,7 @@ function DataMapperC(props: DataMapperProps) {
                 fnNameFromFnST !== getFnNameFromST(fnSTFromTypeStore)
                 || fnSignatureFromFnST !== getFnSignatureFromST(fnSTFromTypeStore)
             );
-            if (hasFnSwitched || (!(inputs && output) && !fnSTFromTypeStore)) {
+            if (hasFnSwitched || (!(inputs && output) && (!fnSTFromTypeStore || openedViaPlus))) {
                 recordTypeDescriptors.resetStatus();
                 setInputs(undefined);
                 setOutput(undefined);
@@ -329,44 +328,40 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         void (async () => {
-            try {
-                if (selection.selectedST.stNode) {
-                    const diagnostics = await handleDiagnostics(filePath, langClientPromise)
+            if (selection.selectedST.stNode) {
+                const diagnostics = await handleDiagnostics(filePath, langClientPromise)
 
-                    const context = new DataMapperContext(
-                        filePath,
-                        fnST,
-                        selection,
-                        langClientPromise,
-                        currentFile,
-                        stSymbolInfo,
-                        handleSelectedST,
-                        applyModifications,
-                        diagnostics,
-                        enableStatementEditor,
-                        collapsedFields,
-                        handleCollapse,
-                        isStmtEditorCanceled,
-                        fieldTobeEdited,
-                        handleFieldToBeEdited,
-                        handleOverlay,
-                        ballerinaVersion,
-                        handleLocalVarConfigPanel,
-                        updateActiveFile,
-                        updateSelectedComponent
-                    );
+                const context = new DataMapperContext(
+                    filePath,
+                    fnST,
+                    selection,
+                    langClientPromise,
+                    currentFile,
+                    stSymbolInfo,
+                    handleSelectedST,
+                    applyModifications,
+                    diagnostics,
+                    enableStatementEditor,
+                    collapsedFields,
+                    handleCollapse,
+                    isStmtEditorCanceled,
+                    fieldTobeEdited,
+                    handleFieldToBeEdited,
+                    handleOverlay,
+                    ballerinaVersion,
+                    handleLocalVarConfigPanel,
+                    updateActiveFile,
+                    updateSelectedComponent
+                );
 
-                    if (shouldRestoreTypes) {
-                        await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
-                        const functionDefinitions = FunctionDefinitionStore.getInstance();
-                        await functionDefinitions.storeFunctionDefinitions(fnST, context);
-                        setShouldRestoreTypes(false);
-                    }
-
-                    setDmContext(context);
+                if (shouldRestoreTypes) {
+                    await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
+                    const functionDefinitions = FunctionDefinitionStore.getInstance();
+                    await functionDefinitions.storeFunctionDefinitions(fnST, context);
+                    setShouldRestoreTypes(false);
                 }
-            } finally {
-                setNodeSetupCounter(prevState => prevState + 1);
+
+                setDmContext(context);
             }
         })();
     }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, fieldTobeEdited]);
