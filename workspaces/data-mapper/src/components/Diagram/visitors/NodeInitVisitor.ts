@@ -47,7 +47,7 @@ import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { UnionTypeNode } from "../Node/UnionType";
-import { UnsupportedExprNode, UnsupportedExprNodeKind } from "../Node/UnsupportedExpr";
+import { UnsupportedIONode, UnsupportedExprNodeKind } from "../Node/UnsupportedIO";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
@@ -110,7 +110,7 @@ export class NodeInitVisitor implements Visitor {
                 }
 
                 if (STKindChecker.isConditionalExpression(bodyExpr)) {
-                    this.outputNode = new UnsupportedExprNode(
+                    this.outputNode = new UnsupportedIONode(
                         this.context,
                         UnsupportedExprNodeKind.Output,
                         undefined,
@@ -346,7 +346,7 @@ export class NodeInitVisitor implements Visitor {
                 const innerExpr = getInnermostExpressionBody(node.selectClause.expression);
                 const hasConditionalOutput = STKindChecker.isConditionalExpression(innerExpr);
                 if (hasConditionalOutput) {
-                    this.outputNode = new UnsupportedExprNode(
+                    this.outputNode = new UnsupportedIONode(
                         this.context,
                         UnsupportedExprNodeKind.Output,
                         undefined,
@@ -395,7 +395,7 @@ export class NodeInitVisitor implements Visitor {
                         );
                     } else if (exprType?.typeName === PrimitiveBalType.Union) {
                         const message = "Union types within query expressions are not supported at the moment"
-                        this.outputNode = new UnsupportedExprNode(
+                        this.outputNode = new UnsupportedIONode(
                             this.context,
                             UnsupportedExprNodeKind.Output,
                             message,

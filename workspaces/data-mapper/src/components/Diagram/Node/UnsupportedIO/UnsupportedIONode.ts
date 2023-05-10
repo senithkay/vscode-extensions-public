@@ -23,7 +23,7 @@ export enum UnsupportedExprNodeKind {
     Output
 }
 
-export class UnsupportedExprNode extends DataMapperNodeModel {
+export class UnsupportedIONode extends DataMapperNodeModel {
 
     public filePath: string;
     public x: number;

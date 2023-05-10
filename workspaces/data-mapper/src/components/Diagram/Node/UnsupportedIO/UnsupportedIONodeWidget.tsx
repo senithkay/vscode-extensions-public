@@ -46,7 +46,7 @@ const useStyles = makeStyles(() =>
     })
 );
 
-function UnsupportedExpr({ children }: UnsupportedIOProp) {
+function UnsupportedIOWidget({ children }: UnsupportedIOProp) {
     const classes = useStyles();
     return (
         <TreeContainer className={classes.treeContainer}>
@@ -57,10 +57,20 @@ function UnsupportedExpr({ children }: UnsupportedIOProp) {
     );
 }
 
-export function UnsupportedExprWidget({ filePath, exprPosition }: UnsupportedExprProps) {
+export function UnsupportedIO({ message }: UnsupportedIOProps) {
+    return (
+        <UnsupportedIOWidget>
+            <span>
+                {message}
+            </span>
+        </UnsupportedIOWidget>
+    );
+}
+
+export function UnsupportedExpr({ filePath, exprPosition }: UnsupportedExprProps) {
     const classes = useStyles();
     return (
-        <UnsupportedExpr>
+        <UnsupportedIOWidget>
             <span>
                 {`The expression at `}
             </span>
@@ -74,16 +84,6 @@ export function UnsupportedExprWidget({ filePath, exprPosition }: UnsupportedExp
             <span>
                 {`Please change the source and try again`}
             </span>
-        </UnsupportedExpr>
-    );
-}
-
-export function UnsupportedIOWidget({ message }: UnsupportedIOProps) {
-    return (
-        <UnsupportedExpr>
-            <span>
-                {message}
-            </span>
-        </UnsupportedExpr>
+        </UnsupportedIOWidget>
     );
 }

@@ -20,25 +20,25 @@ import { container, injectable, singleton } from "tsyringe";
 
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
-import { UnsupportedExprNode, UNSUPPORTED_IO_NODE_TYPE } from './UnsupportedExprNode';
-import { UnsupportedExprWidget, UnsupportedIOWidget } from "./UnsupportedExprWidget";
+import { UnsupportedIONode, UNSUPPORTED_IO_NODE_TYPE } from './UnsupportedIONode';
+import { UnsupportedExpr, UnsupportedIO } from "./UnsupportedIONodeWidget";
 
 @injectable()
 @singleton()
-export class UnsupportedExprNodeFactory extends AbstractReactFactory<UnsupportedExprNode, DiagramEngine> implements IDataMapperNodeFactory {
+export class UnsupportedIONodeFactory extends AbstractReactFactory<UnsupportedIONode, DiagramEngine> implements IDataMapperNodeFactory {
 	constructor() {
 		super(UNSUPPORTED_IO_NODE_TYPE);
 	}
 
-	generateReactWidget(event: { model: UnsupportedExprNode; }): JSX.Element {
+	generateReactWidget(event: { model: UnsupportedIONode; }): JSX.Element {
 		return (
 			<>
 				{event.model.message ? (
-					<UnsupportedIOWidget
+					<UnsupportedIO
 						message={event.model.message}
 					/>
 				) : (
-					<UnsupportedExprWidget
+					<UnsupportedExpr
 						filePath={event.model.filePath}
 						exprPosition={event.model.exprPosition}
 					/>
@@ -47,8 +47,8 @@ export class UnsupportedExprNodeFactory extends AbstractReactFactory<Unsupported
 		);
 	}
 
-	generateModel(): UnsupportedExprNode {
+	generateModel(): UnsupportedIONode {
 		return undefined;
 	}
 }
-container.register("NodeFactory", { useClass: UnsupportedExprNodeFactory });
+container.register("NodeFactory", { useClass: UnsupportedIONodeFactory });

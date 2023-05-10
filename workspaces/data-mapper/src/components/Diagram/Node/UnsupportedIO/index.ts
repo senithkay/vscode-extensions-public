@@ -10,5 +10,5 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-export * from "./UnsupportedExprNodeFactory";
-export * from "./UnsupportedExprNode";
+export * from "./UnsupportedIONodeFactory";
+export * from "./UnsupportedIONode";
