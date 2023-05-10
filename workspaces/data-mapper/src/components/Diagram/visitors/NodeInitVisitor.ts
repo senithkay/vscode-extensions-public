@@ -6,7 +6,7 @@
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
-import { AnydataType, PrimitiveBalType} from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
     ExpressionFunctionBody,
@@ -47,6 +47,7 @@ import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { UnionTypeNode } from "../Node/UnionType";
+import { UnsupportedExprNode, UnsupportedExprNodeKind } from "../Node/UnsupportedExpr";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
@@ -108,7 +109,13 @@ export class NodeInitVisitor implements Visitor {
                     bodyExpr = exprFuncBody.expression.containerExpression.expression;
                 }
 
-                if (STKindChecker.isQueryExpression(bodyExpr)) {
+                if (STKindChecker.isConditionalExpression(bodyExpr)) {
+                    this.outputNode = new UnsupportedExprNode(
+                        this.context,
+                        bodyExpr.position,
+                        UnsupportedExprNodeKind.Output
+                    );
+                } else if (STKindChecker.isQueryExpression(bodyExpr)) {
                     if (this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY) {
                         isFnBodyQueryExpr = true;
                         const selectClause = bodyExpr.selectClause;
@@ -335,7 +342,15 @@ export class NodeInitVisitor implements Visitor {
                     }
                 }
 
-                if (exprType.typeName === PrimitiveBalType.Array) {
+                const innerExpr = getInnermostExpressionBody(node.selectClause.expression);
+                const hasConditionalOutput = STKindChecker.isConditionalExpression(innerExpr);
+                if (hasConditionalOutput) {
+                    this.outputNode = new UnsupportedExprNode(
+                        this.context,
+                        innerExpr.position,
+                        UnsupportedExprNodeKind.Output
+                    );
+                } else if (exprType.typeName === PrimitiveBalType.Array) {
                     if (exprType.memberType.typeName === PrimitiveBalType.Record) {
                         this.outputNode = new MappingConstructorNode(
                             this.context,

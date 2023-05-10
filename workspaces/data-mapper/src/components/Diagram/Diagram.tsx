@@ -12,9 +12,9 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda no-console
 import * as React from 'react';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core';
+import {createStyles, makeStyles, Theme} from '@material-ui/core';
 import CachedIcon from '@material-ui/icons/Cached';
-import { SelectionBoxLayerFactory } from "@projectstorm/react-canvas-core";
+import {SelectionBoxLayerFactory} from "@projectstorm/react-canvas-core";
 import {
 	DagreEngine,
 	DefaultDiagramState,
@@ -28,37 +28,38 @@ import {
 	PathFindingLinkFactory
 } from '@projectstorm/react-diagrams';
 import "reflect-metadata";
-import { container } from "tsyringe";
+import {container} from "tsyringe";
 
 import FitToScreenIcon from "../../assets/icons/fitToScreen";
-import { DataMapperDIContext } from '../../utils/DataMapperDIContext/DataMapperDIContext';
+import {DataMapperDIContext} from '../../utils/DataMapperDIContext/DataMapperDIContext';
 
-import { DataMapperCanvasContainerWidget } from './Canvas/DataMapperCanvasContainerWidget';
-import { DataMapperCanvasWidget } from './Canvas/DataMapperCanvasWidget';
+import {DataMapperCanvasContainerWidget} from './Canvas/DataMapperCanvasContainerWidget';
+import {DataMapperCanvasWidget} from './Canvas/DataMapperCanvasWidget';
 import * as Labels from "./Label";
 import * as Links from "./Link";
-import { DataMapperLinkModel } from './Link/model/DataMapperLink';
-import { DefaultState as LinkState } from './LinkState/DefaultState';
+import {DataMapperLinkModel} from './Link/model/DataMapperLink';
+import {DefaultState as LinkState} from './LinkState/DefaultState';
 import * as Nodes from "./Node";
-import { DataMapperNodeModel } from './Node/commons/DataMapperNode';
-import { ExpandedMappingHeaderNode } from './Node/ExpandedMappingHeader';
-import { FromClauseNode } from './Node/FromClause';
-import { JoinClauseNode } from './Node/JoinClause';
-import { LetClauseNode } from './Node/LetClause';
-import { LetExpressionNode } from "./Node/LetExpression";
-import { LinkConnectorNode } from './Node/LinkConnector';
-import { ListConstructorNode } from './Node/ListConstructor';
-import { MappingConstructorNode } from './Node/MappingConstructor';
-import { ModuleVariableNode } from "./Node/ModuleVariable";
-import { PrimitiveTypeNode } from './Node/PrimitiveType';
-import { QueryExpressionNode } from './Node/QueryExpression';
-import { RequiredParamNode } from './Node/RequiredParam';
-import { UnionTypeNode } from "./Node/UnionType";
-import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
-import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
-import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
+import {DataMapperNodeModel} from './Node/commons/DataMapperNode';
+import {ExpandedMappingHeaderNode} from './Node/ExpandedMappingHeader';
+import {FromClauseNode} from './Node/FromClause';
+import {JoinClauseNode} from './Node/JoinClause';
+import {LetClauseNode} from './Node/LetClause';
+import {LetExpressionNode} from "./Node/LetExpression";
+import {LinkConnectorNode} from './Node/LinkConnector';
+import {ListConstructorNode} from './Node/ListConstructor';
+import {MappingConstructorNode} from './Node/MappingConstructor';
+import {ModuleVariableNode} from "./Node/ModuleVariable";
+import {PrimitiveTypeNode} from './Node/PrimitiveType';
+import {QueryExpressionNode} from './Node/QueryExpression';
+import {RequiredParamNode} from './Node/RequiredParam';
+import {UnionTypeNode} from "./Node/UnionType";
+import {UnsupportedExprNode, UnsupportedExprNodeKind} from "./Node/UnsupportedExpr";
+import {OverlayLayerFactory} from './OverlayLayer/OverlayLayerFactory';
+import {OverlayLayerModel} from './OverlayLayer/OverlayLayerModel';
+import {OverriddenLinkLayerFactory} from './OverriddenLinkLayer/LinkLayerFactory';
 import * as Ports from "./Port";
-import { OFFSETS } from './utils/constants';
+import {OFFSETS} from './utils/constants';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -197,7 +198,8 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 				if (node instanceof MappingConstructorNode
 					|| node instanceof ListConstructorNode
 					|| node instanceof PrimitiveTypeNode
-					|| node instanceof UnionTypeNode) {
+					|| node instanceof UnionTypeNode
+					|| (node instanceof UnsupportedExprNode && node.kind === UnsupportedExprNodeKind.Output)) {
 						if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
 							node.setPosition(OFFSETS.TARGET_NODE.X, 0);
 						} else {
