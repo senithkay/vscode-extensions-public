@@ -334,38 +334,64 @@ export class NodeInitVisitor implements Visitor {
                         exprType = constructTypeFromSTNode(node);
                     }
                 }
-                if (exprType?.typeName === PrimitiveBalType.Array && exprType?.memberType?.typeName === PrimitiveBalType.Record) {
-                    this.outputNode = new MappingConstructorNode(
-                        this.context,
-                        node.selectClause,
-                        parentIdentifier,
-                        exprType,
-                        node
-                    );
-                } else if (exprType?.typeName === PrimitiveBalType.Record) {
-                    this.outputNode = new MappingConstructorNode(
-                        this.context,
-                        node.selectClause,
-                        parentIdentifier,
-                        exprType
-                    );
-                } else if (exprType?.memberType && exprType?.memberType?.typeName === PrimitiveBalType.Array) {
-                    this.outputNode = new ListConstructorNode(
-                        this.context,
-                        node.selectClause,
-                        parentIdentifier,
-                        exprType,
-                        node
-                    );
-                } else {
-                    this.outputNode = new PrimitiveTypeNode(
-                        this.context,
-                        node.selectClause,
-                        parentIdentifier,
-                        exprType,
-                        node
-                    );
 
+                if (exprType.typeName === PrimitiveBalType.Array) {
+                    if (exprType.memberType.typeName === PrimitiveBalType.Record) {
+                        this.outputNode = new MappingConstructorNode(
+                            this.context,
+                            node.selectClause,
+                            parentIdentifier,
+                            exprType,
+                            node
+                        );
+                    } else if (exprType.memberType.typeName === PrimitiveBalType.Array) {
+                        this.outputNode = new ListConstructorNode(
+                            this.context,
+                            node.selectClause,
+                            parentIdentifier,
+                            exprType,
+                            node
+                        );
+                    } else if (exprType.memberType.typeName === PrimitiveBalType.Union) {
+                        this.outputNode = new UnionTypeNode(
+                            this.context,
+                            node.selectClause,
+                            parentIdentifier,
+                            exprType
+                        );
+                    } else {
+                        this.outputNode = new PrimitiveTypeNode(
+                            this.context,
+                            node.selectClause,
+                            parentIdentifier,
+                            exprType,
+                            node
+                        );
+                    }
+                } else {
+                    if (exprType.typeName === PrimitiveBalType.Record) {
+                        this.outputNode = new MappingConstructorNode(
+                            this.context,
+                            node.selectClause,
+                            parentIdentifier,
+                            exprType
+                        );
+                    } else if (exprType.typeName === PrimitiveBalType.Union) {
+                        this.outputNode = new UnionTypeNode(
+                            this.context,
+                            node.selectClause,
+                            parentIdentifier,
+                            exprType
+                        );
+                    } else {
+                        this.outputNode = new PrimitiveTypeNode(
+                            this.context,
+                            node.selectClause,
+                            parentIdentifier,
+                            exprType,
+                            node
+                        );
+                    }
                     if (isComplexExpression(node.selectClause.expression)){
                         const inputNodes = getInputNodes(node.selectClause);
                         const linkConnectorNode = new LinkConnectorNode(

@@ -66,7 +66,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						context={event.model.context}
 						typeName={event.model.typeName}
 						typeIdentifier={event.model.typeIdentifier}
-						typeDef={event.model.typeDef}
+						typeDef={event.model.unionTypeDef}
 						hasInvalidTypeCast={event.model.hasInvalidTypeCast}
 						innermostExpr={event.model.innermostExpr}
 						typeCastExpr={event.model.typeCastExpr}

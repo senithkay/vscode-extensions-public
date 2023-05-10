@@ -65,6 +65,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
     public resolvedType: Type;
     public hasInvalidTypeCast: boolean;
     public mappings: FieldAccessToSpecificFied[];
+    public unionTypeDef: Type;
     public unionTypes: string[];
     public innermostExpr: STNode;
     public typeCastExpr: STNode;
@@ -83,7 +84,12 @@ export class UnionTypeNode extends DataMapperNodeModel {
         );
         this.innermostExpr = getInnermostExpressionBody(this.value.expression);
         this.typeCastExpr = this.getTypeCastExpr();
-        this.unionTypes = getUnionTypes(this.typeDef);
+        this.unionTypeDef = this.typeDef.typeName === PrimitiveBalType.Union
+            ? this.typeDef
+            : this.typeDef.typeName === PrimitiveBalType.Array && this.typeDef.memberType.typeName === PrimitiveBalType.Union
+                ? this.typeDef.memberType
+                : undefined;
+        this.unionTypes = this.unionTypeDef && getUnionTypes(this.unionTypeDef);
     }
 
     async initPorts() {
@@ -99,12 +105,13 @@ export class UnionTypeNode extends DataMapperNodeModel {
                         ? this.typeDef.typeName
                         : undefined;
                 const isSelectClause = STKindChecker.isSelectClause(this.value);
-                if (isSelectClause) {
-                    this.rootName = this.resolvedType.typeName === PrimitiveBalType.Array
-                        && this.resolvedType?.memberType
-                        && this.resolvedType.memberType.typeName === PrimitiveBalType.Record
-                            ? this.resolvedType.memberType?.name
-                            : this.typeIdentifier.value || this.typeIdentifier.source;
+                if (isSelectClause
+                    && this.typeDef.typeName === PrimitiveBalType.Array
+                    && this.typeDef?.memberType)
+                {
+                    this.rootName = this.typeDef.memberType.typeName === PrimitiveBalType.Record
+                        ? this.typeDef.memberType?.name
+                        : this.typeIdentifier.value || this.typeIdentifier.source;
                 }
                 const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.innermostExpr,
                     this.context.selection.selectedST.stNode);
@@ -189,17 +196,17 @@ export class UnionTypeNode extends DataMapperNodeModel {
         const bodyExpr = STKindChecker.isLetExpression(this.value.expression)
             ? getExprBodyFromLetExpression(this.value.expression)
             : this.value.expression;
-        const supportedTypes = getSupportedUnionTypes(this.typeDef, this.typeIdentifier);
+        const supportedTypes = getSupportedUnionTypes(this.unionTypeDef, this.typeIdentifier);
         if (STKindChecker.isTypeCastExpression(bodyExpr)) {
             // when the expr is wrapped with a type cast
             const type = bodyExpr.typeCastParam?.type;
-            this.resolvedType = this.typeDef.members.find((member) => {
+            this.resolvedType = this.unionTypeDef.members.find((member) => {
                 return getResolvedType(member, type);
             });
             this.hasInvalidTypeCast = !this.resolvedType;
         } else if (supportedTypes.length === 1) {
             // when the specified union type is narrowed down to a single type
-            this.resolvedType = this.typeDef.members.find(member => {
+            this.resolvedType = this.unionTypeDef.members.find(member => {
                 const typeName = getTypeName(member);
                 return typeName === supportedTypes[0];
             });
