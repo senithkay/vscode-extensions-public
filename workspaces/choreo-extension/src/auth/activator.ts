@@ -10,11 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import * as vscode from 'vscode';
-import { commands, window } from "vscode";
-import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./auth";
+import { ProgressLocation, QuickPickItemKind, QuickPickOptions, commands, window } from "vscode";
+import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut, switchUser, tokenStore } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
+import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId, choreoSwitchAccountCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 
 export async function activateAuth() {
@@ -28,18 +27,16 @@ export async function activateAuth() {
             if (openSuccess) {
                 await window.withProgress({
                     title: 'Signing in to Choreo',
-                    location: vscode.ProgressLocation.Notification,
+                    location: ProgressLocation.Notification,
                     cancellable: true
                 }, async (_progress, cancellationToken) => {
                     cancellationToken.onCancellationRequested(async () => {
                         getLogger().warn("Signing in to Choreo cancelled");
-                        await signOut();
                     });
                     await ext.api.waitForLogin();
                 });
             } else {
                 getLogger().error("Unable to open external link for authentication.");
-                await signOut();
                 window.showErrorMessage("Unable to open external link for authentication.");
             }
         } catch (error: any) {
@@ -57,6 +54,47 @@ export async function activateAuth() {
             window.showInformationMessage('Successfully signed out from Choreo!');
         } catch (error: any) {
             getLogger().error("Error while signing out from Choreo. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            if (error instanceof Error) {
+                window.showErrorMessage(error.message);
+            }
+        }
+    });
+
+    commands.registerCommand(choreoSwitchAccountCmdId, async () => {
+        try {
+            getLogger().debug("Switching Choreo account");
+            const options: QuickPickOptions = {
+                canPickMany: false,
+                ignoreFocusOut: true,
+                placeHolder: "Select an account to switch to",
+                title: "Switch Choreo Account"
+            };
+
+            const items = [{ label: "+ Add account", detail: "Sign in to Choreo" }, { label: "Signed in accounts", kind: QuickPickItemKind.Separator }];
+            const users = await tokenStore.getUsers();
+            const currentUser = await tokenStore.getCurrentUser();
+
+            if (users.length > 0) {
+                for (const userId of users) {
+                    const user = await tokenStore.getUser(userId);
+                    if (user) {
+                        items.push({ label: user.displayName, detail: `${user.userId === currentUser?.userId ? "Current User" : ""} #${user.userId}` });
+                    }
+                }
+            }
+
+            const answer = await window.showQuickPick(items, options);
+
+            if (answer?.label === "+ Add account") {
+                await commands.executeCommand(choreoSignInCmdId);
+            } else {
+                const userId = answer?.detail?.replace(/[^0-9]/g, '');
+                if (userId && userId !== currentUser?.userId) {
+                    await switchUser(userId);
+                }
+            }
+        } catch (error: any) {
+            getLogger().error("Error while switching Choreo account. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }

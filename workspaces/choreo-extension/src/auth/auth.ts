@@ -75,27 +75,28 @@ export async function initiateInbuiltAuth() {
 export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
     await lock.acquire();
     const currentChoreoToken = await tokenStore.getToken("choreo.token");
+    const currentUser = await tokenStore.getCurrentUser();
     if (currentChoreoToken?.accessToken && currentChoreoToken.expirationTime
-        && currentChoreoToken.loginTime && currentChoreoToken.refreshToken) {
+        && currentChoreoToken.loginTime && currentChoreoToken.refreshToken && currentUser) {
         getLogger().debug("Found Choreo token in keychain.");
         let tokenDuration = (new Date().getTime() - new Date(currentChoreoToken.loginTime).getTime()) / 1000;
         if (tokenDuration > currentChoreoToken.expirationTime) {
             getLogger().debug("Choreo token expired. Exchanging refresh token.");
             try {
-                await exchangeRefreshToken(currentChoreoToken.refreshToken);
+                await exchangeRefreshToken(currentUser.userId, currentChoreoToken.refreshToken);
                 const newChoreoToken = await tokenStore.getToken("choreo.token");
                 if (newChoreoToken?.accessToken) {
                     if (ext.api.selectedOrg) {
                         getLogger().debug("Exchanged refresh token.");
-                        await exchangeVSCodeToken(newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
+                        await exchangeVSCodeToken(currentUser.userId, newChoreoToken?.accessToken, ext.api.selectedOrg?.handle);
                     } else {
-                        getLogger().error("Exchanged refresh token. No selected org found."); 
+                        getLogger().error("Exchanged refresh token. No selected org found.");
                     }
                 } else {
                     throw new Error("New token was not found in token store!");
                 }
             } catch (error: any) {
-                getLogger().error("Error while exchanging the refresh token! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+                getLogger().error("Error while exchanging the refresh token! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging the refresh token! " + error.message);
                 signOut();
             }
@@ -125,14 +126,30 @@ export async function exchangeAuthToken(authCode: string) {
             getLogger().info("Total sign in time: " + (Date.now() - currentTime));
             vscode.window.showInformationMessage(`Successfully signed into Choreo!`);
         } catch (error: any) {
-            getLogger().error("Error while exchanging the auth code! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            getLogger().error("Error while exchanging the auth code! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             vscode.window.showErrorMessage(error.message);
             signOut();
         }
     }
 }
 
-export async function exchangeVSCodeToken(apimToken: string, orgHandle: string) {
+export async function switchUser(userId: string) {
+    getLogger().debug("Switching user.");
+    try {
+        const user = await tokenStore.getUser(userId);
+        const token = await tokenStore.getToken("choreo.token", userId);
+        if (token && token.refreshToken && user) {
+            await exchangeRefreshToken(user.userId, token.refreshToken);
+            await signIn();
+            vscode.window.showInformationMessage(`Successfully switched user!`);
+        }
+    } catch (error: any) {
+        getLogger().error("Error while switching the user! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+        vscode.window.showErrorMessage(error.message);
+    }
+}
+
+export async function exchangeVSCodeToken(userId: string, apimToken: string, orgHandle: string) {
     getLogger().debug("Exchanging apim token to vscode token.");
     if (!apimToken) {
         vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + APIM_TOKEN_ERROR);
@@ -141,14 +158,15 @@ export async function exchangeVSCodeToken(apimToken: string, orgHandle: string) 
     try {
         const response = await authClient.exchangeVSCodeToken(apimToken, orgHandle);
         getLogger().debug("Successfully exchanged apim token to vscode token.");
-        await tokenStore.setToken("choreo.vscode.token", response);        
+        await tokenStore.setToken("choreo.vscode.token", response);
+        await tokenStore.setToken("choreo.vscode.token", response, userId);
     } catch (error: any) {
-        getLogger().error("Error while exchanging the vscode token! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+        getLogger().error("Error while exchanging the vscode token! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
         vscode.window.showErrorMessage(error.message);
     }
 }
 
-export async function exchangeRefreshToken(refreshToken: string) {
+export async function exchangeRefreshToken(userId: string, refreshToken: string) {
     getLogger().debug("Exchanging refresh token to access token.");
     if (!refreshToken) {
         vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + REFRESH_TOKEN_ERROR);
@@ -159,10 +177,11 @@ export async function exchangeRefreshToken(refreshToken: string) {
         const response = await authClient.exchangeRefreshToken(refreshToken);
         getLogger().debug("Successfully exchanged refresh token to access token.");
         await tokenStore.setToken("choreo.token", response);
+        await tokenStore.setToken("choreo.token", response, userId);
     } catch (error: any) {
-        getLogger().error("Error while exchanging the refresh token! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+        getLogger().error("Error while exchanging the refresh token! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
         vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + SESSION_EXPIRED);
-        signOut();
+        signOut(userId);
     }
 }
 
@@ -179,12 +198,16 @@ export async function signIn() {
             getLogger().debug("Successfully retrived user info.");
             ext.api.userName = userInfo.displayName;
             const selectedOrg = await getDefaultSelectedOrg(userInfo.organizations);
-            await exchangeVSCodeToken(choreoTokenInfo?.accessToken, selectedOrg.handle);
+            await tokenStore.addUser(userInfo);
+            await tokenStore.setCurrentUser(userInfo);
+            await tokenStore.setToken("choreo.token", choreoTokenInfo);
+            await tokenStore.setToken("choreo.token", choreoTokenInfo, userInfo.userId);
+            await exchangeVSCodeToken(userInfo.userId, choreoTokenInfo?.accessToken, selectedOrg.handle);
             ext.api.selectedOrg = selectedOrg;
             ext.api.status = STATUS_LOGGED_IN;
             showChoreoProjectOverview();
         } catch (error: any) {
-            getLogger().error("Error while signing in! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            getLogger().error("Error while signing in! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
             signOut();
         }
@@ -205,21 +228,38 @@ export async function getDefaultSelectedOrg(userOrgs: Organization[]) {
     return userOrgs[0];
 }
 
-export async function exchangeOrgAccessTokens(orgHandle: string) {
+export async function exchangeOrgAccessTokens(userId: string, orgHandle: string) {
     getLogger().debug("Exchanging apim token for the org " + orgHandle);
     const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken) {
-        await exchangeVSCodeToken(choreoTokenInfo?.accessToken, orgHandle);
+        await exchangeVSCodeToken(userId, choreoTokenInfo?.accessToken, orgHandle);
     } else {
         throw new Error("Choreo token not found in token store!");
     }
 }
 
-export async function signOut() {
-    getLogger().debug("Clear current Choreo session.");
-    await tokenStore.deleteToken("choreo.token");
-    await tokenStore.deleteToken("choreo.vscode.token");
-    ext.api.status = STATUS_LOGGED_OUT;
-    ext.api.userName = undefined;
-    ext.api.selectedOrg = undefined;
+export async function signOut(userId?: string) {
+    ext.api.status = STATUS_LOGGING_IN;
+    if (!userId) {
+        getLogger().debug("Clear current Choreo session.");
+        await tokenStore.deleteToken("choreo.token");
+        await tokenStore.deleteToken("choreo.vscode.token");
+        userId = (await tokenStore.getCurrentUser())?.userId;
+        await tokenStore.deleteCurrentUser();
+    }
+
+    if (userId) {
+        await tokenStore.deleteToken(`choreo.token.${userId}`);
+        await tokenStore.deleteToken(`choreo.vscode.token.${userId}`);
+        await tokenStore.deleteUser(userId);
+    }
+
+    const users = await tokenStore.getUsers();
+    if (users.length == 0) {
+        ext.api.status = STATUS_LOGGED_OUT;
+        ext.api.userName = undefined;
+        ext.api.selectedOrg = undefined;
+    } else {
+        switchUser(users[0]);
+    }
 }

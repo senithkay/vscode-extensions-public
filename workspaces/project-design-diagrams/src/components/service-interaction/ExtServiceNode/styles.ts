@@ -22,7 +22,7 @@ import { Colors } from '../../../resources';
 
 export const Container: React.FC<any> = styled.div`
     align-items: center;
-    color: ${Colors.PRIMARY};
+    color: ${Colors.DEFAULT_TEXT};
     display: flex;
 	flex-direction: column;
     font-family: ${(props: { isSelected: boolean }) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
@@ -39,7 +39,7 @@ export const Container: React.FC<any> = styled.div`
 export const IconContainer: React.FC<any> = styled.div`
 	align-items: center;
 	background-color: #FFFFFF;
-	border: ${(props: { isSelected: boolean }) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`};
+	border: ${(props: { isSelected: boolean }) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY_LIGHT}`};
 	border-radius: 50%;
 	display: flex;
 	height: 50px;

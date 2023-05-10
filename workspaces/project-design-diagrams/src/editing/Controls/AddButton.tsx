@@ -26,7 +26,7 @@ import { Colors, Views } from '../../resources';
 
 const ButtonStyles: SxProps = {
     backgroundColor: Colors.PRIMARY,
-    borderRadius: '2px',
+    borderRadius: '5px',
     color: 'white',
     fontSize: '12px',
     marginInline: '2.5px',

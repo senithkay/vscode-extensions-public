@@ -59,15 +59,17 @@ export enum ServiceTypes {
 }
 
 export enum Colors {
-    DIAGRAM_BACKGROUND = '#FFF',
     CELL_DIAGRAM_BACKGROUND = '#eeeffb',
     CONSOLE_CELL_DIAGRAM_BACKGROUND = '#f7f8fb',
+    DEFAULT_TEXT = '#40404B',
+    DIAGRAM_BACKGROUND = '#FFF',
+    GATEWAY = '#c9c9c9',
     PRIMARY = '#5567D5',
-    SECONDARY = '#F0F1FB',
+    PRIMARY_LIGHT = '#A6B3FF',
     PRIMARY_SELECTED = '#ffaf4d',
+    SECONDARY = '#F0F1FB',
     SECONDARY_SELECTED = '#fffaf2',
-    SHADED_SELECTED = '#faead2',
-    GATEWAY = '#c9c9c9'
+    SHADED_SELECTED = '#faead2'
 }
 
 export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';
