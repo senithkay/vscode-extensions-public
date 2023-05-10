@@ -74,8 +74,8 @@ export const AttributeContainer: React.FC<any>  = styled.div`
     align-items: center;
     background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
     border-bottom: 0.5px solid #cccde3;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
     display: flex;
     flex-direction: row;
     font-size: 12px;
