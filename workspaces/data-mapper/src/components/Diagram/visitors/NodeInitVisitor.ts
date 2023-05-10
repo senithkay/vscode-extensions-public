@@ -293,8 +293,7 @@ export class NodeInitVisitor implements Visitor {
 
         if (STKindChecker.isSpecificField(parent) && STKindChecker.isIdentifierToken(parent.fieldName)) {
             parentIdentifier = parent.fieldName;
-        } else if (STKindChecker.isLetVarDecl(parent)
-            && STKindChecker.isCaptureBindingPattern(parent.typedBindingPattern.bindingPattern)) {
+        } else if (isLetVarDecl && STKindChecker.isCaptureBindingPattern(parent.typedBindingPattern.bindingPattern)) {
             parentIdentifier = parent.typedBindingPattern.bindingPattern.variableName;
         } else {
             // Find specific field node if query is nested within braced or indexed expressions
@@ -474,7 +473,7 @@ export class NodeInitVisitor implements Visitor {
             {
                 let queryExpr: STNode = selectedSTNode.functionBody.expression;
                 if (STKindChecker.isLetExpression(selectedSTNode.functionBody.expression)) {
-                    getExprBodyFromLetExpression(selectedSTNode.functionBody.expression)
+                    queryExpr = getExprBodyFromLetExpression(selectedSTNode.functionBody.expression)
                 } else if (!STKindChecker.isQueryExpression(queryExpr)) {
                     queryExpr = node;
                 }
