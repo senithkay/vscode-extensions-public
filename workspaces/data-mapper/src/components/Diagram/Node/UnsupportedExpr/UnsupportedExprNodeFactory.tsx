@@ -21,7 +21,7 @@ import { container, injectable, singleton } from "tsyringe";
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 
 import { UnsupportedExprNode, UNSUPPORTED_IO_NODE_TYPE } from './UnsupportedExprNode';
-import UnsupportedExprNodeWidget from "./UnsupportedExprWidget";
+import { UnsupportedExprWidget, UnsupportedIOWidget } from "./UnsupportedExprWidget";
 
 @injectable()
 @singleton()
@@ -32,10 +32,18 @@ export class UnsupportedExprNodeFactory extends AbstractReactFactory<Unsupported
 
 	generateReactWidget(event: { model: UnsupportedExprNode; }): JSX.Element {
 		return (
-			<UnsupportedExprNodeWidget
-				filePath={event.model.filePath}
-				exprPosition={event.model.exprPosition}
-			/>
+			<>
+				{event.model.message ? (
+					<UnsupportedIOWidget
+						message={event.model.message}
+					/>
+				) : (
+					<UnsupportedExprWidget
+						filePath={event.model.filePath}
+						exprPosition={event.model.exprPosition}
+					/>
+				)}
+			</>
 		);
 	}
 

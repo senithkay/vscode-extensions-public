@@ -11,16 +11,24 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React from "react";
+import React, { ReactNode } from "react";
 
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
 import { TreeContainer } from "../commons/Tree/Tree";
 
-interface UnsupportedIOProps {
+interface UnsupportedIOProp {
+    children: ReactNode
+}
+
+interface UnsupportedExprProps {
     filePath: string;
     exprPosition: NodePosition;
+}
+
+interface UnsupportedIOProps {
+    message: string;
 }
 
 const useStyles = makeStyles(() =>
@@ -38,25 +46,44 @@ const useStyles = makeStyles(() =>
     })
 );
 
-export default function UnsupportedExprNodeWidget({ filePath, exprPosition }: UnsupportedIOProps) {
+function UnsupportedExpr({ children }: UnsupportedIOProp) {
     const classes = useStyles();
     return (
         <TreeContainer className={classes.treeContainer}>
             <span className={classes.unsupportedIOBanner}>
-                <span>
-                    {`The expression at `}
-                </span>
-                <span className={classes.filePath}>
-                    {`${filePath}:${exprPosition.startLine}:${exprPosition.startColumn} `}
-                </span>
-                <span>
-                    {`is currently not supported by the Data Mapper.`}
-                </span>
-                <br/><br/>
-                <span>
-                    {`Please change the source and try again`}
-                </span>
+                {children}
             </span>
         </TreeContainer>
+    );
+}
+
+export function UnsupportedExprWidget({ filePath, exprPosition }: UnsupportedExprProps) {
+    const classes = useStyles();
+    return (
+        <UnsupportedExpr>
+            <span>
+                {`The expression at `}
+            </span>
+            <span className={classes.filePath}>
+                {`${filePath}:${exprPosition.startLine}:${exprPosition.startColumn} `}
+            </span>
+            <span>
+                {`is currently not supported by the Data Mapper.`}
+            </span>
+            <br/><br/>
+            <span>
+                {`Please change the source and try again`}
+            </span>
+        </UnsupportedExpr>
+    );
+}
+
+export function UnsupportedIOWidget({ message }: UnsupportedIOProps) {
+    return (
+        <UnsupportedExpr>
+            <span>
+                {message}
+            </span>
+        </UnsupportedExpr>
     );
 }

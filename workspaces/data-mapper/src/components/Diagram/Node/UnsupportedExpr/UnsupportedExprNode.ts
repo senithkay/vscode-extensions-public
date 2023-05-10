@@ -31,8 +31,9 @@ export class UnsupportedExprNode extends DataMapperNodeModel {
 
     constructor(
         public context: IDataMapperContext,
-        public exprPosition: NodePosition,
-        public kind: UnsupportedExprNodeKind
+        public kind: UnsupportedExprNodeKind,
+        public message?: string,
+        public exprPosition?: NodePosition
     ) {
         super(
             context,

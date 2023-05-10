@@ -112,8 +112,9 @@ export class NodeInitVisitor implements Visitor {
                 if (STKindChecker.isConditionalExpression(bodyExpr)) {
                     this.outputNode = new UnsupportedExprNode(
                         this.context,
+                        UnsupportedExprNodeKind.Output,
+                        undefined,
                         bodyExpr.position,
-                        UnsupportedExprNodeKind.Output
                     );
                 } else if (STKindChecker.isQueryExpression(bodyExpr)) {
                     if (this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY) {
@@ -347,8 +348,9 @@ export class NodeInitVisitor implements Visitor {
                 if (hasConditionalOutput) {
                     this.outputNode = new UnsupportedExprNode(
                         this.context,
+                        UnsupportedExprNodeKind.Output,
+                        undefined,
                         innerExpr.position,
-                        UnsupportedExprNodeKind.Output
                     );
                 } else if (exprType?.typeName === PrimitiveBalType.Array) {
                     if (exprType.memberType.typeName === PrimitiveBalType.Record) {
@@ -392,12 +394,21 @@ export class NodeInitVisitor implements Visitor {
                             exprType
                         );
                     } else if (exprType?.typeName === PrimitiveBalType.Union) {
-                        this.outputNode = new UnionTypeNode(
+                        const message = "Union types within query expressions are not supported at the moment"
+                        this.outputNode = new UnsupportedExprNode(
                             this.context,
-                            node.selectClause,
-                            parentIdentifier,
-                            exprType
+                            UnsupportedExprNodeKind.Output,
+                            message,
+                            undefined
                         );
+                        // TODO: Uncomment this once the union type support is added in the lang
+                        //  (https://github.com/ballerina-platform/ballerina-lang/issues/40012)
+                        // this.outputNode = new UnionTypeNode(
+                        //     this.context,
+                        //     node.selectClause,
+                        //     parentIdentifier,
+                        //     exprType
+                        // );
                     } else {
                         this.outputNode = new PrimitiveTypeNode(
                             this.context,
