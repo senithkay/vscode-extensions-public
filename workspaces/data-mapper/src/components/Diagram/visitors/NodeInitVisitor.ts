@@ -350,7 +350,7 @@ export class NodeInitVisitor implements Visitor {
                         innerExpr.position,
                         UnsupportedExprNodeKind.Output
                     );
-                } else if (exprType.typeName === PrimitiveBalType.Array) {
+                } else if (exprType?.typeName === PrimitiveBalType.Array) {
                     if (exprType.memberType.typeName === PrimitiveBalType.Record) {
                         this.outputNode = new MappingConstructorNode(
                             this.context,
@@ -384,14 +384,14 @@ export class NodeInitVisitor implements Visitor {
                         );
                     }
                 } else {
-                    if (exprType.typeName === PrimitiveBalType.Record) {
+                    if (exprType?.typeName === PrimitiveBalType.Record) {
                         this.outputNode = new MappingConstructorNode(
                             this.context,
                             node.selectClause,
                             parentIdentifier,
                             exprType
                         );
-                    } else if (exprType.typeName === PrimitiveBalType.Union) {
+                    } else if (exprType?.typeName === PrimitiveBalType.Union) {
                         this.outputNode = new UnionTypeNode(
                             this.context,
                             node.selectClause,
@@ -565,12 +565,12 @@ export class NodeInitVisitor implements Visitor {
         this.mapIdentifiers.push(node);
         if (this.isWithinQuery === 0 && node.expressions) {
             node.expressions.forEach((expr: STNode) => {
-                const innerExpr = STKindChecker.isTypeCastExpression(expr)
+                let innerExpr = STKindChecker.isTypeCastExpression(expr)
                     ? getExprBodyFromTypeCastExpression(expr)
                     : expr;
                 if (!STKindChecker.isMappingConstructor(innerExpr) && !STKindChecker.isListConstructor(innerExpr)) {
                     const inputNodes = getInputNodes(innerExpr);
-                    expr = STKindChecker.isCheckExpression(expr) ? expr.expression : expr;
+                    innerExpr = STKindChecker.isCheckExpression(innerExpr) ? innerExpr.expression : innerExpr;
                     const fnDefForFnCall = STKindChecker.isFunctionCall(innerExpr) && getFnDefForFnCall(innerExpr);
                     if (inputNodes.length > 1
                         || (inputNodes.length === 1 && (isComplexExpression(innerExpr) || fnDefForFnCall))) {
