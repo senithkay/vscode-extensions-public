@@ -37,9 +37,9 @@ const Container = styled.div`
 	background-image: url(${background});
 	display: flex;
 	flex-direction: row;
-	height: 100vh;
+	height: 100%;
 	justify-content: center;
-	width: 100vw;
+	width: 100%;
 `;
 
 export class OverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {

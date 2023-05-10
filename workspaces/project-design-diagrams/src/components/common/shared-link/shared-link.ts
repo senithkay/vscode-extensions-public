@@ -154,14 +154,14 @@ export class SharedLinkModel extends DefaultLinkModel {
 		let targetPort: Point = this.getTargetPort().getPosition();
 
 		if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
-			points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 8},
-				${targetPort.x + 12} ${targetPort.y - 8}`;
+			points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 6},
+				${targetPort.x + 12} ${targetPort.y - 6}`;
 		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
-			points = `${targetPort.x - 2} ${targetPort.y}, ${targetPort.x - 12} ${targetPort.y + 8},
-				${targetPort.x - 12} ${targetPort.y - 8}`;
+			points = `${targetPort.x} ${targetPort.y}, ${targetPort.x - 10} ${targetPort.y + 6},
+				${targetPort.x - 10} ${targetPort.y - 6}`;
 		} else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.BOTTOM) {
-			points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 12} ${targetPort.y + 14},
-				${targetPort.x - 12} ${targetPort.y + 14}`;
+			points = `${targetPort.x} ${targetPort.y + 2}, ${targetPort.x + 10} ${targetPort.y + 14},
+				${targetPort.x - 10} ${targetPort.y + 14}`;
 		}
 		return points;
 	}
