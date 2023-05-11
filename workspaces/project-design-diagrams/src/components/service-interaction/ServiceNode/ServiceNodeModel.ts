@@ -30,6 +30,7 @@ export class ServiceNodeModel extends SharedNodeModel {
 	readonly serviceObject: Service;
 	readonly serviceType: ServiceTypes;
 	readonly targetGateways: GatewayType[];
+	readonly isNoData: boolean;
 
 	constructor(serviceObject: Service, level: Level, targetGateways?: GatewayType[]) {
 		super('serviceNode', serviceObject.serviceId);
@@ -38,6 +39,7 @@ export class ServiceNodeModel extends SharedNodeModel {
 		this.serviceObject = serviceObject;
 		this.serviceType = this.getServiceType();
 		this.targetGateways = targetGateways;
+		this.isNoData = serviceObject.isNoData;
 
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.LEFT));
 		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.RIGHT));

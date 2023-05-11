@@ -98,6 +98,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			isSelected={node.checkSelectedList(selectedLinks, node.getID())}
 			level={node.level}
 			isEditMode={editingEnabled}
+			isNoData={node.serviceObject.isNoData}
 		>
 			<ServiceHeadWidget
 				engine={engine}

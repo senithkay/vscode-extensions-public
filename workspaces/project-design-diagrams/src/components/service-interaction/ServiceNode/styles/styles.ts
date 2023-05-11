@@ -27,20 +27,21 @@ interface StyleProps {
     isSelected?: boolean;
     awaitLinking?: boolean;
     isEditMode?: boolean;
+    isNoData?: boolean;
 }
 
 export const ServiceNode: React.FC<any> = styled.div`
     animation: ${(props: StyleProps) => props.isNew ? 'fadeIn 5s' : ''};
     background-color: ${(props: StyleProps) => props.level === Level.ONE ? `#FFFFFF` :
         props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
-    border: ${(props: StyleProps) => props.awaitLinking ? `2px solid green` : `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED
-        : Colors.PRIMARY}`};
+    border: ${(props: StyleProps) => props.isNoData ? `1px solid ${Colors.PRIMARY_SELECTED}` : (props.awaitLinking ?
+            `2px solid green` : `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`)};
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     border-bottom-left-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
     border-bottom-right-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
     color: ${Colors.PRIMARY};
-    cursor: ${(props: StyleProps) => props.isEditMode ? `cursor` : `auto`};
+    cursor: ${(props: StyleProps) => props.isEditMode ? `cursor` : props.isNoData ? `pointer` : `auto`};
     display: flex;
     flex-direction: column;
     min-height: 32px;
