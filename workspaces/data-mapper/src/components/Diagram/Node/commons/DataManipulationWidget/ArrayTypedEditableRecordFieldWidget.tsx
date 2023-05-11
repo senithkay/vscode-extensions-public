@@ -30,6 +30,7 @@ import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
 import ErrorIcon from "../../../../../assets/icons/Error";
+import { useDMSearchStore } from "../../../../../store/store";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { DiagnosticTooltip } from "../../../Diagnostic/DiagnosticTooltip/DiagnosticTooltip";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
@@ -44,7 +45,7 @@ import {
     isConnectedViaLink,
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
-import { OutputSearchHighlight } from "../SearchHighlight";
+import { OutputSearchHighlight } from "../Search";
 import { TreeBody } from "../Tree/Tree";
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
@@ -104,6 +105,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const diagnostic = (valExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
     const [addElementAnchorEl, addElementSetAnchorEl] = React.useState<null | HTMLButtonElement>(null);
     const addMenuOpen = Boolean(addElementAnchorEl);
+    const searchValue = useDMSearchStore.getState().outputSearch;
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
@@ -258,6 +260,12 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                     />
                 )
             } else {
+                if (element.elementNode) {
+                    const value: string = element.elementNode.value || element.elementNode.source;
+                    if (searchValue && !value.toLowerCase().includes(searchValue.toLowerCase())) {
+                        return null;
+                    }
+                }
                 return (
                     <>
                         <TreeBody>

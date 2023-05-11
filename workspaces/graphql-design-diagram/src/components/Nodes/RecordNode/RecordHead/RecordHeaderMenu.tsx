@@ -24,6 +24,7 @@ import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { useStyles } from "../../../NodeActionMenu/styles";
 import { Colors, Position } from "../../../resources/model";
 import { getParentSTNodeFromRange } from "../../../utils/common-util";
+import { getSyntaxTree } from "../../../utils/ls-util";
 
 interface RecordHeaderMenuProps {
     location: Position;
@@ -33,10 +34,11 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
     const { location } = props;
     const classes = useStyles();
 
-    const { fullST, recordEditor } = useContext(DiagramContext);
+    const { recordEditor, langClientPromise, fullST, currentFile } = useContext(DiagramContext);
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
     const [model, setModel] = useState<STNode>(null);
+    const [st, setST] = useState<STNode>(fullST);
 
     useEffect(() => {
         const nodePosition: NodePosition = {
@@ -45,13 +47,22 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
             startColumn: location.startLine.offset,
             startLine: location.startLine.line
         };
-        const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
-        setModel(parentNode);
+        if  (location.filePath === currentFile.path) {
+            const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
+            setModel(parentNode);
+        } else {
+            (async () => {
+                const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
+                const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
+                setModel(parentNode);
+                setST(syntaxTree)
+            })();
+        }
     }, [location]);
 
-    const handleEditClassDef = () => {
+    const handleEditRecord = () => {
         if (model && (STKindChecker.isRecordTypeDesc(model) || STKindChecker.isTypeDefinition(model))) {
-            recordEditor(model);
+            recordEditor(model, location.filePath, st);
         }
     }
 
@@ -65,7 +76,7 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
                     <>
                         <Paper style={{maxWidth: "100%"}}>
                             <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                                <MenuItem onClick={() => handleEditClassDef()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
+                                <MenuItem onClick={() => handleEditRecord()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
                                     <ListItemIcon  style={{marginRight: "10px", minWidth: "0px"}}>
                                         <LabelEditIcon/>
                                     </ListItemIcon>

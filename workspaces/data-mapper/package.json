@@ -1,6 +1,6 @@
 {
     "name": "@wso2-enterprise/ballerina-data-mapper",
-    "version": "3.4.0",
+    "version": "3.4.1",
     "description": "Ballerina Data Mapper",
     "files": [
         "lib"

@@ -232,16 +232,18 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 
 	protected getOtherMappings(node: STNode, currentFields: STNode[]) {
 		const valNode = STKindChecker.isSpecificField(node) ? node.valueExpr : node;
-		const inputNodes = getInputNodes(valNode);
-		const valueExpr = STKindChecker.isCheckExpression(valNode) ? valNode.expression : valNode;
-		const isExprBodiedFunc = STKindChecker.isFunctionCall(valueExpr) && getFnDefForFnCall(valueExpr);
-		if (inputNodes.length === 1
-			&& !isComplexExpression(valNode)
-			&& !STKindChecker.isQueryExpression(valNode)
-			&& !isExprBodiedFunc
-		) {
-			return new FieldAccessToSpecificFied([...currentFields, node], inputNodes[0], valNode);
+		if (valNode) {
+			const inputNodes = getInputNodes(valNode);
+			const valueExpr = STKindChecker.isCheckExpression(valNode) ? valNode.expression : valNode;
+			const isExprBodiedFunc = STKindChecker.isFunctionCall(valueExpr) && getFnDefForFnCall(valueExpr);
+			if (inputNodes.length === 1
+				&& !isComplexExpression(valNode)
+				&& !STKindChecker.isQueryExpression(valNode)
+				&& !isExprBodiedFunc
+			) {
+				return new FieldAccessToSpecificFied([...currentFields, node], inputNodes[0], valNode);
+			}
+			return new FieldAccessToSpecificFied([...currentFields, node], undefined, valNode);
 		}
-		return new FieldAccessToSpecificFied([...currentFields, node], undefined, valNode);
 	}
 }

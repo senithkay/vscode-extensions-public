@@ -55,6 +55,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = true;
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
+	ext.projectsTreeView = createProjectTreeView();
+	ext.accountTreeView = createAccountTreeView();
 	setupEvents();
 	activateWizards();
 	await activateAuth();
@@ -64,8 +66,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	showChoreoProjectOverview();
 	activateStatusBarItem();
 	activateRegistry();
-	ext.projectsTreeView = createProjectTreeView();
-	ext.accountTreeView = createAccountTreeView();
 	setupGithubAuthStatusCheck();
 	getLogger().debug("Choreo Extension activated");
 	return ext.api;
@@ -179,7 +179,7 @@ function createAccountTreeView() {
 			accountTreeProvider.refresh(treeItem);
 			try {
 				getLogger().debug("Exchanging access tokens for the organization " + treeItem.org.name);
-				await exchangeOrgAccessTokens(treeItem.org.handle);
+				await exchangeOrgAccessTokens(treeItem.userId, treeItem.org.handle);
 			} catch (error: any) {
 				getLogger().error("Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
 				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);

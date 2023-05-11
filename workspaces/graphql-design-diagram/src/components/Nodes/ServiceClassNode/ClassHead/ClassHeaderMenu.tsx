@@ -12,7 +12,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -24,47 +24,36 @@ import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { NodeMenuItem } from "../../../NodeActionMenu/NodeMenuItem";
 import { useStyles } from "../../../NodeActionMenu/styles";
 import { Colors, FunctionType, Position } from "../../../resources/model";
-import { getParentSTNodeFromRange } from "../../../utils/common-util";
 
 interface ServiceHeaderMenuProps {
     location: Position;
+    parentModel: STNode;
+    st: STNode;
 }
 
 export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
-    const { location } = props;
+    const { location, parentModel, st } = props;
     const classes = useStyles();
 
-    const { fullST, functionPanel } = useContext(DiagramContext);
+    const { functionPanel } = useContext(DiagramContext);
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
-    const [model, setModel] = useState<STNode>(null);
-
-    useEffect(() => {
-        const nodePosition: NodePosition = {
-            endColumn: location.endLine.offset,
-            endLine: location.endLine.line,
-            startColumn: location.startLine.offset,
-            startLine: location.startLine.line
-        };
-        const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
-        setModel(parentNode);
-    }, [location]);
 
     const handleEditClassDef = () => {
-        if (model && STKindChecker.isClassDefinition(model)) {
+        if (parentModel && STKindChecker.isClassDefinition(parentModel)) {
             const lastMemberPosition: NodePosition = {
-                endColumn: model.closeBrace.position.endColumn,
-                endLine: model.closeBrace.position.endLine,
-                startColumn: model.closeBrace.position.startColumn,
-                startLine: model.closeBrace.position.startLine
+                endColumn: parentModel.closeBrace.position.endColumn,
+                endLine: parentModel.closeBrace.position.endLine,
+                startColumn: parentModel.closeBrace.position.startColumn,
+                startLine: parentModel.closeBrace.position.startLine
             };
-            functionPanel(lastMemberPosition, "GraphqlClass", model);
+            functionPanel(lastMemberPosition, "GraphqlClass", parentModel, location.filePath, st);
         }
-     }
+    }
 
     return (
         <>
-            { model &&
+            {parentModel &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
@@ -78,8 +67,14 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                                     </ListItemIcon>
                                     <ListItemText className={classes.listItemText}>Rename Class</ListItemText>
                                 </MenuItem>
-                                <Divider />
-                                <NodeMenuItem position={location} model={model} functionType={FunctionType.CLASS_RESOURCE}/>
+                                <Divider/>
+                                <NodeMenuItem
+                                    position={location}
+                                    model={parentModel}
+                                    functionType={FunctionType.CLASS_RESOURCE}
+                                    filePath={location.filePath}
+                                    currentST={st}
+                                />
                             </MenuList>
                         </Paper>
                     </>

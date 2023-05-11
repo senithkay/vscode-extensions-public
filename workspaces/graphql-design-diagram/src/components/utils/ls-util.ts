@@ -11,11 +11,14 @@
  * associated services.
  */
 
+import { monaco } from "react-monaco-editor";
+
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     DiagramEditorLangClientInterface,
     GraphqlDesignServiceRequest, GraphqlDesignServiceResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 export async function getModelForGraphqlService(
     graphqlDesignRequest: GraphqlDesignServiceRequest,
@@ -23,4 +26,14 @@ export async function getModelForGraphqlService(
     const langClient: DiagramEditorLangClientInterface = await langClientPromise;
     const resp = await langClient.getGraphqlModel(graphqlDesignRequest);
     return resp;
+}
+
+export async function getSyntaxTree(filePath: string, langClientPromise: Promise<IBallerinaLangClient>): Promise<STNode> {
+    const langClient: DiagramEditorLangClientInterface = await langClientPromise;
+    const resp = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: monaco.Uri.file(filePath).toString()
+        }
+    });
+    return resp.syntaxTree;
 }

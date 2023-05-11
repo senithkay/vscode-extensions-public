@@ -1,4 +1,4 @@
-// tslint:disable: jsx-no-lambda
+// tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import * as React from 'react';
 
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
@@ -11,6 +11,7 @@ import { RecordFieldPortModel } from '../../Port';
 import { IDataMapperNodeFactory } from '../commons/DataMapperNode';
 import { PrimitiveTypeItemWidget } from '../commons/PrimitiveTypeItemWidget';
 import { RecordTypeTreeWidget } from "../commons/RecordTypeTreeWidget/RecordTypeTreeWidget";
+import { InputSearchNoResultFound, SearchNoResultFoundKind } from "../commons/Search";
 
 import { RequiredParamNode, REQ_PARAM_NODE_TYPE } from './RequiredParamNode';
 
@@ -22,15 +23,21 @@ export class RequiredParamNodeFactory extends AbstractReactFactory<RequiredParam
     }
 
     generateReactWidget(event: { model: RequiredParamNode; }): JSX.Element {
-        if (event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record) {
+        if ((event.model.typeDef && event.model.typeDef.typeName === PrimitiveBalType.Record) || event.model.hasNoMatchingFields) {
             return (
-                <RecordTypeTreeWidget
-                    engine={this.engine}
-                    id={event.model.value.paramName.value}
-                    typeDesc={event.model.typeDef}
-                    getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
-                    handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
-                />
+                <>
+                    {event.model.hasNoMatchingFields ? (
+                        <InputSearchNoResultFound kind={SearchNoResultFoundKind.InputField} />
+                    ) : (
+                        <RecordTypeTreeWidget
+                            engine={this.engine}
+                            id={event.model.value && event.model.value.paramName.value}
+                            typeDesc={event.model.typeDef}
+                            getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
+                            handleCollapse={(fieldName: string, expand?: boolean) => event.model.context.handleCollapse(fieldName, expand)}
+                        />
+                    )}
+                </>
             );
         }
 

@@ -50,6 +50,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
 
     public recordField: EditableRecordField;
     public typeName: string;
+    public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
 
@@ -67,6 +68,8 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
 
     async initPorts() {
         if (this.typeDef) {
+            const searchValue = useDMSearchStore.getState().outputSearch;
+            this.hasNoMatchingFields = searchValue && !this.value.expression.source.includes(searchValue);
             if (this.typeDef.typeName === PrimitiveBalType.Union) {
                 this.typeName = getTypeName(this.typeDef);
                 const acceptedMembers = getFilteredUnionOutputTypes(this.typeDef);

@@ -22,8 +22,8 @@ import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunct
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
 import EditIcon from '@mui/icons-material/Edit';
 import { ListItemIcon, ListItemText, MenuItem } from '@mui/material';
-import { useStyles } from "./styles/styles";
-import { useDiagramContext } from '../../DiagramContext/DiagramContext';
+import { useStyles } from "../styles/styles";
+import { useDiagramContext } from '../../../DiagramContext/DiagramContext';
 
 export function GoToDesign(props: { element: Service | RemoteFunction | ResourceFunction }) {
     const classes = useStyles();

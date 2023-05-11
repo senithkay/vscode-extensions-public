@@ -35,37 +35,37 @@ export const ServiceNode: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.level === Level.ONE ? `#FFFFFF` :
         props.isSelected ? Colors.SECONDARY_SELECTED : Colors.SECONDARY};
     border: ${(props: StyleProps) => props.isNoData ? `1px solid ${Colors.PRIMARY_SELECTED}` : (props.awaitLinking ?
-            `2px solid green` : `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}`)};
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom-left-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
-    border-bottom-right-radius: ${(props: StyleProps) => props.level === Level.ONE ? `2px` : `0px`};
-    color: ${Colors.PRIMARY};
+            `2px solid green` : `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY_LIGHT}`)};;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: ${(props: StyleProps) => props.level === Level.ONE ? `5px` : `0px`};
+    border-bottom-right-radius: ${(props: StyleProps) => props.level === Level.ONE ? `5px` : `0px`};
+    color: ${Colors.DEFAULT_TEXT};
     cursor: ${(props: StyleProps) => props.isEditMode ? `cursor` : props.isNoData ? `pointer` : `auto`};
     display: flex;
     flex-direction: column;
-    min-height: 32px;
+    min-height: 40px;
 `;
 
 export const ServiceHead: React.FC<any> = styled.div`
     align-items: center;
     border-bottom: ${(props: StyleProps) => props.level === Level.TWO ?
-        `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}` : ``};
+        `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY_LIGHT}` : ``};
     display: flex;
     font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;
-    height: 32px;
+    height: 40px;
     justify-content: center;
     line-height: 24px;
-    padding-inline: 8px;
-    min-width: calc(100% - 16px);
+    padding: 0px 16px;
+    min-width: calc(100% - 32px);
     text-align: center;
     text-transform: capitalize;
     white-space: nowrap;
 `;
 
 export const ServiceName = styled.span`
-    margin-left: 8px;
+    margin-left: 12px;
 `;
 
 export const FunctionContainer: React.FC<any> = styled.div`

@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/choreo-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Contains models related to Choreo APIs",
   "main": "lib/index.js",
   "scripts": {

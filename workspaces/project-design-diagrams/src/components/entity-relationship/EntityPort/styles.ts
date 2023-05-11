@@ -20,7 +20,7 @@
 import { CSSProperties } from 'react';
 
 export const sidePortStyles: CSSProperties = {
-    height: '5px',
+    height: '0.5px',
     position: 'absolute',
     width: '8px'
 }

@@ -28,8 +28,8 @@ import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecif
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { getNewFieldAdditionModification, isEmptyValue } from "../../../utils/dm-utils";
 import { AddRecordFieldButton } from '../AddRecordFieldButton';
-import { OutputSearchHighlight } from '../SearchHighlight';
-import { TreeBody, TreeContainer, TreeContainerWithTopMargin, TreeHeader } from '../Tree/Tree';
+import { OutputSearchHighlight } from '../Search';
+import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { EditableRecordFieldWidget } from "./EditableRecordFieldWidget";
 
@@ -200,17 +200,6 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 
 	return (
 		<>
-			{/* TODO: Add search functionality by fixing the node positioning issues */}
-			{/*<SearchNodeWidget*/}
-			{/*	searchText={dmStore.outputSearch}*/}
-			{/*	onSearchTextChange={dmStore.setOutputSearch}*/}
-			{/*	engine={engine}*/}
-			{/*	focused={dmStore.outputSearchFocused}*/}
-			{/*	setFocused={dmStore.setOutputSearchFocused}*/}
-			{/*	searchType={SearchType.Output}*/}
-			{/*	width='100%'*/}
-			{/*/>*/}
-			{/*<TreeContainerWithTopMargin data-testid={`${id}-node`}>*/}
 			<TreeContainer data-testid={`${id}-node`}>
 				<TreeHeader
 					isSelected={portState !== PortState.Unselected}
@@ -269,7 +258,6 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 					)}
 				</TreeBody>
 			</TreeContainer>
-			{/*</TreeContainerWithTopMargin>*/}
 		</>
 	);
 }

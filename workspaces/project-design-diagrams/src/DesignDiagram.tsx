@@ -18,7 +18,9 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
+import {
+    ComponentModel, CMEntryPoint as EntryPoint, CMLocation as Location, GetComponentModelResponse, CMService as Service
+} from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
@@ -77,7 +79,7 @@ export function DesignDiagram(props: DiagramProps) {
     const [projectPkgs, setProjectPkgs] = useState<Map<string, boolean>>(undefined);
     const [projectComponents, setProjectComponents] = useState<Map<string, ComponentModel>>(undefined);
     const [showEditForm, setShowEditForm] = useState(false);
-    const [connectorTarget, setConnectorTarget] = useState<Service>(undefined);
+    const [connectorTarget, setConnectorTarget] = useState<Service | EntryPoint>(undefined);
     const defaultOrg = useRef<string>('');
     const hasDiagnostics = useRef<boolean>(false);
     const previousScreen = useRef<Views>(undefined);
@@ -142,6 +144,7 @@ export function DesignDiagram(props: DiagramProps) {
         consoleView,
         currentView,
         hasDiagnostics: hasDiagnostics.current,
+        workspaceFolders: projectPkgs?.size,
         setCurrentView,
         refreshDiagram,
         getTypeComposition,
@@ -162,7 +165,7 @@ export function DesignDiagram(props: DiagramProps) {
                     projectComponents ?
                         <>
                             {connectorTarget &&
-                                <ConnectorWizard service={connectorTarget} onClose={onConnectorWizardClose} />}
+                                <ConnectorWizard source={connectorTarget} onClose={onConnectorWizardClose} />}
                             {!(consoleView) && (
                                 <DiagramHeader
                                     prevView={previousScreen.current}

@@ -22,7 +22,7 @@ const VSCODE_TOKEN_ERROR = "Error while exchanging the VSCode token!";
 
 const ExchangeGrantType = 'urn:ietf:params:oauth:grant-type:token-exchange';
 const JWTTokenType = 'urn:ietf:params:oauth:token-type:jwt';
-const ApimScope = 'apim:api_manage apim:subscription_manage apim:tier_manage apim:admin apim:publisher_settings environments:view_prod environments:view_dev choreo:user_manage choreo:role_manage apim:dcr:app_manage choreo:deployment_manage choreo:dev_env_manage choreo:prod_env_manage choreo:component_manage choreo:project_manage apim:api_publish apim:document_manage apim:api_settings apim:subscription_view';
+const ApimScope = 'apim:api_manage apim:subscription_manage apim:tier_manage apim:admin apim:publisher_settings environments:view_prod environments:view_dev choreo:user_manage choreo:role_manage apim:dcr:app_manage choreo:deployment_manage choreo:non_prod_env_manage choreo:prod_env_manage choreo:component_manage choreo:project_manage apim:api_publish apim:document_manage apim:api_settings apim:subscription_view';
 
 const RefreshTokenGrantType = 'refresh_token';
 const AuthorizationCodeGrantType = 'authorization_code';

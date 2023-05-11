@@ -29,7 +29,8 @@ export class RequiredParamNode extends DataMapperNodeModel {
     constructor(
         public context: IDataMapperContext,
         public value: RequiredParam,
-        public typeDesc: TypeDescriptor) {
+        public typeDesc: TypeDescriptor,
+        public hasNoMatchingFields?: boolean) {
         super(
             context,
             REQ_PARAM_NODE_TYPE
@@ -56,13 +57,15 @@ export class RequiredParamNode extends DataMapperNodeModel {
     }
 
     public getSourceType() {
-        const searchValue = useDMSearchStore.getState().inputSearch;
-        const typeDef = getTypeOfInputParam(this.value, this.context.ballerinaVersion);
+        if (this.value) {
+            const searchValue = useDMSearchStore.getState().inputSearch;
+            const typeDef = getTypeOfInputParam(this.value, this.context.ballerinaVersion);
 
-        const matchesParamName = this.value?.paramName?.value?.toLowerCase()?.includes(searchValue?.toLowerCase());
-        this.typeDef = matchesParamName ? typeDef : getSearchFilteredInput(typeDef,  this.value?.paramName?.value);
+            const matchesParamName = this.value?.paramName?.value?.toLowerCase()?.includes(searchValue?.toLowerCase());
+            this.typeDef = matchesParamName ? typeDef : getSearchFilteredInput(typeDef,  this.value?.paramName?.value);
 
-        return this.typeDef
+            return this.typeDef
+        }
     }
 
     async initLinks() {
