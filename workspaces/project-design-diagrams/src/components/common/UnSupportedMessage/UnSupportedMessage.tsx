@@ -61,10 +61,10 @@ export function UnSupportedMessage() {
                     <WarningResolution>
                         <List sx={{ listStyleType: 'disc', marginTop: 0, marginLeft: 0, paddingTop: 0 }}>
                             <ListItem sx={{ display: 'list-item', paddingLeft: '8px !important', paddingBottom: '0 !important' }}>
-                                Update Ballerina to 2201.5.0 or higher, resolve build issues, and submit a commit with fixes.
+                                Update Ballerina to 2201.5.0 or higher.
                             </ListItem>
                             <ListItem sx={{ display: 'list-item', paddingLeft: '8px !important', paddingBottom: '0 !important' }}>
-                                Resolve build issues, and submit a commit with fixes.
+                                Resolve build issues.
                             </ListItem>
                             <ListItem sx={{ display: 'list-item', paddingLeft: '8px !important', paddingBottom: '0 !important' }}>
                                 Submit a commit with fixes.
