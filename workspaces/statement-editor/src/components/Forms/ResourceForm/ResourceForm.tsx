@@ -269,6 +269,13 @@ export function ResourceForm(props: FunctionProps) {
         );
     }
 
+    const getReturnTypeDiagnostics = () => {
+        const viewStateDiagnostics: StatementSyntaxDiagnostics[] = model?.viewState?.diagnosticsInRange;
+        const returnValues = resourceReturn.split(" ");
+        const filtered = viewStateDiagnostics.filter(diag => returnValues.some(val => diag.message.includes(val)));
+        return filtered;
+    }
+
     const handleOnSave = async () => {
         if (isEdit) {
             applyModifications([
@@ -376,7 +383,7 @@ export function ResourceForm(props: FunctionProps) {
                         <ConfigPanelSection title='Responses'>
                             <ResourceReturnEditor
                                 returnSource={resourceReturn}
-                                syntaxDiag={[]}
+                                syntaxDiag={getReturnTypeDiagnostics()}
                                 onChange={onReturnTypeChange}
                                 completions={completions}
                                 readonly={isEditInProgress} // todo: implement the disable logic
