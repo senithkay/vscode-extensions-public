@@ -12,9 +12,9 @@
  */
 
 import { ComponentCount, Organization, UserInfo } from "@wso2-enterprise/choreo-core";
-import axios from "axios";
 import { IReadOnlyTokenStorage } from "../auth";
 import { IChoreoOrgClient } from "./types";
+import { getHttpClient } from "../http-client";
 
 export class ChoreoOrgClient implements IChoreoOrgClient {
     
@@ -26,11 +26,7 @@ export class ChoreoOrgClient implements IChoreoOrgClient {
         if (!token) {
             throw new Error('User is not logged in');
         }
-        const client = axios.create({
-            baseURL: this._baseURL,
-            headers: { 'Authorization': `Bearer ${token.accessToken}` }
-        });
-        return client;
+        return getHttpClient(token.accessToken, this._baseURL)
     }
 
     getOrganizations(): Promise<Organization[]> {
