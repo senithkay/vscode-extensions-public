@@ -69,7 +69,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                 onMouseLeave={(evt: React.MouseEvent<SVGPathElement | HTMLDivElement>) => { handleOnHover('UNSELECT', evt)}}
             >
                 {
-                    node.isNoData ? (
+                    node.nodeObject.isNoData ? (
                         <WarningIcon/>
                     ) :
                         node.serviceType === ServiceTypes.GRPC ?
@@ -111,7 +111,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                         engine={engine}
                     />
                 )}
-                {node.isNoData && (
+                {node.nodeObject.isNoData && (
                     <Popover
                         id='mouse-over-popover'
                         open={!!anchorElement}
