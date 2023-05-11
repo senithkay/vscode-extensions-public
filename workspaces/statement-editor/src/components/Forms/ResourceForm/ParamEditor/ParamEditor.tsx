@@ -14,12 +14,12 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import { LiteExpressionEditor, LiteTextField, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
+import { LiteTextField, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
 import {
     CheckBoxGroup,
     ParamDropDown, PrimaryButton, SecondaryButton
 } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { STNode } from '@wso2-enterprise/syntax-tree';
 import debounce from "lodash.debounce";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/definitions';
@@ -29,6 +29,7 @@ import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_HEADER_PREFIX,
 import { createNewRecord } from '../util';
 
 import { useStyles } from "./style";
+import { ResourceParam } from '../types';
 
 export interface Param {
     id: number;
@@ -52,7 +53,7 @@ export enum PARAM_TYPES {
 export interface ParamProps {
     segmentId: number;
     syntaxDiagnostics: StatementSyntaxDiagnostics[];
-    model: (DefaultableParam | RequiredParam | IncludedRecordParam | RestParam);
+    model: ResourceParam;
     completions: SuggestionItem[]
     alternativeName?: string;
     isEdit: boolean;
@@ -72,23 +73,25 @@ enum ParamEditorInputTypes {
 
 export function ParamEditor(props: ParamProps) {
     const {
-        segmentId, syntaxDiagnostics, model, alternativeName, isEdit, option, optionList, isTypeReadOnly, onChange,
-        onCancel, completions
+        segmentId, model, option, optionList, onChange, onCancel, completions
     } = props;
     const classes = useStyles();
 
+    const syntaxDiagnostics = model.diagnosticMsg;
+
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.PARAM_NAME);
-    const [originalSource] = useState<string>(model.source);
+    const [originalSource] = useState<string>(model.parameterValue);
 
     const { applyModifications, syntaxTree, fullST } = useContext(FormEditorContext);
     const [newlyCreatedRecord, setNewlyCreatedRecord] = useState(undefined);
 
-    const [inputValue, setInputValue] = useState(model?.paramName?.value.trim());
-    const [typeValue, setTypeValue] = useState(model?.typeName?.source.trim());
-    const [defaultParamValue, setDefaultParamValue] = useState(STKindChecker.isDefaultableParam(model) ? model.expression?.source.trim() : "");
+    // model = 'string param = "foo"'
+    const [inputValue, setInputValue] = useState(model.name);
+    const [typeValue, setTypeValue] = useState(model.type);
+    const [defaultParamValue, setDefaultParamValue] = useState(model.default?.replace("=", "").trim());
 
-    const [isRequired, setIsRequiredType] = useState(!STKindChecker.isOptionalTypeDesc(model?.typeName));
+    const [isRequired, setIsRequiredType] = useState(!model.parameterValue.includes("?"));
 
     // When a type is created and full ST is updated update the onChange to remove diagnostics
     useEffect(() => {
@@ -99,7 +102,7 @@ export function ParamEditor(props: ParamProps) {
 
     useEffect(() => {
         if (model) {
-            setIsRequiredType(!STKindChecker.isOptionalTypeDesc(model?.typeName));
+            setIsRequiredType(!model.parameterValue.includes("?"));
         }
     }, [model]);
 
@@ -115,47 +118,38 @@ export function ParamEditor(props: ParamProps) {
         setCurrentComponentName(ParamEditorInputTypes.DEFAULT_VALUE)
     }
 
+    const debouncedOnChange = debounce(onChange, 600);
+
     const handleTypeChange = (value: string) => {
         if (value) {
             setIsRequiredType(!value.includes("?"));
             setTypeValue(value)
-            const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-            const paramName = model.paramName.value;
-            const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-            onChange(segmentId, `${annotation} ${value} ${paramName} ${defaultValue}`, model.typeName, value);
+            const annotation = model.annotaion;
+            const defaultValue = defaultParamValue ? `= ${defaultParamValue}` : '';
+            debouncedOnChange(segmentId, `${annotation} ${value} ${inputValue} ${defaultValue}`);
         }
-
     }
 
     const handleNameChange = (value: string) => {
         setInputValue(value);
-        const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-        const type = model.typeName.source.trim();
-        const defaultValue = STKindChecker.isDefaultableParam(model) ? `= ${model.expression.source}` : '';
-        onChange(segmentId, `${annotation} ${type} ${value} ${defaultValue}`, model.paramName, value);
+        const annotation = model.annotaion;
+        const defaultValue = defaultParamValue ? `= ${defaultParamValue}` : '';
+        if (value) {
+            debouncedOnChange(segmentId, `${annotation} ${typeValue} ${value} ${defaultValue}`);
+        }
     }
 
     const handleDefaultValueChange = (value: string) => {
         setDefaultParamValue(value);
-        const annotation = model.annotations?.length > 0 ? model.annotations[0].source : ''
-        const type = model.typeName.source.trim();
-        const paramName = model.paramName.value
-        onChange(
-            segmentId,
-            value ? `${annotation} ${type} ${paramName} = ${value}` : `${annotation} ${type} ${paramName}`,
-            STKindChecker.isDefaultableParam(model) ? model.expression : undefined,
-            value
-        );
+        const annotation = model.annotaion;
+        const defaultValue = value ? `= ${value}` : '';
+        debouncedOnChange(segmentId, `${annotation} ${typeValue} ${inputValue} ${defaultValue}`);
     }
-
-    const debouncedTypeChange = debounce(handleTypeChange, 500);
-    // const debouncedNameChange = debounce(handleNameChange, 800);
-    // const debouncedDefaultValueChange = debounce(handleDefaultValueChange, 800);
 
     const handleOnSelect = (value: string) => {
         const newParamString = value === PARAM_TYPES.HEADER ?
-            `${RESOURCE_HEADER_PREFIX} ${model.typeName.source} ${model.paramName.value}`
-            : `${model.typeName.source} ${model.paramName.value}`;
+            `${RESOURCE_HEADER_PREFIX} ${typeValue} ${inputValue}`
+            : `${typeValue} ${inputValue}`;
         onChange(segmentId, newParamString);
     };
 
@@ -182,6 +176,12 @@ export function ParamEditor(props: ParamProps) {
     }
 
     const handleOnSave = () => {
+        const annotation = model.annotaion;
+        let paramStringValue = `${annotation} ${typeValue} ${inputValue}`;
+        if (defaultParamValue) {
+            paramStringValue = `${annotation} ${typeValue} ${inputValue} = ${defaultParamValue}`;
+        }
+        onChange(segmentId, paramStringValue)
         onCancel();
     }
 
@@ -201,18 +201,20 @@ export function ParamEditor(props: ParamProps) {
             )}
             {option === PARAM_TYPES.PAYLOAD && <div className={classes.payload}>Payload </div>}
             <div className={classes.paramContent}>
-                {!(model.source.includes(RESOURCE_CALLER_TYPE)
-                    || model.source.includes(RESOURCE_REQUEST_TYPE)
-                    || model.source.includes(RESOURCE_HEADER_MAP_TYPE)) && (
+                {!(model.parameterValue.includes(RESOURCE_CALLER_TYPE)
+                    || model.parameterValue.includes(RESOURCE_REQUEST_TYPE)
+                    || model.parameterValue.includes(RESOURCE_HEADER_MAP_TYPE)) && (
                         <div className={classes.paramDataTypeWrapper}>
                             <FieldTitle title='Type' optional={false} />
                             <TypeBrowser
                                 type={typeValue}
-                                onChange={debouncedTypeChange}
+                                onChange={handleTypeChange}
                                 isLoading={false}
                                 recordCompletions={completions}
                                 createNew={createRecord}
-                                diagnostics={syntaxDiagnostics?.filter(diag => diag?.message.includes("unknown type"))}
+                                diagnostics={syntaxDiagnostics?.filter(diag =>
+                                    diag?.message.includes(typeValue) && !diag?.message.includes("expected")
+                                )}
                             />
                         </div>
                     )}
@@ -223,16 +225,13 @@ export function ParamEditor(props: ParamProps) {
                         value={inputValue}
                         isLoading={false}
                         onFocus={onNameEditorFocus}
-                        diagnostics={
-                            (currentComponentName === ParamEditorInputTypes.PARAM_NAME && syntaxDiagnostics) ||
-                            model.paramName?.viewState?.diagnosticsInRange
-                        }
+                        diagnostics={syntaxDiagnostics?.filter(diag => diag?.message.includes(inputValue))}
                     />
                 </div>
                 {
-                    !(model.source.includes(RESOURCE_CALLER_TYPE)
-                        || model.source.includes(RESOURCE_REQUEST_TYPE)
-                        || model.source.includes(RESOURCE_HEADER_MAP_TYPE)) && (
+                    !(model.parameterValue.includes(RESOURCE_CALLER_TYPE)
+                        || model.parameterValue.includes(RESOURCE_REQUEST_TYPE)
+                        || model.parameterValue.includes(RESOURCE_HEADER_MAP_TYPE)) && (
                         <div className={classes.paramNameWrapper}>
                             <FieldTitle title='Default Value' optional={true} />
                             <LiteTextField
@@ -240,10 +239,7 @@ export function ParamEditor(props: ParamProps) {
                                 value={defaultParamValue}
                                 isLoading={false}
                                 onFocus={onDefaultValueEditorFocus}
-                                diagnostics={
-                                    (currentComponentName === ParamEditorInputTypes.DEFAULT_VALUE && syntaxDiagnostics) ||
-                                    model.paramName?.viewState?.diagnosticsInRange
-                                }
+                                diagnostics={defaultParamValue && syntaxDiagnostics?.filter(diag => diag?.message.includes("expected"))}
                             />
                         </div>
                     )
@@ -258,6 +254,14 @@ export function ParamEditor(props: ParamProps) {
                     />
                 </div>
             }
+            {
+                model.parameterValue.includes(RESOURCE_CALLER_TYPE)
+                && syntaxDiagnostics?.filter(diag => diag?.message.includes("Caller"))
+                &&
+                <div className={classes.invalidCode}>
+                    {syntaxDiagnostics[0]?.message}
+                </div>
+            }
             <div className={classes.btnContainer}>
                 <SecondaryButton
                     text="Cancel"
@@ -270,9 +274,6 @@ export function ParamEditor(props: ParamProps) {
                     text={"Save"}
                     disabled={
                         (syntaxDiagnostics && syntaxDiagnostics.length > 0)
-                        || STKindChecker.isDefaultableParam(model) && model.expression?.viewState?.diagnosticInRange?.length > 0
-                        || model.paramName?.viewState?.diagnosticsInRange?.length > 0
-                        || model.typeName?.viewState?.diagnosticsInRange?.length > 0
                     }
                     fullWidth={false}
                     onClick={handleOnSave}
