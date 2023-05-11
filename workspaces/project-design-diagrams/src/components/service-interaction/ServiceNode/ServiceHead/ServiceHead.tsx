@@ -20,11 +20,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+import { WarningIcon } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { ServicePortWidget } from '../../ServicePort/ServicePortWidget';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
 import { Colors, GraphQLIcon, GrpcIcon, HttpServiceIcon, Level, ServiceTypes, Views, WebhookIcon } from '../../../../resources';
 import { ServiceHead, ServiceName } from '../styles/styles';
+import Popover from '@mui/material/Popover';
+import { UnSupportedMessage } from "../../../common/UnSupportedMessage/UnSupportedMessage";
 
 interface ServiceHeadProps {
     engine: DiagramEngine;
@@ -37,6 +40,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const { currentView, editingEnabled } = useContext(DiagramContext);
     const headPorts = useRef<PortModel[]>([]);
     const [isHovered, setIsHovered] = useState<boolean>(false);
+    const [anchorElement, setAnchorElement] = useState<SVGPathElement | HTMLDivElement>(null);
 
     const displayName: string = node.nodeObject.annotation?.label || node.nodeObject.path || node.nodeObject.serviceId;
 
@@ -45,8 +49,14 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
     }, [node])
 
-    const handleOnHover = (task: string) => {
-        setIsHovered(task === 'SELECT' ? true : false);
+    const handleOnHover = (task: string, evt: React.MouseEvent<SVGPathElement | HTMLDivElement>) => {
+        if (task === 'SELECT') {
+            setIsHovered(true);
+            setAnchorElement(evt.currentTarget);
+        } else {
+            setIsHovered(false);
+            setAnchorElement(null);
+        }
         node.handleHover(headPorts.current, task);
     }
 
@@ -55,16 +65,20 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
             <ServiceHead
                 level={node.level}
                 isSelected={isSelected}
-                onMouseOver={() => { handleOnHover('SELECT') }}
-                onMouseLeave={() => { handleOnHover('UNSELECT') }}
+                onMouseOver={(evt: React.MouseEvent<SVGPathElement | HTMLDivElement>) => { handleOnHover('SELECT', evt)}}
+                onMouseLeave={(evt: React.MouseEvent<SVGPathElement | HTMLDivElement>) => { handleOnHover('UNSELECT', evt)}}
             >
-                {node.serviceType === ServiceTypes.GRPC ?
-                    <GrpcIcon /> :
-                    node.serviceType === ServiceTypes.GRAPHQL ?
-                        <GraphQLIcon /> :
-                        node.serviceType === ServiceTypes.HTTP ?
-                            <HttpServiceIcon /> :
-                            node.serviceType === ServiceTypes.WEBHOOK ?
+                {
+                    node.nodeObject.isNoData ? (
+                        <WarningIcon/>
+                    ) :
+                        node.serviceType === ServiceTypes.GRPC ?
+                            <GrpcIcon /> :
+                            node.serviceType === ServiceTypes.GRAPHQL ?
+                                <GraphQLIcon /> :
+                                node.serviceType === ServiceTypes.HTTP ?
+                                    <HttpServiceIcon /> :
+                                    node.serviceType === ServiceTypes.WEBHOOK ?
                                 <WebhookIcon /> :
                                 <MiscellaneousServicesIcon fontSize='medium' />
                 }
@@ -96,6 +110,35 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                         port={node.getPort(`left-gw-${node.getID()}`)}
                         engine={engine}
                     />
+                )}
+                {node.nodeObject.isNoData && (
+                    <Popover
+                        id='mouse-over-popover'
+                        open={!!anchorElement}
+                        sx={{
+                            pointerEvents: 'none',
+                        }}
+                        anchorEl={anchorElement}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'center',
+                        }}
+                        disableRestoreFocus
+                        onClose={(evt: React.MouseEvent<SVGPathElement | HTMLDivElement>) => { handleOnHover('UNSELECT', evt)}}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                        }}
+                        PaperProps={{
+                            style: {
+                                backgroundColor: "transparent",
+                                boxShadow: "none",
+                                borderRadius: 0
+                            }
+                        }}
+                    >
+                        <UnSupportedMessage />
+                    </Popover>
                 )}
             </ServiceHead>
         </CtrlClickGo2Source>

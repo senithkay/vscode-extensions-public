@@ -14,6 +14,7 @@
 import styled from '@emotion/styled';
 import React from "react";
 import { Coordinate } from "../CellDiagram/CellDiagram";
+import { ConsoleView } from "../../../resources";
 
 export const CellContainer: React.FC<any> = styled.div`
   display: flex;
@@ -35,6 +36,7 @@ export const CanvasWrapper: React.FC<any> = styled.div`
 
 interface CellContainerProps {
   isConsoleView?: boolean;
+  consoleView?: ConsoleView;
   canvasHeight?: number;
   path: string;
   vertices?: Coordinate[];
@@ -58,13 +60,13 @@ export const CellDiagramWrapper: React.FC<any> = styled.div`
 export const CellContainerWrapper: React.FC<any> = styled.div`
   display: flex;
   position: relative;
-  left: 50px;
+  left: ${(props: CellContainerProps) => props.consoleView === ConsoleView.PROJECT_HOME ? '65px' : '50px'};
   width: calc(100% - 102px);
   flex-direction: column;
   padding-top: 30px;
   padding-bottom: 10px;
   z-index: 1;
-  min-height: ${(props: CellContainerProps) => props.isConsoleView ? 'calc(100vh - 250px)' : 'calc(100vh - 90px)'};
+  min-height: ${(props: CellContainerProps) => props.consoleView ? 'calc(100vh - 250px)' : 'calc(100vh - 90px)'};
 `;
 
 interface GatewayContainerProps {

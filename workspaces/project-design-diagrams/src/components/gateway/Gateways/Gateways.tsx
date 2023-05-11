@@ -26,7 +26,7 @@ export function Gateways() {
     const { consoleView } = useContext(DiagramContext);
 
     const westGWLeft = '-30px';
-    const westGWTop = consoleView ? `calc(48% - 30px)` : `calc(50% - 40px)`;
+    const westGWTop = consoleView ? `calc(48% - 40px)` : `calc(50% - 40px)`;
     const northGWLeft = `calc(50% - 40px)`;
     const northGWTop = '0px';
 

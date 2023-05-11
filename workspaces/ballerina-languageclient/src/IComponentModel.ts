@@ -54,6 +54,7 @@ export interface CMService extends CMNode {
     remoteFunctions: CMRemoteFunction[];
     resources: CMResourceFunction[];
     serviceType: string;
+    isNoData?: boolean;
 }
 
 export interface CMAnnotation extends CMNode {
