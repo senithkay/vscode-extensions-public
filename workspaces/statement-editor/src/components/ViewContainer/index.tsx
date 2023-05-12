@@ -23,7 +23,7 @@ import { Uri } from 'monaco-editor';
 import { EditorModel } from "../../models/definitions";
 import { StatementEditorContext } from "../../store/statement-editor-context";
 import { CONF_NAME_PLACEHOLDER } from '../../utils/expressions';
-import { sendDidChange } from "../../utils/ls-utils";
+import { getPartialSTForModulePart, sendDidChange } from "../../utils/ls-utils";
 import Breadcrumb from "../Breadcrumb";
 import { CloseButton } from "../Button/CloseButton";
 import { EditorOverlay, OverlayType } from '../EditorOverlay';
@@ -101,24 +101,24 @@ export function ViewContainer(props: ViewContainerProps) {
         await handleModifications();
 
         const model = statementModel as ModuleVarDecl;
-        const configurablesAvailable = STKindChecker.isModulePart(syntaxTree) && STKindChecker.isModuleVarDecl(syntaxTree.members[0])
-            && STKindChecker.isConfigurableKeyword(syntaxTree.members[0].qualifiers[0]);
-
-        const noOfLines = editors[activeEditorId].isExistingStmt
-            ? 0
-            : STKindChecker.isModulePart(syntaxTree) && !!syntaxTree.imports.length
-                ? configurablesAvailable
-                    ? model.source.split('\n').length - 1
-                    : model.source.split('\n').length
-                : 1;
         const nextEditor: EditorModel = editors[activeEditorId - 1];
-
         updateEditor(activeEditorId - 1, {
             ...nextEditor,
             newConfigurableName: model.typedBindingPattern.bindingPattern.source
         });
 
-        dropLastEditor(noOfLines);
+        const newST = await getPartialSTForModulePart({ codeSnippet: currentFile.draftSource }, getLangClient);
+        const imports: string[] = [];
+        if (STKindChecker.isModulePart(newST) && newST.imports.length > 0) {
+            newST.imports.forEach((importNode) => {
+                imports.push(importNode.source);
+            });
+        }
+        if (newST) {
+            dropLastEditor(newST.source, imports);
+        } else {
+            // TODO: handle partial ST error
+        }
     };
 
     const onBackClick = async () => {

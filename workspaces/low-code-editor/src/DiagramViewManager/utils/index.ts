@@ -218,8 +218,11 @@ export function getDiagramProviderProps(
                     // setMutationInProgress(false);
                     return res;
                 },
-                updateFileContent: (content: string, skipForceSave?: boolean) => {
-                    return props.updateFileContent(focusFile, content, skipForceSave);
+                updateFileContent: async (content: string, skipForceSave?: boolean, filePath?: string) => {
+                    const fileToModify = filePath ? filePath : focusFile;
+                    const res = await props.updateFileContent(fileToModify, content, skipForceSave);
+                    setUpdateTimestamp(new Date().getTime().toString());
+                    return res;
                 },
                 // undo,
                 // isMutationInProgress,

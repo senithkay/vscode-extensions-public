@@ -106,7 +106,7 @@ function getStatementEditorContextProps(statement: any): CtxProviderProps {
         editorManager: {
             activeEditorId: 0,
             addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => null,
-            dropLastEditor: (offset?: number) => null,
+            dropLastEditor: (lastSource?: string, existingImports?: string[]) => null,
             editors: [],
             switchEditor: (index: number) => null,
             updateEditor: (index: number, newContent: EditorModel) => null
