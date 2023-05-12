@@ -27,6 +27,7 @@ import { isGoToQueryWithinLetExprSupported } from "../../../DataMapper/utils";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
 import { getTypeName } from "../../utils/dm-utils";
 import { RecordFieldTreeItemWidget } from "../commons/RecordTypeTreeWidget/RecordFieldTreeItemWidget";
+import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeHeader } from '../commons/Tree/Tree';
 
 import { useStyles } from "./style";
@@ -58,7 +59,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`local-var-widget-label-${id}`}>
             <span className={classes.valueLabel}>
-                {valueLabel ? valueLabel : id}
+                <OutputSearchHighlight>{valueLabel ? valueLabel : id}</OutputSearchHighlight>
                 {typeName && ":"}
             </span>
             {typeName && (
@@ -108,6 +109,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                 <span className={classes.label}>
                     {isRecord && (
                         <IconButton
+                            id={"local-var-expand-button-wrapper-" + id}
                             className={classes.expandIcon}
                             onClick={handleExpand}
                             data-testid={`${id}-expand-icon-local-var-node`}

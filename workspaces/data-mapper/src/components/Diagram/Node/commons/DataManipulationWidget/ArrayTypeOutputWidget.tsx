@@ -26,7 +26,7 @@ import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataM
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getExprBodyFromLetExpression, isConnectedViaLink } from "../../../utils/dm-utils";
-import { OutputSearchHighlight } from '../SearchHighlight';
+import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
 import { ArrayTypedEditableRecordFieldWidget } from "./ArrayTypedEditableRecordFieldWidget";
@@ -195,17 +195,6 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	return (
 		<>
-			{/* TODO: Add search functionality by fixing the node positioning issues */}
-			{/*<SearchNodeWidget*/}
-			{/*	searchText={dmStore.outputSearch}*/}
-			{/*	onSearchTextChange={dmStore.setOutputSearch}*/}
-			{/*	engine={engine}*/}
-			{/*	focused={dmStore.outputSearchFocused}*/}
-			{/*	setFocused={dmStore.setOutputSearchFocused}*/}
-			{/*	searchType={SearchType.Output}*/}
-			{/*	width='100%'*/}
-			{/*/>*/}
-			{/*<TreeContainerWithTopMargin data-testid={`${id}-node`}>*/}
 			<TreeContainer data-testid={`${id}-node`}>
 				<TreeHeader isSelected={portState !== PortState.Unselected} isDisabled={isDisabled} id={"recordfield-" + id}>
 					<span className={classes.treeLabelInPort}>
@@ -246,7 +235,6 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 					)}
 				</TreeBody>
 			</TreeContainer>
-			{/*</TreeContainerWithTopMargin>*/}
 		</>
 	);
 }

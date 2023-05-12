@@ -22,7 +22,7 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Por
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../utils/constants';
 import { getTypeName } from "../../utils/dm-utils";
 
-import { InputSearchHighlight } from './SearchHighlight';
+import { InputSearchHighlight } from './Search';
 import { TreeContainer, TreeHeader } from './Tree/Tree';
 
 const useStyles = makeStyles((theme: Theme) =>
