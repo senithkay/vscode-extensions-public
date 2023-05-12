@@ -86,6 +86,9 @@ jobs:
           if [[ ${#currentVersion} -ge 8 ]]; then
             currentVersionWOPreId=${currentVersion%-*}
             currentVersionNo=${currentVersionWOPreId:0:-8}
+            if [[ $currentVersionNo != *?[0-9] ]]; then
+              currentVersionNo=${currentVersionNo}0
+            fi
             npm version $currentVersionNo --preid beta --no-git-tag-version
           fi
       - name: Remove timestamp - choreo
@@ -96,6 +99,9 @@ jobs:
           if [[ ${#currentVersion} -ge 8 ]]; then
             currentVersionWOPreId=${currentVersion%-*}
             currentVersionNo=${currentVersionWOPreId:0:-8}
+            if [[ $currentVersionNo != *?[0-9] ]]; then
+              currentVersionNo=${currentVersionNo}0
+            fi            
             npm version $currentVersionNo --preid beta --no-git-tag-version
           fi
 
