@@ -70,7 +70,7 @@ export const StatementEditorContext = React.createContext({
     editorCtx: {
         switchEditor: (index: number) => undefined,
         updateEditor: (index: number, newContent: EditorModel) => undefined,
-        dropLastEditor: (offset?: number) => undefined,
+        dropLastEditor: (lastSource?: string, existingImports?: string[]) => undefined,
         addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string, isExistingStmt?: boolean) => undefined,
         activeEditorId: 0,
         editors: []
@@ -134,7 +134,7 @@ export interface CtxProviderProps extends LowCodeEditorProps {
     editorManager: {
         switchEditor?: (index: number) => void,
         updateEditor?: (index: number, newContent: EditorModel) => void,
-        dropLastEditor?: (offset?: number) => void,
+        dropLastEditor?: (lastSource?: string, existingImports?: string[]) => void,
         addConfigurable?: (newLabel: string, newPosition: NodePosition, newSource: string) => void,
         activeEditorId?: number,
         editors?: EditorModel[]

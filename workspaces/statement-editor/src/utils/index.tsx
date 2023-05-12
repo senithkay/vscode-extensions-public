@@ -412,6 +412,7 @@ export function addImportStatements(
             moduleList += "import " + module + ";\n";
         }
     });
+    // TODO: update this logic to add imports after the license header
     return moduleList + currentFileContent;
 }
 
@@ -1189,6 +1190,10 @@ export function isBalVersionUpdateOne(version: string): boolean{
 
 export function getContentFromSource(source: string, position: NodePosition) {
     const splitSource: string[] = source.split("\n");
+    if(!position.endLine && !position.endColumn){
+        return splitSource[position.startLine].slice(position.startColumn);
+    }
+    // Handle multi line selection
     const sliceContent: string[] = [];
     if (splitSource?.length) {
         for (let line = position.startLine; line <= (position.endLine || position.startLine); line++) {
