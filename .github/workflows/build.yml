@@ -78,6 +78,27 @@ jobs:
         with:
           version: ${{ env.ballerina_version }}
 
+      - name: Remove timestamp - balleina
+        if: ${{ inputs.ballerina }}
+        run: |
+          cd workspaces/ballerina-extension
+          currentVersion=$(node -p "require('./package.json').version")
+          if [[ ${#currentVersion} -ge 8 ]]; then
+            currentVersionWOPreId=${currentVersion%-*}
+            currentVersionNo=${currentVersionWOPreId:0:-8}
+            npm version $currentVersionNo --preid beta --no-git-tag-version
+          fi
+      - name: Remove timestamp - choreo
+        if: ${{ inputs.choreo }}
+        run: |
+          cd workspaces/choreo-extension
+          currentVersion=$(node -p "require('./package.json').version")
+          if [[ ${#currentVersion} -ge 8 ]]; then
+            currentVersionWOPreId=${currentVersion%-*}
+            currentVersionNo=${currentVersionWOPreId:0:-8}
+            npm version $currentVersionNo --preid beta --no-git-tag-version
+          fi
+
       - name: Update ballerina extension versions
         if: ${{ inputs.version != 'N/A' && inputs.ballerina }}
         run: |
@@ -93,7 +114,7 @@ jobs:
       - name: Get timestamp
         id: timestamp
         run: |
-          timestamp=$(date '+%Y%m%d%H')
+          timestamp=$(date '+%y%m%d%H')
           echo "timestamp=$timestamp" >> $GITHUB_OUTPUT
 
       - name: Set prerelase version - ballerina
@@ -101,9 +122,7 @@ jobs:
         run: |
           cd workspaces/ballerina-extension
           currentVersion=$(node -p "require('./package.json').version")
-          currentVersionWOPreId=${currentVersion%-*}
-          currentVersionNo=${currentVersionWOPreId%.*}
-          newVersion=${currentVersionNo}.${{ steps.timestamp.outputs.timestamp }}
+          newVersion=${currentVersion}${{ steps.timestamp.outputs.timestamp }}
           echo $newVersion
           npm version $newVersion --preid beta --no-git-tag-version
           
@@ -112,9 +131,7 @@ jobs:
         run: |
           cd workspaces/choreo-extension
           currentVersion=$(node -p "require('./package.json').version")
-          currentVersionWOPreId=${currentVersion%-*}
-          currentVersionNo=${currentVersionWOPreId%.*}
-          newVersion=${currentVersionNo}.${{ steps.timestamp.outputs.timestamp }}
+          newVersion=${currentVersion}${{ steps.timestamp.outputs.timestamp }}
           echo $newVersion
           npm version $newVersion --preid beta --no-git-tag-version
 
