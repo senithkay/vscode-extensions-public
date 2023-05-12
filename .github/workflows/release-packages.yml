@@ -26,7 +26,6 @@ on:
         type: choice
         description: 'Enter the version type'
         required: true
-        default: 'N/A'
         options:
           - 'patch'
           - 'minor'
@@ -34,8 +33,7 @@ on:
           - 'prepatch'
           - 'preminor'
           - 'premajor'
-          - 'prerelease'     
-          - 'N/A'     
+          - 'prerelease'
 
 jobs:
   Build:
@@ -91,4 +89,6 @@ jobs:
         with:
           version: ${{ inputs.package }}
           threadId: ${{ github.run_id }}
-        secrets: inherit  
+          bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
+          bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
