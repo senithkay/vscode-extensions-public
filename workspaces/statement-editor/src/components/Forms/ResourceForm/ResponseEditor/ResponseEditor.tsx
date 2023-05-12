@@ -51,7 +51,7 @@ export interface ParamProps {
     option?: string;
     isTypeReadOnly?: boolean;
     onChange: (segmentId: number, responseCode: number, withType?: string) => void;
-    onCancel?: () => void;
+    onCancel?: (revertChange?: boolean) => void;
     httpMethodName?: string;
 }
 
@@ -65,7 +65,7 @@ enum ParamEditorInputTypes {
 
 export function ResponseEditor(props: ParamProps) {
     const {
-        segmentId, syntaxDiagnostics, model, alternativeName, isEdit, option, optionList, isTypeReadOnly, onChange,
+        segmentId, syntaxDiagnostics, model, option, optionList, onChange,
         onCancel, completions, httpMethodName
     } = props;
     const classes = useStyles();
@@ -143,7 +143,7 @@ export function ResponseEditor(props: ParamProps) {
     };
 
     const handleOnCancel = () => {
-        onCancel();
+        onCancel(true);
     }
 
     const handleOnSave = () => {

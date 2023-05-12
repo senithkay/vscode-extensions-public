@@ -32,9 +32,11 @@ import {
     Payload,
     QueryParam,
     QueryParamCollection, ResourceDiagnostics,
+    ResourceParam,
     ReturnType,
     ReturnTypeCollection,
 } from "./types";
+import { StatementSyntaxDiagnostics } from "../../../models/definitions";
 
 export const headerParameterOption = "Header";
 export const queryParameterOption = "Query";
@@ -223,9 +225,48 @@ export function getResourcePath(pathSegments: (DotToken | SlashToken | Identifie
     return pathSegments.reduce((prev, current) => `${prev}${current.value ? current.value : current.source}`, '');
 }
 
-export function getParamString(parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam |
-    RestParam)[]): string {
-    return parameters.reduce((prev, current) => `${prev}${current.value ? current.value : current.source}`, '');
+export function getParamString(parameters: ResourceParam[]): string {
+    return parameters.reduce((prev, current) => prev !== "" ? `${prev},${current.parameterValue}` : `${current.parameterValue}`, '');
+}
+
+export function getParamArray(functionSignature: FunctionSignature): ResourceParam[] {
+    const paramValues: ResourceParam[] = [];
+    functionSignature?.parameters.forEach(value => {
+        if (!STKindChecker.isCommaToken(value)) {
+            const filteredDiag: StatementSyntaxDiagnostics[] = [];
+
+            const parameterDiag: StatementSyntaxDiagnostics[] = value.viewState?.diagnosticsInRange;
+            parameterDiag.forEach(diag => {
+                const message = diag.message.toLowerCase(); // Convert message to lowercase for case-insensitive comparison
+                const sourceWords = value.source.toLowerCase().split(" "); // Split value.source into individual words
+                if (sourceWords.some(word => message.includes(word))) {
+                    filteredDiag.push(diag);
+                }
+            })
+
+            const functionSigDiag: StatementSyntaxDiagnostics[] = functionSignature.viewState?.diagnosticsInRange;
+            functionSigDiag.forEach(diag => {
+                const message = diag.message.toLowerCase(); // Convert message to lowercase for case-insensitive comparison
+                const sourceWords = value.source.toLowerCase().split(" "); // Split value.source into individual words
+                if (!filteredDiag.some(filDiag => filDiag.message === diag.message)) {
+                    if (sourceWords.some(word => message.includes(word))) {
+                        filteredDiag.push(diag);
+                    }
+                }
+            })
+            const paramValue: ResourceParam = {
+                parameterValue: value.source,
+                diagnosticMsg: filteredDiag,
+                annotaion: value.annotations?.length > 0 ? value.annotations[0].source.trim() : "",
+                type: value.typeName?.source.trim(),
+                name: value.paramName?.value,
+                default: STKindChecker.isDefaultableParam(value) ? `= ${value.expression.source.trim()}` : '',
+                model: value
+            }
+            paramValues.push(paramValue);
+        }
+    })
+    return paramValues;
 }
 
 export function generateQueryParamFromST(params: STNode[]): string {
@@ -412,7 +453,7 @@ export function getPayloadString(payload: Payload): string {
 }
 
 export function generateParamString(queryParamString: string, payloadString: string,
-                                    advancedParamString: string): string {
+    advancedParamString: string): string {
     let paramString = "";
     if (advancedParamString && !payloadString && !queryParamString) {
         paramString = advancedParamString;
