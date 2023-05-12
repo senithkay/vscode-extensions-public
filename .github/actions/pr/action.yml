@@ -6,6 +6,15 @@ inputs:
   threadId:
     description: 'Google chat thread ID'
     required: true
+  bot_username:
+    description: 'Ballerina bot username'
+    required: true
+  bot_email:
+    description: 'Ballerina bot email'
+    required: true
+  bot_token:
+    description: 'Ballerina bot token'
+    required: true      
 runs:
   using: "composite"
   steps:
@@ -13,18 +22,18 @@ runs:
         shell: bash
         id: commit
         run: |
-          git config --global user.name ${{ secrets.BALLERINA_BOT_USERNAME }}
-          git config --global user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
+          git config --global user.name ${{ inputs.bot_username }}
+          git config --global user.email ${{ inputs.bot_email }}
           git add workspaces/*/*.json
           git commit -m "Update version to v${{ inputs.version }}"
           git checkout -b "v${{ inputs.version }}"
-          git remote set-url origin https://${{ secrets.BALLERINA_BOT_USERNAME }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
+          git remote set-url origin https://${{ inputs.bot_username }}:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git
           git tag v${{ inputs.version }}
           git push origin "refs/heads/v${{ inputs.version }}" "refs/tags/v${{ inputs.version }}"
           pr=$(gh pr create -B main -H "v${{ inputs.version }}" --title 'Merge "v${{ inputs.version }}" into main' --body '$subject')
           echo "prURL=$pr" >> $GITHUB_OUTPUT
         env:
-          GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          GITHUB_TOKEN: ${{ inputs.bot_token }}
 
       # - name: "PR Notification"
       #   shell: bash
