@@ -41,9 +41,8 @@ jobs:
     with:
       isPreRelease: false
       enableCache: false
-      ballerina: ${{ inputs.ballerina }}
-      choreo: ${{ inputs.choreo }}
-      version: ${{ inputs.version }}
+      ballerina: false
+      choreo: false
     secrets: inherit  
 
   Release:
