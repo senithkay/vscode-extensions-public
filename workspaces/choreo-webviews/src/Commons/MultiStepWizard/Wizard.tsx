@@ -42,7 +42,7 @@ const StepContainer = styled.div`
     padding: 15px;
 `;
 
-export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveButtonText, closeOnSave }: WizardProps<T>) => {
+export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveButtonText, cancelButtonText, onCancel, closeOnSave }: WizardProps<T>) => {
     const [state, setState] = useState(initialState);
     const context = useContext(ChoreoWebViewContext);
 
@@ -118,6 +118,13 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
         }
     };
 
+    const handleCancelClick = async () => {
+        if (onCancel) {
+            onCancel(state.formData, context);
+        }
+        ChoreoWebViewAPI.getInstance().closeWebView();
+    };
+
     const validateForm = async <T extends Record<string, any>>(
         formData: T,
         validationRules: ValidationRule<T>[],
@@ -157,7 +164,10 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
         const isLastStep = currentStep === steps.length - 1;
         return (
             <WizardActionsContainer>
-                {(state.isStepValidating || state.isSaving ) && ( <VSCodeProgressRing style={{height: 24}}/> )}
+                {(state.isStepValidating || state.isSaving ) && ( <VSCodeProgressRing style={{height: 24}}/> )}         
+                <VSCodeButton appearance="secondary" onClick={handleCancelClick} disabled={state.isSaving}>
+                    {cancelButtonText ? cancelButtonText : "Cancel"}
+                </VSCodeButton>
                 {currentStep > 0 && (
                     <VSCodeButton onClick={handlePrevClick} disabled={state.isSaving}>
                         Previous
