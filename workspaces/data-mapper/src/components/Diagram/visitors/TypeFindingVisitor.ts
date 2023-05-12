@@ -35,10 +35,11 @@ export interface FnDefPositions {
     returnTypeDescPosition: LinePosition;
 }
 
-export class RecordTypeFindingVisitor implements Visitor {
+export class TypeFindingVisitor implements Visitor {
     private readonly expressionNodeRanges: ExpressionRange[];
     private readonly symbolNodesPositions: LinePosition[];
     private fnDefPositions: FnDefPositions;
+    private noOfParams: number;
     private readonly isArraysSupported: boolean;
 
     constructor(isArraysSupported: boolean) {
@@ -46,6 +47,7 @@ export class RecordTypeFindingVisitor implements Visitor {
         this.symbolNodesPositions = []
         this.fnDefPositions = {fnNamePosition: undefined, returnTypeDescPosition: undefined}
         this.isArraysSupported = isArraysSupported
+        this.noOfParams = 0
     }
 
     public beginVisitFunctionDefinition(node: FunctionDefinition) {
@@ -61,6 +63,7 @@ export class RecordTypeFindingVisitor implements Visitor {
                         offset: (node.functionSignature.returnTypeDesc.type.position as NodePosition).startColumn
                     } : null
             }
+            this.noOfParams = node.functionSignature.parameters.filter(param => !STKindChecker.isCommaToken(param)).length;
         } else {
             node.functionSignature.parameters.map((param: STNode) => {
                 if (STKindChecker.isRequiredParam(param)) {
@@ -71,6 +74,7 @@ export class RecordTypeFindingVisitor implements Visitor {
                         line: paramPosition.startLine,
                         offset: paramPosition.startColumn
                     });
+                    this.noOfParams++;
                 }
             });
             if (node.functionSignature?.returnTypeDesc) {
@@ -190,6 +194,10 @@ export class RecordTypeFindingVisitor implements Visitor {
 
     public getFnDefPositions(){
         return this.fnDefPositions;
+    }
+
+    public getNoOfParams(){
+        return this.noOfParams;
     }
 }
 

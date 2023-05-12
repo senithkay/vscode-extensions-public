@@ -25,12 +25,7 @@ import {
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { WarningBanner } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import {
-    FunctionDefinition,
-    NodePosition,
-    STNode,
-    traversNode,
-} from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import "../../assets/fonts/Gilmer/gilmer.css";
 import { useDMSearchStore, useDMStore } from "../../store/store";
@@ -40,20 +35,15 @@ import { DataMapperNodeModel } from "../Diagram/Node/commons/DataMapperNode";
 import { hasIONodesPresent } from "../Diagram/utils/dm-utils";
 import { FunctionDefinitionStore } from "../Diagram/utils/fn-definition-store";
 import { handleDiagnostics } from "../Diagram/utils/ls-utils";
-import { RecordTypeDescriptorStore } from "../Diagram/utils/record-type-descriptor-store";
+import { TypeDescriptorStore, TypeStoreStatus } from "../Diagram/utils/type-descriptor-store";
 import { NodeInitVisitor } from "../Diagram/visitors/NodeInitVisitor";
 import { SelectedSTFindingVisitor } from "../Diagram/visitors/SelectedSTFindingVisitor";
 import { ViewStateSetupVisitor } from "../Diagram/visitors/ViewStateSetupVisitor";
 import { StatementEditorComponent } from "../StatementEditorComponent/StatementEditorComponent"
 
 import { DataMapperConfigPanel } from "./ConfigPanel/DataMapperConfigPanel";
-import { DataMapperInputParam, DataMapperOutputParam } from "./ConfigPanel/InputParamsPanel/types";
-import {
-    getFnNameFromST,
-    getFnSignatureFromST,
-    getInputsFromST,
-    getOutputTypeFromST
-} from "./ConfigPanel/utils";
+import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./ConfigPanel/InputParamsPanel/types";
+import { getFnNameFromST, getFnSignatureFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
@@ -111,6 +101,7 @@ export interface DataMapperProps {
         path: string,
         size: number
     };
+    openedViaPlus?: boolean;
     ballerinaVersion?: string;
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => Promise<void>;
@@ -196,6 +187,7 @@ function DataMapperC(props: DataMapperProps) {
         langClientPromise,
         filePath,
         currentFile,
+        openedViaPlus,
         stSymbolInfo,
         applyModifications,
         updateFileContent,
@@ -224,13 +216,15 @@ function DataMapperC(props: DataMapperProps) {
     const [output, setOutput] = useState<DataMapperOutputParam>();
     const [fnName, setFnName] = useState(getFnNameFromST(fnST));
     const [fnSignature, setFnSignature] = useState(getFnSignatureFromST(fnST));
-    const [nodeSetupCounter, setNodeSetupCounter] = useState(0);
     const [showLocalVarConfigPanel, setShowLocalVarConfigPanel] = useState(false);
     const { setFunctionST, setImports } = useDMStore();
     const { inputSearch, outputSearch, resetSearchStore } = useDMSearchStore();
     const [dmContext, setDmContext] = useState<DataMapperContext>();
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
     const [shouldRestoreTypes, setShouldRestoreTypes] = useState(true);
+
+    const typeStore = TypeDescriptorStore.getInstance();
+    const typeStoreStatus = typeStore.getStatus();
 
     const classes = useStyles();
 
@@ -315,49 +309,60 @@ function DataMapperC(props: DataMapperProps) {
         setFunctionST(fnST);
         setImports(importStatements);
         setShouldRestoreTypes(true);
+        const fnSignatureFromFnST = getFnSignatureFromST(fnST);
+        const fnNameFromFnST = getFnNameFromST(fnST);
+        if (!(inputs && output) || (fnST && fnSignatureFromFnST !== fnSignature && fnNameFromFnST !== fnName)) {
+            const fnSTFromTypeStore = typeStore.getSTNode();
+            const hasFnSwitched = fnST && fnSTFromTypeStore && (
+                fnNameFromFnST !== getFnNameFromST(fnSTFromTypeStore)
+                || fnSignatureFromFnST !== getFnSignatureFromST(fnSTFromTypeStore)
+            );
+            if (hasFnSwitched || (!(inputs && output) && (!fnSTFromTypeStore || openedViaPlus))) {
+                typeStore.resetStatus();
+                setInputs(undefined);
+                setOutput(undefined);
+            }
+            setFnSignature(fnSignatureFromFnST);
+            setFnName(fnNameFromFnST);
+        }
     }, [fnST]);
 
     useEffect(() => {
         void (async () => {
-            try {
-                if (selection.selectedST.stNode) {
-                    const diagnostics = await handleDiagnostics(filePath, langClientPromise)
+            if (selection.selectedST.stNode) {
+                const diagnostics = await handleDiagnostics(filePath, langClientPromise)
 
-                    const context = new DataMapperContext(
-                        filePath,
-                        fnST,
-                        selection,
-                        langClientPromise,
-                        currentFile,
-                        stSymbolInfo,
-                        handleSelectedST,
-                        applyModifications,
-                        diagnostics,
-                        enableStatementEditor,
-                        collapsedFields,
-                        handleCollapse,
-                        isStmtEditorCanceled,
-                        fieldTobeEdited,
-                        handleFieldToBeEdited,
-                        handleOverlay,
-                        ballerinaVersion,
-                        handleLocalVarConfigPanel,
-                        updateActiveFile,
-                        updateSelectedComponent
-                    );
+                const context = new DataMapperContext(
+                    filePath,
+                    fnST,
+                    selection,
+                    langClientPromise,
+                    currentFile,
+                    stSymbolInfo,
+                    handleSelectedST,
+                    applyModifications,
+                    diagnostics,
+                    enableStatementEditor,
+                    collapsedFields,
+                    handleCollapse,
+                    isStmtEditorCanceled,
+                    fieldTobeEdited,
+                    handleFieldToBeEdited,
+                    handleOverlay,
+                    ballerinaVersion,
+                    handleLocalVarConfigPanel,
+                    updateActiveFile,
+                    updateSelectedComponent
+                );
 
-                    if (shouldRestoreTypes) {
-                        const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                        await recordTypeDescriptors.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
-                        const functionDefinitions = FunctionDefinitionStore.getInstance();
-                        await functionDefinitions.storeFunctionDefinitions(fnST, context);
-                        setShouldRestoreTypes(false);
-                    }
-
-                    setDmContext(context);
+                if (shouldRestoreTypes) {
+                    await typeStore.storeTypeDescriptors(fnST, context, isArraysSupported(ballerinaVersion));
+                    const functionDefinitions = FunctionDefinitionStore.getInstance();
+                    await functionDefinitions.storeFunctionDefinitions(fnST, context);
+                    setShouldRestoreTypes(false);
                 }
-            } finally {
-                setNodeSetupCounter(prevState => prevState + 1);
+
+                setDmContext(context);
             }
         })();
     }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, fieldTobeEdited]);
@@ -367,13 +372,13 @@ function DataMapperC(props: DataMapperProps) {
             const nodeInitVisitor = new NodeInitVisitor(dmContext, selection)
             traversNode(selection.selectedST.stNode, nodeInitVisitor);
             const nodes = nodeInitVisitor.getNodes();
-            if (hasIONodesPresent(nodes)) {
+            if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
                 setDmNodes(nodes);
             }
         } else {
             setDmNodes([]);
         }
-    }, [selection?.selectedST?.stNode, dmContext, inputSearch, outputSearch]);
+    }, [selection?.selectedST?.stNode, dmContext, inputSearch, outputSearch, typeStoreStatus]);
 
     const dMSupported = isDMSupported(ballerinaVersion);
     const dmUnsupportedMessage = `The current ballerina version ${ballerinaVersion.replace(
@@ -381,48 +386,34 @@ function DataMapperC(props: DataMapperProps) {
         } does not support the Data Mapper feature. Please update your Ballerina versions to 2201.1.2, 2201.2.1, or higher version.`;
 
     useEffect(() => {
-        if (nodeSetupCounter > 0 && selection.prevST.length === 0) {
+        let inputParams: DataMapperInputParam[] = [];
+        let outputType: DataMapperOutputParam = { type: undefined, isUnsupported: true, typeNature: TypeNature.DUMMY };
+        if (selection.prevST.length === 0
+            && typeStoreStatus === TypeStoreStatus.Loaded
+            && !isConfigPanelOpen && !showConfigPanel) {
             if (fnST) {
-                const ioNodesPresent = hasIONodesPresent(dmNodes);
-                const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
-                if (ioNodesPresent && recordTypeDescriptors.recordTypeDescriptors.size > 0) {
-                    // When open the DM of an existing function using code lens
-                    const hasFnSignatureChanged = !(inputs && output) || fnST.functionSignature.source !== fnSignature;
-                    const hasFnNameChanged = fnST.functionName.value !== fnName;
-                    if (hasFnSignatureChanged) {
-                        const inputParams: DataMapperInputParam[] = getInputsFromST(fnST, ballerinaVersion)
-                            || [];
-                        setInputs(inputParams);
-                        const outputType: DataMapperOutputParam = getOutputTypeFromST(fnST, ballerinaVersion)
-                            || { type: undefined, isUnsupported: true };
-                        setOutput(outputType);
-                        setFnSignature(getFnSignatureFromST(fnST));
-                    }
-                    if (hasFnNameChanged) {
-                        setFnName(getFnNameFromST(fnST));
-                    }
-                } else {
-                    // When open the DM of an existing incomplete function using code lens
-                    const hasNoParameter = !inputs && fnST.functionSignature.parameters.length === 0;
-                    const hasNoReturnType = !output && !fnST.functionSignature?.returnTypeDesc;
-                    if (hasNoParameter) {
-                        setInputs([]);
-                    }
-                    if (hasNoReturnType) {
-                        setOutput({ type: undefined, isUnsupported: true });
-                    }
-                    if (hasNoParameter || hasNoReturnType) {
-                        setFnName(getFnNameFromST(fnST));
-                        setFnSignature(getFnSignatureFromST(fnST));
-                    }
+                // When open the DM of an existing function using code lens
+                const hasNoParameter = fnST.functionSignature.parameters.length === 0;
+                const hasNoReturnType = !fnST.functionSignature?.returnTypeDesc;
+                if (!hasNoParameter) {
+                    inputParams = getInputsFromST(fnST, ballerinaVersion) || inputParams;
+                    setInputs(inputParams);
                 }
-            } else {
-                // When open the DM using the main menu
-                setInputs([]);
-                setOutput({ type: undefined, isUnsupported: true });
+                if (!hasNoReturnType) {
+                    outputType = getOutputTypeFromST(fnST, ballerinaVersion) || outputType;
+                    setOutput(outputType);
+                }
+                if (!inputs && !output) {
+                    setInputs(inputParams);
+                    setOutput(outputType);
+                }
             }
+        } else if (typeStoreStatus === TypeStoreStatus.Init && openedViaPlus) {
+            // When creating a new DM using plus menu
+            setInputs(inputParams);
+            setOutput(outputType);
         }
-    }, [nodeSetupCounter])
+    }, [fnSignature, typeStoreStatus]);
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {
