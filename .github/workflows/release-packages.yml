@@ -1,0 +1,103 @@
+name: Release Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      ballerina-languageclient:
+        type: boolean
+      configurable-editor:
+        type: boolean
+      data-mapper:
+        type: boolean
+      expression-editor:
+        type: boolean
+      lang-service:
+        type: boolean
+      low-code-diagram:
+        type: boolean
+      low-code-distribution:
+        type: boolean       
+      low-code-editor:
+        type: boolean    
+      low-code-editor-commons:
+        type: boolean    
+      low-code-integration-tests:
+        type: boolean    
+      low-code-ui-components:
+        type: boolean    
+      statement-editor:
+        type: boolean    
+      syntax-tree:
+        type: boolean    
+      project-design-diagrams:
+        type: boolean                                                                                
+      version:
+        type: choice
+        description: 'Enter the version type'
+        required: true
+        default: 'N/A'
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
+          - 'prepatch'
+          - 'preminor'
+          - 'premajor'
+          - 'prerelease'     
+          - 'N/A'     
+
+jobs:
+  Build:
+    uses: ./.github/workflows/build.yml
+    with:
+      isPreRelease: ${{ inputs.isPreRelease }}
+      enableCache: false
+      ballerina: ${{ inputs.ballerina }}
+      choreo: ${{ inputs.choreo }}
+      version: ${{ inputs.version }}
+    secrets: inherit  
+
+  Release:
+    name: Release VSIX
+    needs: [Build]
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - uses: actions/setup-node@v3
+        with:
+          always-auth: true
+          node-version: 16.x
+          registry-url: "https://npm.pkg.github.com"
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.26.3
+
+      - run: |
+          node common/scripts/install-run-rush.js install
+
+      - name: Publish low code diagram
+        if: ${{ github.event.inputs.packages == 'true' }}
+        run: |
+          cd workspaces
+          for workspace in "${!INPUT_@}"; do
+            if [[ "${!input_var}" != "version" && ${!input_var}" == "true" ]]; then
+              cd $workspace
+              pnpm version ${{ inputs.version }} --no-git-tag-version
+              # pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }}
+              cd ..
+            fi  
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
