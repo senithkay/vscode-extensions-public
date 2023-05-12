@@ -39,7 +39,7 @@ jobs:
   Build:
     uses: ./.github/workflows/build.yml
     with:
-      isPreRelease: ${{ inputs.isPreRelease }}
+      isPreRelease: false
       enableCache: false
       ballerina: ${{ inputs.ballerina }}
       choreo: ${{ inputs.choreo }}
