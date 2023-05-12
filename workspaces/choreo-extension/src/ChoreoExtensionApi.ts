@@ -181,7 +181,7 @@ export class ChoreoExtensionApi {
                         if (wsConfig && wsConfig.path) {
                             const componentPath: string = path.join(projectRoot, wsConfig.path);
                             for (const localModel of model.values()) {
-                                if (localModel.functionEntryPoint?.elementLocation.filePath.includes(componentPath) &&
+                                if (localModel.functionEntryPoint?.elementLocation?.filePath.includes(componentPath) &&
                                     (displayType === ChoreoComponentType.ScheduledTask || displayType === ChoreoComponentType.ManualTrigger)) {
                                         localModel.functionEntryPoint.type = displayType;
                                 }

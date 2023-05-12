@@ -29,7 +29,7 @@ export interface CMLocation {
 }
 
 interface CMNode {
-    elementLocation: CMLocation;
+    elementLocation?: CMLocation;
     diagnostics?: CMDiagnostics[];
 }
 
