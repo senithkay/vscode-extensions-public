@@ -1,36 +1,27 @@
-name: Release Packages
+name: Release Package
 
 on:
   workflow_dispatch:
     inputs:
-      ballerina-languageclient:
-        type: boolean
-      configurable-editor:
-        type: boolean
-      data-mapper:
-        type: boolean
-      expression-editor:
-        type: boolean
-      lang-service:
-        type: boolean
-      low-code-diagram:
-        type: boolean
-      low-code-distribution:
-        type: boolean       
-      low-code-editor:
-        type: boolean    
-      low-code-editor-commons:
-        type: boolean    
-      low-code-integration-tests:
-        type: boolean    
-      low-code-ui-components:
-        type: boolean    
-      statement-editor:
-        type: boolean    
-      syntax-tree:
-        type: boolean    
-      project-design-diagrams:
-        type: boolean                                                                                
+      package:
+        type: choice
+        description: "Select the package to release"
+        required: true
+        options:
+          - 'ballerina-languageclient'
+          - 'configurable-editor'
+          - 'data-mapper'
+          - 'expression-editor'
+          - 'lang-service'
+          - 'low-code-diagram'
+          - 'low-code-distribution'
+          - 'low-code-editor'
+          - 'low-code-editor-commons'
+          - 'low-code-integration-tests'
+          - 'low-code-ui-components'
+          - 'statement-editor'
+          - 'syntax-tree'
+          - 'project-design-diagrams'                                                                               
       version:
         type: choice
         description: 'Enter the version type'
@@ -88,16 +79,16 @@ jobs:
           node common/scripts/install-run-rush.js install
 
       - name: Publish low code diagram
-        if: ${{ github.event.inputs.packages == 'true' }}
         run: |
-          cd workspaces
-          for workspace in "${!INPUT_@}"; do
-            if [[ "${!input_var}" != "version" && ${!input_var}" == "true" ]]; then
-              cd $workspace
-              pnpm version ${{ inputs.version }} --no-git-tag-version
-              # pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }}
-              cd ..
-            fi  
-          done
+          cd workspaces/${{ inputs.package }}
+          pnpm version ${{ inputs.version }} --no-git-tag-version
+          # pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+
+      - name: Create PR and notify
+        uses: ./.github/pr/release
+        with:
+          version: ${{ inputs.package }}
+          threadId: ${{ github.run_id }}
+        secrets: inherit  
