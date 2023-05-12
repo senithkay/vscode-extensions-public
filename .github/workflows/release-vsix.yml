@@ -138,7 +138,7 @@ jobs:
           threadId: ${{ github.run_id }}
 
       - name: Create PR and notify
-        uses: ./.github/pr/release
+        uses: ./.github/actions/pr
         with:
           version: ${{ steps.vsix.outputs.version }}
           threadId: ${{ github.run_id }}
