@@ -21,7 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { ExtServiceNodeModel } from './ExtServiceNodeModel';
 import { ServicePortWidget } from '../ServicePort/ServicePortWidget';
-import { EndpointIcon, GraphQLIcon, HttpServiceIcon, ShortGrpcIcon } from '../../../resources';
+import { EndpointIcon } from '../../../resources';
 import { Container, IconContainer } from './styles';
 
 interface ServiceNodeWidgetProps {
@@ -52,18 +52,6 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		})
 	}, [node])
 
-	const getServiceType = (nodeID: string): JSX.Element => {
-		if (nodeID.includes('/grpc:')) {
-			return <ShortGrpcIcon />;
-		} else if (nodeID.includes('/http:')) {
-			return <HttpServiceIcon />;
-		} else if (nodeID.includes('/graphql:')) {
-			return <GraphQLIcon />;
-		} else {
-			return <EndpointIcon />;
-		}
-	}
-
 	return (
 		<Container isSelected={isSelected}>
 			{displayName} Endpoint
@@ -72,7 +60,7 @@ export function ExtServiceNodeWidget(props: ServiceNodeWidgetProps) {
 					port={node.getPort(`left-${node.getID()}`)}
 					engine={engine}
 				/>
-					{getServiceType(node.getID())}
+					<EndpointIcon />
 				<ServicePortWidget
 					port={node.getPort(`right-${node.getID()}`)}
 					engine={engine}
