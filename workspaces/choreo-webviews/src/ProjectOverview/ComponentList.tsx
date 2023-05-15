@@ -12,7 +12,7 @@
  */
 
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton, VSCodeTag, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { Component, DeploymentStatus, Repository } from "@wso2-enterprise/choreo-core";
+import { Component, DeploymentStatus, OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT, OPEN_GITHUB_REPO_PAGE_EVENT, PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Repository } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
 import React, { useCallback } from "react";
@@ -145,7 +145,15 @@ export function ComponentList(props: ComponentListProps) {
                     &nbsp; Open in Github
                 </>
             ),
-            onClick: () => onOpenConsoleClick(repoLink),
+            onClick: () => {
+                ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                    eventName: OPEN_GITHUB_REPO_PAGE_EVENT,
+                    properties: {
+                        component: component?.name,
+                    }
+                });
+                onOpenConsoleClick(repoLink);
+            },
         });
         if (!component.local) {
             menuItems.push({
@@ -158,7 +166,15 @@ export function ComponentList(props: ComponentListProps) {
                         &nbsp; Open in Choreo Console
                     </>
                 ),
-                onClick: () => onOpenConsoleClick(componentOverviewLink),
+                onClick: () => {
+                    ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                        eventName: OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT,
+                        properties: {
+                            component: component?.name,
+                        }
+                    });
+                    onOpenConsoleClick(componentOverviewLink);
+                },
             });
         }
         menuItems.push({
@@ -303,13 +319,19 @@ export function ComponentList(props: ComponentListProps) {
                                 {component.isRemoteOnly && isActive && !hasDirtyLocalRepo && (
                                     <VSCodeButton
                                         appearance="icon"
-                                        onClick={() =>
+                                        onClick={() =>{
+                                            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                                                eventName: PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT,
+                                                properties: {
+                                                    component: component?.name,
+                                                },
+                                            })
                                             pullComponent({
                                                 repository: component.repository,
                                                 branchName: repo.branchApp,
                                                 componentId: component.id
-                                            })
-                                        }
+                                            });
+                                        }}
                                         disabled={loading || isPulling}
                                         title="Pull code from remote repository"
                                     >

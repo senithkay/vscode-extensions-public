@@ -18,7 +18,7 @@ import {
 } from "@vscode/webview-ui-toolkit/react";
 import styled from "@emotion/styled";
 import React, { useCallback, useMemo, useState } from "react";
-import { Component } from "@wso2-enterprise/choreo-core";
+import { CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Component, DELETE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, OPEN_CLONED_PROJECT_EVENT, OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT, OPEN_CONSOLE_PROJECT_OVERVIEW_PAGE_EVENT, OPEN_EDITABLE_ARCHITECTURE_DIAGRAM_EVENT, OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT, OPEN_SOURCE_CONTROL_VIEW_EVENT, OPEN_UPGRADE_PLAN_PAGE_EVENT, PUSH_ALL_COMPONENTS_TO_CHOREO_EVENT, PUSH_COMPONENT_TO_CHOREO_EVENT } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ComponentList } from "./ComponentList";
 import { Codicon } from "../Codicon/Codicon";
@@ -238,18 +238,39 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         });
 
     const handleCloneProjectClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+            eventName: CLONE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, 
+            properties: {
+                project: project?.name
+            }
+        });
         ChoreoWebViewAPI.getInstance().cloneChoreoProject(project ? project.id : "");
     }, [project]);
 
     const handleOpenProjectClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+            eventName: OPEN_CLONED_PROJECT_EVENT,
+            properties: {
+                project: project?.name
+            }
+        });
         ChoreoWebViewAPI.getInstance().openChoreoProject(project ? project.id : "");
     }, [project]);
 
     const handleOpenArchitectureViewClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+            eventName: OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT,
+            properties: {
+                project: project?.name
+            }
+        });
         ChoreoWebViewAPI.getInstance().openArchitectureView();
     }, []);
 
     const handleOpenChoreoArchitectureViewClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: OPEN_EDITABLE_ARCHITECTURE_DIAGRAM_EVENT
+        });
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.architecture.view", orgName, projectId);
     }, [orgName, projectId]);
 
@@ -259,18 +280,30 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const billingLink = `${billingUrl}/cloud/choreo/upgrade?orgId=${org?.id}&fidp=google`;
 
     const onOpenConsoleClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: OPEN_CONSOLE_PROJECT_OVERVIEW_PAGE_EVENT
+        });
         ChoreoWebViewAPI.getInstance().openExternal(consoleLink);
     }, [consoleLink]);
 
     const onOpenBillingClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: OPEN_UPGRADE_PLAN_PAGE_EVENT
+        });
         ChoreoWebViewAPI.getInstance().openExternal(billingLink);
     }, [billingLink]);
 
     const handleCreateComponentClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT
+        });
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.component.create");
     }, []);
 
     const handleOpenSourceControlClick = useCallback(() => {
+        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+            eventName: OPEN_SOURCE_CONTROL_VIEW_EVENT
+        });
         ChoreoWebViewAPI.getInstance().triggerCmd("workbench.scm.focus");
     }, []);
 
@@ -468,8 +501,24 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         projectId={projectId}
                         orgName={orgName}
                         openSourceControl={handleOpenSourceControlClick}
-                        onComponentDeleteClick={handleDeleteComponentClick}
-                        handlePushComponentClick={handlePushComponentClick}
+                        onComponentDeleteClick={(cmp) => {
+                            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                                eventName: DELETE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT,
+                                properties: {
+                                    component: cmp.name,
+                                },
+                            });
+                            handleDeleteComponentClick(cmp);
+                        }}
+                        handlePushComponentClick={(cmp) => {
+                            ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                                eventName: PUSH_COMPONENT_TO_CHOREO_EVENT,
+                                properties: {
+                                    component: cmp,
+                                },
+                            });
+                            handlePushComponentClick(cmp);
+                        }}
                         loading={pushingComponent || pushingSingleComponent || deletingComponent}
                         fetchingComponents={fetchingComponents}
                         isActive={isActive}
@@ -546,7 +595,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                 <VSCodeButton
                                     appearance="primary"
                                     disabled={pushingComponent || fetchingComponents || pushingSingleComponent || !isActive}
-                                    onClick={() => handlePushToChoreoClick()}
+                                    onClick={() => {
+                                        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
+                                            eventName: PUSH_ALL_COMPONENTS_TO_CHOREO_EVENT
+                                        });
+                                        handlePushToChoreoClick();
+                                    }}
                                 >
                                     <Codicon name="cloud-upload" />
                                     &nbsp; Push to Choreo
