@@ -17,14 +17,16 @@
  *
  */
 
-import React from 'react';
-import { Container, ResolutionTitle, WarningContainer, WarningMessage, WarningResolution } from './styles';
+import React, { useContext } from 'react';
 import { WarningIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import Box from "@mui/material/Box";
-import { Colors } from "../../../resources";
 import { List, ListItem } from "@mui/material";
+import { Colors } from "../../../resources";
+import { DiagramContext } from '../DiagramContext/DiagramContext';
+import { Container, ResolutionTitle, WarningContainer, WarningMessage, WarningResolution } from './styles';
 
 export function UnSupportedMessage() {
+    const { consoleView, editingEnabled } = useContext(DiagramContext);
 
     return (
         <>
@@ -61,10 +63,10 @@ export function UnSupportedMessage() {
                     <WarningResolution>
                         <List sx={{ listStyleType: 'disc', marginTop: 0, marginLeft: 0, paddingTop: 0 }}>
                             <ListItem sx={{ display: 'list-item', paddingLeft: '8px !important', paddingBottom: '0 !important' }}>
-                                Update Ballerina to 2201.5.0 or higher and submit a commit with fixes.
+                                Update Ballerina to 2201.5.0 or higher{consoleView || !editingEnabled ? ' and submit a commit with fixes' : ''}.
                             </ListItem>
                             <ListItem sx={{ display: 'list-item', paddingLeft: '8px !important', paddingBottom: '0 !important' }}>
-                                Resolve build issues and submit a commit with fixes.
+                                Resolve build issues{consoleView || !editingEnabled ? ' and submit a commit with fixes' : ''}.
                             </ListItem>
                         </List>
                     </WarningResolution>
