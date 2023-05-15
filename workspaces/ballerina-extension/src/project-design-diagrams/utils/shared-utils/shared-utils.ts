@@ -104,14 +104,14 @@ export async function showChoreoProjectOverview(project: Project | undefined): P
     window.showErrorMessage('Error while loading Choreo project overview.');
 }
 
-function addMissingPackageData(balFiles: string[], workspaceModels: GetComponentModelResponse): GetComponentModelResponse {
+function addMissingPackageData(tomlFiles: string[], retrievedModel: GetComponentModelResponse): GetComponentModelResponse {
     let workspacePkgs: Map<string, TomlPackageData> = new Map();
-    balFiles.forEach((pkgTomlPath) => {
-        const pkgData: TomlPackageData = toml.parse(readFileSync(pkgTomlPath, 'utf-8')).package;
+    tomlFiles.forEach((pkgToml) => {
+        const pkgData: TomlPackageData = toml.parse(readFileSync(pkgToml, 'utf-8')).package;
         workspacePkgs.set(`${pkgData.org}/${pkgData.name}:${pkgData.version}`, pkgData);
     });
 
-    let retrievedPkgs: string[] = Array.from(new Map(Object.entries(workspaceModels.componentModels)).keys());
+    let retrievedPkgs: string[] = Array.from(new Map(Object.entries(retrievedModel.componentModels)).keys());
     const missingPkgs = _.difference(Array.from(workspacePkgs.keys()), retrievedPkgs);
 
     missingPkgs.forEach((pkgId) => {
@@ -130,7 +130,7 @@ function addMissingPackageData(balFiles: string[], workspaceModels: GetComponent
             resources: [],
             isNoData: true
         };
-        workspaceModels.componentModels[pkgId] = {
+        retrievedModel.componentModels[pkgId] = {
             packageId: pkg,
             hasCompilationErrors: true,
             services: pkgServices as any,
@@ -138,7 +138,7 @@ function addMissingPackageData(balFiles: string[], workspaceModels: GetComponent
         };
     });
 
-    return workspaceModels;
+    return retrievedModel;
 }
 
 export async function deleteProjectComponent(projectId: string, location: Location, deletePkg: boolean): Promise<void> {
