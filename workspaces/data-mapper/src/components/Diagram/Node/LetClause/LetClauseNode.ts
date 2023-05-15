@@ -26,7 +26,7 @@ import { useDMSearchStore } from "../../../../store/store";
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { EXPANDED_QUERY_SOURCE_PORT_PREFIX } from "../../utils/constants";
 import { getFilteredSubFields, getSearchFilteredInput } from "../../utils/dm-utils";
-import { RecordTypeDescriptorStore } from "../../utils/record-type-descriptor-store";
+import { TypeDescriptorStore } from "../../utils/type-descriptor-store";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 
 export const QUERY_EXPR_SOURCE_NODE_TYPE = "datamapper-node-record-type-desc-let";
@@ -83,7 +83,7 @@ export class LetClauseNode extends DataMapperNodeModel {
             this.sourceBindingPattern = bindingPattern;
             const exprPosition = expr.position as NodePosition;
 
-            const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+            const recordTypeDescriptors = TypeDescriptorStore.getInstance();
             const type = recordTypeDescriptors.getTypeDescriptor({
                 startLine: exprPosition.startLine,
                 startColumn: exprPosition.startColumn,

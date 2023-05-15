@@ -23,7 +23,7 @@ import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX } from '../../../utils/constants';
 import { getTypeName } from "../../../utils/dm-utils";
-import { InputSearchHighlight } from '../SearchHighlight';
+import { InputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
 
 import { RecordFieldTreeItemWidget } from "./RecordFieldTreeItemWidget";
@@ -192,4 +192,3 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
         </TreeContainer>
     );
 }
-

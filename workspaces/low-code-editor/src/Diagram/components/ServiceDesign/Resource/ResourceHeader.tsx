@@ -13,6 +13,7 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useState } from "react";
 
+import { Tooltip } from "@material-ui/core";
 import {
     DesignViewIcon, EditIcon, ErrorIcon, LabelDeleteIcon, LabelEditIcon, STModification, WarningIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -64,27 +65,31 @@ export function ResourceHeader(props: ResourceHeaderProps) {
                     relativeResourcePath={model.relativeResourcePath}
                 />
             </div>
-            <div className="menu-option" onClick={handleResourceHeaderClick}>
-                <div className={classNames("icon", "icon-adjust")}>
-                    <DesignViewIcon />
+            <Tooltip title="Low-Code view" placement="right" enterDelay={1000} enterNextDelay={1000}>
+                <div className="menu-option" onClick={handleResourceHeaderClick}>
+                    <div className={classNames("icon", "icon-adjust")}>
+                        <DesignViewIcon />
+                    </div>
                 </div>
-                {/* <div className="other">Edit</div> */}
-            </div>
-            <div className="menu-option" onClick={onEdit}>
-                <div className={classNames("icon", "icon-adjust")}>
-                    <LabelEditIcon />
+            </Tooltip>
+            <Tooltip title="Edit resource" placement="right" enterDelay={1000} enterNextDelay={1000}>
+                <div className="menu-option" onClick={onEdit}>
+                    <div className={classNames("icon", "icon-adjust")}>
+                        <LabelEditIcon />
+                    </div>
                 </div>
-                {/* <div className="other">Edit</div> */}
-            </div>
-            <div
-                onClick={onDelete}
-                className={classNames("menu-option", "right")}
-                id="delete-button"
-            >
-                <div className={classNames("icon", "icon-adjust")}>
-                    <LabelDeleteIcon />
+            </Tooltip>
+            <Tooltip title="Delete resource" placement="right" enterDelay={1000} enterNextDelay={1000}>
+                <div
+                    onClick={onDelete}
+                    className={classNames("menu-option", "right")}
+                    id="delete-button"
+                >
+                    <div className={classNames("icon", "icon-adjust")}>
+                        <LabelDeleteIcon />
+                    </div>
                 </div>
-            </div>
+            </Tooltip>
             <ComponentExpandButton
                 isExpanded={isExpanded}
                 onClick={onExpandClick}

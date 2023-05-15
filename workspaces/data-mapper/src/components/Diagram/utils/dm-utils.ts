@@ -62,7 +62,6 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
-import { SearchNode } from "../Node/Search";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
@@ -77,7 +76,7 @@ import {
 } from "./constants";
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
-import { RecordTypeDescriptorStore } from "./record-type-descriptor-store";
+import { TypeDescriptorStore } from "./type-descriptor-store";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -701,6 +700,16 @@ export function getOutputPortForField(fields: STNode[],
 		}
 	}
 
+	const outputSearchValue = useDMSearchStore.getState().outputSearch;
+	const memberAccessRegex = /\.\d+$/;
+	const isMemberAccessPattern = memberAccessRegex.test(portIdBuffer);
+	const lastPortIdSegment = portIdBuffer.split('.').slice(-1)[0];
+	if (outputSearchValue !== ''
+		&& !isMemberAccessPattern
+		&& !lastPortIdSegment.toLowerCase().includes(outputSearchValue.toLowerCase()))
+	{
+		return [undefined, undefined];
+	}
 	const portId = `${portIdBuffer}.IN`;
 	const port = (node.getPort(portId) as RecordFieldPortModel);
 	let mappedPort = port;
@@ -1090,7 +1099,7 @@ export function getTypeOfOutput(typeIdentifier: TypeDescriptor | IdentifierToken
 }
 
 export function getTypeFromStore(position: NodePosition): Type {
-	const recordTypeDescriptors = RecordTypeDescriptorStore.getInstance();
+	const recordTypeDescriptors = TypeDescriptorStore.getInstance();
 	return recordTypeDescriptors.getTypeDescriptor(position);
 }
 
@@ -1201,22 +1210,52 @@ export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: strin
 }
 
 export function hasIONodesPresent(nodes: DataMapperNodeModel[]) {
-	const inputSearchVal = useDMSearchStore.getState().inputSearch;
-	const ioNodes = nodes.filter(node => !(
-		node instanceof SearchNode
-		|| node instanceof LetExpressionNode
+	return nodes.filter(node => !(
+		node instanceof LetExpressionNode
 		|| node instanceof QueryExpressionNode
 		|| node instanceof LinkConnectorNode
 		|| node instanceof JoinClauseNode
 		|| node instanceof ExpandedMappingHeaderNode
 		|| node instanceof LetClauseNode
 		|| node instanceof ModuleVariableNode)
-	);
+	).length >= 2;
+}
 
-	const hasInputNodes = ioNodes.some(node => node instanceof RequiredParamNode || node instanceof FromClauseNode);
+export function hasNoMatchFound(originalTypeDef: Type, valueEnrichedType: EditableRecordField): boolean {
+	const searchValue = useDMSearchStore.getState().outputSearch;
+	const filteredTypeDef = valueEnrichedType.type;
+	if (!searchValue) {
+		return false;
+	} else if (originalTypeDef.typeName === PrimitiveBalType.Record && filteredTypeDef.typeName === PrimitiveBalType.Record) {
+		return valueEnrichedType?.childrenTypes.length === 0;
+	} else if (originalTypeDef.typeName === PrimitiveBalType.Array && filteredTypeDef.typeName === PrimitiveBalType.Array) {
+		return hasNoMatchFoundInArray(valueEnrichedType?.elements, searchValue);
+	} else if (originalTypeDef.typeName === PrimitiveBalType.Union) {
+		if (filteredTypeDef.typeName === PrimitiveBalType.Record) {
+			return valueEnrichedType?.childrenTypes.length === 0;
+		} else if (filteredTypeDef.typeName === PrimitiveBalType.Array) {
+			return hasNoMatchFoundInArray(valueEnrichedType?.elements, searchValue);
+		}
+	}
+	return false;
+}
 
-	// returns true if there is an input search value and the input node is missing or if it has at least input and output nodes
-	return inputSearchVal?.length > 0 && !hasInputNodes && ioNodes.length >= 1  || ioNodes.length >= 2;
+function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {
+	if (!elements) {
+		return false;
+	} else if (elements.length === 0) {
+		return true;
+	}
+	return elements.every(element => {
+		if (element.member.type.typeName === PrimitiveBalType.Record) {
+			return element.member?.childrenTypes.length === 0;
+		} else if (element.member.type.typeName === PrimitiveBalType.Array) {
+			return element.member.elements && element.member.elements.length === 0
+		} else if (element.member.value) {
+			const value = element.member.value.value || element.member.value.source;
+			return !value.toLowerCase().includes(searchValue.toLowerCase());
+		}
+	});
 }
 
 async function createValueExprSource(lhs: string, rhs: string, fieldNames: string[],
@@ -1281,11 +1320,13 @@ export function getFnDefForFnCall(node: FunctionCall): FnDefInfo {
 
 export function getFilteredMappings(mappings: FieldAccessToSpecificFied[], searchValue: string) {
 	return mappings.filter(mapping => {
-		const lastField = mapping.fields[mapping.fields.length - 1];
-		const fieldName = STKindChecker.isSpecificField(lastField)
-			? lastField.fieldName?.value || lastField.fieldName.source
-			: lastField.source;
-		return searchValue === "" || fieldName.toLowerCase().includes(searchValue.toLowerCase());
+		if (mapping) {
+			const lastField = mapping.fields[mapping.fields.length - 1];
+			const fieldName = STKindChecker.isSpecificField(lastField)
+				? lastField.fieldName?.value || lastField.fieldName.source
+				: lastField.source;
+			return searchValue === "" || fieldName.toLowerCase().includes(searchValue.toLowerCase());
+		}
 	});
 }
 

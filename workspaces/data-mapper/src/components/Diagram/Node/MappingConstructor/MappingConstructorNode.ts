@@ -16,7 +16,6 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 import {
     ExpressionFunctionBody,
     IdentifierToken,
-    MappingConstructor,
     NodePosition,
     QueryExpression,
     SelectClause,
@@ -44,7 +43,8 @@ import {
     getOutputPortForField,
     getSearchFilteredOutput,
     getTypeName,
-    getTypeOfValue
+    getTypeOfValue,
+    hasNoMatchFound
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
@@ -58,6 +58,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     public typeName: string;
     public rootName: string;
     public mappings: FieldAccessToSpecificFied[];
+    public hasNoMatchingFields: boolean;
     public x: number;
     public y: number;
 
@@ -74,11 +75,13 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     }
 
     async initPorts() {
+        const originalTypeDef = this.typeDef;
         this.typeDef = getSearchFilteredOutput(this.typeDef);
 
         if (this.typeDef) {
+            const isSelectClause = STKindChecker.isSelectClause(this.value);
             this.rootName = this.typeDef?.name && getBalRecFieldName(this.typeDef.name);
-            if (STKindChecker.isSelectClause(this.value)
+            if (isSelectClause
                 && this.typeDef.typeName === PrimitiveBalType.Array
                 && this.typeDef?.memberType
                 && this.typeDef.memberType.typeName === PrimitiveBalType.Record) {
@@ -95,10 +98,11 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
+            this.hasNoMatchingFields = hasNoMatchFound(originalTypeDef, valueEnrichedType);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             const parentPort = this.addPortsForHeaderField(this.typeDef, this.rootName, "IN",
                 MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX, this.context.collapsedFields,
-                STKindChecker.isSelectClause(this.value), valueEnrichedType);
+                isSelectClause, valueEnrichedType);
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Record) {
                 this.recordField = valueEnrichedType;
                 if (this.recordField.childrenTypes.length) {
@@ -108,9 +112,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                             this.context.collapsedFields, parentPort.collapsed);
                     });
                 }
-            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
-                && STKindChecker.isSelectClause(this.value)
-            ) {
+            } else if (valueEnrichedType.type.typeName === PrimitiveBalType.Array && isSelectClause) {
                 // valueEnrichedType only contains a single element as it is being used within the select clause in the query expression
                 this.recordField = valueEnrichedType.elements[0].member;
                 if (this.recordField.childrenTypes.length) {
@@ -147,8 +149,8 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
             const diagnostics = filterDiagnostics(
                 this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
-            const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
+                const lm = new DataMapperLinkModel(value, diagnostics, true);
                 const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
                 const keepDefault = ((mappedField && !mappedField?.name
                     && mappedField.typeName !== PrimitiveBalType.Array

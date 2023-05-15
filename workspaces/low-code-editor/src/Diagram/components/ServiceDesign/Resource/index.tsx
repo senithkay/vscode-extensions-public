@@ -14,6 +14,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
+import { Tooltip } from "@material-ui/core";
 import {
     BallerinaSTModifyResponse, CompletionResponse, ConfigOverlayFormStatus, CtrlClickWrapper, DiagramEditorLangClientInterface,
     LabelEditIcon, responseCodes, STModification
@@ -47,6 +48,8 @@ export function ResourceBody(props: ResourceBodyProps) {
             ls: { getDiagramEditorLangClient, getExpressionEditorLangClient },
         },
     } = useContext(Context);
+
+    const editStatementTxt = "Edit in statement editor";
 
     const classes = useStyles();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -124,8 +127,12 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <tr key={i} className={classes.signature}>
                         <td>
                             <div>
-                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
-                                {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}  <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div></pre>}
+                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span> :{param.paramName?.value}
+                                {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}
+                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                        <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </Tooltip>
+                                </pre>}
                             </div>
                         </td>
                     </tr>
@@ -235,7 +242,9 @@ export function ResourceBody(props: ResourceBodyProps) {
                                 {schema[i] &&
                                     <pre className={classes.schema}>
                                         {schema[i]}
-                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                        <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                            <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                        </Tooltip>
                                     </pre>
                                 }
                             </div>
@@ -266,7 +275,9 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {schema[i] &&
                                 <pre className={classes.schema}>
                                     {schema[i]}
-                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </Tooltip>
                                 </pre>
                             }
                         </td>
@@ -283,9 +294,13 @@ export function ResourceBody(props: ResourceBodyProps) {
         const langClient = await getDiagramEditorLangClient();
         const responses = [];
         for (const [i, param] of values.entries()) {
-            if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
+            if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
                 const paramDetails = param.source.split(" ");
                 const recordName = param.source.split(" ")[0];
+                let description = paramDetails.length > 0 && paramDetails[1];
+                if (paramDetails.length > 2) { 
+                    description = paramDetails.slice(1).join(" ");
+                }
                 const recordInfo = await getRecord(recordName.trim(), langClient);
                 responses.push(
                     <tr key={i} className={classes.signature}>
@@ -296,12 +311,14 @@ export function ResourceBody(props: ResourceBodyProps) {
                             {schemaParam[i] &&
                                 <pre className={classes.schema}>
                                     {schemaParam[i]}
-                                    <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                                    </Tooltip>
                                 </pre>
                             }
                         </td>
                         <td>
-                            {paramDetails.length > 0 && param.source.split(" ")[1]}
+                            {description}
                         </td>
                     </tr>
                 )

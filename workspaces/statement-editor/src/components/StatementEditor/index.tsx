@@ -67,7 +67,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     editorManager: {
         switchEditor: (index: number) => void;
         updateEditor: (index: number, newContent: EditorModel) => void;
-        dropLastEditor: (offset?: number) => void;
+        dropLastEditor: (lastSource?: string, existingImports?: string[]) => void;
         addConfigurable: (newLabel: string, newPosition: NodePosition, newSource: string) => void;
         activeEditorId: number;
         editors: EditorModel[];
@@ -77,6 +77,7 @@ export interface StatementEditorProps extends LowCodeEditorProps {
     onCancel: () => void;
     isHeaderHidden?: boolean;
     skipSemicolon?: boolean;
+    originalContent: string;
 }
 
 export function StatementEditor(props: StatementEditorProps) {
@@ -102,7 +103,8 @@ export function StatementEditor(props: StatementEditorProps) {
         openExternalUrl,
         isCodeServerInstance,
         isHeaderHidden,
-        skipSemicolon
+        skipSemicolon,
+        originalContent
     } = props;
 
     const {
@@ -116,6 +118,7 @@ export function StatementEditor(props: StatementEditorProps) {
         newConfigurableName,
         hasIncorrectSyntax
     } = editor;
+
     const {
         editors,
         activeEditorId,
@@ -142,7 +145,6 @@ export function StatementEditor(props: StatementEditorProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [isDisableEditor, setIsDisableEditor] = useState(false);
     const [draftSource, setDraftSource] = useState(source);
-    const [draftPosition, setDraftPosition] = useState(targetPosition);
 
     const undo = async () => {
         const undoItem = undoRedoManager.getUndoModel();
@@ -150,7 +152,7 @@ export function StatementEditor(props: StatementEditorProps) {
             const currentSource = (currentModel.model?.value) ? currentModel.model.value : currentModel.model.source;
             handleChange(currentSource).then();
         } else if (undoItem) {
-            await updateDraftFileContent(undoItem.oldModel.model.source, currentFile.content);
+            await updateDraftFileContent(undoItem.oldModel.model.source, originalContent);
             const diagnostics = await handleDiagnostics(undoItem.oldModel.model.source);
             setStmtModel(undoItem.oldModel.model, diagnostics);
 
@@ -164,7 +166,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const redo = async () => {
         const redoItem = undoRedoManager.getRedoModel();
         if (redoItem) {
-            await updateDraftFileContent(redoItem.newModel.model.source, currentFile.content);
+            await updateDraftFileContent(redoItem.newModel.model.source, originalContent);
             const diagnostics = await handleDiagnostics(redoItem.newModel.model.source);
             setStmtModel(redoItem.newModel.model, diagnostics);
 
@@ -178,7 +180,11 @@ export function StatementEditor(props: StatementEditorProps) {
     useEffect(() => {
         (async () => {
             if (!newConfigurableName) {
-                await updateDraftFileContent(source.trim(), currentFile.content);
+                const statementST = await getStatementST(source.trim());
+                if (!statementST) {
+                    return; // TODO: Handle partial parse error properly
+                }
+                await updateDraftFileContent(statementST.source, originalContent);
                 await handleDiagnostics(source);
 
                 const newCurrentModel: STNode = selectedNodePosition
@@ -212,8 +218,8 @@ export function StatementEditor(props: StatementEditorProps) {
 
                     for (const statement of statements) {
                         const index = statements.indexOf(statement);
-                        const updatedContent = getUpdatedSource(statement, currentFile.content,
-                            targetPosition, moduleList, skipStatementSemicolon);
+                        const updatedContent = getUpdatedSource(statement, originalContent,
+                            targetPosition, getModuleList(), skipStatementSemicolon);
                         await sendDidChange(fileURI, updatedContent, getLangClient);
                         let completions: SuggestionItem[];
 
@@ -228,8 +234,8 @@ export function StatementEditor(props: StatementEditorProps) {
                                 prefix: `${selectionWithDot}`
                             }));
 
-                            const content = getUpdatedSource(model.source, currentFile.content,
-                                targetPosition, moduleList, skipStatementSemicolon);
+                            const content = getUpdatedSource(model.source, originalContent,
+                                targetPosition, getModuleList(), skipStatementSemicolon);
                             await sendDidChange(fileURI, content, getLangClient);
                         }
                     }
@@ -251,11 +257,11 @@ export function StatementEditor(props: StatementEditorProps) {
             if (config?.type !== CUSTOM_CONFIG_TYPE && editorModel && newConfigurableName) {
                 await updateModel(newConfigurableName, selectedNodePosition, editorModel);
                 updateEditor(activeEditorId, { ...editors[activeEditorId], newConfigurableName: undefined });
-            } else if (currentModel.model !== null && !newConfigurableName && currentFile.content !== draftSource) {
+            } else if (currentModel.model !== null && !newConfigurableName && originalContent !== draftSource) {
                 setIsDisableEditor(true); // FIXME: update st-editor disable logic to identify active statement changes
             }
         })();
-    }, [currentFile.content]);
+    }, [originalContent]);
 
     useEffect(() => {
         (async () => {
@@ -266,7 +272,7 @@ export function StatementEditor(props: StatementEditorProps) {
     }, [editorModel]);
 
     const updateEditorModel = async () => {
-        const { updatedPosition } = await updateDraftFileContent(source.trim(), currentFile.content);
+        const { updatedPosition } = await updateDraftFileContent(source.trim(), originalContent);
 
         const diagnostics = await handleDiagnostics(source, updatedPosition);
         setStmtModel(editorModel, diagnostics);
@@ -278,21 +284,21 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const handleChange = async (newValue: string) => {
         const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, newValue);
-        await updateDraftFileContent(updatedStatement, currentFile.content);
+        await updateDraftFileContent(updatedStatement, originalContent);
 
         handleDiagnostics(updatedStatement).then();
         handleCompletions(newValue).then();
     }
 
     const updateDraftFileContent = async (statement: string, fileContent: string) => {
-        const updatedContent = getUpdatedSource(statement, fileContent, targetPosition, moduleList, skipStatementSemicolon);
+        const updatedContent = getUpdatedSource(statement, fileContent, targetPosition, getModuleList(), skipStatementSemicolon);
         const stmtIndex = getStatementIndex(updatedContent, statement, targetPosition);
         const newTargetPosition = getStatementPosition(updatedContent, statement, stmtIndex);
 
         await updateFileContent(updatedContent, true);
 
         setDraftSource(updatedContent);
-        setDraftPosition(newTargetPosition);
+        updateEditor(activeEditorId, { ...editors[activeEditorId], position: newTargetPosition });
 
         return {
             updatedContent,
@@ -306,6 +312,22 @@ export function StatementEditor(props: StatementEditorProps) {
 
     const updateEditing = (editing: boolean) => {
         setIsEditing(editing);
+    }
+
+    const getStatementST = async (codeSnippet: string) => {
+        return isConfigurableStmt || isModuleVar
+            ? getPartialSTForModuleMembers({ codeSnippet }, getLangClient)
+            : isExpressionMode
+            ? getPartialSTForExpression({ codeSnippet }, getLangClient)
+            : getPartialSTForStatement({ codeSnippet }, getLangClient);
+    };
+
+    const getModuleList = () => {
+        if(isConfigurableStmt){
+            // Skip adding imports for configurable statements
+            return new Set<string>();
+        }
+        return moduleList;
     }
 
     const updateModel = async (codeSnippet: string, position: NodePosition, stmtModel?: STNode) => {
@@ -330,7 +352,7 @@ export function StatementEditor(props: StatementEditorProps) {
         }
 
         if (!partialST.syntaxDiagnostics.length || (!isExpressionMode && config.type === CUSTOM_CONFIG_TYPE)) {
-            await updateDraftFileContent(partialST.source, currentFile.content);
+            await updateDraftFileContent(partialST.source, originalContent);
             const diagnostics = await handleDiagnostics(partialST.source);
             setStmtModel(partialST, diagnostics);
             const selectedPosition = getSelectedModelPosition(codeSnippet, position);
@@ -350,7 +372,7 @@ export function StatementEditor(props: StatementEditorProps) {
 
         } else if (partialST.syntaxDiagnostics.length){
             const updatedStatement = addToTargetPosition(model.source, currentModel.model.position, codeSnippet);
-            await updateDraftFileContent(updatedStatement, currentFile.content);
+            await updateDraftFileContent(updatedStatement, originalContent);
             handleDiagnostics(updatedStatement).then();
             setHasSyntaxDiagnostics(true);
         }
@@ -359,7 +381,7 @@ export function StatementEditor(props: StatementEditorProps) {
     const updateStatementModel = async (updatedStatement: string, updatedSource: string, position: NodePosition) => {
         await updateFileContent(updatedSource, true);
         setDraftSource(updatedSource);
-        setDraftPosition(position);
+        updateEditor(activeEditorId, { ...editors[activeEditorId], position: position });
         const partialST = isModuleMember(model)
             ? await getPartialSTForModuleMembers({ codeSnippet: updatedStatement }, getLangClient)
             : (isExpressionMode ? await getPartialSTForExpression({ codeSnippet: updatedStatement }, getLangClient)
@@ -418,7 +440,7 @@ export function StatementEditor(props: StatementEditorProps) {
         if (config.type !== CONNECTOR && config.type !== ACTION && config.type !== HTTP_ACTION){
             removeUnusedModules(diag);
         }
-        const filteredDiagnostics = getFilteredDiagnosticMessages(statement, (targetedPosition || draftPosition), diag);
+        const filteredDiagnostics = getFilteredDiagnosticMessages(statement, (targetedPosition || targetPosition), diag);
         const messagesWithCodeActions = await handleCodeAction(filteredDiagnostics);
         setStmtDiagnostics(messagesWithCodeActions);
         return diag;
@@ -445,7 +467,7 @@ export function StatementEditor(props: StatementEditorProps) {
         if (newCurrentModel && isDocumentationSupportedModel(newCurrentModel)){
             setDocumentation({
                 modelPosition: newCurrentModel.position,
-                documentation: await getSymbolDocumentation(fileURI, draftPosition, newCurrentModel, getLangClient)
+                documentation: await getSymbolDocumentation(fileURI, targetPosition, newCurrentModel, getLangClient)
             });
         } else {
             if (newCurrentModel && (newCurrentModel.parent?.viewState as StatementEditorViewState)?.parentFunctionPos){
@@ -456,7 +478,7 @@ export function StatementEditor(props: StatementEditorProps) {
                 if (isDocumentationSupportedModel(parentModel) && parentModel.position !== documentation.modelPosition){
                     setDocumentation({
                         modelPosition: (newCurrentModel.parent.viewState as StatementEditorViewState)?.parentFunctionPos,
-                        documentation: await getSymbolDocumentation(fileURI, draftPosition, parentModel, getLangClient)
+                        documentation: await getSymbolDocumentation(fileURI, targetPosition, parentModel, getLangClient)
                     });
                 }
             } else {
@@ -572,10 +594,10 @@ export function StatementEditor(props: StatementEditorProps) {
                     updateModel={updateModel}
                     updateStatementModel={updateStatementModel}
                     handleModules={handleModules}
-                    modulesToBeImported={moduleList}
+                    modulesToBeImported={getModuleList()}
                     initialSource={source}
                     draftSource={draftSource}
-                    draftPosition={draftPosition}
+                    draftPosition={targetPosition}
                     undo={undo}
                     redo={redo}
                     hasRedo={undoRedoManager.hasRedo()}

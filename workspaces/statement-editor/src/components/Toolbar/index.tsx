@@ -44,10 +44,11 @@ import { useStatementEditorToolbarStyles } from "../styles";
 
 import StatementQualifiers from "./StatementQualifiers";
 import { ToolbarOperators } from "./ToolbarOperators";
+import { getPartialSTForModulePart } from "../../utils/ls-utils";
 
 export default function Toolbar() {
     const statementEditorClasses = useStatementEditorToolbarStyles();
-    const {  modelCtx, editorCtx, syntaxTree, stSymbolInfo, config } = useContext(StatementEditorContext);
+    const {  modelCtx, editorCtx, stSymbolInfo, config, currentFile, getLangClient } = useContext(StatementEditorContext);
     const {
         undo,
         redo,
@@ -122,8 +123,9 @@ export default function Toolbar() {
         }
     }
 
-    const createNewConfigurable = () => {
-        const configurableInsertPosition = getModuleElementDeclPosition(syntaxTree);
+    const createNewConfigurable = async () => {
+        const originalST = await getPartialSTForModulePart({ codeSnippet: currentFile.originalContent }, getLangClient);
+        const configurableInsertPosition = getModuleElementDeclPosition(originalST);
         // TODO: Use the expected type provided by the LS, once it is available
         //  (https://github.com/wso2-enterprise/internal-support-ballerina/issues/112)
         const configurableType = CONFIGURABLE_TYPE_STRING;
