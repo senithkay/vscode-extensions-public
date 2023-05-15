@@ -18,15 +18,14 @@ import { ChoreoAuthConfig } from "./config";
 import { ext } from '../extensionVariables';
 import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
-import { Organization } from '@wso2-enterprise/choreo-core';
+import { Organization, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT } from '@wso2-enterprise/choreo-core';
 import { SELECTED_ORG_ID_KEY, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from '../constants';
 import { showChoreoProjectOverview } from '../extension';
-import { executeWithTaskRetryPrompt } from '../retry';
 import { lock } from './lock';
+import { sendTelemetryEvent } from '../telemetry/utils';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
-const ACCESS_TOKEN_ERROR = "Error while retreiving the access token details!";
 const APIM_TOKEN_ERROR = "Error while retreiving the apim token details!";
 const REFRESH_TOKEN_ERROR = "Error while retreiving the refresh token details!";
 const SESSION_EXPIRED = "The session has expired, please login again!";
@@ -183,7 +182,7 @@ export async function exchangeRefreshToken(userId: string, refreshToken: string)
     }
 }
 
-export async function signIn() {
+export async function signIn(isExistingSession?: boolean) {
     getLogger().debug("Signing in to Choreo.");
     ext.api.status = STATUS_LOGGING_IN;
     const choreoTokenInfo = await tokenStore.getToken("choreo.token");
@@ -194,7 +193,7 @@ export async function signIn() {
             const userInfo = await orgClient.getUserInfo();
             getLogger().info("get user info request time: " + (Date.now() - currentTime));
             getLogger().debug("Successfully retrived user info.");
-            ext.api.userName = userInfo.displayName;
+            ext.api.userInfo = userInfo;
             const selectedOrg = await getDefaultSelectedOrg(userInfo.organizations);
             await tokenStore.addUser(userInfo);
             await tokenStore.setCurrentUser(userInfo);
@@ -205,7 +204,10 @@ export async function signIn() {
             ext.api.status = STATUS_LOGGED_IN;
             showChoreoProjectOverview();
         } catch (error: any) {
-            getLogger().error("Error while signing in! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            if (isExistingSession) {
+                sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
+            }
+            getLogger().error("Error while signing in! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
             vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
             signOut();
         }
@@ -255,7 +257,7 @@ export async function signOut(userId?: string) {
     const users = await tokenStore.getUsers();
     if (users.length == 0) {
         ext.api.status = STATUS_LOGGED_OUT;
-        ext.api.userName = undefined;
+        ext.api.userInfo = undefined;
         ext.api.selectedOrg = undefined;
     } else {
         switchUser(users[0]);

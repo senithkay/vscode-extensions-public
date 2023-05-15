@@ -14,10 +14,13 @@ import * as vscode from 'vscode';
 import { choreoProjectRegistryRefreshCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { ProjectRegistry } from './project-registry';
+import { sendTelemetryEvent } from '../telemetry/utils';
+import { REFRESH_PROJECTS_EVENT } from '@wso2-enterprise/choreo-core';
 
 export function activateRegistry() {
     getLogger().debug('Activating Choreo project registry');
     vscode.commands.registerCommand(choreoProjectRegistryRefreshCmdId, async () => {
+        sendTelemetryEvent(REFRESH_PROJECTS_EVENT);
         getLogger().debug('Refreshing Choreo projects in registry');
         const projectRegistry = ProjectRegistry.getInstance();
         return projectRegistry.refreshProjects();

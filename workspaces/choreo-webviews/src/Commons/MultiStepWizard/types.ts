@@ -45,7 +45,8 @@ export interface WizardProps<T> {
     validationRules: ValidationRule<T>[];
     saveButtonText?: string;
     onSave: (formData: T, context: IChoreoWebViewContext) => Promise<void>;
-    onCancel: () => void;
+    cancelButtonText?: string;
+    onCancel: (formData: T, context: IChoreoWebViewContext) => void;
     closeOnSave?: boolean;
 }
 
