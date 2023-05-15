@@ -76,17 +76,19 @@ jobs:
           node common/scripts/install-run-rush.js install
 
       - name: Publish low code diagram
+        id: publish
         run: |
           cd workspaces/${{ inputs.package }}
-          pnpm version ${{ inputs.version }} --no-git-tag-version
+          version=$(pnpm version ${{ inputs.version }} --no-git-tag-version)
           # pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }}
+          echo "version=$version" >> $GITHUB_OUTPUT
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
       - name: Create PR and notify
         uses: ./.github/actions/pr
         with:
-          version: ${{ inputs.package }}
+          version: ${{ steps.publish.outputs.version }}${{ inputs.package }}
           threadId: ${{ github.run_id }}
           bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
           bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
