@@ -60,10 +60,13 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
         node.handleHover(headPorts.current, task);
     }
 
+    const nodeLevel: Level = node.nodeObject.isNoData ||
+        (!node.nodeObject.remoteFunctions?.length && !node.nodeObject.resources?.length) ? Level.ONE : node.level;
+
     return (
         <CtrlClickGo2Source location={node.nodeObject.elementLocation}>
             <ServiceHead
-                level={node.level}
+                level={nodeLevel}
                 isSelected={isSelected}
                 onMouseOver={(evt: React.MouseEvent<SVGPathElement | HTMLDivElement>) => { handleOnHover('SELECT', evt)}}
                 onMouseLeave={(evt: React.MouseEvent<SVGPathElement | HTMLDivElement>) => { handleOnHover('UNSELECT', evt)}}
@@ -89,7 +92,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
                     <ServiceName>{displayName}</ServiceName>
                     {isHovered && node.nodeObject.elementLocation && editingEnabled &&
                         <NodeMenuWidget
-                            background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
+                            background={nodeLevel === Level.ONE ? Colors.SECONDARY : 'white'}
                             location={node.nodeObject.elementLocation}
                             linkingEnabled={currentView === Views.L1_SERVICES}
                             node={node}
