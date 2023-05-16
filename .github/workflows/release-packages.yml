@@ -80,7 +80,7 @@ jobs:
         run: |
           cd workspaces/${{ inputs.package }}
           version=$(pnpm version ${{ inputs.version }} --no-git-tag-version)
-          pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }} --no-git-tag-version
+          pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }} --no-git-checks
           echo "version=$version" >> $GITHUB_OUTPUT
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
