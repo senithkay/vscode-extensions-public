@@ -16,7 +16,7 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import { join } from "path";
 import { By, EditorView, VSBrowser, WebView, Workbench } from 'vscode-extension-tester';
-import { ARCHITECTURE_VIEW_COMMAND, ARCHITECTURE_WEBVIEW_TITLE, ADD_CHOREO_COMPONENT_WEBVIEW_TITLE, TEST_DATA_ROOT, wait } from "./resources";
+import { ARCHITECTURE_VIEW_COMMAND, ARCHITECTURE_WEBVIEW_TITLE, ADD_CHOREO_COMPONENT_WEBVIEW_TITLE, TEST_DATA_ROOT, wait, signIntoChoreo } from "./resources";
 
 const TEST_PROJECT_NAME = "FooProject2";
 const WORKSPACE_FILE_PATH = join(TEST_PROJECT_NAME, `${TEST_PROJECT_NAME}.code-workspace`);
@@ -37,6 +37,8 @@ describe("Architecture view tests", () => {
         editor = new EditorView();
         await editor.closeAllEditors();
         await wait(2000);
+
+        await signIntoChoreo(editor, workbench);
     });
 
     it("Generate Architecture View", async () => {
