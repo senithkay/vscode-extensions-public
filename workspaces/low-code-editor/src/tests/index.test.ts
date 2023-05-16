@@ -11,7 +11,7 @@
 * associated services.
 */
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
-import { FunctionDefinition, ModulePart } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import 'jest-canvas-mock';
 import path from "path";
 
@@ -29,9 +29,9 @@ test('Test Lang Server wiring', async () => {
     expect(st.parseSuccess).toBeTruthy();
     expect(st.syntaxTree).toBeDefined();
     const syntaxTree = st.syntaxTree as ModulePart;
-    const functionST = syntaxTree.members[2] as FunctionDefinition;
-    expect(functionST).toBeDefined();
-    expect(functionST.functionName.value).toBe("transform");
+    const serviceDecl = syntaxTree.members[0] as ServiceDeclaration;
+    expect(serviceDecl).toBeDefined();
+    expect(serviceDecl.absoluteResourcePath.length).toBe(1);
 });
 
 afterAll(async () => {
