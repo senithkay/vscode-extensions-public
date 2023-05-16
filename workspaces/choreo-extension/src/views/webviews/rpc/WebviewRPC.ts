@@ -42,6 +42,7 @@ import {
     CheckProjectDeleted,
     IsBareRepoRequest,
     IsBareRepoRequestParams,
+    HasChoreoSubscription,
     SendTelemetryEventNotification,
     SendTelemetryEventParams,
     SendTelemetryExceptionNotification,
@@ -156,6 +157,12 @@ export class WebViewRpc {
         this._messenger.onRequest(GetComponentCount, async () => {
             if (ext.api.selectedOrg) {
                 return ProjectRegistry.getInstance().getComponentCount(ext.api.selectedOrg.id);
+            }
+        });
+
+        this._messenger.onRequest(HasChoreoSubscription, async () => {
+            if (ext.api.selectedOrg) {
+                return ProjectRegistry.getInstance().hasChoreoSubscription(ext.api.selectedOrg.uuid);
             }
         });
 

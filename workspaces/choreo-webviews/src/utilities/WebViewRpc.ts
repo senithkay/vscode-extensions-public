@@ -59,6 +59,7 @@ import {
     IsBareRepoRequestParams,
     IsBareRepoRequest,
     CheckProjectDeleted,
+    HasChoreoSubscription,
     SendTelemetryEventParams,
     SendTelemetryEventNotification,
     SendTelemetryExceptionParams,
@@ -252,6 +253,10 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetComponentCount, HOST_EXTENSION, undefined);
     }
 
+    public async hasChoreoSubscription(): Promise<boolean> {
+        return this._messenger.sendRequest(HasChoreoSubscription, HOST_EXTENSION, undefined);
+    }
+    
     public sendProjectTelemetryEvent(params: SendTelemetryEventParams) {
         return this._messenger.sendNotification(SendProjectTelemetryEventNotification, HOST_EXTENSION, params);
     }
