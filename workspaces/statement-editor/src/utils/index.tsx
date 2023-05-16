@@ -100,11 +100,6 @@ import { Expression, ExpressionGroup } from "./expressions";
 import { ModelType, StatementEditorViewState } from "./statement-editor-viewstate";
 import { getImportModification, getStatementModification, keywords } from "./statement-modifications";
 
-export interface StatementIndex {
-    lineIndex: number;
-    columnIndex: number;
-}
-
 export function getModifications(model: STNode, configType: string, targetPosition: NodePosition,
                                  modulesToBeImported?: string[], isExpressionMode?: boolean): STModification[] {
 
@@ -412,7 +407,6 @@ export function addImportStatements(
             moduleList += "import " + module + ";\n";
         }
     });
-    // TODO: update this logic to add imports after the license header
     return moduleList + currentFileContent;
 }
 
@@ -1190,10 +1184,6 @@ export function isBalVersionUpdateOne(version: string): boolean{
 
 export function getContentFromSource(source: string, position: NodePosition) {
     const splitSource: string[] = source.split("\n");
-    if(!position.endLine && !position.endColumn){
-        return splitSource[position.startLine].slice(position.startColumn);
-    }
-    // Handle multi line selection
     const sliceContent: string[] = [];
     if (splitSource?.length) {
         for (let line = position.startLine; line <= (position.endLine || position.startLine); line++) {
@@ -1224,10 +1214,10 @@ export function getStatementLine(source: string, statement: string): number {
     return stmtNewFirstLine;
 }
 
-export function getStatementPosition(updatedContent: string, statement: string, stmtIndex: StatementIndex): NodePosition {
+export function getStatementPosition(updatedContent: string, statement: string, stmtIndex: number): NodePosition {
     const sourceLines = updatedContent.split('\n');
     const statementLines = statement.split('\n');
-    const isNewStatement = stmtIndex.lineIndex === -1;
+    const isNewStatement = stmtIndex === -1;
     let lineIndex = 0;
     let noOfMatches = -1;
     let position: NodePosition = {
@@ -1235,40 +1225,27 @@ export function getStatementPosition(updatedContent: string, statement: string, 
     };
     sourceLines.forEach((sourceLine, index) => {
         if (position.startLine === undefined || position.endLine === undefined) {
-            let matches = findExactMatches(sourceLine, statementLines[lineIndex]);
-            if (!matches && sourceLine.includes(statementLines[0])) {
+            let matched = sourceLine.includes(statementLines[lineIndex]);
+            if (!matched && sourceLine.includes(statementLines[0])) {
                 lineIndex = 0;
                 position = {
                     startLine: undefined, startColumn: undefined, endLine: undefined, endColumn: undefined
                 };
-                matches = [statementLines[0]];
+                matched = true;
             }
-            if (matches && matches.length === 1) {
+            if (matched) {
                 if (lineIndex === 0) {
                     noOfMatches++;
-                    if (noOfMatches === stmtIndex.lineIndex || isNewStatement) {
+                    if (noOfMatches === stmtIndex || isNewStatement) {
                         position.startLine = index;
                         position.startColumn = sourceLine.indexOf(statementLines[lineIndex]);
                     }
                 }
-                if (lineIndex === statementLines.length - 1 && (noOfMatches === stmtIndex.lineIndex || isNewStatement)) {
+                if (lineIndex === statementLines.length - 1 && (noOfMatches === stmtIndex || isNewStatement)) {
                     position.endLine = index;
                     position.endColumn = sourceLine.indexOf(statementLines[lineIndex]) + statementLines[lineIndex].length;
                 }
                 lineIndex++;
-            } else if( matches && matches.length > 1){
-                // If there are multiple matches in a single line, find the match at the given column index
-                let startIndex = sourceLine.indexOf(matches[0]);
-                for (let index = 0; index <= stmtIndex.columnIndex; index++) {
-                    startIndex = sourceLine.indexOf(matches[0], startIndex);
-                    if(index !== stmtIndex.columnIndex){
-                        startIndex += matches[0].length;                    
-                    }
-                }
-                position.startLine = index;
-                position.startColumn = startIndex;
-                position.endLine = index;
-                position.endColumn = startIndex + matches[0].length;
             } else {
                 lineIndex = 0;
                 position = {
@@ -1280,38 +1257,19 @@ export function getStatementPosition(updatedContent: string, statement: string, 
     return position;
 }
 
-export function findExactMatches(text: string, pattern: string): RegExpMatchArray {
-    const escapedPattern = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escapedPattern, 'g');
-    return text.match(regex);
-}
-
 export function filterCodeActions(codeActions: CodeAction[]): CodeAction[] {
     const filteredCodeActions = codeActions?.filter((action) => action.kind === "quickfix");
     return filteredCodeActions || codeActions;
 }
 
-export function getStatementIndex(source: string, statement: string, stmtPosition: NodePosition): StatementIndex {
-    const sourceLines = source.split("\n");
-    const stmtFirstLine = statement.split("\n")[0];
-    let lineIndex = -1;
-    let columnIndex = -1;
+export function getStatementIndex(source: string, statement: string, stmtPosition: NodePosition) {
+    const sourceLines = source.split('\n');
+    const stmtFirstLine = statement.split('\n')[0];
+    let statementIndex = -1;
     sourceLines.forEach((line: string, index: number) => {
-        const matches = findExactMatches(line, stmtFirstLine);
-        if (matches?.length === 1) {
-            if (line.includes(stmtFirstLine) && index <= stmtPosition.startLine) {
-                lineIndex++;
-            }
-        } else if (matches?.length > 1) {
-            // If there are multiple matches in a single line, find the match at the given column index
-            let startIndex = line.indexOf(stmtFirstLine);
-            matches.forEach((match) => {
-                if (line.indexOf(stmtFirstLine, startIndex) <= stmtPosition.startColumn) {
-                    startIndex = +match.length;
-                    columnIndex++;
-                }
-            });
+        if (line.includes(stmtFirstLine) && index <= stmtPosition.startLine) {
+            statementIndex++;
         }
     });
-    return { lineIndex, columnIndex };
+    return statementIndex;
 }

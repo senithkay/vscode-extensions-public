@@ -24,10 +24,11 @@ import {
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import * as monaco from "monaco-editor";
 
 import { CUSTOM_CONFIG_TYPE } from "../../constants";
 import { EditorModel } from "../../models/definitions";
-import { getPartialSTForExpression, getPartialSTForModuleMembers, getPartialSTForStatement } from "../../utils/ls-utils";
+import { getPartialSTForExpression, getPartialSTForModuleMembers, getPartialSTForStatement, sendDidOpen } from "../../utils/ls-utils";
 import { StmtEditorUndoRedoManager } from "../../utils/undo-redo";
 import { StatementEditor } from "../StatementEditor";
 import { useStatementEditorStyles } from '../styles';
@@ -116,7 +117,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
     const [editors, setEditors] = useState<EditorModel[]>([]);
     const [editor, setEditor] = useState<EditorModel>();
     const [activeEditorId, setActiveEditorId] = useState<number>(0);
-    const [originalContent, setOriginalContent] = useState(currentFile?.content);
 
     useEffect(() => {
         (async () => {
@@ -172,35 +172,20 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             prevEditors[index] = newContent;
             return prevEditors;
         });
-        // if (index === activeEditorId) {
-        //     setEditor(newContent);
-        // }
     };
 
-    const dropLastEditor = (lastSource?: string, existingImports?: string[]) => {
-        const offset = lastSource ? lastSource.split('\n').length - originalContent.split('\n').length : 0;
-        let importLines = extraModules ? extraModules.size : 0;
-        if(existingImports?.length > 0 && extraModules?.size > 0) {
-            extraModules.forEach(importStr => {
-                existingImports.find(existingImport => existingImport.includes(importStr)) && importLines--;
-            });
-        }
-
+    const dropLastEditor = (offset: number = 0) => {
         setEditors((prevEditors: EditorModel[]) => {
             const remainingEditors = prevEditors.slice(0, -1);
-            if (offset) {
-                remainingEditors.map((e: EditorModel) => {
-                    e.position = {
-                        startLine: e.position.startLine + ((e.isExistingStmt || !e.isConfigurableStmt) && offset - importLines),
-                        startColumn: e.position.startColumn,
-                    };
-                });
-            }
+            remainingEditors.map((e: EditorModel) => {
+                e.position = {
+                    ...e.position,
+                    startLine: e.position.startLine + ((e.isExistingStmt || !e.isConfigurableStmt) && offset),
+                    endLine: e.position.endLine + ((e.isExistingStmt || !e.isConfigurableStmt) && offset)
+                };
+            });
             return remainingEditors;
         });
-        if (offset && lastSource) {
-            setOriginalContent(lastSource);
-        }
     };
 
     const addConfigurable = async (newLabel: string, newPosition: NodePosition,
@@ -228,9 +213,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
             client.resetMouseTrapInstance();
         }
     }, []);
-
-    // Update original content when the current file content changes
-    currentFile.originalContent = originalContent;
 
     return (
         <FormControl data-testid="property-form">
@@ -272,7 +254,6 @@ export function StatementEditorWrapper(props: StatementEditorWrapperProps) {
                             isCodeServerInstance={isCodeServerInstance}
                             openExternalUrl={openExternalUrl}
                             isHeaderHidden={isHeaderHidden}
-                            originalContent={originalContent}
                         />
                     </>
                 )}
