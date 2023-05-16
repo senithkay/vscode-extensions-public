@@ -17,11 +17,6 @@
  *
  */
 
-export { linkServices as addConnector } from './code-generator';
-export { EditLayerRPC } from './edit-layer-rpc';
-export {
-    checkIsChoreoProject,
-    getActiveChoreoProject,
-    getComponentModel,
-    showChoreoProjectOverview
-} from './common-utils';
+export * from './linking-utils';
+export * from './edit-layer-rpc';
+export * from './shared-utils';

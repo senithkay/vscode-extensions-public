@@ -18,6 +18,7 @@
  */
 
 import React, { useContext, useState } from 'react';
+import { CMLocation as Location, CMAnnotation as Annotation } from '@wso2-enterprise/ballerina-languageclient';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -25,36 +26,38 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { DiagramContext } from '../../../DiagramContext/DiagramContext';
-import { Location, Service, ServiceAnnotation } from '../../../../../resources';
 import { DefaultTextProps, TitleTextProps } from '../styles/styles';
+import { EntryNodeModel, ServiceNodeModel } from '../../../../service-interaction';
 
 interface EditLabelDialogProps {
-    service: Service;
+    node: ServiceNodeModel | EntryNodeModel;
     showDialog: boolean;
     updateShowDialog: (status: boolean) => void;
 }
 
 export function EditLabelDialog(props: EditLabelDialogProps) {
-    const { service, showDialog, updateShowDialog } = props;
+    const { node, showDialog, updateShowDialog } = props;
     const { editLayerAPI, refreshDiagram } = useContext(DiagramContext);
 
-    const [serviceLabel, updateServiceLabel] = useState<string>(service.annotation?.label);
+    const annotation: Annotation = node instanceof ServiceNodeModel ? node.nodeObject.annotation : node.nodeObject.annotation;
+
+    const [serviceLabel, updateServiceLabel] = useState<string>(annotation?.label);
 
     const getAnnotationLocation = (): Location => {
-        if (service.annotation?.elementLocation) {
-            return service.annotation.elementLocation;
-        } else if (service.elementLocation) {
+        if (annotation?.elementLocation) {
+            return annotation?.elementLocation;
+        } else if (node.nodeObject.elementLocation) {
             return {
-                ...service.elementLocation,
-                endPosition: service.elementLocation.startPosition
+                ...node.nodeObject.elementLocation,
+                endPosition: node.nodeObject.elementLocation.startPosition
             };
         }
     }
 
     const editComponentLabel = async () => {
-        const updatedAnnotation: ServiceAnnotation = {
+        const updatedAnnotation: Annotation = {
             label: serviceLabel,
-            id: service.annotation?.id,
+            id: annotation?.id,
             elementLocation: getAnnotationLocation()
         }
         await editLayerAPI.editDisplayLabel(updatedAnnotation);
@@ -67,7 +70,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
     }
 
     const handleDialogClose = () => {
-        updateServiceLabel(service.annotation?.label);
+        updateServiceLabel(annotation?.label);
         updateShowDialog(false);
     }
 
@@ -85,11 +88,11 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleDialogClose} sx={DefaultTextProps} >Cancel</Button>
+                <Button onClick={handleDialogClose} sx={DefaultTextProps}>Cancel</Button>
                 <Button
                     sx={DefaultTextProps}
                     onClick={editComponentLabel}
-                    disabled={!serviceLabel || serviceLabel === service.annotation?.label}
+                    disabled={!serviceLabel || serviceLabel === annotation?.label}
                 >
                     Update
                 </Button>

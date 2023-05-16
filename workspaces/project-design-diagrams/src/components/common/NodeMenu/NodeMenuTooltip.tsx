@@ -18,23 +18,23 @@
  */
 
 import React, { useState } from 'react';
+import { CMLocation as Location, CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import { NodeMenuPanel } from './NodeMenuPanel';
-import { Location, RemoteFunction, ResourceFunction } from '../../../resources';
 import { DeleteComponentDialog, EditLabelDialog } from './components';
-import { ServiceNodeModel } from '../../service-interaction';
+import { EntryNodeModel, ServiceNodeModel } from '../../service-interaction';
 
 interface NodeMenuProps {
     background: string;
     location: Location;
     linkingEnabled?: boolean;
-    resourceFunction?: ResourceFunction | RemoteFunction; // TODO: Figure out a way to merge resource and service
-    serviceNode?: ServiceNodeModel;
+    resourceFunction?: RemoteFunction | ResourceFunction; // TODO: Figure out a way to merge resource and service
+    node?: ServiceNodeModel | EntryNodeModel;
 }
 
 export function NodeMenuWidget(props: NodeMenuProps) {
-    const { linkingEnabled, location, serviceNode, resourceFunction, background } = props;
+    const { linkingEnabled, location, node, resourceFunction, background } = props;
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
     const [showEditLabelDialog, updateShowEditLabelDialog] = useState<boolean>(false);
     const [showDeleteDialog, updateShowDeleteDialog] = useState<boolean>(false);
@@ -49,8 +49,8 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                         <NodeMenuPanel
                             linkingEnabled={linkingEnabled}
                             location={location}
+                            node={node}
                             resource={resourceFunction}
-                            serviceNode={serviceNode}
                             handleDeleteComponentDialog={updateShowDeleteDialog}
                             handleEditLabelDialog={updateShowEditLabelDialog}
                         />
@@ -99,15 +99,16 @@ export function NodeMenuWidget(props: NodeMenuProps) {
                 </Tooltip>
             }
 
-            {serviceNode &&
+            {node &&
                 <>
                     <EditLabelDialog
-                        service={serviceNode.serviceObject}
+                        node={node}
                         showDialog={showEditLabelDialog}
                         updateShowDialog={updateShowEditLabelDialog}
                     />
 
                     <DeleteComponentDialog
+                        isService={node instanceof ServiceNodeModel}
                         location={location}
                         showDialog={showDeleteDialog}
                         updateShowDialog={updateShowDeleteDialog}

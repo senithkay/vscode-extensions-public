@@ -18,18 +18,19 @@
  */
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { ServiceNodeModel } from '../ServiceNodeModel';
 import { RemoteFunctionWidget } from './RemoteFunction';
 import { ResourceFunctionWidget } from './ResourceFunction';
-import { ResourceFunction, RemoteFunction, Colors, ServiceTypes } from '../../../../resources';
+import { Colors, ServiceTypes } from '../../../../resources';
 import { FunctionContainer } from '../styles/styles';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../../common';
 
 interface FunctionCardProps {
     engine: DiagramEngine;
     node: ServiceNodeModel;
-    functionElement: ResourceFunction | RemoteFunction;
+    functionElement: RemoteFunction | ResourceFunction;
     isSelected: boolean;
 }
 
@@ -85,6 +86,6 @@ export function FunctionCard(props: FunctionCardProps) {
     )
 }
 
-function isResource(functionObject: ResourceFunction | RemoteFunction): functionObject is ResourceFunction {
+function isResource(functionObject: RemoteFunction | ResourceFunction): functionObject is ResourceFunction {
     return (functionObject as ResourceFunction).resourceId !== undefined;
 }

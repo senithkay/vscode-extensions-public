@@ -42,7 +42,6 @@ import {
     UpdateProjectOverview,
     isSubpathAvailable,
     SubpathAvailableRequest,
-    GetComponentModelResponse,
     getDiagramComponentModel,
     DeleteComponent,
     PullComponent,
@@ -60,8 +59,13 @@ import {
     IsBareRepoRequestParams,
     IsBareRepoRequest,
     CheckProjectDeleted,
+    SendTelemetryEventParams,
+    SendTelemetryEventNotification,
+    SendTelemetryExceptionParams,
+    SendTelemetryExceptionNotification,
+    SendProjectTelemetryEventNotification,
 } from "@wso2-enterprise/choreo-core";
-
+import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
 import { ChoreoProjectClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/project/rpc";
 import { ChoreoGithubAppClientRPCWebView } from "@wso2-enterprise/choreo-client/lib/github/rpc/ghapp-client-rpc-webview";
@@ -246,5 +250,17 @@ export class ChoreoWebViewAPI {
 
     public async getComponentCount(): Promise<ComponentCount> {
         return this._messenger.sendRequest(GetComponentCount, HOST_EXTENSION, undefined);
+    }
+
+    public sendProjectTelemetryEvent(params: SendTelemetryEventParams) {
+        return this._messenger.sendNotification(SendProjectTelemetryEventNotification, HOST_EXTENSION, params);
+    }
+
+    public sendTelemetryEvent(params: SendTelemetryEventParams) {
+        return this._messenger.sendNotification(SendTelemetryEventNotification, HOST_EXTENSION, params);
+    }
+
+    public sendTelemetryException(params: SendTelemetryExceptionParams) {
+        return this._messenger.sendNotification(SendTelemetryExceptionNotification, HOST_EXTENSION, params);
     }
 }

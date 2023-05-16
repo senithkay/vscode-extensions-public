@@ -18,6 +18,7 @@
  */
 
 export { EndpointIcon } from './EndpointIcon';
+export { GatewayIcon } from './GatewayIcon';
 export { DefaultEntryPointIcon } from './DefaultEntryPointIcon';
 export { GraphQLIcon } from './GraphQL';
 export { GraphQLMutationIcon } from './GraphQLMutation';
@@ -28,6 +29,7 @@ export { HttpServiceIcon } from './HttpIcon';
 export { ManualTriggerIcon } from './ManualTriggerIcon';
 export { ScheduledTriggerIcon } from './ScheduledTriggerIcon';
 export { ShortGrpcIcon } from './ShortGrpcIcon';
+export { WebhookIcon } from './WebhookIcon';
 
 export { CellViewIcon } from './CellView';
 export { L1ServicesIcon } from './L1Services';

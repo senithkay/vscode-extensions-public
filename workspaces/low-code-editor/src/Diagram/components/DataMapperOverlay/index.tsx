@@ -41,10 +41,11 @@ export interface DataMapperProps {
     ballerinaVersion?: string;
     onCancel?: () => void;
     configOverlayFormStatus?: ConfigOverlayFormStatus;
+    openedViaPlus?: boolean;
 }
 
 export function DataMapperOverlay(props: DataMapperProps) {
-    const { targetPosition, ballerinaVersion, onCancel: onClose, model } = props;
+    const { targetPosition, ballerinaVersion, onCancel: onClose, model, openedViaPlus } = props;
 
     const dataMapperClasses = dataMapperStyles();
 
@@ -141,6 +142,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
                     }
                     filePath={currentFile.path}
                     currentFile={currentFile}
+                    openedViaPlus={openedViaPlus}
                     stSymbolInfo={stSymbolInfo}
                     ballerinaVersion={ballerinaVersion}
                     applyModifications={modifyDiagram}

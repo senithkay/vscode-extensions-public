@@ -47,7 +47,7 @@ export function ServicePortWidget(props: CustomPortWidgetProps) {
         port={port}
         engine={engine}
         style={{
-            height: '5px',
+            height: '0.5px',
             position: 'absolute',
             width: '2px',
             ...portStyles

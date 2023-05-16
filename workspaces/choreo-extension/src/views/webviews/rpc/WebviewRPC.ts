@@ -17,7 +17,7 @@ import {
     GetAllOrgsRequest, GetCurrentOrgRequest, GetAllProjectsRequest,
     GetLoginStatusRequest, ExecuteCommandRequest,
     LoginStatusChangedNotification, SelectedOrgChangedNotification,
-    CloseWebViewNotification, serializeError,
+    CloseWebViewNotification,
     SelectedProjectChangedNotification,
     Project, GetComponents, GetProjectLocation, OpenExternal, OpenChoreoProject, CloneChoreoProject,
     ShowErrorMessage, setProjectRepository, getProjectRepository, isChoreoProject, getChoreoProject,
@@ -27,14 +27,11 @@ import {
     isSubpathAvailable,
     SubpathAvailableRequest,
     getDiagramComponentModel,
-    ComponentModel,
     DeleteComponent,
     PullComponent,
     PushLocalComponentToChoreo,
     showOpenDialogRequest,
     OpenDialogOptions,
-    GetComponentModelResponse,
-    ComponentModelDiagnostics,
     GetDeletedComponents,
     GetEnrichedComponents,
     getPreferredProjectRepository,
@@ -44,8 +41,14 @@ import {
     GetComponentCount,
     CheckProjectDeleted,
     IsBareRepoRequest,
-    IsBareRepoRequestParams
+    IsBareRepoRequestParams,
+    SendTelemetryEventNotification,
+    SendTelemetryEventParams,
+    SendTelemetryExceptionNotification,
+    SendTelemetryExceptionParams,
+    SendProjectTelemetryEventNotification
 } from "@wso2-enterprise/choreo-core";
+import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
 import { registerChoreoGithubRPCHandlers } from "@wso2-enterprise/choreo-client/lib/github/rpc";
 import { registerChoreoProjectManagerRPCHandlers, ChoreoProjectManager } from '@wso2-enterprise/choreo-client/lib/manager/';
@@ -61,6 +64,7 @@ import { executeWithTaskRetryPrompt } from "../../../retry";
 import { refreshProjectsTreeViewCmdId } from "../../../constants";
 import { initGit } from "../../../git/main";
 import { dirname, join } from "path";
+import { sendProjectTelemetryEvent, sendTelemetryEvent, sendTelemetryException } from "../../../telemetry/utils";
 
 export class WebViewRpc {
 
@@ -245,7 +249,7 @@ export class WebViewRpc {
                             componentModels[`${model.packageId.org}/${model.packageId.name}:${model.packageId.version}`] = model;
                         } else {
                             componentModels[`${value.orgHandler}/${value.name}:${value.version}`] = mergeNonClonedProjectData(value);
-                            diagnostics.push({name: `${value.displayName} Component`});
+                            diagnostics.push({ name: `${value.displayName} Component` });
                         }
                     });
                 }).catch((error: any) => {
@@ -311,6 +315,18 @@ export class WebViewRpc {
                 getLogger().error(error.message);
                 return [];
             }
+        });
+
+        this._messenger.onNotification(SendTelemetryEventNotification, (event: SendTelemetryEventParams) => {
+            sendTelemetryEvent(event.eventName, event.properties, event.measurements);
+        });
+
+        this._messenger.onNotification(SendProjectTelemetryEventNotification, (event: SendTelemetryEventParams) => {
+            sendProjectTelemetryEvent(event.eventName, event.properties, event.measurements);
+        });
+
+        this._messenger.onNotification(SendTelemetryExceptionNotification, (event: SendTelemetryExceptionParams) => {
+            sendTelemetryException(event.error, event.properties, event.measurements);
         });
 
         // Register RPC handlers for Choreo project client

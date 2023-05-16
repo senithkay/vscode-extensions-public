@@ -19,10 +19,11 @@ import {
     Project,
     ChoreoLoginStatus,
     WorkspaceConfig,
-    ComponentModel,
     Component,
-    ChoreoComponentType
+    ChoreoComponentType,
+    UserInfo
 } from "@wso2-enterprise/choreo-core";
+import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { exchangeAuthToken } from "./auth/auth";
 import { readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
@@ -44,8 +45,7 @@ export interface IChoreoExtensionAPI {
 }
 
 export class ChoreoExtensionApi {
-    // TODO move this to ext namespace
-    public userName: string | undefined;
+    public userInfo: UserInfo | undefined;
 
     private _status: ChoreoLoginStatus;
     private _selectedOrg: Organization | undefined;

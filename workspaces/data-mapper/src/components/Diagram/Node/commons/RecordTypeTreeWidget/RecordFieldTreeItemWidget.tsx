@@ -23,7 +23,7 @@ import classnames from "classnames";
 
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import { getBalRecFieldName, getOptionalRecordField, getTypeName } from "../../../utils/dm-utils";
-import { InputSearchHighlight } from "../SearchHighlight";
+import { InputSearchHighlight } from "../Search";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

@@ -15,8 +15,9 @@ import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, 
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { ProjectOverview } from "../views/webviews/ProjectOverview";
-import { Organization, Project } from "@wso2-enterprise/choreo-core";
+import { OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoArchitectureView } from "../views/webviews/ChoreoArchitectureView";
+import { sendTelemetryEvent } from "../telemetry/utils";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
@@ -41,11 +42,21 @@ export function activateWizards() {
     // Register Project Overview Wizard
     const projectOverview = commands.registerCommand(choreoProjectOverview, async (project: Project) => {
         let selectedProjectId = project ? project?.id : undefined;
-        if (!selectedProjectId && await ext.api.isChoreoProject()) {
+        const isChoreoProject = await ext.api.isChoreoProject();
+        if (!selectedProjectId && isChoreoProject) {
             const choreoProject = await ext.api.getChoreoProject();
             if (choreoProject) {
                 selectedProjectId = choreoProject.id;
                 project = choreoProject;
+            }
+        }
+        if (selectedProjectId && !isChoreoProject) {
+            sendTelemetryEvent(OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, { "project": project?.name });
+        } else if (selectedProjectId && isChoreoProject) {
+            const choreoProject = await ext.api.getChoreoProject();
+            const isCurrentProject = choreoProject?.id === selectedProjectId;
+            if (!isCurrentProject) {
+                sendTelemetryEvent(OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, { "project": project?.name });
             }
         }
         if (!selectedProjectId) {

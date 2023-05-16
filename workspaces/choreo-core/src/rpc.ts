@@ -11,7 +11,8 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { Organization, ChoreoLoginStatus, Project, Component, GetComponentModelResponse, PushedComponent, ComponentCount } from './types';
+import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
+import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -25,7 +26,22 @@ export interface IsBareRepoRequestParams {
       projectID: string;
 }
 
+export interface SendTelemetryEventParams {
+   eventName: string,
+   properties?: { [key: string]: string; },
+   measurements?: { [key: string]: number; }
+}
+
+export interface SendTelemetryExceptionParams {
+   error: Error,
+   properties?: { [key: string]: string; },
+   measurements?: { [key: string]: number; }
+}
+
 // request types 
+export const SendProjectTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendProjectTelemetryEvent' };
+export const SendTelemetryEventNotification: NotificationType<SendTelemetryEventParams> = { method: 'sendTelemetryEvent' };
+export const SendTelemetryExceptionNotification: NotificationType<SendTelemetryExceptionParams> = { method: 'sendTelemetryException' };
 export const GetLoginStatusRequest: RequestType<string, ChoreoLoginStatus> = { method: 'getLoginStatus' };
 export const GetCurrentOrgRequest: RequestType<string, Organization> = { method: 'getCurrentOrg' };
 export const GetAllOrgsRequest: RequestType<string, Organization[]> = { method: 'getAllOrgs' };

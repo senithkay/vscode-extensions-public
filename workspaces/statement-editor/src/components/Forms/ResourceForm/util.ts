@@ -742,7 +742,10 @@ export function createNewRecord(newRecord: string, stNode: STNode, applyModifica
     ]);
 }
 
-export function createNewConstruct(codeSnippet: string, stNode: STNode, applyModifications: (modifications: STModification[]) => void) {
+export function createNewConstruct(codeSnippet: string,
+                                   stNode: STNode,
+                                   applyModifications: (modifications: STModification[], currentFilePath?: string) => void,
+                                   currentFilePath?: string) {
     const stNodeValue = (stNode as ModulePart);
     const nodePosition: NodePosition = stNodeValue.eofToken.position;
     const lastMemberPosition: NodePosition = {
@@ -753,7 +756,7 @@ export function createNewConstruct(codeSnippet: string, stNode: STNode, applyMod
     }
     applyModifications([
         createPropertyStatement(codeSnippet, lastMemberPosition, true)
-    ]);
+    ], currentFilePath);
 }
 
 export function createPropertyStatement(property: string, targetPosition?: NodePosition, isLastMember?: boolean): STModification {

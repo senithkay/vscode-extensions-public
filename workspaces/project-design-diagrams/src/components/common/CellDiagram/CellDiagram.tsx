@@ -18,6 +18,8 @@
  */
 
 import React, { useContext, useEffect, useState } from 'react';
+import { DiagramEngine } from "@projectstorm/react-diagrams-core";
+import { DiagramModel } from "@projectstorm/react-diagrams";
 import {
     CellContainer,
     CellContainerControls,
@@ -27,13 +29,10 @@ import {
 } from "../DiagramContainer/style";
 import { Gateways } from "../../gateway/Gateways/Gateways";
 import { DiagramCanvasWidget } from "../DiagramCanvas/CanvasWidget";
-import { DagreLayout, Views } from "../../../resources";
-import { DiagramModel } from "@projectstorm/react-diagrams";
+import { ConsoleView, DagreLayout, Views } from "../../../resources";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
 import { cellDiagramZoomToFit, createServicesEngine, positionGatewayNodes } from "../../../utils";
-import { DiagramEngine } from "@projectstorm/react-diagrams-core";
 import { DiagramControls } from "../DiagramCanvas/ControlLayer";
-import { ConsoleView } from "../../../resources/model";
 import { PromptScreen } from "../NewPromptScreen/PromptScreen";
 
 export interface Coordinate {
@@ -105,7 +104,7 @@ export function CellDiagram(props: CellDiagramProps) {
 
     return (
         <CellDiagramWrapper isConsoleView={consoleView}>
-            <CellContainerWrapper isConsoleView={consoleView}>
+            <CellContainerWrapper consoleView={consoleView}>
                 <Gateways/>
                 {cellModel && consoleView && (cellModel.getNodes().length < 1) && (
                     <PromptScreen/>

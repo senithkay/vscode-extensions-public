@@ -22,7 +22,7 @@ import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import { ChoreoComponentType } from '@wso2-enterprise/choreo-core';
 import { EntryNodeModel } from './EntryNodeModel';
 import { Container, DisplayName } from './styles';
-import { Colors, DefaultEntryPointIcon, Level, ManualTriggerIcon, ScheduledTriggerIcon } from '../../../resources';
+import { Colors, DefaultEntryPointIcon, Level, ManualTriggerIcon, ScheduledTriggerIcon, Views } from '../../../resources';
 import { ServicePortWidget } from '../ServicePort/ServicePortWidget';
 import { CtrlClickGo2Source, DiagramContext, NodeMenuWidget } from '../../common';
 
@@ -33,7 +33,7 @@ interface EntryNodeProps {
 
 export function EntryNodeWidget(props: EntryNodeProps) {
     const { engine, node } = props;
-    const { editingEnabled } = useContext(DiagramContext);
+    const { currentView, editingEnabled, newLinkNodes } = useContext(DiagramContext);
 
     const headPorts = useRef<PortModel[]>([]);
     const [isSelected, setIsSelected] = useState<boolean>(false);
@@ -48,6 +48,10 @@ export function EntryNodeWidget(props: EntryNodeProps) {
         headPorts.current.push(node.getPortFromID(`right-${node.getID()}`));
     }, [node])
 
+    const checkLinkStatus = (): boolean => {
+        return currentView === Views.L1_SERVICES && editingEnabled && newLinkNodes.source?.getID() === node.getID();
+    }
+
     const handleOnHover = (task: string) => {
         node.handleHover(headPorts.current, task);
         setIsHovered(task === 'SELECT' ? true : false);
@@ -58,13 +62,14 @@ export function EntryNodeWidget(props: EntryNodeProps) {
         return packageNameWithVersion.slice(0, packageNameWithVersion.lastIndexOf(':'));
     }
 
-    const displayName: string = node.entryPoint.annotation?.label || processPackageName();
+    const displayName: string = node.nodeObject.annotation?.label || processPackageName();
 
     return (
-        <CtrlClickGo2Source location={node.entryPoint.elementLocation}>
+        <CtrlClickGo2Source location={node.nodeObject.elementLocation}>
             <Container
                 isSelected={isSelected}
                 level={node.level}
+                awaitLinking={checkLinkStatus()}
                 onMouseOver={() => { handleOnHover('SELECT') }}
                 onMouseLeave={() => { handleOnHover('UNSELECT') }}
             >
@@ -72,18 +77,20 @@ export function EntryNodeWidget(props: EntryNodeProps) {
                     port={node.getPort(`left-${node.getID()}`)}
                     engine={engine}
                 />
-                    {node.entryPoint.type &&
-                        node.entryPoint.type === ChoreoComponentType.ScheduledTask ? <ScheduledTriggerIcon /> :
-                        node.entryPoint.type === ChoreoComponentType.ManualTrigger ? <ManualTriggerIcon /> :
-                            <DefaultEntryPointIcon />
-                    }
-                    <DisplayName>{displayName}</DisplayName>
-                    {isHovered && node.entryPoint.elementLocation && editingEnabled &&
-                        <NodeMenuWidget
-                            background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
-                            location={node.entryPoint.elementLocation}
-                        />
-                    }
+                {node.nodeObject.type &&
+                    node.nodeObject.type === ChoreoComponentType.ScheduledTask ? <ScheduledTriggerIcon /> :
+                    node.nodeObject.type === ChoreoComponentType.ManualTrigger ? <ManualTriggerIcon /> :
+                        <DefaultEntryPointIcon />
+                }
+                <DisplayName>{displayName}</DisplayName>
+                {isHovered && node.nodeObject.elementLocation && editingEnabled &&
+                    <NodeMenuWidget
+                        background={node.level === Level.ONE ? Colors.SECONDARY : 'white'}
+                        location={node.nodeObject.elementLocation}
+                        linkingEnabled={currentView === Views.L1_SERVICES}
+                        node={node}
+                    />
+                }
                 <ServicePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}

@@ -11,7 +11,8 @@
  *  associated services.
  */
 
-import { ApiVersion, Component, ComponentModel, Service } from "@wso2-enterprise/choreo-core";
+import { ComponentModel, CMLocation as Location, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { ApiVersion, Component } from "@wso2-enterprise/choreo-core";
 
 export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
     isLocal: boolean, accessibility?: string): boolean {
@@ -77,27 +78,17 @@ export function enrichConsoleDeploymentData(pkgServices: Map<string, Service>, a
     return services.length > 0;
 }
 
-export function mergeNonClonedProjectData(components: Component): ComponentModel {
+export function mergeNonClonedProjectData(component: Component): ComponentModel {
     const pkgServices: { [key: string]: Service } = {};
-    pkgServices[components.id] = {
-        serviceId: components.displayName,
-        serviceType: components.displayType,
+    pkgServices[component.id] = {
+        serviceId: component.displayName,
+        serviceType: component.displayType,
         annotation: {
-            id: components.id,
-            label: "",
-            elementLocation: null
+            id: component.id,
+            label: component.displayName,
+            elementLocation: getMockElementLocation()
         },
-        elementLocation: {
-            filePath: "",
-            startPosition: {
-                line: 0,
-                offset: 0
-            },
-            endPosition: {
-                line: 0,
-                offset: 0
-            }
-        },
+        elementLocation: getMockElementLocation(),
         deploymentMetadata: {
             gateways: {
                 internet: {
@@ -111,12 +102,27 @@ export function mergeNonClonedProjectData(components: Component): ComponentModel
         path: "",
         dependencies: [],
         remoteFunctions: [],
-        resources: []
+        resources: [],
+        isNoData: true
     };
     return {
-        packageId: {name: components.name, org: components.orgHandler, version: components.version},
+        packageId: { name: component.name, org: component.orgHandler, version: component.version },
         services: pkgServices as any,
         entities: new Map(),
         hasCompilationErrors: false
+    };
+}
+
+function getMockElementLocation(): Location {
+    return {
+        filePath: "",
+        startPosition: {
+            line: 0,
+            offset: 0
+        },
+        endPosition: {
+            line: 0,
+            offset: 0
+        }
     };
 }

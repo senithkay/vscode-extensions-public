@@ -14,7 +14,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import * as os from 'os';
 import path = require('path');
 import { commands, ProgressLocation, Uri, window } from 'vscode';
-import { Component, Project, RepoCloneRequestParams, Repository, WorkspaceConfig, WorkspaceItem } from '@wso2-enterprise/choreo-core';
+import { CLONE_NEW_REPO_TO_PROJECT_CANCEL_EVENT, CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT, CLONE_NEW_REPO_TO_PROJECT_START_EVENT, CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT, CLONE_PROJECT_CANCEL_EVENT, CLONE_PROJECT_FAILURE_EVENT, CLONE_PROJECT_START_EVENT, CLONE_PROJECT_SUCCESS_EVENT, Component, Project, RepoCloneRequestParams, Repository, WorkspaceConfig, WorkspaceItem, getChoreoProject } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
@@ -22,6 +22,7 @@ import { getLogger } from '../logger/logger';
 import { execSync } from 'child_process';
 import { initGit } from '../git/main';
 import { executeWithTaskRetryPrompt } from '../retry';
+import { sendProjectTelemetryEvent, sendTelemetryEvent } from '../telemetry/utils';
 
 export function checkSSHAccessToGitHub() {
     try {
@@ -38,6 +39,7 @@ export function checkSSHAccessToGitHub() {
 }
 
 export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneRequestParams) => {
+    sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_START_EVENT);
     const { repository, branch, workspaceFilePath } = params;
     let success = false;
     await window.withProgress({
@@ -47,6 +49,7 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
     }, async (progress, cancellationToken) => {
         let cancelled: boolean = false;
         cancellationToken.onCancellationRequested(async () => {
+            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_CANCEL_EVENT);
             getLogger().debug("Cloning cancelled for " + repository);
             cancelled = true;
         });
@@ -77,6 +80,11 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
             success = true;
         } else {
             getLogger().error("Git was not initialized"); 
+        }
+        if (success) {
+            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT)
+        } else {
+            sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT)
         }
     });
     return success;
@@ -183,6 +191,7 @@ function generateWorkspaceItems(userManagedComponents: Component[]) {
 }
 
 export const cloneProject = async (project: Project) => {
+    sendTelemetryEvent(CLONE_PROJECT_START_EVENT, { project: project?.name });
     await window.withProgress({
         title: `Cloning ${project.name} components to workspace.`,
         location: ProgressLocation.Notification,
@@ -191,6 +200,7 @@ export const cloneProject = async (project: Project) => {
 
         let cancelled: boolean = false;
         cancellationToken.onCancellationRequested(async () => {
+            sendTelemetryEvent(CLONE_PROJECT_CANCEL_EVENT, { project: project?.name });
             getLogger().debug("Cloning cancelled for project: " + project.name);
             cancelled = true;
         });
@@ -260,6 +270,7 @@ export const cloneProject = async (project: Project) => {
                 // Register the project location in registry
                 ProjectRegistry.getInstance().setProjectLocation(id, workspaceFilePath);
 
+                sendTelemetryEvent(CLONE_PROJECT_SUCCESS_EVENT, { project: project?.name });
                 getLogger().debug("Opening workspace in current window: " + workspaceFilePath);
                 await commands.executeCommand("vscode.openFolder", Uri.file(workspaceFilePath));
                 await commands.executeCommand("workbench.explorer.fileView.focus");
@@ -268,6 +279,7 @@ export const cloneProject = async (project: Project) => {
                     console.log(`Could not clone ${choreoManagedRepos.length} Choreo managed repos.\n`);
                 }
             } catch (error: any) {
+                sendTelemetryEvent(CLONE_PROJECT_FAILURE_EVENT, { project: project?.name });
                 getLogger().error("Error while cloning project: " + project.name + " " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
                 window.showErrorMessage(`Error while cloning project: ${project.name}. ${error.message}`);
             } 

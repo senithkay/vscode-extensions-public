@@ -17,41 +17,44 @@
  *
  */
 
+import { CMService as Service } from '@wso2-enterprise/ballerina-languageclient';
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
 import { ServicePortModel } from '../ServicePort/ServicePortModel';
-import { Level, Service, ServiceTypes } from '../../../resources';
+import { Level, ServiceTypes } from '../../../resources';
 import { SharedNodeModel } from '../../common/shared-node/shared-node';
 import { GatewayType } from "../../gateway/types";
 
 export class ServiceNodeModel extends SharedNodeModel {
 	isLinked: boolean;
 	readonly level: Level;
-	readonly serviceObject: Service;
+	readonly modelVersion: string;
+	readonly nodeObject: Service;
 	readonly serviceType: ServiceTypes;
 	readonly targetGateways: GatewayType[];
 
-	constructor(serviceObject: Service, level: Level, targetGateways?: GatewayType[]) {
+	constructor(serviceObject: Service, level: Level, version: string, targetGateways?: GatewayType[]) {
 		super('serviceNode', serviceObject.serviceId);
 
 		this.level = level;
-		this.serviceObject = serviceObject;
+		this.modelVersion = version;
+		this.nodeObject = serviceObject;
 		this.serviceType = this.getServiceType();
 		this.targetGateways = targetGateways;
 
-		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.LEFT));
-		this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.RIGHT));
+		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.LEFT));
+		this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.RIGHT));
 
 		if (targetGateways) {
-			this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.TOP));
-			this.addPort(new ServicePortModel(this.serviceObject.serviceId, PortModelAlignment.LEFT, true));
+			this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.TOP));
+			this.addPort(new ServicePortModel(this.nodeObject.serviceId, PortModelAlignment.LEFT, true));
 		}
 
 		if (level === Level.TWO) {
-			this.serviceObject.resources.forEach(resource => {
+			this.nodeObject.resources.forEach(resource => {
 				this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.LEFT));
 				this.addPort(new ServicePortModel(`${resource.resourceId.action}/${resource.identifier}`, PortModelAlignment.RIGHT));
 			});
-			this.serviceObject.remoteFunctions.forEach(remoteFunc => {
+			this.nodeObject.remoteFunctions.forEach(remoteFunc => {
 				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.LEFT));
 				this.addPort(new ServicePortModel(remoteFunc.name, PortModelAlignment.RIGHT));
 			})
@@ -59,15 +62,17 @@ export class ServiceNodeModel extends SharedNodeModel {
 	}
 
 	getServiceType = (): ServiceTypes => {
-		if (this.serviceObject.serviceType) {
-			if (this.serviceObject.serviceType.includes('ballerina/grpc:')) {
+		if (this.nodeObject.serviceType) {
+			if (this.nodeObject.serviceType.includes('ballerina/grpc:')) {
 				return ServiceTypes.GRPC;
-			} else if (this.serviceObject.serviceType.includes('ballerina/http:')) {
+			} else if (this.nodeObject.serviceType.includes('ballerina/http:')) {
 				return ServiceTypes.HTTP;
-			} else if (this.serviceObject.serviceType.includes('ballerina/graphql:')) {
+			} else if (this.nodeObject.serviceType.includes('ballerina/graphql:')) {
 				return ServiceTypes.GRAPHQL;
-			} else if (this.serviceObject.serviceType.includes('ballerina/websocket:')) {
+			} else if (this.nodeObject.serviceType.includes('ballerina/websocket:')) {
 				return ServiceTypes.WEBSOCKET
+			} else if (this.nodeObject.serviceType.includes('ballerinax/trigger.')) {
+				return ServiceTypes.WEBHOOK;
 			}
 		}
 		return ServiceTypes.OTHER;

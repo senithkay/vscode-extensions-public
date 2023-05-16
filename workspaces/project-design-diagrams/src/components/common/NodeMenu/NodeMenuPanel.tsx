@@ -18,17 +18,19 @@
  */
 
 import React, { useContext } from "react";
+import {
+    CMAnnotation as Annotation, CMLocation as Location, CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction
+} from "@wso2-enterprise/ballerina-languageclient";
 import { Paper, MenuList, Divider } from "@mui/material";
-import { Location, RemoteFunction, ResourceFunction, ServiceAnnotation } from "../../../resources";
-import { AddConnectorButton, GoToDesign, Go2SourceButton, LinkingButton, EditLabelButton, DeleteComponentButton } from "./components";
 import { DiagramContext } from "../DiagramContext/DiagramContext";
-import { ServiceNodeModel } from "../../service-interaction";
+import { EntryNodeModel, ServiceNodeModel } from "../../service-interaction";
+import { AddConnectorButton, DeleteComponentButton, EditLabelButton, Go2SourceButton, GoToDesign, LinkingButton } from "./components";
 
 interface MenuProps {
     linkingEnabled: boolean;
     location: Location;
+    node?: ServiceNodeModel | EntryNodeModel;
     resource?: ResourceFunction | RemoteFunction; // TODO: figure out a way to merge service and resource
-    serviceNode?: ServiceNodeModel;
     handleEditLabelDialog: (status: boolean) => void;
     handleDeleteComponentDialog: (status: boolean) => void;
 }
@@ -40,29 +42,34 @@ export function NodeMenuPanel(props: MenuProps) {
         linkingEnabled,
         location,
         resource,
-        serviceNode
+        node
     } = props;
     const { deleteComponent } = useContext(DiagramContext);
 
-    const serviceAnnotation: ServiceAnnotation = serviceNode?.serviceObject.annotation;
+    const annotation: Annotation = node instanceof ServiceNodeModel ? node.nodeObject.annotation : undefined;
+    const isModelLinkingCompatible: boolean = node instanceof ServiceNodeModel ||
+        (node instanceof EntryNodeModel && node.modelVersion && parseFloat(node.modelVersion) > 0.2);
 
     return (
         <Paper sx={{ maxWidth: "100%" }}>
             <MenuList>
                 <Go2SourceButton location={location} />
-                {serviceNode && <GoToDesign element={serviceNode.serviceObject} />}
+                {node instanceof ServiceNodeModel && <GoToDesign element={node.nodeObject} />}
                 {resource && <GoToDesign element={resource} />}
-                {serviceAnnotation && (serviceAnnotation.elementLocation || serviceNode.serviceObject.elementLocation) &&
+                {annotation && (annotation.elementLocation || node.nodeObject.elementLocation) &&
                     <EditLabelButton handleDialogStatus={handleEditLabelDialog} />
                 }
-                {serviceNode && location && deleteComponent &&
-                    <DeleteComponentButton canDelete={!serviceNode.isLinked} handleDialogStatus={handleDeleteComponentDialog} />
+                {node && location && deleteComponent &&
+                    <DeleteComponentButton
+                        canDelete={node instanceof ServiceNodeModel ? !node.isLinked : true}
+                        handleDialogStatus={handleDeleteComponentDialog}
+                    />
                 }
-                {linkingEnabled && serviceNode && (
+                {linkingEnabled && isModelLinkingCompatible && (
                     <>
                         <Divider />
-                        <LinkingButton service={serviceNode.serviceObject} />
-                        <AddConnectorButton service={serviceNode.serviceObject} />
+                        <LinkingButton node={node} />
+                        <AddConnectorButton node={node.nodeObject} />
                     </>
                 )}
             </MenuList>

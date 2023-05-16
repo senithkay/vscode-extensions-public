@@ -31,5 +31,6 @@ export enum TypeNature {
     WHITELISTED,
     YET_TO_SUPPORT,
     INVALID,
-    NOT_FOUND
+    NOT_FOUND,
+    DUMMY
 }
