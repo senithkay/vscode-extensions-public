@@ -1,0 +1,95 @@
+name: Release Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        type: choice
+        description: "Select the package to release"
+        required: true
+        options:
+          - 'ballerina-languageclient'
+          - 'configurable-editor'
+          - 'data-mapper'
+          - 'expression-editor'
+          - 'lang-service'
+          - 'low-code-diagram'
+          - 'low-code-distribution'
+          - 'low-code-editor'
+          - 'low-code-editor-commons'
+          - 'low-code-integration-tests'
+          - 'low-code-ui-components'
+          - 'statement-editor'
+          - 'syntax-tree'
+          - 'project-design-diagrams'                                                                               
+      version:
+        type: choice
+        description: 'Enter the version type'
+        required: true
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
+          - 'prepatch'
+          - 'preminor'
+          - 'premajor'
+          - 'prerelease'
+
+jobs:
+  Build:
+    uses: ./.github/workflows/build.yml
+    with:
+      isPreRelease: false
+      enableCache: false
+      ballerina: false
+      choreo: false
+    secrets: inherit  
+
+  Release:
+    name: Release VSIX
+    needs: [Build]
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - uses: actions/setup-node@v3
+        with:
+          always-auth: true
+          node-version: 16.x
+          registry-url: "https://npm.pkg.github.com"
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.26.3
+
+      - run: |
+          node common/scripts/install-run-rush.js install
+
+      - name: Publish low code diagram
+        id: publish
+        run: |
+          cd workspaces/${{ inputs.package }}
+          version=$(pnpm version ${{ inputs.version }} --no-git-tag-version)
+          pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }}
+          echo "version=$version" >> $GITHUB_OUTPUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+
+      - name: Create PR and notify
+        uses: ./.github/actions/pr
+        with:
+          version: ${{ steps.publish.outputs.version }}${{ inputs.package }}
+          threadId: ${{ github.run_id }}
+          bot_username: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          bot_email: ${{ secrets.BALLERINA_BOT_EMAIL }}
+          bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
