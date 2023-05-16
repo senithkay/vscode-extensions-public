@@ -3,7 +3,7 @@
       "outDir": "./build/esm",
       "rootDir": "./src",
       "skipLibCheck": true,
-      "module": "esnext",
+      "module": "CommonJS",
       "target": "es5",
       "lib": [
           "esnext",

@@ -3,7 +3,7 @@
   "compilerOptions": {
     "allowJs": true,
     "esModuleInterop": true,
-    "module": "esnext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "noImplicitAny": false,
     "resolveJsonModule": true,
