@@ -10,7 +10,19 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-export * from "./types";
-export * from "./rpc";
-export * from "./manager";
-export * from "./events";
+import * as vscode from 'vscode';
+import TelemetryReporter from '@vscode/extension-telemetry';
+
+const key = '8f98bf03-9ba8-47ba-a18d-62449b92ca42';
+
+// telemetry reporter
+let reporter: TelemetryReporter;
+
+export function activateTelemetry(context: vscode.ExtensionContext) {
+   reporter = new TelemetryReporter(key);
+   context.subscriptions.push(reporter);
+}
+
+export function getTelemetryReporter() {
+   return reporter;
+}

@@ -104,7 +104,7 @@ export function CellDiagram(props: CellDiagramProps) {
 
     return (
         <CellDiagramWrapper isConsoleView={consoleView}>
-            <CellContainerWrapper isConsoleView={consoleView}>
+            <CellContainerWrapper consoleView={consoleView}>
                 <Gateways/>
                 {cellModel && consoleView && (cellModel.getNodes().length < 1) && (
                     <PromptScreen/>

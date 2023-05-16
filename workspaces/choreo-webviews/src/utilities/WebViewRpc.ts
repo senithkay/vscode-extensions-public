@@ -60,6 +60,11 @@ import {
     IsBareRepoRequest,
     CheckProjectDeleted,
     HasChoreoSubscription,
+    SendTelemetryEventParams,
+    SendTelemetryEventNotification,
+    SendTelemetryExceptionParams,
+    SendTelemetryExceptionNotification,
+    SendProjectTelemetryEventNotification,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -250,5 +255,17 @@ export class ChoreoWebViewAPI {
 
     public async hasChoreoSubscription(): Promise<boolean> {
         return this._messenger.sendRequest(HasChoreoSubscription, HOST_EXTENSION, undefined);
+    }
+    
+    public sendProjectTelemetryEvent(params: SendTelemetryEventParams) {
+        return this._messenger.sendNotification(SendProjectTelemetryEventNotification, HOST_EXTENSION, params);
+    }
+
+    public sendTelemetryEvent(params: SendTelemetryEventParams) {
+        return this._messenger.sendNotification(SendTelemetryEventNotification, HOST_EXTENSION, params);
+    }
+
+    public sendTelemetryException(params: SendTelemetryExceptionParams) {
+        return this._messenger.sendNotification(SendTelemetryExceptionNotification, HOST_EXTENSION, params);
     }
 }
