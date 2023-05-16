@@ -53,7 +53,8 @@ export function UnSupportedMessage() {
                 <WarningContainer>
                     <WarningIcon/>
                     <WarningMessage>
-                        Component metadata retrieval failed. The displayed box represents a component, not the constructs within it.
+                        {consoleView || !editingEnabled ? 'Component' : 'Package'} metadata retrieval failed.
+                        The displayed box represents a {consoleView || !editingEnabled ? 'component' : 'package'}, not the constructs within it.
                     </WarningMessage>
                 </WarningContainer>
                 <div>
