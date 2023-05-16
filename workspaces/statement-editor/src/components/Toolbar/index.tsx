@@ -180,7 +180,7 @@ export default function Toolbar() {
                     <ToolbarDeleteIcon/>
                 </IconButton>
             </StatementEditorHint>
-            <StatementEditorHint content={"Add configurable"} disabled={!configurable || hasSyntaxDiagnostics} >
+            {/* <StatementEditorHint content={"Add configurable"} disabled={!configurable || hasSyntaxDiagnostics} >
                 <IconButton
                     onClick={onClickOnConfigurable}
                     disabled={!configurable || hasSyntaxDiagnostics}
@@ -189,7 +189,7 @@ export default function Toolbar() {
                 >
                     <ToolbarConfigurableIcon/>
                 </IconButton>
-            </StatementEditorHint>
+            </StatementEditorHint> */}
             <Divider orientation="vertical" variant="middle" flexItem={true} className={statementEditorClasses.toolbarDivider}/>
             {(completeModel?.kind && isQualifierSupportedStatements(completeModel)) && (
                 <>
