@@ -32,13 +32,14 @@ export interface OverviewDiagramProps {
     notifyComponentSelection: (info: ComponentViewInfo) => void;
     updateCurrentFile: (filePath: string) => void;
     fileList: FileListEntry[];
+    triggerUpdateFileContent: () => void;
 }
 
 export function OverviewDiagram(props: OverviewDiagramProps) {
     const { api: { ls: { getDiagramEditorLangClient } } } = useDiagramContext();
     const {
         currentProject, currentFile, notifyComponentSelection, lastUpdatedAt, updateCurrentFile, fileList,
-        currentFileName
+        currentFileName, triggerUpdateFileContent
     } = props;
     const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
 
@@ -52,6 +53,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
                     });
 
                     updateProjectComponenets(componentResponse);
+                    triggerUpdateFileContent();
                 }
             } catch (err) {
                 // tslint:disable-next-line: no-console
