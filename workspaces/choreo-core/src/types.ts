@@ -334,6 +334,11 @@ export interface BYOCRepositoryDetails extends RepositoryDetails {
     dockerContext: string;
 }
 
+export interface ProjectDeleteResponse {
+    status: string,
+    details: string,
+}
+
 export enum DeploymentStatus {
     NotDeployed = 'NOT_DEPLOYED',
     Active = 'ACTIVE',

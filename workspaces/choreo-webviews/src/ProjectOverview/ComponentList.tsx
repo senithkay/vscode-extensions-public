@@ -134,7 +134,7 @@ export function ComponentList(props: ComponentListProps) {
     });
 
     function getMenuItems(component: Component, componentOverviewLink: string, repoLink: string): MenuItem[] {
-        let menuItems = [];
+        const menuItems = [];
         menuItems.push({
             id: "github-remote",
             label: (
@@ -213,7 +213,7 @@ export function ComponentList(props: ComponentListProps) {
                         Actions
                     </VSCodeDataGridActionCell>
                 </VSCodeDataGridRow>
-                {components?.map((component) => {
+                {components?.map((component, index) => {
                     const repo: Repository = component.repository
                         ? component.repository
                         : {
@@ -348,7 +348,7 @@ export function ComponentList(props: ComponentListProps) {
                                         <Codicon name="cloud-upload" /> &nbsp; Push to Choreo
                                     </VSCodeButton>
                                 )}
-                                <ContextMenu items={getMenuItems(component, componentOverviewLink, repoLink)}></ContextMenu>
+                                <ContextMenu items={getMenuItems(component, componentOverviewLink, repoLink)} index={index}></ContextMenu>
                             </VSCodeDataGridActionCell>
                         </VSCodeDataGridRow>
                     );

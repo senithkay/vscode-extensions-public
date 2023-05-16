@@ -21,7 +21,7 @@ import { ARCHITECTURE_VIEW_COMMAND, ARCHITECTURE_WEBVIEW_TITLE, ADD_CHOREO_COMPO
 const TEST_PROJECT_NAME = "FooProject2";
 const WORKSPACE_FILE_PATH = join(TEST_PROJECT_NAME, `${TEST_PROJECT_NAME}.code-workspace`);
 
-describe("Sample UI test", () => {
+describe("Architecture view tests", () => {
     let editor: EditorView;
     let diagramWebview: WebView;
     let workbench: Workbench;

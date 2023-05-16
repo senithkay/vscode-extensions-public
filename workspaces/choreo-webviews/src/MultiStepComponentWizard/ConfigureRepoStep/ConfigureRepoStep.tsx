@@ -260,6 +260,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                                 <VSCodeOption
                                     key={org.orgName}
                                     value={org.orgName}
+                                    id={`org-item-${org.orgName}`}
                                 >
                                     {org.orgName}
                                 </VSCodeOption>
@@ -273,6 +274,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                                 <VSCodeOption
                                     key={repo.name}
                                     value={repo.name}
+                                    id={`repo-item-${repo.name}`}
                                 >
                                     {repo.name}
                                 </VSCodeOption>

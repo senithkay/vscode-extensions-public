@@ -381,6 +381,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton
                                 appearance="primary"
                                 onClick={handleCloneProjectClick}
+                                id="clone-project"
                             >
                                 <Codicon name="cloud-download" />
                                 &nbsp;Clone Project
@@ -464,6 +465,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         onClick={handleCreateComponentClick}
                         disabled={!isActive}
                         title="Add Component"
+                        id="add-component-btn"
                     >
                         <Codicon name="plus" />
                     </VSCodeButton>
@@ -476,6 +478,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             onClick={() => refetchComponents()}
                             title="Refresh component list"
                             disabled={!isActive || fetchingComponents}
+                            id='refresh-component-btn'
                         >
                             <Codicon name="refresh" />
                         </VSCodeButton>
@@ -601,6 +604,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                         });
                                         handlePushToChoreoClick();
                                     }}
+                                    id='push-to-choreo-btn'
                                 >
                                     <Codicon name="cloud-upload" />
                                     &nbsp; Push to Choreo

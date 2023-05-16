@@ -11,8 +11,8 @@
  *  associated services.
  */
 import { GraphQLClient } from 'graphql-request';
-import { Component, Project, Repository, Environment, Deployment, BuildStatus } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams } from "./types";
+import { Component, Project, Repository, Environment, Deployment, BuildStatus, ProjectDeleteResponse } from "@wso2-enterprise/choreo-core";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams } from "./types";
 import {
     getComponentBuildStatus,
     getComponentDeploymentQuery,
@@ -23,7 +23,7 @@ import {
     getProjectsByOrgIdQuery,
     getRepoMetadataQuery,
 } from './project-queries';
-import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation } from './project-mutations';
+import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
 import { AxiosResponse } from 'axios';
@@ -143,6 +143,17 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
             return data.createProject;
         } catch (error) {
             throw new Error("Error while creating project.", { cause: error });
+        }
+    }
+
+    async deleteProject(params: DeleteProjectParams): Promise<ProjectDeleteResponse> {
+        const mutation = deleteProjectMutation(params);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            return data.deleteProject;
+        } catch (error) {
+            throw new Error("Error while deleting project.", { cause: error });
         }
     }
 

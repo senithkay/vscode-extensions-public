@@ -10,14 +10,16 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands } from "vscode";
-import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId } from "../constants";
+import { ProgressLocation, commands, window } from "vscode";
+import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId, deleteProjectCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { ProjectOverview } from "../views/webviews/ProjectOverview";
 import { OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoArchitectureView } from "../views/webviews/ChoreoArchitectureView";
 import { sendTelemetryEvent } from "../telemetry/utils";
+import { projectClient } from "../auth/auth";
+import * as vscode from 'vscode';
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
@@ -30,6 +32,33 @@ export function activateWizards() {
         projectWizard.getWebview()?.reveal();
     });
 
+    const deleteProjectCmd = commands.registerCommand(deleteProjectCmdId, async () => {
+        // This is menat for the extension test runner to delete the choreo project after running the tests
+        try {
+            const projectName = await vscode.window.showInputBox({
+                prompt: 'Enter project name: ',
+                placeHolder: 'Project Name',
+                ignoreFocusOut: true,
+            });
+            if (projectName && ext.api.selectedOrg?.id) {
+                window.withProgress({
+                    title: `Delting project from Choreo`,
+                    location: ProgressLocation.Notification,
+                    cancellable: false
+                }, async (_progress) => {
+                    const projects = await projectClient.getProjects({ orgId: ext.api.selectedOrg?.id! });
+                    const project = projects?.find(item => item.name === projectName);
+                    if (project?.id) {
+                        await projectClient.deleteProject({ orgId: ext.api.selectedOrg?.id!, projectId: project.id });
+                        ext.projectsTreeProvider.refresh();
+                    }
+                });
+            }
+        } catch (err) {
+            vscode.window.showErrorMessage(`Failed to delete project`);
+        }
+    });
+
     const createComponentCmd = commands.registerCommand(createNewComponentCmdId, () => {
         if (!componentWizard || !componentWizard.getWebview()) {
             componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation);
@@ -37,7 +66,7 @@ export function activateWizards() {
         componentWizard.getWebview()?.reveal();
     });
 
-    ext.context.subscriptions.push(createProjectCmd, createComponentCmd);
+    ext.context.subscriptions.push(createProjectCmd, createComponentCmd, deleteProjectCmd);
 
     // Register Project Overview Wizard
     const projectOverview = commands.registerCommand(choreoProjectOverview, async (project: Project) => {

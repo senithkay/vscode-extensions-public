@@ -13,10 +13,11 @@
 import { ProgressLocation, QuickPickItemKind, QuickPickOptions, commands, window } from "vscode";
 import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut, switchUser, tokenStore } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId, choreoSwitchAccountCmdId } from '../constants';
+import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithCodeCmdId, choreoSwitchAccountCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent, sendTelemetryException } from '../telemetry/utils';
 import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
+import * as vscode from 'vscode';
 
 export async function activateAuth() {
     await initFromExistingChoreoSession();
@@ -104,6 +105,28 @@ export async function activateAuth() {
             }
         } catch (error: any) {
             getLogger().error("Error while switching Choreo account. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+        }
+    });
+
+    commands.registerCommand(choreoSignInWithCodeCmdId, async () => {
+        try {
+            // This is used in the extension test runner to sign into choreo
+            getLogger().debug("Signing in to Choreo using code");
+            ext.api.status = STATUS_LOGGING_IN;
+
+            const code = await vscode.window.showInputBox({
+                prompt: 'Enter auth code: ',
+                placeHolder: 'Code',
+                ignoreFocusOut: true,
+            });
+
+            if (code) {
+                await ext.api.signIn(code);
+            } else {
+                window.showErrorMessage("Auth code is required to login");
+            }
+        } catch (error: any) {
+            getLogger().error("Error while signing in using auth code. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }
