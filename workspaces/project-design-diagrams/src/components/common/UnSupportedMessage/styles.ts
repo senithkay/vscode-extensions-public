@@ -18,15 +18,15 @@
  */
 
 import styled from '@emotion/styled';
+import { Colors } from '../../../resources';
 
 export const Container = styled.div`
+    color: ${Colors.DEFAULT_TEXT};
     display: block;
     font-family: GilmerRegular;
     font-size: 13px;
-    letter-spacing: 0.8px;
-    padding: 15px;
-    border: 1px solid #ffaf4d;
-    background-color: white;
+    line-height: 20px;
+    padding: 8px 12px;
 `;
 
 export const WarningContainer = styled.div`
@@ -36,17 +36,18 @@ export const WarningContainer = styled.div`
 `;
 
 export const WarningMessage = styled.div`
-    font-size: 11px;
+    font-size: 13px;
     margin-left: 10px;
     width: 600px;
 `;
 
 export const ResolutionTitle = styled.div`
+    font-family: GilmerMedium;
     margin-left: 26px;
 `;
 
 export const WarningResolution = styled.div`
-    font-size: 11px;
+    font-size: 13px;
     margin-left: 36px;
     width: 600px;
 `;
