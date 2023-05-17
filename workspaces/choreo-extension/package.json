@@ -156,12 +156,25 @@
           ],
           "default": "error",
           "description": "The verbosity of logging. The Order is off < fatal < error < warn < info < debug < trace.",
+          "order": 1,
           "scope": "window"
         },
         "Logging.sourceLocationTracking": {
           "type": "boolean",
           "default": false,
           "description": "Should Source Code Location Info be added to log entries, DANGER - May be very slow, only use in debugging scenarios",
+          "order": 1,
+          "scope": "window"
+        },
+        "Advanced.ChoreoEnviornment": {
+          "type": "string",
+          "enum": [
+            "prod",
+            "stage",
+            "dev"
+          ],
+          "default": "prod",
+          "description": "The Choreo Enviornment to use",
           "scope": "window"
         }
       }
