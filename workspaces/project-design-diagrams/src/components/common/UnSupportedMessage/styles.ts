@@ -36,9 +36,15 @@ export const WarningContainer = styled.div`
 `;
 
 export const WarningMessage = styled.div`
+    display: flex;
+    flex-direction: column;
     font-size: 13px;
     margin-left: 10px;
-    width: 600px;
+    gap: 5px;
+`;
+
+export const WarningTitle = styled.div`
+    font-family: GilmerMedium;
 `;
 
 export const ResolutionTitle = styled.div`
@@ -49,5 +55,4 @@ export const ResolutionTitle = styled.div`
 export const WarningResolution = styled.div`
     font-size: 13px;
     margin-left: 36px;
-    width: 600px;
 `;

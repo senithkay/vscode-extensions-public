@@ -55,7 +55,6 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
             setShowSupportTooltip(node.nodeObject.isNoData);
         } else {
             setIsHovered(false);
-            setShowSupportTooltip(false);
         }
         node.handleHover(headPorts.current, task);
     }
