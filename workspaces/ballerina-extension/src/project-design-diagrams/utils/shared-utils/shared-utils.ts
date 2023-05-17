@@ -78,7 +78,7 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
 
 export async function checkIsChoreoProject(): Promise<boolean> {
     const choreoExt = await getChoreoExtAPI();
-    if (choreoExt && existsSync(workspace.workspaceFile?.fsPath)) {
+    if (choreoExt) {
         return await choreoExt.isChoreoProject();
     }
     return false;
