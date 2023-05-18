@@ -17,7 +17,7 @@ import { GraphqlBaseLinkModel } from "../../Link/BaseLink/GraphqlBaseLinkModel";
 import { DefaultLinkModel } from "../../Link/DefaultLink/DefaultLinkModel";
 import { GraphqlServiceLinkModel } from "../../Link/GraphqlServiceLink/GraphqlServiceLinkModel";
 import { GraphqlDesignNode } from "../../Nodes/BaseNode/GraphqlDesignNode";
-import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
+import { EnumNodeModel, ENUM_NODE } from "../../Nodes/EnumNode/EnumNodeModel";
 import { GraphqlServiceNodeModel } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
 import { HierarchicalNodeModel } from "../../Nodes/HierarchicalResourceNode/HierarchicalNodeModel";
 import { InterfaceNodeModel } from "../../Nodes/InterfaceNode/InterfaceNodeModel";
@@ -80,10 +80,28 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel): Diagram
 
     generateLinks(graphqlModel);
 
+    removeUnlinkedModels();
 
     const model = new DiagramModel();
     model.addAll(...Array.from(diagramNodes.values()), ...nodeLinks);
     return model;
+}
+
+function removeUnlinkedModels() {
+    diagramNodes.forEach((node, key) => {
+        if (node.getType() === ENUM_NODE) {
+            const ports = new Map(Object.entries(node.getPorts()));
+            let isLinked = false;
+            ports.forEach((port) => {
+                if (Object.keys(port.getLinks()).length !== 0) {
+                    isLinked = true;
+                }
+            });
+            if (!isLinked) {
+                diagramNodes.delete(key);
+            }
+        }
+    });
 }
 
 function graphqlServiceModelMapper(service: Service) {
