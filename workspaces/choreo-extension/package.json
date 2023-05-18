@@ -20,7 +20,7 @@
     "onView:choreo-projects",
     "onView:choreo-account",
     "onStartupFinished",
-    "onCommand:wso2.choreo.sign.in.with.code"
+    "onCommand:wso2.choreo.sign.in.with.apim.token"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -69,12 +69,6 @@
         "icon": "$(add)"
       },
       {
-        "command": "wso2.choreo.project.delete",
-        "title": "Delete Project",
-        "category": "Choreo",
-        "icon": "$(trash)"
-      },
-      {
         "command": "wso2.choreo.component.create",
         "title": "Create New Component",
         "category": "Choreo",
@@ -91,8 +85,8 @@
         "category": "Choreo"
       },
       {
-        "command": "wso2.choreo.sign.in.with.code",
-        "title": "Sign In with Code",
+        "command": "wso2.choreo.sign.in.with.apim.token",
+        "title": "Sign In with APIM token response",
         "category": "Choreo"
       }
     ],

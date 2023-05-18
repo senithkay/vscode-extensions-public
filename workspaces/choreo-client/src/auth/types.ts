@@ -10,7 +10,6 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Uri } from "vscode";
 
 export interface AccessToken {
     accessToken : string;
@@ -57,5 +56,5 @@ export interface IAuthClient {
     exchangeAuthCode(authCode: string): Promise<AccessToken>;
     exchangeVSCodeToken(apiAccessToken: string, orgHandle: string): Promise<AccessToken>;
     exchangeRefreshToken(refreshToken: string): Promise<AccessToken>;
-    getAuthURL(callbackUri: Uri): string;
+    getAuthURL(callbackUri: string): string;
 }

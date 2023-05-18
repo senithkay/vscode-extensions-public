@@ -20,12 +20,11 @@ export const cloneAllComponentsCmdId = 'wso2.choreo.project.clone';
 export const cloneRepoToCurrentProjectWorkspaceCmdId = 'wso2.choreo.project.repo.clone';
 
 export const createNewProjectCmdId = 'wso2.choreo.project.create';
-export const deleteProjectCmdId = 'wso2.choreo.project.delete';
 export const createNewComponentCmdId = 'wso2.choreo.component.create';
 export const choreoProjectOverview = 'wso2.choreo.project.overview';
 export const choreoArchitectureViewCmdId = 'wso2.choreo.architecture.view';
 export const choreoProjectRegistryRefreshCmdId = 'wso2.choreo.projects.registry.refresh';
-export const choreoSignInWithCodeCmdId = 'wso2.choreo.sign.in.with.code';
+export const choreoSignInWithApimTokenCmdId = 'wso2.choreo.sign.in.with.apim.token';
 export const choreoSignedInCtxKey = 'isSignedInToChoreo';
 
 // Choreo login status

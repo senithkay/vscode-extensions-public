@@ -32,7 +32,7 @@ const API_CALL_ERROR = "API CALL ERROR";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI: string, private _swaggerExamplesAPI: string) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI?: string, private _swaggerExamplesAPI?: string) {
     }
 
     private async _getClient() {
@@ -192,6 +192,9 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
         console.log(`Calling perf API - ${new Date()}`);
         try {
+            if(!this._perfAPI){
+                throw new Error('Performance API endpoint not provided');
+            }
             return await getHttpClient()
                 .post(this._perfAPI, data, {
                     headers: {
@@ -213,6 +216,9 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
         console.log(`Calling swagger sample generator API - ${new Date()}`);
         try {
+            if(!this._swaggerExamplesAPI){
+                throw new Error('Swagger examples API endpoint not provided');
+            }
             return await getHttpClient()
                 .post(this._swaggerExamplesAPI, data, {
                     headers: {

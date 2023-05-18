@@ -16,8 +16,7 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import { join } from "path";
 import { By, EditorView, VSBrowser, WebView, Workbench, InputBox, ActivityBar } from 'vscode-extension-tester';
-import { ADD_CHOREO_PROJECT_COMMAND, COMMIT_STAGED_COMMAND, DELETE_PROJECT_COMMAND, GIT_PUSH_COMMAND, OPEN_PROJECT_COMMAND, SIGN_IN_COMMAND, SIGN_IN_WITH_CODE_COMMAND, STAGE_CHANGES_COMMAND, TEST_DATA_ROOT, commitAndPushChanges, getExternalLinkFromPrompt, handleGitHubLogin, signIntoChoreo, wait } from "./resources";
-import { chromium } from "playwright-core";
+import { ADD_CHOREO_PROJECT_COMMAND, OPEN_PROJECT_COMMAND, TEST_DATA_ROOT, commitAndPushChanges, deleteProject, handleGitHubLogin, signIntoChoreo, wait } from "./resources";
 import * as dotenv from "dotenv";
 import * as fsExtra from 'fs-extra';
 
@@ -26,7 +25,7 @@ dotenv.config();
 const PROJECT_NAME = "test_vscode";
 const GIT_REPO_NAME = "vscode-test-1";
 const GIT_ORG_NAME = "choreo-test-apps";
-const COMPONENT_NAME = "test-component-1";
+const COMPONENT_NAME = `test_component_${new Date().getTime()}`;
 
 describe("Project overview tests", () => {
     let editor: EditorView;
@@ -59,12 +58,13 @@ describe("Project overview tests", () => {
         await wait(2000);
 
         await signIntoChoreo(editor, workbench);
+        await deleteProject(PROJECT_NAME);
     });
 
     it("Create new project", async () => {
         await wait(10000);
         await workbench.executeCommand(ADD_CHOREO_PROJECT_COMMAND);
-        await wait(30000);  // todo: need a better alternative than waiting 30 seconds
+        await wait(35000);  // todo: need a better alternative than waiting 30 seconds
 
         diagramWebview = new WebView();
         await diagramWebview.switchToFrame();
@@ -86,7 +86,7 @@ describe("Project overview tests", () => {
 
         const projectCreateBtn = await diagramWebview.findWebElement(By.id("create-project-btn"));
         await projectCreateBtn.click();
-        await wait(10000);
+        await wait(15000);
     });
 
     it("Clone the project", async () => {
@@ -168,18 +168,13 @@ describe("Project overview tests", () => {
 
     after(async () => {
         // Need to delete project and local files after the test run
-        // If this fails, we need to manually login and delete the project overselves from Choreo/Github
+        // If this fails, we need to manually login and delete the project over selves from Choreo/Github
         await wait(10000);
 
         editor = new EditorView();
         await editor.closeAllEditors();
 
-        await workbench.executeCommand(DELETE_PROJECT_COMMAND);
-        await wait(1000);
-        const inputBox = new InputBox();
-        await inputBox.setText(PROJECT_NAME);
-        await inputBox.confirm();
-        await wait(10000);
+        await deleteProject(PROJECT_NAME);
 
         fsExtra.removeSync(join(TEST_DATA_ROOT, PROJECT_NAME));
     });

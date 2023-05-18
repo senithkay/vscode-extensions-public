@@ -1,21 +1,35 @@
-import { STAGE_CHANGES_COMMAND, COMMIT_STAGED_COMMAND, GIT_PUSH_COMMAND, SIGN_IN_WITH_CODE_COMMAND, SIGN_IN_COMMAND } from "./constants";
+import { STAGE_CHANGES_COMMAND, COMMIT_STAGED_COMMAND, GIT_PUSH_COMMAND, SIGN_IN_WITH_APIM_TOKEN, SIGN_OUT_COMMAND } from "./constants";
 import { expect } from "chai";
-import { By, EditorView, VSBrowser, Workbench, InputBox, TextEditor } from 'vscode-extension-tester';
+import { By, EditorView, VSBrowser, Workbench, InputBox, TextEditor, } from 'vscode-extension-tester';
 import { chromium } from "playwright-core";
+import { ChoreoAuthClient, ChoreoProjectClient } from "@wso2-enterprise/choreo-client";
+import { TokenManager } from "./tokenManager";
+import { projectClient } from "../../auth/auth";
 
 export async function wait(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) => {
-    const choreoSignInNavButton = await editor.findElements(By.xpath('//*[contains(text(), "Sign in to Choreo")]'));
-    const choreoSignInPrompt = await editor.findElements(By.xpath('//*[contains(text(), "sign in to Choreo")]'));
-    if (choreoSignInPrompt.length > 0 || choreoSignInNavButton.length > 0) {
-        await workbench.executeCommand(SIGN_IN_COMMAND);
+    const tokenManager = TokenManager.getInstance();
+
+    if (!tokenManager.getApimTokenResponse() || !tokenManager.getVscodeTokenResponse()) {
+        await workbench.executeCommand(SIGN_OUT_COMMAND);
         await wait(5000);
 
-        const authUrl = await getExternalLinkFromPrompt();
-        if(authUrl){
+        const client = new ChoreoAuthClient({
+            apimClientId: process.env.APIM_CLIENT_ID!,
+            apimTokenUrl: process.env.APIM_TOKEN_URL!,
+            clientId: process.env.CLIENT_ID!,
+            loginUrl: process.env.LOGIN_URL!,
+            redirectUrl: process.env.REDIRECT_URL!,
+            tokenUrl: process.env.TOKEN_URL!,
+            vscodeClientId: process.env.VSCODE_CLIENT_ID!
+        });
+
+        const authUrl = client.getAuthURL("vscode://wso2.choreo/signin");
+
+        if (authUrl) {
             const authUrlWithTestIdp = authUrl.replace('google', 'choreoe2etest');
 
             const browser = await chromium.launch({
@@ -26,7 +40,7 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
             await page.goto(authUrlWithTestIdp);
             await page.waitForSelector('button[type="submit"]');
             await page.waitForLoadState('networkidle');
-    
+
             await page.type('#usernameUserInput', process.env.TEST_IDP_USERNAME!);
             await page.type('#password', process.env.TEST_IDP_PASSWORD!);
             await page.click('button[type="submit"]');
@@ -34,17 +48,23 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
             await page.waitForLoadState('networkidle');
             const pageUrlStr = page.url();
             await browser.close();
-    
+
             const pageUrl = new URL(pageUrlStr);
             const params = new URLSearchParams(pageUrl.search);
             const code = params.get("code");
             expect(code).not.null;
-    
+
             if (code) {
-                await workbench.executeCommand(SIGN_IN_WITH_CODE_COMMAND);
+                const apimToken = await client.exchangeAuthCode(code);
+                tokenManager.setApimTokenResponse(apimToken);
+
+                const vscodeToken = await client.exchangeVSCodeToken(apimToken.accessToken, process.env.TEST_USER_ORG_HANDLE!);
+                tokenManager.setVscodeTokenResponse(vscodeToken);
+
+                await workbench.executeCommand(SIGN_IN_WITH_APIM_TOKEN);
                 await wait(1000);
                 const inputBox = new InputBox();
-                await inputBox.setText(code);
+                await inputBox.setText(JSON.stringify(apimToken));
                 await inputBox.confirm();
             }
         }
@@ -96,7 +116,7 @@ export const getExternalLinkFromPrompt = async (): Promise<string | undefined> =
     const promptHandle = handles[0];
     await driver.switchTo().window(promptHandle);
     const copyButtons = await driver.findElements(By.xpath('//*[contains(text(), "Copy")]'));
-    if(copyButtons.length > 0){
+    if (copyButtons.length > 0) {
         await copyButtons[0].click();
         const urlText = await getValueFromClipboard();
         return urlText;
@@ -135,4 +155,26 @@ const getValueFromClipboard = async (): Promise<string> => {
 
     // return value as a string
     return value as string;
+};
+
+/** To clean up the data in Choreo after running the project */
+export const deleteProject = async (projectName: string): Promise<void> => {
+    const tokenManager = TokenManager.getInstance();
+    const accessToken = tokenManager.getVscodeTokenResponse();
+    if (accessToken) {
+        const projectClient = new ChoreoProjectClient({ getToken: async () => accessToken }, process.env.PROJECT_API!);
+        const projects = await projectClient.getProjects({ orgId: Number(process.env.TEST_USER_ORG_ID!) });
+        const projectObj = projects.find(item => item.name.includes(projectName));
+        if (projectObj) {
+            const components = await projectClient.getComponents({
+                orgHandle: process.env.TEST_USER_ORG_HANDLE!,
+                orgUuid: process.env.TEST_USER_ORG_ID!,
+                projId: projectObj.id
+            });
+            for (const component of components) {
+                await projectClient.deleteComponent({ component, orgHandler: process.env.TEST_USER_ORG_HANDLE!, projectId: projectObj.id });
+            }
+            await projectClient.deleteProject({ orgId: Number(process.env.TEST_USER_ORG_ID!), projectId: projectObj.id });
+        }
+    }
 };

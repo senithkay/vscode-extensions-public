@@ -13,7 +13,7 @@
 import { ProgressLocation, QuickPickItemKind, QuickPickOptions, commands, window } from "vscode";
 import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut, switchUser, tokenStore } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithCodeCmdId, choreoSwitchAccountCmdId, choreoSignOutCmdId } from '../constants';
+import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSwitchAccountCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent, sendTelemetryException } from '../telemetry/utils';
 import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
@@ -108,25 +108,27 @@ export async function activateAuth() {
         }
     });
 
-    commands.registerCommand(choreoSignInWithCodeCmdId, async () => {
+    commands.registerCommand(choreoSignInWithApimTokenCmdId, async () => {
         try {
             // This is used in the extension test runner to sign into choreo
             getLogger().debug("Signing in to Choreo using code");
             ext.api.status = STATUS_LOGGING_IN;
 
-            const code = await vscode.window.showInputBox({
-                prompt: 'Enter auth code: ',
-                placeHolder: 'Code',
+            const apimResponse = await vscode.window.showInputBox({
+                prompt: 'Enter APIM Response: ',
+                placeHolder: 'Response',
                 ignoreFocusOut: true,
             });
 
-            if (code) {
-                await ext.api.signIn(code);
+            if (apimResponse) {
+                const choreoTokenInfo = JSON.parse(apimResponse)
+                await tokenStore.setToken("choreo.token", choreoTokenInfo);
+                await signIn();
             } else {
-                window.showErrorMessage("Auth code is required to login");
+                window.showErrorMessage("APIM token response is required to login");
             }
         } catch (error: any) {
-            getLogger().error("Error while signing in using auth code. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            getLogger().error("Error while signing in using APIM token. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }
