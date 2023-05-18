@@ -64,24 +64,6 @@ export class MockKeyChainTokenStorage implements ITokenStorage {
             expirationTime: 3600
         };
     }
-    async getCurrentUser(): Promise<UserInfo | undefined> {
-        throw new Error("Method not implemented.");
-    }
-    async getUser(userId: string): Promise<UserInfo | undefined> {
-        throw new Error("Method not implemented.");
-    }
-    async getUsers(): Promise<string[] | undefined> {
-        throw new Error("Method not implemented.");
-    }
-    async setCurrentUser(user: UserInfo): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
-    async addUser(user: UserInfo): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
-    async deleteUser(userId: string): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
 }
 
 export class MockOrgClient implements IChoreoOrgClient {

@@ -188,7 +188,7 @@ function createAccountTreeView() {
 			accountTreeProvider.refresh(treeItem);
 			try {
 				getLogger().debug("Exchanging access tokens for the organization " + treeItem.org.name);
-				await exchangeOrgAccessTokens(treeItem.userId, treeItem.org.handle);
+				await exchangeOrgAccessTokens(treeItem.org.handle);
 			} catch (error: any) {
 				getLogger().error("Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
 				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
