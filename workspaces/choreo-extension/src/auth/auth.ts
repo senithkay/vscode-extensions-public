@@ -185,7 +185,7 @@ export async function signIn(isExistingSession?: boolean) {
                 sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
             }
             getLogger().error("Error while signing in! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : "")); 
-            getLogger().debug("Attemping to access sign in error payload!" + (error.cause?.response ? "\nPayload: " + JSON.stringify(error.cause?.response?.data) : ""));
+            getLogger().debug("Attempting to access sign in error payload!" + (error.cause?.response ? "\nPayload: " + JSON.stringify(error.cause?.response?.data) : ""));
             vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
             signOut();
         }
