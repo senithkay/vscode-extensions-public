@@ -7,15 +7,15 @@ The Choreo VS Code extension enhances your local development experience with [Ch
 Follow the steps below to configure your local environment for a seamless development experience with the Choreo extension. 
 
 1. Install [Ballerina](https://ballerina.io/learn/get-started/#install-ballerina).
-2. Install the [Ballerina VS Code Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) version 4.0.0 or later.
-3. Install [Visual Studio Code](https://code.visualstudio.com/download).
-4. Install the [Choreo VS Code extension](https://marketplace.visualstudio.com/) and wait for activation.
-5. Sign in to Choreo using one of the following methods:
+2. Install [Visual Studio Code](https://code.visualstudio.com/download).
+3. Install the [Ballerina VS Code Extension](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina) version 4.0.0 or later.
+4. Install the [Choreo VS Code extension](https://marketplace.visualstudio.com/) version 1.0.0 or later and wait for activation.
+5. Sign in to Choreo using one of the following methods.
     - Via the `Sign In` prompt displayed upon successful activation of the extension
     - Via the `Sign In` options available by clicking the Choreo icon on the activity bar of your VS Code editor
     ![Sign In](docs/choreo-extension/images/sign-in.png)
 
->**Info:** The above step redirects you to an external URI to complete the authentication process. If the sign-in is successful, all projects and organizations linked to your Choreo account will be visible in the Choreo activity panel as shown below.
+>**Tip:** The above step redirects you to an external URI to complete the authentication process. If the sign-in is successful, all projects and organizations linked to your Choreo account will be visible in the Choreo activity panel as shown below.
 
 ![Project & Organization Tree View](docs/choreo-extension/images/projects-and-orgs.png)
 
@@ -31,7 +31,7 @@ Follow the steps below to create a new Choreo project directly from VS Code.
 
 2. In the **New Choreo Project** pane, complete the new project wizard by specifying appropriate values for the required fields.
 
-    >**Tip:** Select the **Initialize a mono repo** option, and provide a GitHub **Repository** and its **Organization** if you want to use a single repo to store all the components of the project. This will redirect you to GitHub to authorize a repository to link it to the project.
+    >**Tip:** If you want to use a single repo to store all the components of the project, select the **Initialize a mono repo** option, and provide a GitHub **Repository** and its **Organization**. This will redirect you to GitHub to authorize a repository to link it to the project.
 
 ![New Project Wizard](docs/choreo-extension/images/create-project.gif)
 
@@ -95,13 +95,23 @@ Follow the steps below to push the changes to Choreo after creating the componen
 
 ## Deploy your components
 
-Navigate to the **Component Deploy** page, and click **Deploy** to deploy the components after creating them.
+Follow the steps below to deploy the components after creating them.
 
->**Tip:**  Once the components are deployed, you can view the build and deployment status of them in the **Project Overview** page.
+1. In the Choreo Console, navigate to the **Component Deploy** page, and click **Deploy**. 
+
+2. Once the components are deployed, click on the corresponding project in the Choreo activity panel. 
+
+3. View the build and deployment status of the components in the **Project Overview** page.
 
 ## Troubleshoot
 
-In the Choreo activity panel, click **View**, click **Output**, and select **Choreo** to view the Choreo output for troubleshooting.
+Follow the steps below to troubleshoot Choreo extension issues.
+
+1. In the status bar at the bottom of the VS Code editor, click the option to open the **PROBLEMS** pane. 
+
+2. Click **OUTPUT** to open the **OUTPUT** pane.
+
+3. From the drop down menu on the RHS, select **Choreo** to view the Choreo output for troubleshooting.
 
 ## Ask for help
 
