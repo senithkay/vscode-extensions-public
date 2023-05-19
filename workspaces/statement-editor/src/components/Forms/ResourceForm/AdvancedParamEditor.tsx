@@ -19,7 +19,7 @@ import { default as AddIcon } from "@material-ui/icons/Add";
 import {
     dynamicConnectorStyles as connectorStyles, TextPreloaderVertical,
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { CommaToken, DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../models/definitions';
 
@@ -27,10 +27,11 @@ import { ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
 import { ParamItem } from './ParamEditor/ParamItem';
 import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_REQUEST_TYPE } from './ResourceParamEditor';
 import { useStyles } from "./styles";
-import { genParamName, getParameterNameFromModel, getParameterType, getParameterTypeFromModel, getParamString } from './util';
+import { genParamName, getParamString } from './util';
+import { ResourceParam } from './types';
 
 export interface PayloadEditorProps {
-    parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam | RestParam)[];
+    parameters: ResourceParam[];
     syntaxDiag?: StatementSyntaxDiagnostics[];
     readonly?: boolean;
     completions?: SuggestionItem[]
@@ -41,7 +42,7 @@ export interface PayloadEditorProps {
 export function AdvancedParamEditor(props: PayloadEditorProps) {
     const {
         parameters, readonly,
-        syntaxDiag, onChange, onChangeInProgress,
+        onChange, onChangeInProgress,
         completions
     } = props;
 
@@ -52,6 +53,9 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
     const [callerIndex, setCallerIndex] = useState(-1);
     const [headerIndex, setHeaderIndex] = useState(-1);
     const [currentEditOption, setCurrentEditOption] = useState<PARAM_TYPES>(undefined);
+    const [isNew, setIsNew] = useState(false);
+
+    const paramNames: string[] = parameters.map(param => param.name);
 
     useEffect(() => {
         let foundRequestIndex = -1;
@@ -60,15 +64,15 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
 
         parameters
             .forEach((param, index) => {
-                if (param.source && param.source.includes(RESOURCE_CALLER_TYPE)) {
+                if (param.parameterValue && param.parameterValue.includes(RESOURCE_CALLER_TYPE)) {
                     foundCallerIndex = index;
                 }
 
-                if (param.source && param.source.includes(RESOURCE_HEADER_MAP_TYPE)) {
+                if (param.parameterValue && param.parameterValue.includes(RESOURCE_HEADER_MAP_TYPE)) {
                     foundHeaderIndex = index;
                 }
 
-                if (param.source && param.source.includes(RESOURCE_REQUEST_TYPE)) {
+                if (param.parameterValue && param.parameterValue.includes(RESOURCE_REQUEST_TYPE)) {
                     foundRequestIndex = index;
                 }
             });
@@ -86,7 +90,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
 
     const showButton = (value: PARAM_TYPES) => {
         const handleAddParameter = () => {
-            let newParamString;
+            setIsNew(true);
             let type = '';
 
             switch (value) {
@@ -100,38 +104,19 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                     type = RESOURCE_HEADER_MAP_TYPE;
             }
 
-            const parameterNames = parameters.map(param => !STKindChecker.isCommaToken(param) && param.paramName?.value);
-            const lastParamIndex = parameters.findIndex(param => STKindChecker.isRestParam(param) || STKindChecker.isDefaultableParam(param));
-            if (lastParamIndex === -1) {
-                const currentParamString = parameters.reduce((prev, current, currentIndex) => {
-                    let returnString = prev;
-                    if (currentIndex === lastParamIndex) {
-                        returnString = `${type} ${genParamName('param', parameterNames)},`;
-                    }
+            let segmentId = parameters.length === 0 ? 0 : parameters.length;
+            const lastParamIndex = parameters.findIndex(param => STKindChecker.isRestParam(param.model) || STKindChecker.isDefaultableParam(param.model));
 
-                    returnString = `${returnString} ${current.source ? current.source : current.value}`
-                    return returnString.trim();
-                }, '');
-                newParamString = (parameters.length > 0) ? `${currentParamString}, ${type} ${genParamName(
-                    'param', parameterNames)}` : `${type} ${genParamName('param',
-                    parameterNames)}`;
-            } else {
-                newParamString = parameters.reduce((prev, current, currentIndex) => {
-                    let returnString = prev;
-                    if (!STKindChecker.isCommaToken(current)) {
-                        if (currentIndex === lastParamIndex) {
-                            const paramString = `${type} ${genParamName('param', parameterNames)},`;
-                            returnString = `${paramString} ${returnString},`
-                        } else if (currentIndex !== 0) {
-                            returnString = `${returnString},`;
-                        }
-                        returnString = `${returnString} ${current.source ? current.source : current.value}`
-                    }
-                    return returnString.trim();
-                }, '');
+            if (lastParamIndex > -1) {
+                segmentId = lastParamIndex;
             }
 
-            onChange(newParamString);
+            const paramName = genParamName('param', paramNames);
+            const newObject: ResourceParam = { parameterValue: `${type} ${paramName}`, diagnosticMsg: [], name: paramName, type: type, default: "" };
+
+            // Insert the object at the specified index
+            parameters.splice(segmentId, 0, newObject);
+            onChange(getParamString(parameters));
             setCurrentEditOption(value);
         };
 
@@ -153,23 +138,30 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         const handleOnParamChange = (segmentId: number, paramString: string, paramModel?: STNode) => {
             const newParamString = parameters.reduce((prev, current, currentIndex) => {
                 if (segmentId === currentIndex) {
-                    return `${prev} ${paramString}`;
+                    return prev !== "" ? `${prev},${paramString}` : `${paramString}`;
                 }
-
-                return `${prev}${current.source ? current.source : current.value}`;
+                return prev !== "" ? `${prev},${current.parameterValue}` : `${current.parameterValue}`;
             }, '');
-
             onChange(newParamString);
         }
 
-        const handleCancelEditParam = () => {
+        const handleCancelEditParam = (id?: number) => {
             setCurrentEditOption(undefined);
             onChangeInProgress(false);
+            if (id != undefined && id >= 0 && isNew) {
+                paramIndex = id;
+                handleParamDelete();
+            }
+            setIsNew(false);
         }
 
         const handleParamDelete = () => {
-            parameters.splice(paramIndex === 0 ? paramIndex : paramIndex - 1, 2)
-            onChange(getParamString(parameters));
+            const updatedParameters = [...parameters]; // Create a new array to avoid mutating the original array
+            const indexToRemove = paramIndex;
+            if (indexToRemove >= 0 && indexToRemove < updatedParameters.length) {
+                updatedParameters.splice(indexToRemove, 1); // Remove the element at the specified index
+                onChange(getParamString(updatedParameters));
+            }
             switch (type) {
                 case PARAM_TYPES.CALLER:
                     setCallerIndex(-1);
@@ -196,8 +188,8 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                     type === activeType ? (
                         <ParamEditor
                             segmentId={paramIndex}
-                            syntaxDiagnostics={syntaxDiag}
-                            model={(parameters[paramIndex] as DefaultableParam | RequiredParam | IncludedRecordParam | RestParam)}
+                            syntaxDiagnostics={[]}
+                            model={parameters[paramIndex]}
                             completions={completions}
                             isEdit={true}
                             optionList={[type]}
@@ -209,8 +201,8 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                         <ParamItem
                             param={{
                                 id: paramIndex,
-                                name: getParameterNameFromModel(parameters[paramIndex]),
-                                type: getParameterTypeFromModel(parameters[paramIndex]),
+                                name: parameters[paramIndex]?.name,
+                                type: parameters[paramIndex]?.type,
                                 option: type
                             }}
                             readonly={readonly}
@@ -240,7 +232,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                         {requestIndex > -1 && getParamEditorComponent(requestIndex, PARAM_TYPES.REQUEST, currentEditOption)}
                         {(requestIndex !== -1) && !getParamEditorComponent(requestIndex, PARAM_TYPES.REQUEST, currentEditOption) && (
                             <div>
-                                <TextPreloaderVertical position="fixedMargin"/>
+                                <TextPreloaderVertical position="fixedMargin" />
                             </div>
                         )}
                     </div>
@@ -249,7 +241,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                         {callerIndex > -1 && getParamEditorComponent(callerIndex, PARAM_TYPES.CALLER, currentEditOption)}
                         {(callerIndex !== -1) && !getParamEditorComponent(callerIndex, PARAM_TYPES.CALLER, currentEditOption) && (
                             <div>
-                                <TextPreloaderVertical position="fixedMargin"/>
+                                <TextPreloaderVertical position="fixedMargin" />
                             </div>
                         )}
                     </div>
@@ -258,7 +250,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
                         {headerIndex > -1 && getParamEditorComponent(headerIndex, PARAM_TYPES.HEADER_MAP, currentEditOption)}
                         {(headerIndex !== -1) && !getParamEditorComponent(headerIndex, PARAM_TYPES.HEADER_MAP, currentEditOption) && (
                             <div>
-                                <TextPreloaderVertical position="fixedMargin"/>
+                                <TextPreloaderVertical position="fixedMargin" />
                             </div>
                         )}
                     </div>

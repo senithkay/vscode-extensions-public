@@ -127,7 +127,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                     <tr key={i} className={classes.signature}>
                         <td>
                             <div>
-                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
+                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span> :{param.paramName?.value}
                                 {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}
                                     <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
                                         <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div>
@@ -294,9 +294,13 @@ export function ResourceBody(props: ResourceBodyProps) {
         const langClient = await getDiagramEditorLangClient();
         const responses = [];
         for (const [i, param] of values.entries()) {
-            if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
+            if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
                 const paramDetails = param.source.split(" ");
                 const recordName = param.source.split(" ")[0];
+                let description = paramDetails.length > 0 && paramDetails[1];
+                if (paramDetails.length > 2) { 
+                    description = paramDetails.slice(1).join(" ");
+                }
                 const recordInfo = await getRecord(recordName.trim(), langClient);
                 responses.push(
                     <tr key={i} className={classes.signature}>
@@ -314,7 +318,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                             }
                         </td>
                         <td>
-                            {paramDetails.length > 0 && param.source.split(" ")[1]}
+                            {description}
                         </td>
                     </tr>
                 )
