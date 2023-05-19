@@ -16,9 +16,9 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import { join } from "path";
 import { By, EditorView, VSBrowser, WebView, Workbench, InputBox, ActivityBar } from 'vscode-extension-tester';
-import { ADD_CHOREO_PROJECT_COMMAND, OPEN_PROJECT_COMMAND, TEST_DATA_ROOT, commitAndPushChanges, deleteProject, handleGitHubLogin, signIntoChoreo, wait } from "./resources";
+import { ADD_CHOREO_PROJECT_COMMAND, OPEN_PROJECT_COMMAND, TEST_DATA_ROOT, commitAndPushChanges, deleteFoldersRecursively, deleteProject, handleGitHubLogin, hasFoldersInRepository, signIntoChoreo, wait } from "./resources";
 import * as dotenv from "dotenv";
-import * as fsExtra from 'fs-extra';
+import * as fs from 'fs';
 
 dotenv.config();
 
@@ -38,8 +38,8 @@ describe("Project overview tests", () => {
         expect(process.env.TEST_GITHUB_USERNAME).to.be.a("string");
         expect(process.env.TEST_GITHUB_PAT).to.be.a("string");
 
-        if (fsExtra.existsSync(join(TEST_DATA_ROOT, PROJECT_NAME))) {
-            fsExtra.removeSync(join(TEST_DATA_ROOT, PROJECT_NAME));
+        if (fs.existsSync(join(TEST_DATA_ROOT, PROJECT_NAME))) {
+            fs.rmSync(join(TEST_DATA_ROOT, PROJECT_NAME), { recursive: true, force: true });
         }
 
         await VSBrowser.instance.waitForWorkbench();
@@ -64,7 +64,7 @@ describe("Project overview tests", () => {
     it("Create new project", async () => {
         await wait(10000);
         await workbench.executeCommand(ADD_CHOREO_PROJECT_COMMAND);
-        await wait(35000);  // todo: need a better alternative than waiting 30 seconds
+        await wait(30000);
 
         diagramWebview = new WebView();
         await diagramWebview.switchToFrame();
@@ -85,6 +85,7 @@ describe("Project overview tests", () => {
         await repoOption.click();
 
         const projectCreateBtn = await diagramWebview.findWebElement(By.id("create-project-btn"));
+        expect(await projectCreateBtn.isEnabled()).to.be.true;
         await projectCreateBtn.click();
         await wait(15000);
     });
@@ -92,7 +93,11 @@ describe("Project overview tests", () => {
     it("Clone the project", async () => {
         await diagramWebview.switchToFrame();
 
+        const componentMenus = await diagramWebview.findWebElements(By.id("component-list-menu-btn-0"));
+        expect(componentMenus).to.have.lengthOf(0);
+
         const cloneButton = await diagramWebview.findWebElement(By.id("clone-project"));
+        expect(await cloneButton.isEnabled()).to.be.true;
         await cloneButton.click();
         await diagramWebview.switchBack();
 
@@ -110,6 +115,7 @@ describe("Project overview tests", () => {
         diagramWebview = new WebView();
         await diagramWebview.switchToFrame();
         const componentCreateBtn = await diagramWebview.findWebElement(By.id("add-component-btn"));
+        expect(await componentCreateBtn.isEnabled()).to.be.true;
         await componentCreateBtn.click();
         await diagramWebview.switchBack();
         await wait(3000);
@@ -122,18 +128,20 @@ describe("Project overview tests", () => {
         diagramWebview = new WebView(editor);
         await diagramWebview.switchToFrame();
         const nextButton = await diagramWebview.findWebElement(By.id("wizard-next-btn"));
+        expect(await nextButton.isEnabled()).to.be.true;
         await nextButton.click();
         await wait(1000);
 
         const componentNameInput = await diagramWebview.findWebElement(By.id("component-name-input"));
         await componentNameInput.sendKeys(COMPONENT_NAME);
 
-        const nextButton2 = await diagramWebview.findWebElement(By.id("wizard-next-btn"));
-        await nextButton2.click();
+        const wizardNextButton = await diagramWebview.findWebElement(By.id("wizard-next-btn"));
+        expect(await wizardNextButton.isEnabled()).to.be.true;
+        await wizardNextButton.click();
 
-        await wait(30000);  // todo: need a better alternative than waiting 30 seconds
-
+        await wait(30000);
         const createButton = await diagramWebview.findWebElement(By.id("wizard-save-btn"));
+        expect(await createButton.isEnabled()).to.be.true;
         await createButton.click();
 
         await diagramWebview.switchBack();
@@ -146,6 +154,7 @@ describe("Project overview tests", () => {
         await wait(12000);
         await diagramWebview.switchToFrame();
         const pushToChoreoBtn = await diagramWebview.findWebElement(By.id("push-to-choreo-btn"));
+        expect(await pushToChoreoBtn.isEnabled()).to.be.true;
         await pushToChoreoBtn.click();
 
         await wait(15000);
@@ -156,6 +165,7 @@ describe("Project overview tests", () => {
         await componentMenu.click();
 
         const componentDelete = await diagramWebview.findWebElement(By.id("component-list-menu-delete"));
+        expect(await componentDelete.isEnabled()).to.be.true;
         await componentDelete.click();
         await diagramWebview.switchBack();
 
@@ -168,14 +178,16 @@ describe("Project overview tests", () => {
 
     after(async () => {
         // Need to delete project and local files after the test run
-        // If this fails, we need to manually login and delete the project over selves from Choreo/Github
         await wait(10000);
 
         editor = new EditorView();
         await editor.closeAllEditors();
 
         await deleteProject(PROJECT_NAME);
-
-        fsExtra.removeSync(join(TEST_DATA_ROOT, PROJECT_NAME));
+        
+        if (hasFoldersInRepository(join(TEST_DATA_ROOT, PROJECT_NAME, 'repos', GIT_ORG_NAME, GIT_REPO_NAME))) {
+            deleteFoldersRecursively(join(TEST_DATA_ROOT, PROJECT_NAME, 'repos', GIT_ORG_NAME, GIT_REPO_NAME));
+            await commitAndPushChanges(workbench, editor, "delete everything");
+        }
     });
 });

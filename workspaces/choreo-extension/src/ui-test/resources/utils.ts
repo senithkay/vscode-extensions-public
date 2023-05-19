@@ -4,7 +4,8 @@ import { By, EditorView, VSBrowser, Workbench, InputBox, TextEditor, } from 'vsc
 import { chromium } from "playwright-core";
 import { ChoreoAuthClient, ChoreoProjectClient } from "@wso2-enterprise/choreo-client";
 import { TokenManager } from "./tokenManager";
-import { projectClient } from "../../auth/auth";
+import * as fs from 'fs';
+import { join } from "path";
 
 export async function wait(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -30,7 +31,7 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
         const authUrl = client.getAuthURL("vscode://wso2.choreo/signin");
 
         if (authUrl) {
-            const authUrlWithTestIdp = authUrl.replace('google', 'choreoe2etest');
+            const authUrlWithTestIdp = `${authUrl}&fidp=choreoe2etest`;
 
             const browser = await chromium.launch({
                 headless: process.env.CI ? true : false,
@@ -109,20 +110,6 @@ export const handleGitHubLogin = async (): Promise<void> => {
     await passwordBox.confirm();
 };
 
-export const getExternalLinkFromPrompt = async (): Promise<string | undefined> => {
-    const driver = VSBrowser.instance.driver;
-    await driver.wait(async () => (await driver.getAllWindowHandles()).length === 2);
-    const handles = await driver.getAllWindowHandles();
-    const promptHandle = handles[0];
-    await driver.switchTo().window(promptHandle);
-    const copyButtons = await driver.findElements(By.xpath('//*[contains(text(), "Copy")]'));
-    if (copyButtons.length > 0) {
-        await copyButtons[0].click();
-        const urlText = await getValueFromClipboard();
-        return urlText;
-    }
-};
-
 const getValueFromClipboard = async (): Promise<string> => {
     // create a hidden input element
     const input = await VSBrowser.instance.driver.executeScript(`
@@ -177,4 +164,32 @@ export const deleteProject = async (projectName: string): Promise<void> => {
             await projectClient.deleteProject({ orgId: Number(process.env.TEST_USER_ORG_ID!), projectId: projectObj.id });
         }
     }
+};
+
+/** Delete all folders except the .git folder, within the repo.  */
+export const deleteFoldersRecursively = (folderPath: string) => {
+    const files = fs.readdirSync(folderPath);
+    files.forEach((file) => {
+        const filePath = join(folderPath, file);
+        const stats = fs.statSync(filePath);
+        if (stats.isDirectory() && file !== '.git') {
+            fs.rmSync(filePath, { recursive: true, force: true });
+        }
+    });
+};
+
+/** Check if there are folders that needs to be removed within the repo */
+export const hasFoldersInRepository = (repoPath: string) => {
+    const files = fs.readdirSync(repoPath);
+    for (const file of files) {
+        if (file === '.git') {
+            continue; // Ignore .git folder
+        }
+        const filePath = join(repoPath, file);
+        const stats = fs.statSync(filePath);
+        if (stats.isDirectory()) {
+            return true; // At least one folder found
+        }
+    }
+    return false; // No folders found
 };

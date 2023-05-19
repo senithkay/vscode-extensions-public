@@ -373,7 +373,6 @@ importers:
       '@istanbuljs/nyc-config-typescript': ^1.0.2
       '@types/byline': ^4.2.33
       '@types/chai': ^4.2.18
-      '@types/fs-extra': 11.0.1
       '@types/glob': ^8.0.0
       '@types/lodash': ^4.14.189
       '@types/mocha': ^10.0.0
@@ -404,7 +403,6 @@ importers:
       dotenv: ^16.0.3
       eslint: ^8.32.0
       file-type: ^18.2.1
-      fs-extra: ^11.1.1
       glob: ^7.2.0
       gql-query-builder: ^3.8.0
       graphql: ^16.6.0
@@ -458,7 +456,6 @@ importers:
     devDependencies:
       '@istanbuljs/nyc-config-typescript': 1.0.2_nyc@15.1.0
       '@types/byline': 4.2.33
-      '@types/fs-extra': 11.0.1
       '@types/glob': 8.1.0
       '@types/mocha': 10.0.1
       '@types/node': 18.15.3
@@ -474,7 +471,6 @@ importers:
       copyfiles: 2.4.1
       del-cli: 5.0.0
       eslint: 8.36.0
-      fs-extra: 11.1.1
       glob: 7.2.3
       mocha: 10.2.0
       nyc: 15.1.0
@@ -11222,13 +11218,6 @@ packages:
       '@types/qs': 6.9.7
       '@types/serve-static': 1.15.1
 
-  /@types/fs-extra/11.0.1:
-    resolution: {integrity: sha512-MxObHvNl4A69ofaTRU8DFqvgzzv8s9yRtaPPm5gud9HDNvpB3GPQFvNuTWAI59B9huVGV5jXYJwbCsmBsOGYWA==}
-    dependencies:
-      '@types/jsonfile': 6.1.1
-      '@types/node': 18.15.3
-    dev: true
-
   /@types/fs-extra/5.1.0:
     resolution: {integrity: sha512-AInn5+UBFIK9FK5xc9yP5e3TQSPNNgjHByqYcj9g5elVBnDQcQL7PlO1CIRy2gWlbwK7UPYqi7vRvFA44dCmYQ==}
     dependencies:
@@ -11323,12 +11312,6 @@ packages:
 
   /@types/json5/0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
-
-  /@types/jsonfile/6.1.1:
-    resolution: {integrity: sha512-GSgiRCVeapDN+3pqA35IkQwasaCh/0YFH5dEF6S88iDvEn901DjOeH3/QPY+XYP1DFzDZPvIvfeEgk+7br5png==}
-    dependencies:
-      '@types/node': 18.15.3
-    dev: true
 
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
