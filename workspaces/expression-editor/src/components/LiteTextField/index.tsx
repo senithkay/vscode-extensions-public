@@ -32,9 +32,10 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
     const { value, diagnostics, onChange, isLoading, onFocus } = props;
 
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState("");
+    const [expressionDiagnosticMsgSecond, setExpressionDiagnosticMsgSecond] = useState("");
 
     const handleValueChange = (input: string) => {
-        onChange(input)
+        onChange(input);
     }
 
     const handleOnFocus = (e?: any) => {
@@ -49,11 +50,16 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
         if (diagnostics) {
             if (diagnostics.length > 0) {
                 setExpressionDiagnosticMsg(diagnostics[0].message);
+                if (diagnostics.length > 1) { 
+                    setExpressionDiagnosticMsgSecond(diagnostics[1].message);
+                }
             } else {
                 setExpressionDiagnosticMsg("");
+                setExpressionDiagnosticMsgSecond("");
             }
         } else {
             setExpressionDiagnosticMsg("");
+            setExpressionDiagnosticMsgSecond("");
         }
     }, [diagnostics]);
 
@@ -73,6 +79,12 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
             {expressionDiagnosticMsg && (
                 <>
                     {<DiagnosticView message={expressionDiagnosticMsg} />}
+                </>
+            )
+            }
+            {expressionDiagnosticMsgSecond && (
+                <>
+                    {<DiagnosticView message={expressionDiagnosticMsgSecond} />}
                 </>
             )
             }

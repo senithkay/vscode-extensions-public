@@ -94,7 +94,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
             selectedConnector.package.name
         ) {
             setPullingPackage(true);
-            const imports = getConnectorImports(fullST, selectedConnector.package.organization, selectedConnector.moduleName);
+            const imports = getConnectorImports(fullST, selectedConnector.package.organization, selectedConnector.moduleName, true);
             if (imports && imports?.size > 0) {
                 let pullCommand = "";
                 imports.forEach(function (impt) {

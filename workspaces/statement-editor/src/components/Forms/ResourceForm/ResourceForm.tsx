@@ -15,7 +15,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from "react-intl";
 import { monaco } from 'react-monaco-editor';
 
-import { Button, Divider, FormControl, TextField } from "@material-ui/core";
+import { Button, Divider, FormControl } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import { LiteTextField } from '@wso2-enterprise/ballerina-expression-editor';
 import {
@@ -36,7 +36,6 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from 'vscode-languageserver-protocol';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
@@ -50,12 +49,12 @@ import { PayloadEditor } from "./PayloadEditor";
 import { ResourceParamEditor } from "./ResourceParamEditor";
 import { ResourceReturnEditor } from './ResourceReturnEditor';
 import { useStyles } from "./styles";
-import { ResourceDiagnostics } from "./types";
+import { ResourceDiagnostics, ResourceParam } from "./types";
 import {
-    generateParameterSectionString,
-    genParamName, getParamDiagnostics,
+    genParamName, getParamArray, getParamDiagnostics,
     getParamString,
     getResourcePath,
+    HTTP_GET,
     SERVICE_METHODS
 } from "./util";
 
@@ -77,10 +76,8 @@ export function ResourceForm(props: FunctionProps) {
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
-    const [currentComponentSyntaxDiag, setCurrentComponentSyntaxDiag] = useState<StatementSyntaxDiagnostics[]>([]);
+    const [resourcePathDiagnostics, setResourcePathDiagnostics] = useState<StatementSyntaxDiagnostics[]>([]);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
-    const [shouldUpdatePath, setShouldUpdatePath] = useState<boolean>(false);
-    const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
 
     const resourceConfigTitle = intl.formatMessage({
         id: "lowcode.develop.apiConfigWizard.resourceConfig.title",
@@ -95,10 +92,8 @@ export function ResourceForm(props: FunctionProps) {
         defaultMessage: "Save"
     });
 
-
     const fileURI = monaco.Uri.file(currentFile.path).toString().replace(FILE_SCHEME, EXPR_SCHEME);
     const [completions, setCompletions] = useState([]);
-
 
     const handleCompletions = async (newValue: string, currentModel: any, completionKinds: number[], newTargetPosition: NodePosition) => {
         const lsSuggestions = await getCompletionsForType(fileURI, newTargetPosition, null,
@@ -106,26 +101,22 @@ export function ResourceForm(props: FunctionProps) {
         setCompletions(lsSuggestions);
     };
 
-
-    const updateDiag = () => {
-        const updatedDiagnostics = (model?.viewState.diagnosticsInRange.concat(model?.functionSignature?.returnTypeDesc?.viewState.diagnosticsInRange.concat(model?.functionBody?.viewState.diagnosticsInRange)));
-        const typeRelated: Diagnostic[] = updatedDiagnostics?.filter((diag: any) => diag?.message.includes("unknown type"));
-        const componentDiag: StatementSyntaxDiagnostics[] = [];
-        typeRelated.forEach(diag => {
-            const newDiag: StatementSyntaxDiagnostics = {
-                message: diag.message,
-            };
-            componentDiag.push(newDiag);
-        })
-        setCurrentComponentSyntaxDiag(componentDiag);
-    }
     useEffect(() => {
         handleCompletions("", null, [22, 25], targetPosition);
-        updateDiag();
+        setParametersValue(getParamArray(model.functionSignature))
     }, [model])
 
+    useEffect(() => {
+        if (model) {
+            handleResourceParamChange(
+                methodName,
+                resourcePath,
+                getParamString(parametersValue),
+                resourceReturn.replace("returns", "")
+            );
+        }
+    }, [])
 
-    // When a type is created and full ST is updated trigger the onChange to remove diagnostics // TODO: Find a better fix
     useEffect(() => {
         handlePathChange(resourcePath);
     }, [fullST]);
@@ -141,7 +132,7 @@ export function ResourceForm(props: FunctionProps) {
                 viewState?.diagnosticsInRange[0]?.message;
             pathTypeSemDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
                 typeDescriptor?.viewState?.diagnosticsInRange[0]?.message;
-        } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
+        } else if (diagPath && diagPath?.viewState?.diagnostics?.length > 0 && STKindChecker.isIdentifierToken(diagPath)) {
             pathNameSemDiagnostics = diagPath?.viewState?.diagnostics[0]?.message;
         }
         paramDiagnostics = getParamDiagnostics(model.functionSignature?.parameters)
@@ -190,15 +181,22 @@ export function ResourceForm(props: FunctionProps) {
             onChange(updatedContent, partialST, undefined, { model: stModel }, currentValue, completionEditorTypeKinds, 0,
                 { startLine: -1, startColumn: -4 });
 
-            setCurrentComponentSyntaxDiag(undefined);
+            setResourcePathDiagnostics(undefined);
         } else {
-            setCurrentComponentSyntaxDiag(partialST.syntaxDiagnostics);
+            setResourcePathDiagnostics(partialST.syntaxDiagnostics);
         }
 
     };
 
+    const onPathFocus = () => {
+        setCurrentComponentName("Path");
+    }
+
+    const onReturnFocus = () => {
+        setCurrentComponentName("Return");
+    }
+
     const handlePathAddClick = async () => {
-        setShouldUpdatePath(true);
         setCurrentComponentName("Path");
         const variables = model.relativeResourcePath
             .filter(pathSegment => STKindChecker.isResourcePathSegmentParam(pathSegment)
@@ -216,91 +214,89 @@ export function ResourceForm(props: FunctionProps) {
         }
         setResourcePath(newPath);
         await handleResourceParamChange(
-            model?.functionName?.value,
+            methodName,
             newPath,
-            getParamString(model.functionSignature?.parameters),
-            model?.functionSignature?.returnTypeDesc?.type?.source);
+            getParamString(parametersValue),
+            resourceReturn.replace("returns", ""),
+        );
     };
-
+    
+    const [methodName, setMethodName] = useState<string>(model?.functionName?.value.toUpperCase());
     const handleMethodChange = async (value: string) => {
+        setMethodName(value.toUpperCase());
         await handleResourceParamChange(
             value.toLowerCase(),
-            getResourcePath(model.relativeResourcePath),
-            generateParameterSectionString(model?.functionSignature?.parameters),
-            model.functionSignature?.returnTypeDesc?.type?.source
+            resourcePath,
+            getParamString(parametersValue),
+            resourceReturn.replace("returns", "")
         );
     };
 
-    const onPathFocus = () => {
-        setCurrentComponentName("Path");
-    }
-
-    const onReturnFocus = () => {
-        setCurrentComponentName("Return");
-    }
-
+    const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
     const handlePathChange = async (value: string) => {
-        setShouldUpdatePath(false);
-        setResourcePath(value);
+        const sanitizedValue = value.replace(/[^a-zA-Z0-9.\[\]\/ ]/g, '');
+        setResourcePath(sanitizedValue);
         await handleResourceParamChange(
-            model.functionName.value,
-            value,
-            generateParameterSectionString(model?.functionSignature?.parameters),
-            model.functionSignature?.returnTypeDesc?.type?.source,
+            methodName,
+            sanitizedValue,
+            getParamString(parametersValue),
+            resourceReturn.replace("returns", ""),
         );
     };
+
+    const [parametersValue, setParametersValue] = useState<ResourceParam[]>(getParamArray(model.functionSignature));
 
     const handleParamEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
-        // if (!avoidValueCommit) {
-        //     setQueryParam(value);
-        // }
-        // setCurrentComponentName("QueryParam");
+        setCurrentComponentName("QueryParam");
         await handleResourceParamChange(
-            model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
+            methodName,
+            resourcePath,
             paramString,
-            model.functionSignature?.returnTypeDesc?.type?.source,
-            stModel,
-            currentValue
+            resourceReturn.replace("returns", ""),
         );
     };
 
 
     // Return type related functions
+    const [resourceReturn, setResourceReturn] = useState<string>(model.functionSignature?.returnTypeDesc?.source);
     const onReturnTypeChange = async (value: string) => {
-        // setIsEditInProgress(true);
+        setResourceReturn(value);
         await handleResourceParamChange(
-            model.functionName.value,
-            getResourcePath(model.relativeResourcePath),
-            generateParameterSectionString(model?.functionSignature?.parameters),
+            methodName,
+            resourcePath,
+            getParamString(parametersValue),
             value,
-            model.functionSignature?.returnTypeDesc?.type,
-            value
         );
     }
 
-    const handleOnSave = () => {
+    const getReturnTypeDiagnostics = () => {
+        const viewStateDiagnostics: StatementSyntaxDiagnostics[] = model?.viewState?.diagnosticsInRange;
+        const returnValues = resourceReturn.split(" ");
+        const filtered = viewStateDiagnostics.filter(diag => returnValues.some(val => diag.message.includes(val)));
+        return filtered;
+    }
+
+    const handleOnSave = async () => {
         if (isEdit) {
             applyModifications([
                 updateResourceSignature(
-                    model.functionName.value,
-                    getResourcePath(model.relativeResourcePath),
-                    getParamString(model.functionSignature.parameters),
-                    model.functionSignature?.returnTypeDesc?.type?.source,
+                    methodName.toLowerCase(),
+                    resourcePath,
+                    getParamString(parametersValue),
+                    resourceReturn.replace("returns", ""),
                     targetPosition)
             ]);
         } else {
             applyModifications([
                 createResource(
-                    model.functionName.value,
-                    getResourcePath(model.relativeResourcePath),
-                    getParamString(model.functionSignature.parameters),
-                    model.functionSignature?.returnTypeDesc?.type?.source,
+                    methodName.toLowerCase(),
+                    resourcePath,
+                    getParamString(parametersValue),
+                    resourceReturn.replace("returns", ""),
                     targetPosition
                 )
             ]);
         }
-
         onCancel();
     }
 
@@ -321,7 +317,7 @@ export function ResourceForm(props: FunctionProps) {
                             <div className={connectorClasses.methodTypeContainer}>
                                 <SelectDropdownWithButton
                                     dataTestId='api-method'
-                                    defaultValue={model?.functionName?.value?.toUpperCase() || ""}
+                                    defaultValue={methodName || ""}
                                     customProps={{ values: SERVICE_METHODS, disableCreateNew: true, autoFocus: true }}
                                     onChange={handleMethodChange}
                                     label={httpMethodTitle}
@@ -334,7 +330,7 @@ export function ResourceForm(props: FunctionProps) {
                                     value={resourcePath}
                                     isLoading={false}
                                     onChange={handlePathChange}
-                                    diagnostics={currentComponentName === "Path" && currentComponentSyntaxDiag}
+                                    diagnostics={currentComponentName === "Path" && resourcePathDiagnostics}
                                     onFocus={onPathFocus}
                                 />
                             </div>
@@ -353,35 +349,22 @@ export function ResourceForm(props: FunctionProps) {
                         </div>
                     </div>
                     <div className={connectorClasses.resourceParamWrapper}>
-                        {/* FIXME: Check and remove if dont need the path editor */}
-                        {/*{isAdvanceView && (*/}
-                        {/*    <PathEditor*/}
-                        {/*        relativeResourcePath={path}*/}
-                        {/*        syntaxDiag={currentComponentSyntaxDiag}*/}
-                        {/*        readonly={(!isParamInProgress && (currentComponentSyntaxDiag?.length > 0 ||*/}
-                        {/*            (pathTypeSemDiagnostics !== "" || pathNameSemDiagnostics !== "")) || isQueryInProgress)}*/}
-                        {/*        pathNameSemDiag={pathNameSemDiagnostics}*/}
-                        {/*        pathTypeSemDiag={pathTypeSemDiagnostics}*/}
-                        {/*        onChange={handlePathParamEditorChange}*/}
-                        {/*        onChangeInProgress={handleParamChangeInProgress}*/}
-                        {/*    />*/}
-                        {/*)}*/}
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <ConfigPanelSection title={"Parameters"}>
                             <ResourceParamEditor
-                                parameters={model.functionSignature?.parameters || []}
-                                syntaxDiag={currentComponentSyntaxDiag}
+                                parameters={parametersValue}
+                                syntaxDiag={[]}
                                 onChange={handleParamEditorChange}
                                 completions={completions}
                                 readonly={isEditInProgress} // todo: implement the disable logic
                                 onChangeInProgress={setIsEditInProgress}
                             />
                             {
-                                !model.functionName.value.includes('get') && (
+                                methodName != HTTP_GET && (
                                     <PayloadEditor
-                                        parameters={model.functionSignature?.parameters || []}
+                                        parameters={parametersValue}
                                         onChange={handleParamEditorChange}
-                                        syntaxDiag={currentComponentSyntaxDiag}
+                                        syntaxDiag={[]}
                                         completions={completions}
                                         readonly={isEditInProgress}
                                         onChangeInProgress={setIsEditInProgress}
@@ -389,8 +372,8 @@ export function ResourceForm(props: FunctionProps) {
                                 )
                             }
                             <AdvancedParamEditor
-                                parameters={model.functionSignature?.parameters || []}
-                                syntaxDiag={currentComponentSyntaxDiag ? currentComponentSyntaxDiag : []}
+                                parameters={parametersValue}
+                                syntaxDiag={[]}
                                 onChange={handleParamEditorChange}
                                 readonly={isEditInProgress}
                                 onChangeInProgress={setIsEditInProgress}
@@ -399,8 +382,8 @@ export function ResourceForm(props: FunctionProps) {
                         <Divider className={connectorClasses.sectionSeperatorHR} />
                         <ConfigPanelSection title='Responses'>
                             <ResourceReturnEditor
-                                returnSource={model.functionSignature?.returnTypeDesc?.source}
-                                syntaxDiag={(currentComponentName === "Return" && currentComponentSyntaxDiag) || []}
+                                returnSource={resourceReturn}
+                                syntaxDiag={getReturnTypeDiagnostics()}
                                 onChange={onReturnTypeChange}
                                 completions={completions}
                                 readonly={isEditInProgress} // todo: implement the disable logic
@@ -421,7 +404,7 @@ export function ResourceForm(props: FunctionProps) {
                                     text={saveButtonText}
                                     className={classes.saveBtn}
                                     onClick={handleOnSave}
-                                    disabled={currentComponentSyntaxDiag?.length > 0
+                                    disabled={resourcePathDiagnostics?.length > 0
                                         || getResourcePathDiagnostics().length > 0
                                         || isEditInProgress
                                         || changeInProgress}

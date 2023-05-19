@@ -136,7 +136,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             letterSpacing: '0',
             lineHeight: '14px',
             paddingLeft: '0px',
-        }
+        },
+        invalidCode: {
+            fontSize: '11px !important',
+            color: '#ea4c4d !important',
+            "&:first-letter": {
+                textTransform: 'capitalize',
+            }
+        },
     }),
 );
 

@@ -25,7 +25,7 @@ import {
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { exchangeAuthToken } from "./auth/auth";
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
 
 import { getLogger } from './logger/logger';
@@ -124,7 +124,7 @@ export class ChoreoExtensionApi {
 
     public async isChoreoProject(): Promise<boolean> {
         const workspaceFile = workspace.workspaceFile;
-        if (workspaceFile) {
+        if (workspaceFile && existsSync(workspaceFile.fsPath)) {
             const workspaceFilePath = workspaceFile.fsPath;
             const workspaceFileContent = readFileSync(workspaceFilePath, 'utf8');
             const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;

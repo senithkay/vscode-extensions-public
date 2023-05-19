@@ -20,7 +20,7 @@ import AddIcon from "@material-ui/icons/Add";
 import { BallerinaSTModifyResponse, CompletionResponse, DiagramEditorLangClientInterface, responseCodes } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { connectorStyles } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
 import { ResourceAccessorDefinition, STNode, traversNode, TypeDefinition } from '@wso2-enterprise/syntax-tree';
-import { Diagnostic, TextDocumentPositionParams } from 'vscode-languageserver-protocol';
+import { TextDocumentPositionParams } from 'vscode-languageserver-protocol';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from '../../../store/form-editor-context';
@@ -58,6 +58,9 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
     const [paramComponents, setParamComponents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [returnSourceOld, setReturnSourceOld] = useState(returnSource.replace("returns", ""));
+    const [updatedSource, setUpdatedSource] = useState(returnSource.replace("returns", ""));
+
     const responses = getReturnTypesArray();
 
     const {
@@ -93,6 +96,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             newSource = responses.join("|");
         }
         onChange(newSource);
+        setReturnSourceOld(newSource);
         setEditingSegmentId(-1);
         onChangeInProgress(false);
         setIsNew(false);
@@ -108,6 +112,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         }
         const newSource = responses.join("|");
         onChange(newSource);
+        setUpdatedSource(newSource);
         setEditingSegmentId(segmentId); // this should be segmentID
     };
 
@@ -119,7 +124,12 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         onChangeInProgress(true);
     };
 
-    const onParamEditCancel = () => {
+    const onParamEditCancel = (revertChange?: boolean) => {
+        if (revertChange) {
+            onChange(returnSourceOld);
+        } else {
+            setReturnSourceOld(updatedSource);
+        }
         setEditingSegmentId(-1);
         setIsNew(false);
         onChangeInProgress(false);
@@ -129,7 +139,6 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         const returnTypes = returnSource ? returnSource.replace("returns", "").split(/\|(?![^\{]*[\}])/gm) : [];
         return returnTypes;
     }
-
 
     const getRecord = async (
         recordName: any,
@@ -210,7 +219,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                         completions={completions}
                         isEdit={true}
                         alternativeName={""}
-                        optionList={responseCodes}
+                        optionList={responseCodes.filter(code => code.code !== 500)}
                         option={defaultResponseCode()}
                         isTypeReadOnly={false}
                         onChange={onParamChange}
@@ -233,7 +242,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             completions={completions}
             isEdit={true}
             alternativeName={""}
-            optionList={responseCodes}
+            optionList={responseCodes.filter(code => code.code !== 500)}
             option={defaultResponseCode()}
             isTypeReadOnly={false}
             onChange={onParamChange}
