@@ -90,13 +90,12 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel): Diagram
 function removeUnlinkedModels() {
     diagramNodes.forEach((node, key) => {
         if (node.getType() === ENUM_NODE) {
-            const ports = new Map(Object.entries(node.getPorts()));
             let isLinked = false;
-            ports.forEach((port) => {
-                if (Object.keys(port.getLinks()).length !== 0) {
+            for (const [nodeKey, value] of Object.entries(node.getPorts())) {
+                if (Object.keys(value.getLinks()).length !== 0) {
                     isLinked = true;
                 }
-            });
+            }
             if (!isLinked) {
                 diagramNodes.delete(key);
             }
