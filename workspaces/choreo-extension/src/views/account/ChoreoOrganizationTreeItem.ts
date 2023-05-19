@@ -16,7 +16,6 @@ import { ext } from "../../extensionVariables";
 
 export class ChoreoOrgTreeItem extends TreeItem {
 	constructor(
-		public readonly userId: string,
 		public readonly org: Organization,
 		public readonly collapsibleState: TreeItemCollapsibleState
 	) {

@@ -11,7 +11,6 @@
  *  associated services.
  */
 export const choreoSignInCmdId = 'wso2.choreo.sign.in';
-export const choreoSwitchAccountCmdId = 'wso2.choreo.account.switch';
 export const choreoSignOutCmdId = 'wso2.choreo.sign.out';
 export const setSelectedOrgCmdId = 'wso2.choreo.org.setAsSelected';
 export const refreshProjectsTreeViewCmdId = 'wso2.choreo.projects.tree.refresh';
