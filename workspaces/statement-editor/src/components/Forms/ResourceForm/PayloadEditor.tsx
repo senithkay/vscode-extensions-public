@@ -16,17 +16,18 @@ import React, { useEffect, useState } from 'react';
 import { Button } from "@material-ui/core";
 import { default as AddIcon } from "@material-ui/icons/Add";
 import { connectorStyles, TextPreloaderVertical } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import { CommaToken, DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../models/definitions';
 
 import { ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
 import { ParameterConfig, ParamItem } from './ParamEditor/ParamItem';
 import { RESOURCE_PAYLOAD_PREFIX } from './ResourceParamEditor';
-import { genParamName, getParamString } from './util';
+import { getParamString } from './util';
+import { ResourceParam } from './types';
 
 export interface PayloadEditorProps {
-    parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam | RestParam)[];
+    parameters: ResourceParam[];
     readonly?: boolean;
     syntaxDiag?: StatementSyntaxDiagnostics[];
     completions?: SuggestionItem[]
@@ -42,23 +43,19 @@ export function PayloadEditor(props: PayloadEditorProps) {
     const [addingParam, setAddingParam] = useState(false);
 
     const [paramConfig, setParamConfig] = useState<ParameterConfig>({ id: -1, name: '' });
+    const [payloadParam, setPayloadParam] = useState<ResourceParam>();
 
     useEffect(() => {
-        const payloadEntry = parameters.findIndex((param) =>
-            !STKindChecker.isCommaToken(param) && param.source.includes(RESOURCE_PAYLOAD_PREFIX));
-
+        const payloadEntry = parameters.findIndex((param) => param.parameterValue.includes(RESOURCE_PAYLOAD_PREFIX));
         if (payloadEntry > -1) {
             const config: ParameterConfig = { id: -1, name: '' }
             config.id = payloadEntry;
-            config.name = (parameters[payloadEntry] as DefaultableParam | RequiredParam
-                | IncludedRecordParam)?.paramName.value;
-            config.type = (parameters[payloadEntry] as DefaultableParam | RequiredParam
-                | IncludedRecordParam)?.typeName.source;
+            config.name = parameters[payloadEntry].name;
+            config.type = parameters[payloadEntry].type;
             config.option = PARAM_TYPES.PAYLOAD;
-            config.defaultValue = STKindChecker.isDefaultableParam(parameters[payloadEntry]) ?
-                (parameters[payloadEntry] as DefaultableParam).expression.source
-                : '';
+            config.defaultValue = parameters[payloadEntry].default;
             setParamConfig(config);
+            setPayloadParam(parameters[payloadEntry])
         }
 
         setParamIndex(payloadEntry);
@@ -67,38 +64,36 @@ export function PayloadEditor(props: PayloadEditorProps) {
     const onParamChange = (segmentId: number, paramString: string, paramModel?: STNode) => {
         const newParamString: string = parameters.reduce((prev, current, currentIndex) => {
             if (currentIndex === segmentId) {
-                return `${prev} ${paramString}`;
+                return prev !== "" ? `${prev},${paramString}` : `${paramString}`;
             }
 
-            return `${prev}${current.value ? current.value : current.source}`;
+            return prev !== "" ? `${prev},${current.parameterValue}` : `${current.parameterValue}`;
         }, '');
         onChange(newParamString);
     };
 
     const addParam = () => {
         let newParamString;
-        const parameterNames = parameters.map(param => !STKindChecker.isCommaToken(param) && param.paramName?.value);
-        const lastParamIndex = parameters.findIndex(param => STKindChecker.isRestParam(param) || STKindChecker.isDefaultableParam(param));
+        const lastParamIndex = parameters.findIndex(param => STKindChecker.isRestParam(param.model) || STKindChecker.isDefaultableParam(param.model));
         if (lastParamIndex === -1) {
-            newParamString = `${getParamString(parameters)}${parameters.length === 0 ? '' : ','} ${RESOURCE_PAYLOAD_PREFIX} string ${genParamName('payload', parameterNames)}`;
+            newParamString = `${getParamString(parameters)}${parameters.length === 0 ? '' : ','} ${RESOURCE_PAYLOAD_PREFIX} string payload`;
         } else {
             newParamString = parameters.reduce((prev, current, currentIndex) => {
                 let returnString = prev;
                 if (currentIndex === lastParamIndex) {
-                    returnString = `${returnString} ${RESOURCE_PAYLOAD_PREFIX} string ${genParamName('payload', parameterNames)},`
+                    returnString = returnString !== "" ? `${returnString},${RESOURCE_PAYLOAD_PREFIX} string payload` : `${RESOURCE_PAYLOAD_PREFIX} string payload`; 
                 }
 
-                returnString = `${returnString}${current.source ? current.source : current.value}`
+                returnString = returnString !== "" ? `${returnString},${current.parameterValue}` : `${current.parameterValue}`;
                 return returnString;
             }, '');
         }
         onChange(newParamString);
-        // onChange(`${RESOURCE_PAYLOAD_PREFIX} json ${genParamName('param', parameterNames)}`);
         setAddingParam(true);
         onChangeInProgress(true);
     };
-    const onDelete = (param: ParameterConfig) => {
 
+    const onDelete = (param: ParameterConfig) => {
         parameters.splice(param.id === 0 ? param.id : param.id - 1, 2)
         setParamIndex(-1);
         setAddingParam(false);
@@ -135,7 +130,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
                 <ParamEditor
                     segmentId={paramIndex}
                     syntaxDiagnostics={syntaxDiag}
-                    model={parameters[paramIndex] as DefaultableParam | RequiredParam | IncludedRecordParam}
+                    model={payloadParam}
                     completions={completions}
                     isEdit={true}
                     optionList={[PARAM_TYPES.PAYLOAD]}
