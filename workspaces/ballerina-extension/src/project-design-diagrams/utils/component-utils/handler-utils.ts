@@ -17,11 +17,10 @@
  *
  */
 
-import { Uri, window, workspace } from "vscode";
-import { existsSync, readFile, rmSync, writeFile } from "fs";
+import { Uri, WorkspaceFolder, window, workspace } from "vscode";
+import { existsSync, rmSync } from "fs";
 import * as path from "path";
 import { CMLocation as Location, CMAnnotation as Annotation, STModification } from "@wso2-enterprise/ballerina-languageclient";
-import { WorkspaceConfig, WorkspaceItem } from "@wso2-enterprise/choreo-core";
 import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { ExtendedLangClient } from "../../../core";
 import { getLangClient, STResponse } from "../../activator";
@@ -69,28 +68,17 @@ export async function deleteComponentOnly(location: Location) {
 
 async function updateWorkspaceFileOnDelete(componentPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        const workspaceFile: string = workspace.workspaceFile?.fsPath;
-        readFile(workspaceFile, 'utf-8', function (err, contents) {
-            if (contents) {
-                const content: WorkspaceConfig = JSON.parse(contents);
-                const deletedFolder: WorkspaceItem = content.folders.find(folder =>
-                    componentPath === path.resolve(path.dirname(workspaceFile), folder.path));
-                const folderIndex: number = content.folders.indexOf(deletedFolder);
-
-                if (folderIndex > -1) {
-                    const didDelete = workspace.updateWorkspaceFolders(folderIndex, 1);
-                    if (didDelete) {
-                        resolve();
-                    } else {
-                        reject(new Error('Could not update the workspace file'));
-                    }
-                } else {
-                    reject(new Error('Could not find the component in the workspace file'));
-                }
-            } else if (err) {
-                reject(err);
+        const folder: WorkspaceFolder = workspace.getWorkspaceFolder(Uri.file(componentPath));
+        if (folder) {
+            const didDelete = workspace.updateWorkspaceFolders(folder.index, 1);
+            if (didDelete) {
+                resolve();
+            } else {
+                reject(new Error('Could not update the workspace file'));
             }
-        });
+        } else {
+            reject(new Error('Could not locate the package in the workspace'));
+        }
     });
 }
 
