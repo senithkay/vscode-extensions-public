@@ -91,9 +91,10 @@ function removeUnlinkedModels() {
     diagramNodes.forEach((node, key) => {
         if (node.getType() === ENUM_NODE) {
             let isLinked = false;
-            for (const [nodeKey, value] of Object.entries(node.getPorts())) {
+            for (const [, value] of Object.entries(node.getPorts())) {
                 if (Object.keys(value.getLinks()).length !== 0) {
                     isLinked = true;
+                    break;
                 }
             }
             if (!isLinked) {
