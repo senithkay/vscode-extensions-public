@@ -10,15 +10,16 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ProgressLocation, QuickPickItemKind, QuickPickOptions, commands, window } from "vscode";
-import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut, switchUser, tokenStore } from "./auth";
+import { ProgressLocation, commands, window } from "vscode";
+import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId, choreoSwitchAccountCmdId } from '../constants';
+import { STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
-import { sendTelemetryEvent, sendTelemetryException } from '../telemetry/utils';
+import { sendTelemetryEvent } from '../telemetry/utils';
 import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
 
 export async function activateAuth() {
+    ext.api.status = STATUS_LOGGED_OUT;
     await initFromExistingChoreoSession();
 
     commands.registerCommand(choreoSignInCmdId, async () => {
@@ -42,6 +43,7 @@ export async function activateAuth() {
                 });
             } else {
                 getLogger().error("Unable to open external link for authentication.");
+                await signOut();
                 window.showErrorMessage("Unable to open external link for authentication.");
             }
         } catch (error: any) {
@@ -63,47 +65,6 @@ export async function activateAuth() {
         } catch (error: any) {
             sendTelemetryEvent(SIGN_OUT_FAILURE_EVENT, { cause: error?.message });
             getLogger().error("Error while signing out from Choreo. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-            if (error instanceof Error) {
-                window.showErrorMessage(error.message);
-            }
-        }
-    });
-
-    commands.registerCommand(choreoSwitchAccountCmdId, async () => {
-        try {
-            getLogger().debug("Switching Choreo account");
-            const options: QuickPickOptions = {
-                canPickMany: false,
-                ignoreFocusOut: true,
-                placeHolder: "Select an account to switch to",
-                title: "Switch Choreo Account"
-            };
-
-            const items = [{ label: "+ Add account", detail: "Sign in to Choreo" }, { label: "Signed in accounts", kind: QuickPickItemKind.Separator }];
-            const users = await tokenStore.getUsers();
-            const currentUser = await tokenStore.getCurrentUser();
-
-            if (users.length > 0) {
-                for (const userId of users) {
-                    const user = await tokenStore.getUser(userId);
-                    if (user) {
-                        items.push({ label: user.displayName, detail: `${user.userId === currentUser?.userId ? "Current User" : ""} #${user.userId}` });
-                    }
-                }
-            }
-
-            const answer = await window.showQuickPick(items, options);
-
-            if (answer?.label === "+ Add account") {
-                await commands.executeCommand(choreoSignInCmdId);
-            } else {
-                const userId = answer?.detail?.replace(/[^0-9]/g, '');
-                if (userId && userId !== currentUser?.userId) {
-                    await switchUser(userId);
-                }
-            }
-        } catch (error: any) {
-            getLogger().error("Error while switching Choreo account. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }
