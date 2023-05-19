@@ -12,7 +12,7 @@
  */
 
 import { Component, ComponentCount, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
-import { orgClient, projectClient } from "../auth/auth";
+import { orgClient, projectClient, subscriptionClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
@@ -376,6 +376,17 @@ export class ProjectRegistry {
         } catch (error: any) {
             getLogger().error("Failed to fetch the component count. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
             throw new Error("Failed to fetch the component count. " + error?.message);
+        }
+    }
+
+    async hasChoreoSubscription(orgId: string): Promise<boolean> {
+        try {
+            const res = await subscriptionClient.getSubscriptions(orgId);
+            const hasSubscription = res?.list?.some(item => item.subscriptionType === 'choreo-subscription');
+            return hasSubscription;
+        } catch (error: any) {
+            getLogger().error("Failed to fetch subscription details. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            throw new Error("Failed to fetch subscription details. " + error?.message);
         }
     }
 

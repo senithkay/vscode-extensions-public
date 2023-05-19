@@ -10,16 +10,16 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import * as vscode from 'vscode';
-import { commands, window } from "vscode";
+import { ProgressLocation, commands, window } from "vscode";
 import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
+import { STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
-import { sendTelemetryEvent, sendTelemetryException } from '../telemetry/utils';
+import { sendTelemetryEvent } from '../telemetry/utils';
 import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
 
 export async function activateAuth() {
+    ext.api.status = STATUS_LOGGED_OUT;
     await initFromExistingChoreoSession();
 
     commands.registerCommand(choreoSignInCmdId, async () => {
@@ -31,7 +31,7 @@ export async function activateAuth() {
             if (openSuccess) {
                 await window.withProgress({
                     title: 'Signing in to Choreo',
-                    location: vscode.ProgressLocation.Notification,
+                    location: ProgressLocation.Notification,
                     cancellable: true
                 }, async (_progress, cancellationToken) => {
                     cancellationToken.onCancellationRequested(async () => {

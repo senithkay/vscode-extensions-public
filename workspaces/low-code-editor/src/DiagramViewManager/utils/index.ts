@@ -110,9 +110,10 @@ export function getDiagramProviderProps(
                 }
             },
             code: {
-                modifyDiagram: async (mutations: STModification[]) => {
+                modifyDiagram: async (mutations: STModification[], filePath: string, ...args: any) => {
+                    const fileToModify = filePath ? filePath : focusFile;
                     const langClient = await langClientPromise;
-                    const uri = monaco.Uri.file(focusFile).toString();
+                    const uri = monaco.Uri.file(fileToModify).toString();
                     const { parseSuccess, source, syntaxTree: newST } = await langClient.stModify({
                         astModifications: await InsertorDelete(mutations),
                         documentIdentifier: {
@@ -123,59 +124,61 @@ export function getDiagramProviderProps(
                     if (parseSuccess) {
                         // undoRedo.addModification(source);
                         setUpdateTimestamp(new Date().getTime().toString());
-                        setFileContent(source);
-                        props.updateFileContent(focusFile, source);
-                        visitedST = await getLowcodeST(newST, focusFile, langClient, experimentalEnabled, showMessage);
-                        if (stMemberId && stMemberId.length > 0) {
-                            const stFindingVisitor = new FindNodeByUidVisitor(stMemberId);
-                            traversNode(visitedST, stFindingVisitor);
-                            setFocusedST(stFindingVisitor.getNode());
-                        }
-                        // const stFindingVisitor = new STFindingVisitor();
-                        // stFindingVisitor.setPosition(diagramFocusState?.position);
-                        // traversNode(visitedST, stFindingVisitor);
+                        props.updateFileContent(fileToModify, source);
+                        if (focusFile === fileToModify) {
+                            setFileContent(source);
+                            visitedST = await getLowcodeST(newST, focusFile, langClient, experimentalEnabled, showMessage);
+                            if (stMemberId && stMemberId.length > 0) {
+                                const stFindingVisitor = new FindNodeByUidVisitor(stMemberId);
+                                traversNode(visitedST, stFindingVisitor);
+                                setFocusedST(stFindingVisitor.getNode());
+                            }
+                            // const stFindingVisitor = new STFindingVisitor();
+                            // stFindingVisitor.setPosition(diagramFocusState?.position);
+                            // traversNode(visitedST, stFindingVisitor);
 
-                        // TODO: add performance data fetching logic here
-                        // setFocusedST(stFindingVisitor.getSTNode());
-                        setCompleteST(visitedST);
-                        if (isDeleteModificationAvailable(mutations)) {
-                            showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
-                        }
-                        if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
-                            const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
-                            if (isAvailable) {
-                                // setModulePullInProgress(true);
-                                // setLoaderText('Pulling packages...');
-                                const {
-                                    parseSuccess: pullSuccess,
-                                } = await resolveMissingDependency(focusFile, source);
-                                if (pullSuccess) {
-                                    // Rebuild the file At backend
-                                    langClient.didChange({
-                                        textDocument: { uri, version: 1 },
-                                        contentChanges: [
-                                            {
-                                                text: source
-                                            }
-                                        ],
-                                    });
+                            // TODO: add performance data fetching logic here
+                            // setFocusedST(stFindingVisitor.getSTNode());
+                            setCompleteST(visitedST);
+                            if (isDeleteModificationAvailable(mutations)) {
+                                showMessage("Undo your changes by using Ctrl + Z or Cmd + Z", MESSAGE_TYPE.INFO, true);
+                            }
+                            if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
+                                const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
+                                if (isAvailable) {
+                                    // setModulePullInProgress(true);
+                                    // setLoaderText('Pulling packages...');
                                     const {
-                                        syntaxTree: stWithoutDiagnostics
-                                    } = await langClient.getSyntaxTree({ documentIdentifier: { uri } });
-                                    visitedST = await getLowcodeST(
-                                        stWithoutDiagnostics,
-                                        focusFile,
-                                        langClient,
-                                        experimentalEnabled,
-                                        showMessage);
-                                    if (stMemberId && stMemberId.length > 0) {
-                                        const stFindingVisitor = new FindNodeByUidVisitor(stMemberId);
-                                        traversNode(visitedST, stFindingVisitor);
-                                        setFocusedST(stFindingVisitor.getNode());
+                                        parseSuccess: pullSuccess,
+                                    } = await resolveMissingDependency(focusFile, source);
+                                    if (pullSuccess) {
+                                        // Rebuild the file At backend
+                                        langClient.didChange({
+                                            textDocument: { uri, version: 1 },
+                                            contentChanges: [
+                                                {
+                                                    text: source
+                                                }
+                                            ],
+                                        });
+                                        const {
+                                            syntaxTree: stWithoutDiagnostics
+                                        } = await langClient.getSyntaxTree({ documentIdentifier: { uri } });
+                                        visitedST = await getLowcodeST(
+                                            stWithoutDiagnostics,
+                                            focusFile,
+                                            langClient,
+                                            experimentalEnabled,
+                                            showMessage);
+                                        if (stMemberId && stMemberId.length > 0) {
+                                            const stFindingVisitor = new FindNodeByUidVisitor(stMemberId);
+                                            traversNode(visitedST, stFindingVisitor);
+                                            setFocusedST(stFindingVisitor.getNode());
+                                        }
+                                        setCompleteST(visitedST);
                                     }
-                                    setCompleteST(visitedST);
+                                    // setModulePullInProgress(false);
                                 }
-                                // setModulePullInProgress(false);
                             }
                         }
 
@@ -218,8 +221,9 @@ export function getDiagramProviderProps(
                     // setMutationInProgress(false);
                     return res;
                 },
-                updateFileContent: (content: string, skipForceSave?: boolean) => {
-                    return props.updateFileContent(focusFile, content, skipForceSave);
+                updateFileContent: (content: string, skipForceSave?: boolean, filePath?: string) => {
+                    const fileToModify = filePath ? filePath : focusFile;
+                    return props.updateFileContent(fileToModify, content, skipForceSave);
                 },
                 // undo,
                 // isMutationInProgress,

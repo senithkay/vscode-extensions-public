@@ -68,7 +68,8 @@ export function ServiceClassResourceForm(props: FunctionProps) {
         applyModifications,
         onCancel,
         getLangClient,
-        fullST
+        fullST,
+        currentFile
     } = useContext(FormEditorContext);
 
     const connectorClasses = connectorStyles();
@@ -198,7 +199,7 @@ export function ServiceClassResourceForm(props: FunctionProps) {
                     parametersStr,
                     model.functionSignature?.returnTypeDesc?.type?.source,
                     targetPosition)
-            ]);
+            ], currentFile.path);
         } else {
             applyModifications([
                 createResource(
@@ -208,7 +209,7 @@ export function ServiceClassResourceForm(props: FunctionProps) {
                     model.functionSignature?.returnTypeDesc?.type?.source,
                     targetPosition
                 )
-            ]);
+            ], currentFile.path);
         }
 
         onCancel();
@@ -365,7 +366,7 @@ export function ServiceClassResourceForm(props: FunctionProps) {
 
     const createConstruct = (newCodeSnippet: string) => {
         if (newCodeSnippet) {
-            createNewConstruct(newCodeSnippet, fullST, applyModifications)
+            createNewConstruct(newCodeSnippet, fullST, applyModifications, currentFile.path)
             setNewlyCreatedConstruct(returnType);
         }
     }

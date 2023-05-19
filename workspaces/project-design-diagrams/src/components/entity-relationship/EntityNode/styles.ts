@@ -37,28 +37,28 @@ export const EntityNode: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
     border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY}`};
-    border-radius: 2px !important;
-    color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY};
+        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY_LIGHT}`};
+    border-radius: 5px !important;
+    color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT};
     cursor: ${(props: StyleProps) => props.isEditMode ? `pointer` : `auto`};
     display: flex;
     flex-direction: column;
-    min-height: 32px;
+    min-height: 40px;
     opacity: ${(props: StyleProps) => props.shouldShade ? 0.85 : 1};
 `;
 
 export const EntityHead: React.FC<any> = styled.div`
     align-items: center;
     border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY}`};
+        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY_LIGHT}`};
     display: flex;
     font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;
-    height: 32px;
+    height: 40px;
     justify-content: center;
     line-height: 20px;
-    min-width: calc(100% - 16px);
-    padding-inline: 8px;
+    min-width: calc(100% - 32px);
+    padding: 0px 16px;
     text-align: center;
 `;
 
@@ -74,8 +74,8 @@ export const AttributeContainer: React.FC<any>  = styled.div`
     align-items: center;
     background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
     border-bottom: 0.5px solid #cccde3;
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
     display: flex;
     flex-direction: row;
     font-size: 12px;

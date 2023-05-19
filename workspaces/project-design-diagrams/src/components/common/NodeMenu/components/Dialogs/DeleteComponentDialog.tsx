@@ -32,6 +32,7 @@ import { DiagramContext } from '../../../DiagramContext/DiagramContext';
 import { ContentTextProps, DefaultTextProps, TitleTextProps } from '../styles/styles';
 
 interface DeleteDialogProps {
+    isService: boolean;
     location: Location;
     showDialog: boolean;
     updateShowDialog: (status: boolean) => void;
@@ -41,7 +42,7 @@ const DELETE_COMPONENT_VALUE = 'deleteComp';
 const DELETE_PKG_VALUE = 'deletePkg';
 
 export function DeleteComponentDialog(props: DeleteDialogProps) {
-    const { location, showDialog, updateShowDialog } = props;
+    const { isService, location, showDialog, updateShowDialog } = props;
     const { deleteComponent, refreshDiagram } = useContext(DiagramContext);
 
     const [deletePkg, setDeletePkg] = useState<boolean>(true);
@@ -86,7 +87,7 @@ export function DeleteComponentDialog(props: DeleteDialogProps) {
                     <FormControlLabel
                         value={DELETE_COMPONENT_VALUE}
                         control={<Radio />}
-                        label={<span style={DefaultTextProps}>Delete only the service</span>}
+                        label={<span style={DefaultTextProps}>Delete only the {isService ? 'service' : 'main entrypoint'}</span>}
                     />
                 </RadioGroup>
             </DialogContent>

@@ -18,7 +18,9 @@
  */
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
-import { CMLocation as Location, CMService as Service, CMAnnotation as Annotation } from '@wso2-enterprise/ballerina-languageclient';
+import {
+    CMEntryPoint as EntryPoint, CMLocation as Location, CMService as Service, CMAnnotation as Annotation
+} from '@wso2-enterprise/ballerina-languageclient';
 import { BallerinaConnectorsRequest, BallerinaConnectorsResponse, BallerinaTriggerResponse, BallerinaTriggersResponse, Connector } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { BallerinaComponentCreationParams } from '@wso2-enterprise/choreo-core';
 import { NodePosition } from '@wso2-enterprise/syntax-tree';
@@ -52,19 +54,22 @@ export enum ServiceTypes {
     GRPC = "GRPC",
     WEBSOCKET = "Websocket",
     GRAPHQL = "GraphQL",
+    WEBHOOK = "Webhook",
     OTHER = "other"
 }
 
 export enum Colors {
-    DIAGRAM_BACKGROUND = '#FFF',
     CELL_DIAGRAM_BACKGROUND = '#eeeffb',
     CONSOLE_CELL_DIAGRAM_BACKGROUND = '#f7f8fb',
+    DEFAULT_TEXT = '#40404B',
+    DIAGRAM_BACKGROUND = '#FFF',
+    GATEWAY = '#c9c9c9',
     PRIMARY = '#5567D5',
-    SECONDARY = '#F0F1FB',
+    PRIMARY_LIGHT = '#A6B3FF',
     PRIMARY_SELECTED = '#ffaf4d',
+    SECONDARY = '#F0F1FB',
     SECONDARY_SELECTED = '#fffaf2',
-    SHADED_SELECTED = '#faead2',
-    GATEWAY = '#c9c9c9'
+    SHADED_SELECTED = '#faead2'
 }
 
 export const GRAPHQL_SUBSCRIBE_ACTION = 'subscribe';
@@ -73,10 +78,10 @@ export interface EditLayerAPI {
     getProjectRoot: () => Promise<string | undefined>;
     createComponent: (args: BallerinaComponentCreationParams) => Promise<string>;
     getConnectors: (args: BallerinaConnectorsRequest) => Promise<BallerinaConnectorsResponse>;
-    pullConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
-    addConnector: (connector: Connector, targetService: Service) => Promise<boolean>;
-    addLink: (source: Service, target: Service) => Promise<boolean>;
-    deleteLink: (linkLocation: Location, serviceLocation: Location) => Promise<boolean>;
+    pullConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
+    addConnector: (connector: Connector, source: Service | EntryPoint) => Promise<boolean>;
+    addLink: (source: Service | EntryPoint, target: Service) => Promise<boolean>;
+    deleteLink: (linkLocation: Location, nodeLocation: Location) => Promise<boolean>;
     pickDirectory: () => Promise<string | undefined>;
     executeCommand: (cmd: string) => Promise<boolean>;
     go2source: (location: Location) => void;
@@ -86,6 +91,8 @@ export interface EditLayerAPI {
     editDisplayLabel: (annotation: Annotation) => Promise<boolean>;
     fetchTriggers: () => Promise<BallerinaTriggersResponse>;
     fetchTrigger: (triggerId: string) => Promise<BallerinaTriggerResponse>;
+    checkIsMultiRootWs: () => Promise<boolean>;
+    promptWorkspaceConversion: () => void;
 }
 
 export enum ConsoleView {

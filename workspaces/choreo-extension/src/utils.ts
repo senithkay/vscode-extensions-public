@@ -102,7 +102,8 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
         path: "",
         dependencies: [],
         remoteFunctions: [],
-        resources: []
+        resources: [],
+        isNoData: true
     };
     return {
         packageId: { name: component.name, org: component.orgHandler, version: component.version },

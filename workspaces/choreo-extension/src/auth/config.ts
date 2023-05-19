@@ -49,7 +49,7 @@ export interface ChoreoAuthConfigParams {
 }
 
 export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
-    loginUrl: "https://api.asgardeo.io/t/a/oauth2/authorize",
+    loginUrl: "https://console.choreo.dev/login",
     tokenUrl: "https://api.asgardeo.io/t/a/oauth2/token",
     redirectUrl: "https://console.choreo.dev/vscode-auth",
     clientId: "aVKhTSUMu_QfEwmCtrcuWoLy92oa",
@@ -78,7 +78,7 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
 };
 
 export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
-    loginUrl: "https://stage.api.asgardeo.io/t/a/oauth2/authorize",
+    loginUrl: "https://console.st.choreo.dev/login",
     tokenUrl: "https://stage.api.asgardeo.io/t/a/oauth2/token",
     redirectUrl: "https://console.st.choreo.dev/vscode-auth",
     clientId: "NoOBydRztff7iENCq0LM2uuRs2ca",
@@ -107,7 +107,7 @@ export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
 };
 
 export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
-    loginUrl: "https://dev.api.asgardeo.io/t/a/oauth2/authorize",
+    loginUrl: "https://consolev2.preview-dv.choreo.dev/login",
     tokenUrl: "https://dev.api.asgardeo.io/t/a/oauth2/token",
     redirectUrl: "https://consolev2.preview-dv.choreo.dev/vscode-auth",
     clientId: "_eEveWFdTSJPaui7DmCuU5DUrUEa",

@@ -48,7 +48,7 @@ export function DeleteLinkButton(props: DeleteLinkProps) {
     const { editLayerAPI, refreshDiagram } = useContext(DiagramContext);
 
     const handleOnClick = () => {
-        editLayerAPI.deleteLink(link.location, (link.getSourcePort().getNode() as ServiceNodeModel).serviceObject.elementLocation)
+        editLayerAPI.deleteLink(link.location, (link.getSourcePort().getNode() as ServiceNodeModel).nodeObject.elementLocation)
             .then(() => {
                 handleClose();
                 refreshDiagram();

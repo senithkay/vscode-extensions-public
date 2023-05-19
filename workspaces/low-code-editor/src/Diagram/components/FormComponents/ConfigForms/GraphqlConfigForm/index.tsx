@@ -18,8 +18,11 @@ import { ConfigOverlayFormStatus } from "@wso2-enterprise/ballerina-low-code-edt
 import { FormEditor } from "@wso2-enterprise/ballerina-statement-editor";
 import {
     ClassDefinition,
-    FunctionDefinition,
-    NodePosition, ObjectMethodDefinition, ResourceAccessorDefinition, STKindChecker, STNode
+    NodePosition,
+    ObjectMethodDefinition,
+    ResourceAccessorDefinition,
+    STKindChecker,
+    STNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { Context } from "../../../../../Contexts/Diagram";
@@ -32,10 +35,12 @@ interface GraphqlConfigFormProps {
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     onCancel: () => void;
     onSave: () => void;
+    filePath?: string;
+    currentST?: STNode;
 }
 
 export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
-    const { targetPosition, model, configOverlayFormStatus, onSave, onCancel } = props;
+    const { targetPosition, model, configOverlayFormStatus, onCancel, filePath, currentST } = props;
     const functionType = configOverlayFormStatus.formName;
 
     const {
@@ -63,6 +68,14 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
         };
     }
 
+    const getUpdatedCurrentFile = () => {
+        return {
+            content: currentST.source,
+            path: filePath,
+            size: 1
+        };
+    }
+
     return (
         <>
             <FormEditor
@@ -72,12 +85,12 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
                 targetPosition={position}
                 onCancel={onCancel}
                 type={functionType}
-                currentFile={currentFile}
+                currentFile={!filePath ? currentFile : getUpdatedCurrentFile()}
                 getLangClient={getExpressionEditorLangClient}
                 applyModifications={modifyDiagram}
                 topLevelComponent={true} // todo: Remove this
-                syntaxTree={syntaxTree}
-                fullST={fullST}
+                syntaxTree={!filePath ? syntaxTree : model}
+                fullST={!filePath ? fullST : currentST}
             />
         </>
     );

@@ -21,29 +21,27 @@ import {
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
-import { FunctionType } from "../resources/model";
+import { FunctionType, Position } from "../resources/model";
 
 import { useStyles } from "./styles";
 
 interface EditNodeProps {
     model: STNode;
     functionType: FunctionType;
+    location: Position;
+    st: STNode;
 }
 
 export function EditNode(props: EditNodeProps) {
-    const { model, functionType } = props;
+    const { model, functionType, location, st } = props;
     const { functionPanel } = useContext(DiagramContext);
 
     const menuStyles = useStyles();
 
     const openFunctionPanel = () => {
         if (STKindChecker.isResourceAccessorDefinition(model)) {
-            if (functionType === FunctionType.QUERY) {
-                functionPanel(model.position, "GraphqlResource", model);
-            } else if (functionType === FunctionType.MUTATION) {
-                functionPanel(model.position, "GraphqlMutation", model);
-            } else if (functionType === FunctionType.SUBSCRIPTION) {
-                functionPanel(model.position, "GraphqlSubscription", model);
+            if (functionType === FunctionType.CLASS_RESOURCE) {
+                functionPanel(model.position, "ServiceClassResource", model, location.filePath, st);
             }
         }
     };
@@ -56,7 +54,7 @@ export function EditNode(props: EditNodeProps) {
                 <ListItemIcon className={menuStyles.menuIcon}>
                     <LabelEditIcon/>
                 </ListItemIcon>
-                <ListItemText className={menuStyles.listItemText}>{"Edit Operation"}</ListItemText>
+                <ListItemText className={menuStyles.listItemText}>{"Edit Field"}</ListItemText>
             </MenuItem>
             }
         </>

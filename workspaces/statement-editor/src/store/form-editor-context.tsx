@@ -43,7 +43,7 @@ export const FormEditorContext = React.createContext({
                newValue?: string, completionKinds?: number[], offsetLineCount?: number,
                diagnosticOffSet?: NodePosition) => undefined,
     getLangClient: () => (Promise.resolve({} as any)),
-    applyModifications: (modifications: STModification[]) => undefined,
+    applyModifications: (modifications: STModification[], filePath?: string) => undefined,
     changeInProgress: false
 });
 
@@ -68,7 +68,7 @@ export interface FormEditorProps {
         path: string,
         size: number
     };
-    applyModifications: (modifications: STModification[]) => void;
+    applyModifications: (modifications: STModification[], filePath?: string) => void;
     changeInProgress: boolean;
 }
 

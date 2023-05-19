@@ -23,7 +23,6 @@ export enum Keys {
 }
 
 export class KeyChainTokenStorage implements ITokenStorage {
-
     async getToken(tokenType: ChoreoTokenType): Promise<AccessToken | undefined> {
         const serviceName = Keys.serviceName + tokenType;
         let choreoAccessToken: string | null = null;
@@ -80,5 +79,4 @@ export class KeyChainTokenStorage implements ITokenStorage {
         await keytar.deletePassword(serviceName, Keys.loginTime);
         await keytar.deletePassword(serviceName, Keys.tokenExpiration);
     }
-
 }

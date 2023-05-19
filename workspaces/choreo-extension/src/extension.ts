@@ -12,7 +12,7 @@
  */
 
 import * as vscode from 'vscode';
-import { ThemeIcon, window, extensions, ProgressLocation } from 'vscode';
+import { ThemeIcon, window, extensions, ProgressLocation, workspace, ConfigurationChangeEvent, commands } from 'vscode';
 
 import { activateAuth } from './auth';
 import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, githubAppClient } from './auth/auth';
@@ -58,6 +58,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.isPluginStartup = true;
 	ext.context = context;
 	ext.api = new ChoreoExtensionApi();
+	ext.projectsTreeView = createProjectTreeView();
+	ext.accountTreeView = createAccountTreeView();
 	setupEvents();
 	activateWizards();
 	await activateAuth();
@@ -67,10 +69,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	showChoreoProjectOverview();
 	activateStatusBarItem();
 	activateRegistry();
-	ext.projectsTreeView = createProjectTreeView();
-	ext.accountTreeView = createAccountTreeView();
 	setupGithubAuthStatusCheck();
 	getLogger().debug("Choreo Extension activated");
+	registerPreInitHandlers();
 	return ext.api;
 }
 
@@ -218,6 +219,25 @@ function setupEvents() {
 		vscode.commands.executeCommand("setContext", "choreoLoginStatus", newStatus);
 	});
 	ext.context.subscriptions.push(subscription);
+}
+
+function registerPreInitHandlers(): any {
+	const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
+	// We need to restart VSCode if we change plugin configurations.
+	workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
+		if (params.affectsConfiguration("Advanced.ChoreoEnviornment")) {
+			showMsgAndRestart(CONFIG_CHANGED);
+		}
+	});
+}
+
+function showMsgAndRestart(msg: string): void {
+	const action = 'Restart Now';
+	window.showInformationMessage(msg, action).then((selection) => {
+		if (action === selection) {
+			commands.executeCommand('workbench.action.reloadWindow');
+		}
+	});
 }
 
 

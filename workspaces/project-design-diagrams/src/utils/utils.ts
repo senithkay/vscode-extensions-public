@@ -29,6 +29,7 @@ import {
     ServicePortFactory,
     ServicePortModel
 } from '../components/service-interaction';
+import { OverlayLayerFactory } from '../components/common';
 import { GatewayNodeFactory } from "../components/gateway/GatewayNode/GatewayNodeFactory";
 import { GatewayPortFactory } from "../components/gateway/GatewayPort/GatewayPortFactory";
 import { GatewayNodeModel } from "../components/gateway/GatewayNode/GatewayNodeModel";
@@ -42,7 +43,7 @@ export const defaultZoomLevel = 100;
 export const diagramTopXOffset = 600;
 export const diagramTopYOffset = 190;
 export const diagramLeftXOffset = 30;
-export const diagramLeftYOffset = 0;
+export const diagramLeftYOffset = 5;
 export const CELL_DIAGRAM_MIN_WIDTH = 400;
 export const CELL_DIAGRAM_MAX_WIDTH = 800;
 export const CELL_DIAGRAM_MIN_HEIGHT = 250;
@@ -79,6 +80,7 @@ export function createServicesEngine(): DiagramEngine {
     diagramEngine.getNodeFactories().registerFactory(new ServiceNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new ExtServiceNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntryNodeFactory());
+    diagramEngine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return diagramEngine;
 }
 
@@ -90,6 +92,7 @@ export function createEntitiesEngine(): DiagramEngine {
     diagramEngine.getLinkFactories().registerFactory(new EntityLinkFactory());
     diagramEngine.getPortFactories().registerFactory(new EntityPortFactory());
     diagramEngine.getNodeFactories().registerFactory(new EntityFactory());
+    diagramEngine.getLayerFactories().registerFactory(new OverlayLayerFactory());
     return diagramEngine;
 }
 
@@ -203,9 +206,9 @@ function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeMode
         const sourcePort: GatewayPortModel = gatewayNode.getPortFromID(`${sourceGWType}-in`);
         let targetPort: ServicePortModel;
         if (sourceGWType === "WEST") {
-            targetPort = targetNode.getPortFromID(`left-gw-${targetNode.serviceObject.serviceId}`);
+            targetPort = targetNode.getPortFromID(`left-gw-${targetNode.nodeObject.serviceId}`);
         } else if (sourceGWType === "NORTH") {
-            targetPort = targetNode.getPortFromID(`top-${targetNode.serviceObject.serviceId}`);
+            targetPort = targetNode.getPortFromID(`top-${targetNode.nodeObject.serviceId}`);
         }
         if (sourcePort && targetPort) {
             engine.getModel().addLink(createGWLinks(sourcePort, targetPort, link));

@@ -334,6 +334,15 @@ export interface BYOCRepositoryDetails extends RepositoryDetails {
     dockerContext: string;
 }
 
+export interface SubscriptionResponse {
+    count: number;
+    list: {
+        subscriptionId: string;
+        subscriptionType: string
+        tierId: string;
+    }[];
+}
+
 export enum DeploymentStatus {
     NotDeployed = 'NOT_DEPLOYED',
     Active = 'ACTIVE',

@@ -11,10 +11,10 @@
  *  associated services.
  */
 import * as vscode from 'vscode';
-import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage } from "@wso2-enterprise/choreo-client";
+import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 
-import { ChoreoAuthConfig } from "./config";
+import { CHOREO_AUTH_CONFIG_DEV, CHOREO_AUTH_CONFIG_STAGE, ChoreoAuthConfig, ChoreoAuthConfigParams, DEFAULT_CHOREO_AUTH_CONFIG } from "./config";
 import { ext } from '../extensionVariables';
 import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
@@ -23,6 +23,7 @@ import { SELECTED_ORG_ID_KEY, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGIN
 import { showChoreoProjectOverview } from '../extension';
 import { lock } from './lock';
 import { sendTelemetryEvent } from '../telemetry/utils';
+import { workspace } from 'vscode';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -30,11 +31,28 @@ const APIM_TOKEN_ERROR = "Error while retreiving the apim token details!";
 const REFRESH_TOKEN_ERROR = "Error while retreiving the refresh token details!";
 const SESSION_EXPIRED = "The session has expired, please login again!";
 
-export const choreoAuthConfig: ChoreoAuthConfig = new ChoreoAuthConfig();
-
 export const choreoAIConfig = new ChoreoAIConfig();
 
 export const tokenStore = new KeyChainTokenStorage();
+
+const ChoreoEnvironment = workspace.getConfiguration().get("Advanced.ChoreoEnviornment");
+let authConfig: ChoreoAuthConfigParams;
+
+switch (ChoreoEnvironment) {
+    case 'prod':
+        authConfig = DEFAULT_CHOREO_AUTH_CONFIG;
+        break;
+    case 'stage':
+        authConfig = CHOREO_AUTH_CONFIG_STAGE;
+        break;
+    case 'dev':
+        authConfig = CHOREO_AUTH_CONFIG_DEV;
+        break;
+    default:
+        authConfig = DEFAULT_CHOREO_AUTH_CONFIG;
+}
+
+export const choreoAuthConfig: ChoreoAuthConfig = new ChoreoAuthConfig(authConfig);
 
 export const readonlyTokenStore: IReadOnlyTokenStorage = {
     getToken: async (key: ChoreoTokenType) => {
@@ -59,6 +77,8 @@ export const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoA
     choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
 
 export const githubAppClient = new ChoreoGithubAppClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(), choreoAuthConfig.getGHAppConfig());
+
+export const subscriptionClient = new ChoreoSubscriptionClient(readonlyTokenStore, `${choreoAuthConfig.getBillingUrl()}/api`);
 
 export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
@@ -156,6 +176,7 @@ export async function exchangeRefreshToken(refreshToken: string) {
         const response = await authClient.exchangeRefreshToken(refreshToken);
         getLogger().debug("Successfully exchanged refresh token to access token.");
         await tokenStore.setToken("choreo.token", response);
+        await tokenStore.setToken("choreo.token", response);
     } catch (error: any) {
         getLogger().error("Error while exchanging the refresh token! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
         vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + SESSION_EXPIRED);
@@ -206,7 +227,7 @@ export async function getDefaultSelectedOrg(userOrgs: Organization[]) {
     return userOrgs[0];
 }
 
-export async function exchangeOrgAccessTokens(orgHandle: string) {
+export async function exchangeOrgAccessTokens( orgHandle: string) {
     getLogger().debug("Exchanging apim token for the org " + orgHandle);
     const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken) {

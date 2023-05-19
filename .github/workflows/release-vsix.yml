@@ -109,11 +109,11 @@ jobs:
         if: ${{ github.event.inputs.packages == 'true' }}
         run: |
           cd workspaces
-          workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree" "project-design-diagrams")
+          workspaces=("ballerina-languageclient" "configurable-editor" "data-mapper" "expression-editor" "lang-service" "low-code-diagram" "low-code-distribution" "low-code-editor" "low-code-editor-commons" "low-code-integration-tests" "low-code-ui-components" "statement-editor" "syntax-tree" "choreo-core" "project-design-diagrams")
           for workspace in "${workspaces[@]}"; do
             cd $workspace
             pnpm version ${{ inputs.version }} --no-git-tag-version
-            pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }}
+            pnpm publish --tag ${{ steps.vsix.outputs.releaseMode }} --no-git-checks
             cd ..
           done
         env:
