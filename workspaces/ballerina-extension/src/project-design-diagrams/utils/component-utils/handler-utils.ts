@@ -78,14 +78,12 @@ async function updateWorkspaceFileOnDelete(componentPath: string): Promise<void>
                 const folderIndex: number = content.folders.indexOf(deletedFolder);
 
                 if (folderIndex > -1) {
-                    content.folders.splice(folderIndex, 1);
-                    writeFile(workspaceFile, JSON.stringify(content, null, 4), 'utf-8', function (err) {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
-                    });
+                    const didDelete = workspace.updateWorkspaceFolders(folderIndex, 1);
+                    if (didDelete) {
+                        resolve();
+                    } else {
+                        reject(new Error('Could not update the workspace file'));
+                    }
                 } else {
                     reject(new Error('Could not find the component in the workspace file'));
                 }

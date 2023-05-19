@@ -14,7 +14,7 @@
 import { Component, ComponentCount, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { orgClient, projectClient, subscriptionClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
-import { existsSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, rmdirSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, join } from "path";
@@ -22,7 +22,7 @@ import * as vscode from 'vscode';
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { initGit, } from "../git/main";
 import { getLogger } from "../logger/logger";
-import { ProgressLocation, window } from "vscode";
+import { ProgressLocation, window, workspace } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
 
 // Key to store the project locations in the global state
@@ -664,10 +664,11 @@ export class ProjectRegistry {
         const content: WorkspaceConfig = JSON.parse(contents.toString());
         const index = content.folders.findIndex(folder => folder.name === displayName);
         if (index > -1) {
-            content.folders.splice(index, 1);
-            writeFileSync(wsFilePath, JSON.stringify(content, null, 4));
-        } else {
-            window.showWarningMessage("Error: Could not update project workspace.");
+            const didDelete = workspace.updateWorkspaceFolders(index, 1);
+            if (didDelete) {
+                return;
+            }
         }
+        window.showErrorMessage("Error: Could not update project workspace.");
     }
 }
