@@ -10,10 +10,15 @@
 * entered into with WSO2 governing the purchase of this software and any
 * associated services.
 */
+import * as React from "react";
+
+import { fireEvent, render, screen } from "@testing-library/react";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ModulePart, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import 'jest-canvas-mock';
 import path from "path";
+
+import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 
 import { createLangClient, getSyntaxTree, stopLangServer } from "./utils/utils";
 
@@ -33,6 +38,11 @@ test('Test Lang Server wiring', async () => {
     expect(serviceDecl).toBeDefined();
     expect(serviceDecl.absoluteResourcePath.length).toBe(1);
 });
+
+// test('Test adding new resource', async () => {
+//     render(<ServiceDesignOverlay model={undefined} onCancel={undefined} />);
+//     fireEvent.click(screen.getByText("Resource"));
+// });
 
 afterAll(async () => {
     await stopLangServer(langClient);

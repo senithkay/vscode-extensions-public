@@ -10,16 +10,30 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { BalleriaLanguageClient, GetSyntaxTreeResponse, StdioConnection } from "@wso2-enterprise/ballerina-languageclient";
+import {
+    BalleriaLanguageClient,
+    GetSyntaxTreeResponse,
+    StdioConnection,
+    WSConnection
+} from "@wso2-enterprise/ballerina-languageclient";
 import { readFileSync, writeFileSync } from "fs";
 import { URI } from "vscode-uri";
 
+export const LANG_SERVER_URL = "ws://localhost:9095"
+
 export async function createLangClient(): Promise<BalleriaLanguageClient> {
-    const connection = new StdioConnection();
-    const langClient = new BalleriaLanguageClient(connection);
+    const wsConnection = await WSConnection.initialize(LANG_SERVER_URL);
+    const langClient = new BalleriaLanguageClient(wsConnection);
     await langClient.onReady();
     return langClient;
 }
+
+// export async function createLangClient(): Promise<BalleriaLanguageClient> {
+//     const connection = new StdioConnection();
+//     const langClient = new BalleriaLanguageClient(connection);
+//     await langClient.onReady();
+//     return langClient;
+// }
 
 export async function getFileContent(filePath: string): Promise<string> {
     return readFileSync(filePath, "utf8");
