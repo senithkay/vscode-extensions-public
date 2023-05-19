@@ -14,7 +14,7 @@ import * as vscode from 'vscode';
 import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 
-import { ChoreoAuthConfig } from "./config";
+import { CHOREO_AUTH_CONFIG_DEV, CHOREO_AUTH_CONFIG_STAGE, ChoreoAuthConfig, ChoreoAuthConfigParams, DEFAULT_CHOREO_AUTH_CONFIG } from "./config";
 import { ext } from '../extensionVariables';
 import { getLogger } from '../logger/logger';
 import { ChoreoAIConfig } from '../services/ai';
@@ -23,6 +23,7 @@ import { SELECTED_ORG_ID_KEY, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGIN
 import { showChoreoProjectOverview } from '../extension';
 import { lock } from './lock';
 import { sendTelemetryEvent } from '../telemetry/utils';
+import { workspace } from 'vscode';
 
 export const CHOREO_AUTH_ERROR_PREFIX = "Choreo Login: ";
 const AUTH_CODE_ERROR = "Error while retreiving the authentication code details!";
@@ -30,11 +31,28 @@ const APIM_TOKEN_ERROR = "Error while retreiving the apim token details!";
 const REFRESH_TOKEN_ERROR = "Error while retreiving the refresh token details!";
 const SESSION_EXPIRED = "The session has expired, please login again!";
 
-export const choreoAuthConfig: ChoreoAuthConfig = new ChoreoAuthConfig();
-
 export const choreoAIConfig = new ChoreoAIConfig();
 
 export const tokenStore = new KeyChainTokenStorage();
+
+const ChoreoEnvironment = workspace.getConfiguration().get("Advanced.ChoreoEnviornment");
+let authConfig: ChoreoAuthConfigParams;
+
+switch (ChoreoEnvironment) {
+    case 'prod':
+        authConfig = DEFAULT_CHOREO_AUTH_CONFIG;
+        break;
+    case 'stage':
+        authConfig = CHOREO_AUTH_CONFIG_STAGE;
+        break;
+    case 'dev':
+        authConfig = CHOREO_AUTH_CONFIG_DEV;
+        break;
+    default:
+        authConfig = DEFAULT_CHOREO_AUTH_CONFIG;
+}
+
+export const choreoAuthConfig: ChoreoAuthConfig = new ChoreoAuthConfig(authConfig);
 
 export const readonlyTokenStore: IReadOnlyTokenStorage = {
     getToken: async (key: ChoreoTokenType) => {
