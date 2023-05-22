@@ -14,7 +14,7 @@
 import { Component, ComponentCount, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { orgClient, projectClient, subscriptionClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
-import { existsSync, readFileSync, rmdirSync, writeFileSync } from 'fs';
+import { existsSync, rmdirSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
 import { dirname, join } from "path";
@@ -22,7 +22,7 @@ import * as vscode from 'vscode';
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { initGit, } from "../git/main";
 import { getLogger } from "../logger/logger";
-import { ProgressLocation, window } from "vscode";
+import { ProgressLocation, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
 
 // Key to store the project locations in the global state
@@ -195,7 +195,7 @@ export class ProjectRegistry {
                 const repoPath = join(dirname(projectLocation), component.path);
                 if (existsSync(repoPath)) {
                     rmdirSync(repoPath, { recursive: true });
-                    this._removeComponentFromWorkspace(projectLocation, component.name);
+                    this._removeComponentFromWorkspace(repoPath);
                 }
             });
         }
@@ -316,7 +316,7 @@ export class ProjectRegistry {
                                 const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, subPath);
                                 if (existsSync(repoPath)) {
                                     rmdirSync(repoPath, { recursive: true });
-                                    this._removeComponentFromWorkspace(projectLocation, componentMetadata.displayName);
+                                    this._removeComponentFromWorkspace(repoPath);
                                 }
                             }
                             
@@ -329,7 +329,7 @@ export class ProjectRegistry {
                         const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, subPath);
                         if (existsSync(repoPath)) {
                             rmdirSync(repoPath, { recursive: true });
-                            this._removeComponentFromWorkspace(projectLocation, component.name);
+                            this._removeComponentFromWorkspace(repoPath);
                             successMsg += " Please commit & push your local changes changes to ensure consistency with the remote repository.";
                         }
                     }
@@ -659,15 +659,14 @@ export class ProjectRegistry {
         return mergedComponents;
     }
 
-    private _removeComponentFromWorkspace(wsFilePath: string, displayName: string) {
-        const contents = readFileSync(wsFilePath);
-        const content: WorkspaceConfig = JSON.parse(contents.toString());
-        const index = content.folders.findIndex(folder => folder.name === displayName);
-        if (index > -1) {
-            content.folders.splice(index, 1);
-            writeFileSync(wsFilePath, JSON.stringify(content, null, 4));
-        } else {
-            window.showWarningMessage("Error: Could not update project workspace.");
+    private _removeComponentFromWorkspace(componentPath: string) {
+        const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
+        if (folder) {
+            const didDelete = workspace.updateWorkspaceFolders(folder.index, 1);
+            if (didDelete) {
+                return;
+            }
         }
+        window.showErrorMessage("Error: Could not update project workspace.");
     }
 }
