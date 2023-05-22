@@ -185,9 +185,34 @@ export function ParamEditor(props: ParamProps) {
         onCancel();
     }
 
+    let hideParamType = false;
+    let subTitle = "";
+    switch (option) {
+        case PARAM_TYPES.CALLER:
+            hideParamType = true;
+            subTitle = PARAM_TYPES.CALLER;
+            break;
+        case PARAM_TYPES.HEADER:
+            hideParamType = true;
+            subTitle = PARAM_TYPES.HEADER;
+            break;
+        case PARAM_TYPES.REQUEST:
+            hideParamType = true;
+            subTitle = PARAM_TYPES.REQUEST;
+            break;
+        case PARAM_TYPES.PAYLOAD:
+            hideParamType = true;
+            subTitle = PARAM_TYPES.PAYLOAD;
+            break;
+        default:
+            hideParamType = false;
+            subTitle = "";
+    }
+
     return (
         <div className={classes.paramContainer}>
-            {optionList && option !== PARAM_TYPES.PAYLOAD && (
+            {hideParamType && <div className={classes.payload}> {subTitle} </div>}
+            {optionList && !hideParamType && (
                 <div className={classes.paramTypeWrapper}>
                     <ParamDropDown
                         dataTestId="param-type-selector"
@@ -199,7 +224,6 @@ export function ParamEditor(props: ParamProps) {
                     />
                 </div>
             )}
-            {option === PARAM_TYPES.PAYLOAD && <div className={classes.payload}>Payload </div>}
             <div className={classes.paramContent}>
                 {!(model.parameterValue.includes(RESOURCE_CALLER_TYPE)
                     || model.parameterValue.includes(RESOURCE_REQUEST_TYPE)
@@ -239,7 +263,10 @@ export function ParamEditor(props: ParamProps) {
                                 value={defaultParamValue}
                                 isLoading={false}
                                 onFocus={onDefaultValueEditorFocus}
-                                diagnostics={defaultParamValue && syntaxDiagnostics?.filter(diag => diag?.message.includes("expected"))}
+                                diagnostics={
+                                    defaultParamValue &&
+                                    syntaxDiagnostics?.filter(diag => diag?.message.includes("expected") || diag?.message.includes(defaultParamValue))
+                                }
                             />
                         </div>
                     )

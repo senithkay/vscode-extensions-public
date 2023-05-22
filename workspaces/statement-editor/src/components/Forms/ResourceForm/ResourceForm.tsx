@@ -34,13 +34,15 @@ import {
     NodePosition,
     ResourceAccessorDefinition,
     STKindChecker,
-    STNode
+    STNode,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getCompletionsForType, getPartialSTForModuleMembers } from "../../../utils/ls-utils";
+import { ResourcePathFinderVisitor } from '../../../visitors/resource-path-finder-visitor';
 import { completionEditorTypeKinds, EXPR_SCHEME, FILE_SCHEME } from '../../InputEditor/constants';
 import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 
@@ -220,28 +222,49 @@ export function ResourceForm(props: FunctionProps) {
             resourceReturn.replace("returns", ""),
         );
     };
-    
+
     const [methodName, setMethodName] = useState<string>(model?.functionName?.value.toUpperCase());
     const handleMethodChange = async (value: string) => {
         setMethodName(value.toUpperCase());
-        await handleResourceParamChange(
-            value.toLowerCase(),
-            resourcePath,
-            getParamString(parametersValue),
-            resourceReturn.replace("returns", "")
-        );
+        // Path visiter to find the duplicate resource method and name
+        setResourcePathDiagnostics(undefined);
+        const visitor = new ResourcePathFinderVisitor(value, resourcePath);
+        traversNode(fullST, visitor);
+        const isValidPath = visitor.getResourcePathValidity();
+
+        if (isValidPath) {
+            await handleResourceParamChange(
+                value.toLowerCase(),
+                resourcePath,
+                getParamString(parametersValue),
+                resourceReturn.replace("returns", "")
+            );
+        } else {
+            setResourcePathDiagnostics([{ message: `Duplicated resource. '${value} ${resourcePath}'` }])
+        }
     };
 
     const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
     const handlePathChange = async (value: string) => {
-        const sanitizedValue = value.replace(/[^a-zA-Z0-9.\[\]\/ ]/g, '');
+        const sanitizedValue = value.replace(/[^a-zA-Z0-9.\[\]\/_ ]/g, '');
         setResourcePath(sanitizedValue);
-        await handleResourceParamChange(
-            methodName,
-            sanitizedValue,
-            getParamString(parametersValue),
-            resourceReturn.replace("returns", ""),
-        );
+        // Path visiter to find the duplicate resource method and name
+        setResourcePathDiagnostics(undefined);
+        const visitor = new ResourcePathFinderVisitor(methodName, sanitizedValue);
+        traversNode(fullST, visitor);
+        const isValidPath = visitor.getResourcePathValidity();
+
+        if (isValidPath) {
+            await handleResourceParamChange(
+                methodName,
+                sanitizedValue,
+                getParamString(parametersValue),
+                resourceReturn.replace("returns", ""),
+            );
+        } else {
+            setResourcePathDiagnostics([{ message: `Duplicated resource. '${methodName} ${sanitizedValue}'` }])
+        }
+
     };
 
     const [parametersValue, setParametersValue] = useState<ResourceParam[]>(getParamArray(model.functionSignature));
