@@ -14,12 +14,23 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda no-console
 import React, { useContext, useState } from "react";
 
-import { FormControl } from "@material-ui/core";
+import { Box, FormControl } from "@material-ui/core";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { LiteTextField } from "@wso2-enterprise/ballerina-expression-editor";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { dynamicConnectorStyles as connectorStyles, FormActionButtons, FormHeaderSection } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
-import { ClassDefinition, ModulePart, NodePosition, STKindChecker, SyntaxDiagnostics } from "@wso2-enterprise/syntax-tree";
+import {
+    dynamicConnectorStyles as connectorStyles,
+    FormActionButtons,
+    FormHeaderSection,
+    TextPreLoader
+} from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
+import {
+    ClassDefinition,
+    ModulePart,
+    NodePosition,
+    STKindChecker,
+    SyntaxDiagnostics
+} from "@wso2-enterprise/syntax-tree";
 import debounce from "lodash.debounce";
 
 import { SuggestionItem } from "../../../models/definitions";
@@ -38,11 +49,11 @@ export function GraphqlClassForm(props: ClassFormProps) {
 
     const { applyModifications, onCancel, onSave, getLangClient, fullST, currentFile } = useContext(FormEditorContext);
 
-    const classes = useStyles();
     const connectorClasses = connectorStyles();
 
     const [className, setClassName] = useState<string>(model?.className.value);
     const [diagnostics, setDiagnostics] = useState<SyntaxDiagnostics[]>(undefined);
+    const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
     const handleClassNameChange = (value: string) => {
         const name = value.trim();
@@ -51,6 +62,7 @@ export function GraphqlClassForm(props: ClassFormProps) {
     };
 
     const handleFormSave = async () => {
+        setIsUpdating(true);
         const classNamePosition = getClassNamePosition();
         const workspaceEdit = await getRenameEdits(currentFile.path, className.trim(), classNamePosition, getLangClient);
 
@@ -75,7 +87,7 @@ export function GraphqlClassForm(props: ClassFormProps) {
             modifications.sort((a, b) => a.startLine - b.startLine);
             await applyModifications(modifications, filePath);
         }
-
+        setIsUpdating(false);
         onSave();
     };
 
@@ -98,7 +110,7 @@ export function GraphqlClassForm(props: ClassFormProps) {
             <>
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
-                        <FieldTitle title="Class Name" optional={false} />
+                        <FieldTitle title="Class Name" optional={false}/>
                         <LiteTextField
                             value={className}
                             onChange={handleClassNameChange}
@@ -110,14 +122,19 @@ export function GraphqlClassForm(props: ClassFormProps) {
                     </div>
                 </div>
 
-                <FormActionButtons cancelBtnText="Cancel" cancelBtn={true} saveBtnText="Save" onSave={handleFormSave} onCancel={onCancel} validForm={true} />
+                <FormActionButtons cancelBtnText="Cancel" cancelBtn={true} saveBtnText="Save" onSave={handleFormSave} onCancel={onCancel} validForm={true}/>
+                {isUpdating && (
+                    <Box display="flex" justifyContent="center">
+                        <TextPreLoader position="absolute" text="Renaming constructs..."/>
+                    </Box>
+                )}
             </>
         );
     };
 
     return (
         <FormControl data-testid="graphql-resource-form" className={connectorClasses.wizardFormControlExtended}>
-            <FormHeaderSection onCancel={onCancel} formTitle={"Configure GraphQL Class"} defaultMessage={"Configure GraphQL Class"} />
+            <FormHeaderSection onCancel={onCancel} formTitle={"Configure GraphQL Class"} defaultMessage={"Configure GraphQL Class"}/>
             {formContent()}
         </FormControl>
     );
