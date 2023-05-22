@@ -154,6 +154,7 @@ export function ProjectWizard() {
                         placeholder="Name"
                         onInput={(e: any) => setProjectName(e.target.value)}
                         value={projectName}
+                        id='project-name-input'
                     >
                         Project Name <RequiredFormInput />
                     </VSCodeTextField>
@@ -161,6 +162,7 @@ export function ProjectWizard() {
                         placeholder="Description"
                         onInput={(e: any) => setProjectDescription(e.target.value)}
                         value={projectDescription}
+                        id='project-description-input'
                     >
                         Project Description
                     </VSCodeTextArea>
@@ -207,6 +209,7 @@ export function ProjectWizard() {
                             appearance="primary"
                             onClick={handleCreateProject}
                             disabled={creationInProgress || !isValid}
+                            id='create-project-btn'
                         >
                                 Create
                         </VSCodeButton>

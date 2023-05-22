@@ -12,7 +12,6 @@
  */
 import pkceChallenge from 'pkce-challenge';
 import { URLSearchParams } from 'url';
-import { Uri } from 'vscode';
 import { getHttpClient } from '../http-client';
 import { AccessToken, AuthClientConfig, IAuthClient } from './types';
 
@@ -27,8 +26,6 @@ const ApimScope = 'apim:api_manage apim:subscription_manage apim:tier_manage api
 const RefreshTokenGrantType = 'refresh_token';
 const AuthorizationCodeGrantType = 'authorization_code';
 
-const scope = "openid+email+profile";
-
 const CommonReqHeaders = {
     'Content-Type': 'application/x-www-form-urlencoded; charset=utf8',
     'Accept': 'application/json'
@@ -37,7 +34,6 @@ const CommonReqHeaders = {
 export class ChoreoAuthClient implements IAuthClient {
 
     private _challenge = pkceChallenge();
-    private _fidp: "google" | "github" | "microsoft" | "enterprise" = "google";
 
     constructor(private _config: AuthClientConfig) {}
     
@@ -108,17 +104,15 @@ export class ChoreoAuthClient implements IAuthClient {
         }
     }
 
-    getAuthURL(callbackUri: Uri): string {
+    getAuthURL(callbackUri: string): string {
         const state = {
             origin: "vscode.choreo.ext",
-            callbackUri: callbackUri.toString()
+            callbackUri: callbackUri
         };
         const stateBase64 = Buffer.from(JSON.stringify(state), 'binary').toString('base64');
 
-        return `${this._config.loginUrl}?response_mode=query&prompt=login&response_type=code`
-            + `&code_challenge_method=S256&code_challenge=${this._challenge.code_challenge}`
-            + `&fidp=${this._fidp}&redirect_uri=${this._config.redirectUrl}&`
-            + `client_id=${this._config.clientId}&scope=${scope}&state=${stateBase64}`;
+        return `${this._config.loginUrl}?profile=vs-code&client_id=${this._config.clientId}`
+            + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
     }
     
 }

@@ -10,24 +10,8 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { TreeItem, TreeItemCollapsibleState } from "vscode";
-import { choreoSwitchAccountCmdId } from "../../constants";
-import { getIconPath } from "../../icons";
+import { SubscriptionResponse } from "@wso2-enterprise/choreo-core";
 
-export class ChoreoSwitchAccountTreeItem extends TreeItem {
-    constructor(
-    ) {
-      super("Switch Account", TreeItemCollapsibleState.None);
-      this.command = {
-        command: choreoSwitchAccountCmdId,
-        title: "Switch Account"
-      };
-    }
-  
-    iconPath = {
-      light: getIconPath('sign-in', "light"),
-      dark: getIconPath('sign-in', "dark")
-    };
-
-    
+export interface ISubscriptionClient  {
+    getSubscriptions(orgId: string): Promise<SubscriptionResponse>;
 }

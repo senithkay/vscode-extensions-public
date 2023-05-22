@@ -192,9 +192,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         enabled: isLoggedIn && validOrg
     });
 
+    const { data: hasSubscription = false, isFetched: fetchedSubscription } = useQuery({
+        queryKey: ["overview_project_subscription", projectId, orgName],
+        queryFn: () => ChoreoWebViewAPI.getInstance().hasChoreoSubscription(),
+    });
+
     const { data: usageData, refetch: refetchUsage } = useQuery({
-        queryKey: ["overview_project_comp_count", projectId, orgName, components],
+        queryKey: ["overview_project_comp_count", projectId, orgName, components, hasSubscription],
         queryFn: () => ChoreoWebViewAPI.getInstance().getComponentCount(),
+        enabled: fetchedSubscription && !hasSubscription
     });
 
     const { mutate: handleDeleteComponentClick, isLoading: deletingComponent } = useMutation({
@@ -335,11 +341,14 @@ export function ProjectOverview(props: ProjectOverviewProps) {
     const hasPushableComponents = useMemo(() => pushableComponentCount > 0, [pushableComponentCount]);
 
     const pushableLimitExceeded = useMemo(() => {
+        if (hasSubscription) {
+            return false;
+        }
         if (usageData && pushableComponentCount > 0) {
             return pushableComponentCount > (componentLimit - (usageData?.componentCount || 0));
         }
         return false;
-    }, [pushableComponentCount, usageData, componentLimit]);
+    }, [pushableComponentCount, usageData, hasSubscription, componentLimit]);
 
     const fetchingComponents = loadingComponents || refetchingComponents || isReloadComponents || isRefetchingComponents;
 
@@ -381,6 +390,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             <VSCodeButton
                                 appearance="primary"
                                 onClick={handleCloneProjectClick}
+                                id="clone-project"
                             >
                                 <Codicon name="cloud-download" />
                                 &nbsp;Clone Project
@@ -464,6 +474,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         onClick={handleCreateComponentClick}
                         disabled={!isActive}
                         title="Add Component"
+                        id="add-component-btn"
                     >
                         <Codicon name="plus" />
                     </VSCodeButton>
@@ -476,6 +487,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                             onClick={() => refetchComponents()}
                             title="Refresh component list"
                             disabled={!isActive || fetchingComponents}
+                            id='refresh-component-btn'
                         >
                             <Codicon name="refresh" />
                         </VSCodeButton>
@@ -523,7 +535,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                         fetchingComponents={fetchingComponents}
                         isActive={isActive}
                         choreoUrl={choreoUrl}
-                        reachedChoreoLimit={0 >= (componentLimit - (usageData?.componentCount || 0))}
+                        reachedChoreoLimit={!hasSubscription && 0 >= (componentLimit - (usageData?.componentCount || 0))}
                         refreshComponentStatus={refetchComponents}
                     />
                 )}
@@ -601,6 +613,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
                                         });
                                         handlePushToChoreoClick();
                                     }}
+                                    id='push-to-choreo-btn'
                                 >
                                     <Codicon name="cloud-upload" />
                                     &nbsp; Push to Choreo
