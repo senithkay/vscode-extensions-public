@@ -16,12 +16,15 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import { join } from "path";
 import { By, EditorView, VSBrowser, WebView, Workbench } from 'vscode-extension-tester';
-import { ARCHITECTURE_VIEW_COMMAND, ARCHITECTURE_WEBVIEW_TITLE, ADD_CHOREO_COMPONENT_WEBVIEW_TITLE, TEST_DATA_ROOT, wait } from "./resources";
+import { ARCHITECTURE_VIEW_COMMAND, ARCHITECTURE_WEBVIEW_TITLE, ADD_CHOREO_COMPONENT_WEBVIEW_TITLE, TEST_DATA_ROOT, wait, signIntoChoreo } from "./resources";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const TEST_PROJECT_NAME = "FooProject2";
 const WORKSPACE_FILE_PATH = join(TEST_PROJECT_NAME, `${TEST_PROJECT_NAME}.code-workspace`);
 
-describe("Sample UI test", () => {
+describe("Architecture view tests", () => {
     let editor: EditorView;
     let diagramWebview: WebView;
     let workbench: Workbench;
@@ -37,6 +40,8 @@ describe("Sample UI test", () => {
         editor = new EditorView();
         await editor.closeAllEditors();
         await wait(2000);
+
+        await signIntoChoreo(editor, workbench);
     });
 
     it("Generate Architecture View", async () => {

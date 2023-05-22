@@ -84,7 +84,7 @@ export async function initiateInbuiltAuth() {
     const callbackUri = await vscode.env.asExternalUri(
         vscode.Uri.parse(`${vscode.env.uriScheme}://wso2.choreo/signin`)
     );
-    const oauthURL = authClient.getAuthURL(callbackUri);
+    const oauthURL = authClient.getAuthURL(callbackUri.toString());
     getLogger().debug("OAuth URL: " + oauthURL);
     return vscode.env.openExternal(vscode.Uri.parse(oauthURL));
 }
