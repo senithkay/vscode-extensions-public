@@ -47,9 +47,9 @@ Follow the step below to clone your project and create a copy of it in the local
 
 2. In the **Project Overview** page, click **Clone Project** to clone the repository and the project locally. 
 
-3. Select a directory  in your local machine to store the project.
+3. Select a directory in your local machine to store the project.
 
-3. Click **Open Project** to load it into VS Code. 
+4. Click **Open Project** to load it into VS Code. 
 
     >**Tip:** Once the project is cloned, it opens as a workspace in VS Code. Each component will be available as a workspace item. 
 
@@ -73,7 +73,7 @@ Follow the steps below to design and develop your application by adding componen
 
 6. In the Choreo Console, click **COMPONENT +** and repeat the steps above to create another component.
 
-7. Right click on the added components to load the **Context** menu of them, and click the **Use Internal/External APIs** links to mark the interactions between them.
+7. Right-click on the added components to load the **Context** menu of them, and click the **Use Internal/External APIs** links to mark the interactions between them.
 
 ![Architecture Diagram](docs/choreo-extension/images/component-creation.gif)
 
@@ -105,7 +105,7 @@ Follow the steps below to deploy the components after creating them.
 
 2. Once the components are deployed, click on the corresponding project in the Choreo activity panel. 
 
-3. View the build and deployment status of the components in the **Project Overview** page.
+3. View the build and deployment status of the components on the **Project Overview** page.
 
 ## Troubleshoot
 
@@ -115,7 +115,7 @@ Follow the steps below to troubleshoot Choreo extension issues.
 
 2. Click **OUTPUT** to open the **OUTPUT** pane.
 
-3. From the drop down menu on the RHS, select **Choreo** to view the Choreo output for troubleshooting.
+3. From the drop-down menu on the RHS, select **Choreo** to view the Choreo output for troubleshooting.
 
 ## Ask for help
 
