@@ -236,7 +236,7 @@
     "webpack-cli": "^4.10.0",
     "webpack-permissions-plugin": "^1.0.9",
     "yarn": "^1.22.19",
-    "playwright-core": "^1.32.3"
+    "playwright": "^1.34.0"
   },
   "dependencies": {
     "@vscode-logging/logger": "^1.2.3",

@@ -1,7 +1,7 @@
 import { STAGE_CHANGES_COMMAND, COMMIT_STAGED_COMMAND, GIT_PUSH_COMMAND, SIGN_IN_WITH_APIM_TOKEN, SIGN_OUT_COMMAND } from "./constants";
 import { expect } from "chai";
 import { By, EditorView, VSBrowser, Workbench, InputBox, TextEditor, } from 'vscode-extension-tester';
-import { chromium } from "playwright-core";
+import { chromium } from "playwright";
 import { ChoreoAuthClient, ChoreoProjectClient } from "@wso2-enterprise/choreo-client";
 import { TokenManager } from "./tokenManager";
 import * as fs from 'fs';
@@ -33,10 +33,7 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
         if (authUrl) {
             const authUrlWithTestIdp = `${authUrl}&fidp=choreoe2etest`;
 
-            const browser = await chromium.launch({
-                headless: process.env.CI ? true : false,
-                executablePath: '/usr/bin/chromium-browser', // TODO: Check if this works in CI and other OS
-            });
+            const browser = await chromium.launch({ headless: process.env.CI ? true : false });
             const page = await browser.newPage();
             await page.goto(authUrlWithTestIdp);
             await page.waitForSelector('button[type="submit"]');
