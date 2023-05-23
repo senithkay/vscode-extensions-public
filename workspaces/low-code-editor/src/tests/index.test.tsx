@@ -26,7 +26,7 @@ let langClient: BalleriaLanguageClient;
 
 beforeAll(async () => {
     langClient = await createLangClient();
-});
+}, 20000);
 
 test('Test Lang Server wiring', async () => {
     const balFile = path.resolve(__dirname, "resources", "test.bal");

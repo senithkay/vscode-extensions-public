@@ -1,1 +1,1 @@
-global.setImmediate = jest.useRealTimers;
+require('core-js/actual/set-immediate');

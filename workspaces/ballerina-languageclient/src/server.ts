@@ -19,12 +19,16 @@ export function startBallerinaLS() {
         const serverConnection = serverRPC.createProcessStreamConnection(stdioConnection.getChildProcess());
         // forward websocket messages to stdio of ls process
         const clientConnection = serverRPC.createWebSocketConnection(toSocket(socket));
-        serverRPC.forward(clientConnection, serverConnection);
+        serverRPC.forward(clientConnection, serverConnection, (message) => {
+            // tslint:disable-next-line: no-console
+            console.log("Received message from client", JSON.stringify(message));
+            return message;
+        });
 
         stdioConnection.getChildProcess().on("exit", () => {
             // process.exit(0);
-        })
-
+        });
+        
         socket.onclose = () => {
             stdioConnection.stop();
         };

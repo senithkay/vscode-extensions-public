@@ -114,11 +114,18 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
     }
 
     private initialize() {
-        this._clientConnection.sendRequest(InitializeRequest.type, initializeRequest(this._id)).then((result: InitializeResult) => {
-            this._clientConnection.sendNotification(InitializedNotification.type, {}).then(() => {
-                this._clientConnection.onNotification(PublishDiagnosticsNotification.type, this.handleDiagnostics);
-                this._ready();
-            });
+        console.log("Sending initialize request");
+        this._clientConnection.sendRequest(InitializeRequest.type, initializeRequest(this._id)).then(async (result: InitializeResult) => {
+            console.log("Initialize request was accepted");
+            await this._clientConnection.sendNotification(InitializedNotification.type, {});
+            console.log("Initialized notification was sent");
+            this._clientConnection.onNotification(PublishDiagnosticsNotification.type, this.handleDiagnostics);
+            console.log("Publish diagnostics notification was registered");
+            this._ready();
+            console.log("Language client is ready");
+        }).catch((error) => {
+            console.log("Initialize request was rejected", error.message);
+            this._initializedError(error);
         });
     }
 
