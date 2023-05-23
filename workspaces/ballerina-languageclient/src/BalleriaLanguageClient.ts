@@ -115,9 +115,10 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     private initialize() {
         this._clientConnection.sendRequest(InitializeRequest.type, initializeRequest(this._id)).then((result: InitializeResult) => {
-            this._clientConnection.sendNotification(InitializedNotification.type, {});
-            this._clientConnection.onNotification(PublishDiagnosticsNotification.type, this.handleDiagnostics);
-            this._ready();
+            this._clientConnection.sendNotification(InitializedNotification.type, {}).then(() => {
+                this._clientConnection.onNotification(PublishDiagnosticsNotification.type, this.handleDiagnostics);
+                this._ready();
+            });
         });
     }
 
