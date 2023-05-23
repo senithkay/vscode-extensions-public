@@ -29,7 +29,9 @@ import {
     ExpressionTypeRequest,
     ExpressionTypeResponse,
     GetComponentModelRequest,
-    GetComponentModelResponse
+    GetComponentModelResponse,
+    GetPersistERModelRequest,
+    GetPersistERModelResponse
 } from "@wso2-enterprise/ballerina-languageclient";
 import {
     BallerinaConnectorsRequest,
@@ -91,7 +93,8 @@ enum EXTENDED_APIS {
     COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
     GRAPHQL_DESIGN_MODEL = 'graphqlDesignService/getGraphqlModel',
     DOCUMENT_ST_FUNCTION = 'ballerinaDocument/syntaxTreeByName',
-    DEFINITION_POSITION = 'ballerinaDocument/syntaxTreeNodeByPosition'
+    DEFINITION_POSITION = 'ballerinaDocument/syntaxTreeNodeByPosition',
+    PERSIST_MODEL_ENDPOINT = 'persistERGeneratorService/getPersistERModels'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -513,6 +516,9 @@ export class ExtendedLangClient extends LanguageClient {
     }
     async getPackageComponentModels(params: GetComponentModelRequest): Promise<GetComponentModelResponse> {
         return this.sendRequest(EXTENDED_APIS.COMPONENT_MODEL_ENDPOINT, params);
+    }
+    async getPersistERModel(params: GetPersistERModelRequest): Promise<GetPersistERModelResponse> {
+        return this.sendRequest(EXTENDED_APIS.PERSIST_MODEL_ENDPOINT, params);
     }
     async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS);
