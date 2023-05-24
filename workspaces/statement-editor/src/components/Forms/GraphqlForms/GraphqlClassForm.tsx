@@ -17,7 +17,6 @@ import React, { useContext, useState } from "react";
 import { Box, FormControl } from "@material-ui/core";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
 import { LiteTextField } from "@wso2-enterprise/ballerina-expression-editor";
-import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     dynamicConnectorStyles as connectorStyles,
     FormActionButtons,
@@ -47,7 +46,7 @@ export interface ClassFormProps {
 export function GraphqlClassForm(props: ClassFormProps) {
     const { model } = props;
 
-    const { applyModifications, onCancel, onSave, getLangClient, fullST, currentFile } = useContext(FormEditorContext);
+    const { onCancel, onSave, getLangClient, fullST, currentFile, renameSymbol } = useContext(FormEditorContext);
 
     const connectorClasses = connectorStyles();
 
@@ -65,28 +64,7 @@ export function GraphqlClassForm(props: ClassFormProps) {
         setIsUpdating(true);
         const classNamePosition = getClassNamePosition();
         const workspaceEdit = await getRenameEdits(currentFile.path, className.trim(), classNamePosition, getLangClient);
-
-        const changes = Object.values(workspaceEdit?.changes);
-        for (const changesKey of Object.keys(changes)) {
-            const prefix = "file://";
-            const key = Object.keys(workspaceEdit?.changes)[changesKey];
-            const filePath = key.substring(key.indexOf(prefix) + prefix.length);
-            const edits = changes[changesKey];
-            const modifications: STModification[] = [];
-            edits.forEach((edit: any) => {
-                modifications.push({
-                    type: "INSERT",
-                    config: { STATEMENT: edit.newText },
-                    endColumn: edit.range.end.character,
-                    endLine: edit.range.end.line,
-                    startColumn: edit.range.start.character,
-                    startLine: edit.range.start.line,
-                });
-            });
-
-            modifications.sort((a, b) => a.startLine - b.startLine);
-            await applyModifications(modifications, filePath);
-        }
+        await renameSymbol(workspaceEdit);
         setIsUpdating(false);
         onSave();
     };
