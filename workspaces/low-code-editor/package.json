@@ -9,8 +9,7 @@
   "types": "build/index.d.ts",
   "typings": "build/index",
   "scripts": {
-    "prebuild": "pnpm run lint",
-    "build": "pnpm run storybook:setup && pnpm run build:tsc",
+    "build": "pnpm run lint && pnpm run storybook:setup && pnpm run build:tsc",
     "build:tsc": "tsc --pretty && pnpm run copy:assets",
     "build:webpack": "webpack --config webpack.config.js --mode=production",
     "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/assets/fonts/Glimer/*.*\" build/",
