@@ -7,7 +7,7 @@
     "prepublishOnly": "pnpm run build",
     "clean": "rimraf lib && rimraf coverage && rimraf build",
     "lint": "tslint -t stylish --project .",
-    "build": "pnpm run build:theme && webpack --mode=production && pnpm run postbuild",
+    "build": "pnpm run lint && pnpm run build:theme && webpack --mode=production && pnpm run postbuild",
     "build:theme": "node theme/scripts/build-theme.js",
     "test": "jest --colors",
     "coverage": "jest --coverage",
