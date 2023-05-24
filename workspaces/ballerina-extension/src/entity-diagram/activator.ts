@@ -27,12 +27,19 @@ import { render } from "./renderer";
 const COMPATIBILITY_MESSAGE = "Ballerina versions are not compatible. Update to 2201.6.0 or higher to use the feature.";
 
 let diagramWebview: WebviewPanel | undefined;
+let filePath: string | undefined;
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
     const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, () => {
         if (isCompatible(ballerinaExtInstance.ballerinaVersion)) {
-            showERDiagram(langClient);
+            filePath = window.activeTextEditor?.document?.uri.fsPath;
+            if (filePath) {
+                showERDiagram(langClient);
+            } else {
+                // Todo: Update error message
+                window.showErrorMessage("Error: Could not detect persist model.");
+            }
         } else {
             window.showErrorMessage(COMPATIBILITY_MESSAGE);
         }
@@ -68,7 +75,7 @@ function setupWebviewPanel(langClient: ExtendedLangClient) {
             methodName: "getPersistERModel",
             handler: (): Promise<GetPersistERModelResponse> => {
                 return langClient.getPersistERModel({
-                    documentUri: window.activeTextEditor?.document.uri.fsPath
+                    documentUri: filePath
                 });
             }
         }

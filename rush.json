@@ -510,6 +510,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/persist-layer-diagram",
+      "projectFolder": "workspaces/persist-layer-diagram",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/ballerina-statement-editor",
       "projectFolder": "workspaces/statement-editor",
       "versionPolicyName": "ballerina-extension"

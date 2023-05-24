@@ -412,7 +412,7 @@ importers:
       lodash: ^4.17.11
       mocha: ^10.2.0
       nyc: ^15.1.0
-      playwright-core: ^1.32.3
+      playwright: ^1.34.0
       simple-git: ^3.15.1
       sinon: ^15.0.1
       source-map-support: ^0.5.21
@@ -474,7 +474,7 @@ importers:
       glob: 7.2.3
       mocha: 10.2.0
       nyc: 15.1.0
-      playwright-core: 1.33.0
+      playwright: 1.34.0
       sinon: 15.0.2
       source-map-support: 0.5.21
       ts-loader: 9.4.2_cbz6r35m2it77sxuzifyafc6zi
@@ -2292,6 +2292,51 @@ importers:
       style-loader: 1.3.0_webpack@5.76.1
       ts-loader: 9.4.2_cbz6r35m2it77sxuzifyafc6zi
       typescript: 4.9.5
+      webpack: 5.76.1_webpack-cli@4.10.0
+      webpack-cli: 4.10.0_ddmenyhdwz6ocoybpsmzbonb6y
+      webpack-dev-server: 4.11.1_mcbxwmiss5njtiqwgktfxc4sg4
+
+  ../../workspaces/persist-layer-diagram:
+    specifiers:
+      '@babel/core': ^7.20.12
+      '@emotion/react': ^11.9.3
+      '@emotion/styled': ^11.10.5
+      '@types/node': ^18.11.19
+      '@types/react': ^17.0.37
+      '@types/react-dom': 17.0.14
+      '@wso2-enterprise/ballerina-languageclient': workspace:*
+      babel-loader: ^8.2.5
+      copyfiles: ^2.4.1
+      css-loader: ^6.7.1
+      file-loader: ^5.0.2
+      react: ^17.0.2
+      react-dom: ^17.0.2
+      source-map-loader: ^4.0.0
+      style-loader: ^3.3.1
+      ts-loader: ^9.4.1
+      typescript: ^4.9.4
+      webpack: ^5.73.0
+      webpack-cli: ^4.10.0
+      webpack-dev-server: ^4.11.1
+    dependencies:
+      '@emotion/react': 11.10.6_h7fc2el62uaa77gho3xhys6ola
+      '@emotion/styled': 11.10.6_7hisdke2c3hq4r3q5z4dcdhmzi
+      '@types/node': 18.15.3
+      file-loader: 5.1.0_webpack@5.76.1
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      typescript: 4.9.5
+    devDependencies:
+      '@babel/core': 7.21.0
+      '@types/react': 17.0.53
+      '@types/react-dom': 17.0.14
+      '@wso2-enterprise/ballerina-languageclient': link:../ballerina-languageclient
+      babel-loader: 8.3.0_olvwa26bkc7sescpzrxlktjrvi
+      copyfiles: 2.4.1
+      css-loader: 6.7.3_webpack@5.76.1
+      source-map-loader: 4.0.1_webpack@5.76.1
+      style-loader: 3.3.2_webpack@5.76.1
+      ts-loader: 9.4.2_cbz6r35m2it77sxuzifyafc6zi
       webpack: 5.76.1_webpack-cli@4.10.0
       webpack-cli: 4.10.0_ddmenyhdwz6ocoybpsmzbonb6y
       webpack-dev-server: 4.11.1_mcbxwmiss5njtiqwgktfxc4sg4
@@ -27254,10 +27299,18 @@ packages:
       find-up: 3.0.0
     dev: true
 
-  /playwright-core/1.33.0:
-    resolution: {integrity: sha512-aizyPE1Cj62vAECdph1iaMILpT0WUDCq3E6rW6I+dleSbBoGbktvJtzS6VHkZ4DKNEOG9qJpiom/ZxO+S15LAw==}
+  /playwright-core/1.34.0:
+    resolution: {integrity: sha512-fMUY1+iR6kYbJF/EsOOqzBA99ZHXbw9sYPNjwA4X/oV0hVF/1aGlWYBGPVUEqxBkGANDKMziYoOdKGU5DIP5Gg==}
+    engines: {node: '>=14'}
+    dev: true
+
+  /playwright/1.34.0:
+    resolution: {integrity: sha512-fh+Q7fw7fPg2jSjDUNgo46PbKNTKQCYbeYXXbMm1hTbhPc0V62WM6h/pqWLTW0tqjfu8TCLdx7tECd/2AbYaHg==}
     engines: {node: '>=14'}
     hasBin: true
+    requiresBuild: true
+    dependencies:
+      playwright-core: 1.34.0
     dev: true
 
   /please-upgrade-node/3.2.0:
