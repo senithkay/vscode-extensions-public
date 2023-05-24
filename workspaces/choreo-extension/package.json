@@ -179,7 +179,7 @@
             "stage",
             "dev"
           ],
-          "default": "dev",
+          "default": "prod",
           "description": "The Choreo Enviornment to use",
           "scope": "window"
         }
