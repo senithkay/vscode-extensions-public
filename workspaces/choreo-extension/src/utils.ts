@@ -11,13 +11,13 @@
  *  associated services.
  */
 
-import { ComponentModel, CMLocation as Location, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentModel, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { ApiVersion, Component } from "@wso2-enterprise/choreo-core";
 
 export function enrichDeploymentData(pkgServices: Map<string, Service>, apiVersions: ApiVersion[], componentLocation: string,
     isLocal: boolean, accessibility?: string): boolean {
     const services = [...pkgServices.values()];
-    const componentServices = services.filter((service) => service.elementLocation.filePath.includes(componentLocation));
+    const componentServices = services.filter((service) => service.elementLocation?.filePath.includes(componentLocation));
     for (const service of componentServices) {
         let isInternetExposed = false;
         let isIntranetExposed = false;
@@ -85,10 +85,8 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
         serviceType: component.displayType,
         annotation: {
             id: component.id,
-            label: component.displayName,
-            elementLocation: getMockElementLocation()
+            label: component.displayName
         },
-        elementLocation: getMockElementLocation(),
         deploymentMetadata: {
             gateways: {
                 internet: {
@@ -110,19 +108,5 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
         services: pkgServices as any,
         entities: new Map(),
         hasCompilationErrors: false
-    };
-}
-
-function getMockElementLocation(): Location {
-    return {
-        filePath: "",
-        startPosition: {
-            line: 0,
-            offset: 0
-        },
-        endPosition: {
-            line: 0,
-            offset: 0
-        }
     };
 }
