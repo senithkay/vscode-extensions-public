@@ -10,8 +10,8 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { createMuiTheme } from '@material-ui/core/styles';
-export const theme = createMuiTheme({
+import { createTheme } from '@material-ui/core/styles';
+export const theme = createTheme({
     palette: {
         common: {
             black: "#000000",

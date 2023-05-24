@@ -23,12 +23,8 @@ export const LANG_SERVER_URL = "ws://localhost:9095"
 
 export async function createLangClient(): Promise<BalleriaLanguageClient> {
     const wsConnection = await WSConnection.initialize(LANG_SERVER_URL);
-    console.log("WS connection established");
-    const langClient = new BalleriaLanguageClient(wsConnection);
-    console.log("Lang client created");
-    console.log("Waiting for lang client to be ready");
+    const langClient = new BalleriaLanguageClient(wsConnection, true);
     await langClient.onReady();
-    console.log("Waiting for lang client to be ready - done");
     return langClient;
 }
 

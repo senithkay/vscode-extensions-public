@@ -79,7 +79,13 @@ module.exports = {
     // ],
 
     // A map from regular expressions to module names that allow to stub out resources with a single module
-    // moduleNameMapper: {},
+    moduleNameMapper: {
+        '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|scss)$':
+            '<rootDir>/__mocks__/fileMock.js',
+        '\\.(css|less)$': '<rootDir>/__mocks__/styleMock.js',
+        'monaco-editor': '<rootDir>/__mocks__/monacoMock.js',
+        "uuid": require.resolve('uuid'),
+    },
 
     // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
     modulePathIgnorePatterns: ['<rootDir>/lib'],

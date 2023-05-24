@@ -20,7 +20,8 @@ import path from "path";
 
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 
-import { createLangClient, getSyntaxTree, stopLangServer } from "./utils/utils";
+import { TestProvider } from "./TestContext";
+import { createLangClient, getFileContent, getSyntaxTree, stopLangServer } from "./utils/utils";
 
 let langClient: BalleriaLanguageClient;
 
@@ -44,6 +45,33 @@ test('Test Lang Server wiring', async () => {
 //     fireEvent.click(screen.getByText("Resource"));
 // });
 
-afterAll(async () => {
-    await stopLangServer(langClient);
+test('Test adding new resource', async () => {
+    const balFile = path.resolve(__dirname, "resources", "test.bal");
+    const st = await getSyntaxTree(langClient, balFile);
+    const currentFileContent = await getFileContent(balFile);
+    expect(st.parseSuccess).toBeTruthy();
+    expect(st.syntaxTree).toBeDefined();
+    const syntaxTree = st.syntaxTree as ModulePart;
+    const serviceDecl = syntaxTree.members[0] as ServiceDeclaration;
+    expect(serviceDecl).toBeDefined();
+    expect(serviceDecl.absoluteResourcePath.length).toBe(1);
+    render(
+        <TestProvider
+            completeST={st.syntaxTree}
+            focusedST={serviceDecl}
+            currentFileContent={currentFileContent}
+            fileName={"test.bal"}
+            fileUri={balFile}
+            langClient={langClient}
+        >
+            <ServiceDesignOverlay model={serviceDecl} onCancel={undefined} />
+        </TestProvider>
+    );
+    fireEvent.click(screen.getByText("Resource"));
 });
+
+
+//
+// afterAll(async () => {
+//     await stopLangServer(langClient);
+// });
