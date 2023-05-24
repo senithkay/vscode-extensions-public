@@ -25,6 +25,7 @@ import { Context } from "../../../../../Contexts/Diagram";
 import { ConnectorConfigWizard } from "../../ConnectorConfigWizard";
 import { FormGenerator } from "../../FormGenerator";
 import { isStatementEditorSupported } from "../../Utils";
+
 import { fetchConnectorInfo, getConnectorImports } from "./util";
 
 
@@ -70,21 +71,21 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
     const showNewForms = isStatementEditorSupported(ballerinaVersion);
     const isLoading = fetchingMetadata || retrievingAction || pullingPackage;
     const isHttp = selectedConnector?.moduleName === "http";
-    
+
     useEffect(() => {
         setWizardStep(getInitialWizardStep());
     }, [wizardType]);
-    
+
     useEffect(() => {
         (async () => {
             await retrieveMissingInfo();
         })();
     }, [wizardStep]);
-    
+
     useEffect(() => {
         retrieveMissingInfo();
     }, [connectorInfo]);
-    
+
     useEffect(() => {
         if (
             wizardType === ConnectorWizardType.ENDPOINT &&
@@ -97,7 +98,7 @@ export function ConnectorWizard(props: ConnectorWizardProps) {
             const imports = getConnectorImports(fullST, selectedConnector.package.organization, selectedConnector.moduleName, true);
             if (imports && imports?.size > 0) {
                 let pullCommand = "";
-                imports.forEach(function (impt) {
+                imports.forEach((impt) => {
                     if (pullCommand !== "") {
                         pullCommand += ` && `;
                     }
