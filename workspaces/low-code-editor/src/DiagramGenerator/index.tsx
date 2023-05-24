@@ -31,6 +31,7 @@ import {
     STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart, NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
@@ -448,6 +449,9 @@ export function LowCodeDiagramGenerator(props: DiagramGeneratorProps) {
                         },
                         updateFileContent: (content: string, skipForceSave?: boolean) => {
                             return props.updateFileContent(filePath, content, skipForceSave);
+                        },
+                        renameSymbol: (workspaceEdits: WorkspaceEdit) => {
+                            return props.renameSymbol(workspaceEdits);
                         },
                         undo,
                         isMutationInProgress,

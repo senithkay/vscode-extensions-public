@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { ANALYZE_TYPE, CommandResponse, DiagramEditorLangClientInterface, GetSyntaxTreeResponse, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse, LowcodeEvent, SentryConfig } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import { LowCodeDiagramGenerator, OverviewDiagramGenerator } from "..";
 import { DiagramGenErrorBoundary } from "../ErrorBoundrary";
@@ -74,6 +75,7 @@ export interface EditorAPI {
     getBallerinaVersion: () => Promise<string | undefined>;
     getEnv: (name: string) => Promise<any>;
     openExternalUrl: (url: string) => Promise<boolean>;
+    renameSymbol: (workspaceEdits: WorkspaceEdit) => Promise<boolean>;
 }
 
 export enum PALETTE_COMMANDS {
@@ -97,7 +99,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
     const { getFileContent, updateFileContent, gotoSource, showPerformanceGraph, getPerfDataFromChoreo,
             sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
             showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, runBackgroundTerminalCommand, openArchitectureView, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, ...restProps } = props;
+            runCommand, runBackgroundTerminalCommand, openArchitectureView, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, renameSymbol, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {
@@ -128,6 +130,7 @@ export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
                     getBallerinaVersion={getBallerinaVersion}
                     getEnv={getEnv}
                     openExternalUrl={openExternalUrl}
+                    renameSymbol={renameSymbol}
                     panX="-30"
                     panY="0"
                     scale="0.9"
