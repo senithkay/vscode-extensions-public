@@ -31,7 +31,7 @@ export function CtrlClickGo2Source(props: PropsWithChildren<CtrlClickProps>) {
     const { editingEnabled, editLayerAPI } = useContext(DiagramContext);
 
     const handleClick = () => {
-        if (editingEnabled) {
+        if (editingEnabled && location) {
             editLayerAPI?.go2source(location);
         }
     };

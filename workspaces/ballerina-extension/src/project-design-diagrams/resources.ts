@@ -54,6 +54,12 @@ export interface DeleteLinkArgs {
     nodeLocation: Location;
 }
 
+export interface TomlPackageData {
+    name: string;
+    org: string;
+    version: string;
+}
+
 export const GLOBAL_STATE_FLAG = "LOAD_ARCHITECTURE_VIEW";
 
 export const ERROR_MESSAGE = "Architecture View: Failed to generate view.";
