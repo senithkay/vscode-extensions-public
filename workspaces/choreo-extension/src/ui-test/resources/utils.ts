@@ -86,59 +86,27 @@ export const commitAndPushChanges = async (workbench: Workbench, editor: EditorV
 
     await workbench.executeCommand(GIT_PUSH_COMMAND);
     await wait(5000);
+
+    await handleGitHubLogin();
 };
 
 export const handleGitHubLogin = async (): Promise<void> => {
     const driver = VSBrowser.instance.driver;
-    await driver.wait(async () => (await driver.getAllWindowHandles()).length === 2);
-    const handles = await driver.getAllWindowHandles();
-    const promptHandle = handles[0];
-    await driver.switchTo().window(promptHandle);
-    const [, , cancelButton] = await driver.findElements(By.xpath('//*[contains(text(), "Cancel")]'));
-    expect(cancelButton).is.not.undefined;
-    await cancelButton.click();
-    await wait(2000);
-    const userNameBox = new InputBox();
-    await userNameBox.setText(process.env.TEST_GITHUB_USERNAME!);
-    await userNameBox.confirm();
-    await wait(2000);
-    const passwordBox = new InputBox();
-    await passwordBox.setText(process.env.TEST_GITHUB_PAT!);
-    await passwordBox.confirm();
-};
-
-const getValueFromClipboard = async (): Promise<string> => {
-    // create a hidden input element
-    const input = await VSBrowser.instance.driver.executeScript(`
-        const input = document.createElement('input');
-        input.style.opacity = 0;
-        input.style.position = 'absolute';
-        input.style.left = '-9999px';
-        document.body.appendChild(input);
-        return input;
-    `);
-
-    // copy value to the input element
-    await VSBrowser.instance.driver.executeScript(`
-        document.execCommand('copy');
-    `, input, 'test value');
-
-    // retrieve value from input element
-    const value = await VSBrowser.instance.driver.executeScript(`
-        const input = arguments[0];
-        input.select();
-        document.execCommand('paste');
-        return input.value;
-    `, input);
-
-    // remove input element from DOM
-    await VSBrowser.instance.driver.executeScript(`
-        const input = arguments[0];
-        input.remove();
-    `, input);
-
-    // return value as a string
-    return value as string;
+    const githubLoginPrompt = await driver.findElements(By.xpath(`//*[contains(text(), "The extension 'Choreo' wants to sign in using GitHub.")]`));
+    if (githubLoginPrompt.length) {
+        const [, , cancelButton] = await driver.findElements(By.xpath('//*[contains(text(), "Cancel")]'));
+        expect(cancelButton).is.not.undefined;
+        await cancelButton.click();
+        await wait(2000);
+        const userNameBox = new InputBox();
+        await userNameBox.setText(process.env.TEST_GITHUB_USERNAME!);
+        await userNameBox.confirm();
+        await wait(2000);
+        const passwordBox = new InputBox();
+        await passwordBox.setText(process.env.TEST_GITHUB_PAT!);
+        await passwordBox.confirm();
+        await wait(5000);
+    }
 };
 
 /** To clean up the data in Choreo after running the project */
