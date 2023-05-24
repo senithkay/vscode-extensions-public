@@ -15,7 +15,7 @@ import assert = require("assert");
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { join } from "path";
-import { By, EditorView, VSBrowser, WebView, Workbench, InputBox, ActivityBar } from 'vscode-extension-tester';
+import { By, EditorView, VSBrowser, WebView, Workbench, InputBox, ActivityBar, until } from 'vscode-extension-tester';
 import { ADD_CHOREO_PROJECT_COMMAND, OPEN_PROJECT_COMMAND, TEST_DATA_ROOT, commitAndPushChanges, deleteFoldersRecursively, deleteProject, handleGitHubLogin, hasFoldersInRepository, signIntoChoreo, wait } from "./resources";
 import * as dotenv from "dotenv";
 import * as fs from 'fs';
@@ -108,7 +108,7 @@ describe("Project overview tests", () => {
 
         await handleGitHubLogin();
 
-        await wait(20000);
+        await wait(15000);
     });
 
     it("Create new component", async () => {
@@ -154,7 +154,7 @@ describe("Project overview tests", () => {
         await wait(12000);
         await diagramWebview.switchToFrame();
         const pushToChoreoBtn = await diagramWebview.findWebElement(By.id("push-to-choreo-btn"));
-        expect(await pushToChoreoBtn.isEnabled()).to.be.true;
+        await VSBrowser.instance.driver.wait(until.elementIsEnabled(pushToChoreoBtn));
         await pushToChoreoBtn.click();
 
         await wait(15000);
@@ -173,6 +173,7 @@ describe("Project overview tests", () => {
         const deleteConfirmBtn = await editor.findElement(By.xpath('//*[text()="Delete Component"]'));
         await deleteConfirmBtn.click();
 
+        workbench = new Workbench();
         await commitAndPushChanges(workbench, editor, "delete component");
     });
 
