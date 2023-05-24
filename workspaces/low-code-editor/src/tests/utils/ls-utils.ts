@@ -13,7 +13,6 @@
 import {
     BalleriaLanguageClient,
     GetSyntaxTreeResponse,
-    StdioConnection,
     WSConnection
 } from "@wso2-enterprise/ballerina-languageclient";
 import { readFileSync, writeFileSync } from "fs";
@@ -27,13 +26,6 @@ export async function createLangClient(): Promise<BalleriaLanguageClient> {
     await langClient.onReady();
     return langClient;
 }
-
-// export async function createLangClient(): Promise<BalleriaLanguageClient> {
-//     const connection = new StdioConnection();
-//     const langClient = new BalleriaLanguageClient(connection);
-//     await langClient.onReady();
-//     return langClient;
-// }
 
 export async function getFileContent(filePath: string): Promise<string> {
     return readFileSync(filePath, "utf8");

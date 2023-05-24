@@ -19,6 +19,8 @@ import { Context } from "../Contexts/Diagram";
 import { getDiagramProviderProps } from "../DiagramViewManager/utils";
 import { LowCodeEditorContext } from "../types";
 
+import { getEditorProps } from "./utils/test-utils";
+
 interface TestProviderProps {
     completeST: STNode;
     focusedST: STNode;
@@ -30,6 +32,7 @@ interface TestProviderProps {
 
 export const TestProvider: FC<TestProviderProps> = (props) => {
     const { children, completeST, focusedST, currentFileContent, fileUri, fileName, langClient } = props;
+    const editorProps = getEditorProps(fileUri, langClient);
     const { api, ...restProps } = getDiagramProviderProps(
         focusedST,
         "",
@@ -40,38 +43,7 @@ export const TestProvider: FC<TestProviderProps> = (props) => {
         completeST,
         "",
         "",
-        {
-            diagramFocus: undefined,
-            experimentalEnabled: false,
-            filePath: fileUri,
-            getAllFiles: jest.fn(),
-            getBallerinaVersion: jest.fn(),
-            getEnv: jest.fn(),
-            getFileContent: jest.fn(),
-            getLibrariesData: jest.fn(),
-            getLibrariesList: jest.fn(),
-            getLibraryData: jest.fn(),
-            getPerfDataFromChoreo: jest.fn(),
-            getSentryConfig: jest.fn(),
-            gotoSource: jest.fn(),
-            langClientPromise: Promise.resolve(langClient),
-            lastUpdatedAt: "",
-            openArchitectureView: jest.fn(),
-            openExternalUrl: jest.fn(),
-            openInDiagram: undefined,
-            projectPaths: [],
-            resolveMissingDependency: jest.fn(),
-            resolveMissingDependencyByCodeAction: jest.fn(),
-            runBackgroundTerminalCommand: jest.fn(),
-            runCommand: jest.fn(),
-            sendTelemetryEvent: jest.fn(),
-            showMessage: jest.fn(),
-            showPerformanceGraph: jest.fn(),
-            startColumn: 0,
-            startLine: 0,
-            updateFileContent: jest.fn(),
-            workspaceName: ""
-        },
+        editorProps,
         undefined,
         undefined,
         jest.fn(),

@@ -21,7 +21,7 @@ import path from "path";
 import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
 
 import { TestProvider } from "./TestContext";
-import { createLangClient, getFileContent, getSyntaxTree, stopLangServer } from "./utils/utils";
+import { createLangClient, getFileContent, getSyntaxTree } from "./utils/ls-utils";
 
 let langClient: BalleriaLanguageClient;
 
