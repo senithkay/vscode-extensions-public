@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"description": "The front-end implementation for the ER diagram generated using the persist model",
 	"scripts": {
+		"start": "webpack-dev-server --progress --mode=development",
 		"build": "webpack && pnpm run postbuild",
 		"postbuild": "copyfiles -u 1 -V build/*.js build/fonts/* build/images/* -e build/*.txt ../ballerina-extension/resources/jslibs"
 	},
