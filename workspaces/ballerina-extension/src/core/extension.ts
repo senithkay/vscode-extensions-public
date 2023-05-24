@@ -597,6 +597,10 @@ export class BallerinaExtension {
         this.documentContext.setActiveDiagram(value);
     }
 
+    public setPersistModelActiveContext(value: boolean) {
+        commands.executeCommand('setContext', 'isPersistModelActive', value);
+    }
+
     public setChoreoAuthEnabled(value: boolean) {
         commands.executeCommand('setContext', 'isChoreoAuthEnabled', value);
     }
