@@ -50,7 +50,7 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
         if (diagnostics) {
             if (diagnostics.length > 0) {
                 setExpressionDiagnosticMsg(diagnostics[0].message);
-                if (diagnostics.length > 1) { 
+                if (diagnostics.length > 1) {
                     setExpressionDiagnosticMsgSecond(diagnostics[1].message);
                 }
             } else {
