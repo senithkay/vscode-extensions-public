@@ -73,11 +73,11 @@ enum ParamEditorInputTypes {
 
 export function ParamEditor(props: ParamProps) {
     const {
-        segmentId, model, option, optionList, onChange, onCancel, completions
+        segmentId, model, option, optionList, onChange, onCancel, completions, syntaxDiagnostics : diagnostics
     } = props;
     const classes = useStyles();
 
-    const syntaxDiagnostics = model.diagnosticMsg;
+    const syntaxDiagnostics = diagnostics || model.diagnosticMsg;
 
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<ParamEditorInputTypes>(ParamEditorInputTypes.PARAM_NAME);

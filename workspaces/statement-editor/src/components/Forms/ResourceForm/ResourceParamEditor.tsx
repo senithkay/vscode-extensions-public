@@ -84,10 +84,10 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
         const paramName = genParamName('param', paramNames);
 
         const newObject: ResourceParam = {
-            parameterValue: `string ${paramName}`,
+            parameterValue: `string? ${paramName}`,
             diagnosticMsg: [],
             name: paramName,
-            type: "string",
+            type: "string?",
             default: ""
         };
 
