@@ -96,7 +96,7 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
         && currentChoreoToken.loginTime && currentChoreoToken.refreshToken) {
         getLogger().debug("Found Choreo token in keychain.");
         let tokenDuration = (new Date().getTime() - new Date(currentChoreoToken.loginTime).getTime()) / 1000;
-        if (tokenDuration > currentChoreoToken.expirationTime) {
+        if (tokenDuration > (currentChoreoToken.expirationTime - (60 * 5) )) { // 5 minutes before expiry, we refresh the token
             getLogger().debug("Choreo token expired. Exchanging refresh token.");
             try {
                 await exchangeRefreshToken(currentChoreoToken.refreshToken);
