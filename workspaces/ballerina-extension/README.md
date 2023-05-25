@@ -10,19 +10,27 @@ The VS Code extension allows you to design and develop your Balelrina program us
 
 The [Architecture View](https://wso2.com/ballerina/vscode/docs/visual-programming/architecture-view/architecture-diagram/) offers a high-level overview of Ballerina projects based solely on the source code to understand the components of the project and how they interact. 
 
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/architecture-view.png?raw=true" width="100%" />
+
 ### Service designing
 
 The Ballerina VS Code extension enables the intuitive creation of Ballerina services ([HTTP](https://wso2.com/ballerina/vscode/docs/visual-programming/http-api-designer/) and [GraphQL](https://wso2.com/ballerina/vscode/docs/visual-programming/graphql-designer/)) without deep familiarity with syntax and configurations.
 
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/service-designing.png?raw=true" width="100%" />
+
 ### Sequence Diagram
 
 The [Sequence Diagram](https://wso2.com/ballerina/vscode/docs/visual-programming/sequence-diagram-view/) provides a graphical user interface that allows users to visualize and construct program logic by capturing the flow, concurrency, endpoints, and interactions within the code.
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/sequence-diagram.png?raw=true" width="100%" />
 
 ### Data Mapper
 
 The [visual data mapping feature](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/) facilitates effortless data mapping through an intuitive interface by simplifying complexity and enables users to concentrate on business logic.
 
 > Apart from the aforementioned visual programming features, the Ballerina VS Code extension enhances the Ballerina development experience by providing a comprehensive set of features including code editing, debugging, code execution, and code deployment.
+
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.png?raw=true" width="100%" />
 
 ## Quick start
 
