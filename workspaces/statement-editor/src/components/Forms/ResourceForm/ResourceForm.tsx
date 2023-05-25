@@ -251,7 +251,7 @@ export function ResourceForm(props: FunctionProps) {
 
     const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
     const handlePathChange = async (value: string) => {
-        const sanitizedValue = value;
+        const sanitizedValue = value.replace(/ /g, '');
         setResourcePath(sanitizedValue);
         // Path visiter to find the duplicate resource method and name
         setResourcePathDiagnostics(undefined);
