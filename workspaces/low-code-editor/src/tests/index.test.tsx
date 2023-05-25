@@ -12,9 +12,10 @@
 */
 import * as React from "react";
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { expect } from "@jest/globals";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
-import { ModulePart, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
+import { ModulePart, ResourceAccessorDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import 'jest-canvas-mock';
 import path from "path";
 
@@ -37,12 +38,12 @@ beforeAll(async () => {
     expect(st.parseSuccess).toBeTruthy();
     expect(st.syntaxTree).toBeDefined();
     completeST = st.syntaxTree as ModulePart;
-});
-
-test('Test simple service', async () => {
     serviceDecl = completeST.members[0] as ServiceDeclaration;
     expect(serviceDecl).toBeDefined();
     expect(serviceDecl.absoluteResourcePath.length).toBe(1);
+});
+
+test('Test simple service', async () => {
     const currentFileContent = await getFileContent(filePath);
     render(
         <TestProvider
@@ -56,7 +57,23 @@ test('Test simple service', async () => {
             <ServiceDesignOverlay model={serviceDecl} onCancel={undefined} />
         </TestProvider>
     );
-    fireEvent.click(screen.getByText("Resource"));
+
+    const resourceAccessorDefinition = serviceDecl.members[0] as ResourceAccessorDefinition;
+    const resourceHeader = screen.getByTestId("resource-header-0");
+
+    const resourceType = within(resourceHeader).getByTestId("resource-type-0");
+    expect(resourceType).toBeDefined();
+    const functionName = resourceAccessorDefinition.functionName.value;
+    expect(within(resourceType).getByText(functionName.toUpperCase())).toBeDefined();
+
+    const resourceQueryParams = screen.getByTestId("resource-query-params-0");
+    expect(resourceQueryParams).toBeDefined();
+    const resourcePath = resourceAccessorDefinition.relativeResourcePath.map(p => p.value).join("");
+    expect(within(resourceQueryParams).getByText(resourcePath)).toBeDefined();
+
+    fireEvent.click(within(resourceHeader).getByTestId("resource-expand-button-0"));
+    const serviceMember = within(resourceHeader).getByTestId("service-member-0");
+    expect(serviceMember).toBeDefined();
 });
 
 

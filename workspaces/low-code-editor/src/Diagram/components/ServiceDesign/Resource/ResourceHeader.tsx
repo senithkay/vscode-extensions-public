@@ -29,6 +29,7 @@ import "../style.scss";
 import { ResourceQueryParams } from "./ResourceQueryParams";
 
 interface ResourceHeaderProps {
+    id: number;
     model: ResourceAccessorDefinition;
     onExpandClick: () => void;
     isExpanded: boolean;
@@ -37,7 +38,7 @@ interface ResourceHeaderProps {
 }
 
 export function ResourceHeader(props: ResourceHeaderProps) {
-    const { model, onExpandClick, isExpanded, onEdit, onDelete } = props;
+    const { id, model, onExpandClick, isExpanded, onEdit, onDelete } = props;
     const { history } = useHistoryContext();
     const { api: { navigation: { updateSelectedComponent } } } = useDiagramContext();
 
@@ -55,11 +56,12 @@ export function ResourceHeader(props: ResourceHeaderProps) {
         <div
             className={classNames("function-signature", model.functionName.value)}
             onClick={onExpandClick}
+            data-testid={`resource-header-${id}`}
         >
-            <div className={classNames("resource-badge", model.functionName.value)}>
+            <div className={classNames("resource-badge", model.functionName.value)} data-testid={`resource-type-${id}`}>
                 <p className={"text"}><b> {model.functionName.value.toUpperCase()} </b></p>
             </div>
-            <div className="param-wrapper">
+            <div className="param-wrapper" data-testid={`resource-query-params-${id}`}>
                 <ResourceQueryParams
                     parameters={model.functionSignature.parameters}
                     relativeResourcePath={model.relativeResourcePath}
@@ -68,14 +70,14 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             <Tooltip title="Low-Code view" placement="right" enterDelay={1000} enterNextDelay={1000}>
                 <div className="menu-option" onClick={handleResourceHeaderClick}>
                     <div className={classNames("icon", "icon-adjust")}>
-                        <DesignViewIcon />
+                        <DesignViewIcon data-testid={`design-view-icon-${id}`}/>
                     </div>
                 </div>
             </Tooltip>
             <Tooltip title="Edit resource" placement="right" enterDelay={1000} enterNextDelay={1000}>
                 <div className="menu-option" onClick={onEdit}>
                     <div className={classNames("icon", "icon-adjust")}>
-                        <LabelEditIcon />
+                        <LabelEditIcon data-testid={`resource-edit-icon-${id}`}/>
                     </div>
                 </div>
             </Tooltip>
@@ -86,13 +88,14 @@ export function ResourceHeader(props: ResourceHeaderProps) {
                     id="delete-button"
                 >
                     <div className={classNames("icon", "icon-adjust")}>
-                        <LabelDeleteIcon />
+                        <LabelDeleteIcon data-testid={`resource-delete-icon-${id}`}/>
                     </div>
                 </div>
             </Tooltip>
             <ComponentExpandButton
                 isExpanded={isExpanded}
                 onClick={onExpandClick}
+                data-testid={`resource-expand-button-${id}`}
             />
         </div >
     );

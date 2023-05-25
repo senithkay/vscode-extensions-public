@@ -67,12 +67,13 @@ export function ServiceDesign(props: ServiceDesignProps) {
 
     useEffect(() => {
         const cc: JSX.Element[] = [];
-        serviceST?.members.forEach((member) => {
+        serviceST?.members.forEach((member, index) => {
             if (STKindChecker.isResourceAccessorDefinition(member)) {
                 const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
                 cc.push(
                     <div className={'service-member'} data-start-position={startPosition} >
                         <ResourceBody
+                            id={index}
                             handleDiagramEdit={handleDiagramEdit}
                             model={member as ResourceAccessorDefinition}
                             isExpandedAll={isAllExpanded}

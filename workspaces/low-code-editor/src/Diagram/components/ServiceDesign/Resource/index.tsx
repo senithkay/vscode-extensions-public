@@ -34,13 +34,14 @@ import { getKeywordTypes, HTTP_POST } from "../util";
 import { ResourceHeader } from "./ResourceHeader";
 
 export interface ResourceBodyProps {
+    id: number;
     model: ResourceAccessorDefinition;
     handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
     isExpandedAll: boolean;
 }
 
 export function ResourceBody(props: ResourceBodyProps) {
-    const { model, handleDiagramEdit, isExpandedAll } = props;
+    const { id, model, handleDiagramEdit, isExpandedAll } = props;
     const {
         props: { currentFile, fullST },
         api: {
@@ -404,7 +405,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const body = (
         <>
             {model.metadata && metaData}
-            <div className="service-member">
+            <div className={`service-member-${id}`}>
                 {paramArgs.length > 0 && args}
 
                 {bodyArgs.length > 0 && bodyAr}
@@ -435,7 +436,7 @@ export function ResourceBody(props: ResourceBodyProps) {
             onClick={handleGoToSource}
         >
             <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
-                <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
+                <ResourceHeader id={id} isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
                 {isExpanded && body}
             </div>
         </CtrlClickWrapper>
