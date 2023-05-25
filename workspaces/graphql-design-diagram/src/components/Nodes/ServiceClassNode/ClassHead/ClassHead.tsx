@@ -14,7 +14,6 @@
 import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
-import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { CtrlClickHandler } from "../../../CtrlClickHandler";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
@@ -28,12 +27,10 @@ import { ClassHeaderMenu } from "./ClassHeaderMenu";
 interface ServiceClassHeadProps {
     engine: DiagramEngine;
     node: ServiceClassNodeModel;
-    parentModel: STNode;
-    st: STNode;
 }
 
 export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
-    const { engine, node, parentModel, st } = props;
+    const { engine, node} = props;
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.classObject.serviceName;
@@ -55,7 +52,7 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
                     engine={engine}
                 />
                 <HeaderName>{displayName}</HeaderName>
-                <ClassHeaderMenu location={node.classObject.position} parentModel={parentModel} st={st} />
+                <ClassHeaderMenu location={node.classObject.position}/>
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}
