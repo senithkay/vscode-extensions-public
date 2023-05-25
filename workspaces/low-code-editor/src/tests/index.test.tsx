@@ -23,7 +23,7 @@ import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay
 import { TestProvider } from "./TestContext";
 import { createLangClient, getFileContent, getSyntaxTree } from "./utils/ls-utils";
 
-const BAL_FILE_NAME = "test.bal";
+const BAL_FILE_NAME = "service.bal";
 
 let langClient: BalleriaLanguageClient;
 let completeST: ModulePart;
@@ -32,7 +32,7 @@ let filePath: string;
 
 beforeAll(async () => {
     langClient = await createLangClient();
-    filePath = path.resolve(__dirname, "resources", BAL_FILE_NAME);
+    filePath = path.resolve(__dirname, "bal-project", BAL_FILE_NAME);
     const st = await getSyntaxTree(langClient, filePath);
     expect(st.parseSuccess).toBeTruthy();
     expect(st.syntaxTree).toBeDefined();
