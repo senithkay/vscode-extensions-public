@@ -23,45 +23,34 @@ import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay
 import { TestProvider } from "./TestContext";
 import { createLangClient, getFileContent, getSyntaxTree } from "./utils/ls-utils";
 
+const BAL_FILE_NAME = "test.bal";
+
 let langClient: BalleriaLanguageClient;
+let completeST: ModulePart;
+let serviceDecl: ServiceDeclaration;
+let filePath: string;
 
 beforeAll(async () => {
     langClient = await createLangClient();
-}, 20000);
-
-test('Test Lang Server wiring', async () => {
-    const balFile = path.resolve(__dirname, "resources", "test.bal");
-    const st = await getSyntaxTree(langClient, balFile);
+    filePath = path.resolve(__dirname, "resources", BAL_FILE_NAME);
+    const st = await getSyntaxTree(langClient, filePath);
     expect(st.parseSuccess).toBeTruthy();
     expect(st.syntaxTree).toBeDefined();
-    const syntaxTree = st.syntaxTree as ModulePart;
-    const serviceDecl = syntaxTree.members[0] as ServiceDeclaration;
-    expect(serviceDecl).toBeDefined();
-    expect(serviceDecl.absoluteResourcePath.length).toBe(1);
+    completeST = st.syntaxTree as ModulePart;
 });
 
-// test('Test adding new resource', async () => {
-//     render(<ServiceDesignOverlay model={undefined} onCancel={undefined} />);
-//     fireEvent.click(screen.getByText("Resource"));
-// });
-
-test('Test adding new resource', async () => {
-    const balFile = path.resolve(__dirname, "resources", "test.bal");
-    const st = await getSyntaxTree(langClient, balFile);
-    const currentFileContent = await getFileContent(balFile);
-    expect(st.parseSuccess).toBeTruthy();
-    expect(st.syntaxTree).toBeDefined();
-    const syntaxTree = st.syntaxTree as ModulePart;
-    const serviceDecl = syntaxTree.members[0] as ServiceDeclaration;
+test('Test simple service', async () => {
+    serviceDecl = completeST.members[0] as ServiceDeclaration;
     expect(serviceDecl).toBeDefined();
     expect(serviceDecl.absoluteResourcePath.length).toBe(1);
+    const currentFileContent = await getFileContent(filePath);
     render(
         <TestProvider
-            completeST={st.syntaxTree}
+            completeST={completeST}
             focusedST={serviceDecl}
             currentFileContent={currentFileContent}
-            fileName={"test.bal"}
-            fileUri={balFile}
+            fileName={BAL_FILE_NAME}
+            fileUri={filePath}
             langClient={langClient}
         >
             <ServiceDesignOverlay model={serviceDecl} onCancel={undefined} />
