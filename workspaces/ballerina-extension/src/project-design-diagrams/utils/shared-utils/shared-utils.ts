@@ -18,15 +18,16 @@
  */
 
 import { commands, Position, Range, Selection, TextEditorRevealType, Uri, window, workspace, WorkspaceEdit } from "vscode";
-import { existsSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import toml from "toml";
 import _ from "lodash";
 import { Project } from "@wso2-enterprise/choreo-core";
-import { ComponentModel, CMLocation as Location, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { ComponentModel, CMLocation as Location, GetComponentModelResponse, CMService as Service } from "@wso2-enterprise/ballerina-languageclient";
 import { STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ExtendedLangClient } from "../../../core";
 import { STResponse, terminateActivation } from "../../activator";
-import { ERROR_MESSAGE } from "../../resources";
+import { ERROR_MESSAGE, TomlPackageData } from "../../resources";
 import { getChoreoExtAPI } from "../../../choreo-features/activate";
 import { deleteBallerinaPackage, deleteComponentOnly } from "../component-utils";
 
@@ -64,6 +65,10 @@ export function getComponentModel(langClient: ExtendedLangClient, isChoreoProjec
                 }
             }
 
+            if (packageModels.size < ballerinaFiles.length) {
+                addMissingPackageData(ballerinaFiles, response);
+            }
+
             const choreoExt = await getChoreoExtAPI();
             if (packageModels.size && choreoExt && isChoreoProject) {
                 packageModels = await choreoExt.enrichChoreoMetadata(packageModels);
@@ -97,6 +102,43 @@ export async function showChoreoProjectOverview(project: Project | undefined): P
         return commands.executeCommand('wso2.choreo.project.overview', project);
     }
     window.showErrorMessage('Error while loading Choreo project overview.');
+}
+
+function addMissingPackageData(tomlFiles: string[], retrievedModel: GetComponentModelResponse): GetComponentModelResponse {
+    let workspacePkgs: Map<string, TomlPackageData> = new Map();
+    tomlFiles.forEach((pkgToml) => {
+        const pkgData: TomlPackageData = toml.parse(readFileSync(pkgToml, 'utf-8')).package;
+        workspacePkgs.set(`${pkgData.org}/${pkgData.name}:${pkgData.version}`, pkgData);
+    });
+
+    let retrievedPkgs: string[] = Array.from(new Map(Object.entries(retrievedModel.componentModels)).keys());
+    const missingPkgs = _.difference(Array.from(workspacePkgs.keys()), retrievedPkgs);
+
+    missingPkgs.forEach((pkgId) => {
+        const pkg: TomlPackageData = workspacePkgs.get(pkgId);
+        const pkgServices: { [key: string]: Service } = {};
+        pkgServices[pkgId] = {
+            serviceId: pkgId,
+            serviceType: undefined,
+            annotation: {
+                id: pkgId,
+                label: pkg.name
+            },
+            path: "",
+            dependencies: [],
+            remoteFunctions: [],
+            resources: [],
+            isNoData: true
+        };
+        retrievedModel.componentModels[pkgId] = {
+            packageId: pkg,
+            hasCompilationErrors: true,
+            services: pkgServices as any,
+            entities: new Map()
+        };
+    });
+
+    return retrievedModel;
 }
 
 export async function deleteProjectComponent(projectId: string, location: Location, deletePkg: boolean): Promise<void> {

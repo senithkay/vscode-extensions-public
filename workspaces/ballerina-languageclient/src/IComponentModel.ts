@@ -29,7 +29,7 @@ export interface CMLocation {
 }
 
 interface CMNode {
-    elementLocation: CMLocation;
+    elementLocation?: CMLocation;
     diagnostics?: CMDiagnostics[];
 }
 
@@ -50,10 +50,10 @@ export interface CMService extends CMNode {
     path: string;
     serviceId: string;
     dependencies: CMDependency[];
-    deploymentMetadata: CMDeploymentMetadata;
     remoteFunctions: CMRemoteFunction[];
     resources: CMResourceFunction[];
     serviceType: string;
+    deploymentMetadata?: CMDeploymentMetadata;
     isNoData?: boolean;
 }
 
