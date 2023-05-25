@@ -16,7 +16,7 @@ The [Architecture View](https://wso2.com/ballerina/vscode/docs/visual-programmin
 
 The Ballerina VS Code extension enables the intuitive creation of Ballerina services ([HTTP](https://wso2.com/ballerina/vscode/docs/visual-programming/http-api-designer/) and [GraphQL](https://wso2.com/ballerina/vscode/docs/visual-programming/graphql-designer/)) without deep familiarity with syntax and configurations.
 
-<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/service-designing.png?raw=true" width="100%" />
+<img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/service-designer.png?raw=true" width="100%" />
 
 ### Sequence Diagram
 
