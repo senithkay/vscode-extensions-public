@@ -19,7 +19,7 @@
 
 import {
     workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
-    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env
+    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -27,8 +27,9 @@ import {
     OLD_PLUGIN_INSTALLED,
     COOKIE_SETTINGS
 } from "./messages";
-import { join, sep } from 'path';
+import { basename, dirname, join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
+import { existsSync } from "fs";
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
@@ -597,8 +598,15 @@ export class BallerinaExtension {
         this.documentContext.setActiveDiagram(value);
     }
 
-    public setPersistModelActiveContext(value: boolean) {
-        commands.executeCommand('setContext', 'isPersistModelActive', value);
+    public setPersistStatusContext(textEditor: TextEditor) {
+        if (textEditor.document) {
+            const filePath: string = textEditor.document.uri.fsPath;
+            if (basename(dirname(filePath)) === 'persist' && existsSync(join(dirname(dirname(filePath)), 'Ballerina.toml'))) {
+                commands.executeCommand('setContext', 'isPersistModelActive', true);
+                return;
+            }
+        }
+        commands.executeCommand('setContext', 'isPersistModelActive', false);
     }
 
     public setChoreoAuthEnabled(value: boolean) {

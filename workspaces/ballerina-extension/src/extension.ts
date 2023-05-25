@@ -17,7 +17,7 @@
  *
  */
 
-import { ExtensionContext, commands, window, Location, Uri, TextEditor } from 'vscode';
+import { ExtensionContext, commands, window, Location, Uri } from 'vscode';
 import { ballerinaExtInstance, BallerinaExtension } from './core';
 import { activate as activateDiagram } from './diagram';
 import { activate as activateBBE } from './bbe';
@@ -40,8 +40,6 @@ import { activate as activateERDiagram } from './entity-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, log } from './utils';
 import { activateChoreoFeatures } from './choreo-features/activate';
-import { basename, dirname, join } from 'path';
-import { existsSync } from 'fs';
 
 let langClient: ExtendedLangClient;
 export let isPluginStartup = true;
@@ -90,14 +88,6 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
     sendTelemetryEvent(ballerinaExtInstance, TM_EVENT_EXTENSION_ACTIVATE, CMP_EXTENSION_CORE);
     ballerinaExtInstance.setContext(context);
     await ballerinaExtInstance.init(onBeforeInit).then(() => {
-        if (window.activeTextEditor) {
-            const filePath: string = window.activeTextEditor.document.uri.fsPath;
-            if (basename(dirname(filePath)) === 'persist' && existsSync(join(dirname(dirname(filePath)), 'Ballerina.toml'))) {
-                ballerinaExtInstance.setPersistModelActiveContext(true);
-            } else {
-                ballerinaExtInstance.setPersistModelActiveContext(false);
-            }
-        }
         // start the features.
         // Enable package overview
         activatePackageOverview(ballerinaExtInstance);
@@ -124,15 +114,6 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
         // Enable Choreo Related Features
         activateChoreoFeatures(ballerinaExtInstance);
         activateERDiagram(ballerinaExtInstance);
-
-        window.onDidChangeActiveTextEditor((textEditor: TextEditor) => {
-            const filePath: string = textEditor.document.uri.fsPath;
-            if (basename(dirname(filePath)) === 'persist' && existsSync(join(dirname(dirname(filePath)), 'Ballerina.toml'))) {
-                ballerinaExtInstance.setPersistModelActiveContext(true);
-            } else {
-                ballerinaExtInstance.setPersistModelActiveContext(false);
-            }
-        });
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener

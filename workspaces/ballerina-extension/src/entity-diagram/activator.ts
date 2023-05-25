@@ -17,7 +17,7 @@
  *
  */
 
-import { ViewColumn, WebviewPanel, commands, window } from "vscode";
+import { TextEditor, ViewColumn, WebviewPanel, commands, window } from "vscode";
 import { GetPersistERModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
@@ -45,6 +45,14 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
         }
     });
     ballerinaExtInstance.context.subscriptions.push(designDiagramRenderer);
+
+    if (window.activeTextEditor) {
+        ballerinaExtInstance.setPersistStatusContext(window.activeTextEditor);
+    }
+
+    window.onDidChangeActiveTextEditor((textEditor: TextEditor) => {
+        ballerinaExtInstance.setPersistStatusContext(textEditor);
+    });
 }
 
 function showERDiagram(langClient: ExtendedLangClient) {
