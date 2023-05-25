@@ -1,0 +1,50 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the 'License'); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
+
+import styled from '@emotion/styled';
+import { Colors, Level } from '../../../resources';
+
+interface StyleProps {
+    awaitLinking: boolean;
+    isSelected: boolean;
+    level: Level;
+}
+
+export const Container: React.FC<any> = styled.div`
+    align-items: center;
+    background-color: ${(props: StyleProps) => props.level === Level.ONE ? '#FFFFFF' : props.isSelected ?
+        Colors.SECONDARY_SELECTED : '#FFFFFF'};
+    border: ${(props: StyleProps) => props.awaitLinking ? `2px solid green` : `1px solid ${props.isSelected ?
+        Colors.PRIMARY_SELECTED : Colors.PRIMARY_LIGHT}`};
+    border-radius: 5px;
+    color: ${Colors.DEFAULT_TEXT};
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
+    font-size: 13px;
+    justify-content: center;
+    line-height: 24px;
+    min-height: 40px;
+    padding-inline: 16px;
+`;
+
+export const DisplayName = styled.span`
+    margin-left: 12px;
+`;

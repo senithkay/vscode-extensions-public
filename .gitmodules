@@ -1,3 +1,3 @@
-[submodule "grammar/ballerina-grammar"]
-	path = grammar/ballerina-grammar
+[submodule "workspaces/ballerina-extension/grammar/ballerina-grammar"]
+	path = workspaces/ballerina-extension/grammar/ballerina-grammar
 	url = https://github.com/ballerina-platform/ballerina-grammar.git

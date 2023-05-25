@@ -1,0 +1,55 @@
+[
+  {
+    "name": "customer_dev_db",
+    "uuid": "ad85c990-6552-44a0-81c0-033b380dab7a",
+    "configurationData": [
+      {
+        "configKey": "config.host",
+        "valueType": "string",
+        "valueRef": "/azure-kv/host"
+      },
+      {
+        "configKey": "config.host2",
+        "valueType": "string",
+        "valueRef": "/azure-kv/host2"
+      },
+      {
+        "configKey": "config.host3",
+        "valueType": "int",
+        "valueRef": "/azure-kv/host3"
+      }
+    ]
+  },
+  {
+    "name": "customer_dev_db2",
+    "uuid": "ad85c990-6552-44a0-81c0-033b380dab72",
+    "configurationData": [
+      {
+        "configKey": "config.host4",
+        "valueType": "string",
+        "valueRef": "/azure-kv/host4"
+      },
+      {
+        "configKey": "config.host5",
+        "valueType": "float",
+        "valueRef": "/azure-kv/host5"
+      },
+      {
+        "configKey": "config.host6",
+        "valueType": "string",
+        "valueRef": "/azure-kv/host6"
+      }
+    ]
+  },
+  {
+    "name": "customer_dev_db3",
+    "uuid": "ad85c990-6552-44a0-81c0-033b380dab73",
+    "configurationData": [
+      {
+        "configKey": "config.host7",
+        "valueType": "string",
+        "valueRef": "/azure-kv/host7"
+      }
+    ]
+  }
+]

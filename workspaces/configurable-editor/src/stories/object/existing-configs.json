@@ -1,0 +1,24 @@
+{
+    "user": {
+        "test": {
+            "people": {"value": {
+                "student1": {
+                    "name": "Jill",
+                    "age": 23
+                },
+                "student2": {
+                    "name": "Kyle",
+                    "age": 27
+                }
+            }, "valueReference":""},
+            "users": {"value": {
+                "America": "89",
+                "England": "55"
+            }, "valueReference":""},
+            "student": {"value": {
+                "name": "Jane",
+                "age": 27
+            }, "valueReference":""}
+        }
+    }
+}

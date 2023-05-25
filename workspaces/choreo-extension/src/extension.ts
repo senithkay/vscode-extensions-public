@@ -1,0 +1,244 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+ * 
+ *  This software is the property of WSO2 LLC. and its suppliers, if any.
+ *  Dissemination of any information or reproduction of any material contained
+ *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
+ *  the WSO2 Commercial License available at http://wso2.com/licenses.
+ *  For specific language governing the permissions and limitations under
+ *  this license, please see the license as well as any agreement you’ve
+ *  entered into with WSO2 governing the purchase of this software and any
+ *  associated services.
+ */
+
+import * as vscode from 'vscode';
+import { ThemeIcon, window, extensions, ProgressLocation, workspace, ConfigurationChangeEvent, commands } from 'vscode';
+
+import { activateAuth } from './auth';
+import { CHOREO_AUTH_ERROR_PREFIX, exchangeOrgAccessTokens, githubAppClient } from './auth/auth';
+import { ChoreoExtensionApi } from './ChoreoExtensionApi';
+import { cloneProject, cloneRepoToCurrentProjectWorkspace } from './cmds/clone';
+import {
+	choreoAccountTreeId,
+	choreoProjectsTreeId,
+	cloneAllComponentsCmdId,
+	cloneRepoToCurrentProjectWorkspaceCmdId,
+	refreshProjectsTreeViewCmdId,
+	setSelectedOrgCmdId,
+	STATUS_LOGGED_IN
+} from './constants';
+import { ext } from './extensionVariables';
+import { GitExtension } from './git';
+import { activateRegistry } from './registry/activate';
+import { activateStatusBarItem } from './status-bar';
+import { activateURIHandlers } from './uri-handlers';
+import { AccountTreeProvider } from './views/account/AccountTreeProvider';
+import { ChoreoOrgTreeItem } from './views/account/ChoreoOrganizationTreeItem';
+import { ProjectsTreeProvider } from './views/project-tree/ProjectTreeProvider';
+
+import { activateWizards } from './wizards/activate';
+
+import { getLogger, initLogger } from "./logger/logger";
+import { choreoSignInCmdId } from './constants';
+import { activateTelemetry } from './telemetry/telemetry';
+import { sendProjectTelemetryEvent, sendTelemetryEvent } from './telemetry/utils';
+import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT, REFRESH_PROJECTS_EVENT, SWITCH_ORGANIZATION_EVENT } from '@wso2-enterprise/choreo-core';
+
+export function activateBallerinaExtension() {
+	const ext = extensions.getExtension("wso2.ballerina");
+	if (ext && !ext.isActive) {
+		ext.activate();
+	}
+}
+
+export async function activate(context: vscode.ExtensionContext) {
+	activateTelemetry(context);
+	await initLogger(context);
+  	getLogger().debug("Activating Choreo Extension");
+	ext.isPluginStartup = true;
+	ext.context = context;
+	ext.api = new ChoreoExtensionApi();
+	ext.projectsTreeView = createProjectTreeView();
+	ext.accountTreeView = createAccountTreeView();
+	setupEvents();
+	activateWizards();
+	await activateAuth();
+	ext.isPluginStartup = false;
+	activateBallerinaExtension();
+	activateURIHandlers();
+	showChoreoProjectOverview();
+	activateStatusBarItem();
+	activateRegistry();
+	setupGithubAuthStatusCheck();
+	getLogger().debug("Choreo Extension activated");
+	registerPreInitHandlers();
+	return ext.api;
+}
+
+function setupGithubAuthStatusCheck() {
+	ext.api.onStatusChanged(() => {
+		githubAppClient.checkAuthStatus();
+	});
+}
+
+let isChoreoProjectBeingOpened: boolean = false;
+
+export async function showChoreoProjectOverview() {
+	getLogger().debug("Show Choreo Project Overview if a Choreo project is opened.");
+	const isChoreoProject = await ext.api.isChoreoProject();
+	if (isChoreoProject) {
+		if (isChoreoProjectBeingOpened) {
+			getLogger().debug("Choreo project is already being opened. Ignoring Choreo Project Overview.");
+			return;
+		}	
+		sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT);
+		isChoreoProjectBeingOpened = true;
+		getLogger().debug("Choreo project is opened. Showing Choreo Project Overview.");
+		await window.withProgress({
+            title: `Opening Choreo Project Workspace.`,
+            location: ProgressLocation.Notification,
+            cancellable: true
+        }, async (_progress, cancellationToken) => {
+            let cancelled: boolean = false;
+
+            cancellationToken.onCancellationRequested(async () => {
+				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT);
+				getLogger().debug("Choreo Project Overview loading cancelled.");
+                cancelled = true;
+            });
+			// execute choreo project overview cmd
+			try {
+				getLogger().debug("Loading Choreo Project Metadata.	");
+				// first sign in to Choreo
+				const isLoggedIn = await ext.api.waitForLogin();
+				if (!isLoggedIn) {
+					//TODO: Prompt to sign in as the opened Choreo project is not accessible
+					getLogger().debug("Choreo Project Overview loading cancelled as the user is not logged in.");
+					window.showInformationMessage("Current workspace is a Choreo project. Please sign in to Choreo to view the project overview.", "Sign In").then((selection) => {
+						if (selection === "Sign In") {
+							vscode.commands.executeCommand(choreoSignInCmdId);
+						}
+					});
+					return;
+				}
+				// TODO: Check if the Choreo project is accessible by the logged in user using the access token
+				// for current organization, prompt and change the organization if needed
+				if (cancelled) {
+					return;
+				}
+				const project = await ext.api.getChoreoProject();
+				if (cancelled) {
+					return;
+				}
+				getLogger().debug("Choreo Project Metadata loaded. Opening Choreo Project Overview.");
+				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT);
+				if (project) {
+					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
+				}
+			} catch (error: any) {
+				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, { cause: error?.message })
+				getLogger().error("Error while loading Choreo project overview. " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
+			}
+		});
+		isChoreoProjectBeingOpened = false;	
+	}
+}
+
+
+export function getGitExtensionAPI() {
+	getLogger().debug("Getting Git Extension API");
+	const gitExtension = vscode.extensions.getExtension<GitExtension>('vscode.git')!.exports;
+	return gitExtension.getAPI(1);
+}
+
+
+function createProjectTreeView() {
+	getLogger().debug("Creating Choreo Projects Tree View");
+	const choreoResourcesProvider = new ProjectsTreeProvider();
+	ext.projectsTreeProvider = choreoResourcesProvider;
+
+	vscode.commands.registerCommand(refreshProjectsTreeViewCmdId, () => {
+		sendTelemetryEvent(REFRESH_PROJECTS_EVENT);
+		choreoResourcesProvider.refresh();
+	});
+
+	vscode.commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
+	vscode.commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);
+
+	const treeView = window.createTreeView(choreoProjectsTreeId, {
+		treeDataProvider: choreoResourcesProvider, showCollapseAll: true
+	});
+
+	ext.context.subscriptions.push(ext.api.onOrganizationChanged((newOrg) => {
+		treeView.description = newOrg?.name;
+	}));
+
+	return treeView;
+}
+
+
+function createAccountTreeView() {
+	getLogger().debug("Creating Choreo Account Tree View");
+	const accountTreeProvider = new AccountTreeProvider();
+	vscode.commands.registerCommand(setSelectedOrgCmdId, async (treeItem) => {
+		sendTelemetryEvent(SWITCH_ORGANIZATION_EVENT, { org: treeItem.org.name })
+		getLogger().debug("Setting selected organization to " + treeItem.org.name);
+		if (treeItem instanceof ChoreoOrgTreeItem) {
+			treeItem.iconPath = new ThemeIcon('loading~spin');
+			accountTreeProvider.refresh(treeItem);
+			try {
+				getLogger().debug("Exchanging access tokens for the organization " + treeItem.org.name);
+				await exchangeOrgAccessTokens(treeItem.org.handle);
+			} catch (error: any) {
+				getLogger().error("Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
+			}
+			ext.api.selectedOrg = treeItem.org;
+		}
+	});
+
+	const treeView = window.createTreeView(choreoAccountTreeId, {
+		treeDataProvider: accountTreeProvider, showCollapseAll: false
+	});
+
+	ext.context.subscriptions.push(ext.api.onStatusChanged((newStatus) => {
+		getLogger().debug("Updating Choreo Account Tree View description based on the new status " + newStatus);
+		let description = '';
+		if (newStatus === STATUS_LOGGED_IN && ext.api.userInfo) {
+			description = ext.api.userInfo?.displayName;
+		}
+		treeView.description = description;
+	}));
+
+	return treeView;
+}
+
+function setupEvents() {
+	const subscription: vscode.Disposable = ext.api.onStatusChanged(async (newStatus) => {
+		vscode.commands.executeCommand("setContext", "choreoLoginStatus", newStatus);
+	});
+	ext.context.subscriptions.push(subscription);
+}
+
+function registerPreInitHandlers(): any {
+	const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
+	// We need to restart VSCode if we change plugin configurations.
+	workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
+		if (params.affectsConfiguration("Advanced.ChoreoEnviornment")) {
+			showMsgAndRestart(CONFIG_CHANGED);
+		}
+	});
+}
+
+function showMsgAndRestart(msg: string): void {
+	const action = 'Restart Now';
+	window.showInformationMessage(msg, action).then((selection) => {
+		if (action === selection) {
+			commands.executeCommand('workbench.action.reloadWindow');
+		}
+	});
+}
+
+
+export function deactivate() { }
