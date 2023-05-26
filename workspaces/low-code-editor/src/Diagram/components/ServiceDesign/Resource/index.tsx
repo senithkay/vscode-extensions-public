@@ -10,11 +10,11 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js, jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
 import { monaco } from "react-monaco-editor";
 
-import { Tooltip } from "@material-ui/core";
+import { CircularProgress, Tooltip } from "@material-ui/core";
 import {
     BallerinaSTModifyResponse, CompletionResponse, ConfigOverlayFormStatus, CtrlClickWrapper, DiagramEditorLangClientInterface,
     LabelEditIcon, responseCodes, STModification
@@ -60,9 +60,13 @@ export function ResourceBody(props: ResourceBodyProps) {
     const [types, setTypes] = useState([]);
     const [paramArgs, setParamArgs] = useState([]);
     const [payloadSchema, setPayloadSchema] = useState([]);
+    const [fetchingKeywordTypes, setFetchingKeywordTypes] = useState(false);
+    const [fetchingResponseArgs, setFetchingResponseArgs] = useState(false);
+    const [isLoading, setIsLoading] = useState(fetchingKeywordTypes || fetchingResponseArgs);
 
     useEffect(() => {
-        getKeywordTypes(currentFile.path, getExpressionEditorLangClient).then(setTypes);
+        setFetchingKeywordTypes(true);
+        getKeywordTypes(currentFile.path, getExpressionEditorLangClient).then(setTypes).then(() => setFetchingKeywordTypes(false));
     }, []);
 
     useEffect(() => {
@@ -71,14 +75,16 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     useEffect(() => {
         if (types.length > 0) {
-            renderResponses(types).then(setResponseArgs);
+            setFetchingResponseArgs(true);
+            renderResponses(types).then(setResponseArgs).then(() => setFetchingResponseArgs(false));
         }
         renderParameters().then(setParamArgs);
     }, [schema, schemaParam]);
 
     useEffect(() => {
         if (types.length > 0) {
-            renderResponses(types).then(setResponseArgs);
+            setFetchingResponseArgs(true);
+            renderResponses(types).then(setResponseArgs).then(() => setFetchingResponseArgs(false));
         }
     }, [types]);
 
@@ -86,10 +92,15 @@ export function ResourceBody(props: ResourceBodyProps) {
         setSchema({});
         setSchemaParam({});
         if (types.length > 0) {
-            renderResponses(types).then(setResponseArgs);
+            setFetchingResponseArgs(true);
+            renderResponses(types).then(setResponseArgs).then(() => setFetchingResponseArgs(false));
         }
         renderParameters().then(setParamArgs);
     }, [model]);
+
+    useEffect(() => {
+        setIsLoading(fetchingKeywordTypes || fetchingResponseArgs);
+    }, [fetchingKeywordTypes, fetchingResponseArgs]);
 
     const handleIsExpand = () => {
         setIsExpanded(!isExpanded)
@@ -241,11 +252,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </pre>
                 );
                 responses.push(
-                    <tr key={i} className={classes.signature}>
-                        <td>
+                    <tr key={i} className={classes.signature} data-testid={`responses-row-${i}`}>
+                        <td data-testid={`response-code-${i}`}>
                             {code}
                         </td>
-                        <td>
+                        <td data-testid={`response-description-${i}`}>
                             {des}
                             <div>
                                 Record Schema :
@@ -278,11 +289,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </pre>
                 );
                 responses.push(
-                    <tr key={i} className={classes.signature}>
-                        <td>
+                    <tr key={i} className={classes.signature} data-testid={`responses-row-${i}`}>
+                        <td data-testid={`response-code-${i}`}>
                             {code}
                         </td>
-                        <td>
+                        <td data-testid={`response-description-${i}`}>
                             <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
                                 {recordName}
                             </span>
@@ -405,7 +416,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     const body = (
         <>
             {model.metadata && metaData}
-            <div className={`service-member-${id}`}>
+            <div className="service-member" data-testid={`service-member-${id}`}>
                 {paramArgs.length > 0 && args}
 
                 {bodyArgs.length > 0 && bodyAr}
@@ -436,8 +447,16 @@ export function ResourceBody(props: ResourceBodyProps) {
             onClick={handleGoToSource}
         >
             <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
-                <ResourceHeader id={id} isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
-                {isExpanded && body}
+                {isLoading ? (
+                    <div className={classNames("function-signature", model.functionName.value)} data-testid={"resource-loading"}>
+                        <CircularProgress size={18} className={classes.loader} />
+                    </div>
+                ) : (
+                    <>
+                        <ResourceHeader id={id} isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
+                        {isExpanded && body}
+                    </>
+                )}
             </div>
         </CtrlClickWrapper>
     );

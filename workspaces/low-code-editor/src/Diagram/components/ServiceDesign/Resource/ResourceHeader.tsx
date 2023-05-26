@@ -69,15 +69,15 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             </div>
             <Tooltip title="Low-Code view" placement="right" enterDelay={1000} enterNextDelay={1000}>
                 <div className="menu-option" onClick={handleResourceHeaderClick}>
-                    <div className={classNames("icon", "icon-adjust")}>
-                        <DesignViewIcon data-testid={`design-view-icon-${id}`}/>
+                    <div className={classNames("icon", "icon-adjust")} data-testid={`design-view-icon-${id}`}>
+                        <DesignViewIcon />
                     </div>
                 </div>
             </Tooltip>
             <Tooltip title="Edit resource" placement="right" enterDelay={1000} enterNextDelay={1000}>
                 <div className="menu-option" onClick={onEdit}>
-                    <div className={classNames("icon", "icon-adjust")}>
-                        <LabelEditIcon data-testid={`resource-edit-icon-${id}`}/>
+                    <div className={classNames("icon", "icon-adjust")} data-testid={`resource-edit-icon-${id}`}>
+                        <LabelEditIcon />
                     </div>
                 </div>
             </Tooltip>
@@ -87,16 +87,17 @@ export function ResourceHeader(props: ResourceHeaderProps) {
                     className={classNames("menu-option", "right")}
                     id="delete-button"
                 >
-                    <div className={classNames("icon", "icon-adjust")}>
-                        <LabelDeleteIcon data-testid={`resource-delete-icon-${id}`}/>
+                    <div className={classNames("icon", "icon-adjust")} data-testid={`resource-delete-icon-${id}`}>
+                        <LabelDeleteIcon />
                     </div>
                 </div>
             </Tooltip>
-            <ComponentExpandButton
-                isExpanded={isExpanded}
-                onClick={onExpandClick}
-                data-testid={`resource-expand-button-${id}`}
-            />
+            <div className="menu-option" data-testid={`resource-expand-button-${id}`}>
+                <ComponentExpandButton
+                    isExpanded={isExpanded}
+                    onClick={onExpandClick}
+                />
+            </div>
         </div >
     );
 }

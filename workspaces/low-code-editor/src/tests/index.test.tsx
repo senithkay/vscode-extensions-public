@@ -13,7 +13,7 @@
 import * as React from "react";
 
 import { expect } from "@jest/globals";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitForElementToBeRemoved, within } from "@testing-library/react";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ModulePart, ResourceAccessorDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import 'jest-canvas-mock';
@@ -58,6 +58,10 @@ test('Test simple service', async () => {
         </TestProvider>
     );
 
+    expect(screen.queryByTestId('resource-loading')).toBeDefined();
+
+    await waitForElementToBeRemoved(() => screen.getByTestId('resource-loading'));
+
     const resourceAccessorDefinition = serviceDecl.members[0] as ResourceAccessorDefinition;
     const resourceHeader = screen.getByTestId("resource-header-0");
 
@@ -72,8 +76,15 @@ test('Test simple service', async () => {
     expect(within(resourceQueryParams).getByText(resourcePath)).toBeDefined();
 
     fireEvent.click(within(resourceHeader).getByTestId("resource-expand-button-0"));
-    const serviceMember = within(resourceHeader).getByTestId("service-member-0");
+    const serviceMember = screen.getByTestId("service-member-0");
     expect(serviceMember).toBeDefined();
+
+    const response1 = within(serviceMember).getByTestId("responses-row-0");
+    expect(response1).toBeDefined();
+    const response1Code = within(response1).getByTestId("response-code-0");
+    expect(within(response1Code).getByText("200")).toBeDefined();
+    const responseDescription = within(response1).getByTestId("response-description-0");
+    expect(within(responseDescription).getByText("string")).toBeDefined();
 });
 
 
