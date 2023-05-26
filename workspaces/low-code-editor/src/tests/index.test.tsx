@@ -58,6 +58,12 @@ test('Test simple service', async () => {
         </TestProvider>
     );
 
+    const serviceContainer = screen.getByTestId("service-container");
+    const servicePath = within(serviceContainer).getByTestId("service-path");
+    expect(within(servicePath).getByText(`Service ${serviceDecl.absoluteResourcePath[0].value}`)).toBeDefined();
+    const listenerText = within(serviceContainer).getByTestId("listener-text");
+    expect(within(listenerText).getByText(`listening on ${serviceDecl.expressions[0].source.trim()}`)).toBeDefined();
+
     expect(screen.queryByTestId('resource-loading')).toBeDefined();
 
     await waitForElementToBeRemoved(() => screen.getByTestId('resource-loading'));
