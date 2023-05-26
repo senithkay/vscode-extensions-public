@@ -35,7 +35,7 @@ export const choreoAIConfig = new ChoreoAIConfig();
 
 export const tokenStore = new KeyChainTokenStorage();
 
-const ChoreoEnvironment = workspace.getConfiguration().get("Advanced.ChoreoEnviornment");
+const ChoreoEnvironment = workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
 let authConfig: ChoreoAuthConfigParams;
 
 switch (ChoreoEnvironment) {

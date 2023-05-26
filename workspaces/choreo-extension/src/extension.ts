@@ -225,7 +225,7 @@ function registerPreInitHandlers(): any {
 	const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
 	// We need to restart VSCode if we change plugin configurations.
 	workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-		if (params.affectsConfiguration("Advanced.ChoreoEnviornment")) {
+		if (params.affectsConfiguration("Advanced.ChoreoEnvironment")) {
 			showMsgAndRestart(CONFIG_CHANGED);
 		}
 	});

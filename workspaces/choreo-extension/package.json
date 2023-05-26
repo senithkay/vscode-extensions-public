@@ -172,7 +172,7 @@
           "order": 1,
           "scope": "window"
         },
-        "Advanced.ChoreoEnviornment": {
+        "Advanced.ChoreoEnvironment": {
           "type": "string",
           "enum": [
             "prod",
