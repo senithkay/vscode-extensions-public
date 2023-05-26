@@ -32,5 +32,7 @@ export enum TypeNature {
     YET_TO_SUPPORT,
     INVALID,
     NOT_FOUND,
+    TYPE_UNAVAILABLE,
+    PARAM_NAME_UNAVAILABLE,
     DUMMY
 }
