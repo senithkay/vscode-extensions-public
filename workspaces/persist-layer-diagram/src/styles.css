@@ -1,0 +1,10 @@
+.persist-diagram-container {
+    background-image: url('./resources/assets/PatternBg.svg');
+    background-repeat: repeat;
+    min-height: 100vh;
+    min-width: 100vw;
+}
+
+svg:not(:root) {
+    overflow: visible;
+}

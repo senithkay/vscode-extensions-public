@@ -1,0 +1,46 @@
+{
+  "name": "@wso2-enterprise/design-diagram-commons",
+  "version": "1.0.0",
+  "description": "A library that contains common components and styled elements used for the desgin diagrams.",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc --pretty && npm run copy:assets",
+    "copy:assets": "copyfiles -u 1 \"src/**/*.svg\"  \"src/**/*.css\" \"src/resources/assets/font/*.*\" lib/"
+  },
+  "keywords": [],
+  "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.10.5",
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.52",
+    "@mui/icons-material": "^5.10.3",
+    "@mui/material": "^5.10.3",
+    "@projectstorm/geometry": "^6.7.4",
+    "@projectstorm/react-canvas-core": "^6.7.4",
+    "@projectstorm/react-diagrams": "^6.7.4",
+    "@projectstorm/react-diagrams-core": "^6.7.4",
+    "@projectstorm/react-diagrams-defaults": "^6.7.4",
+    "@projectstorm/react-diagrams-routing": "^6.7.4",
+    "@types/node": "^18.11.19",
+    "closest": "^0.0.1",
+    "dagre": "^0.8.5",
+    "pathfinding": "^0.4.18",
+    "paths-js": "^0.4.11",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "resize-observer-polyfill": "^1.5.1",
+    "typescript": "^4.9.4"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "17.0.14",
+    "copyfiles": "^2.4.1"
+  },
+  "author": "wso2",
+  "license": "UNLICENSED"
+}

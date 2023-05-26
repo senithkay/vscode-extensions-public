@@ -17,31 +17,76 @@
  *
  */
 
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
 import React, { useEffect, useState } from 'react';
+import { ComponentModel, GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
+import { DagreEngine } from '@projectstorm/react-diagrams-routing';
+import CircularProgress from '@mui/material/CircularProgress';
+import styled from '@emotion/styled';
+import { entityModeller } from '@wso2-enterprise/project-design-diagrams/lib/utils/model-mapper/entityModelMapper';
+import { EntityLinkFactory, EntityFactory, EntityPortFactory } from '@wso2-enterprise/project-design-diagrams/lib/components/entity-relationship/';
+import createEngine, { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import { CanvasWidget } from '@projectstorm/react-canvas-core';
+import './styles.css';
 
 interface PersistDiagramProps {
     getPersistModel: () => Promise<GetPersistERModelResponse>;
 }
 
+const PersistContainer = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    justify-content: center;
+    width: 100vw;
+`;
+
 export function PersistDiagram(props: PersistDiagramProps) {
     const { getPersistModel } = props;
 
-    const [componentModel, setComponentModel] = useState<GetPersistERModelResponse>(undefined);
+    const [diagramEngine, setDiagramEngine] = useState<DiagramEngine>(undefined);
 
     useEffect(() => {
         getPersistModel().then((response) => {
-            setComponentModel(response);
+            const modelMap: Map<string, ComponentModel> = new Map(Object.entries(response));
+            const pkgMap: Map<string, boolean> = new Map([["persistERModel", true]]);
+            const model: DiagramModel = entityModeller(modelMap, pkgMap);
+            const engine: DiagramEngine = createEngine({
+                registerDefaultPanAndZoomCanvasAction: true,
+                registerDefaultZoomCanvasAction: false
+            });
+            engine.getLinkFactories().registerFactory(new EntityLinkFactory());
+            engine.getPortFactories().registerFactory(new EntityPortFactory());
+            engine.getNodeFactories().registerFactory(new EntityFactory());
+            engine.setModel(model);
+            setDiagramEngine(engine);
+            autoDistribute(model);
         });
     }, [props]);
 
+    const autoDistribute = (model: DiagramModel) => {
+        setTimeout(() => {
+            let dagreEngine = new DagreEngine({
+                graph: {
+                    rankdir: 'LR',
+                    ranksep: 175,
+                    edgesep: 20,
+                    nodesep: 60,
+                    ranker: 'longest-path',
+                    marginx: 40,
+                    marginy: 40
+                }
+            });
+            dagreEngine.redistribute(model);
+        }, 30);
+    };
+
     return (
-        <div>
-            {componentModel &&
-                <p>
-                    {JSON.stringify(componentModel, null, 4)}
-                </p>
+        <PersistContainer>
+            {diagramEngine ?
+                <CanvasWidget engine={diagramEngine} className={'diagram-container'} /> :
+                <CircularProgress sx={{ color: '#5567D5' }} />
             }
-        </div>
+        </PersistContainer>
     );
 }

@@ -599,7 +599,7 @@ export class BallerinaExtension {
     }
 
     public setPersistStatusContext(textEditor: TextEditor) {
-        if (textEditor.document) {
+        if (textEditor?.document) {
             const filePath: string = textEditor.document.uri.fsPath;
             if (basename(dirname(filePath)) === 'persist' && existsSync(join(dirname(dirname(filePath)), 'Ballerina.toml'))) {
                 commands.executeCommand('setContext', 'isPersistModelActive', true);
