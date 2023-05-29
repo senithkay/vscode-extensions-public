@@ -26,7 +26,7 @@ The [Sequence Diagram](https://wso2.com/ballerina/vscode/docs/visual-programming
 
 ### Data Mapper
 
-The [visual data mapping feature](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/) facilitates effortless data mapping through an intuitive interface by simplifying complexity and enables users to concentrate on business logic.
+The [visual data mapping feature](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/) facilitates effortless data mapping through an intuitive interface by simplifying complexity and enabling users to concentrate on business logic.
 
 > Apart from the aforementioned visual programming features, the Ballerina VS Code extension enhances the Ballerina development experience by providing a comprehensive set of features including code editing, debugging, code execution, and code deployment.
 
