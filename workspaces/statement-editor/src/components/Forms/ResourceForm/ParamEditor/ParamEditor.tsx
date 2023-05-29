@@ -26,10 +26,10 @@ import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../../models/d
 import { FormEditorContext } from '../../../../store/form-editor-context';
 import { FieldTitle } from '../../components/FieldTitle/fieldTitle';
 import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_HEADER_PREFIX, RESOURCE_REQUEST_TYPE } from '../ResourceParamEditor';
+import { ResourceParam } from '../types';
 import { createNewRecord } from '../util';
 
 import { useStyles } from "./style";
-import { ResourceParam } from '../types';
 
 export interface Param {
     id: number;
@@ -245,7 +245,8 @@ export function ParamEditor(props: ParamProps) {
                     )
                 }
             </div>
-            {option == PARAM_TYPES.DEFAULT &&
+            {option === PARAM_TYPES.DEFAULT &&
+                (
                 <div className={classes.paramContent}>
                     <CheckBoxGroup
                         values={["Is Required"]}
@@ -253,14 +254,17 @@ export function ParamEditor(props: ParamProps) {
                         onChange={handleIsRequired}
                     />
                 </div>
+                )
             }
             {
                 model.parameterValue.includes(RESOURCE_CALLER_TYPE)
                 && syntaxDiagnostics?.filter(diag => diag?.message.includes("Caller"))
                 &&
+                (
                 <div className={classes.invalidCode}>
                     {syntaxDiagnostics[0]?.message}
                 </div>
+                )
             }
             <div className={classes.btnContainer}>
                 <SecondaryButton

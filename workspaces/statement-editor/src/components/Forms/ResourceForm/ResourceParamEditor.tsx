@@ -23,8 +23,8 @@ import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/defi
 
 import { Param, ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
 import { ParameterConfig, ParamItem } from './ParamEditor/ParamItem';
-import { genParamName, getParamString } from './util';
 import { ResourceParam } from './types';
+import { genParamName, getParamString } from './util';
 
 export interface QueryParamEditorProps {
     parameters: ResourceParam[];
@@ -102,7 +102,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
     const onParamEditCancel = (id?: number) => {
         setEditingSegmentId(-1);
         onChangeInProgress(false);
-        if (id != undefined && id >= 0 && isNew) {
+        if (id !== undefined && id >= 0 && isNew) {
             onDelete({ id, name: "" });
         }
         setIsNew(false);

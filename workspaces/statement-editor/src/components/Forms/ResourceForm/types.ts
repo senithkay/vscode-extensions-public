@@ -11,8 +11,9 @@
  * associated services.
  */
 import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam } from "@wso2-enterprise/syntax-tree";
+
 import { StatementSyntaxDiagnostics } from "../../../models/definitions";
-import { DefaultableParam, RequiredParam, IncludedRecordParam, RestParam } from "@wso2-enterprise/syntax-tree";
 
 export interface PathSegment {
     id: number;
