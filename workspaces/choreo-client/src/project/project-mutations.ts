@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { gql } from 'graphql-request';
-import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams } from './types';
+import { CreateProjectParams, CreateComponentParams, CreateByocComponentParams, DeleteProjectParams } from './types';
 
 export function getCreateProjectMutation(params: CreateProjectParams) {
     const { name, description, orgId, orgHandle, version = "1.0.0", region = "US" } = params;
@@ -25,6 +25,18 @@ export function getCreateProjectMutation(params: CreateProjectParams) {
                 id, orgId, name, version, createdDate, handler, region, description,
             } 
         }
+    `;
+}
+
+export function deleteProjectMutation(params: DeleteProjectParams) {
+    const { orgId, projectId } = params;
+    return gql`
+        mutation{ 
+            deleteProject(orgId: ${orgId}, projectId: "${projectId}"){
+                status,
+                details 
+            } 
+      }
     `;
 }
 

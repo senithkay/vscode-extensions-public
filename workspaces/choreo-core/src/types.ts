@@ -334,6 +334,11 @@ export interface BYOCRepositoryDetails extends RepositoryDetails {
     dockerContext: string;
 }
 
+export interface ProjectDeleteResponse {
+    status: string,
+    details: string,
+}
+
 export interface SubscriptionResponse {
     count: number;
     list: {

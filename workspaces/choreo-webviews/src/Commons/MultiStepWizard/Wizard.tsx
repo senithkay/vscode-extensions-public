@@ -174,12 +174,12 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
                     </VSCodeButton>
                 )}
                 {!isLastStep && (
-                    <VSCodeButton onClick={handleNextClick} disabled={!state.isStepValid || state.isSaving}>
+                    <VSCodeButton onClick={handleNextClick} disabled={!state.isStepValid || state.isSaving} id='wizard-next-btn'>
                         Next
                     </VSCodeButton>
                 )}
                 {isLastStep && (
-                    <VSCodeButton onClick={handleSaveClick} disabled={!state.isStepValid || state.isSaving}>
+                    <VSCodeButton onClick={handleSaveClick} disabled={!state.isStepValid || state.isSaving} id='wizard-save-btn'>
                         {saveButtonText ? saveButtonText : "Save"}
                     </VSCodeButton>
                 )}

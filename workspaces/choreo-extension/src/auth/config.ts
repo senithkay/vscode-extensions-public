@@ -62,8 +62,8 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
     scope: "openid+email+profile",
     fidp: ChoreoFidp.google,
     ghApp: {
-        appUrl: "https://github.com/marketplace/choreo-apps",
-        installUrl: "https://github.com/apps/choreo-apps/installations/new",
+        appUrl: "https://github.com/marketplace/choreo-dev",
+        installUrl: "https://github.com/apps/choreo-dev/installations/new",
         authUrl: "https://github.com/login/oauth/authorize",
         clientId: "Iv1.804167a242012c66",
         redirectUrl: "https://console.choreo.dev/ghapp"

@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Disposable, EventEmitter, workspace } from 'vscode';
+import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri } from 'vscode';
 import { ext } from "./extensionVariables";
 
 import {
@@ -181,7 +181,7 @@ export class ChoreoExtensionApi {
                         if (wsConfig && wsConfig.path) {
                             const componentPath: string = path.join(projectRoot, wsConfig.path);
                             for (const localModel of model.values()) {
-                                if (localModel.functionEntryPoint?.elementLocation.filePath.includes(componentPath) &&
+                                if (localModel.functionEntryPoint?.elementLocation?.filePath.includes(componentPath) &&
                                     (displayType === ChoreoComponentType.ScheduledTask || displayType === ChoreoComponentType.ManualTrigger)) {
                                         localModel.functionEntryPoint.type = displayType;
                                 }
@@ -204,10 +204,8 @@ export class ChoreoExtensionApi {
         if (workspaceFilepath && ext.api.selectedOrg) {
             const { handle, uuid } = ext.api.selectedOrg;
             const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, handle, uuid);
-            const workspaceFileConfig: WorkspaceConfig = JSON.parse(readFileSync(workspaceFilepath).toString());
-            const wsResponse = workspaceFileConfig.folders.find(wsEntry => wsEntry.name !== 'choreo-project-root' && 
-                componentPath.includes(wsEntry.path));
-            const toDelete = components.find(component => component.name === wsResponse?.name);
+            const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
+            const toDelete = components.find(component => component.name === folder?.name);
             if (toDelete) {
                 await ProjectRegistry.getInstance().deleteComponent(toDelete, handle, projectId);
             }
