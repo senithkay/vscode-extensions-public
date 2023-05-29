@@ -30,7 +30,7 @@ The [Sequence Diagram](https://wso2.com/ballerina/vscode/docs/visual-programming
 
 ### Data Mapper
 
-The [visual data mapping feature](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/) facilitates effortless data mapping through an intuitive interface by simplifying complexity and enabling users to concentrate on business logic.
+The [Data Mapper](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/) facilitates effortless data mapping through an intuitive interface by simplifying complexity and enabling users to concentrate on business logic.
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.png?raw=true" width="100%" />
 
