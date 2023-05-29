@@ -40,7 +40,7 @@ The [Data Mapper](https://wso2.com/ballerina/vscode/docs/visual-programming/data
 
 The <a href="https://wso2.com/ballerina/vscode/docs/" target="_blank">Ballerina VS Code Extension Documentation</a> describes the functionalities of this extension in detail.
 
-## Configure the extension
+## Configure
 
 You can configure the Ballerina VS Code extension to get a custom user experience. For more details, see [Configure the extension](https://wso2.com/ballerina/vscode/docs/configure-the-extension/).
 
