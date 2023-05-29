@@ -1,6 +1,6 @@
 # The Ballerina extension for Visual Studio Code
 
-The Ballerina VS Code extension offers the ability to visualize the bidirectional mapping between the syntax and graphical representation of your [Ballerina source code](https://ballerina.io/). 
+The Ballerina VS Code extension offers the ability to visualize the bidirectional mapping between the syntax and graphical representation of your [Ballerina](https://ballerina.io/) source code. 
 
 ## Features
 
