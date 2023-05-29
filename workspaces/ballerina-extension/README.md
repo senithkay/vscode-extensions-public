@@ -2,11 +2,11 @@
 
 The Ballerina VS Code extension offers the ability to visualize the bidirectional mapping between the syntax and graphical representation of your <a href="https://ballerina.io/" target="_blank">Ballerina</a> source code. 
 
-Apart from the visual programming features described below, the Ballerina VS Code extension enhances the Ballerina development experience by providing a comprehensive set of features, including code editing, debugging, code execution, and code deployment. For detailed information on them, see the <a href="https://wso2.com/ballerina/vscode/docs/" target="_blank">Ballerina VS Code Extension Documentation</a>.
+Apart from the visual programming features described below, the Ballerina VS Code extension enhances the Ballerina development experience by providing a comprehensive set of other features, including code editing, debugging, code execution, and code deployment. For detailed information on them, go to the <a href="https://wso2.com/ballerina/vscode/docs/" target="_blank">Ballerina VS Code extension documentation</a>.
 
 ## Quick start
 
-Follow the steps below to <a href="https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/" target="_blank">install the Ballerina VS Code extension</a>.
+For instructions on installing the Ballerina VS Code extension, go to <a href="https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/" target="_blank">Install the extension</a>.
 
 ## Features
 
@@ -32,13 +32,13 @@ The <a href="https://wso2.com/ballerina/vscode/docs/visual-programming/sequence-
 
 ### Data Mapper
 
-The <a href="https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/" target="_blank">visual data mapping feature</a> facilitates effortless data mapping through an intuitive interface by simplifying complexity and enabling users to concentrate on business logic.
+The <a href="https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/" target="_blank">Data Mapper</a> facilitates effortless data mapping through an intuitive interface by simplifying complexity and enabling users to concentrate on business logic.
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.png?raw=true" width="100%" />
 
 ## Documentation
 
-The <a href="https://wso2.com/ballerina/vscode/docs/" target="_blank">Ballerina VS Code Extension Documentation</a> describes the functionalities of this extension in detail.
+The <a href="https://wso2.com/ballerina/vscode/docs/" target="_blank">Ballerina VS Code extension documentation</a> describes the functionalities of this extension in detail.
 
 ## Configure 
 
@@ -48,4 +48,4 @@ You can configure the Ballerina VS Code extension to get a custom user experienc
 
 For troubleshooting, see the Ballerina output. To view the Ballerina output tab, click **View**, click **Output,** and select **Ballerina** from the output list. It provides additional information if the plugin fails to detect a Ballerina distribution.  
 
-You can also enable the <a href="https://wso2.com/ballerina/vscode/docs/configure-the-extension/#advanced-configurations" target="_blank">debug logs</a> from the Ballerina extension settings to view any issues arising from the extension features.
+You can also enable <a href="https://wso2.com/ballerina/vscode/docs/configure-the-extension/#advanced-configurations" target="_blank">debug logs</a> from the Ballerina extension settings to view any issues arising from the extension features.
