@@ -120,11 +120,8 @@ export function NavigationBar(props: NavigationBarProps) {
     }
 
     const renderWorkspaceNameComponent = () => {
-
         const handleOnClick = () => {
-            if (projectList && currentProject) {
-                historyClearAndPopulateWith({ file: currentProject.uri.fsPath });
-            } else if (projectInfo?.packages && projectInfo?.packages.length > 0) {
+            if (projectInfo?.packages && projectInfo?.packages.length > 0) {
                 historyClearAndPopulateWith({ file: projectInfo?.packages[0]?.filePath });
             }
         }
@@ -134,7 +131,7 @@ export function NavigationBar(props: NavigationBarProps) {
             <div className="btn-container" onClick={handleOnClick} >
                 {treatAsWorkspace ? <Apps className={'workspace-icon'} /> : <PackageIcon className={'icon'} />}
                 <Typography variant="h4">
-                    {treatAsWorkspace ? workspaceName : currentProject?.name || projectInfo?.packages[0]?.name}
+                    {treatAsWorkspace ? workspaceName : projectInfo?.packages[0]?.name}
                 </Typography>
             </div>
         )
@@ -185,7 +182,7 @@ export function NavigationBar(props: NavigationBarProps) {
 
     return (
         <div id="nav-bar-main" className="header-bar">
-            {<NavButtonGroup currentProjectPath={currentProject?.uri.fsPath || projectInfo?.packages[0]?.filePath} />}
+            {<NavButtonGroup currentProjectPath={projectInfo?.packages[0]?.filePath} />}
             {renderWorkspaceNameComponent()}
             {treatAsWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
             {treatAsWorkspace && renderProjectSelectorComponent()}

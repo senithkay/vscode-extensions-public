@@ -1,1 +1,1 @@
-export * from './ComponentView'
+export * from './ComponentListView'

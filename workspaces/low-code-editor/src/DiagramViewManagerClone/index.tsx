@@ -29,8 +29,9 @@ import { useGeneratorStyles } from "./style";
 import messages from '../lang/en.json';
 import { theme } from './theme';
 import { NavigationBar } from "./components/NavigationBar";
-import { ComponentView } from "./views";
+import { ComponentListView } from "./views";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
+import { ComponentCollection } from "../OverviewDiagram/util";
 
 export function DiagramViewManager(props: EditorProps) {
     const {
@@ -62,6 +63,8 @@ export function DiagramViewManager(props: EditorProps) {
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
     const [balVersion, setBalVersion] = React.useState("");
     const [projectComponents, setProjectComponents] = React.useState<BallerinaProjectComponents>();
+    const [fileList, setFileList] = React.useState([]);
+    const [currentComponents, setCurrentComponents] = React.useState<ComponentCollection>(undefined);
 
     useEffect(() => {
         (async () => {
@@ -128,7 +131,7 @@ export function DiagramViewManager(props: EditorProps) {
                             projectInfo={projectComponents}
                         />
                         {!showOverviewMode && !showSTMode && <TextPreLoader position={'absolute'} />}
-                        {showOverviewMode && <ComponentView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
+                        {showOverviewMode && <ComponentListView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
                         <div id={'canvas-overlay'} className={"overlayContainer"} />
                     </HistoryProvider>
                 </IntlProvider>
