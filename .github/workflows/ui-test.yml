@@ -60,7 +60,7 @@ jobs:
           LOGIN_URL: https://console.choreo.dev/login
           REDIRECT_URL: https://console.choreo.dev/vscode-auth
           TOKEN_URL: https://api.asgardeo.io/t/a/oauth2/token
-          VSCODE_CLIENT_ID: aVKhTSUMu_QfEwmCtrcuWoLy92oa
+          VSCODE_CLIENT_ID: GWj5MzWNrOB28jX_wu5ZGu7I1VIa
           PROJECT_API: https://apis.choreo.dev/projects/1.0.0/graphql  
 
       - name: Publish UI Test Screenshots
