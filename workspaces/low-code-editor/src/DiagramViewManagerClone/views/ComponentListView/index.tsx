@@ -10,7 +10,7 @@ import { ProjectComponentProcessor } from "./util/project-component-processor";
 
 import useStyles from "./style";
 import './style.scss';
-import { ComponentView } from "../../../OverviewDiagram/components/ViewTypes/ComponentView";
+import { ComponentView } from "./components/ComponentView";
 
 interface ComponentListViewProps {
     lastUpdatedAt: string;
@@ -24,7 +24,7 @@ const ALL_FILES: string = 'All';
 // when you select a symbol, it will show the symbol's visualization in the diagram view
 export function ComponentListView(props: ComponentListViewProps) {
     const { projectComponents } = props;
-    const { history } = useHistoryContext();
+    const { historyPush } = useHistoryContext();
     const [searchQuery, setSearchQuery] = React.useState<string>("");
     let currentComponents: ComponentCollection;
     let fileList: FileListEntry[];
@@ -102,6 +102,12 @@ export function ComponentListView(props: ComponentListViewProps) {
         );
     };
 
+    const handleComponentSelection = (info: ComponentViewInfo) => {
+        historyPush({
+            file: info.filePath,
+            position: info.position
+        })
+    }
 
     const categories: React.ReactElement[] = [];
 
@@ -115,9 +121,16 @@ export function ComponentListView(props: ComponentListViewProps) {
                         key.toLowerCase().includes(searchQuery?.toLowerCase().trim() || "")
                 );
 
-                const components = flitteredComponents.map((comp: ComponentViewInfo, compIndex: number) => (
-                    <ComponentView key={key + compIndex} info={comp} updateSelection={() => { }} type={key} />
-                ));
+                const components = flitteredComponents.map((comp: ComponentViewInfo, compIndex: number) => {
+                    return (
+                        <ComponentView
+                            key={key + compIndex}
+                            info={comp}
+                            updateSelection={handleComponentSelection}
+                            type={key}
+                        />
+                    )
+                });
 
                 if (components.length === 0) return;
 
