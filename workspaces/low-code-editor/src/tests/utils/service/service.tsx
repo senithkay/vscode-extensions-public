@@ -12,53 +12,26 @@
 */
 import * as React from "react";
 
-import {expect} from "@jest/globals";
-import { render, screen, waitForElementToBeRemoved, within } from "@testing-library/react";
-import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { expect } from "@jest/globals";
+import { screen, within } from "@testing-library/react";
 
-import { ServiceDesignOverlay } from "../../../Diagram/components/ServiceDesignOverlay";
-import { TestProvider } from "../../TestContext";
-import { getFileContent } from "../ls-utils";
+export class Service {
+    static serviceHeaderTextShouldInclude = (resourcePath: string) => {
+        const servicePath = this.getServicePath();
+        const serviceHeader = within(servicePath).getByText(`Service ${resourcePath}`);
+        expect(serviceHeader).toBeDefined();
+    };
 
-export const renderServiceDesignOverlay = async (filePath: string,
-                                                 completeST: STNode,
-                                                 focusedST: STNode,
-                                                 fileName: string,
-                                                 langClient: BalleriaLanguageClient) => {
-    const currentFileContent = await getFileContent(filePath);
-    render(
-        <TestProvider
-            completeST={completeST}
-            focusedST={focusedST}
-            currentFileContent={currentFileContent}
-            fileName={fileName}
-            fileUri={filePath}
-            langClient={langClient}
-        >
-            <ServiceDesignOverlay model={focusedST} onCancel={undefined} />
-        </TestProvider>
-    );
-};
+    static listenerHeaderTextShouldInclude = (svcExpr: string) => {
+        const listenerText = this.getListenerText();
+        const listenerHeader = within(listenerText).getByText(`listening on ${svcExpr}`);
+        expect(listenerHeader).toBeDefined();
+    };
 
-export const serviceHeaderTextShouldInclude = (resourcePath: string) => {
-    const servicePath = getServicePath();
-    const serviceHeader = within(servicePath).getByText(`Service ${resourcePath}`);
-    expect(serviceHeader).toBeDefined();
-};
+    private static getServiceContainer = () => screen.getByTestId("service-container");
 
-export const listenerHeaderTextShouldInclude = (svcExpr: string) => {
-    const listenerText = getListenerText();
-    const listenerHeader = within(listenerText).getByText(`listening on ${svcExpr}`);
-    expect(listenerHeader).toBeDefined();
-};
+    private static getServicePath = () => within(this.getServiceContainer()).getByTestId("service-path");
 
-export const waitForResourceLoadingToDisappear = async () => {
-    await waitForElementToBeRemoved(() => screen.getByTestId('resource-loading'));
-};
+    private static getListenerText = () => within(this.getServiceContainer()).getByTestId("listener-text");
 
-const getServiceContainer = () => screen.getByTestId("service-container");
-
-const getServicePath = () => within(getServiceContainer()).getByTestId("service-path");
-
-const getListenerText = () => within(getServiceContainer()).getByTestId("listener-text");
+}

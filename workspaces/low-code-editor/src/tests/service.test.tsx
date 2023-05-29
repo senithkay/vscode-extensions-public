@@ -20,14 +20,11 @@ import 'jest-canvas-mock';
 import path from "path";
 
 import { createLangClient, getSyntaxTree } from "./utils/ls-utils";
+import { renderServiceDesignOverlay } from "./utils/service/renderer";
 import { ResourceFunction } from "./utils/service/resourceFunction";
 import { Response } from "./utils/service/response";
-import {
-    listenerHeaderTextShouldInclude,
-    renderServiceDesignOverlay,
-    serviceHeaderTextShouldInclude,
-    waitForResourceLoadingToDisappear
-} from "./utils/service/service";
+import { Service } from "./utils/service/service";
+import { waitForResourceLoadingToDisappear } from "./utils/service/utils";
 
 const BAL_FILE_NAME = "service.bal";
 
@@ -52,8 +49,8 @@ beforeAll(async () => {
 test('Test simple service', async () => {
     await renderServiceDesignOverlay(filePath, completeST, serviceDecl, BAL_FILE_NAME, langClient);
 
-    serviceHeaderTextShouldInclude(serviceDecl.absoluteResourcePath[0].value);
-    listenerHeaderTextShouldInclude(serviceDecl.expressions[0].source.trim());
+    Service.serviceHeaderTextShouldInclude(serviceDecl.absoluteResourcePath[0].value);
+    Service.listenerHeaderTextShouldInclude(serviceDecl.expressions[0].source.trim());
 
     expect(screen.queryByTestId('resource-loading')).toBeDefined();
     await waitForResourceLoadingToDisappear();
