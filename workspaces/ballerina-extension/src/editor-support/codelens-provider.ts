@@ -28,7 +28,6 @@ import {
     CMP_EXECUTOR_CODELENS, sendTelemetryEvent, TM_EVENT_SOURCE_DEBUG_CODELENS, TM_EVENT_TEST_DEBUG_CODELENS
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
-import { openConfigEditor } from '../config-editor/configEditorPanel';
 import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
@@ -92,7 +91,6 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 commands.executeCommand(INTERNAL_DEBUG_COMMAND);
                 return;
             }
-            openConfigEditor(this.ballerinaExtension, window.activeTextEditor!.document.uri.fsPath, true);
         });
 
         commands.registerCommand(TEST_DEBUG_COMMAND, async (...args: any[]) => {
