@@ -2,6 +2,13 @@
 
 The Ballerina VS Code extension offers the ability to visualize the bidirectional mapping between the syntax and graphical representation of your [Ballerina](https://ballerina.io/) source code. 
 
+## Quick start
+
+Follow the steps below to get the Ballerina VS Code extension up and running.
+
+1. [Install the extension](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
+2. [Run a program](https://wso2.com/ballerina/vscode/docs/get-started/run-a-program/).
+
 ## Features
 
 The VS Code extension allows you to design and develop your Ballerina program using a graphical representation of the code. This graphical view displays the logic and network interaction of a function or a service resource, which makes it easy to understand the source. 
@@ -28,16 +35,9 @@ The [Sequence Diagram](https://wso2.com/ballerina/vscode/docs/visual-programming
 
 The [visual data mapping feature](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/) facilitates effortless data mapping through an intuitive interface by simplifying complexity and enabling users to concentrate on business logic.
 
-> Apart from the aforementioned visual programming features, the Ballerina VS Code extension enhances the Ballerina development experience by providing a comprehensive set of features, including code editing, debugging, code execution, and code deployment.
-
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.png?raw=true" width="100%" />
 
-## Quick start
-
-Follow the steps below to get the Ballerina VS Code extension up and running.
-
-1. [Install the extension](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
-2. [Run a program](https://wso2.com/ballerina/vscode/docs/get-started/run-a-program/).
+> Apart from the aforementioned visual programming features, the Ballerina VS Code extension enhances the Ballerina development experience by providing a comprehensive set of features, including code editing, debugging, code execution, and code deployment. For detailed information on them, see the [Ballerina VS Code Extension Documentation](https://wso2.com/ballerina/vscode/docs/).
 
 ## Documentation
 
