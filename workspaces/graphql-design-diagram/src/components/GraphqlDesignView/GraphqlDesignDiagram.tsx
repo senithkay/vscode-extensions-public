@@ -10,15 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
+// tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
     GraphqlDesignServiceRequest, GraphqlDesignServiceResponse
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { TextPreLoader } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { Container } from "../Canvas/CanvasWidgetContainer";
 import { GraphqlDiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlDiagramContainer } from "../GraphqlDiagramContainer/GraphqlDiagramContainer";
 import { GraphqlDesignModel } from "../resources/model";
@@ -47,6 +49,11 @@ export interface GraphqlDesignDiagramProps {
     recordEditor?: (recordModel: STNode, filePath?: string, completeST?: STNode) => void;
 }
 
+interface GraphqlModelData {
+    designModel: GraphqlDesignModel;
+    isIncompleteModel: boolean;
+}
+
 export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     const {
         model,
@@ -62,14 +69,15 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         recordEditor
     } = props;
 
-    const [designModel, setDesignModel] = useState<GraphqlDesignModel>(null);
-    const [isIncompleteModel, setModelStatus] = useState(false);
+    const [modelData, setModelData] = useState<GraphqlModelData>(undefined);
 
     useEffect(() => {
-        (async () => {
-            await getGraphqlDesignModel();
-        })();
-    }, [model]);
+        if (fullST) {
+            (async () => {
+                await getGraphqlDesignModel();
+            })();
+        }
+    }, [fullST]);
 
     const getGraphqlDesignModel = async () => {
         const request: GraphqlDesignServiceRequest = {
@@ -78,8 +86,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
             endLine: { line: targetPosition.endLine, offset: targetPosition.endColumn }
         };
         const graphqlModel: GraphqlDesignServiceResponse = await getModelForGraphqlService(request, langClientPromise);
-        setDesignModel(graphqlModel.graphqlDesignModel);
-        setModelStatus(graphqlModel.isIncompleteModel);
+        setModelData({designModel: graphqlModel.graphqlDesignModel, isIncompleteModel: graphqlModel.isIncompleteModel});
     };
 
     const ctxt = {
@@ -98,9 +105,14 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     return (
         <>
             <GraphqlDiagramContext {...ctxt}>
-                {designModel && <GraphqlDiagramContainer designModel={designModel} />}
+                {modelData?.designModel && fullST && <GraphqlDiagramContainer designModel={modelData.designModel} />}
             </GraphqlDiagramContext>
-            {isIncompleteModel && <GraphqlUnsupportedOverlay />}
+            {modelData?.isIncompleteModel && <GraphqlUnsupportedOverlay />}
+            {!modelData?.designModel &&
+                <Container className="dotted-background">
+                    <TextPreLoader position="absolute" text="Fetching data..."/>
+                </Container>
+            }
         </>
     );
 }

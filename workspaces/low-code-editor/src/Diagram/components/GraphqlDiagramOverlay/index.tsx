@@ -19,6 +19,7 @@ import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient"
 import {
     ConfigOverlayFormStatus, DiagramEditorLangClientInterface, STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { TextPreLoader } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     NodePosition, STKindChecker,
     STNode,
@@ -42,10 +43,11 @@ export interface GraphqlDesignOverlayProps {
     onCancel?: () => void;
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     goToSource: (filePath: string, position: NodePosition) => void;
+    isLoadingST?: boolean;
 }
 
 export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
-    const { targetPosition, ballerinaVersion, onCancel: onClose, model, goToSource } = props;
+    const { targetPosition, ballerinaVersion, onCancel: onClose, model, goToSource, isLoadingST } = props;
 
     const graphQLStyleClasses = graphQLOverlayStyles();
 
@@ -150,6 +152,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
             {isVisualizerSupported ? (
                 <>
+                    {!isLoadingST ?
                     <GraphqlDesignDiagram
                         model={model}
                         targetPosition={targetPosition}
@@ -167,7 +170,10 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                         onDelete={handleDeleteBtnClick}
                         fullST={fullST}
                         goToSource={goToSource}
-                    />
+                    /> : (
+                            <TextPreLoader position="absolute" text="Loading..."/>
+                         )
+                    }
                     {enableFormGenerator &&
                     <FormGenerator {...formConfig}/>
                     }
