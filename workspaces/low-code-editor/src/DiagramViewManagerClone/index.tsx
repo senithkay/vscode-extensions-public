@@ -19,7 +19,6 @@
 
 import { MuiThemeProvider } from "@material-ui/core";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
@@ -32,6 +31,14 @@ import { NavigationBar } from "./components/NavigationBar";
 import { ComponentListView } from "./views";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 import { ComponentCollection } from "../OverviewDiagram/util";
+import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
+import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
+import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
+import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
+import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
+import { getConstructBodyString } from "../Diagram/visitors/util";
+import { getDiagramProviderProps } from "./utils";
 
 export function DiagramViewManager(props: EditorProps) {
     const {
@@ -65,6 +72,9 @@ export function DiagramViewManager(props: EditorProps) {
     const [projectComponents, setProjectComponents] = React.useState<BallerinaProjectComponents>();
     const [fileList, setFileList] = React.useState([]);
     const [currentComponents, setCurrentComponents] = React.useState<ComponentCollection>(undefined);
+    const [focusedST, setFocusedST] = useState<STNode>();
+    const [completeST, setCompleteST] = useState<STNode>();
+    const [currentFileContent, setCurrentFileContent] = useState<string>();
 
     useEffect(() => {
         (async () => {
@@ -88,7 +98,7 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (history.length > 0) {
             (async () => {
-                const { file } = history[history.length - 1];
+                const { file, position, uid } = history[history.length - 1];
                 const langClient = await langClientPromise;
                 const componentResponse = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [
@@ -97,6 +107,65 @@ export function DiagramViewManager(props: EditorProps) {
                         }
                     ]
                 });
+
+                if (file.endsWith(".bal")) {
+                    const generatedST = await getSyntaxTree(file, langClient);
+                    const visitedST = await getLowcodeST(generatedST, file, langClient, experimentalEnabled);
+                    const content = await getFileContent(file);
+                    const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
+                    const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
+
+                    let selectedST;
+
+                    if (!uid && position) {
+                        const uidGenVisitor = new UIDGenerationVisitor(position);
+                        traversNode(visitedST, uidGenVisitor);
+                        const generatedUid = uidGenVisitor.getUId();
+                        const nodeFindingVisitor = new FindNodeByUidVisitor(generatedUid);
+                        traversNode(visitedST, nodeFindingVisitor);
+                        selectedST = nodeFindingVisitor.getNode();
+                        updateCurrentEntry({ ...history[history.length - 1], uid: generatedUid });
+                    }
+
+                    if (uid && position) {
+
+                        const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
+                        traversNode(visitedST, nodeFindingVisitor);
+                        if (!nodeFindingVisitor.getNode()) {
+                            const visitorToFindConstructByName = new FindConstructByNameVisitor(uid);
+                            traversNode(visitedST, visitorToFindConstructByName);
+                            if (visitorToFindConstructByName.getNode()) {
+                                selectedST = visitorToFindConstructByName.getNode();
+                                // setFocusUid(visitorToFindConstructByName.getUid());
+                                updateCurrentEntry({
+                                    ...history[history.length - 1], uid: visitorToFindConstructByName.getUid()
+                                });
+                            } else {
+                                const visitorToFindConstructByIndex =
+                                    new FindConstructByIndexVisitor(uid, getConstructBodyString(focusedST));
+                                traversNode(visitedST, visitorToFindConstructByIndex);
+                                if (visitorToFindConstructByIndex.getNode()) {
+                                    selectedST = visitorToFindConstructByIndex.getNode();
+                                    // setFocusUid(visitorToFindConstructByIndex.getUid());
+                                    updateCurrentEntry({
+                                        ...history[history.length - 1], uid: visitorToFindConstructByIndex.getUid()
+                                    });
+                                } else {
+                                    // TODO:  Add error message saying we can't find the construct
+                                }
+                            }
+
+                        } else {
+                            selectedST = nodeFindingVisitor.getNode();
+                        }
+                    }
+
+                    setFocusedST(selectedST);
+                    setCompleteST(visitedST);
+                    setCurrentFileContent(content);
+                    setLowCodeResourcesVersion(resourceVersion);
+                    setLowCodeEnvInstance(envInstance);
+                }
 
                 console.log("componentResponse >>>", componentResponse);
                 setProjectComponents(componentResponse);
@@ -108,10 +177,35 @@ export function DiagramViewManager(props: EditorProps) {
         throw new Error("Function not implemented.");
     }
 
+    const updateActiveFile = (filePath: string): void => {
+
+    };
+
     const showOverviewMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
         && history[history.length - 1].position === undefined;
     const showSTMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
         && history[history.length - 1].position !== undefined;
+
+
+    // const diagramProps = getDiagramProviderProps(
+    //     focusedST,
+    //     lowCodeEnvInstance,
+    //     currentFileContent,
+    //     history.length > 0 && history[history.length - 1].file,
+    //     fileList,
+    //     history.length > 0 && history[history.length - 1].uid,
+    //     completeST,
+    //     lowCodeResourcesVersion,
+    //     balVersion,
+    //     props,
+    //     setFocusedST,
+    //     setCompleteST,
+    //     setCurrentFileContent,
+    //     updateActiveFile,
+    //     updateSelectedComponent,
+    //     navigateUptoParent,
+    //     setUpdatedTimeStamp
+    // );
 
     return (
         <MuiThemeProvider theme={theme}>
