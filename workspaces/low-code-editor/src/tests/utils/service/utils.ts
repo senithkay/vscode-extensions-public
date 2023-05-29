@@ -12,6 +12,16 @@
 */
 import { screen, waitForElementToBeRemoved } from "@testing-library/react";
 
+export interface ResponseInfo {
+    code: string;
+    description: string;
+}
+
+export interface ParameterInfo {
+    type: string;
+    description: string;
+}
+
 export const waitForResourceLoadersToDisappear = async (noOfResources: number) => {
     for (let i = 0; i < noOfResources; i++) {
         const resourceLoadingElement = screen.queryByTestId(`resource-loader-${i}`);

@@ -330,14 +330,14 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </pre>
                 );
                 responses.push(
-                    <tr key={i} className={classes.signature}>
-                        <td>
+                    <tr key={i} className={classes.signature} data-testid={`params-row-${i}`}>
+                        <td data-testid={`param-type-${i}`}>
                             <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
                                 {recordName}
                             </span>
                             {schemaParam[i] && tooltip}
                         </td>
-                        <td>
+                        <td data-testid={`param-description-${i}`}>
                             {description}
                         </td>
                     </tr>
