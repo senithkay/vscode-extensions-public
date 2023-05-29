@@ -40,7 +40,11 @@ jobs:
       - name: run tests
         run: |
           node common/scripts/install-run-rush.js install
-          cd workspaces/choreo-extension && npm run ui-test-setup && npm run ui-test
+          cd workspaces/choreo-extension 
+          sudo apt-get install xvfb
+          pnpm run ui-test-setup
+          export DISPLAY=:98.0
+          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run ui-test
         env:
           TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
           TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
