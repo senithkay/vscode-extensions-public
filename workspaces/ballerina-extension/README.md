@@ -4,7 +4,7 @@ The Ballerina VS Code extension offers the ability to visualize the bidirectiona
 
 ## Quick start
 
-Follow the steps below to [install the Ballerina VS Code extension](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
+Follow the steps below to <a href="https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/" target="_blank">install the Ballerina VS Code extension</a>.
 
 ## Features
 
@@ -12,27 +12,29 @@ The VS Code extension allows you to design and develop your Ballerina program us
 
 ### Architecture View
 
-The [Architecture View](https://wso2.com/ballerina/vscode/docs/visual-programming/architecture-view/architecture-diagram/) offers a high-level overview of Ballerina projects based solely on the source code to understand the components of the project and how they interact. 
+The <a href="https://wso2.com/ballerina/vscode/docs/visual-programming/architecture-view/architecture-diagram/" target="_blank">Architecture View</a> offers a high-level overview of Ballerina projects based solely on the source code to understand the components of the project and how they interact. 
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/architecture-view.png?raw=true" width="100%" />
 
 ### Service designing
 
-The Ballerina VS Code extension enables the intuitive creation of Ballerina services ([HTTP](https://wso2.com/ballerina/vscode/docs/visual-programming/http-api-designer/) and [GraphQL](https://wso2.com/ballerina/vscode/docs/visual-programming/graphql-designer/)) without deep familiarity with syntax and configurations.
+The Ballerina VS Code extension enables the intuitive creation of Ballerina services (<a href="https://wso2.com/ballerina/vscode/docs/visual-programming/http-api-designer/" target="_blank">HTTP</a> and <a href="https://wso2.com/ballerina/vscode/docs/visual-programming/graphql-designer/" target="_blank">GraphQL</a>) without deep familiarity with syntax and configurations.
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/service-designer.png?raw=true" width="50%" />
 
-### Sequence Diagram
+### Sequence Diagram View
 
-The [Sequence Diagram](https://wso2.com/ballerina/vscode/docs/visual-programming/sequence-diagram-view/) provides a graphical user interface that allows users to visualize and construct program logic by capturing the flow, concurrency, endpoints, and interactions within the code.
+The <a href="https://wso2.com/ballerina/vscode/docs/visual-programming/sequence-diagram-view/" target="_blank">Sequence Diagram View</a> provides a graphical user interface that allows users to visualize and construct program logic by capturing the flow, concurrency, endpoints, and interactions within the code.
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/sequence-diagram.png?raw=true" width="100%" />
 
 ### Data Mapper
 
-The [visual data mapping feature](https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/) facilitates effortless data mapping through an intuitive interface by simplifying complexity and enabling users to concentrate on business logic.
+The <a href="https://wso2.com/ballerina/vscode/docs/visual-programming/data-mapper/" target="_blank">visual data mapping feature</a> facilitates effortless data mapping through an intuitive interface by simplifying complexity and enabling users to concentrate on business logic.
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.png?raw=true" width="100%" />
+
+</br>
 
 > Apart from the aforementioned visual programming features, the Ballerina VS Code extension enhances the Ballerina development experience by providing a comprehensive set of features, including code editing, debugging, code execution, and code deployment. For detailed information on them, see the <a href="https://wso2.com/ballerina/vscode/docs/" target="_blank">Ballerina VS Code Extension Documentation</a>.
 
@@ -42,10 +44,10 @@ The <a href="https://wso2.com/ballerina/vscode/docs/" target="_blank">Ballerina 
 
 ## Configure the extension
 
-You can configure the Ballerina VS Code extension to get a custom user experience. For more details, see [Configure the extension](https://wso2.com/ballerina/vscode/docs/configure-the-extension/).
+You can configure the Ballerina VS Code extension to get a custom user experience. For more details, see <a href="https://wso2.com/ballerina/vscode/docs/configure-the-extension/" target="_blank">Configure the extension</a>.
 
 ## Troubleshoot
 
 For troubleshooting, see the Ballerina output. To view the Ballerina output tab, click **View**, click **Output,** and select **Ballerina** from the output list. It provides additional information if the plugin fails to detect a Ballerina distribution.  
 
-You can also enable the [debug logs](https://wso2.com/ballerina/vscode/docs/configure-the-extension/#advanced-configurations) from the Ballerina extension settings to view any issues arising from the extension features.
+You can also enable the <a href="https://wso2.com/ballerina/vscode/docs/configure-the-extension/#advanced-configurations" target="_blank">debug logs</a> from the Ballerina extension settings to view any issues arising from the extension features.
