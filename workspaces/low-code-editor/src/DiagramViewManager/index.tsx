@@ -85,6 +85,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [balVersion, setBalVersion] = React.useState("");
     const [completeST, setCompleteST] = useState<STNode>();
     const [serviceTypeSignature, setServiceTypeSignature] = useState<string>();
+    const [isLoadingST, setIsLoadingST] = useState<boolean>(false);
 
     useEffect(() => {
         if (diagramFocus) {
@@ -191,6 +192,7 @@ export function DiagramViewManager(props: EditorProps) {
     const fetchST = (filePath: string, options?: { position?: NodePosition, uid?: string }) => {
         (async () => {
             try {
+                setIsLoadingST(true);
                 const langClient = await langClientPromise;
                 const generatedST = await getSyntaxTree(filePath, langClient);
                 const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
@@ -273,6 +275,7 @@ export function DiagramViewManager(props: EditorProps) {
                 setCurrentFileContent(content);
                 setLowCodeResourcesVersion(resourceVersion);
                 setLowCodeEnvInstance(envInstance);
+                setIsLoadingST(false);
             } catch (err) {
                 // tslint:disable-next-line: no-console
                 console.error(err);
@@ -332,6 +335,7 @@ export function DiagramViewManager(props: EditorProps) {
                         ballerinaVersion={balVersion}
                         onCancel={handleNavigationHome}
                         goToSource={gotoSource}
+                        isLoadingST={isLoadingST}
                     />
                 );
             } else if (signature && signature === "$CompilationError$") {
