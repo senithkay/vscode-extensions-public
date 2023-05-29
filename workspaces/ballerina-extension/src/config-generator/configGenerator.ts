@@ -18,12 +18,13 @@
  */
 
 import { window, Uri, commands, workspace, ProgressLocation } from "vscode";
-import { existsSync, openSync } from "fs";
+import { existsSync, openSync, readFileSync, writeFile } from "fs";
 import { INTERNAL_DEBUG_COMMAND } from "../editor-support/codelens-provider";
 import { BALLERINA_COMMANDS, BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS, runCommand } from "../project";
 import { BallerinaExtension, BallerinaProject, PackageConfigSchemaResponse } from "../core";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
 import EventEmitter from "events";
+import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./utils";
 
 
 export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string,
@@ -69,13 +70,13 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             if (data.configSchema?.properties) {
                 const props: object = data.configSchema?.properties;
                 var firstKey = Object.keys(props)[0];
-                var cptyName = props[firstKey].properties;
-                if (cptyName) {
+                var orgName = props[firstKey].properties;
+                if (orgName) {
                     const configs: {
                         additionalProperties: boolean
                         properties: {}
                         required: []
-                    } = cptyName[packageName];
+                    } = orgName[packageName];
                     if (configs.required.length > 0) {
 
                         const openConfigButton = { title: 'Open Config', isCloseAffordance: true };
@@ -94,6 +95,67 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                             }
                             if (configFile) {
                                 const uri = Uri.file(configFile);
+                                const tomlContent: string = readFileSync(uri.fsPath, 'utf8');
+                                const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), orgName, packageName);
+
+                                // Check for existing configs
+                                if (existingConfigs) {
+                                    const obj = existingConfigs['[object Object]'][packageName]
+
+                                    // If there are existing configs check for new ones
+                                    if (Object.keys(obj).length > 0) {
+                                        const newValues = [];
+                                        configs.required.forEach(value => {
+                                            if (!(value in obj)) {
+                                                // New configs found
+                                                newValues.push({ name: value, type: '' });
+                                            }
+                                        });
+                                        // Assign types to values
+                                        newValues.forEach(val => {
+                                            val.type = configs.properties[val.name].type;
+                                        })
+
+                                        let updatedContent = tomlContent + `\n`;
+
+                                        newValues.forEach(obj => {
+                                            updatedContent += `${obj.name} = "${obj.type}"\n`;
+                                        });
+
+                                        writeFile(uri.fsPath, updatedContent, function (error) {
+                                            if (error) {
+                                                return window.showInformationMessage("Unable to update the configurable values: " + error);
+                                            }
+                                            window.showInformationMessage("Successfully updated the configurable values.");
+                                        });
+
+                                    } else {
+                                       // If there are no existing configs
+                                        const newValues = [];
+                                        configs.required.forEach(value => {
+                                            // New configs found
+                                            newValues.push({ name: value, type: '' });
+                                        });
+                                        // Assign types to values
+                                        newValues.forEach(val => {
+                                            val.type = configs.properties[val.name].type;
+                                        })
+
+                                        let updatedContent = '';
+
+                                        newValues.forEach(obj => {
+                                            updatedContent += `${obj.name} = "${obj.type}"\n`;
+                                        });
+
+                                        writeFile(uri.fsPath, updatedContent, function (error) {
+                                            if (error) {
+                                                return window.showInformationMessage("Unable to update the configurable values: " + error);
+                                            }
+                                            window.showInformationMessage("Successfully updated the configurable values.");
+                                        });
+                                    }
+                                }
+
                                 await workspace.openTextDocument(uri).then(async document => {
                                     window.showTextDocument(document, { preview: false });
                                     const runButton = { title: 'Run Now', isCloseAffordance: true };
@@ -120,4 +182,5 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
         });
 
     }
+
 }
