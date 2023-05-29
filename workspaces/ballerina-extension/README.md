@@ -4,7 +4,7 @@ The Ballerina VS Code extension offers the ability to visualize the bidirectiona
 
 ## Features
 
-The VS Code extension allows you to design and develop your Balelrina program using a graphical representation of the code. This graphical view displays the logic and network interaction of a function or a service resource, which makes it easy to understand the source. 
+The VS Code extension allows you to design and develop your Ballerina program using a graphical representation of the code. This graphical view displays the logic and network interaction of a function or a service resource, which makes it easy to understand the source. 
 
 ### Architecture View
 
