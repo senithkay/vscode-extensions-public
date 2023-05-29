@@ -13,16 +13,21 @@
 import * as React from "react";
 
 import { expect } from "@jest/globals";
-import { fireEvent, render, screen, waitForElementToBeRemoved, within } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ModulePart, ResourceAccessorDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import 'jest-canvas-mock';
 import path from "path";
 
-import { ServiceDesignOverlay } from "../Diagram/components/ServiceDesignOverlay";
-
-import { TestProvider } from "./TestContext";
-import { createLangClient, getFileContent, getSyntaxTree } from "./utils/ls-utils";
+import { createLangClient, getSyntaxTree } from "./utils/ls-utils";
+import { ResourceFunction } from "./utils/service/resourceFunction";
+import { Response } from "./utils/service/response";
+import {
+    listenerHeaderTextShouldInclude,
+    renderServiceDesignOverlay,
+    serviceHeaderTextShouldInclude,
+    waitForResourceLoadingToDisappear
+} from "./utils/service/service";
 
 const BAL_FILE_NAME = "service.bal";
 
@@ -43,55 +48,83 @@ beforeAll(async () => {
     expect(serviceDecl.absoluteResourcePath.length).toBe(1);
 });
 
-test('Test simple service', async () => {
-    const currentFileContent = await getFileContent(filePath);
-    render(
-        <TestProvider
-            completeST={completeST}
-            focusedST={serviceDecl}
-            currentFileContent={currentFileContent}
-            fileName={BAL_FILE_NAME}
-            fileUri={filePath}
-            langClient={langClient}
-        >
-            <ServiceDesignOverlay model={serviceDecl} onCancel={undefined} />
-        </TestProvider>
-    );
 
-    const serviceContainer = screen.getByTestId("service-container");
-    const servicePath = within(serviceContainer).getByTestId("service-path");
-    expect(within(servicePath).getByText(`Service ${serviceDecl.absoluteResourcePath[0].value}`)).toBeDefined();
-    const listenerText = within(serviceContainer).getByTestId("listener-text");
-    expect(within(listenerText).getByText(`listening on ${serviceDecl.expressions[0].source.trim()}`)).toBeDefined();
+test('Test simple service', async () => {
+    await renderServiceDesignOverlay(filePath, completeST, serviceDecl, BAL_FILE_NAME, langClient);
+
+    serviceHeaderTextShouldInclude(serviceDecl.absoluteResourcePath[0].value);
+    listenerHeaderTextShouldInclude(serviceDecl.expressions[0].source.trim());
 
     expect(screen.queryByTestId('resource-loading')).toBeDefined();
+    await waitForResourceLoadingToDisappear();
 
-    await waitForElementToBeRemoved(() => screen.getByTestId('resource-loading'));
+    const resourceIndex = 0;
+    const resourceAccessorDefinition = serviceDecl.members[resourceIndex] as ResourceAccessorDefinition;
 
-    const resourceAccessorDefinition = serviceDecl.members[0] as ResourceAccessorDefinition;
-    const resourceHeader = screen.getByTestId("resource-header-0");
+    const resourceFn = new ResourceFunction(resourceIndex, resourceAccessorDefinition);
+    resourceFn.validateFunctionName();
+    resourceFn.validateResourceParams();
+    resourceFn.expandResource();
+    resourceFn.resourceInformationIsVisible();
 
-    const resourceType = within(resourceHeader).getByTestId("resource-type-0");
-    expect(resourceType).toBeDefined();
-    const functionName = resourceAccessorDefinition.functionName.value;
-    expect(within(resourceType).getByText(functionName.toUpperCase())).toBeDefined();
+    const responseIndex = 0;
+    const serviceMember = resourceFn.getServiceMember(resourceIndex);
 
-    const resourceQueryParams = screen.getByTestId("resource-query-params-0");
-    expect(resourceQueryParams).toBeDefined();
-    const resourcePath = resourceAccessorDefinition.relativeResourcePath.map(p => p.value).join("");
-    expect(within(resourceQueryParams).getByText(resourcePath)).toBeDefined();
-
-    fireEvent.click(within(resourceHeader).getByTestId("resource-expand-button-0"));
-    const serviceMember = screen.getByTestId("service-member-0");
-    expect(serviceMember).toBeDefined();
-
-    const response1 = within(serviceMember).getByTestId("responses-row-0");
-    expect(response1).toBeDefined();
-    const response1Code = within(response1).getByTestId("response-code-0");
-    expect(within(response1Code).getByText("200")).toBeDefined();
-    const responseDescription = within(response1).getByTestId("response-description-0");
-    expect(within(responseDescription).getByText("string")).toBeDefined();
+    const response1 = new Response(responseIndex, serviceMember);
+    response1.validateResponseCode("200");
+    response1.validateResponseDescription("string");
 });
+
+//
+// test('Test simple service', async () => {
+//     const currentFileContent = await getFileContent(filePath);
+//     render(
+//         <TestProvider
+//             completeST={completeST}
+//             focusedST={serviceDecl}
+//             currentFileContent={currentFileContent}
+//             fileName={BAL_FILE_NAME}
+//             fileUri={filePath}
+//             langClient={langClient}
+//         >
+//             <ServiceDesignOverlay model={serviceDecl} onCancel={undefined} />
+//         </TestProvider>
+//     );
+//
+//     const serviceContainer = screen.getByTestId("service-container");
+//     const servicePath = within(serviceContainer).getByTestId("service-path");
+//     expect(within(servicePath).getByText(`Service ${serviceDecl.absoluteResourcePath[0].value}`)).toBeDefined();
+//     const listenerText = within(serviceContainer).getByTestId("listener-text");
+//     expect(within(listenerText).getByText(`listening on ${serviceDecl.expressions[0].source.trim()}`)).toBeDefined();
+//
+//     expect(screen.queryByTestId('resource-loading')).toBeDefined();
+//
+//     await waitForElementToBeRemoved(() => screen.getByTestId('resource-loading'));
+//
+//     const resourceAccessorDefinition = serviceDecl.members[0] as ResourceAccessorDefinition;
+//     const resourceHeader = screen.getByTestId("resource-header-0");
+//
+//     const resourceType = within(resourceHeader).getByTestId("resource-type-0");
+//     expect(resourceType).toBeDefined();
+//     const functionName = resourceAccessorDefinition.functionName.value;
+//     expect(within(resourceType).getByText(functionName.toUpperCase())).toBeDefined();
+//
+//     const resourceQueryParams = screen.getByTestId("resource-query-params-0");
+//     expect(resourceQueryParams).toBeDefined();
+//     const resourcePath = resourceAccessorDefinition.relativeResourcePath.map(p => p.value).join("");
+//     expect(within(resourceQueryParams).getByText(resourcePath)).toBeDefined();
+//
+//     fireEvent.click(within(resourceHeader).getByTestId("resource-expand-button-0"));
+//     const serviceMember = screen.getByTestId("service-member-0");
+//     expect(serviceMember).toBeDefined();
+//
+//     const response1 = within(serviceMember).getByTestId("responses-row-0");
+//     expect(response1).toBeDefined();
+//     const response1Code = within(response1).getByTestId("response-code-0");
+//     expect(within(response1Code).getByText("200")).toBeDefined();
+//     const responseDescription = within(response1).getByTestId("response-description-0");
+//     expect(within(responseDescription).getByText("string")).toBeDefined();
+// });
 
 
 //
