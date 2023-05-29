@@ -22,6 +22,13 @@ export interface ParameterInfo {
     description: string;
 }
 
+export interface ResourceInfo {
+    functionName: string;
+    resourcePath: string;
+    responses: ResponseInfo[];
+    parameters?: ParameterInfo[];
+}
+
 export const waitForResourceLoadersToDisappear = async (noOfResources: number) => {
     for (let i = 0; i < noOfResources; i++) {
         const resourceLoadingElement = screen.queryByTestId(`resource-loader-${i}`);
@@ -30,3 +37,5 @@ export const waitForResourceLoadersToDisappear = async (noOfResources: number) =
         }
     }
 };
+
+export const indexer = (testData: ResourceInfo[]) => testData.map((resource, index) => ({ ...resource, index }));

@@ -13,6 +13,10 @@
 import { expect } from "@jest/globals";
 import { fireEvent, screen, within } from "@testing-library/react";
 
+import { Parameter } from "./parameter";
+import { Response } from "./response";
+import { ParameterInfo, ResponseInfo } from "./utils";
+
 export class ResourceFunction {
 
     constructor(private resourceIndex: number) {}
@@ -39,3 +43,50 @@ export class ResourceFunction {
     private getResourceExpandButton = () =>
         within(this.getResourceHeader()).getByTestId(`resource-expand-button-${this.resourceIndex}`);
 }
+
+export const testResourceFunction = (resourceIndex: number,
+                                     functionName: string,
+                                     resourcePath: string,
+                                     responses: ResponseInfo[],
+                                     parameters?: ParameterInfo[]) => {
+    const resourceFn = new ResourceFunction(resourceIndex);
+
+    resourceFn.functionNameShouldInclude(functionName.toUpperCase());
+    resourceFn.resourcePathShouldInclude(resourcePath);
+    resourceFn.expandResource();
+    resourceFn.resourceInformationIsVisible();
+
+    const serviceMember = resourceFn.getServiceMember(resourceIndex);
+
+    responses.forEach((response, index) => {
+        const expectedCode = response.code;
+        const expectedDescription = response.description;
+        validateResponse(index, serviceMember, expectedCode, expectedDescription);
+    });
+
+    if (parameters !== undefined) {
+        parameters.forEach((param, index) => {
+            const expectedType = param.type;
+            const expectedDescription = param.description;
+            validateParameter(index, serviceMember, expectedType, expectedDescription);
+        });
+    }
+};
+
+const validateResponse = (responseIndex: number,
+                          serviceMember: HTMLElement,
+                          expectedCode: string,
+                          expectedDescription: string) => {
+    const response = new Response(responseIndex, serviceMember);
+    response.validateResponseCode(expectedCode);
+    response.validateResponseDescription(expectedDescription);
+};
+
+const validateParameter = (paramIndex: number,
+                           serviceMember: HTMLElement,
+                           expectedType: string,
+                           expectedDescription: string) => {
+    const parameter = new Parameter(paramIndex, serviceMember);
+    parameter.validateParamType(expectedType);
+    parameter.validateParamDescription(expectedDescription);
+};
