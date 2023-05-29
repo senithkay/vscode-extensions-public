@@ -17,6 +17,7 @@ import React, { useEffect, useState } from "react";
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 
+import { GraphqlOverlayLayerModel } from "../OverlayLoader";
 import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
@@ -45,6 +46,7 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
 
     useEffect(() => {
+        model.addLayer(new GraphqlOverlayLayerModel());
         diagramEngine.setModel(model);
         setDiagramModel(model);
         autoDistribute();
@@ -64,8 +66,9 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
-            diagramEngine.repaintCanvas();
             zoomToFit();
+            diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof GraphqlOverlayLayerModel));
+            diagramEngine.setModel(model);
         }, 30);
     };
 
