@@ -12,24 +12,18 @@
 */
 import { expect } from "@jest/globals";
 import { fireEvent, screen, within } from "@testing-library/react";
-import { ResourceAccessorDefinition } from "@wso2-enterprise/syntax-tree";
 
 export class ResourceFunction {
-    private functionName: string;
-    private resourcePath: string;
 
-    constructor(private resourceIndex: number, private definition: ResourceAccessorDefinition) {
-        this.functionName = definition.functionName.value;
-        this.resourcePath = definition.relativeResourcePath.map(p => p.value).join("");
-    }
+    constructor(private resourceIndex: number) {}
 
-    validateFunctionName = () =>
-        expect(within(this.getResourceType()).getByText(this.functionName.toUpperCase())).toBeDefined();
+    functionNameShouldInclude = (functionName: string) =>
+        expect(within(this.getResourceType()).getByText(functionName)).toBeDefined();
 
-    validateResourceParams = () => {
+    resourcePathShouldInclude = (resourcePath: string) => {
         const params = screen.getByTestId(`resource-query-params-${this.resourceIndex}`);
         expect(params).toBeDefined();
-        expect(within(params).getByText(this.resourcePath)).toBeDefined();
+        expect(within(params).getByText(resourcePath)).toBeDefined();
     };
 
     expandResource = () => fireEvent.click(this.getResourceExpandButton());

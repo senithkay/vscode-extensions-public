@@ -57,10 +57,12 @@ test('Test simple service', async () => {
 
     const resourceIndex = 0;
     const resourceAccessorDefinition = serviceDecl.members[resourceIndex] as ResourceAccessorDefinition;
+    const functionName = resourceAccessorDefinition.functionName.value;
+    const resourcePath = resourceAccessorDefinition.relativeResourcePath.map(p => p.value).join("");
 
-    const resourceFn = new ResourceFunction(resourceIndex, resourceAccessorDefinition);
-    resourceFn.validateFunctionName();
-    resourceFn.validateResourceParams();
+    const resourceFn = new ResourceFunction(resourceIndex);
+    resourceFn.functionNameShouldInclude(functionName.toUpperCase());
+    resourceFn.resourcePathShouldInclude(resourcePath);
     resourceFn.expandResource();
     resourceFn.resourceInformationIsVisible();
 
@@ -71,58 +73,6 @@ test('Test simple service', async () => {
     response1.validateResponseCode("200");
     response1.validateResponseDescription("string");
 });
-
-//
-// test('Test simple service', async () => {
-//     const currentFileContent = await getFileContent(filePath);
-//     render(
-//         <TestProvider
-//             completeST={completeST}
-//             focusedST={serviceDecl}
-//             currentFileContent={currentFileContent}
-//             fileName={BAL_FILE_NAME}
-//             fileUri={filePath}
-//             langClient={langClient}
-//         >
-//             <ServiceDesignOverlay model={serviceDecl} onCancel={undefined} />
-//         </TestProvider>
-//     );
-//
-//     const serviceContainer = screen.getByTestId("service-container");
-//     const servicePath = within(serviceContainer).getByTestId("service-path");
-//     expect(within(servicePath).getByText(`Service ${serviceDecl.absoluteResourcePath[0].value}`)).toBeDefined();
-//     const listenerText = within(serviceContainer).getByTestId("listener-text");
-//     expect(within(listenerText).getByText(`listening on ${serviceDecl.expressions[0].source.trim()}`)).toBeDefined();
-//
-//     expect(screen.queryByTestId('resource-loading')).toBeDefined();
-//
-//     await waitForElementToBeRemoved(() => screen.getByTestId('resource-loading'));
-//
-//     const resourceAccessorDefinition = serviceDecl.members[0] as ResourceAccessorDefinition;
-//     const resourceHeader = screen.getByTestId("resource-header-0");
-//
-//     const resourceType = within(resourceHeader).getByTestId("resource-type-0");
-//     expect(resourceType).toBeDefined();
-//     const functionName = resourceAccessorDefinition.functionName.value;
-//     expect(within(resourceType).getByText(functionName.toUpperCase())).toBeDefined();
-//
-//     const resourceQueryParams = screen.getByTestId("resource-query-params-0");
-//     expect(resourceQueryParams).toBeDefined();
-//     const resourcePath = resourceAccessorDefinition.relativeResourcePath.map(p => p.value).join("");
-//     expect(within(resourceQueryParams).getByText(resourcePath)).toBeDefined();
-//
-//     fireEvent.click(within(resourceHeader).getByTestId("resource-expand-button-0"));
-//     const serviceMember = screen.getByTestId("service-member-0");
-//     expect(serviceMember).toBeDefined();
-//
-//     const response1 = within(serviceMember).getByTestId("responses-row-0");
-//     expect(response1).toBeDefined();
-//     const response1Code = within(response1).getByTestId("response-code-0");
-//     expect(within(response1Code).getByText("200")).toBeDefined();
-//     const responseDescription = within(response1).getByTestId("response-description-0");
-//     expect(within(responseDescription).getByText("string")).toBeDefined();
-// });
-
 
 //
 // afterAll(async () => {
