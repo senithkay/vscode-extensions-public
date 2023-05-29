@@ -12,6 +12,7 @@ jobs:
     secrets: inherit  
 
   Test:
+    name: Integration Tests
     needs: [Build]
     timeout-minutes: 15
     runs-on: ubuntu-latest
@@ -62,4 +63,9 @@ jobs:
           VSCODE_CLIENT_ID: aVKhTSUMu_QfEwmCtrcuWoLy92oa
           PROJECT_API: https://apis.choreo.dev/projects/1.0.0/graphql  
 
-    
+      - name: Publish UI Test Screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/choreo-extension/test-resources/screenshots/
+          name: Integration-test-screenshots-${{ github.run_attempt }}
+        if: failure()
