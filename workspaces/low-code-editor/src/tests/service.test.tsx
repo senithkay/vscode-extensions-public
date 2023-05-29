@@ -13,7 +13,6 @@
 import * as React from "react";
 
 import { expect } from "@jest/globals";
-import { screen } from "@testing-library/react";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { ModulePart, ResourceAccessorDefinition, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import 'jest-canvas-mock';
@@ -24,7 +23,7 @@ import { renderServiceDesignOverlay } from "./utils/service/renderer";
 import { ResourceFunction } from "./utils/service/resourceFunction";
 import { Response } from "./utils/service/response";
 import { Service } from "./utils/service/service";
-import { waitForResourceLoadingToDisappear } from "./utils/service/utils";
+import { waitForResourceLoadersToDisappear } from "./utils/service/utils";
 
 const BAL_FILE_NAME = "service.bal";
 
@@ -52,13 +51,12 @@ test('Test simple service', async () => {
     Service.serviceHeaderTextShouldInclude(serviceDecl.absoluteResourcePath[0].value);
     Service.listenerHeaderTextShouldInclude(serviceDecl.expressions[0].source.trim());
 
-    expect(screen.queryByTestId('resource-loading')).toBeDefined();
-    await waitForResourceLoadingToDisappear();
-
     const resourceIndex = 0;
     const resourceAccessorDefinition = serviceDecl.members[resourceIndex] as ResourceAccessorDefinition;
     const functionName = resourceAccessorDefinition.functionName.value;
     const resourcePath = resourceAccessorDefinition.relativeResourcePath.map(p => p.value).join("");
+
+    await waitForResourceLoadersToDisappear(serviceDecl.members.length);
 
     const resourceFn = new ResourceFunction(resourceIndex);
     resourceFn.functionNameShouldInclude(functionName.toUpperCase());

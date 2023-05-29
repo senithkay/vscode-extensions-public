@@ -448,12 +448,22 @@ export function ResourceBody(props: ResourceBodyProps) {
         >
             <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
                 {isLoading ? (
-                    <div className={classNames("function-signature", model.functionName.value)} data-testid={"resource-loading"}>
+                    <div
+                        className={classNames("function-signature", model.functionName.value)}
+                        data-testid={`resource-loader-${id}`}
+                    >
                         <CircularProgress size={18} className={classes.loader} />
                     </div>
                 ) : (
                     <>
-                        <ResourceHeader id={id} isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
+                        <ResourceHeader
+                            id={id}
+                            isExpanded={isExpanded}
+                            onExpandClick={handleIsExpand}
+                            model={model}
+                            onEdit={onEdit}
+                            onDelete={handleDeleteBtnClick}
+                        />
                         {isExpanded && body}
                     </>
                 )}
