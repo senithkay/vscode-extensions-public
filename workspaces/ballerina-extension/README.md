@@ -1,13 +1,10 @@
 # The Ballerina extension for Visual Studio Code
 
-The Ballerina VS Code extension offers the ability to visualize the bidirectional mapping between the syntax and graphical representation of your [Ballerina](https://ballerina.io/) source code. 
+The Ballerina VS Code extension offers the ability to visualize the bidirectional mapping between the syntax and graphical representation of your <a href="https://ballerina.io/" target="_blank">Ballerina</a> source code. 
 
 ## Quick start
 
-Follow the steps below to get the Ballerina VS Code extension up and running.
-
-1. [Install the extension](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
-2. [Run a program](https://wso2.com/ballerina/vscode/docs/get-started/run-a-program/).
+Follow the steps below to [install the Ballerina VS Code extension](https://wso2.com/ballerina/vscode/docs/get-started/install-the-extension/).
 
 ## Features
 
@@ -37,11 +34,11 @@ The [visual data mapping feature](https://wso2.com/ballerina/vscode/docs/visual-
 
 <img src="https://github.com/wso2/ballerina-plugin-vscode/blob/main/resources/images/data-mapper.png?raw=true" width="100%" />
 
-> Apart from the aforementioned visual programming features, the Ballerina VS Code extension enhances the Ballerina development experience by providing a comprehensive set of features, including code editing, debugging, code execution, and code deployment. For detailed information on them, see the [Ballerina VS Code Extension Documentation](https://wso2.com/ballerina/vscode/docs/).
+> Apart from the aforementioned visual programming features, the Ballerina VS Code extension enhances the Ballerina development experience by providing a comprehensive set of features, including code editing, debugging, code execution, and code deployment. For detailed information on them, see the <a href="https://wso2.com/ballerina/vscode/docs/" target="_blank">Ballerina VS Code Extension Documentation</a>.
 
 ## Documentation
 
-The [Ballerina VS Code Extension Documentation](https://wso2.com/ballerina/vscode/docs/) describes the functionalities of this extension in detail.
+The <a href="https://wso2.com/ballerina/vscode/docs/" target="_blank">Ballerina VS Code Extension Documentation</a> describes the functionalities of this extension in detail.
 
 ## Configure the extension
 
