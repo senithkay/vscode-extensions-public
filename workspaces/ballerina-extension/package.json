@@ -56,6 +56,9 @@
                 "extensions": [
                     ".toml"
                 ]
+            },
+            {
+                "id": "x-ballerina-output-log"
             }
         ],
         "grammars": [
@@ -138,6 +141,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Enable notebook debug mode."
+                },
+                "ballerina.enableRunFast": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Experimental: Enable compiling & running Ballerina programs inside Language Server resulting in faster execution."
                 }
             }
         },
@@ -353,6 +361,11 @@
                     "dark": "./resources/images/icons/start-inverse.svg",
                     "light": "./resources/images/icons/start.svg"
                 },
+                "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.project.stop",
+                "title": "Stop",
                 "category": "Ballerina"
             },
             {
