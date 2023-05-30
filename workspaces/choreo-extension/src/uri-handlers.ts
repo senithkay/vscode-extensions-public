@@ -12,12 +12,14 @@
  */
 
 import { ProviderResult, Uri, commands, window } from "vscode";
-import { exchangeOrgAccessTokens, githubAppClient } from "./auth/auth";
+import { githubAppClient } from "./auth/auth";
 import { ext } from "./extensionVariables";
 import { getLogger } from "./logger/logger";
 import { STATUS_LOGGED_IN, choreoProjectOverview, choreoProjectOverviewCloseCmdId, choreoSignInCmdId, choreoSignOutCmdId, refreshProjectsTreeViewCmdId } from "./constants";
 import { executeWithTaskRetryPrompt } from "./retry";
 import { setSelectedOrgCmdId } from "./constants";
+
+const NOT_AUTHORIZED_MESSAGE = "You are not authorized to access this project";
 
 export function activateURIHandlers() {
     window.registerUriHandler({
@@ -93,7 +95,7 @@ export function activateURIHandlers() {
                                         await commands.executeCommand(setSelectedOrgCmdId, undefined, userOrg);
                                         switchToProjectOverview(projectId, +orgId);
                                     } else {
-                                        window.showErrorMessage("You are not authorized to access this project");
+                                        window.showErrorMessage(NOT_AUTHORIZED_MESSAGE);
                                     }
                                 });
                             }
@@ -108,7 +110,7 @@ export function activateURIHandlers() {
                             await commands.executeCommand(setSelectedOrgCmdId, undefined, userOrg);
                             switchToProjectOverview(projectId, +orgId);
                         } else {
-                            window.showErrorMessage("You are not authorized to access this project");
+                            window.showErrorMessage(NOT_AUTHORIZED_MESSAGE);
                         }
                     });
                 }
