@@ -147,12 +147,12 @@ export function CategoryView(props: CategoryViewProps) {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <SearchIcon color="disabled" fontSize="small"/>
+                                <SearchIcon color="disabled" fontSize="small" />
                             </InputAdornment>
                         ),
                     }}
                 />
-                <TopLevelActionButton />
+                <TopLevelActionButton fileList={[]} />
             </div>
         );
     };

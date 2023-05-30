@@ -40,6 +40,7 @@ import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-
 import { getConstructBodyString } from "../Diagram/visitors/util";
 import { getDiagramProviderProps } from "./utils";
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
+import { DiagramView } from "./views/DiagramView";
 
 export function DiagramViewManager(props: EditorProps) {
     const {
@@ -51,8 +52,6 @@ export function DiagramViewManager(props: EditorProps) {
         getEnv,
         getBallerinaVersion,
         workspaceName,
-        getAllFiles,
-        gotoSource,
         diagramFocus
     } = props;
     const [
@@ -72,7 +71,6 @@ export function DiagramViewManager(props: EditorProps) {
     const [balVersion, setBalVersion] = React.useState("");
     const [projectComponents, setProjectComponents] = React.useState<BallerinaProjectComponents>();
     const [fileList, setFileList] = React.useState([]);
-    const [currentComponents, setCurrentComponents] = React.useState<ComponentCollection>(undefined);
     const [focusedST, setFocusedST] = useState<STNode>();
     const [completeST, setCompleteST] = useState<STNode>();
     const [currentFileContent, setCurrentFileContent] = useState<string>();
@@ -166,6 +164,10 @@ export function DiagramViewManager(props: EditorProps) {
                     setCurrentFileContent(content);
                     setLowCodeResourcesVersion(resourceVersion);
                     setLowCodeEnvInstance(envInstance);
+                } else {
+                    setFocusedST(undefined);
+                    setCompleteST(undefined);
+                    setCurrentFileContent(undefined);
                 }
 
                 console.log("componentResponse >>>", componentResponse);
@@ -195,7 +197,7 @@ export function DiagramViewManager(props: EditorProps) {
     const showOverviewMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
         && history[history.length - 1].position === undefined;
     const showSTMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
-        && history[history.length - 1].position !== undefined;
+        && history[history.length - 1].position !== undefined && !!focusedST;
 
 
     const diagramProps = getDiagramProviderProps(
@@ -242,6 +244,7 @@ export function DiagramViewManager(props: EditorProps) {
                             />
                             {!showOverviewMode && !showSTMode && <TextPreLoader position={'absolute'} />}
                             {showOverviewMode && <ComponentListView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
+                            {showSTMode && <DiagramView projectComponents={projectComponents}/>}
                             <div id={'canvas-overlay'} className={"overlayContainer"} />
                         </ViewManagerProvider>
                     </HistoryProvider>
