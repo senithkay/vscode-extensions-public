@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-// tslint:disable:  jsx no-var-requires
 import React from 'react';
 
 import { DiagramEngine } from '@projectstorm/react-diagrams';
@@ -27,16 +26,16 @@ import { Container } from "../Canvas/CanvasWidgetContainer";
 import { GraphqlOverlayLayerModel } from './GraphqlOverlayLayerModel';
 
 export interface NodeLayerWidgetProps {
-	layer: GraphqlOverlayLayerModel;
-	engine: DiagramEngine;
+    layer: GraphqlOverlayLayerModel;
+    engine: DiagramEngine;
 }
 
 export class GraphqlOverlayLayerWidget extends React.Component<NodeLayerWidgetProps> {
-	render() {
-		return (
-			<Container className="dotted-background">
-				<TextPreLoader position="absolute" text="Rendering the Diagram..."/>
-			</Container>
-		);
-	}
+    render() {
+        return (
+            <Container className="dotted-background">
+                <TextPreLoader position="absolute" text="Rendering the Diagram..." />
+            </Container>
+        );
+    }
 }

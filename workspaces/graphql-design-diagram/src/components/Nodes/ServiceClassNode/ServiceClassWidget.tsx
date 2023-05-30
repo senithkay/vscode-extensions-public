@@ -32,10 +32,10 @@ export function ServiceClassNodeWidget(props: ServiceClassNodeWidgetProps) {
 
     return (
         <ServiceNode>
-            <ServiceClassHeadWidget node={node} engine={engine}/>
+            <ServiceClassHeadWidget node={node} engine={engine} />
             {node.classObject.functions?.map((classFunction, index) => {
                 return (
-                    <ServiceField key={index} node={node} engine={engine} functionElement={classFunction}/>
+                    <ServiceField key={index} node={node} engine={engine} functionElement={classFunction} />
                 );
             })}
         </ServiceNode>

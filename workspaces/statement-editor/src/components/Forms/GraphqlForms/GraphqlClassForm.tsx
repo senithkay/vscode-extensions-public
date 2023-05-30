@@ -88,7 +88,7 @@ export function GraphqlClassForm(props: ClassFormProps) {
             <>
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
-                        <FieldTitle title="Class Name" optional={false}/>
+                        <FieldTitle title="Class Name" optional={false} />
                         <LiteTextField
                             value={className}
                             onChange={handleClassNameChange}
@@ -100,10 +100,17 @@ export function GraphqlClassForm(props: ClassFormProps) {
                     </div>
                 </div>
 
-                <FormActionButtons cancelBtnText="Cancel" cancelBtn={true} saveBtnText="Save" onSave={handleFormSave} onCancel={onCancel} validForm={true}/>
+                <FormActionButtons
+                    cancelBtnText="Cancel"
+                    cancelBtn={true}
+                    saveBtnText="Save"
+                    onSave={handleFormSave}
+                    onCancel={onCancel}
+                    validForm={true}
+                />
                 {isUpdating && (
                     <Box display="flex" justifyContent="center">
-                        <TextPreLoader position="absolute" text="Renaming constructs..."/>
+                        <TextPreLoader position="absolute" text="Renaming constructs..." />
                     </Box>
                 )}
             </>
@@ -112,7 +119,11 @@ export function GraphqlClassForm(props: ClassFormProps) {
 
     return (
         <FormControl data-testid="graphql-resource-form" className={connectorClasses.wizardFormControlExtended}>
-            <FormHeaderSection onCancel={onCancel} formTitle={"Configure GraphQL Class"} defaultMessage={"Configure GraphQL Class"}/>
+            <FormHeaderSection
+                onCancel={onCancel}
+                formTitle={"Configure GraphQL Class"}
+                defaultMessage={"Configure GraphQL Class"}
+            />
             {formContent()}
         </FormControl>
     );

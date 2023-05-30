@@ -54,7 +54,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     const {
         props: { currentFile, syntaxTree: lowcodeST, fullST },
         api: {
-            code: { modifyDiagram,  },
+            code: { modifyDiagram },
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
@@ -138,7 +138,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
         if (formConfig?.filePath &&
             currentFile.path !== formConfig.filePath && formConfig?.configOverlayFormStatus?.formName === "ServiceClassResource") {
             (async () => {
-                const langClientPromise: DiagramEditorLangClientInterface  = await getDiagramEditorLangClient();
+                const langClientPromise: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
                 const syntaxTree: STNode = await getSyntaxTree(formConfig.filePath, langClientPromise);
                 setFormConfig({
                     ...formConfig,
@@ -151,35 +151,35 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
             {isVisualizerSupported ? (
-                <>
-                    {!isLoadingST ?
-                    <GraphqlDesignDiagram
-                        model={model}
-                        targetPosition={targetPosition}
-                        langClientPromise={
-                            getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                    <>
+                        {!isLoadingST ?
+                            <GraphqlDesignDiagram
+                                model={model}
+                                targetPosition={targetPosition}
+                                langClientPromise={
+                                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                                }
+                                filePath={currentFile.path}
+                                currentFile={currentFile}
+                                ballerinaVersion={ballerinaVersion}
+                                syntaxTree={lowcodeST}
+                                functionPanel={renderFunctionForm}
+                                servicePanel={renderServicePanel}
+                                operationDesignView={handleDesignOperationClick}
+                                recordEditor={renderRecordEditor}
+                                onDelete={handleDeleteBtnClick}
+                                fullST={fullST}
+                                goToSource={goToSource}
+                            /> : (
+                                <TextPreLoader position="absolute" text="Loading..." />
+                            )
                         }
-                        filePath={currentFile.path}
-                        currentFile={currentFile}
-                        ballerinaVersion={ballerinaVersion}
-                        syntaxTree={lowcodeST}
-                        functionPanel={renderFunctionForm}
-                        servicePanel={renderServicePanel}
-                        operationDesignView={handleDesignOperationClick}
-                        recordEditor={renderRecordEditor}
-                        onDelete={handleDeleteBtnClick}
-                        fullST={fullST}
-                        goToSource={goToSource}
-                    /> : (
-                            <TextPreLoader position="absolute" text="Loading..."/>
-                         )
-                    }
-                    {enableFormGenerator &&
-                    <FormGenerator {...formConfig}/>
-                    }
-                </>
-            ) :
-                <GraphqlUnsupportedVersionOverlay/>
+                        {enableFormGenerator &&
+                        <FormGenerator {...formConfig} />
+                        }
+                    </>
+                ) :
+                <GraphqlUnsupportedVersionOverlay />
             }
         </div>
     );

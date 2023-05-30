@@ -30,7 +30,7 @@ interface ServiceClassHeadProps {
 }
 
 export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
-    const { engine, node} = props;
+    const { engine, node } = props;
     const headPorts = useRef<PortModel[]>([]);
 
     const displayName: string = node.classObject.serviceName;
@@ -52,7 +52,7 @@ export function ServiceClassHeadWidget(props: ServiceClassHeadProps) {
                     engine={engine}
                 />
                 <HeaderName>{displayName}</HeaderName>
-                <ClassHeaderMenu location={node.classObject.position}/>
+                <ClassHeaderMenu location={node.classObject.position} />
                 <GraphqlBasePortWidget
                     port={node.getPort(`right-${node.getID()}`)}
                     engine={engine}
