@@ -13,6 +13,7 @@
 import { expect } from "@jest/globals";
 import { fireEvent, screen, within } from "@testing-library/react";
 
+import { Body } from "./body";
 import { Parameter } from "./parameter";
 import { Response } from "./response";
 import { ParameterInfo, ResponseInfo } from "./utils";
@@ -47,7 +48,8 @@ export const testResourceFunction = (resourceIndex: number,
                                      functionName: string,
                                      resourcePath: string,
                                      responses: ResponseInfo[],
-                                     parameters?: ParameterInfo[]) => {
+                                     parameters?: ParameterInfo[],
+                                     body?: string[]) => {
     const resourceFn = new ResourceFunction(resourceIndex);
 
     resourceFn.functionNameShouldInclude(functionName.toUpperCase());
@@ -68,6 +70,13 @@ export const testResourceFunction = (resourceIndex: number,
             const expectedType = param.type;
             const expectedDescription = param.description;
             validateParameter(index, serviceMember, expectedType, expectedDescription);
+        });
+    }
+
+    if (body !== undefined) {
+        body.forEach((item, index) => {
+            const resourceBody = new Body(index, serviceMember);
+            resourceBody.validateBodyDescription(item);
         });
     }
 };

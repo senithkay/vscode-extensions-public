@@ -27,6 +27,7 @@ export interface ResourceInfo {
     resourcePath: string;
     responses: ResponseInfo[];
     parameters?: ParameterInfo[];
+    body?: string[];
 }
 
 export const waitForResourceLoadersToDisappear = async (noOfResources: number) => {

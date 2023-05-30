@@ -48,44 +48,101 @@ beforeEach(async () => {
 });
 
 test('test service', async () => {
-    Service.serviceHeaderTextShouldInclude(serviceDecl.absoluteResourcePath[0].value);
-    Service.listenerHeaderTextShouldInclude(serviceDecl.expressions[0].source.trim());
+    Service.serviceHeaderTextShouldInclude(`/foo`);
+    Service.listenerHeaderTextShouldInclude(`new http:Listener(9090)`);
 });
 
 const testData: ResourceInfo[] = [
     {
-        functionName: "GET",
-        resourcePath: "greeting",
-        responses: [{ code: "200", description: "string" }]
+        functionName: "POST",
+        resourcePath: "orders",
+        responses: [
+            { code: "500", description: "error?" },
+            { code: "201", description: "http:Created" }
+        ],
+        parameters: [{ type: "string", description: "id" }],
+        body: ["Order"]
     },
     {
         functionName: "GET",
-        resourcePath: "greeting2",
+        resourcePath: "orders/[string id]",
         responses: [
-            { code: "200", description: "string" },
-            { code: "500", description: "error" }
+            { code: "500", description: "error?" },
+            { code: "200", description: "Order" }
         ],
-        parameters: [{ type: "string", description: "name" }]
+        parameters: [
+            { type: "@http:Header", description: "string" },
+            { type: "http:Request", description: "req" },
+            { type: "http:Caller", description: "caller" },
+            { type: "http:Headers", description: "header" }
+        ]
+    },
+    {
+        functionName: "DELETE",
+        resourcePath: "orders",
+        responses: [
+            { code: "500", description: "error?" },
+            { code: "200", description: "http:Ok" }
+        ]
+    },
+    {
+        functionName: "PUT",
+        resourcePath: "orders",
+        responses: [
+            { code: "500", description: "error?" },
+            { code: "200", description: "http:Ok" },
+            { code: "202", description: "http:Accepted" }
+        ],
+        parameters: [{ type: "string", description: "id" }],
+        body: ["Order"]
+    },
+    {
+        functionName: "PATCH",
+        resourcePath: "orders/[string id]",
+        responses: [
+            { code: "500", description: "error?" },
+            { code: "200", description: "http:Ok" },
+            { code: "404", description: "http:NotFound" }
+        ],
+        parameters: [
+            { type: "@http:Header", description: "string" },
+            { type: "http:Request", description: "req" },
+            { type: "http:Caller", description: "caller" },
+            { type: "http:Headers", description: "header" }
+        ],
+        body: ["Order"]
     },
     {
         functionName: "POST",
-        resourcePath: "greeting3/[string id]",
-        responses: [{ code: "500", description: "error?" }],
+        resourcePath: "orders/success/[string Id]",
+        responses: [
+            { code: "500", description: "error?" },
+            { code: "201", description: "http:Created" },
+            { code: "200", description: "http:Ok" },
+            { code: "404", description: "http:NotFound" },
+            { code: "100", description: "http:ContinueRecord Schema :Order" }
+        ],
         parameters: [
-            { type: "string", description: "name" },
-            { type: "int", description: "age" }
-        ]
+            { type: "string", description: "param" },
+            { type: "@http:Header", description: "string" },
+            { type: "string?", description: "param3" },
+            { type: "http:Request", description: "param4" },
+            { type: "http:Caller", description: "param5" },
+            { type: "http:Headers", description: "param6" }
+        ],
+        body: ["@http:Payload string payload"]
     }
 ];
 
 test.each(indexer(testData))("test resource function: %#", async (resourceInfo) => {
-    const { index, functionName, resourcePath, responses, parameters } = resourceInfo;
+    const { index, functionName, resourcePath, responses, parameters, body } = resourceInfo;
     testResourceFunction(
         index,
         functionName,
         resourcePath,
         responses,
-        parameters
+        parameters,
+        body
     );
 });
 

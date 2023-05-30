@@ -12,7 +12,6 @@
  */
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
-import { monaco } from "react-monaco-editor";
 
 import { CircularProgress, Tooltip } from "@material-ui/core";
 import {
@@ -23,6 +22,7 @@ import { ConfigPanelSection } from "@wso2-enterprise/ballerina-low-code-edtior-u
 import { ModulePart, NodePosition, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
+import { URI } from "vscode-uri";
 
 import { Context } from "../../../../Contexts/Diagram";
 import { removeStatement } from "../../../utils";
@@ -133,7 +133,9 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     model.functionSignature?.parameters?.forEach((param, i) => {
         // value = record {|*http:Ok; Foo body;|}
+        let bodyArgIndex = -1;
         if (STKindChecker.isRequiredParam(param) && param.source.includes("Payload")) {
+            bodyArgIndex++;
             if (param.typeData?.typeSymbol?.name) {
                 const onClickHandler = () => openRecordEditor(param.typeData?.typeSymbol?.name)
                 const payloadSchemaComponent = (
@@ -144,8 +146,8 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </pre>
                 )
                 bodyArgs.push(
-                    <tr key={i} className={classes.signature}>
-                        <td>
+                    <tr key={i} className={classes.signature} data-testid={`body-row-${bodyArgIndex}`}>
+                        <td data-testid={`body-description-${bodyArgIndex}`}>
                             <div>
                                 Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span> :{param.paramName?.value}
                                 {payloadSchema[i] && payloadSchemaComponent}
@@ -155,7 +157,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                 )
             } else {
                 bodyArgs.push(
-                    <div key={i} className={classes.signature}>
+                    <div key={i} className={classes.signature} data-testid={`body-row-${bodyArgIndex}`}>
                         {param.source}
                     </div>
                 )
@@ -178,7 +180,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         const record: STNode = records.get(recordName.replace(/[\[\]\?]/g, "").trim());
         if (record) {
             const request: TextDocumentPositionParams = {
-                textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
+                textDocument: { uri: URI.file(currentFile.path).toString() },
                 position: { line: record.position.startLine, character: record.position.startColumn }
             };
             return langClient.getDefinitionPosition(request);
@@ -308,11 +310,13 @@ export function ResourceBody(props: ResourceBodyProps) {
     }
 
     async function renderParameters() {
-        const values = model.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
+        const values = model.functionSignature?.parameters;
         const langClient = await getDiagramEditorLangClient();
         const responses = [];
+        let paramIndex = -1;
         for (const [i, param] of values.entries()) {
             if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
+                paramIndex++;
                 const paramDetails = param.source.split(" ");
                 const recordName = param.source.split(" ")[0];
                 let description = paramDetails.length > 0 && paramDetails[1];
@@ -330,14 +334,14 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </pre>
                 );
                 responses.push(
-                    <tr key={i} className={classes.signature} data-testid={`params-row-${i}`}>
-                        <td data-testid={`param-type-${i}`}>
+                    <tr key={i} className={classes.signature} data-testid={`params-row-${paramIndex}`}>
+                        <td data-testid={`param-type-${paramIndex}`}>
                             <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
                                 {recordName}
                             </span>
                             {schemaParam[i] && tooltip}
                         </td>
-                        <td data-testid={`param-description-${i}`}>
+                        <td data-testid={`param-description-${paramIndex}`}>
                             {description}
                         </td>
                     </tr>
