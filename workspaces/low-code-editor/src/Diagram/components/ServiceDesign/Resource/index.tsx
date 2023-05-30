@@ -308,7 +308,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     }
 
     async function renderParameters() {
-        const values = model.functionSignature?.parameters;
+        const values = model.functionSignature?.parameters.filter(param => !STKindChecker.isCommaToken(param));
         const langClient = await getDiagramEditorLangClient();
         const responses = [];
         for (const [i, param] of values.entries()) {

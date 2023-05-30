@@ -22,11 +22,11 @@ export class Response {
 
     validateResponseCode = (expectedCode: string) => {
         const renderedCode = within(this.responseRow).getByTestId(`response-code-${this.responseIndex}`);
-        expect(within(renderedCode).getByText(expectedCode)).toBeDefined();
+        expect(renderedCode.textContent.trim()).toEqual(expectedCode);
     }
 
     validateResponseDescription = (expectedDes: string) => {
         const renderedDes = within(this.responseRow).getByTestId(`response-description-${this.responseIndex}`);
-        expect(within(renderedDes).getByText(expectedDes)).toBeDefined();
+        expect(renderedDes.textContent.trim()).toEqual(expectedDes);
     }
 }

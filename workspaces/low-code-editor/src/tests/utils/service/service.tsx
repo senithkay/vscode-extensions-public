@@ -18,14 +18,12 @@ import { screen, within } from "@testing-library/react";
 export class Service {
     static serviceHeaderTextShouldInclude = (resourcePath: string) => {
         const servicePath = this.getServicePath();
-        const serviceHeader = within(servicePath).getByText(`Service ${resourcePath}`);
-        expect(serviceHeader).toBeDefined();
+        expect(servicePath.textContent.trim()).toEqual(`Service ${resourcePath}`);
     };
 
     static listenerHeaderTextShouldInclude = (svcExpr: string) => {
         const listenerText = this.getListenerText();
-        const listenerHeader = within(listenerText).getByText(`listening on ${svcExpr}`);
-        expect(listenerHeader).toBeDefined();
+        expect(listenerText.textContent.trim()).toEqual(`listening on ${svcExpr}`);
     };
 
     private static getServiceContainer = () => screen.getByTestId("service-container");

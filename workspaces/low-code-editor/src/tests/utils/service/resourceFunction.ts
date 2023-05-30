@@ -22,12 +22,11 @@ export class ResourceFunction {
     constructor(private resourceIndex: number) {}
 
     functionNameShouldInclude = (functionName: string) =>
-        expect(within(this.getResourceType()).getByText(functionName)).toBeDefined();
+        expect(this.getResourceType().textContent.trim()).toEqual(functionName);
 
     resourcePathShouldInclude = (resourcePath: string) => {
-        const params = screen.getByTestId(`resource-query-params-${this.resourceIndex}`);
-        expect(params).toBeDefined();
-        expect(within(params).getByText(resourcePath)).toBeDefined();
+        const path = screen.getByTestId(`resource-${this.resourceIndex}-relative-resource-path`);
+        expect(path.textContent.trim()).toEqual(resourcePath);
     };
 
     expandResource = () => fireEvent.click(this.getResourceExpandButton());

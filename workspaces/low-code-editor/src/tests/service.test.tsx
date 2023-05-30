@@ -66,6 +66,15 @@ const testData: ResourceInfo[] = [
             { code: "500", description: "error" }
         ],
         parameters: [{ type: "string", description: "name" }]
+    },
+    {
+        functionName: "POST",
+        resourcePath: "greeting3/[string id]",
+        responses: [{ code: "500", description: "error?" }],
+        parameters: [
+            { type: "string", description: "name" },
+            { type: "int", description: "age" }
+        ]
     }
 ];
 

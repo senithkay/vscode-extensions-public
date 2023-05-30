@@ -22,11 +22,11 @@ export class Parameter {
 
     validateParamType = (expectedType: string) => {
         const renderedCode = within(this.paramRow).getByTestId(`param-type-${this.paramIndex}`);
-        expect(within(renderedCode).getByText(expectedType)).toBeDefined();
+        expect(renderedCode.textContent.trim()).toEqual(expectedType);
     }
 
     validateParamDescription = (expectedDes: string) => {
         const renderedDes = within(this.paramRow).getByTestId(`param-description-${this.paramIndex}`);
-        expect(within(renderedDes).getByText(expectedDes)).toBeDefined();
+        expect(renderedDes.textContent.trim()).toEqual(expectedDes);
     }
 }

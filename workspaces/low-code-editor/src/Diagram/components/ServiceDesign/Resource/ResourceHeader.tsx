@@ -63,6 +63,7 @@ export function ResourceHeader(props: ResourceHeaderProps) {
             </div>
             <div className="param-wrapper" data-testid={`resource-query-params-${id}`}>
                 <ResourceQueryParams
+                    id={id}
                     parameters={model.functionSignature.parameters}
                     relativeResourcePath={model.relativeResourcePath}
                 />
