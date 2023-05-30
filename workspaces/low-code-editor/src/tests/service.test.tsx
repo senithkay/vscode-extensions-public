@@ -130,19 +130,21 @@ const testData: ResourceInfo[] = [
             { type: "http:Caller", description: "param5" },
             { type: "http:Headers", description: "param6" }
         ],
-        body: ["@http:Payload string payload"]
+        body: ["@http:Payload string payload"],
+        metadata: "A post method with all possible values"
     }
 ];
 
 test.each(indexer(testData))("test resource function: %#", async (resourceInfo) => {
-    const { index, functionName, resourcePath, responses, parameters, body } = resourceInfo;
+    const { index, functionName, resourcePath, responses, parameters, body, metadata } = resourceInfo;
     testResourceFunction(
         index,
         functionName,
         resourcePath,
         responses,
         parameters,
-        body
+        body,
+        metadata
     );
 });
 

@@ -408,7 +408,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     )
 
     const metaData = (
-        <div className="service-member" onClick={handleIsExpand}>
+        <div className="service-member" onClick={handleIsExpand} data-testid={`resource-metadata-${id}`}>
             <table className={classes.responseTable}>
                 <tbody>
                     {model.metadata?.source.split("#").map(value => !value.includes("+") && value)}
@@ -418,9 +418,9 @@ export function ResourceBody(props: ResourceBodyProps) {
     )
 
     const body = (
-        <>
+        <div data-testid={`resource-info-${id}`}>
             {model.metadata && metaData}
-            <div className="service-member" data-testid={`service-member-${id}`}>
+            <div className="service-member">
                 {paramArgs.length > 0 && args}
 
                 {bodyArgs.length > 0 && bodyAr}
@@ -437,7 +437,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </table>
                 </ConfigPanelSection>
             </div>
-        </>
+        </div>
     )
 
 

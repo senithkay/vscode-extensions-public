@@ -32,9 +32,9 @@ export class ResourceFunction {
 
     expandResource = () => fireEvent.click(this.getResourceExpandButton());
 
-    resourceInformationIsVisible = () => expect(this.getServiceMember(this.resourceIndex)).toBeDefined();
+    resourceInformationIsVisible = () => expect(this.getResourceInfo(this.resourceIndex)).toBeDefined();
 
-    getServiceMember = (index: number) => screen.getByTestId(`service-member-${index}`);
+    getResourceInfo = (index: number) => screen.getByTestId(`resource-info-${index}`);
 
     private getResourceType = () => within(this.getResourceHeader()).getByTestId(`resource-type-${this.resourceIndex}`);
 
@@ -49,7 +49,8 @@ export const testResourceFunction = (resourceIndex: number,
                                      resourcePath: string,
                                      responses: ResponseInfo[],
                                      parameters?: ParameterInfo[],
-                                     body?: string[]) => {
+                                     body?: string[],
+                                     metadata?: string) => {
     const resourceFn = new ResourceFunction(resourceIndex);
 
     resourceFn.functionNameShouldInclude(functionName.toUpperCase());
@@ -57,44 +58,49 @@ export const testResourceFunction = (resourceIndex: number,
     resourceFn.expandResource();
     resourceFn.resourceInformationIsVisible();
 
-    const serviceMember = resourceFn.getServiceMember(resourceIndex);
+    const resourceInfo = resourceFn.getResourceInfo(resourceIndex);
 
     responses.forEach((response, index) => {
         const expectedCode = response.code;
         const expectedDescription = response.description;
-        validateResponse(index, serviceMember, expectedCode, expectedDescription);
+        validateResponse(index, resourceInfo, expectedCode, expectedDescription);
     });
 
-    if (parameters !== undefined) {
+    if (parameters) {
         parameters.forEach((param, index) => {
             const expectedType = param.type;
             const expectedDescription = param.description;
-            validateParameter(index, serviceMember, expectedType, expectedDescription);
+            validateParameter(index, resourceInfo, expectedType, expectedDescription);
         });
     }
 
-    if (body !== undefined) {
+    if (body) {
         body.forEach((item, index) => {
-            const resourceBody = new Body(index, serviceMember);
+            const resourceBody = new Body(index, resourceInfo);
             resourceBody.validateBodyDescription(item);
         });
+    }
+
+    if (metadata) {
+        const metaData = within(resourceInfo).getByTestId(`resource-metadata-${resourceIndex}`);
+        expect(metaData.textContent.trim()).toEqual(metadata);
     }
 };
 
 const validateResponse = (responseIndex: number,
-                          serviceMember: HTMLElement,
+                          resourceInfo: HTMLElement,
                           expectedCode: string,
                           expectedDescription: string) => {
-    const response = new Response(responseIndex, serviceMember);
+    const response = new Response(responseIndex, resourceInfo);
     response.validateResponseCode(expectedCode);
     response.validateResponseDescription(expectedDescription);
 };
 
 const validateParameter = (paramIndex: number,
-                           serviceMember: HTMLElement,
+                           resourceInfo: HTMLElement,
                            expectedType: string,
                            expectedDescription: string) => {
-    const parameter = new Parameter(paramIndex, serviceMember);
+    const parameter = new Parameter(paramIndex, resourceInfo);
     parameter.validateParamType(expectedType);
     parameter.validateParamDescription(expectedDescription);
 };

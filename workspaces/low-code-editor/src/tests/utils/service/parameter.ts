@@ -15,8 +15,8 @@ import { within } from "@testing-library/react";
 
 export class Parameter {
     private paramRow: any;
-    constructor(private paramIndex: number, private params: HTMLElement) {
-        this.paramRow = within(this.params).getByTestId(`params-row-${paramIndex}`);
+    constructor(private paramIndex: number, private resourceInfoContainer: HTMLElement) {
+        this.paramRow = within(this.resourceInfoContainer).getByTestId(`params-row-${paramIndex}`);
         expect(this.paramRow).toBeDefined();
     }
 

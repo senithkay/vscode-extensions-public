@@ -22,7 +22,7 @@ service /foo on new http:Listener(9090) {
 
     }
 
-    # This is the post method with all possible values
+    # A post method with all possible values
     resource function post orders/success/[string Id](string param, @http:Header string param1, string? param3, @http:Payload string payload, http:Request param4, http:Caller param5, http:Headers param6, @http:Header string param7 = "world", string param2 = "foo") returns error?|http:Created|http:Ok|http:NotFound|record {|*http:Continue; Order body;|} {
 
     }

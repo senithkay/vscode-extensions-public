@@ -15,8 +15,8 @@ import { within } from "@testing-library/react";
 
 export class Response {
     private responseRow: any;
-    constructor(private responseIndex: number, private responses: HTMLElement) {
-        this.responseRow = within(this.responses).getByTestId(`responses-row-${responseIndex}`);
+    constructor(private responseIndex: number, private resourceInfoContainer: HTMLElement) {
+        this.responseRow = within(this.resourceInfoContainer).getByTestId(`responses-row-${responseIndex}`);
         expect(this.responseRow).toBeDefined();
     }
 
