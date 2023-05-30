@@ -209,6 +209,7 @@ function createAccountTreeView() {
 			vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + organization.name + ". " + error.message);
 		}
 		ext.api.selectedOrg = organization;
+		accountTreeProvider.refresh();
 	});
 
 	const treeView = window.createTreeView(choreoAccountTreeId, {
