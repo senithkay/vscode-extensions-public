@@ -1,4 +1,4 @@
-import { BallerinaProjectComponents, ComponentInfo, FileListEntry, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaProjectComponents, ComponentInfo, ComponentViewInfo, FileListEntry, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Uri } from "monaco-editor";
 import { ComponentCollection } from "../../../../OverviewDiagram/util";
 
@@ -78,7 +78,7 @@ export class ProjectComponentProcessor {
                         sheme: uri.scheme,
                         external: ''
                     },
-                    fileName: component.filePath,
+                    fileName: `${this.currentModule.name ? `${this.currentModule.name}/` : ''}${component.filePath}`,
                 });
             }
         });
@@ -86,6 +86,31 @@ export class ProjectComponentProcessor {
 
     public getComponents() {
         return this.components;
+    }
+
+    public getComponentsFor(file: string) {
+        const filteredComponents: ComponentCollection = {
+            functions: [],
+            services: [],
+            records: [],
+            objects: [],
+            classes: [],
+            types: [],
+            constants: [],
+            enums: [],
+            listeners: [],
+            moduleVariables: []
+        }
+
+        for (const [type, collection] of Object.entries(this.components)) {
+            collection.forEach((el: ComponentViewInfo) => {
+                if (el.filePath === file) {
+                    filteredComponents[type].push(el);
+                }
+            })
+        }
+
+        return filteredComponents;
     }
 
     public getFileMap() {

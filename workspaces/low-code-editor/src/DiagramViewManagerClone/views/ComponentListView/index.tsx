@@ -24,7 +24,7 @@ const ALL_FILES: string = 'All';
 // when you select a symbol, it will show the symbol's visualization in the diagram view
 export function ComponentListView(props: ComponentListViewProps) {
     const { projectComponents } = props;
-    const { historyPush } = useHistoryContext();
+    const { history, historyPush } = useHistoryContext();
     const [searchQuery, setSearchQuery] = React.useState<string>("");
     let currentComponents: ComponentCollection;
     let fileList: FileListEntry[];
@@ -33,7 +33,11 @@ export function ComponentListView(props: ComponentListViewProps) {
     if (projectComponents) {
         const projectComponentProcessor = new ProjectComponentProcessor(projectComponents);
         projectComponentProcessor.process();
-        currentComponents = projectComponentProcessor.getComponents();
+        if (history.length > 0 && history[history.length - 1].file.endsWith('.bal')) {
+            currentComponents = projectComponentProcessor.getComponentsFor(history[history.length - 1].file);
+        } else {
+            currentComponents = projectComponentProcessor.getComponents();
+        }
         fileList = Array.from(projectComponentProcessor.getFileMap().values());
     }
 
@@ -41,10 +45,10 @@ export function ComponentListView(props: ComponentListViewProps) {
     const renderFileFilterBar = () => {
         const handleFileChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
             if (evt.target.value === ALL_FILES) {
-                // updateCurrentFile(undefined);
+                historyPush({ file: projectComponents?.packages[0]?.filePath })
             } else {
                 const selectedFile = fileList.find((file) => file.fileName === evt.target.value);
-                // updateCurrentFile(selectedFile.uri.path);
+                historyPush({ file: selectedFile.uri.path })
             }
         };
 
@@ -60,6 +64,7 @@ export function ComponentListView(props: ComponentListViewProps) {
                 {ALL_FILES}
             </option>
         );
+
         if (fileList && fileList.length > 0) {
             fileList.forEach((fileEntry, optionIndex) => [
                 fileSelectorOptions.push(
@@ -69,13 +74,20 @@ export function ComponentListView(props: ComponentListViewProps) {
                 ),
             ]);
         }
+
+        let currentFileName = ALL_FILES;
+
+        if (history.length > 0) {
+            currentFileName = fileList?.find((file) => file.uri.path === history[history.length - 1].file)?.fileName || ALL_FILES;
+        }
+
         return (
             <div className="title-bar">
                 <FormControl variant="outlined" className={classes.selectorComponent}>
                     <InputLabel htmlFor="outlined-age-native-simple">File</InputLabel>
                     <Select
                         native={true}
-                        value={ALL_FILES}
+                        value={currentFileName}
                         label="File"
                         inputProps={{ name: "age", id: "outlined-age-native-simple" }}
                         onChange={handleFileChange}
@@ -115,13 +127,13 @@ export function ComponentListView(props: ComponentListViewProps) {
         Object.keys(currentComponents)
             .filter((key) => currentComponents[key].length)
             .forEach((key, categoryIndex) => {
-                const flitteredComponents = currentComponents[key].filter(
+                const filteredComponents = currentComponents[key].filter(
                     (comp: ComponentViewInfo) =>
                         comp.name.toLowerCase().includes(searchQuery?.toLowerCase().trim() || "") ||
                         key.toLowerCase().includes(searchQuery?.toLowerCase().trim() || "")
                 );
 
-                const components = flitteredComponents.map((comp: ComponentViewInfo, compIndex: number) => {
+                const components = filteredComponents.map((comp: ComponentViewInfo, compIndex: number) => {
                     return (
                         <ComponentView
                             key={key + compIndex}
