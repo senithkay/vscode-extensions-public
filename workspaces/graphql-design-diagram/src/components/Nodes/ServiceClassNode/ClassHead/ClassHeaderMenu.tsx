@@ -85,6 +85,7 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <>
+                    {classModel &&
                         <Paper style={{maxWidth: "100%"}}>
                             <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
                                 <MenuItem onClick={() => handleEditClassDef()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
@@ -102,6 +103,7 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                                 />
                             </MenuList>
                         </Paper>
+                    }
                     </>
                 }
                 PopperProps={{
