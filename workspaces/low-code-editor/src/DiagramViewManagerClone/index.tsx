@@ -18,7 +18,7 @@
  */
 
 import { MuiThemeProvider } from "@material-ui/core";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
@@ -32,13 +32,14 @@ import { ComponentListView } from "./views";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 import { ComponentCollection } from "../OverviewDiagram/util";
 import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
-import { STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
 import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
 import { getConstructBodyString } from "../Diagram/visitors/util";
 import { getDiagramProviderProps } from "./utils";
+import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 
 export function DiagramViewManager(props: EditorProps) {
     const {
@@ -177,9 +178,19 @@ export function DiagramViewManager(props: EditorProps) {
         throw new Error("Function not implemented.");
     }
 
-    const updateActiveFile = (filePath: string): void => {
-
+    const updateActiveFile = (currentFile: FileListEntry) => {
+        historyPush({ file: currentFile.uri.path });
     };
+
+    const navigateUptoParent = (position: NodePosition): void => {
+        const { file } = history[history.length - 1];
+        historyPush({ file, position });
+    }
+
+    const updateSelectedComponent = (info: ComponentViewInfo): void => {
+        const { filePath, position } = info;
+        historyPush({ file: filePath, position });
+    }
 
     const showOverviewMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
         && history[history.length - 1].position === undefined;
@@ -187,25 +198,26 @@ export function DiagramViewManager(props: EditorProps) {
         && history[history.length - 1].position !== undefined;
 
 
-    // const diagramProps = getDiagramProviderProps(
-    //     focusedST,
-    //     lowCodeEnvInstance,
-    //     currentFileContent,
-    //     history.length > 0 && history[history.length - 1].file,
-    //     fileList,
-    //     history.length > 0 && history[history.length - 1].uid,
-    //     completeST,
-    //     lowCodeResourcesVersion,
-    //     balVersion,
-    //     props,
-    //     setFocusedST,
-    //     setCompleteST,
-    //     setCurrentFileContent,
-    //     updateActiveFile,
-    //     updateSelectedComponent,
-    //     navigateUptoParent,
-    //     setUpdatedTimeStamp
-    // );
+    const diagramProps = getDiagramProviderProps(
+        focusedST,
+        lowCodeEnvInstance,
+        currentFileContent,
+        history.length > 0 && history[history.length - 1].file,
+        fileList,
+        history.length > 0 && history[history.length - 1].uid,
+        completeST,
+        lowCodeResourcesVersion,
+        balVersion,
+        props,
+        setFocusedST,
+        setCompleteST,
+        setCurrentFileContent,
+        updateActiveFile,
+        updateSelectedComponent,
+        navigateUptoParent,
+        setUpdatedTimeStamp
+    );
+
 
     return (
         <MuiThemeProvider theme={theme}>
@@ -219,14 +231,19 @@ export function DiagramViewManager(props: EditorProps) {
                         historySelect={historySelect}
                         historyReset={historyClear}
                     >
-                        <NavigationBar
-                            workspaceName={workspaceName}
-                            projectList={projectPaths}
-                            projectInfo={projectComponents}
-                        />
-                        {!showOverviewMode && !showSTMode && <TextPreLoader position={'absolute'} />}
-                        {showOverviewMode && <ComponentListView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
-                        <div id={'canvas-overlay'} className={"overlayContainer"} />
+
+                        <ViewManagerProvider
+                            {...diagramProps}
+                        >
+                            <NavigationBar
+                                workspaceName={workspaceName}
+                                projectList={projectPaths}
+                                projectInfo={projectComponents}
+                            />
+                            {!showOverviewMode && !showSTMode && <TextPreLoader position={'absolute'} />}
+                            {showOverviewMode && <ComponentListView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
+                            <div id={'canvas-overlay'} className={"overlayContainer"} />
+                        </ViewManagerProvider>
                     </HistoryProvider>
                 </IntlProvider>
             </div>
