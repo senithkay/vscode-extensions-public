@@ -79,82 +79,77 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                     } = orgName[packageName];
                     if (configs.required.length > 0) {
 
-                        const openConfigButton = { title: 'Open Config', isCloseAffordance: true };
-                        const ignoreButton = { title: 'Ignore' };
+                        configFile = `${currentProject.path}/${CONFIG_FILE}`;
+                        const uri = Uri.file(configFile);
 
-                        const result = await window.showInformationMessage(
-                            'There are required configurables. You can open config file or just ignore.',
-                            openConfigButton,
-                            ignoreButton
-                        );
+                        const newValues = [];
+                        let updatedContent = '';
 
-                        if (result === openConfigButton) {
-                            configFile = `${currentProject.path}/${CONFIG_FILE}`;
-                            if (!existsSync(configFile)) {
-                                openSync(configFile, 'w');
-                            }
-                            if (configFile) {
-                                const uri = Uri.file(configFile);
-                                const tomlContent: string = readFileSync(uri.fsPath, 'utf8');
-                                const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), orgName, packageName);
+                        // If the config file exist check for existing values
+                        if (existsSync(configFile)) {
+                            const tomlContent: string = readFileSync(uri.fsPath, 'utf8');
+                            const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), orgName, packageName);
+                            const obj = existingConfigs['[object Object]'][packageName]
 
-                                // Check for existing configs
-                                if (existingConfigs) {
-                                    const obj = existingConfigs['[object Object]'][packageName]
+                            // If there are existing configs check for new ones
+                            if (Object.keys(obj).length > 0) {
 
-                                    // If there are existing configs check for new ones
-                                    if (Object.keys(obj).length > 0) {
-                                        const newValues = [];
-                                        configs.required.forEach(value => {
-                                            if (!(value in obj)) {
-                                                // New configs found
-                                                newValues.push({ name: value, type: '' });
-                                            }
-                                        });
-                                        // Assign types to values
-                                        newValues.forEach(val => {
-                                            val.type = configs.properties[val.name].type;
-                                        })
-
-                                        let updatedContent = tomlContent + `\n`;
-
-                                        newValues.forEach(obj => {
-                                            updatedContent += `${obj.name} = "${obj.type}"\n`;
-                                        });
-
-                                        writeFile(uri.fsPath, updatedContent, function (error) {
-                                            if (error) {
-                                                return window.showInformationMessage("Unable to update the configurable values: " + error);
-                                            }
-                                            window.showInformationMessage("Successfully updated the configurable values.");
-                                        });
-
-                                    } else {
-                                       // If there are no existing configs
-                                        const newValues = [];
-                                        configs.required.forEach(value => {
-                                            // New configs found
-                                            newValues.push({ name: value, type: '' });
-                                        });
-                                        // Assign types to values
-                                        newValues.forEach(val => {
-                                            val.type = configs.properties[val.name].type;
-                                        })
-
-                                        let updatedContent = '';
-
-                                        newValues.forEach(obj => {
-                                            updatedContent += `${obj.name} = "${obj.type}"\n`;
-                                        });
-
-                                        writeFile(uri.fsPath, updatedContent, function (error) {
-                                            if (error) {
-                                                return window.showInformationMessage("Unable to update the configurable values: " + error);
-                                            }
-                                            window.showInformationMessage("Successfully updated the configurable values.");
-                                        });
+                                configs.required.forEach(value => {
+                                    if (!(value in obj)) {
+                                        // New configs found
+                                        newValues.push({ name: value, type: '' });
                                     }
+                                });
+                                // Assign types to values
+                                newValues.forEach(val => {
+                                    val.type = configs.properties[val.name].type;
+                                })
+
+                                updatedContent = tomlContent + `\n`;
+
+                            } else {
+                                // If the config file is empty
+                                configs.required.forEach(value => {
+                                    // New configs
+                                    newValues.push({ name: value, type: '' });
+                                });
+                                // Assign types to values
+                                newValues.forEach(val => {
+                                    val.type = configs.properties[val.name].type;
+                                })
+                            }
+                        } else {
+                            // If no config files add all the required config values
+                            configs.required.forEach(value => {
+                                // New configs found
+                                newValues.push({ name: value, type: '' });
+                            });
+                            // Assign types to values
+                            newValues.forEach(val => {
+                                val.type = configs.properties[val.name].type;
+                            })
+                        }
+
+                        // If there are newValues to be added to the config ask the message
+                        if (newValues.length > 0) {
+                            // Config generation message with button
+                            const openConfigButton = { title: 'Open Config', isCloseAffordance: true };
+                            const ignoreButton = { title: 'Ignore' };
+
+                            const result = await window.showInformationMessage(
+                                'There are required configurables. You can open config file or just ignore.',
+                                openConfigButton,
+                                ignoreButton
+                            );
+
+                            if (result === openConfigButton) {
+
+                                if (!existsSync(configFile)) {
+                                    openSync(configFile, 'w');
                                 }
+
+                                // Update the config toml file with new values
+                                updateConfigToml(newValues, updatedContent, uri.fsPath);
 
                                 await workspace.openTextDocument(uri).then(async document => {
                                     window.showTextDocument(document, { preview: false });
@@ -170,12 +165,16 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                                             currentProject.path!);
                                     }
                                 });
+
+                            } else if (result === ignoreButton) {
+                                commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
                             }
-                        } else if (result === ignoreButton) {
+
+                        } else {
                             commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
                         }
-
                     }
+
                 }
 
             }
@@ -183,4 +182,18 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
     }
 
+}
+
+
+function updateConfigToml(newValues, updatedContent, configPath) {
+    newValues.forEach(obj => {
+        updatedContent += `${obj.name} = "${obj.type}"\n`;
+    });
+
+    writeFile(configPath, updatedContent, function (error) {
+        if (error) {
+            return window.showInformationMessage("Unable to update the configurable values: " + error);
+        }
+        window.showInformationMessage("Successfully updated the configurable values.");
+    });
 }
