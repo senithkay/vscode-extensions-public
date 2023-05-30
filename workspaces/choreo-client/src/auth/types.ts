@@ -39,6 +39,7 @@ export interface AuthClientConfig {
     redirectUrl: string;
     tokenUrl: string;
     apimTokenUrl: string;
+    signUpUrl: string;
 }
 
 export interface IAuthClient {
@@ -46,4 +47,5 @@ export interface IAuthClient {
     exchangeVSCodeToken(apiAccessToken: string, orgHandle: string): Promise<AccessToken>;
     exchangeRefreshToken(refreshToken: string): Promise<AccessToken>;
     getAuthURL(callbackUri: string): string;
+    getSignUpURL(): string;
 }
