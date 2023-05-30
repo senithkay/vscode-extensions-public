@@ -77,7 +77,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
                 await getGraphqlDesignModel();
             })();
         }
-    }, [fullST]);
+    }, []);
 
     const getGraphqlDesignModel = async () => {
         const request: GraphqlDesignServiceRequest = {
