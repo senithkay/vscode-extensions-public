@@ -32,6 +32,7 @@ import { openConfigEditor } from '../config-editor/configEditorPanel';
 import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { checkIsPersistModelFile } from '../entity-diagram/activator';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',
@@ -245,10 +246,25 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                                 codeLenses.push(codeLens);
                             }
                         });
+                    } else if (STKindChecker.isTypeDefinition(member) &&
+                        STKindChecker.isRecordTypeDesc(member.typeDescriptor) && checkIsPersistModelFile(activeEditorUri)) {
+                        const position = member.position;
+                        const codeLens = new CodeLens(new Range(
+                            position.startLine,
+                            position.startColumn,
+                            position.endLine,
+                            position.endColumn
+                        ));
+                        codeLens.command = {
+                            title: "Visualize",
+                            tooltip: "Open this record in the ER diagram",
+                            command: PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM,
+                            arguments: [member.typeName.value]
+                        };
+                        codeLenses.push(codeLens);
                     }
                 });
             }
-
         });
 
         return codeLenses;

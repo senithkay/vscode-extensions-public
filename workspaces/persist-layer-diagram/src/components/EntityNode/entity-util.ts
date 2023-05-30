@@ -17,18 +17,23 @@
  *
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { PersistDiagram } from './Diagram';
+export function extractAttributeType(retrievedType: string) {
+    let attributeType: string = '';
 
-export function renderDiagram(
-    getPersistModel: () => Promise<GetPersistERModelResponse>,
-    selectedRecord: string,
-    target: HTMLDivElement
-) {
-    render(
-        <PersistDiagram getPersistModel={getPersistModel} selectedRecordName={selectedRecord} />,
-        target
-    );
+    if (retrievedType) {
+        if (retrievedType.includes(':') && retrievedType.includes('|')) {
+            let types: string[] = retrievedType.split('|');
+            types.forEach((type, index) => {
+                attributeType = attributeType + type.slice(type.lastIndexOf(':') + 1);
+    
+                if (index != types.length - 1) {
+                    attributeType = attributeType + '|';
+                }
+            })
+        } else {
+            attributeType = retrievedType.slice(retrievedType.lastIndexOf(':') + 1);
+        }
+    }
+
+    return attributeType;
 }

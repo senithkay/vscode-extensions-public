@@ -1,1 +1,1 @@
-export * from './react-diagrams-components';
+export * from './react-diagrams-components/RecordNode';

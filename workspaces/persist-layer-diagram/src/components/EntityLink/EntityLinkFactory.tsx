@@ -18,17 +18,20 @@
  */
 
 import React from 'react';
-import { render } from 'react-dom';
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { PersistDiagram } from './Diagram';
+import { DefaultLinkFactory } from '@projectstorm/react-diagrams';
+import { EntityLinkModel } from './EntityLinkModel';
+import { EntityLinkWidget } from './EntityLinkWidget';
 
-export function renderDiagram(
-    getPersistModel: () => Promise<GetPersistERModelResponse>,
-    selectedRecord: string,
-    target: HTMLDivElement
-) {
-    render(
-        <PersistDiagram getPersistModel={getPersistModel} selectedRecordName={selectedRecord} />,
-        target
-    );
+export class EntityLinkFactory extends DefaultLinkFactory {
+	constructor() {
+		super('entityLink');
+	}
+
+	generateModel(event: { initialConfig: any }): EntityLinkModel {
+		return new EntityLinkModel(event.initialConfig.cardinality);
+	}
+
+	generateReactWidget(props: { model: EntityLinkModel }): JSX.Element {
+		return <EntityLinkWidget link={props.model} engine={this.engine} />;
+	}
 }

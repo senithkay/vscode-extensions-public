@@ -17,18 +17,16 @@
  *
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { PersistDiagram } from './Diagram';
+import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
+import { AbstractModelFactory } from '@projectstorm/react-canvas-core';
+import { EntityPortModel } from './EntityPortModel';
 
-export function renderDiagram(
-    getPersistModel: () => Promise<GetPersistERModelResponse>,
-    selectedRecord: string,
-    target: HTMLDivElement
-) {
-    render(
-        <PersistDiagram getPersistModel={getPersistModel} selectedRecordName={selectedRecord} />,
-        target
-    );
+export class EntityPortFactory extends AbstractModelFactory<PortModel, DiagramEngine> {
+    constructor() {
+        super('entityPort');
+    }
+
+    generateModel(event: { initialConfig: any }): EntityPortModel {
+        return new EntityPortModel(event.initialConfig.id, event.initialConfig.portType);
+    }
 }

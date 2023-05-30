@@ -27,9 +27,8 @@ import {
     OLD_PLUGIN_INSTALLED,
     COOKIE_SETTINGS
 } from "./messages";
-import { basename, dirname, join, sep } from 'path';
+import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
-import { existsSync } from "fs";
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../server/server';
 import { ExtendedLangClient } from './extended-language-client';
@@ -50,6 +49,7 @@ import {
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { gitStatusBarItem } from "../editor-support/git-status";
+import { checkIsPersistModelFile } from "../entity-diagram/activator";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -600,8 +600,8 @@ export class BallerinaExtension {
 
     public setPersistStatusContext(textEditor: TextEditor) {
         if (textEditor?.document) {
-            const filePath: string = textEditor.document.uri.fsPath;
-            if (basename(dirname(filePath)) === 'persist' && existsSync(join(dirname(dirname(filePath)), 'Ballerina.toml'))) {
+            const fileUri: Uri = textEditor.document.uri;
+            if (checkIsPersistModelFile(fileUri)) {
                 commands.executeCommand('setContext', 'isPersistModelActive', true);
                 return;
             }

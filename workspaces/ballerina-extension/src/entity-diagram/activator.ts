@@ -17,8 +17,11 @@
  *
  */
 
-import { TextEditor, ViewColumn, WebviewPanel, commands, window } from "vscode";
+import { TextEditor, Uri, ViewColumn, WebviewPanel, commands, window, workspace } from "vscode";
 import { GetPersistERModelResponse } from "@wso2-enterprise/ballerina-languageclient";
+import { debounce } from "lodash";
+import { basename, dirname, join } from "path";
+import { existsSync } from "fs";
 import { PALETTE_COMMANDS } from "../project/cmds/cmd-runner";
 import { BallerinaExtension, ExtendedLangClient } from "../core";
 import { WebViewMethod, WebViewRPCHandler, getCommonWebViewOptions } from "../utils";
@@ -31,11 +34,11 @@ let filePath: string | undefined;
 
 export function activate(ballerinaExtInstance: BallerinaExtension) {
     const langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
-    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, () => {
+    const designDiagramRenderer = commands.registerCommand(PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM, (selectedRecord = "") => {
         if (isCompatible(ballerinaExtInstance.ballerinaVersion)) {
             filePath = window.activeTextEditor?.document?.uri.fsPath;
             if (filePath) {
-                showERDiagram(langClient);
+                showERDiagram(langClient, selectedRecord);
             } else {
                 // Todo: Update error message
                 window.showErrorMessage("Error: Could not detect persist model.");
@@ -55,13 +58,13 @@ export function activate(ballerinaExtInstance: BallerinaExtension) {
     });
 }
 
-function showERDiagram(langClient: ExtendedLangClient) {
+function showERDiagram(langClient: ExtendedLangClient, selectedRecord: string) {
     if (!diagramWebview) {
         setupWebviewPanel(langClient);
     }
 
     if (diagramWebview) {
-        const html = render(diagramWebview.webview);
+        const html = render(diagramWebview.webview, selectedRecord);
         if (html) {
             diagramWebview.webview.html = html;
             return;
@@ -77,6 +80,18 @@ function setupWebviewPanel(langClient: ExtendedLangClient) {
         { viewColumn: ViewColumn.Beside, preserveFocus: false },
         getCommonWebViewOptions()
     );
+
+    const refreshDiagram = debounce(() => {
+        if (diagramWebview) {
+            diagramWebview.webview.postMessage({ command: "refresh" });
+        }
+    }, 500);
+
+    workspace.onDidChangeTextDocument((event) => {
+        if (event.document.uri.fsPath === filePath) {
+           refreshDiagram();
+        }
+    });
 
     const remoteMethods: WebViewMethod[] = [
         {
@@ -98,4 +113,8 @@ function setupWebviewPanel(langClient: ExtendedLangClient) {
 
 function isCompatible(ballerinaVersion: string) {
     return parseFloat(ballerinaVersion) >= 2201.6;
+}
+
+export function checkIsPersistModelFile(fileUri: Uri): boolean {
+    return basename(dirname(fileUri.fsPath)) === 'persist' && existsSync(join(dirname(dirname(fileUri.fsPath)), 'Ballerina.toml'));
 }

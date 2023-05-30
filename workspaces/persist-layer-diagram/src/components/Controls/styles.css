@@ -17,18 +17,10 @@
  *
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { PersistDiagram } from './Diagram';
-
-export function renderDiagram(
-    getPersistModel: () => Promise<GetPersistERModelResponse>,
-    selectedRecord: string,
-    target: HTMLDivElement
-) {
-    render(
-        <PersistDiagram getPersistModel={getPersistModel} selectedRecordName={selectedRecord} />,
-        target
-    );
+.control-button {
+    background-color: white !important;
+    border: 1px solid #E0E2E9 !important;
+    border-radius: 2px !important;
+    height: 32px !important;
+    width: 32px !important;
 }

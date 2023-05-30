@@ -17,18 +17,15 @@
  *
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { PersistDiagram } from './Diagram';
+import { CMCardinality as Cardinality } from '@wso2-enterprise/ballerina-languageclient';
+import { SharedLinkModel } from '../shared-link/shared-link';
 
-export function renderDiagram(
-    getPersistModel: () => Promise<GetPersistERModelResponse>,
-    selectedRecord: string,
-    target: HTMLDivElement
-) {
-    render(
-        <PersistDiagram getPersistModel={getPersistModel} selectedRecordName={selectedRecord} />,
-        target
-    );
+export class EntityLinkModel extends SharedLinkModel {
+	readonly cardinality: Cardinality;
+
+	constructor(cardinality: Cardinality) {
+		super('entityLink');
+
+		this.cardinality = cardinality;
+	}
 }

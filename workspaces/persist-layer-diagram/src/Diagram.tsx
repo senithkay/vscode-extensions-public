@@ -19,17 +19,20 @@
 
 import React, { useEffect, useState } from 'react';
 import { ComponentModel, GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { DagreEngine } from '@projectstorm/react-diagrams-routing';
+import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
+import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
-import { entityModeller } from '@wso2-enterprise/project-design-diagrams/lib/utils/model-mapper/entityModelMapper';
-import { EntityLinkFactory, EntityFactory, EntityPortFactory } from '@wso2-enterprise/project-design-diagrams/lib/components/entity-relationship/';
-import createEngine, { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { CanvasWidget } from '@projectstorm/react-canvas-core';
+import { entityModeller, generateEngine } from './utils';
+import { DiagramControls, PersistDiagramContext } from './components';
+import { dagreEngine } from './resources';
 import './styles.css';
+
+import './resources/assets/font/fonts.css';
 
 interface PersistDiagramProps {
     getPersistModel: () => Promise<GetPersistERModelResponse>;
+    selectedRecordName: string;
 }
 
 const PersistContainer = styled.div`
@@ -42,51 +45,45 @@ const PersistContainer = styled.div`
 `;
 
 export function PersistDiagram(props: PersistDiagramProps) {
-    const { getPersistModel } = props;
+    const { getPersistModel, selectedRecordName } = props;
 
-    const [diagramEngine, setDiagramEngine] = useState<DiagramEngine>(undefined);
+    const [diagramEngine] = useState<DiagramEngine>(generateEngine);
+    const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
 
     useEffect(() => {
-        getPersistModel().then((response) => {
-            const modelMap: Map<string, ComponentModel> = new Map(Object.entries(response));
-            const pkgMap: Map<string, boolean> = new Map([["persistERModel", true]]);
-            const model: DiagramModel = entityModeller(modelMap, pkgMap);
-            const engine: DiagramEngine = createEngine({
-                registerDefaultPanAndZoomCanvasAction: true,
-                registerDefaultZoomCanvasAction: false
-            });
-            engine.getLinkFactories().registerFactory(new EntityLinkFactory());
-            engine.getPortFactories().registerFactory(new EntityPortFactory());
-            engine.getNodeFactories().registerFactory(new EntityFactory());
-            engine.setModel(model);
-            setDiagramEngine(engine);
-            autoDistribute(model);
-        });
+        refreshDiagram();
     }, [props]);
 
-    const autoDistribute = (model: DiagramModel) => {
+    const refreshDiagram = () => {
+        getPersistModel().then(response => {
+            const pkgModel: Map<string, ComponentModel> = new Map(Object.entries(response.persistERModel));
+            const model = entityModeller(new Map(Object.entries(pkgModel.get('entities'))));
+            diagramEngine.setModel(model);
+            autoDistribute();
+            setDiagramModel(model);
+        });
+    }
+
+    const autoDistribute = () => {
         setTimeout(() => {
-            let dagreEngine = new DagreEngine({
-                graph: {
-                    rankdir: 'LR',
-                    ranksep: 175,
-                    edgesep: 20,
-                    nodesep: 60,
-                    ranker: 'longest-path',
-                    marginx: 40,
-                    marginy: 40
-                }
-            });
-            dagreEngine.redistribute(model);
+            dagreEngine.redistribute(diagramEngine.getModel());
+            diagramEngine.zoomToFitNodes({});
         }, 30);
     };
 
+    const selectedNodeId = selectedRecordName ? `$anon/.:0.0.0:${selectedRecordName}` : '';
+
     return (
         <PersistContainer>
-            {diagramEngine ?
-                <CanvasWidget engine={diagramEngine} className={'diagram-container'} /> :
-                <CircularProgress sx={{ color: '#5567D5' }} />
-            }
+            <PersistDiagramContext selectedNode={selectedNodeId}>
+                {diagramEngine && diagramEngine.getModel() && diagramModel ?
+                    <>
+                        <CanvasWidget engine={diagramEngine} className={'persist-diagram-container'} />
+                        <DiagramControls engine={diagramEngine} refreshDiagram={refreshDiagram} />
+                    </> :
+                    <CircularProgress sx={{ color: '#5567D5' }} />
+                }
+            </PersistDiagramContext>
         </PersistContainer>
     );
 }

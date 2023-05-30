@@ -18,17 +18,21 @@
  */
 
 import React from 'react';
-import { render } from 'react-dom';
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { PersistDiagram } from './Diagram';
+import { AbstractReactFactory } from '@projectstorm/react-canvas-core';
+import { DiagramEngine } from '@projectstorm/react-diagrams-core';
+import { EntityModel } from './EntityModel';
+import { EntityWidget } from './EntityWidget';
 
-export function renderDiagram(
-    getPersistModel: () => Promise<GetPersistERModelResponse>,
-    selectedRecord: string,
-    target: HTMLDivElement
-) {
-    render(
-        <PersistDiagram getPersistModel={getPersistModel} selectedRecordName={selectedRecord} />,
-        target
-    );
+export class EntityFactory extends AbstractReactFactory<EntityModel, DiagramEngine> {
+    constructor() {
+        super('entityNode');
+    }
+
+    generateReactWidget(event: { model: EntityModel }): JSX.Element {
+        return <EntityWidget engine={this.engine} node={event.model} />;
+    }
+
+    generateModel(event: { initialConfig: any }) {
+        return new EntityModel(event.initialConfig.key, event.initialConfig.entity);
+    }
 }

@@ -17,18 +17,16 @@
  *
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { PersistDiagram } from './Diagram';
+import { PortModelAlignment } from '@projectstorm/react-diagrams';
 
-export function renderDiagram(
-    getPersistModel: () => Promise<GetPersistERModelResponse>,
-    selectedRecord: string,
-    target: HTMLDivElement
-) {
-    render(
-        <PersistDiagram getPersistModel={getPersistModel} selectedRecordName={selectedRecord} />,
-        target
-    );
+export function getOpposingPort(currentPortID: string, port: PortModelAlignment): string {
+    if (port === PortModelAlignment.LEFT) {
+        return currentPortID.replace(PortModelAlignment.RIGHT, PortModelAlignment.LEFT);
+    } else if (port === PortModelAlignment.RIGHT) {
+        return currentPortID.replace(PortModelAlignment.LEFT, PortModelAlignment.RIGHT);
+    } else if (port === PortModelAlignment.TOP) {
+        return currentPortID.replace(PortModelAlignment.BOTTOM, PortModelAlignment.TOP);
+    } else {
+        return currentPortID.replace(PortModelAlignment.TOP, PortModelAlignment.BOTTOM);
+    }
 }

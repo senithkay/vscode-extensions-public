@@ -17,18 +17,27 @@
  *
  */
 
-import React from 'react';
-import { render } from 'react-dom';
-import { GetPersistERModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { PersistDiagram } from './Diagram';
+import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 
-export function renderDiagram(
-    getPersistModel: () => Promise<GetPersistERModelResponse>,
-    selectedRecord: string,
-    target: HTMLDivElement
-) {
-    render(
-        <PersistDiagram getPersistModel={getPersistModel} selectedRecordName={selectedRecord} />,
-        target
-    );
+export enum Colors {
+    DEFAULT_TEXT = '#40404B',
+    DIAGRAM_BACKGROUND = '#FFF',
+    PRIMARY = '#5567D5',
+    PRIMARY_LIGHT = '#A6B3FF',
+    PRIMARY_SELECTED = '#ffaf4d',
+    SECONDARY = '#F0F1FB',
+    SECONDARY_SELECTED = '#fffaf2',
+    SHADED_SELECTED = '#faead2'
 }
+
+export const dagreEngine = new DagreEngine({
+    graph: {
+        rankdir: 'LR',
+        ranksep: 175,
+        edgesep: 20,
+        nodesep: 60,
+        ranker: 'longest-path',
+        marginx: 40,
+        marginy: 40
+    }
+});
