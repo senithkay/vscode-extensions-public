@@ -15,8 +15,8 @@
 import React, { createContext } from "react";
 
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
-import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import { CurrentFile } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 
 interface GraphqlDiagramContextProps {
     children?: React.ReactNode,

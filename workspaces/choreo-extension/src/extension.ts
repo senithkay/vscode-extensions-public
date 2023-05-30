@@ -42,7 +42,7 @@ import { getLogger, initLogger } from "./logger/logger";
 import { choreoSignInCmdId } from './constants';
 import { activateTelemetry } from './telemetry/telemetry';
 import { sendProjectTelemetryEvent, sendTelemetryEvent } from './telemetry/utils';
-import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT, REFRESH_PROJECTS_EVENT, SWITCH_ORGANIZATION_EVENT } from '@wso2-enterprise/choreo-core';
+import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT, Organization, REFRESH_PROJECTS_EVENT, SWITCH_ORGANIZATION_EVENT } from '@wso2-enterprise/choreo-core';
 
 export function activateBallerinaExtension() {
 	const ext = extensions.getExtension("wso2.ballerina");
@@ -181,21 +181,34 @@ function createProjectTreeView() {
 function createAccountTreeView() {
 	getLogger().debug("Creating Choreo Account Tree View");
 	const accountTreeProvider = new AccountTreeProvider();
-	vscode.commands.registerCommand(setSelectedOrgCmdId, async (treeItem) => {
-		sendTelemetryEvent(SWITCH_ORGANIZATION_EVENT, { org: treeItem.org.name })
-		getLogger().debug("Setting selected organization to " + treeItem.org.name);
-		if (treeItem instanceof ChoreoOrgTreeItem) {
+	vscode.commands.registerCommand(setSelectedOrgCmdId, async (treeItem, org) => {
+
+		let organization: Organization | undefined;
+		if (treeItem && treeItem instanceof ChoreoOrgTreeItem) {
+			organization = treeItem.org;
 			treeItem.iconPath = new ThemeIcon('loading~spin');
 			accountTreeProvider.refresh(treeItem);
-			try {
-				getLogger().debug("Exchanging access tokens for the organization " + treeItem.org.name);
-				await exchangeOrgAccessTokens(treeItem.org.handle);
-			} catch (error: any) {
-				getLogger().error("Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-				vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + treeItem.org.name + ". " + error.message);
-			}
-			ext.api.selectedOrg = treeItem.org;
+		} else if (org) {
+			organization = org;
+		} 
+		
+		if(!organization) {
+			getLogger().error("Invalid arguments to switch organization.");
+			vscode.window.showErrorMessage("Invalid arguments to switch organization.");
+			return;
 		}
+
+		sendTelemetryEvent(SWITCH_ORGANIZATION_EVENT, { org: organization.name });
+		getLogger().debug("Setting selected organization to " + organization.name);
+
+		try {
+			getLogger().debug("Exchanging access tokens for the organization " + organization.name);
+			await exchangeOrgAccessTokens(organization.handle);
+		} catch (error: any) {
+			getLogger().error("Error while exchanging access tokens for the organization " + organization.name + ". " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+			vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + " Error while exchanging access tokens for the organization " + organization.name + ". " + error.message);
+		}
+		ext.api.selectedOrg = organization;
 	});
 
 	const treeView = window.createTreeView(choreoAccountTreeId, {
@@ -225,7 +238,7 @@ function registerPreInitHandlers(): any {
 	const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
 	// We need to restart VSCode if we change plugin configurations.
 	workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
-		if (params.affectsConfiguration("Advanced.ChoreoEnviornment")) {
+		if (params.affectsConfiguration("Advanced.ChoreoEnvironment")) {
 			showMsgAndRestart(CONFIG_CHANGED);
 		}
 	});

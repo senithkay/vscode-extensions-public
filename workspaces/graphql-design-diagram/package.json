@@ -10,7 +10,7 @@
   "typings": "lib/index",
   "scripts": {
     "prebuild": "npm run lint",
-    "build": "tsc --pretty && npm run copy:assets",
+    "build": "pnpm run lint && tsc --pretty && npm run copy:assets",
     "copy:assets": "copyfiles -u 1 \"src/**/*.scss\" \"src/**/*.svg\"  \"src/**/*.css\" \"src/**/*.png\" \"src/**/*.txt\" \"src/**/*.json\" \"src/resources/assets/fonts/*.*\" lib/",
     "watch": "tsc --pretty --watch",
     "clean": "rimraf lib/",

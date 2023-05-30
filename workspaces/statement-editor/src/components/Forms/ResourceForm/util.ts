@@ -11,6 +11,7 @@
  * associated services.
  */
 import { monaco } from "react-monaco-editor";
+
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
@@ -25,6 +26,8 @@ import {
     STNode
 } from "@wso2-enterprise/syntax-tree";
 
+import { StatementSyntaxDiagnostics } from "../../../models/definitions";
+
 import {
     AdvancedParams,
     Path,
@@ -36,7 +39,6 @@ import {
     ReturnType,
     ReturnTypeCollection,
 } from "./types";
-import { StatementSyntaxDiagnostics } from "../../../models/definitions";
 
 export const headerParameterOption = "Header";
 export const queryParameterOption = "Query";
@@ -453,7 +455,7 @@ export function getPayloadString(payload: Payload): string {
 }
 
 export function generateParamString(queryParamString: string, payloadString: string,
-    advancedParamString: string): string {
+                                    advancedParamString: string): string {
     let paramString = "";
     if (advancedParamString && !payloadString && !queryParamString) {
         paramString = advancedParamString;

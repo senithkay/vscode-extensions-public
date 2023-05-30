@@ -24,7 +24,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FunctionDefinition,
-
+    IdentifierToken,
     NodePosition,
     RequiredParam,
     STKindChecker,
@@ -53,11 +53,14 @@ export const DM_TYPES_YET_TO_SUPPORT_MSG = `${PROVIDED_TYPE} is currently not su
 export const DM_TYPES_SUPPORTED_IN_LATEST_MSG = `Type ${PROVIDED_TYPE} is not supported by the data mapper for your Ballerina version.
  Please upgrade Ballerina to the latest version to use this type`;
 export const DM_TYPES_INVALID_MSG = `${PROVIDED_TYPE} is not a valid type descriptor`;
+export const DM_TYPE_UNAVAILABLE_MSG = `Type is missing`;
+export const DM_PARAM_NAME_UNAVAILABLE_MSG = `Parameter name is missing`;
 
 function isSupportedType(node: STNode,
                          type: Type,
                          kind: 'input' | 'output',
-                         balVersion: string): [boolean, TypeNature?] {
+                         balVersion: string,
+                         paramName?: IdentifierToken): [boolean, TypeNature?] {
     if (!node) {
         return [false, TypeNature.NOT_FOUND];
     }
@@ -67,10 +70,14 @@ function isSupportedType(node: STNode,
     const isMapType = STKindChecker.isMapTypeDesc(node);
     const isRecordType = STKindChecker.isRecordTypeDesc(node);
     const isOptionalType = STKindChecker.isOptionalTypeDesc(node);
+    const isTypeMissing = STKindChecker.isSimpleNameReference(node) && node.name.isMissing;
 
     if (!type && isRecordType) {
         return [false, TypeNature.WHITELISTED];
     } else if (!type) {
+        if (paramName && paramName.isMissing) {
+            return [false, TypeNature.INVALID];
+        }
         return [false, TypeNature.NOT_FOUND];
     }
     const isInvalid = type && type.typeName === "$CompilationError$";
@@ -86,7 +93,9 @@ function isSupportedType(node: STNode,
 
     const isUnsupportedType = DM_UNSUPPORTED_TYPES.some(t => t === type.typeName);
 
-    if ((isUnionType || isOptionalType) && kind === 'output' && getFilteredUnionOutputTypes(type)?.length === 1) {
+    if (isTypeMissing) {
+        return [false, TypeNature.TYPE_UNAVAILABLE];
+    } else if ((isUnionType || isOptionalType) && kind === 'output' && getFilteredUnionOutputTypes(type)?.length === 1) {
         return [true];
     } else if (isUnionType || isMapType || isOptionalType) {
         return [false, TypeNature.YET_TO_SUPPORT];
@@ -118,7 +127,11 @@ export function getInputsFromST(fnST: FunctionDefinition, balVersion: string): D
             const typeName = getTypeFromTypeDesc(param.typeName);
             const isArray = STKindChecker.isArrayTypeDesc(param.typeName);
             const typeInfo = getTypeOfInputParam(param, balVersion);
-            const [isSupported, nature] = isSupportedType(param.typeName, typeInfo, 'input', balVersion);
+            let [isSupported, nature] = isSupportedType(param.typeName, typeInfo, 'input', balVersion, param?.paramName);
+            if (isSupported && param?.paramName.isMissing) {
+                isSupported = false;
+                nature = TypeNature.PARAM_NAME_UNAVAILABLE;
+            }
             return {
                 name: param.paramName.value,
                 type: typeName,
@@ -165,6 +178,12 @@ export function getTypeIncompatibilityMsg(nature: TypeNature,
         }
         case TypeNature.NOT_FOUND: {
             return DM_TYPES_NOT_FOUND_MSG;
+        }
+        case TypeNature.TYPE_UNAVAILABLE: {
+            return DM_TYPE_UNAVAILABLE_MSG;
+        }
+        case TypeNature.PARAM_NAME_UNAVAILABLE: {
+            return DM_PARAM_NAME_UNAVAILABLE_MSG;
         }
     }
 }

@@ -27,8 +27,8 @@ import { ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
 import { ParamItem } from './ParamEditor/ParamItem';
 import { RESOURCE_CALLER_TYPE, RESOURCE_HEADER_MAP_TYPE, RESOURCE_REQUEST_TYPE } from './ResourceParamEditor';
 import { useStyles } from "./styles";
-import { genParamName, getParamString } from './util';
 import { ResourceParam } from './types';
+import { genParamName, getParamString } from './util';
 
 export interface PayloadEditorProps {
     parameters: ResourceParam[];
@@ -112,7 +112,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
             }
 
             const paramName = genParamName('param', paramNames);
-            const newObject: ResourceParam = { parameterValue: `${type} ${paramName}`, diagnosticMsg: [], name: paramName, type: type, default: "" };
+            const newObject: ResourceParam = { parameterValue: `${type} ${paramName}`, diagnosticMsg: [], name: paramName, type, default: "" };
 
             // Insert the object at the specified index
             parameters.splice(segmentId, 0, newObject);
@@ -148,7 +148,7 @@ export function AdvancedParamEditor(props: PayloadEditorProps) {
         const handleCancelEditParam = (id?: number) => {
             setCurrentEditOption(undefined);
             onChangeInProgress(false);
-            if (id != undefined && id >= 0 && isNew) {
+            if (id !== undefined && id >= 0 && isNew) {
                 paramIndex = id;
                 handleParamDelete();
             }
