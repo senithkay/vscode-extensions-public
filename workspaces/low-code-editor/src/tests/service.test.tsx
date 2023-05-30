@@ -61,7 +61,7 @@ const testData: ResourceInfo[] = [
             { code: "201", description: "http:Created" }
         ],
         parameters: [{ type: "string", description: "id" }],
-        body: ["Order"]
+        body: ["Order :payload"]
     },
     {
         functionName: "GET",
@@ -71,7 +71,7 @@ const testData: ResourceInfo[] = [
             { code: "200", description: "Order" }
         ],
         parameters: [
-            { type: "@http:Header", description: "string" },
+            { type: "@http:Header", description: "string access" },
             { type: "http:Request", description: "req" },
             { type: "http:Caller", description: "caller" },
             { type: "http:Headers", description: "header" }
@@ -83,7 +83,8 @@ const testData: ResourceInfo[] = [
         responses: [
             { code: "500", description: "error?" },
             { code: "200", description: "http:Ok" }
-        ]
+        ],
+        parameters: [{ type: "string", description: "id = \"None\"" }]
     },
     {
         functionName: "PUT",
@@ -94,7 +95,7 @@ const testData: ResourceInfo[] = [
             { code: "202", description: "http:Accepted" }
         ],
         parameters: [{ type: "string", description: "id" }],
-        body: ["Order"]
+        body: ["Order :payload"]
     },
     {
         functionName: "PATCH",
@@ -105,12 +106,12 @@ const testData: ResourceInfo[] = [
             { code: "404", description: "http:NotFound" }
         ],
         parameters: [
-            { type: "@http:Header", description: "string" },
+            { type: "@http:Header", description: "string access" },
             { type: "http:Request", description: "req" },
             { type: "http:Caller", description: "caller" },
             { type: "http:Headers", description: "header" }
         ],
-        body: ["Order"]
+        body: ["Order :payload"]
     },
     {
         functionName: "POST",
@@ -124,11 +125,13 @@ const testData: ResourceInfo[] = [
         ],
         parameters: [
             { type: "string", description: "param" },
-            { type: "@http:Header", description: "string" },
+            { type: "@http:Header", description: "string param1" },
             { type: "string?", description: "param3" },
             { type: "http:Request", description: "param4" },
             { type: "http:Caller", description: "param5" },
-            { type: "http:Headers", description: "param6" }
+            { type: "http:Headers", description: "param6" },
+            { type: "@http:Header", description: "string param7 = \"world\"" },
+            { type: "string", description: "param2 = \"foo\"" }
         ],
         body: ["@http:Payload string payload"],
         metadata: "A post method with all possible values"
