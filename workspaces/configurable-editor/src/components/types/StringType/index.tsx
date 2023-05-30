@@ -344,7 +344,7 @@ const StringType = (props: StringTypeProps): ReactElement => {
                     {
                         !isLowCode &&
                         isFeaturePreview &&
-                        (selectedValueRef == undefined || selectedValueRef == "") &&
+                        (selectedValueRef === undefined || selectedValueRef === "") &&
                         markSensitiveCheckbox
                     }
                     <Box>

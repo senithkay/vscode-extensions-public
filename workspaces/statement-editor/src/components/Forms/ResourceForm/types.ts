@@ -11,6 +11,9 @@
  * associated services.
  */
 import { DiagramDiagnostic } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { DefaultableParam, IncludedRecordParam, RequiredParam, RestParam } from "@wso2-enterprise/syntax-tree";
+
+import { StatementSyntaxDiagnostics } from "../../../models/definitions";
 
 export interface PathSegment {
     id: number;
@@ -94,4 +97,14 @@ export interface Advanced {
 export interface AdvancedResourceState {
     path: Map<number, boolean>;
     payloadSelected: Map<number, boolean>;
+}
+
+export interface ResourceParam {
+    parameterValue: string;
+    diagnosticMsg: StatementSyntaxDiagnostics[];
+    annotaion?: string;
+    type?: string;
+    name?: string;
+    default?: string;
+    model?: DefaultableParam | RequiredParam | IncludedRecordParam | RestParam;
 }

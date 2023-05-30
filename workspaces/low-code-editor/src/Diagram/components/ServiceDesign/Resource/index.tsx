@@ -123,16 +123,20 @@ export function ResourceBody(props: ResourceBodyProps) {
         // value = record {|*http:Ok; Foo body;|}
         if (STKindChecker.isRequiredParam(param) && param.source.includes("Payload")) {
             if (param.typeData?.typeSymbol?.name) {
+                const onClickHandler = () => openRecordEditor(param.typeData?.typeSymbol?.name)
+                const payloadSchemaComponent = (
+                    <pre className={classes.schema}>{payloadSchema[i]}
+                        <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                            <div onClick={onClickHandler} className={classes.recordEdit}><LabelEditIcon /></div>
+                        </Tooltip>
+                    </pre>
+                )
                 bodyArgs.push(
                     <tr key={i} className={classes.signature}>
                         <td>
                             <div>
-                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span>
-                                {payloadSchema[i] && <pre className={classes.schema}>{payloadSchema[i]}
-                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
-                                        <div onClick={() => openRecordEditor(param.typeData?.typeSymbol?.name)} className={classes.recordEdit}><LabelEditIcon /></div>
-                                    </Tooltip>
-                                </pre>}
+                                Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span> :{param.paramName?.value}
+                                {payloadSchema[i] && payloadSchemaComponent}
                             </div>
                         </td>
                     </tr>
@@ -227,6 +231,14 @@ export function ResourceBody(props: ResourceBodyProps) {
                 recordName = value.split(";").find(item => item.includes("body")).trim().split("body")[0].trim();
                 const recordInfo = await getRecord(recordName, langClient);
                 des = value.split("|*").length > 0 ? value.split("|*")[1].split(";")[0] : "";
+                const tooltip = (
+                    <pre className={classes.schema}>
+                        {schema[i]}
+                        <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                            <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                        </Tooltip>
+                    </pre>
+                );
                 responses.push(
                     <tr key={i} className={classes.signature}>
                         <td>
@@ -239,14 +251,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                                 <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
                                     {recordName}
                                 </span>
-                                {schema[i] &&
-                                    <pre className={classes.schema}>
-                                        {schema[i]}
-                                        <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
-                                            <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
-                                        </Tooltip>
-                                    </pre>
-                                }
+                                {schema[i] && tooltip}
                             </div>
                         </td>
                     </tr>
@@ -263,6 +268,14 @@ export function ResourceBody(props: ResourceBodyProps) {
                         }
                     });
                 }
+                const tooltip = (
+                    <pre className={classes.schema}>
+                        {schema[i]}
+                        <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                            <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
+                        </Tooltip>
+                    </pre>
+                );
                 responses.push(
                     <tr key={i} className={classes.signature}>
                         <td>
@@ -272,14 +285,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                             <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
                                 {recordName}
                             </span>
-                            {schema[i] &&
-                                <pre className={classes.schema}>
-                                    {schema[i]}
-                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
-                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
-                                    </Tooltip>
-                                </pre>
-                            }
+                            {schema[i] && tooltip}
                         </td>
                     </tr>
                 )
@@ -294,27 +300,33 @@ export function ResourceBody(props: ResourceBodyProps) {
         const langClient = await getDiagramEditorLangClient();
         const responses = [];
         for (const [i, param] of values.entries()) {
-            if (STKindChecker.isRequiredParam(param) && !param.source.includes("Payload")) {
+            if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
                 const paramDetails = param.source.split(" ");
                 const recordName = param.source.split(" ")[0];
+                let description = paramDetails.length > 0 && paramDetails[1];
+                if (paramDetails.length > 2) {
+                    description = paramDetails.slice(1).join(" ");
+                }
                 const recordInfo = await getRecord(recordName.trim(), langClient);
+                const onClickHandler = () => openRecordEditor(recordName);
+                const tooltip = (
+                    <pre className={classes.schema}>
+                        {schemaParam[i]}
+                        <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
+                            <div onClick={onClickHandler} className={classes.recordEdit}><LabelEditIcon /></div>
+                        </Tooltip>
+                    </pre>
+                );
                 responses.push(
                     <tr key={i} className={classes.signature}>
                         <td>
                             <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
                                 {recordName}
                             </span>
-                            {schemaParam[i] &&
-                                <pre className={classes.schema}>
-                                    {schemaParam[i]}
-                                    <Tooltip title={editStatementTxt} placement="right" enterDelay={1000} enterNextDelay={1000}>
-                                        <div onClick={() => openRecordEditor(recordName)} className={classes.recordEdit}><LabelEditIcon /></div>
-                                    </Tooltip>
-                                </pre>
-                            }
+                            {schemaParam[i] && tooltip}
                         </td>
                         <td>
-                            {paramDetails.length > 0 && param.source.split(" ")[1]}
+                            {description}
                         </td>
                     </tr>
                 )

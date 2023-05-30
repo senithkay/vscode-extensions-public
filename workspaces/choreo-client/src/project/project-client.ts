@@ -11,8 +11,8 @@
  *  associated services.
  */
 import { GraphQLClient } from 'graphql-request';
-import { Component, Project, Repository, Environment, Deployment, BuildStatus } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams } from "./types";
+import { Component, Project, Repository, Environment, Deployment, BuildStatus, ProjectDeleteResponse } from "@wso2-enterprise/choreo-core";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams } from "./types";
 import {
     getComponentBuildStatus,
     getComponentDeploymentQuery,
@@ -23,7 +23,7 @@ import {
     getProjectsByOrgIdQuery,
     getRepoMetadataQuery,
 } from './project-queries';
-import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation } from './project-mutations';
+import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
 import { AxiosResponse } from 'axios';
@@ -32,7 +32,7 @@ const API_CALL_ERROR = "API CALL ERROR";
 
 export class ChoreoProjectClient implements IChoreoProjectClient {
 
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI: string, private _swaggerExamplesAPI: string) {
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string, private _perfAPI?: string, private _swaggerExamplesAPI?: string) {
     }
 
     private async _getClient() {
@@ -146,6 +146,17 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
         }
     }
 
+    async deleteProject(params: DeleteProjectParams): Promise<ProjectDeleteResponse> {
+        const mutation = deleteProjectMutation(params);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
+            return data.deleteProject;
+        } catch (error) {
+            throw new Error("Error while deleting project.", { cause: error });
+        }
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async createComponent(params: CreateComponentParams): Promise<Component> {
         const mutation = getCreateComponentMutation(params);
@@ -181,6 +192,9 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
         console.log(`Calling perf API - ${new Date()}`);
         try {
+            if(!this._perfAPI){
+                throw new Error('Performance API endpoint not provided');
+            }
             return await getHttpClient()
                 .post(this._perfAPI, data, {
                     headers: {
@@ -202,6 +216,9 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
         console.log(`Calling swagger sample generator API - ${new Date()}`);
         try {
+            if(!this._swaggerExamplesAPI){
+                throw new Error('Swagger examples API endpoint not provided');
+            }
             return await getHttpClient()
                 .post(this._swaggerExamplesAPI, data, {
                     headers: {

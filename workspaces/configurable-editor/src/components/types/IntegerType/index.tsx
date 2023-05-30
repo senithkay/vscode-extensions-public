@@ -358,7 +358,7 @@ const IntegerType = (props: IntegerTypeProps): ReactElement => {
                     {
                         !isLowCode &&
                         isFeaturePreview &&
-                        (selectedValueRef == undefined || selectedValueRef == "") &&
+                        (selectedValueRef === undefined || selectedValueRef === "") &&
                         markSensitiveCheckbox
                     }
                     <Box>

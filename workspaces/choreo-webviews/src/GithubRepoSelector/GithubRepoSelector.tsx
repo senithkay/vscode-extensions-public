@@ -66,7 +66,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const { choreoProject } = useContext(ChoreoWebViewContext);
 
-    const {isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching } = useQuery({
+    const { isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching } = useQuery({
         queryKey: [`repoData${choreoProject?.id}`],
         queryFn: async () => {
             const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
@@ -104,7 +104,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
 
     const handleGhOrgChange = (e: any) => {
         const org = filteredOrgs.find(org => org.orgName === e.target.value);
-        if (org && org.repositories.length > 0 ) {
+        if (org && org.repositories.length > 0) {
             onRepoSelect(org.orgName, org.repositories[0]?.name);
         } else {
             onRepoSelect(org?.orgName);
@@ -144,6 +144,7 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                                 <VSCodeOption
                                     key={org.orgName}
                                     value={org.orgName}
+                                    id={`org-item-${org.orgName}`}
                                 >
                                     {org.orgName}
                                 </VSCodeOption>
@@ -153,10 +154,17 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                     <GhRepoSelectorRepoContainer>
                         <label htmlFor="repo-drop-down">Repository</label>
                         <VSCodeDropdown id="repo-drop-down" value={selectedRepo?.repo} onChange={handleGhRepoChange}>
-                            {selectedOrg && selectedOrg.repositories.map((repo) => (
+                            {selectedOrg && selectedOrg.repositories.sort((a, b) => {
+                                // Vscode test-runner can't seem to scroll and find the necessary repo
+                                // Therefore sorting and showing the test repo at the very top of the list
+                                if (a.name.includes("vscode")) return -1;
+                                if (b.name.includes("vscode")) return 1;
+                                return 0;
+                            }).map((repo) => (
                                 <VSCodeOption
                                     key={repo.name}
                                     value={repo.name}
+                                    id={`repo-item-${repo.name}`}
                                 >
                                     {repo.name}
                                 </VSCodeOption>

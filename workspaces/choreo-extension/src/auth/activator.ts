@@ -11,12 +11,13 @@
  *  associated services.
  */
 import { ProgressLocation, commands, window } from "vscode";
-import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut } from "./auth";
+import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut, tokenStore } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignOutCmdId } from '../constants';
+import { STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
+import * as vscode from 'vscode';
 
 export async function activateAuth() {
     ext.api.status = STATUS_LOGGED_OUT;
@@ -65,6 +66,34 @@ export async function activateAuth() {
         } catch (error: any) {
             sendTelemetryEvent(SIGN_OUT_FAILURE_EVENT, { cause: error?.message });
             getLogger().error("Error while signing out from Choreo. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            if (error instanceof Error) {
+                window.showErrorMessage(error.message);
+            }
+        }
+    });
+
+    commands.registerCommand(choreoSignInWithApimTokenCmdId, async () => {
+        try {
+            // This is used in the extension test runner to sign into choreo
+            getLogger().debug("Signing in to Choreo using code");
+            ext.api.status = STATUS_LOGGING_IN;
+
+            const apimResponse = await vscode.window.showInputBox({
+                prompt: 'Enter APIM Response: ',
+                placeHolder: 'Response',
+                ignoreFocusOut: true,
+            });
+
+            if (apimResponse) {
+                const choreoTokenInfo = JSON.parse(apimResponse);
+                await tokenStore.setToken("choreo.token", choreoTokenInfo);
+                await signIn();
+            } else {
+                window.showErrorMessage("APIM token response is required to login");
+            }
+        } catch (error: any) {
+            ext.api.status = STATUS_LOGGED_OUT;
+            getLogger().error("Error while signing in using APIM token. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             if (error instanceof Error) {
                 window.showErrorMessage(error.message);
             }

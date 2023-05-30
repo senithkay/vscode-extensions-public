@@ -388,9 +388,16 @@ function DataMapperC(props: DataMapperProps) {
     useEffect(() => {
         let inputParams: DataMapperInputParam[] = [];
         let outputType: DataMapperOutputParam = { type: undefined, isUnsupported: true, typeNature: TypeNature.DUMMY };
+        const hasIncompleteInputs = inputs && inputs.some(i => i.isUnsupported && (
+            i.typeNature === TypeNature.TYPE_UNAVAILABLE
+            || i.typeNature === TypeNature.PARAM_NAME_UNAVAILABLE
+            || i.typeNature === TypeNature.INVALID)
+        );
+        const hasIncompleteOutput = output && output.isUnsupported
+            && (output.typeNature === TypeNature.INVALID || output.typeNature === TypeNature.TYPE_UNAVAILABLE);
         if (selection.prevST.length === 0
             && typeStoreStatus === TypeStoreStatus.Loaded
-            && !isConfigPanelOpen && !showConfigPanel) {
+            && ((!isConfigPanelOpen && !showConfigPanel) || hasIncompleteInputs || hasIncompleteOutput)) {
             if (fnST) {
                 // When open the DM of an existing function using code lens
                 const hasNoParameter = fnST.functionSignature.parameters.length === 0;

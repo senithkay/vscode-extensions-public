@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Disposable, EventEmitter, workspace } from 'vscode';
+import { Disposable, EventEmitter, workspace, WorkspaceFolder, Uri } from 'vscode';
 import { ext } from "./extensionVariables";
 
 import {
@@ -25,7 +25,7 @@ import {
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel } from "@wso2-enterprise/ballerina-languageclient";
 import { exchangeAuthToken } from "./auth/auth";
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { ProjectRegistry } from './registry/project-registry';
 
 import { getLogger } from './logger/logger';
@@ -124,7 +124,7 @@ export class ChoreoExtensionApi {
 
     public async isChoreoProject(): Promise<boolean> {
         const workspaceFile = workspace.workspaceFile;
-        if (workspaceFile) {
+        if (workspaceFile && existsSync(workspaceFile.fsPath)) {
             const workspaceFilePath = workspaceFile.fsPath;
             const workspaceFileContent = readFileSync(workspaceFilePath, 'utf8');
             const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
@@ -181,7 +181,7 @@ export class ChoreoExtensionApi {
                         if (wsConfig && wsConfig.path) {
                             const componentPath: string = path.join(projectRoot, wsConfig.path);
                             for (const localModel of model.values()) {
-                                if (localModel.functionEntryPoint?.elementLocation.filePath.includes(componentPath) &&
+                                if (localModel.functionEntryPoint?.elementLocation?.filePath.includes(componentPath) &&
                                     (displayType === ChoreoComponentType.ScheduledTask || displayType === ChoreoComponentType.ManualTrigger)) {
                                         localModel.functionEntryPoint.type = displayType;
                                 }
@@ -204,10 +204,8 @@ export class ChoreoExtensionApi {
         if (workspaceFilepath && ext.api.selectedOrg) {
             const { handle, uuid } = ext.api.selectedOrg;
             const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, handle, uuid);
-            const workspaceFileConfig: WorkspaceConfig = JSON.parse(readFileSync(workspaceFilepath).toString());
-            const wsResponse = workspaceFileConfig.folders.find(wsEntry => wsEntry.name !== 'choreo-project-root' && 
-                componentPath.includes(wsEntry.path));
-            const toDelete = components.find(component => component.name === wsResponse?.name);
+            const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
+            const toDelete = components.find(component => component.name === folder?.name);
             if (toDelete) {
                 await ProjectRegistry.getInstance().deleteComponent(toDelete, handle, projectId);
             }

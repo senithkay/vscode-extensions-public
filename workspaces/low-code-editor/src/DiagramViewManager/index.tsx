@@ -296,6 +296,13 @@ export function DiagramViewManager(props: EditorProps) {
         historyClear();
     }
 
+    const updateFileContent = async () => {
+        if (focusFile) {
+            const content = await getFileContent(focusFile);
+            setCurrentFileContent(content);
+        }
+    }
+
     let viewComponent: React.ReactElement;
 
     if (history.length > 0 && history[history.length - 1].position && !focusedST) {
@@ -311,6 +318,7 @@ export function DiagramViewManager(props: EditorProps) {
                 updateCurrentFile={setFocusFile}
                 fileList={fileList}
                 lastUpdatedAt={updatedTimeStamp}
+                triggerUpdateFileContent={updateFileContent}
             />
         );
     } else if (focusedST) {

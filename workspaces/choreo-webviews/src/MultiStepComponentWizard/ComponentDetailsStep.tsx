@@ -85,6 +85,7 @@ export const ComponentDetailsStepC = (props: StepProps<Partial<ComponentWizardSt
                 placeholder="Name"
                 onInput={(e: any) => setComponentName(e.target.value)}
                 value={formData?.name || ''}
+                id='component-name-input'
             >
                 Component Name <RequiredFormInput />
                 {stepValidationErrors["name"] && <span slot="end" className={`codicon codicon-error ${ErrorIcon}`} />}

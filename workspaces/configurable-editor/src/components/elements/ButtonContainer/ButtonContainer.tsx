@@ -25,7 +25,7 @@ import { useStyles } from "./style";
 interface ButtonContainerProps {
     marginTop?: number;
     justifyContent?: string;
-    children: JSX.Element | Array<JSX.Element | false> | false;
+    children: JSX.Element | (JSX.Element | false)[] | false;
     size?: "small" | "large";
 }
 const ButtonContainer = ({

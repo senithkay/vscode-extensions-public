@@ -14,8 +14,8 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import { TextField } from '@material-ui/core';
+import Autocomplete, { AutocompleteInputChangeReason, AutocompleteRenderInputParams } from '@material-ui/lab/Autocomplete';
 import { LiteExpressionEditor, LiteTextField, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
 import { ResponseCode } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
@@ -51,7 +51,7 @@ export interface ParamProps {
     option?: string;
     isTypeReadOnly?: boolean;
     onChange: (segmentId: number, responseCode: number, withType?: string) => void;
-    onCancel?: () => void;
+    onCancel?: (revertChange?: boolean) => void;
     httpMethodName?: string;
 }
 
@@ -65,7 +65,7 @@ enum ParamEditorInputTypes {
 
 export function ResponseEditor(props: ParamProps) {
     const {
-        segmentId, syntaxDiagnostics, model, alternativeName, isEdit, option, optionList, isTypeReadOnly, onChange,
+        segmentId, syntaxDiagnostics, model, option, optionList, onChange,
         onCancel, completions, httpMethodName
     } = props;
     const classes = useStyles();
@@ -143,7 +143,7 @@ export function ResponseEditor(props: ParamProps) {
     };
 
     const handleOnCancel = () => {
-        onCancel();
+        onCancel(true);
     }
 
     const handleOnSave = () => {
@@ -207,6 +207,10 @@ export function ResponseEditor(props: ParamProps) {
         }
     }
 
+    const renderInput = (params: AutocompleteRenderInputParams) => {
+        return <TextField className={classes.searchList} {...params} />;
+    };
+
     return (
         <div className={classes.paramContainer}>
             <div className={classes.paramContent}>
@@ -214,12 +218,12 @@ export function ResponseEditor(props: ParamProps) {
                 <div className={classes.paramDataTypeWrapper}>
                     <FieldTitle title='Select Code' optional={false} />
                     <Autocomplete
-                        disablePortal
+                        disablePortal={true}
                         id="param-type-selector"
                         options={optionsListString}
                         defaultValue={response}
                         onChange={handleOnSelect}
-                        renderInput={(params) => <TextField className={classes.searchList} {...params} />}
+                        renderInput={renderInput}
                     />
                 </div>
 

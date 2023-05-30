@@ -84,6 +84,9 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 		}
 	}
 
+	const nodeLevel: Level = node.nodeObject.isNoData ||
+        (!node.nodeObject.remoteFunctions?.length && !node.nodeObject.resources?.length) ? Level.ONE : node.level;
+
 	return (
 		<ServiceNode
 			className='fadeIn'
@@ -91,7 +94,7 @@ export function ServiceNodeWidget(props: ServiceNodeWidgetProps) {
 			awaitLinking={checkLinkStatus()}
 			isNew={isNewNode.current}
 			isSelected={node.checkSelectedList(selectedLinks, node.getID())}
-			level={node.level}
+			level={nodeLevel}
 			isEditMode={editingEnabled}
 			isNoData={node.nodeObject.isNoData}
 		>

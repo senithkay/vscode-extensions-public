@@ -21,6 +21,11 @@ export interface CreateProjectParams {
     region?: string;
 }
 
+export interface DeleteProjectParams {
+    orgId: number;
+    projectId: string;
+}
+
 export interface CreateComponentParams {
     name: string;
     displayName: string;

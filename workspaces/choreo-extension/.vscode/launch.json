@@ -22,12 +22,14 @@
 			"preLaunchTask": "${defaultBuildTask}"
 		},
 		{
+			// TODO: This is not working. Need to fix!
+			// Use `Debug UI Tests` launch command instead
 			"name": "Extension Tests",
 			"type": "extensionHost",
 			"request": "launch",
 			"env": {
 				"WEB_VIEW_DEV_MODE": "true",
-				"WEB_VIEW_DEV_HOST": "http://localhost:3000/static/js/bundle.js"
+				"WEB_VIEW_DEV_HOST": "http://localhost:3000/main.js"
 			},
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
@@ -37,7 +39,24 @@
 				"${workspaceFolder}/out/**/*.js",
 				"${workspaceFolder}/dist/**/*.js"
 			],
-			"preLaunchTask": "tasks: watch-tests"
+			"preLaunchTask": "npm: compile-tests"
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Debug UI Tests",
+			"program": "/usr/local/bin/npm",
+			"args": [
+			  "run",
+			  "ui-test"
+			],
+			"cwd": "${workspaceFolder}",
+			"runtimeArgs": [
+			  "--inspect-brk"
+			],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen",
+			"outputCapture": "std"
 		}
 	]
 }

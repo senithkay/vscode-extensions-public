@@ -17,10 +17,9 @@
  *
  */
 
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useContext, useEffect, useState } from 'react';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { DagreEngine } from '@projectstorm/react-diagrams-routing';
-import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import { toJpeg } from 'html-to-image';
 import debounce from 'lodash.debounce';
 import { DiagramControls } from './ControlLayer';
@@ -38,6 +37,9 @@ import {
     removeGWLinks
 } from '../../../utils';
 import './styles/styles.css';
+import { CircularProgress } from "@mui/material";
+
+const CanvasWidget = lazy(() => import('@projectstorm/react-canvas-core').then(module => ({ default: module.CanvasWidget })));
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -218,7 +220,9 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                     onMouseDown={type === Views.CELL_VIEW ? onDiagramMoveStarted : undefined}
                     onMouseUp={type === Views.CELL_VIEW ? onDiagramMoveFinished : undefined}
                 >
-                    <CanvasWidget engine={diagramEngine} className={diagramClass} />
+                    <Suspense fallback={<CircularProgress data-testid="canvas-loader" />} >
+                        <CanvasWidget engine={diagramEngine} className={diagramClass} />
+                    </Suspense>
                 </div>
             }
             {currentView !== Views.CELL_VIEW && (

@@ -17,18 +17,17 @@ import React, { useState } from 'react';
 import { Button } from '@material-ui/core';
 import AddIcon from "@material-ui/icons/Add";
 import { connectorStyles, TextPreloaderVertical } from '@wso2-enterprise/ballerina-low-code-edtior-ui-components';
-import {
-    CommaToken, DefaultableParam, IncludedRecordParam, RequiredParam, RestParam, STKindChecker, STNode
-} from '@wso2-enterprise/syntax-tree';
+import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 
 import { Param, ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
 import { ParameterConfig, ParamItem } from './ParamEditor/ParamItem';
-import { genParamName, getParameterNameFromModel, getParameterTypeFromModel, getParamString } from './util';
+import { ResourceParam } from './types';
+import { genParamName, getParamString } from './util';
 
 export interface QueryParamEditorProps {
-    parameters: (CommaToken | DefaultableParam | RequiredParam | IncludedRecordParam | RestParam)[];
+    parameters: ResourceParam[];
     completions: SuggestionItem[];
     onChange: (paramString: string, model?: STNode, currentValue?: string, avoidValueCommit?: boolean) => void,
     syntaxDiag?: StatementSyntaxDiagnostics[];
@@ -48,87 +47,89 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
     const [editingSegmentId, setEditingSegmentId] = useState<number>(-1);
     const [isNew, setIsNew] = useState(false);
 
+    const paramNames: string[] = parameters.map(param => param.name);
+
     const onEdit = (param: Param) => {
         setEditingSegmentId(param.id);
         onChangeInProgress(true);
     };
 
     const onDelete = (param: ParameterConfig) => {
-        parameters.splice(param.id === 0 ? param.id : param.id - 1, 2)
-        onChange(getParamString(parameters));
+        const indexToRemove = param.id;
+        if (indexToRemove >= 0 && indexToRemove < parameters.length) {
+            parameters.splice(indexToRemove, 1);
+            onChange(getParamString(parameters));
+        }
     };
 
     const onParamChange = (segmentId: number, paramString: string, focusedModel?: STNode, changedValue?: string) => {
         const newParamString = parameters.reduce((prev, current, currentIndex) => {
             if (segmentId === currentIndex) {
-                return `${prev} ${paramString}`;
+                return prev !== "" ? `${prev},${paramString}` : `${paramString}`;
             }
-
-            return `${prev}${current.source ? current.source : current.value}`;
+            return prev !== "" ? `${prev},${current.parameterValue}` : `${current.parameterValue}`;
         }, '');
-
-        onChange(newParamString, focusedModel, changedValue);
+        onChange(newParamString);
     };
 
-
-
     const addParam = () => {
-        let newParamString;
-        let segmentId = parameters.length === 0 ? 0 : parameters.length + 1;
-        const lastParamIndex = parameters.findIndex(param => STKindChecker.isRestParam(param) || STKindChecker.isDefaultableParam(param));
-        if (lastParamIndex === -1) {
-            newParamString = `${getParamString(parameters)}${parameters.length === 0 ? '' : ','} string ${genParamName('param', paramNames)}`;
-        } else {
+        let segmentId = parameters.length === 0 ? 0 : parameters.length;
+        const lastParamIndex = parameters.findIndex(param =>
+            STKindChecker.isRestParam(param.model) || STKindChecker.isDefaultableParam(param.model)
+        );
+        if (lastParamIndex > -1) {
             segmentId = lastParamIndex;
-            newParamString = parameters.reduce((prev, current, currentIndex) => {
-                let returnString = prev;
-                if (currentIndex === lastParamIndex) {
-                    returnString = `${returnString} string ${genParamName('param', paramNames)},`
-                }
-
-                returnString = `${returnString}${current.source ? current.source : current.value}`
-                return returnString;
-            }, '');
         }
 
-        onChange(newParamString);
+        const paramName = genParamName('param', paramNames);
+
+        const newObject: ResourceParam = {
+            parameterValue: `string ${paramName}`,
+            diagnosticMsg: [],
+            name: paramName,
+            type: "string",
+            default: ""
+        };
+
+        // Insert the object at the specified index
+        parameters.splice(segmentId, 0, newObject);
+
+        onChange(getParamString(parameters));
         setEditingSegmentId(segmentId);
-        onChangeInProgress(true);
         setIsNew(true);
     };
 
     const onParamEditCancel = (id?: number) => {
         setEditingSegmentId(-1);
         onChangeInProgress(false);
-        if (id && id >= 0 && isNew) {
-            onDelete({ id, name:"" });
+        if (id !== undefined && id >= 0 && isNew) {
+            onDelete({ id, name: "" });
         }
         setIsNew(false);
     };
 
 
     let isEditingPram: boolean = false;
-    const paramNames: string[] = [];
     const paramComponents: React.ReactElement[] = [];
+
     parameters
         .forEach((param, index) => {
-            if (STKindChecker.isCommaToken(param)
-                || param.source.includes(RESOURCE_PAYLOAD_PREFIX)
-                || param.source.includes(RESOURCE_CALLER_TYPE)
-                || param.source.includes(RESOURCE_REQUEST_TYPE)
-                || param.source.includes(RESOURCE_HEADER_MAP_TYPE)
-            ) {
-                return;
-            }
             if ((editingSegmentId !== index)) {
+                if (param.parameterValue.includes(RESOURCE_PAYLOAD_PREFIX)
+                    || param.parameterValue.includes(RESOURCE_CALLER_TYPE)
+                    || param.parameterValue.includes(RESOURCE_REQUEST_TYPE)
+                    || param.parameterValue.includes(RESOURCE_HEADER_MAP_TYPE)
+                ) {
+                    return;
+                }
                 paramComponents.push(
                     <ParamItem
                         param={{
                             id: index,
-                            name: getParameterNameFromModel(param),
-                            type: getParameterTypeFromModel(param),
-                            option: param.source.includes(RESOURCE_HEADER_PREFIX) ? PARAM_TYPES.HEADER : PARAM_TYPES.DEFAULT,
-                            defaultValue: (STKindChecker.isDefaultableParam(param) && param.expression?.source.trim()) || ""
+                            name: param.name,
+                            type: param.type,
+                            option: param.parameterValue.includes(RESOURCE_HEADER_PREFIX) ? PARAM_TYPES.HEADER : PARAM_TYPES.DEFAULT,
+                            defaultValue: param.default?.replace("=", "").trim()
                         }}
                         readonly={editingSegmentId !== -1 || readonly}
                         onDelete={onDelete}
@@ -144,9 +145,9 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
                         model={param}
                         completions={completions}
                         isEdit={true}
-                        alternativeName={param.source.includes(RESOURCE_HEADER_PREFIX) ? "Identifier Name" : "Name"}
+                        alternativeName={param.parameterValue.includes(RESOURCE_HEADER_PREFIX) ? "Identifier Name" : "Name"}
                         optionList={[PARAM_TYPES.DEFAULT, PARAM_TYPES.HEADER]}
-                        option={param.source.includes(RESOURCE_HEADER_PREFIX) ? PARAM_TYPES.HEADER : PARAM_TYPES.DEFAULT}
+                        option={param.parameterValue.includes(RESOURCE_HEADER_PREFIX) ? PARAM_TYPES.HEADER : PARAM_TYPES.DEFAULT}
                         isTypeReadOnly={false}
                         onChange={onParamChange}
                         onCancel={onParamEditCancel}
@@ -174,7 +175,7 @@ export function ResourceParamEditor(props: QueryParamEditorProps) {
             )}
             {(editingSegmentId !== -1) && !isEditingPram && (
                 <div>
-                    <TextPreloaderVertical position="fixedMargin"/>
+                    <TextPreloaderVertical position="fixedMargin" />
                 </div>
             )}
         </div>
