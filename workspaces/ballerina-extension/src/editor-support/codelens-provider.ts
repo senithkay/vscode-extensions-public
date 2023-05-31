@@ -132,21 +132,6 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 response.executorPositions.forEach(position => {
                     codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
                     codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
-
-                    if (position.kind === 'source' && position.name !== 'main') {
-                        const codeLens = new CodeLens(new Range(position.range.startLine.line, 0, position.range.endLine.line, 0));
-                        const range: Position = {
-                            startLine: position.range.startLine.line, startColumn: position.range.startLine.offset,
-                            endLine: position.range.endLine.line, endColumn: position.range.endLine.offset
-                        };
-                        codeLens.command = {
-                            title: "Try it",
-                            tooltip: "Try running this service",
-                            command: PALETTE_COMMANDS.TRY_IT,
-                            arguments: [fileUri, position.name, range]
-                        };
-                        codeLenses.push(codeLens);
-                    }
                 });
             }
         }, _error => {

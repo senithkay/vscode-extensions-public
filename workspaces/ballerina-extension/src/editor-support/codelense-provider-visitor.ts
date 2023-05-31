@@ -28,7 +28,7 @@ import {
 } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from "../project";
 import { CodeLens, Range, Uri } from "vscode";
-import { log } from "console";
+import { Position } from "../forecaster/model";
 
 export class CodeLensProviderVisitor implements Visitor {
     activeEditorUri: Uri;
@@ -52,6 +52,7 @@ export class CodeLensProviderVisitor implements Visitor {
                 this.supportedServiceTypes.includes(expr.typeDescriptor.modulePrefix.value)) ||
                 (STKindChecker.isSimpleNameReference(expr) &&
                     this.supportedServiceTypes.includes(expr.typeData.typeSymbol.moduleID.moduleName))) {
+                this.createTryItCodeLens(node.position, node.serviceKeyword.position, node.absoluteResourcePath.map((path) => path.value).join());
                 this.createVisulizeCodeLens(node.serviceKeyword.position, node.position);
             }
         }
@@ -77,6 +78,26 @@ export class CodeLensProviderVisitor implements Visitor {
             tooltip: "Open this code block in low code view",
             command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
             arguments: [this.activeEditorUri.fsPath, position]
+        };
+        this.codeLenses.push(codeLens);
+    }
+
+    private createTryItCodeLens(range: any, position: any, name: string) {
+        const codeLens = new CodeLens(new Range(
+            position.startLine,
+            position.startColumn,
+            position.endLine,
+            position.endColumn
+        ));
+        const rangeData: Position = {
+            startLine: range.startLine, startColumn: range.startColumn,
+            endLine: range.endLine, endColumn: range.endColumn
+        };
+        codeLens.command = {
+            title: "Try it",
+            tooltip: "Try running this service",
+            command: PALETTE_COMMANDS.TRY_IT,
+            arguments: [this.activeEditorUri.toString(), name, rangeData]
         };
         this.codeLenses.push(codeLens);
     }
