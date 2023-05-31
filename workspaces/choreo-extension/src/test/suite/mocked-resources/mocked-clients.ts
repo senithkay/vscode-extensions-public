@@ -23,6 +23,9 @@ import { ALL_COMPONENTS, FOO_OWNER_ORGS, FOO_OWNER_PROJECTS, FOO_PROJECT_1, FOO_
 import { TEST_PROJECT_NAME } from "../project-based-tests/choreo-project.test";
 
 export class MockAuthClient implements IAuthClient {
+    getSignUpURL(): string {
+        throw new Error("Method not implemented.");
+    }
     async exchangeAuthCode(_authCode: string): Promise<AccessToken> {
         return this.generateMockToken();
     }

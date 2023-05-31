@@ -12,7 +12,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -37,10 +37,10 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
     const { recordEditor, langClientPromise, fullST, currentFile } = useContext(DiagramContext);
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
-    const [model, setModel] = useState<STNode>(null);
-    const [st, setST] = useState<STNode>(fullST);
 
-    useEffect(() => {
+    const handleEditRecord = async () => {
+        let recordModel: STNode;
+        let currentST: STNode = fullST;
         const nodePosition: NodePosition = {
             endColumn: location.endLine.offset,
             endLine: location.endLine.line,
@@ -49,26 +49,21 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
         };
         if  (location.filePath === currentFile.path) {
             const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
-            setModel(parentNode);
+            recordModel = parentNode;
         } else {
-            (async () => {
-                const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
-                const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
-                setModel(parentNode);
-                setST(syntaxTree)
-            })();
+            const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
+            const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
+            recordModel = parentNode;
+            currentST = syntaxTree;
         }
-    }, [location]);
-
-    const handleEditRecord = () => {
-        if (model && (STKindChecker.isRecordTypeDesc(model) || STKindChecker.isTypeDefinition(model))) {
-            recordEditor(model, location.filePath, st);
+        if (recordModel && (STKindChecker.isRecordTypeDesc(recordModel) || STKindChecker.isTypeDefinition(recordModel))) {
+            recordEditor(recordModel, location.filePath, currentST);
         }
     }
 
     return (
         <>
-            { model &&
+            { location.filePath && location.startLine && location.endLine &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}

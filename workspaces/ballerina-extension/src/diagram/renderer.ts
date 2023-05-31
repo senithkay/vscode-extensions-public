@@ -231,6 +231,17 @@ function renderDiagram(
                     );
                 });
             }
+            function renameSymbol(wokrspaceEdits) {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'renameSymbol',
+                        [wokrspaceEdits],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                });
+            }
             function openExternalUrl(command, args) {
                 return new Promise((resolve, _reject) => {
                     webViewRPCHandler.invokeRemoteMethod(
@@ -308,7 +319,8 @@ function renderDiagram(
                             openInDiagram,
                             diagramFocus,
                             workspaceName,
-                            getAllFiles
+                            getAllFiles,
+                            renameSymbol
                         }
                     };
                     BLCEditor.renderOverviewDiagram(options);

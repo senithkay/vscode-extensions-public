@@ -16,7 +16,6 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
-import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { ChildActionMenu } from "../../../NodeActionMenu/ChildActionMenu";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
@@ -30,17 +29,13 @@ interface ServiceFieldProps {
     engine: DiagramEngine;
     node: ServiceClassNodeModel;
     functionElement: ServiceClassField;
-    parentModel: STNode;
-    st: STNode;
 }
 
 export function ServiceField(props: ServiceFieldProps) {
-    const { engine, node, functionElement, parentModel, st } = props;
+    const { engine, node, functionElement } = props;
 
     const functionPorts = useRef<PortModel[]>([]);
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
-
-    const [model, setModel] = useState<any>(null);
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const path = functionElement.identifier;
@@ -49,18 +44,6 @@ export function ServiceField(props: ServiceFieldProps) {
         functionPorts.current.push(node.getPortFromID(`left-${path}`));
         functionPorts.current.push(node.getPortFromID(`right-${path}`));
     }, [functionElement]);
-
-    useEffect(() => {
-        if (parentModel && STKindChecker.isClassDefinition(parentModel)) {
-            parentModel.members.forEach((resource: any) => {
-                if (STKindChecker.isResourceAccessorDefinition(resource)) {
-                    if (resource.relativeResourcePath.length === 1 && resource.relativeResourcePath[0]?.value === path) {
-                        setModel(resource);
-                    }
-                }
-            });
-        }
-    }, [parentModel]);
 
     const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorElement(event.currentTarget);
@@ -91,10 +74,9 @@ export function ServiceField(props: ServiceFieldProps) {
             <FieldType>{functionElement.returnType}</FieldType>
             {isHovered &&
                 <ChildActionMenu
-                    model={model}
                     functionType={FunctionType.CLASS_RESOURCE}
-                    st={st}
                     location={node.classObject.position}
+                    path={functionElement.identifier}
                 />
             }
             <GraphqlBasePortWidget
