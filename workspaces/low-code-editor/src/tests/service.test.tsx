@@ -14,11 +14,11 @@ import * as React from "react";
 
 import { expect } from "@jest/globals";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
+import { createLangClient, getSyntaxTree } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, ServiceDeclaration } from "@wso2-enterprise/syntax-tree";
 import 'jest-canvas-mock';
 import path from "path";
 
-import { createLangClient, getSyntaxTree } from "./utils/ls-utils";
 import { renderServiceDesignOverlay } from "./utils/service/renderer";
 import { testResourceFunction } from "./utils/service/resourceFunction";
 import { Service } from "./utils/service/service";

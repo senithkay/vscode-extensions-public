@@ -14,11 +14,11 @@ import * as React from "react";
 
 import { render } from "@testing-library/react";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
+import { getFileContent } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { ServiceDesignOverlay } from "../../../Diagram/components/ServiceDesignOverlay";
 import { TestProvider } from "../../TestContext";
-import { getFileContent } from "../ls-utils";
 
 export const renderServiceDesignOverlay = async (filePath: string,
                                                  completeST: STNode,
