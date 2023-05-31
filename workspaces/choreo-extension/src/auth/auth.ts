@@ -220,8 +220,11 @@ export async function signIn(isExistingSession?: boolean) {
 
 export async function registerUser() {
     const signUpURL = authClient.getSignUpURL();
-    vscode.window.showInformationMessage(`Please complete signup in the Choreo Console`);
-    return vscode.env.openExternal(vscode.Uri.parse(signUpURL));
+    await vscode.window.showInformationMessage("Please complete signup in the Choreo Console", "Sign Up").then((selection) => {
+        if (selection === "Sign Up") {
+            return vscode.env.openExternal(vscode.Uri.parse(signUpURL));
+        }
+    });
 }
 
 export async function getDefaultSelectedOrg(userOrgs: Organization[]) {
