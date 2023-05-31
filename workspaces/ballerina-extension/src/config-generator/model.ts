@@ -20,10 +20,16 @@
 export const EXECUTE_RUN_WITH_CONFIGS: string = 'ballerina.executeRunWithConfigs';
 
 export interface ConfigProperty {
-    id: string;
-    headerNames: string[];
-    configs: ConfigValue[];
-    isNested?: boolean;
+    name: string,
+    type: string,
+    property: {
+        properties?: {};
+        required?: string[];
+        description: string,
+        items: { type: string, additionalProperties?: { type: string } },
+        type: string,
+        additionalProperties?: { type: string }
+    }
 }
 
 export interface ConfigValue {
@@ -49,10 +55,30 @@ export enum Constants {
     OBJECT = "object",
     ARRAY_TYPE = "arrayType",
     FLOAT = "float",
-    INTEGER= "integer",
+    INTEGER = "integer",
 }
 
 export enum Commands {
     RUN = "Run",
     DEBUG = "Debug",
 }
+
+
+export enum ConfigTypes {
+    BOOLEAN = "boolean",
+    INTEGER = "integer", // Int, Byte
+    NUMBER = "number", // Float, Decimal
+    STRING = "string",
+    ARRAY = "array", // Have items->type property
+    OBJECT = "object",
+    ENUM = "enum", // enums have enum key but value as a string
+    ANY_OF = "anyOf", // unions have anyOf key and value as given type
+    // xml no type defined but string value
+    // tuple no type defined
+    // map no type defined
+    // record no type defined
+    // table and table[] as arrays
+
+}
+
+

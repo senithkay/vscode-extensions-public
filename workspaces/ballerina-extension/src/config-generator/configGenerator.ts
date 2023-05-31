@@ -25,6 +25,7 @@ import { BallerinaExtension, BallerinaProject, PackageConfigSchemaResponse } fro
 import { getCurrentBallerinaProject } from "../utils/project-utils";
 import EventEmitter from "events";
 import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./utils";
+import { ConfigProperty, ConfigTypes } from "./model";
 
 
 export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string,
@@ -77,12 +78,12 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                         properties: {}
                         required: []
                     } = orgName[packageName];
-                    if (configs.required.length > 0) {
+                    if (configs.required?.length > 0) {
 
                         configFile = `${currentProject.path}/${CONFIG_FILE}`;
                         const uri = Uri.file(configFile);
 
-                        const newValues = [];
+                        const newValues: ConfigProperty[] = [];
                         let updatedContent = '';
 
                         // If the config file exist check for existing values
@@ -97,12 +98,13 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                                 configs.required.forEach(value => {
                                     if (!(value in obj)) {
                                         // New configs found
-                                        newValues.push({ name: value, type: '' });
+                                        newValues.push({ name: value, type: '', property: undefined });
                                     }
                                 });
                                 // Assign types to values
                                 newValues.forEach(val => {
                                     val.type = configs.properties[val.name].type;
+                                    val.property = configs.properties[val.name]
                                 })
 
                                 updatedContent = tomlContent + `\n`;
@@ -111,22 +113,24 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                                 // If the config file is empty
                                 configs.required.forEach(value => {
                                     // New configs
-                                    newValues.push({ name: value, type: '' });
+                                    newValues.push({ name: value, type: '', property: undefined });
                                 });
                                 // Assign types to values
                                 newValues.forEach(val => {
                                     val.type = configs.properties[val.name].type;
+                                    val.property = configs.properties[val.name]
                                 })
                             }
                         } else {
                             // If no config files add all the required config values
                             configs.required.forEach(value => {
                                 // New configs found
-                                newValues.push({ name: value, type: '' });
+                                newValues.push({ name: value, type: '', property: undefined });
                             });
                             // Assign types to values
                             newValues.forEach(val => {
                                 val.type = configs.properties[val.name].type;
+                                val.property = configs.properties[val.name]
                             })
                         }
 
@@ -173,6 +177,8 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                         } else {
                             commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
                         }
+                    } else {
+                        commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
                     }
 
                 }
@@ -185,9 +191,78 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 }
 
 
-function updateConfigToml(newValues, updatedContent, configPath) {
+function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPath) {
     newValues.forEach(obj => {
-        updatedContent += `${obj.name} = "${obj.type}"\n`;
+        let newConfigValue = ''
+        switch (obj.type) {
+            case ConfigTypes.BOOLEAN:
+                newConfigValue = `${obj.name} = false\n`;
+                break;
+            case ConfigTypes.INTEGER:
+                newConfigValue = `${obj.name} = 0\n`;
+                break;
+            case ConfigTypes.NUMBER:
+                newConfigValue = `${obj.name} = 0.0\n`;
+                break;
+            case ConfigTypes.STRING:
+                newConfigValue = `${obj.name} = ""\n`;
+                break;
+            case ConfigTypes.ARRAY:
+                switch (obj.property.items.type) {
+                    case ConfigTypes.BOOLEAN:
+                        newConfigValue = `${obj.name} = [false, false]\n`;
+                        break;
+                    case ConfigTypes.INTEGER:
+                        newConfigValue = `${obj.name} = [0, 0]\n`;
+                        break;
+                    case ConfigTypes.NUMBER:
+                        newConfigValue = `${obj.name} = [0.0, 0.0]\n`;
+                        break;
+                    case ConfigTypes.STRING:
+                        newConfigValue = `${obj.name} = ["", ""]\n`;
+                        break;
+                    case ConfigTypes.OBJECT:
+                        if (obj.property.additionalProperties && obj.property.additionalProperties?.type === ConfigTypes.STRING) {
+                            newConfigValue = `[[${obj.name}]]\nname = "John"\ncity = "Paris"\n[[${obj.name}]]\nname = "Jack"\ncity = "Colombo"\n`;
+                        }
+                        break;
+                    default:
+                        newConfigValue = `${obj.name} = ""\n`;
+                        break;
+                }
+                break;
+            case ConfigTypes.OBJECT:
+                if (obj.property.additionalProperties && obj.property.additionalProperties?.type === ConfigTypes.STRING) {
+                    newConfigValue = `[${obj.name}]\nname = "Anna"\ncity = "London"\n`;
+                }
+                if (obj.property.type === ConfigTypes.OBJECT) {
+                    newConfigValue = `[${obj.name}]\n`;
+                    const objectProp = obj.property;
+                    if (objectProp.required.length > 0) {
+                        objectProp.required.forEach(val => {
+                            switch (objectProp.properties[val].type) {
+                                case ConfigTypes.INTEGER:
+                                    newConfigValue += `${val} = 0\n`
+                                    break;
+                                case ConfigTypes.STRING:
+                                    newConfigValue += `${val} = ""\n`
+                                    break;
+                                case ConfigTypes.NUMBER:
+                                    newConfigValue += `${val} = 0.0\n`
+                                    break;
+                                default:
+                                    newConfigValue += `${val} = ""\n`
+                                    break;
+                            }
+                        })
+                    }
+                }
+                break;
+            default:
+                newConfigValue = `${obj.name} = ""\n`;
+                break;
+        }
+        updatedContent += newConfigValue;
     });
 
     writeFile(configPath, updatedContent, function (error) {
