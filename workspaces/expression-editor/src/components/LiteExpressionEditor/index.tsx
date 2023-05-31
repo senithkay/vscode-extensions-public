@@ -397,7 +397,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
         // Programmatically focus exp-editor
         // && customProps?.revertFocus
         if (focus) {
-            monacoRef.current.editor.focus();
+            monacoRef.current?.editor.focus();
             // customProps.revertFocus();
         }
     }, [focus]);
@@ -607,6 +607,7 @@ export function LiteExpressionEditor(props: LiteExpressionEditorProps) {
                 className={classNames("exp-container", { "hide-suggestion": hideSuggestions })}
                 style={{ height: expand ? (superExpand ? "200px" : "100px") : "34px" }}
                 field-name={testId}
+                data-testid={`lite-expression-editor-${testId}`}
             >
                 <div className="exp-absolute-wrapper">
                     <div

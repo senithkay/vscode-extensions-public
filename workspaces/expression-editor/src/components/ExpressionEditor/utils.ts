@@ -453,7 +453,7 @@ const hintHandlers = {
             if (editorModel) {
                 const editorContent = editorModel.getValue();
                 editorModel.setValue(`${editorContent} ?: ${getDefaultValue(varType)}`);
-                monacoRef.current.editor.focus();
+                monacoRef.current?.editor.focus();
             }
         }
     },
@@ -464,7 +464,7 @@ const hintHandlers = {
             if (editorModel) {
                 const editorContent = editorModel.getValue();
                 editorModel.setValue(`(${editorContent}).toString()`);
-                monacoRef.current.editor.focus();
+                monacoRef.current?.editor.focus();
             }
         }
     },
@@ -477,7 +477,7 @@ const hintHandlers = {
                 const startQuote = editorContent.trim().startsWith("\"") ? "" : "\"";
                 const endQuote = editorContent.trim().endsWith("\"") ? "" : "\"";
                 editorModel.setValue(startQuote + editorContent + endQuote);
-                monacoRef.current.editor.focus();
+                monacoRef.current?.editor.focus();
             }
         }
     },
@@ -490,7 +490,7 @@ const hintHandlers = {
                 const startQuote = editorContent.trim().startsWith("\`") ? "" : "\`";
                 const endQuote = editorContent.trim().endsWith("\`") ? "" : "\`";
                 editorModel.setValue(startQuote + editorContent + endQuote);
-                monacoRef.current.editor.focus();
+                monacoRef.current?.editor.focus();
             }
         }
     },
@@ -500,7 +500,7 @@ const hintHandlers = {
             const editorModel = monacoRef.current.editor.getModel();
             if (editorModel) {
                 editorModel.setValue("check " + editorModel.getValue());
-                monacoRef.current.editor.focus();
+                monacoRef.current?.editor.focus();
             }
         }
     },
@@ -515,7 +515,7 @@ const hintHandlers = {
                 } else {
                     editorModel.setValue(`<${varType}> ${editorContent}`);
                 }
-                monacoRef.current.editor.focus();
+                monacoRef.current?.editor.focus();
             }
         }
     },
