@@ -22,6 +22,7 @@ import { InterfaceNodeFactory } from "../Nodes/InterfaceNode/InterfaceNodeFactor
 import { RecordNodeFactory } from "../Nodes/RecordNode/RecordNodeFactory";
 import { ServiceClassNodeFactory } from "../Nodes/ServiceClassNode/ServiceClassNodeFactory";
 import { UnionNodeFactory } from "../Nodes/UnionNode/UnionNodeFactory";
+import { GraphqlOverlayLayerFactory } from "../OverlayLoader";
 import { GraphqlBasePortFactory } from "../Port/GraphqlBasePortFactory";
 
 export function createGraphqlDiagramEngine(): DiagramEngine {
@@ -40,5 +41,6 @@ export function createGraphqlDiagramEngine(): DiagramEngine {
     diagramEngine.getNodeFactories().registerFactory(new UnionNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new InterfaceNodeFactory());
     diagramEngine.getNodeFactories().registerFactory(new HierarchicalNodeFactory());
+    diagramEngine.getLayerFactories().registerFactory(new GraphqlOverlayLayerFactory());
     return diagramEngine;
 }
