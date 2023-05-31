@@ -101,6 +101,12 @@ function setupWebviewPanel(langClient: ExtendedLangClient) {
                     documentUri: filePath
                 });
             }
+        },
+        {
+            methodName: "showProblemPanel",
+            handler: async () => {
+                return await commands.executeCommand('workbench.action.problems.focus');
+            }
         }
     ];
 

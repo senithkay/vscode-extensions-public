@@ -23,9 +23,10 @@ import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
+import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { entityModeller, generateEngine } from './utils';
-import { DiagramControls, PersistDiagramContext } from './components';
-import { dagreEngine } from './resources';
+import { DiagramControls, PersistDiagramContext, PromptScreen } from './components';
+import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine } from './resources';
 import './styles.css';
 
 import './resources/assets/font/fonts.css';
@@ -33,6 +34,7 @@ import './resources/assets/font/fonts.css';
 interface PersistDiagramProps {
     getPersistModel: () => Promise<GetPersistERModelResponse>;
     selectedRecordName: string;
+    showProblemPanel: () => void;
 }
 
 const PersistContainer = styled.div`
@@ -45,10 +47,12 @@ const PersistContainer = styled.div`
 `;
 
 export function PersistDiagram(props: PersistDiagramProps) {
-    const { getPersistModel, selectedRecordName } = props;
+    const { getPersistModel, selectedRecordName, showProblemPanel } = props;
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
+    const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
+    const [userMessage, setUserMessage] = useState<string>(undefined);
 
     useEffect(() => {
         refreshDiagram();
@@ -57,10 +61,20 @@ export function PersistDiagram(props: PersistDiagramProps) {
     const refreshDiagram = () => {
         getPersistModel().then(response => {
             const pkgModel: Map<string, ComponentModel> = new Map(Object.entries(response.persistERModel));
-            const model = entityModeller(new Map(Object.entries(pkgModel.get('entities'))));
-            diagramEngine.setModel(model);
-            autoDistribute();
-            setDiagramModel(model);
+            const entities: Map<string, Entity> = new Map(Object.entries(pkgModel.get('entities')));
+            setHasDiagnostics(response.diagnostics.length > 0);
+            if (entities.size) {
+                setUserMessage(undefined);
+                const model = entityModeller(entities);
+                diagramEngine.setModel(model);
+                autoDistribute();
+                setDiagramModel(model);
+            } else if (response.diagnostics.length && !diagramModel) {
+                setUserMessage(ERRONEOUS_MODEL);
+            } else if (!response.diagnostics?.length) {
+                setDiagramModel(undefined);
+                setUserMessage(NO_ENTITIES_DETECTED);
+            }
         });
     }
 
@@ -79,9 +93,16 @@ export function PersistDiagram(props: PersistDiagramProps) {
                 {diagramEngine && diagramEngine.getModel() && diagramModel ?
                     <>
                         <CanvasWidget engine={diagramEngine} className={'persist-diagram-container'} />
-                        <DiagramControls engine={diagramEngine} refreshDiagram={refreshDiagram} />
+                        <DiagramControls
+                            engine={diagramEngine}
+                            hasDiagnostics={hasDiagnostics}
+                            refreshDiagram={refreshDiagram}
+                            showProblemPanel={showProblemPanel}
+                        />
                     </> :
-                    <CircularProgress sx={{ color: '#5567D5' }} />
+                    userMessage ?
+                        <PromptScreen userMessage={userMessage} showProblemPanel={hasDiagnostics ? showProblemPanel : undefined} /> :
+                        <CircularProgress sx={{ color: '#5567D5' }} />
                 }
             </PersistDiagramContext>
         </PersistContainer>

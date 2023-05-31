@@ -53,10 +53,23 @@ export function render(webView: Webview, selectedRecord: string) {
                 })
             }
 
+            function showProblemPanel() {
+                return new Promise((resolve, _reject) => {
+                    webViewRPCHandler.invokeRemoteMethod(
+                        'showProblemPanel',
+                        [],
+                        (response) => {
+                            resolve(response);
+                        }
+                    );
+                })
+            }
+
             function renderDiagrams() {
                 persistDiagram.renderDiagram(
                     getPersistModel,
                     "${selectedRecord}",
+                    showProblemPanel,
                     document.getElementById("webview-container")
                 );
             }

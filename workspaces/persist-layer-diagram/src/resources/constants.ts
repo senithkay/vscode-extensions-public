@@ -41,3 +41,6 @@ export const dagreEngine = new DagreEngine({
         marginy: 40
     }
 });
+
+export const NO_ENTITIES_DETECTED = 'Could not detect any entities in the Persist model.';
+export const ERRONEOUS_MODEL = 'Please resolve the diagnostics to view the ER diagram.';

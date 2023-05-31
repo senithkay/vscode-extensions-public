@@ -27,11 +27,14 @@ import styled from '@emotion/styled';
 import CachedIcon from "@mui/icons-material/Cached";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { toJpeg } from 'html-to-image';
+import { DiagnosticsWarning } from './DiagnosticsWarning';
 import './styles.css';
 
 interface ControlProps {
     engine: DiagramEngine;
+    hasDiagnostics: boolean;
     refreshDiagram: () => void;
+    showProblemPanel: () => void;
 }
 
 export const ControlPanel: React.FC<any> = styled.div`
@@ -46,7 +49,7 @@ export const ControlPanel: React.FC<any> = styled.div`
 `;
 
 export function DiagramControls(props: ControlProps) {
-    const { engine, refreshDiagram } = props;
+    const { engine, hasDiagnostics, refreshDiagram, showProblemPanel } = props;
 
     const downloadDiagram = useCallback(() => {
         const canvas: HTMLDivElement = engine.getCanvas();
@@ -78,6 +81,7 @@ export function DiagramControls(props: ControlProps) {
 
     return (
         <ControlPanel >
+            {hasDiagnostics && <DiagnosticsWarning showProblemPanel={showProblemPanel} />}
             <IconButton
                 className={'control-button'}
                 size='small'

@@ -34,3 +34,5 @@ export * from './OverlayLoader';
 export { DiagramControls } from './Controls/DiagramControls';
 
 export * from './DiagramContext/DiagramContext';
+
+export * from './PromptScreen/PromptScreen';
