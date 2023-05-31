@@ -69,7 +69,7 @@ export function ContainerController(props: ContainerControllerProps) {
                     size='small'
                     onClick={zoomToFit}
                 >
-                    <FullscreenIcon fontSize='small'/>
+                    <FullscreenIcon fontSize='small' />
                 </IconButton>
             </div>
             <div>
@@ -78,14 +78,14 @@ export function ContainerController(props: ContainerControllerProps) {
                     size='small'
                     onClick={() => {onZoom(true)}}
                 >
-                    <AddIcon fontSize='small'/>
+                    <AddIcon fontSize='small' />
                 </IconButton>
                 <IconButton
                     className={'control-button'}
                     size='small'
                     onClick={() => {onZoom(false)}}
                 >
-                    <RemoveIcon fontSize='small'/>
+                    <RemoveIcon fontSize='small' />
                 </IconButton>
             </div>
         </ControlPanel>

@@ -79,7 +79,13 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
             return;
         }
 
-        toJpeg(canvas, { cacheBust: true, quality: 0.95, width: canvas.scrollWidth, height: canvas.scrollHeight, backgroundColor: 'white'})
+        toJpeg(canvas, {
+            cacheBust: true,
+            quality: 0.95,
+            width: canvas.scrollWidth,
+            height: canvas.scrollHeight,
+            backgroundColor: 'white'
+        })
             .then((dataUrl: string) => {
                 const link = document.createElement('a');
                 link.download = 'graphql-diagram.jpeg';
@@ -95,9 +101,9 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-             <CanvasWidgetContainer>
-                     <CanvasWidget engine={diagramEngine}/>
-                     <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
+            <CanvasWidgetContainer>
+                <CanvasWidget engine={diagramEngine} />
+                <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
             </CanvasWidgetContainer>
             }
         </>
