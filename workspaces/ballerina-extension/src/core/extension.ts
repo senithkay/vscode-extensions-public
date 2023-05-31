@@ -31,7 +31,7 @@ import { join, sep } from 'path';
 import { exec, spawnSync } from 'child_process';
 import { LanguageClientOptions, State as LS_STATE, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { getServerOptions } from '../server/server';
-import { ExtendedLangClient } from './extended-language-client';
+import { BallerinaProject, ExtendedLangClient } from './extended-language-client';
 import { debug, log, getOutputChannel, outputChannel, isWindows, isSupportedVersion, VERSION } from '../utils';
 import { AssertionError } from "assert";
 import {
@@ -643,6 +643,7 @@ class DocumentContext {
     private editorChangesCallbacks: Array<(change: Change) => void> = [];
     private latestDocument: Uri | undefined;
     private activeDiagram: boolean = false;
+    private ballerinProject: BallerinaProject;
 
     public diagramTreeElementClicked(construct: ConstructIdentifier): void {
         this.diagramTreeElementClickedCallbacks.forEach((callback) => {
@@ -669,6 +670,15 @@ class DocumentContext {
             return;
         }
         this.latestDocument = uri;
+    }
+
+    public setCurrentProject(ballerinProject: BallerinaProject) {
+        commands.executeCommand('setContext', 'isBallerinaProject', true);
+        this.ballerinProject = ballerinProject;
+    }
+
+    public getCurrentProject(): BallerinaProject {
+        return this.ballerinProject;
     }
 
     public getLatestDocument(): Uri | undefined {

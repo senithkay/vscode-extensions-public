@@ -356,6 +356,15 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.project.run.config",
+                "title": "Run",
+                "icon": {
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
+                },
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.source.debug",
                 "title": "Debug",
                 "icon": {
@@ -463,6 +472,12 @@
                     "group": "navigation@1",
                     "title": "Run project in terminal",
                     "when": "resourceLangId == ballerina || isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.project.run.config",
+                    "group": "navigation@1",
+                    "title": "Run project in terminal",
+                    "when": "resourceLangId == toml && isBallerinaProject"
                 },
                 {
                     "command": "ballerina.source.debug",

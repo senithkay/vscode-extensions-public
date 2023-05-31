@@ -46,6 +46,8 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
         if (!currentProject) {
             return;
+        } else {
+            ballerinaExtInstance.getDocumentContext().setCurrentProject(currentProject);
         }
 
         if (currentProject.kind == "SINGLE_FILE_PROJECT") {
@@ -136,12 +138,17 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
                         // If there are newValues to be added to the config ask the message
                         if (newValues.length > 0) {
+                            let btnTitle = "Open config";
+                            let message = "There are mandatory configurables that are required to run the project."
+                            if (!existsSync(configFile)) { 
+                                btnTitle = "Create new config";
+                            }
                             // Config generation message with button
-                            const openConfigButton = { title: 'Open Config', isCloseAffordance: true };
+                            const openConfigButton = { title: btnTitle, isCloseAffordance: true };
                             const ignoreButton = { title: 'Ignore' };
 
                             const result = await window.showInformationMessage(
-                                'There are required configurables. You can open config file or just ignore.',
+                                message,
                                 openConfigButton,
                                 ignoreButton
                             );
@@ -157,17 +164,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
                                 await workspace.openTextDocument(uri).then(async document => {
                                     window.showTextDocument(document, { preview: false });
-                                    const runButton = { title: 'Run Now', isCloseAffordance: true };
-
-                                    const runAgain = await window.showInformationMessage(
-                                        'You have to run the project again after updating the configs.',
-                                        runButton
-                                    );
-
-                                    if (runAgain === runButton) {
-                                        runCommand(currentProject, ballerinaExtInstance.getBallerinaCmd(), BALLERINA_COMMANDS.RUN,
-                                            currentProject.path!);
-                                    }
+                                    window.showWarningMessage('You have to run the project again after updating the new configurable values.');
                                 });
 
                             } else if (result === ignoreButton) {
