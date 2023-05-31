@@ -73,7 +73,7 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         }, 30);
     };
 
-    const downloadDiagram = useCallback(() => {
+    const downloadDiagram = () => {
         const canvas: HTMLDivElement = diagramEngine.getCanvas();
         if (!canvas) {
             return;
@@ -96,7 +96,7 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
                 // tslint:disable-next-line:no-console
                 console.log(err.message);
             });
-    }, [diagramEngine.getCanvas()]);
+    };
 
     return (
         <>
