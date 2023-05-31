@@ -24,7 +24,7 @@ import { BALLERINA_COMMANDS, BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS, runCommand
 import { BallerinaExtension, BallerinaProject, PackageConfigSchemaResponse } from "../core";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
 import EventEmitter from "events";
-import { generateExistingValues, parseConfigToToml, parseTomlToConfig } from "./utils";
+import { generateExistingValues, parseTomlToConfig } from "./utils";
 import { ConfigProperty, ConfigTypes } from "./model";
 
 
@@ -68,7 +68,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                 return Promise.reject();
             }
 
-            if (data.configSchema?.properties) {
+            if (Object.keys(data.configSchema?.properties).length > 0) {
                 const props: object = data.configSchema?.properties;
                 var firstKey = Object.keys(props)[0];
                 var orgName = props[firstKey].properties;
@@ -183,6 +183,8 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
                 }
 
+            } else {
+                commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
             }
         });
 
