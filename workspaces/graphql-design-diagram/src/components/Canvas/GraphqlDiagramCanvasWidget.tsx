@@ -12,10 +12,11 @@
  */
 
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { toJpeg } from 'html-to-image';
 
 import { GraphqlOverlayLayerModel } from "../OverlayLoader";
 import { createGraphqlDiagramEngine } from "../utils/engine-util";
@@ -72,12 +73,31 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         }, 30);
     };
 
+    const downloadDiagram = useCallback(() => {
+        const canvas: HTMLDivElement = diagramEngine.getCanvas();
+        if (!canvas) {
+            return;
+        }
+
+        toJpeg(canvas, { cacheBust: true, quality: 0.95, width: canvas.scrollWidth, height: canvas.scrollHeight, backgroundColor: 'white'})
+            .then((dataUrl: string) => {
+                const link = document.createElement('a');
+                link.download = 'graphql-diagram.jpeg';
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch((err: { message: any; }) => {
+                // tslint:disable-next-line:no-console
+                console.log(err.message);
+            });
+    }, [diagramEngine.getCanvas()]);
+
     return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
-            <CanvasWidgetContainer>
-                <CanvasWidget engine={diagramEngine}/>
-                <ContainerController onZoom={onZoom} zoomToFit={zoomToFit}/>
+             <CanvasWidgetContainer>
+                     <CanvasWidget engine={diagramEngine}/>
+                     <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
             </CanvasWidgetContainer>
             }
         </>

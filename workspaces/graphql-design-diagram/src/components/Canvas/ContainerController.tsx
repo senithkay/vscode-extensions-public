@@ -16,6 +16,7 @@ import React from 'react';
 
 import styled from "@emotion/styled";
 import AddIcon from '@mui/icons-material/Add';
+import DownloadIcon from "@mui/icons-material/FileDownloadOutlined";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
 import IconButton from '@mui/material/IconButton';
@@ -23,6 +24,7 @@ import IconButton from '@mui/material/IconButton';
 interface ContainerControllerProps {
     zoomToFit: () => void;
     onZoom: (zoomIn: boolean) => void;
+    onDownload?: () => void;
 }
 
 const ControlPanel: React.FC<any> = styled.div`
@@ -48,10 +50,19 @@ const ControlPanel: React.FC<any> = styled.div`
 
 
 export function ContainerController(props: ContainerControllerProps) {
-    const { onZoom, zoomToFit } = props;
+    const { onZoom, zoomToFit, onDownload } = props;
 
     return (
         <ControlPanel>
+            <div>
+                <IconButton
+                    className={'control-button'}
+                    size='small'
+                    onClick={onDownload}
+                >
+                    <DownloadIcon fontSize='medium' />
+                </IconButton>
+            </div>
             <div>
                 <IconButton
                     className={'control-button'}
