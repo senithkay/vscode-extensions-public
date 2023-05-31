@@ -1,9 +1,27 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+ */
 import { monaco } from "react-monaco-editor";
 
 import {
     CommandResponse,
     DiagramDiagnostic,
-   DiagramEditorLangClientInterface, DIAGRAM_MODIFIED,
+    DiagramEditorLangClientInterface, DIAGRAM_MODIFIED,
     FileListEntry,
     FunctionDef,
     getImportStatements,
@@ -16,7 +34,7 @@ import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
-import { getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isUnresolvedModulesAvailable } from "../../DiagramGenerator/generatorUtil";
+import { getFunctionSyntaxTree, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable, isUnresolvedModulesAvailable } from "../../DiagramGenerator/generatorUtil";
 import { EditorProps, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
@@ -40,6 +58,13 @@ export async function getSTNodeForReference(
     });
 }
 
+export async function handleRecordNavigation(filePath: string, position: NodePosition,
+    langClientPromise: Promise<DiagramEditorLangClientInterface>) {
+    const langClientInstance = await langClientPromise;
+    const generatedST = await getSyntaxTree(filePath, langClientInstance);
+
+}
+
 export function getDiagramProviderProps(
     focusedST: STNode,
     lowCodeEnvInstance: string,
@@ -60,7 +85,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+        getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {

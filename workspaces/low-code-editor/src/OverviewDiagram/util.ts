@@ -13,6 +13,7 @@
 
 import { ComponentInfo, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { Uri } from "monaco-editor";
 
 export interface ComponentViewInfo {
     filePath: string;
@@ -38,15 +39,14 @@ export interface ComponentCollection {
 
 
 export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, element: ComponentInfo) {
-    let filePath = `${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`
-        .replace('file://', '');
+    let filePath = Uri.parse(`${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`)
 
-    if (window.navigator.userAgent.indexOf("Win") > -1) {
-        if (filePath.startsWith('/')) {
-            filePath = filePath.substring(1);
-            filePath = filePath.replaceAll(/\//g, '\\');
-        }
-    }
+    // if (window.navigator.userAgent.indexOf("Win") > -1) {
+    //     if (filePath.startsWith('/')) {
+    //         filePath = filePath.substring(1);
+    //         filePath = filePath.replaceAll(/\//g, '\\');
+    //     }
+    // }
 
-    return filePath;
+    return filePath.path;
 }

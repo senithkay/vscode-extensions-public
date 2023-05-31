@@ -41,6 +41,7 @@ import { getConstructBodyString } from "../Diagram/visitors/util";
 import { getDiagramProviderProps } from "./utils";
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { DiagramView } from "./views/DiagramView";
+import { monaco } from "react-monaco-editor";
 
 export function DiagramViewManager(props: EditorProps) {
     const {
@@ -102,10 +103,11 @@ export function DiagramViewManager(props: EditorProps) {
                 const componentResponse = await langClient.getBallerinaProjectComponents({
                     documentIdentifiers: [
                         {
-                            uri: file.startsWith("file://") ? file : `file://${file}`,
+                            uri: monaco.Uri.file(file).toString(),
                         }
                     ]
                 });
+
 
                 if (file.endsWith(".bal")) {
                     const generatedST = await getSyntaxTree(file, langClient);
@@ -244,7 +246,7 @@ export function DiagramViewManager(props: EditorProps) {
                             />
                             {!showOverviewMode && !showSTMode && <TextPreLoader position={'absolute'} />}
                             {showOverviewMode && <ComponentListView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
-                            {showSTMode && <DiagramView projectComponents={projectComponents}/>}
+                            {showSTMode && <DiagramView projectComponents={projectComponents} />}
                             <div id={'canvas-overlay'} className={"overlayContainer"} />
                         </ViewManagerProvider>
                     </HistoryProvider>

@@ -148,6 +148,9 @@ export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, 
         }
     }
 
+    // tslint:disable-next-line: no-console
+    console.log('>>> filePath',filePath)
+
     return filePath;
 }
 
