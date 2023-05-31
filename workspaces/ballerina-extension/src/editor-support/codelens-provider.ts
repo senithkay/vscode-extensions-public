@@ -29,9 +29,8 @@ import {
 } from '../telemetry';
 import { DEBUG_CONFIG, DEBUG_REQUEST } from '../debugger';
 import { openConfigEditor } from '../config-editor/configEditorPanel';
-import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { STKindChecker, STNode, traversNode } from '@wso2-enterprise/syntax-tree';
+import { traversNode } from '@wso2-enterprise/syntax-tree';
 import { CodeLensProviderVisitor } from './codelense-provider-visitor';
 
 export enum EXEC_POSITION_TYPE {
