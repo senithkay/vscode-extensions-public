@@ -87,15 +87,20 @@ export function PersistDiagram(props: PersistDiagramProps) {
 
     const selectedNodeId = selectedRecordName ? `$anon/.:0.0.0:${selectedRecordName}` : '';
 
+    let ctx = {
+        selectedNode: selectedNodeId,
+        setHasDiagnostics,
+        hasDiagnostics
+    }
+
     return (
         <PersistContainer>
-            <PersistDiagramContext selectedNode={selectedNodeId}>
+            <PersistDiagramContext {...ctx}>
                 {diagramEngine && diagramEngine.getModel() && diagramModel ?
                     <>
                         <CanvasWidget engine={diagramEngine} className={'persist-diagram-container'} />
                         <DiagramControls
                             engine={diagramEngine}
-                            hasDiagnostics={hasDiagnostics}
                             refreshDiagram={refreshDiagram}
                             showProblemPanel={showProblemPanel}
                         />

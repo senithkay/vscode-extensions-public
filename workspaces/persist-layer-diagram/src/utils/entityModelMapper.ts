@@ -21,24 +21,18 @@ import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { DiagramModel } from '@projectstorm/react-diagrams';
 import { EntityLinkModel, EntityModel, EntityPortModel } from '../components';
 
-export function entityModeller(entities: Map<string, Entity>)
-    : DiagramModel {
-    let entityNodes: Map<string, EntityModel> = new Map<string, EntityModel>();
-    let entityLinks: EntityLinkModel[] = [];
-
-    // convert entities in the model to nodes
-    entityNodes = generateNodes(entities);
-    entityLinks = generateLinks(entities, entityNodes);
+export function entityModeller(entities: Map<string, Entity>): DiagramModel {
+    let entityNodes: Map<string, EntityModel> = generateNodes(entities);
+    let entityLinks: Map<string, EntityLinkModel> = generateLinks(entities, entityNodes);
 
     let model = new DiagramModel();
-    model.addAll(...Array.from(entityNodes.values()), ...entityLinks);
+    model.addAll(...Array.from(entityNodes.values()), ...Array.from(entityLinks.values()));
     return model;
 }
 
 function generateNodes(entities: Map<string, Entity>): Map<string, EntityModel> {
     let nodes: Map<string, EntityModel> = new Map<string, EntityModel>();
-
-    entities.forEach((entity, key) => {
+    entities?.forEach((entity, key) => {
         const entityNode = new EntityModel(key, entity);
         nodes.set(key, entityNode);
     });
@@ -46,12 +40,17 @@ function generateNodes(entities: Map<string, Entity>): Map<string, EntityModel> 
     return nodes;
 }
 
-function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityModel>): EntityLinkModel[] {
-    let links: EntityLinkModel[] = [];
+function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityModel>): Map<string, EntityLinkModel> {
+    let links: Map<string, EntityLinkModel> = new Map();
+    let mappedLinkNodes: Map<string, string[]> = new Map();
 
-    entities.forEach((entity, key) => {
+    entities?.forEach((entity, key) => {
         let callingEntity: EntityModel = nodes.get(key);
         let associatedEntity: EntityModel;
+
+        if (!mappedLinkNodes.has(key)) {
+            mappedLinkNodes.set(key, []);
+        }
 
         entity.attributes.forEach(attribute => {
             attribute.associations.forEach(association => {
@@ -61,8 +60,25 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
                     let targetPort: EntityPortModel = associatedEntity.getPort(`left-${association.associate}`);
 
                     if (sourcePort && targetPort) {
-                        let link: EntityLinkModel = new EntityLinkModel(association.cardinality);
-                        links.push(createLinks(sourcePort, targetPort, link));
+                        if (mappedLinkNodes.has(associatedEntity.getID()) &&
+                            mappedLinkNodes.get(associatedEntity.getID()).includes(callingEntity.getID())) {
+                            const linkId: string = Array.from(links.keys()).find(itemId =>
+                                itemId.slice(itemId.indexOf('-') + 1).startsWith(associatedEntity.getID()) && itemId.endsWith(key)
+                            );
+                            const link2update = links.get(linkId);
+                            if (link2update) {
+                                link2update.cardinality.self = association.cardinality.associate;
+                                link2update.setTargetPort(sourcePort);
+                            }
+                            const index = mappedLinkNodes.get(associatedEntity.getID()).indexOf(callingEntity.getID());
+                            if (index > -1) {
+                                mappedLinkNodes.get(associatedEntity.getID()).splice(index, 1);
+                            }
+                        } else {
+                            let link: EntityLinkModel = new EntityLinkModel(association.cardinality);
+                            links.set(`${sourcePort.getID()}:${targetPort.getID()}`, createLinks(sourcePort, targetPort, link));
+                            mappedLinkNodes.set(key, [...mappedLinkNodes.get(key), associatedEntity.getID()]);
+                        }
                     }
                 }
             });
@@ -76,7 +92,7 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
 
                 if (sourcePort && targetPort) {
                     let link: EntityLinkModel = new EntityLinkModel(undefined);
-                    links.push(createLinks(sourcePort, targetPort, link));
+                    links.set(`${sourcePort.getID()}:${targetPort.getID()}`, createLinks(sourcePort, targetPort, link));
                 }
             }
         })

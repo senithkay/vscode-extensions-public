@@ -17,7 +17,7 @@
  *
  */
 
-import React, { useCallback } from 'react';
+import React, { useContext } from 'react';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
@@ -28,11 +28,12 @@ import CachedIcon from "@mui/icons-material/Cached";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { toJpeg } from 'html-to-image';
 import { DiagnosticsWarning } from './DiagnosticsWarning';
+import { DiagramContext } from '../DiagramContext/DiagramContext';
+
 import './styles.css';
 
 interface ControlProps {
     engine: DiagramEngine;
-    hasDiagnostics: boolean;
     refreshDiagram: () => void;
     showProblemPanel: () => void;
 }
@@ -49,9 +50,10 @@ export const ControlPanel: React.FC<any> = styled.div`
 `;
 
 export function DiagramControls(props: ControlProps) {
-    const { engine, hasDiagnostics, refreshDiagram, showProblemPanel } = props;
+    const { engine, refreshDiagram, showProblemPanel } = props;
+    const { hasDiagnostics } = useContext(DiagramContext);
 
-    const downloadDiagram = useCallback(() => {
+    const downloadDiagram = () => {
         const canvas: HTMLDivElement = engine.getCanvas();
         if (!canvas) {
             return;
@@ -67,7 +69,7 @@ export function DiagramControls(props: ControlProps) {
             .catch((err) => {
                 console.log(err.message);
             });
-    }, [engine.getCanvas()]);
+    }
 
     const onZoom = (zoomIn: boolean) => {
         let delta: number = zoomIn ? +5 : -5;

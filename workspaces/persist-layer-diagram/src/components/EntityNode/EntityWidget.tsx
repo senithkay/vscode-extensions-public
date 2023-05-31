@@ -34,7 +34,7 @@ interface EntityWidgetProps {
 
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { selectedNodeId, setSelectedNodeId } = useContext(DiagramContext);
+    const { selectedNodeId, setSelectedNodeId, setHasDiagnostics } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
     const isNewNode = useRef<boolean>(node.getID() === selectedNodeId);
 
@@ -53,6 +53,10 @@ export function EntityWidget(props: EntityWidgetProps) {
 			}, 2000)
 		}
     }, [node]);
+
+    if (node.entityObject.diagnostics.length) {
+        setHasDiagnostics(true);
+    }
 
     return (
         <EntityNode

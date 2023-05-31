@@ -21,11 +21,15 @@ import React, { createContext, ReactNode, useState } from 'react';
 
 interface DiagramContextProps {
     selectedNode: string;
+    hasDiagnostics: boolean;
+    setHasDiagnostics: (hasDiagnostics: boolean) => void;
     children: ReactNode;
 }
 
 interface IDiagramContext {
     selectedNodeId: string;
+    hasDiagnostics: boolean;
+    setHasDiagnostics: (hasDiagnostics: boolean) => void;
     setSelectedNodeId: (id: string) => void;
 }
 
@@ -33,11 +37,13 @@ const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function PersistDiagramContext(props: DiagramContextProps) {
-    const { selectedNode, children } = props;
+    const { selectedNode, setHasDiagnostics, hasDiagnostics, children } = props;
     const [selectedNodeId, setSelectedNodeId] = useState<string>(selectedNode);
 
     let context: IDiagramContext = {
         selectedNodeId,
+        hasDiagnostics,
+        setHasDiagnostics,
         setSelectedNodeId
     }
 
