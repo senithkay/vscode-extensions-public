@@ -33,8 +33,7 @@ export const useStyles = makeStyles(() =>
         },
         shortcutMenuItem: {
             paddingTop: 0,
-            paddingBottom: 0,
-            paddingRight: "4px"
+            paddingBottom: 0
         },
         menuIcon: {
             marginRight: "10px",
