@@ -32,7 +32,7 @@ export default class OutputLinkProvider implements vscode.DocumentLinkProvider {
         }
         return [new vscode.DocumentLink(new vscode.Range(0, 18, 0, 33), Uri.parse("command:ballerina.project.stop"))];
     }
-};
+}
 
 function activateRunCommand() {
     vscode.languages.registerDocumentLinkProvider({ language: "x-ballerina-output-log" }, new OutputLinkProvider());
