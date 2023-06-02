@@ -13,14 +13,22 @@
 import * as React from "react";
 
 import { render } from "@testing-library/react";
-import { FunctionDefinition } from "@wso2-enterprise/syntax-tree";
+import { FunctionDefinition, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { RegularFuncComponent } from "../../../Components/RenderingComponents/Function/RegularFunction";
+import { sizingAndPositioning } from "../../../Utils";
+import { TestProvider } from "../../TestContext";
 
 jest.mock('react-monaco-editor');
 
-export const renderFunctionDiagram = (focusedST: FunctionDefinition) => {
+export const renderFunctionDiagram = (focusedST: FunctionDefinition, completeST: STNode) => {
+    const visitedST = sizingAndPositioning(focusedST) as FunctionDefinition;
     render(
-        <RegularFuncComponent model={focusedST} />
+        <TestProvider
+            completeST={completeST}
+            focusedST={visitedST}
+        >
+            <RegularFuncComponent model={visitedST} />
+        </TestProvider>
     );
 };

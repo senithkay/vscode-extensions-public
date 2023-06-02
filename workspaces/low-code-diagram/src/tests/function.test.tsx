@@ -13,13 +13,14 @@
 import * as React from "react";
 
 import { expect } from "@jest/globals";
-import {screen, within} from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { BalleriaLanguageClient } from "@wso2-enterprise/ballerina-languageclient";
 import { createLangClient, getSyntaxTree } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, ModulePart } from "@wso2-enterprise/syntax-tree";
 import 'jest-canvas-mock';
 import path from "path";
 
+import { Parameter } from "./utils/function/parameter";
 import { renderFunctionDiagram } from "./utils/function/renderer";
 
 const BAL_FILE_NAME = "function.bal";
@@ -41,20 +42,31 @@ beforeAll(async () => {
 });
 
 test('test function', async () => {
-    renderFunctionDiagram(functionDefinition);
+    renderFunctionDiagram(functionDefinition, completeST);
+
     const functionDiagram = screen.getByTestId("module-level-function");
     expect(functionDiagram).toBeDefined();
+
     const functionTitle = within(functionDiagram).getByTestId(`fn-def-title`);
-    expect(functionTitle).toBeDefined();
     expect(functionTitle.textContent).toEqual('Function getPerson');
-    expect(within(functionDiagram).getByTestId(`fn-def-param-0`).textContent).toEqual('string name');
-    expect(within(functionDiagram).getByTestId(`fn-def-param-1`).textContent).toEqual('int age');
-    expect(within(functionDiagram).getByTestId(`fn-def-param-2`).textContent).toEqual('Address address');
+
+    const fnDefParams = within(functionDiagram).getByTestId(`argument-container`);
+    const params = [
+        { type: 'string', name: 'name' },
+        { type: 'int', name: 'age' },
+        { type: 'Address', name: 'address' }
+    ];
+
+    params.forEach((param, index) => {
+        const parameter = new Parameter(index, fnDefParams);
+        parameter.validateParamType(param.type);
+        parameter.validateParamName(param.name);
+    });
+
     const diagramCanvas = within(functionDiagram).getByTestId(`diagram-canvas`);
     expect(diagramCanvas).toBeDefined();
 });
 
-//
 // afterAll(async () => {
 //     await stopLangServer(langClient);
 // });
