@@ -28,6 +28,7 @@ export const EnumNode: React.FC<any> = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 32px;
+  min-width: 160px;
   opacity: 1;
 `;
 

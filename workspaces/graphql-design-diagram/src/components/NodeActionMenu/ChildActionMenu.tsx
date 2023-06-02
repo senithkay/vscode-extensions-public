@@ -51,7 +51,7 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
                     startColumn: location.startLine.offset,
                     startLine: location.startLine.line
                 };
-                if  (location.filePath === currentFile.path) {
+                if (location.filePath === currentFile.path) {
                     const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
                     parentModel = parentNode;
                 } else {
@@ -76,15 +76,15 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
 
     return (
         <>
-            {location.filePath && location.startLine && location.endLine &&
+            {location?.filePath && location?.startLine && location?.endLine &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <Paper style={{ maxWidth: "100%" }}>
                         <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                            <EditNode model={currentModel} functionType={functionType} location={location} st={currentST}/>
-                            <DesignNode model={currentModel} location={location}/>
+                            <EditNode model={currentModel} functionType={functionType} location={location} st={currentST} />
+                            <DesignNode model={currentModel} location={location} />
                         </MenuList>
                     </Paper>
                 }
