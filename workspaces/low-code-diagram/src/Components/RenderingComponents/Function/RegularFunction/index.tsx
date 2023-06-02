@@ -190,6 +190,7 @@ export function RegularFuncComponent(props: FunctionProps) {
                     : ""
             )}
             data-function-name={model?.functionName?.value}
+            data-testid={`module-level-function`}
         >
             {/* {!hideHeader && (STKindChecker.isResourceAccessorDefinition(model) ? (
                 <ResourceHeader

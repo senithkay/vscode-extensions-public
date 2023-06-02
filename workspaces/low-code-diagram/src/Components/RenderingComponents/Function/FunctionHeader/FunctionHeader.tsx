@@ -66,7 +66,7 @@ export function FunctionHeader() {
     if (STKindChecker.isFunctionDefinition(functionNode)) {
         // TODO: handle general funciton
         titleComponents.push(
-            <div key={"title"} className="title-components">
+            <div key={"title"} className="title-components" data-testid={'fn-def-title'}>
                 {`Function ${functionNode.functionName.value}`}
             </div>
         );
@@ -78,7 +78,7 @@ export function FunctionHeader() {
                     || STKindChecker.isRestParam(param)) {
 
                     argumentComponents.push(
-                        <div key={paramIndex} className={'argument-item'}>
+                        <div key={paramIndex} className={'argument-item'} data-testid={`fn-def-param-${paramIndex}`}>
                             <span className="type-name">{param.typeName.source.trim()}</span>
                             <span className="argument-name">{param.paramName.value}</span>
                         </div>
