@@ -49,7 +49,7 @@ import {
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { gitStatusBarItem } from "../editor-support/git-status";
-import { checkIsPersistModelFile } from "../entity-diagram/activator";
+import { checkIsPersistModelFile } from "../persist-layer-diagram/activator";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 

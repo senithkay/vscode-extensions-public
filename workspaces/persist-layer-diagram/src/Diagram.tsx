@@ -24,10 +24,10 @@ import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
-import { entityModeller, generateEngine } from './utils';
-import { DiagramControls, PersistDiagramContext, PromptScreen } from './components';
+import { modelMapper, generateEngine } from './utils';
+import { DiagramControls, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
 import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine } from './resources';
-import './styles.css';
+import './utils/CanvasStyles.css';
 
 import './resources/assets/font/fonts.css';
 
@@ -64,8 +64,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
             const entities: Map<string, Entity> = new Map(Object.entries(pkgModel.get('entities')));
             setHasDiagnostics(response.diagnostics.length > 0);
             if (entities.size) {
-                setUserMessage(undefined);
-                const model = entityModeller(entities);
+                const model = modelMapper(entities);
                 diagramEngine.setModel(model);
                 autoDistribute();
                 setDiagramModel(model);
@@ -81,7 +80,8 @@ export function PersistDiagram(props: PersistDiagramProps) {
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
-            diagramEngine.zoomToFitNodes({});
+            diagramEngine.zoomToFitNodes({ margin: 10 });
+            diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
         }, 30);
     };
 
@@ -96,7 +96,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
     return (
         <PersistContainer>
             <PersistDiagramContext {...ctx}>
-                {diagramEngine && diagramEngine.getModel() && diagramModel ?
+                {diagramEngine?.getModel() && diagramModel ?
                     <>
                         <CanvasWidget engine={diagramEngine} className={'persist-diagram-container'} />
                         <DiagramControls

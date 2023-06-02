@@ -19,22 +19,24 @@
 
 import React from 'react';
 import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
 import WarningIcon from '@mui/icons-material/Warning';
-import './styles.css';
+import IconButton from '@mui/material/IconButton';
+import { useStyles } from './style';
 
 interface DiagnosticsWarningProps {
-    showProblemPanel: () => void;
+    onClick: () => void;
+    tooltipTitle: string;
 }
 
 export function DiagnosticsWarning(props: DiagnosticsWarningProps) {
-    const { showProblemPanel } = props;
+    const { onClick, tooltipTitle } = props;
+    const styles = useStyles();
 
     return (
         <Tooltip
             arrow
             placement={'left-end'}
-            title={'Diagnostics were detected in the project workspace.'}
+            title={tooltipTitle}
             componentsProps={{
                 tooltip: {
                     sx: {
@@ -56,17 +58,15 @@ export function DiagnosticsWarning(props: DiagnosticsWarningProps) {
             }}
         >
             <IconButton
-                className={'control-button'}
-                onClick={showProblemPanel}
+                className={styles.controlButton}
                 size='small'
-                sx={{
-                    cursor: 'pointer'
-                }}
+                onClick={onClick}
             >
                 <WarningIcon
                     fontSize='medium'
                     sx={{
-                        color: '#EA4C4D'
+                        color: '#EA4C4D',
+                        cursor: 'pointer'
                     }}
                 />
             </IconButton>

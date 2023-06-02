@@ -17,10 +17,4 @@
  *
  */
 
-.control-button {
-    background-color: white !important;
-    border: 1px solid #E0E2E9 !important;
-    border-radius: 2px !important;
-    height: 32px !important;
-    width: 32px !important;
-}
+export * from './Canvas';

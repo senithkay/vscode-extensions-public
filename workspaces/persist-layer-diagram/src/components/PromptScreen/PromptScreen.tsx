@@ -20,21 +20,7 @@
 import React from 'react';
 import Fab from '@mui/material/Fab';
 import SearchIcon from '@mui/icons-material/Search';
-import { SxProps } from '@mui/material/styles';
-import { Colors } from '../../resources';
-import './styles.css';
-
-const ButtonStyles: SxProps = {
-    backgroundColor: Colors.PRIMARY,
-    borderRadius: '5px',
-    color: 'white',
-    fontSize: '12px',
-    marginInline: '5px',
-    minWidth: '140px',
-    '&:hover': {
-        backgroundColor: Colors.PRIMARY_LIGHT
-    }
-};
+import { useStyles } from './style';
 
 export interface PromptScreenProps {
     userMessage: string;
@@ -43,21 +29,23 @@ export interface PromptScreenProps {
 
 export function PromptScreen(props: PromptScreenProps) {
     const { showProblemPanel, userMessage } = props;
+    const styles = useStyles();
 
     return (
-        <div className={'container'}>
-            <h3 className={'message-box'}>{userMessage}</h3>
-            {showProblemPanel && <Fab
-            id={'add-component-btn'}
-            aria-label='add'
-            variant='extended'
-            size='small'
-            onClick={showProblemPanel}
-            sx={ButtonStyles}
-        >
-            <SearchIcon sx={{ marginRight: '5px' }} />
-            View Diagnostics
-        </Fab>}
+        <div className={styles.container}>
+            <h3 className={styles.messageBox}>{userMessage}</h3>
+            {showProblemPanel &&
+                <Fab
+                    aria-label='add'
+                    className={styles.button}
+                    id={'add-component-btn'}
+                    onClick={showProblemPanel}
+                    size='small'
+                    variant='extended'
+                >
+                    <SearchIcon sx={{ marginRight: '5px' }} />
+                    View Diagnostics
+                </Fab>}
         </div>
     );
 }

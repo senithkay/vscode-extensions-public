@@ -17,4 +17,5 @@
  *
  */
 
-export * from './utils';
+export { CanvasControlButton } from './ControlButton';
+export { DiagnosticsWarning } from './DiagnosticsControl';

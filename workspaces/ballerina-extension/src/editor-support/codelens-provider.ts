@@ -32,7 +32,7 @@ import { openConfigEditor } from '../config-editor/configEditorPanel';
 import { Position } from '../forecaster';
 import { GetSyntaxTreeResponse } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
-import { checkIsPersistModelFile } from '../entity-diagram/activator';
+import { checkIsPersistModelFile } from '../persist-layer-diagram/activator';
 
 export enum EXEC_POSITION_TYPE {
     SOURCE = 'source',

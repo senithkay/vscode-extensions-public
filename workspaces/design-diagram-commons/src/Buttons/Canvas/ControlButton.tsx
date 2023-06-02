@@ -16,21 +16,28 @@
  * under the License.
  *
  */
- 
-.container {
-    align-items: center;
-    background-image: url('../../resources/assets/PatternBg.svg');
-    background-repeat: repeat;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100vh;
-    width: 100vw;
+
+import React, { ReactNode } from 'react';
+import IconButton from '@mui/material/IconButton';
+import { useStyles } from './style';
+
+interface CanvasControlButtonProps {
+    onClick: () => void;
+    children: ReactNode;
 }
 
-.message-box {
-    color: #6b6b6b;
-    font-family: GilmerRegular;
-    font-size: 16px;
-    padding: 10px;
+export function CanvasControlButton(props: CanvasControlButtonProps) {
+    const { onClick, children } = props;
+
+    const styles = useStyles();
+
+    return (
+        <IconButton
+            className={styles.controlButton}
+            size='small'
+            onClick={onClick}
+        >
+            {children}
+        </IconButton>
+    );
 }

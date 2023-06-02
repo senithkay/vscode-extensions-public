@@ -27,15 +27,14 @@ interface ServiceHeadProps {
     engine: DiagramEngine;
     node: EntityModel;
     isSelected: boolean;
+    onClick: () => void;
 }
 
 const ANON_RECORD_DISPLAY: string = 'record';
 
 export function EntityHeadWidget(props: ServiceHeadProps) {
-    const { engine, node, isSelected } = props;
-    // const { getTypeComposition, currentView, editingEnabled } = useContext(DiagramContext);
+    const { engine, node, isSelected, onClick } = props;
     const headPorts = useRef<PortModel[]>([]);
-    // const [isHovered, setIsHovered] = useState<boolean>(false);
 
     const displayName: string = node.getID().slice(node.getID().lastIndexOf(':') + 1);
 
@@ -45,38 +44,30 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
     }, [node])
 
     const handleOnHover = (task: string) => {
-        // setIsHovered(task === 'SELECT' ? true : false);
         node.handleHover(headPorts.current, task);
     }
 
     return (
-        // <CtrlClickGo2Source location={node.entityObject.elementLocation}>
-            <EntityHead
+        <EntityHead
+            isAnonymous={node.entityObject.isAnonymous}
+            isSelected={isSelected}
+            onClick={onClick}
+            onMouseOver={() => handleOnHover('SELECT')}
+            onMouseLeave={() => handleOnHover('UNSELECT')}
+        >
+            <EntityPortWidget
+                port={node.getPort(`left-${node.getID()}`)}
+                engine={engine}
+            />
+            <EntityName
                 isAnonymous={node.entityObject.isAnonymous}
-                isSelected={isSelected}
-                onMouseOver={() => handleOnHover('SELECT')}
-                onMouseLeave={() => handleOnHover('UNSELECT')}
             >
-                <EntityPortWidget
-                    port={node.getPort(`left-${node.getID()}`)}
-                    engine={engine}
-                />
-                    <EntityName
-                        isAnonymous={node.entityObject.isAnonymous}
-                    >
-                        {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
-                    </EntityName>
-                    {/* {isHovered && node.entityObject.elementLocation && editingEnabled &&
-                        <NodeMenuWidget
-                            background={'white'}
-                            location={node.entityObject.elementLocation}
-                        />
-                    } */}
-                <EntityPortWidget
-                    port={node.getPort(`right-${node.getID()}`)}
-                    engine={engine}
-                />
-            </EntityHead>
-        // </CtrlClickGo2Source>
+                {node.entityObject.isAnonymous ? ANON_RECORD_DISPLAY : displayName}
+            </EntityName>
+            <EntityPortWidget
+                port={node.getPort(`right-${node.getID()}`)}
+                engine={engine}
+            />
+        </EntityHead>
     )
 }

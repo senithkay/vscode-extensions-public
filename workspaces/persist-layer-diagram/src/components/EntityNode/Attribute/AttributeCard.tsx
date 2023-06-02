@@ -52,35 +52,27 @@ export function AttributeWidget(props: AttributeProps) {
     }
 
     return (
-        // <CtrlClickGo2Source location={attribute.elementLocation}>
-            <AttributeContainer
+        <AttributeContainer
+            isSelected={isSelected || isHovered}
+            onMouseOver={() => handleOnHover('SELECT')}
+            onMouseLeave={() => handleOnHover('UNSELECT')}
+        >
+            <EntityPortWidget
+                port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
+                engine={engine}
+            />
+            <AttributeName>{attribute.name}</AttributeName>
+            {attribute.isReadOnly && <VpnKeyRoundedIcon fontSize={'small'} />}
+            <AttributeType
+                isAnonymous={node.entityObject.isAnonymous}
                 isSelected={isSelected || isHovered}
-                onMouseOver={() => handleOnHover('SELECT')}
-                onMouseLeave={() => handleOnHover('UNSELECT')}
             >
-                <EntityPortWidget
-                    port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
-                    engine={engine}
-                />
-                    <AttributeName>{attribute.name}</AttributeName>
-                    {attribute.isReadOnly && <VpnKeyRoundedIcon fontSize={'small'} />}
-                    <AttributeType
-                        isAnonymous={node.entityObject.isAnonymous}
-                        isSelected={isSelected || isHovered}
-                    >
-                        {attributeType}
-                    </AttributeType>
-                    {/* {isHovered && attribute.elementLocation && editingEnabled &&
-                        <NodeMenuWidget
-                            background={Colors.SECONDARY}
-                            location={attribute.elementLocation}
-                        />
-                    } */}
-                <EntityPortWidget
-                    port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
-                    engine={engine}
-                />
-            </AttributeContainer>
-        // </CtrlClickGo2Source>
+                {attributeType}
+            </AttributeType>
+            <EntityPortWidget
+                port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
+                engine={engine}
+            />
+        </AttributeContainer>
     );
 }

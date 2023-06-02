@@ -51,6 +51,7 @@ export const EntityHead: React.FC<any> = styled.div`
     align-items: center;
     border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY_LIGHT}`};
+    cursor: pointer;
     display: flex;
     font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
     font-size: 13px;

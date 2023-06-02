@@ -18,7 +18,6 @@
  */
 
 import React, { useContext } from 'react';
-import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -26,11 +25,9 @@ import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
 import styled from '@emotion/styled';
 import CachedIcon from "@mui/icons-material/Cached";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
+import { CanvasControlButton, DiagnosticsWarning } from '@wso2-enterprise/design-diagram-commons';
 import { toJpeg } from 'html-to-image';
-import { DiagnosticsWarning } from './DiagnosticsWarning';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
-
-import './styles.css';
 
 interface ControlProps {
     engine: DiagramEngine;
@@ -78,49 +75,37 @@ export function DiagramControls(props: ControlProps) {
     }
 
     const zoomToFit = () => {
-        engine.zoomToFitNodes({ maxZoom: 1 });
+        engine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
     }
 
     return (
         <ControlPanel >
-            {hasDiagnostics && <DiagnosticsWarning showProblemPanel={showProblemPanel} />}
-            <IconButton
-                className={'control-button'}
-                size='small'
-                onClick={downloadDiagram}
-            >
-                <DownloadIcon fontSize='medium' />
-            </IconButton>
-            <IconButton
-                className={'control-button'}
-                size='small'
-                onClick={refreshDiagram}
-            >
-                <CachedIcon fontSize='small' />
-            </IconButton>
-            <IconButton
-                className={'control-button'}
-                size='small'
-                onClick={zoomToFit}
-            >
-                <FullscreenIcon fontSize='small' />
-            </IconButton>
+            {hasDiagnostics &&
+                <DiagnosticsWarning
+                    onClick={showProblemPanel}
+                    tooltipTitle={'Diagnostics were detected in the model.'}
+                />
+            }
+            <CanvasControlButton onClick={downloadDiagram}>
+                <DownloadIcon />
+            </CanvasControlButton>
+
+            <CanvasControlButton onClick={refreshDiagram}>
+                <CachedIcon />
+            </CanvasControlButton>
+
+            <CanvasControlButton onClick={zoomToFit}>
+                <FullscreenIcon />
+            </CanvasControlButton>
 
             <div>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={() => { onZoom(true) }}
-                >
-                    <AddIcon fontSize='small' />
-                </IconButton>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={() => { onZoom(false) }}
-                >
-                    <RemoveIcon fontSize='small' />
-                </IconButton>
+                <CanvasControlButton onClick={() => { onZoom(true) }}>
+                    <AddIcon />
+                </CanvasControlButton>
+
+                <CanvasControlButton onClick={() => { onZoom(false) }}>
+                    <RemoveIcon />
+                </CanvasControlButton>
             </div>
         </ControlPanel>
     )

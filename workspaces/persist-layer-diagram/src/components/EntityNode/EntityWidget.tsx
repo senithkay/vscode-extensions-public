@@ -17,7 +17,7 @@
  *
  */
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { EntityModel } from './EntityModel';
 import { EntityLinkModel } from '../EntityLink/EntityLinkModel';
@@ -34,9 +34,8 @@ interface EntityWidgetProps {
 
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { selectedNodeId, setSelectedNodeId, setHasDiagnostics } = useContext(DiagramContext);
+    const { selectedNodeId, setHasDiagnostics, setSelectedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
-    const isNewNode = useRef<boolean>(node.getID() === selectedNodeId);
 
     useEffect(() => {
         node.registerListener({
@@ -45,13 +44,6 @@ export function EntityWidget(props: EntityWidgetProps) {
             },
             'UNSELECT': () => { setSelectedLink(undefined) }
         })
-
-        if (isNewNode.current) {
-			setTimeout(() => {
-				isNewNode.current = false;
-                setSelectedNodeId(undefined);
-			}, 2000)
-		}
     }, [node]);
 
     if (node.entityObject.diagnostics.length) {
@@ -61,12 +53,13 @@ export function EntityWidget(props: EntityWidgetProps) {
     return (
         <EntityNode
             isAnonymous={node.entityObject.isAnonymous}
-            isSelected={node.isNodeSelected(selectedLink, node.getID()) || isNewNode.current}
+            isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
         >
             <EntityHeadWidget
                 engine={engine}
                 node={node}
-                isSelected={node.isNodeSelected(selectedLink, node.getID()) || isNewNode.current}
+                isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
+                onClick={() => { setSelectedNodeId(node.getID()) }}
             />
 
             {node.entityObject.attributes.map((attribute, index) => {
