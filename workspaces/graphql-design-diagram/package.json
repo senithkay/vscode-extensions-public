@@ -106,6 +106,7 @@
     "@projectstorm/react-canvas-core": "^6.7.4",
     "@projectstorm/geometry": "^6.7.4",
     "@projectstorm/react-diagrams-core": "^6.7.4",
+    "html-to-image": "^1.10.8",
     "@types/lodash": "^4.14.189",
     "@mui/icons-material": "^5.10.3",
     "@mui/material": "^5.10.3"
