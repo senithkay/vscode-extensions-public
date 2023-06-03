@@ -55,7 +55,7 @@ function activateExtractCommand() {
         } catch (error) {
             // do nothing.
         }
-    })
+    });
 }
 
 export { activateExtractCommand };
