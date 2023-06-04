@@ -13,6 +13,7 @@
 
 import { ComponentInfo, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+
 import { extractFilePath } from "../DiagramViewManager/utils";
 
 export interface ComponentViewInfo {

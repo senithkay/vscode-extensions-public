@@ -144,7 +144,7 @@ export class EditLayerRPC {
 
         this._messenger.onRequest({ method: 'checkIsMultiRootWs' }, async (): Promise<boolean> => {
             return workspace.workspaceFile ? true : false;
-        })
+        });
 
         this._messenger.onNotification({ method: 'promptWorkspaceConversion' }, (): void => {
             const saveAction = 'Save As Workspace';
@@ -155,7 +155,7 @@ export class EditLayerRPC {
                     commands.executeCommand('workbench.action.saveWorkspaceAs');
                 }
             });
-        })
+        });
     }
 
     static create(webview: WebviewPanel, langClient: ExtendedLangClient, context: ExtensionContext, isChoreoProject: boolean) {

@@ -60,7 +60,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-        getLibrariesData, getLibrariesList, getLibraryData } = props;
+            getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
@@ -284,7 +284,6 @@ export function extractFilePath(uri: string): string | null {
     let filePath = uri;
     if (uri.startsWith('file://')) {
         const url = new URL(uri);
-        console.log('>>>', url)
         filePath = url.pathname;
     }
 

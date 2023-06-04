@@ -62,7 +62,7 @@ export async function deleteComponentOnly(location: Location) {
     if (response.parseSuccess && response.source) {
         await updateSourceFile(langClient, location.filePath, response.source).then(() => {
             window.showInformationMessage('Component was deleted successfully');
-        })
+        });
     }
 }
 
@@ -179,7 +179,7 @@ export async function editDisplayLabel(langClient: ExtendedLangClient, annotatio
             endLine: annotation.elementLocation.endPosition.line,
             endColumn: annotation.elementLocation.endPosition.offset
         }
-    }
+    };
 
     const displayAnnotation: string = `
         @display {

@@ -94,7 +94,7 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (diagramFocus) {
             const { filePath: inputPath, position } = diagramFocus;
-            let filePath = extractFilePath(inputPath);
+            const filePath = extractFilePath(inputPath);
 
             if (filePath && filePath.length > 0 && filePath !== focusFile) {
                 if (position) {
@@ -103,7 +103,6 @@ export function DiagramViewManager(props: EditorProps) {
                     historyClear();
 
                     (async () => {
-                        console.log('>>> ', projectPaths, filePath)
                         const currentProjectPath = projectPaths
                             && projectPaths.find(projectPath => filePath.includes(projectPath.uri.path));
                         const response = await getAllFiles('**/*.bal');
@@ -148,22 +147,11 @@ export function DiagramViewManager(props: EditorProps) {
         if (currentProject) {
             (async () => {
                 const response = await getAllFiles('**/*.bal');
-                // TODO: This fix is temporary need to investigate why the file path is not correct in windows
-                // const isWindows = window.navigator.userAgent.indexOf('Windows') !== -1;
-                // if (isWindows) {
-                //     // check if the file path has forward slash at the begning and replace if the os is windows
-                //     response.forEach((fileUri) => {
-                //         if (fileUri.path.startsWith('/')) {
-                //             fileUri.path = fileUri.path.replace('/', '');
-                //             fileUri.path = fileUri.path.replaceAll('/', '\\');
-                //         }
-                //     });
-                // }
+
                 response.forEach((fileUri) => {
                     fileUri.path = extractFilePath(fileUri.path);
                 });
 
-                console.log('file uri >>>', response, currentProject);
                 const fileListResponse: Uri[] = response
                     .filter(fileUri => fileUri.path.includes(currentProject.uri.path));
                 const projectFiles: FileListEntry[] = fileListResponse.map(fileUri => ({

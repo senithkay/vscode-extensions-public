@@ -22,7 +22,7 @@ export class STNodeFindingVisitor implements Visitor {
             const isPositionsEquals = node.position?.startLine === this.position?.startLine &&
                 node.position?.startColumn === this.position?.startColumn &&
                 node.position?.endLine === this.position?.endLine &&
-                node.position?.endColumn === this.position?.endColumn
+                node.position?.endColumn === this.position?.endColumn;
             if (isPositionsEquals) {
                 this.stNode = node;
             }
