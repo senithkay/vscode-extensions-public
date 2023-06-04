@@ -13,6 +13,7 @@
 
 import { ComponentInfo, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { extractFilePath } from "../DiagramViewManager/utils";
 
 export interface ComponentViewInfo {
     filePath: string;
@@ -41,12 +42,14 @@ export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, 
     let filePath = `${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`
         .replace('file://', '');
 
-    if (window.navigator.userAgent.indexOf("Win") > -1) {
-        if (filePath.startsWith('/')) {
-            filePath = filePath.substring(1);
-            filePath = filePath.replaceAll(/\//g, '\\');
-        }
-    }
+    // if (window.navigator.userAgent.indexOf("Win") > -1) {
+    //     if (filePath.startsWith('/')) {
+    //         filePath = filePath.substring(1);
+    //         filePath = filePath.replaceAll(/\//g, '\\');
+    //     }
+    // }
+    filePath = extractFilePath(filePath);
 
     return filePath;
 }
+
