@@ -12,7 +12,7 @@ import {
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
+import { TextDocumentPositionParams, WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
@@ -224,6 +224,11 @@ export function getDiagramProviderProps(
                 updateFileContent: (content: string, skipForceSave?: boolean, filePath?: string) => {
                     const fileToModify = filePath ? filePath : focusFile;
                     return props.updateFileContent(fileToModify, content, skipForceSave);
+                },
+                renameSymbol: (workspaceEdits: WorkspaceEdit) => {
+                    const response = props.renameSymbol(workspaceEdits);
+                    setUpdateTimestamp(new Date().getTime().toString());
+                    return response;
                 },
                 // undo,
                 // isMutationInProgress,

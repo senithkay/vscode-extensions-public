@@ -19,7 +19,7 @@
 
 import {
 	commands, window, Uri, ViewColumn, WebviewPanel, Disposable, workspace, WorkspaceEdit, Range, Position,
-	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern, WorkspaceFolder
+	TextDocumentShowOptions, ProgressLocation, ExtensionContext, RelativePattern, WorkspaceFolder, TextEdit
 } from 'vscode';
 import { render } from './renderer';
 import {
@@ -599,6 +599,26 @@ class DiagramPanel {
 					return workspace.findFiles(args[0]);
 				}
 			},
+			{
+				methodName: "renameSymbol",
+				handler: async (args: any[]): Promise<boolean> => {
+					const langEdits = args[0];
+					const workspaceEdits = new WorkspaceEdit();
+
+					Object.entries(langEdits?.changes).forEach(([key, value]) => {
+						const fileUri = Uri.file(Uri.parse(key).fsPath);
+						const textEditList: TextEdit[] = [];
+						Object.entries(value).forEach(([, editVal]) => {
+							const newTextEdit: TextEdit = new TextEdit(editVal.range, editVal.newText);
+							textEditList.push(newTextEdit);
+						});
+						workspaceEdits.set(fileUri, textEditList);
+					});
+
+					const results = workspace.applyEdit(workspaceEdits);
+					return Promise.resolve(results);
+				}
+			}
 		];
 
 		webviewRPCHandler = WebViewRPCHandler.create(panel, langClient, remoteMethods);

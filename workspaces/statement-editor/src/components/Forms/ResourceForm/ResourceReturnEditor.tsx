@@ -30,7 +30,7 @@ import { Param } from './ParamEditor/ParamEditor';
 import { ParameterConfig } from './ParamEditor/ParamItem';
 import { ResponseEditor } from './ResponseEditor/ResponseEditor';
 import { ResponseItem } from './ResponseEditor/ResponseItem';
-import { HTTP_POST, getKeywordTypes } from './util';
+import { getKeywordTypes, HTTP_POST } from './util';
 
 export interface QueryParamEditorProps {
     returnSource: string;
@@ -162,11 +162,11 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
     async function renderResponses(keywordTypes: CompletionResponse[]) {
         const values = await getReturnTypesArray();
         const langClient = await getLangClient();
-        const responses = [];
+        const renderResponsesArr = [];
 
         for (const [index, value] of values.entries()) {
             let code = defaultResponseCode();
-            let recordName = value.trim();
+            const recordName = value.trim();
 
             responseCodes.forEach(item => {
                 if (recordName.includes(item.source)) {
@@ -196,7 +196,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
             }
 
             if ((editingSegmentId !== index)) {
-                responses.push(
+                renderResponsesArr.push(
                     <ResponseItem
                         key={index}
                         param={{
@@ -211,7 +211,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                     />
                 );
             } else if (editingSegmentId === index && !isNew) {
-                responses.push(
+                renderResponsesArr.push(
                     <ResponseEditor
                         segmentId={editingSegmentId}
                         syntaxDiagnostics={syntaxDiag}
@@ -219,7 +219,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
                         completions={completions}
                         isEdit={true}
                         alternativeName={""}
-                        optionList={responseCodes.filter(code => code.code !== 500)}
+                        optionList={responseCodes.filter(c => c.code !== 500)}
                         option={defaultResponseCode()}
                         isTypeReadOnly={false}
                         onChange={onParamChange}
@@ -231,7 +231,7 @@ export function ResourceReturnEditor(props: QueryParamEditorProps) {
         }
 
         setIsLoading(false);
-        return responses;
+        return renderResponsesArr;
     }
 
     const resourceForm = (

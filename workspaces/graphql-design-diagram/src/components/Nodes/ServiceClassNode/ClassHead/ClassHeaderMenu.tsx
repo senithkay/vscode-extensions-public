@@ -12,7 +12,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -24,41 +24,68 @@ import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { NodeMenuItem } from "../../../NodeActionMenu/NodeMenuItem";
 import { useStyles } from "../../../NodeActionMenu/styles";
 import { Colors, FunctionType, Position } from "../../../resources/model";
+import { getParentSTNodeFromRange } from "../../../utils/common-util";
+import { getSyntaxTree } from "../../../utils/ls-util";
 
 interface ServiceHeaderMenuProps {
     location: Position;
-    parentModel: STNode;
-    st: STNode;
 }
 
 export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
-    const { location, parentModel, st } = props;
+    const { location} = props;
+    const { langClientPromise, currentFile, fullST } = useContext(DiagramContext);
     const classes = useStyles();
 
     const { functionPanel } = useContext(DiagramContext);
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
+    const [classModel, setClassModel] = useState<STNode>(null);
+    const [currentST, setCurrentST] = useState<STNode>(fullST);
 
     const handleEditClassDef = () => {
-        if (parentModel && STKindChecker.isClassDefinition(parentModel)) {
+        if (classModel && STKindChecker.isClassDefinition(classModel)) {
             const lastMemberPosition: NodePosition = {
-                endColumn: parentModel.closeBrace.position.endColumn,
-                endLine: parentModel.closeBrace.position.endLine,
-                startColumn: parentModel.closeBrace.position.startColumn,
-                startLine: parentModel.closeBrace.position.startLine
+                endColumn: classModel.closeBrace.position.endColumn,
+                endLine: classModel.closeBrace.position.endLine,
+                startColumn: classModel.closeBrace.position.startColumn,
+                startLine: classModel.closeBrace.position.startLine
             };
-            functionPanel(lastMemberPosition, "GraphqlClass", parentModel, location.filePath, st);
+            functionPanel(lastMemberPosition, "GraphqlClass", classModel, location.filePath, currentST);
         }
     }
 
+    useEffect(() => {
+        if (showTooltip) {
+            (async () => {
+                const nodePosition: NodePosition = {
+                    endColumn: location.endLine.offset,
+                    endLine: location.endLine.line,
+                    startColumn: location.startLine.offset,
+                    startLine: location.startLine.line
+                };
+                if  (location.filePath === currentFile.path) {
+                    const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
+                    setClassModel(parentNode);
+                } else {
+                    // parent node is retrieved as the classObject.position only contains the position of the class name
+                    const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
+                    const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
+                    setClassModel(parentNode);
+                    setCurrentST(syntaxTree)
+                }
+            })();
+        }
+    }, [showTooltip]);
+
     return (
         <>
-            {parentModel &&
+            {location.filePath && location.startLine && location.endLine &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <>
+                    {classModel &&
                         <Paper style={{maxWidth: "100%"}}>
                             <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
                                 <MenuItem onClick={() => handleEditClassDef()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
@@ -70,13 +97,13 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                                 <Divider/>
                                 <NodeMenuItem
                                     position={location}
-                                    model={parentModel}
+                                    model={classModel}
                                     functionType={FunctionType.CLASS_RESOURCE}
-                                    filePath={location.filePath}
-                                    currentST={st}
+                                    currentST={currentST}
                                 />
                             </MenuList>
                         </Paper>
+                    }
                     </>
                 }
                 PopperProps={{

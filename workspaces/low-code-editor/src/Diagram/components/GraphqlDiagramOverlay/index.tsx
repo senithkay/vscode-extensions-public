@@ -19,6 +19,7 @@ import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient"
 import {
     ConfigOverlayFormStatus, DiagramEditorLangClientInterface, STModification,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { TextPreLoader } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import {
     NodePosition, STKindChecker,
     STNode,
@@ -42,17 +43,18 @@ export interface GraphqlDesignOverlayProps {
     onCancel?: () => void;
     configOverlayFormStatus?: ConfigOverlayFormStatus;
     goToSource: (filePath: string, position: NodePosition) => void;
+    isLoadingST?: boolean;
 }
 
 export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
-    const { targetPosition, ballerinaVersion, onCancel: onClose, model, goToSource } = props;
+    const { targetPosition, ballerinaVersion, onCancel: onClose, model, goToSource, isLoadingST } = props;
 
     const graphQLStyleClasses = graphQLOverlayStyles();
 
     const {
         props: { currentFile, syntaxTree: lowcodeST, fullST },
         api: {
-            code: { modifyDiagram,  },
+            code: { modifyDiagram },
             ls: { getDiagramEditorLangClient },
         },
     } = useContext(Context);
@@ -136,7 +138,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
         if (formConfig?.filePath &&
             currentFile.path !== formConfig.filePath && formConfig?.configOverlayFormStatus?.formName === "ServiceClassResource") {
             (async () => {
-                const langClientPromise: DiagramEditorLangClientInterface  = await getDiagramEditorLangClient();
+                const langClientPromise: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
                 const syntaxTree: STNode = await getSyntaxTree(formConfig.filePath, langClientPromise);
                 setFormConfig({
                     ...formConfig,
@@ -149,31 +151,35 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
             {isVisualizerSupported ? (
-                <>
-                    <GraphqlDesignDiagram
-                        model={model}
-                        targetPosition={targetPosition}
-                        langClientPromise={
-                            getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                    <>
+                        {!isLoadingST ?
+                            <GraphqlDesignDiagram
+                                model={model}
+                                targetPosition={targetPosition}
+                                langClientPromise={
+                                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                                }
+                                filePath={currentFile.path}
+                                currentFile={currentFile}
+                                ballerinaVersion={ballerinaVersion}
+                                syntaxTree={lowcodeST}
+                                functionPanel={renderFunctionForm}
+                                servicePanel={renderServicePanel}
+                                operationDesignView={handleDesignOperationClick}
+                                recordEditor={renderRecordEditor}
+                                onDelete={handleDeleteBtnClick}
+                                fullST={fullST}
+                                goToSource={goToSource}
+                            /> : (
+                                <TextPreLoader position="absolute" text="Loading..." />
+                            )
                         }
-                        filePath={currentFile.path}
-                        currentFile={currentFile}
-                        ballerinaVersion={ballerinaVersion}
-                        syntaxTree={lowcodeST}
-                        functionPanel={renderFunctionForm}
-                        servicePanel={renderServicePanel}
-                        operationDesignView={handleDesignOperationClick}
-                        recordEditor={renderRecordEditor}
-                        onDelete={handleDeleteBtnClick}
-                        fullST={fullST}
-                        goToSource={goToSource}
-                    />
-                    {enableFormGenerator &&
-                    <FormGenerator {...formConfig}/>
-                    }
-                </>
-            ) :
-                <GraphqlUnsupportedVersionOverlay/>
+                        {enableFormGenerator &&
+                        <FormGenerator {...formConfig} />
+                        }
+                    </>
+                ) :
+                <GraphqlUnsupportedVersionOverlay />
             }
         </div>
     );

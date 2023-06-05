@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { commands } from "vscode";
-import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId } from "../constants";
+import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId, choreoProjectOverviewCloseCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { ProjectOverview } from "../views/webviews/ProjectOverview";
@@ -69,7 +69,14 @@ export function activateWizards() {
         }
     });
 
+    const projectOverviewClose = commands.registerCommand(choreoProjectOverviewCloseCmdId, () => {
+        if (ProjectOverview.currentPanel) {
+            ProjectOverview.currentPanel.dispose();
+        }
+    });
+
     ext.context.subscriptions.push(projectOverview);
+    ext.context.subscriptions.push(projectOverviewClose);
 
     // Register Cell Diagram Wizard
     const choreoArchitectureView = commands.registerCommand(choreoArchitectureViewCmdId, (orgName: string, projectId: string) => {

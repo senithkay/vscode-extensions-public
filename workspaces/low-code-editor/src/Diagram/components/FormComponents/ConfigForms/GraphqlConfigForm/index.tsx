@@ -46,7 +46,8 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
     const {
         api: {
             code: {
-                modifyDiagram
+                modifyDiagram,
+                renameSymbol
             },
             ls: { getExpressionEditorLangClient }
         },
@@ -91,6 +92,7 @@ export function GraphqlConfigForm(props: GraphqlConfigFormProps) {
                 topLevelComponent={true} // todo: Remove this
                 syntaxTree={!filePath ? syntaxTree : model}
                 fullST={!filePath ? fullST : currentST}
+                renameSymbol={renameSymbol}
             />
         </>
     );
