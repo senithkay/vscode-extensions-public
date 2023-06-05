@@ -16,9 +16,7 @@ import React, { useContext } from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
-    GraphqlMutationIcon,
     GraphqlQueryIcon,
-    GraphqlSubscriptionIcon
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
@@ -31,18 +29,17 @@ interface NodeMenuItemProps {
     position: Position;
     model: STNode;
     functionType: FunctionType;
-    filePath?: string;
     currentST?: STNode;
 }
 
 export function NodeMenuItem(props: NodeMenuItemProps) {
-    const { position, model, functionType, filePath, currentST } = props;
+    const { position, model, functionType, currentST } = props;
     const { functionPanel } = useContext(DiagramContext);
 
     const menuStyles = useStyles();
 
     const openFunctionPanel = () => {
-        if (model && STKindChecker.isClassDefinition(model)) {
+        if (model && currentST && STKindChecker.isClassDefinition(model)) {
             const lastMemberPosition: NodePosition = {
                 endColumn: model.closeBrace.position.endColumn,
                 endLine: model.closeBrace.position.endLine,
@@ -50,14 +47,14 @@ export function NodeMenuItem(props: NodeMenuItemProps) {
                 startLine: model.closeBrace.position.startLine
             };
             if (functionType === FunctionType.CLASS_RESOURCE) {
-                functionPanel(lastMemberPosition, "ServiceClassResource", undefined, filePath, currentST);
+                functionPanel(lastMemberPosition, "ServiceClassResource", undefined, position.filePath, currentST);
             }
         }
     };
 
     return (
         <>
-            {position &&
+            {position.filePath &&
             <MenuItem onClick={() => openFunctionPanel()} className={menuStyles.menuItem}>
                 <ListItemIcon className={menuStyles.menuIcon}>
                     <GraphqlQueryIcon/>

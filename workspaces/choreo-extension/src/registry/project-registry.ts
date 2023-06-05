@@ -155,8 +155,9 @@ export class ProjectRegistry {
 
             return components;
         } catch (error: any) {
+            const errorMetadata = error?.cause?.response?.metadata;
             getLogger().error("Error while fetching components. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
-            throw new Error("Failed to fetch component list. "  + error?.message);
+            throw new Error("Failed to fetch component list. "  + errorMetadata?.errorCode || error?.message);
         }
     }
 

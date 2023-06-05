@@ -133,7 +133,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         isLoading: loadingComponents,
         isRefetching: refetchingComponents,
         refetch: refetchComponents,
-        isError: isComponentLoadError,
+        error: componentLoadError,
         isFetched,
     } = useQuery({
         queryKey: ["overview_component_list", projectId],
@@ -153,10 +153,12 @@ export function ProjectOverview(props: ProjectOverviewProps) {
         isLoading: isReloadComponents,
         isFetching: isRefetchingComponents
     } = useQuery({
-        queryKey: ['overview_component_list_auto_refresh', projectId, isFetched],
+        queryKey: ['overview_component_list_auto_refresh', projectId, isFetched, componentLoadError],
         queryFn: async () => {
-            const compList = await ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
-            queryClient.setQueryData(["overview_component_list", projectId], compList);
+            if (componentLoadError === undefined) {
+                const compList = await ChoreoWebViewAPI.getInstance().getEnrichedComponents(projectId);
+                queryClient.setQueryData(["overview_component_list", projectId], compList);
+            }
             return null;
         },
         refetchInterval: 15000, // Refetch component status every 15 seconds
@@ -354,15 +356,15 @@ export function ProjectOverview(props: ProjectOverviewProps) {
 
     const componentsPlaceholderLabel = useMemo(() => {
         if (components.length === 0){
-            if (isComponentLoadError) {
-                return "Failed to fetch component list"
+            if (componentLoadError) {
+                return componentLoadError.message || "Failed to fetch component list"
             } else if (!validProject){
                 return "No components found. Clone & Open the project to create components."
             } else {
                 return "No components found."
             }
         }
-    }, [isComponentLoadError, components, validProject])
+    }, [componentLoadError, components, validProject])
 
     return (
         <>

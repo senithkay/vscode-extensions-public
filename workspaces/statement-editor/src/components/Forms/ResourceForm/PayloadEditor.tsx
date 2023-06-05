@@ -23,8 +23,8 @@ import { StatementSyntaxDiagnostics, SuggestionItem } from '../../../models/defi
 import { ParamEditor, PARAM_TYPES } from './ParamEditor/ParamEditor';
 import { ParameterConfig, ParamItem } from './ParamEditor/ParamItem';
 import { RESOURCE_PAYLOAD_PREFIX } from './ResourceParamEditor';
-import { getParamString } from './util';
 import { ResourceParam } from './types';
+import { getParamString } from './util';
 
 export interface PayloadEditorProps {
     parameters: ResourceParam[];
@@ -81,7 +81,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
             newParamString = parameters.reduce((prev, current, currentIndex) => {
                 let returnString = prev;
                 if (currentIndex === lastParamIndex) {
-                    returnString = returnString !== "" ? `${returnString},${RESOURCE_PAYLOAD_PREFIX} string payload` : `${RESOURCE_PAYLOAD_PREFIX} string payload`; 
+                    returnString = returnString !== "" ? `${returnString},${RESOURCE_PAYLOAD_PREFIX} string payload` : `${RESOURCE_PAYLOAD_PREFIX} string payload`;
                 }
 
                 returnString = returnString !== "" ? `${returnString},${current.parameterValue}` : `${current.parameterValue}`;

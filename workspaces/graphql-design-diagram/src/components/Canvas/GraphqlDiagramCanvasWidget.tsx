@@ -12,11 +12,13 @@
  */
 
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
+import { toJpeg } from 'html-to-image';
 
+import { GraphqlOverlayLayerModel } from "../OverlayLoader";
 import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
@@ -45,6 +47,7 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
 
     useEffect(() => {
+        model.addLayer(new GraphqlOverlayLayerModel());
         diagramEngine.setModel(model);
         setDiagramModel(model);
         autoDistribute();
@@ -64,17 +67,43 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
-            diagramEngine.repaintCanvas();
             zoomToFit();
+            diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof GraphqlOverlayLayerModel));
+            diagramEngine.setModel(model);
         }, 30);
+    };
+
+    const downloadDiagram = () => {
+        const canvas: HTMLDivElement = diagramEngine.getCanvas();
+        if (!canvas) {
+            return;
+        }
+
+        toJpeg(canvas, {
+            cacheBust: true,
+            quality: 0.95,
+            width: canvas.scrollWidth,
+            height: canvas.scrollHeight,
+            backgroundColor: 'white'
+        })
+            .then((dataUrl: string) => {
+                const link = document.createElement('a');
+                link.download = 'graphql-diagram.jpeg';
+                link.href = dataUrl;
+                link.click();
+            })
+            .catch((err: { message: any; }) => {
+                // tslint:disable-next-line:no-console
+                console.log(err.message);
+            });
     };
 
     return (
         <>
             {diagramModel && diagramEngine && diagramEngine.getModel() &&
             <CanvasWidgetContainer>
-                <CanvasWidget engine={diagramEngine}/>
-                <ContainerController onZoom={onZoom} zoomToFit={zoomToFit}/>
+                <CanvasWidget engine={diagramEngine} />
+                <ContainerController onZoom={onZoom} zoomToFit={zoomToFit} onDownload={downloadDiagram} />
             </CanvasWidgetContainer>
             }
         </>
