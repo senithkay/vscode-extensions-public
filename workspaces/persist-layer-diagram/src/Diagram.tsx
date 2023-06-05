@@ -26,7 +26,7 @@ import styled from '@emotion/styled';
 import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { modelMapper, generateEngine } from './utils';
 import { DiagramControls, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
-import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine } from './resources';
+import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine, Colors } from './resources';
 import './utils/CanvasStyles.css';
 
 import './resources/assets/font/fonts.css';
@@ -51,11 +51,27 @@ export function PersistDiagram(props: PersistDiagramProps) {
 
     const [diagramEngine] = useState<DiagramEngine>(generateEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
+    const [selectedNodeId, setSelectedNodeId] = useState<string>(undefined);
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>(undefined);
 
     useEffect(() => {
+        if (diagramEngine.getCanvas()) {
+            function handleEscapePress(event: KeyboardEvent) {
+                if (event.key === 'Escape' && selectedNodeId) {
+                    setSelectedNodeId(undefined);
+                }
+            }
+            document.addEventListener('keydown', handleEscapePress);
+        }
+    }, [diagramEngine?.getCanvas()]);
+
+    useEffect(() => {
         refreshDiagram();
+        const nodeId = selectedRecordName ? `$anon/.:0.0.0:${selectedRecordName}` : '';
+        if (nodeId !== selectedNodeId) {
+            setSelectedNodeId(nodeId);
+        }
     }, [props]);
 
     const refreshDiagram = () => {
@@ -65,6 +81,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
             setHasDiagnostics(response.diagnostics.length > 0);
             if (entities.size) {
                 const model = modelMapper(entities);
+                model.addLayer(new OverlayLayerModel());
                 diagramEngine.setModel(model);
                 autoDistribute();
                 setDiagramModel(model);
@@ -85,10 +102,9 @@ export function PersistDiagram(props: PersistDiagramProps) {
         }, 30);
     };
 
-    const selectedNodeId = selectedRecordName ? `$anon/.:0.0.0:${selectedRecordName}` : '';
-
     let ctx = {
-        selectedNode: selectedNodeId,
+        selectedNodeId,
+        setSelectedNodeId,
         setHasDiagnostics,
         hasDiagnostics
     }
@@ -106,8 +122,11 @@ export function PersistDiagram(props: PersistDiagramProps) {
                         />
                     </> :
                     userMessage ?
-                        <PromptScreen userMessage={userMessage} showProblemPanel={hasDiagnostics ? showProblemPanel : undefined} /> :
-                        <CircularProgress sx={{ color: '#5567D5' }} />
+                        <PromptScreen
+                            userMessage={userMessage}
+                            showProblemPanel={hasDiagnostics ? showProblemPanel : undefined}
+                        /> :
+                        <CircularProgress sx={{ color: Colors.PRIMARY }} />
                 }
             </PersistDiagramContext>
         </PersistContainer>
