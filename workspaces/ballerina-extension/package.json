@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Ballerina Language support, debugging, graphical visualization, AI-based data-mapping and many more.",
-    "version": "4.2.2",
+    "version": "4.2.3",
     "publisher": "wso2",
     "homepage": "https://wso2.com/ballerina/vscode/docs",
     "bugs": {
@@ -56,6 +56,9 @@
                 "extensions": [
                     ".toml"
                 ]
+            },
+            {
+                "id": "x-ballerina-output-log"
             }
         ],
         "grammars": [
@@ -138,6 +141,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Enable notebook debug mode."
+                },
+                "ballerina.enableRunFast": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Experimental: Enable compiling & running Ballerina programs inside Language Server resulting in faster execution."
                 }
             }
         },
@@ -361,7 +369,11 @@
                 "icon": {
                     "dark": "./resources/images/icons/start-inverse.svg",
                     "light": "./resources/images/icons/start.svg"
-                },
+                }
+            },
+            {
+                "command": "ballerina.project.stop",
+                "title": "Stop",
                 "category": "Ballerina"
             },
             {

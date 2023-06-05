@@ -37,7 +37,7 @@ import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
-    ENABLE_CONFIGURABLE_EDITOR, ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG
+    ENABLE_CONFIGURABLE_EDITOR, ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -582,6 +582,10 @@ export class BallerinaExtension {
 
     public enabledNotebookDebugMode(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_NOTEBOOK_DEBUG);
+    }
+
+    public enabledRunFast(): boolean {
+        return <boolean>workspace.getConfiguration().get(ENABLE_RUN_FAST);
     }
 
     public async updatePerformanceForecastSetting(status: boolean) {

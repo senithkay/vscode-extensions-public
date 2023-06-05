@@ -26,7 +26,7 @@ import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runComm
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
 import { configGenerator } from "../../config-generator/configGenerator";
 
-function activateRunCommand() {
+function activateRunCmdCommand() {
     // register the run command execution flow
     commands.registerCommand(PALETTE_COMMANDS.RUN, async (filePath: Uri) => {
         if (!ballerinaExtInstance.isConfigurableEditorEnabled() &&
@@ -106,4 +106,4 @@ function runCurrentFile() {
         getCurrentBallerinaFile());
 }
 
-export { activateRunCommand };
+export { activateRunCmdCommand };

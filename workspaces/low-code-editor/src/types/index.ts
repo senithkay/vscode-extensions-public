@@ -35,7 +35,7 @@ import {
     WizardType
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { ModulePart, NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
-import { Diagnostic } from "vscode-languageserver-protocol";
+import { Diagnostic, WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import { Warning } from "../Diagram/utils/st-util";
 import { ComponentViewInfo } from "../OverviewDiagram/util";
@@ -95,6 +95,7 @@ export interface LowCodeEditorAPI {
         gotoSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
         getFunctionDef: (lineRange: Range, defFilePath: string) => Promise<FunctionDef>;
         updateFileContent: (content: string, skipForceSave?: boolean, filePath?: string) => Promise<boolean>;
+        renameSymbol?: (workspaceEdits: WorkspaceEdit) => Promise<boolean>;
         // isMutationInProgress: boolean;
         // isModulePullInProgress: boolean;
         // loaderText: string;

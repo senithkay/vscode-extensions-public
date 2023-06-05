@@ -1,0 +1,71 @@
+name: Run UI tests
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  Build:
+    uses: ./.github/workflows/build.yml
+    with:
+      isPreRelease: true
+      enableCache: false
+    secrets: inherit  
+
+  Test:
+    name: Integration Tests
+    needs: [Build]
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore build
+        uses: actions/download-artifact@v3
+        with:
+          name: PluginBuild
+          path: ./
+
+      - name: Set up workspace
+        run: |
+          unzip build.zip
+          rm build.zip
+
+      - uses: actions/setup-node@v3
+        with:
+          always-auth: true
+          node-version: 16.x
+          registry-url: "https://npm.pkg.github.com"
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.26.3
+
+      - name: run tests
+        run: |
+          node common/scripts/install-run-rush.js install
+          cd workspaces/choreo-extension 
+          sudo apt-get install xvfb
+          pnpm run ui-test-setup
+          export DISPLAY=:98.0
+          Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run ui-test
+        env:
+          TEST_IDP_USERNAME: e8085eae-9391-4d03-9302-672068c1fe50
+          TEST_IDP_PASSWORD: ${{ secrets.TEST_IDP_PASSWORD }}
+          TEST_USER_ORG_HANDLE: choreouser
+          TEST_USER_ORG_ID: 3678
+          TEST_USER_ORG_UUID: 9f3f5ca2-c1f2-43e7-afbe-a15714138b57
+          TEST_GITHUB_USERNAME: choreo-test-user@wso2.com
+          TEST_GITHUB_PAT: ${{ secrets.TEST_GITHUB_PAT }}
+          APIM_CLIENT_ID: ciwnWuwZfbcdzBUcnkhKvi_mcBUa
+          APIM_TOKEN_URL: https://sts.choreo.dev/oauth2/token
+          CLIENT_ID: aVKhTSUMu_QfEwmCtrcuWoLy92oa
+          LOGIN_URL: https://console.choreo.dev/login
+          REDIRECT_URL: https://console.choreo.dev/vscode-auth
+          TOKEN_URL: https://api.asgardeo.io/t/a/oauth2/token
+          VSCODE_CLIENT_ID: GWj5MzWNrOB28jX_wu5ZGu7I1VIa
+          PROJECT_API: https://apis.choreo.dev/projects/1.0.0/graphql  
+
+      - name: Publish UI Test Screenshots
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/choreo-extension/test-resources/screenshots/
+          name: Integration-test-screenshots-${{ github.run_attempt }}
+        if: failure()

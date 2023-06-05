@@ -4,6 +4,7 @@ import { render } from "react-dom";
 import { BalleriaLanguageClient, WSConnection } from "@wso2-enterprise/ballerina-languageclient";
 import { ANALYZE_TYPE, LibraryDataResponse, LibraryDocResponse, LibraryKind, LibrarySearchResponse } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Uri } from "monaco-editor";
+import { WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import { DiagramGeneratorProps } from "../DiagramGenerator";
 import { PerformanceAnalyzerAdvancedResponse, PerformanceAnalyzerRealtimeResponse, Values } from "../DiagramGenerator/performanceUtil";
@@ -77,6 +78,7 @@ export function getDiagramGeneratorProps(filePath: string, enableSave: boolean =
     getEnv: (name: string) => Promise.resolve(undefined),
     experimentalEnabled: true,
     openExternalUrl: () => Promise.resolve(undefined),
+    renameSymbol: (workspaceEdits: WorkspaceEdit) => Promise.resolve(undefined),
     projectPaths: undefined,
     openInDiagram: undefined,
     diagramFocus: undefined,
