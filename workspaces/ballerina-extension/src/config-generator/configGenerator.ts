@@ -228,6 +228,7 @@ function getConfigValue(name: string, obj: Property, comment: { value: string })
             if (Constants.ANY_OF in obj) {
                 const anyType: Property = obj.anyOf[0];
                 if (anyType.type === ConfigTypes.INTEGER || anyType.type === ConfigTypes.NUMBER) {
+                    comment.value = `# Following config value should be a type of ${ConfigTypes.NUMBER.toUpperCase()}\n`
                     newConfigValue = `${name} = 0\n`;
                 } else if (anyType.type === ConfigTypes.STRING) {
                     newConfigValue = `${name} = ""\n`;
