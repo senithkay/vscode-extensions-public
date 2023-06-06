@@ -22,15 +22,13 @@ import { Colors } from '../../resources';
 
 const ANON_RECORD_PRIMARY: string = '#0d6fbf';
 const ANON_RECORD_SECONDARY: string = '#e8f5ff';
-const ANON_RECORD_HOVER: string = '#0289e3';
 const PRIMARY_HOVER: string = '#2c09ed';
 
 interface StyleProps {
     isAnonymous: boolean;
-    isEditMode?: boolean;
     isSelected?: boolean;
     isClickable?: boolean;
-    shouldShade?: boolean;
+    isCollapsed?: boolean;
 }
 
 export const EntityNode: React.FC<any> = styled.div`
@@ -40,38 +38,36 @@ export const EntityNode: React.FC<any> = styled.div`
         props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY_LIGHT}`};
     border-radius: 5px !important;
     color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT};
-    cursor: ${(props: StyleProps) => props.isEditMode ? `pointer` : `auto`};
     display: flex;
     flex-direction: column;
     min-height: 40px;
-    opacity: ${(props: StyleProps) => props.shouldShade ? 0.85 : 1};
 `;
 
 export const EntityHead: React.FC<any> = styled.div`
     align-items: center;
     border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
         props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY_LIGHT}`};
-    cursor: pointer;
     display: flex;
-    font-family: ${(props: StyleProps) => props.isSelected ? `GilmerMedium` : `GilmerRegular`};
+    font-family: GilmerMedium;
     font-size: 13px;
     height: 40px;
     justify-content: center;
     line-height: 20px;
-    min-width: calc(100% - 32px);
-    padding: 0px 16px;
+    min-width:  ${(props: StyleProps) => props.isCollapsed ? `calc(100% - 40px)` : `calc(100% - 100px)`};
+    padding: ${(props: StyleProps) => props.isCollapsed ? `0px 20px` : `0px 50px`};
     text-align: center;
 `;
 
 export const EntityName: React.FC<any> = styled.span`
+    cursor: pointer;
     &:hover {
-        color: ${(props: StyleProps) => props.isClickable ? (props.isAnonymous ? ANON_RECORD_HOVER : PRIMARY_HOVER) : ``};
+        color: ${(props: StyleProps) => props.isClickable ? PRIMARY_HOVER : ``};
         cursor: ${(props: StyleProps) => props.isClickable ? `grabbing` : ``};
         text-decoration: ${(props: StyleProps) => props.isClickable ? `underline` : ``};
     }
 `;
 
-export const AttributeContainer: React.FC<any>  = styled.div`
+export const AttributeContainer: React.FC<any> = styled.div`
     align-items: center;
     background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
     border-bottom: 0.5px solid #cccde3;
@@ -99,7 +95,7 @@ export const AttributeName = styled.span`
     text-align: left;
 `;
 
-export const AttributeType: React.FC<any>  = styled.span`
+export const AttributeType: React.FC<any> = styled.span`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SHADED_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
     border-radius: 3px;

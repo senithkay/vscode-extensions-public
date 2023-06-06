@@ -35,7 +35,7 @@ export const dagreEngine = new DagreEngine({
         rankdir: 'LR',
         ranksep: 175,
         edgesep: 20,
-        nodesep: 60,
+        nodesep: 20,
         ranker: 'longest-path',
         marginx: 40,
         marginy: 40

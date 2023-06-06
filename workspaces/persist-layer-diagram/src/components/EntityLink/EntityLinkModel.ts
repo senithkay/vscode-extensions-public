@@ -23,8 +23,8 @@ import { SharedLinkModel } from '../shared-link/shared-link';
 export class EntityLinkModel extends SharedLinkModel {
 	readonly cardinality: Cardinality;
 
-	constructor(cardinality: Cardinality) {
-		super('entityLink');
+	constructor(id: string, cardinality: Cardinality) {
+		super(id, 'entityLink');
 		this.cardinality = cardinality;
 	}
 }

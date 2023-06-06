@@ -56,6 +56,14 @@ export function PersistDiagram(props: PersistDiagramProps) {
     const [userMessage, setUserMessage] = useState<string>(undefined);
 
     useEffect(() => {
+        refreshDiagram();
+        const nodeId = selectedRecordName ? `$anon/.:0.0.0:${selectedRecordName}` : '';
+        if (nodeId !== selectedNodeId) {
+            setSelectedNodeId(nodeId);
+        }
+    }, [props]);
+
+    useEffect(() => {
         if (diagramEngine.getCanvas()) {
             function handleEscapePress(event: KeyboardEvent) {
                 if (event.key === 'Escape' && selectedNodeId) {
@@ -65,14 +73,6 @@ export function PersistDiagram(props: PersistDiagramProps) {
             document.addEventListener('keydown', handleEscapePress);
         }
     }, [diagramEngine?.getCanvas()]);
-
-    useEffect(() => {
-        refreshDiagram();
-        const nodeId = selectedRecordName ? `$anon/.:0.0.0:${selectedRecordName}` : '';
-        if (nodeId !== selectedNodeId) {
-            setSelectedNodeId(nodeId);
-        }
-    }, [props]);
 
     const refreshDiagram = () => {
         getPersistModel().then(response => {
@@ -112,7 +112,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
     return (
         <PersistContainer>
             <PersistDiagramContext {...ctx}>
-                {diagramEngine?.getModel() && diagramModel ?
+                {diagramEngine?.getModel() ?
                     <>
                         <CanvasWidget engine={diagramEngine} className={'persist-diagram-container'} />
                         <DiagramControls

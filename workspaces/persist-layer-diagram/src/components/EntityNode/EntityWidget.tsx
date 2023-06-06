@@ -36,6 +36,7 @@ export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
     const { selectedNodeId, setHasDiagnostics, setSelectedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
+    const [isCollapsed, setCollapsibleStatus] = useState<boolean>(true);
 
     useEffect(() => {
         node.registerListener({
@@ -45,6 +46,14 @@ export function EntityWidget(props: EntityWidgetProps) {
             'UNSELECT': () => { setSelectedLink(undefined) }
         })
     }, [node]);
+
+    useEffect(() => {
+        engine.getModel().getLinks().forEach((link) => {
+            if (link.getID().includes(node.getID())) {
+                link.fireEvent({}, 'UNSELECT');
+            }
+        });
+    }, [isCollapsed])
 
     if (node.entityObject.diagnostics.length) {
         setHasDiagnostics(true);
@@ -60,19 +69,40 @@ export function EntityWidget(props: EntityWidgetProps) {
                 node={node}
                 isSelected={node.getID() === selectedNodeId || node.isNodeSelected(selectedLink, node.getID())}
                 onClick={() => { setSelectedNodeId(node.getID()) }}
+                isCollapsed={isCollapsed}
+                setCollapsedStatus={setCollapsibleStatus}
             />
 
-            {node.entityObject.attributes.map((attribute, index) => {
-                return (
-                    <AttributeWidget
-                        key={index}
-                        engine={engine}
-                        node={node}
-                        attribute={attribute}
-                        isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${attribute.name}`)}
-                    />
-                )
-            })}
+            {isCollapsed ? (
+                node.entityObject.attributes.map((attribute, index) => {
+                    return (
+                        <AttributeWidget
+                            key={index}
+                            engine={engine}
+                            node={node}
+                            attribute={attribute}
+                            isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${attribute.name}`)}
+                        />
+                    )
+                })
+            ) : (
+                node.entityObject.attributes.map((attribute, _index) => {
+                    return (
+                        <>
+                            <EntityPortWidget
+                                port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
+                                engine={engine}
+                                isShrunk={true}
+                            />
+                            <EntityPortWidget
+                                port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
+                                engine={engine}
+                                isShrunk={true}
+                            />
+                        </>
+                    )
+                })
+            )}
 
             <InclusionPortsContainer>
                 <EntityPortWidget

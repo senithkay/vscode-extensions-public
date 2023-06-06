@@ -25,8 +25,9 @@ import { getOpposingPort } from './utils';
 export class SharedLinkModel extends DefaultLinkModel {
 	diagramEngine: DiagramEngine;
 
-	constructor(type: string) {
+	constructor(id: string, type: string) {
 		super({
+			id: id,
 			type: type
 		});
 	}

@@ -28,7 +28,7 @@ export class EntityLinkFactory extends DefaultLinkFactory {
 	}
 
 	generateModel(event: { initialConfig: any }): EntityLinkModel {
-		return new EntityLinkModel(event.initialConfig.cardinality);
+		return new EntityLinkModel(event.initialConfig.id, event.initialConfig.cardinality);
 	}
 
 	generateReactWidget(props: { model: EntityLinkModel }): JSX.Element {

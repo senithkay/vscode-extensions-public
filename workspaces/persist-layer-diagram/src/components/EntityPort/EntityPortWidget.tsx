@@ -25,10 +25,11 @@ import { inclusionPortStyles, sidePortStyles } from './styles';
 interface CustomPortProps {
     port: EntityPortModel;
     engine: DiagramEngine;
+    isShrunk?: boolean;
 }
 
 export function EntityPortWidget(props: CustomPortProps) {
-    const { port, engine } = props;
+    const { isShrunk, port, engine } = props;
     const portStyles: CSSProperties = port.getOptions().alignment === PortModelAlignment.LEFT ?
         { left: 0, ...sidePortStyles } : port.getOptions().alignment === PortModelAlignment.RIGHT ?
             { right: 0, ...sidePortStyles } : port.getOptions().alignment === PortModelAlignment.TOP ?
@@ -38,7 +39,7 @@ export function EntityPortWidget(props: CustomPortProps) {
         <PortWidget
             engine={engine}
             port={port}
-            style={portStyles}
+            style={{...portStyles, top: isShrunk ? '20px' : '' }}
         />
     )
 }

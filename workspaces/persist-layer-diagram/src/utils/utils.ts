@@ -89,8 +89,9 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
                                 mappedLinkNodes.get(associatedEntity.getID()).splice(index, 1);
                             }
                         } else {
-                            let link: EntityLinkModel = new EntityLinkModel(association.cardinality);
-                            links.set(`${sourcePort.getID()}:${targetPort.getID()}`, createLinks(sourcePort, targetPort, link));
+                            const linkId: string = `${sourcePort.getID()}:${targetPort.getID()}`;
+                            let link: EntityLinkModel = new EntityLinkModel(linkId, association.cardinality);
+                            links.set(linkId, createLinks(sourcePort, targetPort, link));
                             mappedLinkNodes.set(key, [...mappedLinkNodes.get(key), associatedEntity.getID()]);
                         }
                     }
@@ -105,8 +106,9 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
                 let targetPort: EntityPortModel = associatedEntity.getPort(`bottom-${inclusion}`);
 
                 if (sourcePort && targetPort) {
-                    let link: EntityLinkModel = new EntityLinkModel(undefined);
-                    links.set(`${sourcePort.getID()}:${targetPort.getID()}`, createLinks(sourcePort, targetPort, link));
+                    const linkId: string = `${sourcePort.getID()}:${targetPort.getID()}`;
+                    let link: EntityLinkModel = new EntityLinkModel(linkId, undefined);
+                    links.set(linkId, createLinks(sourcePort, targetPort, link));
                 }
             }
         })
