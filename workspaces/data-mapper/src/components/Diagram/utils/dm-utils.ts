@@ -32,6 +32,7 @@ import {
 	LetVarDecl,
 	ListConstructor,
 	MappingConstructor,
+	MethodCall,
 	NodePosition,
 	OptionalFieldAccess,
 	QueryExpression,
@@ -1238,6 +1239,22 @@ export function hasNoMatchFound(originalTypeDef: Type, valueEnrichedType: Editab
 		}
 	}
 	return false;
+}
+
+export function getMethodCallElements(methodCall: MethodCall): string[] {
+	const { expression } = methodCall;
+	const elements: string[] = [];
+
+	if (STKindChecker.isFieldAccess(expression) || STKindChecker.isOptionalFieldAccess(expression)) {
+		const fieldNames = getFieldNames(expression).map(item => item.name);
+		elements.push(...fieldNames);
+	} else if (STKindChecker.isSimpleNameReference(expression)) {
+		elements.push(expression.name.value)
+	} else if (STKindChecker.isMethodCall(expression)) {
+		elements.push(...getMethodCallElements(expression));
+	}
+
+	return elements;
 }
 
 function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {
