@@ -39,7 +39,7 @@ export interface ComponentCollection {
 
 
 export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, element: ComponentInfo) {
-    let filePath = Uri.parse(`${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`)
+    const filePath = Uri.parse(`${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`)
 
     // if (window.navigator.userAgent.indexOf("Win") > -1) {
     //     if (filePath.startsWith('/')) {

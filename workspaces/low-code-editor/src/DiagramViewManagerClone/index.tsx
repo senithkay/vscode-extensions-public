@@ -17,31 +17,34 @@
  *
  */
 
-import { MuiThemeProvider } from "@material-ui/core";
-import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
+import { monaco } from "react-monaco-editor";
+
+import { MuiThemeProvider } from "@material-ui/core";
+import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+
+import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
+import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
+import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
+import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
+import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
+import { getConstructBodyString } from "../Diagram/visitors/util";
+import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
 import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
+import messages from '../lang/en.json';
+import { ComponentCollection } from "../OverviewDiagram/util";
+import { TextPreLoader } from "../PreLoader/TextPreLoader";
+
+import { NavigationBar } from "./components/NavigationBar";
 import { Provider as HistoryProvider } from './context/history';
 import { useComponentHistory } from "./hooks/history";
 import { useGeneratorStyles } from "./style";
-import messages from '../lang/en.json';
 import { theme } from './theme';
-import { NavigationBar } from "./components/NavigationBar";
-import { ComponentListView } from "./views";
-import { TextPreLoader } from "../PreLoader/TextPreLoader";
-import { ComponentCollection } from "../OverviewDiagram/util";
-import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
-import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
-import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
-import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
-import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
-import { getConstructBodyString } from "../Diagram/visitors/util";
 import { getDiagramProviderProps } from "./utils";
-import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
+import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
-import { monaco } from "react-monaco-editor";
 
 export function DiagramViewManager(props: EditorProps) {
     const {
@@ -172,7 +175,6 @@ export function DiagramViewManager(props: EditorProps) {
                     setCurrentFileContent(undefined);
                 }
 
-                console.log("componentResponse >>>", componentResponse);
                 setProjectComponents(componentResponse);
             })();
         }

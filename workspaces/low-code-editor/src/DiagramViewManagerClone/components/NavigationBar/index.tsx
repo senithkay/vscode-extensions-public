@@ -19,16 +19,16 @@ import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
 import { Apps, ArrowBack, ArrowDropDown, HomeOutlined } from "@material-ui/icons";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-
-import useStyles from './style';
-import './style.scss';
+import { PackageIcon } from "../../../assets/icons";
 import { WorkspaceFolder } from "../../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../../context/history";
-import { PackageIcon } from "../../../assets/icons";
-import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+
 import { NavButtonGroup } from "./NavButtonGroup";
+import useStyles from './style';
+import './style.scss';
 
 interface NavigationBarProps {
     workspaceName: string;

@@ -17,8 +17,10 @@
  *
  */
 
-import { ArrowBack, HomeOutlined } from "@material-ui/icons";
 import React from "react";
+
+import { ArrowBack, HomeOutlined } from "@material-ui/icons";
+
 import { useHistoryContext } from "../../context/history";
 
 interface NavButtonGroupProps {

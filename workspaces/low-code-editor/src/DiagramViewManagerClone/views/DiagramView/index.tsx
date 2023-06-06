@@ -17,13 +17,16 @@
  *
  */
 
+import React from "react";
+
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-import React from "react";
+
 import { useDiagramContext } from "../../../Contexts/Diagram";
 import { Diagram } from "../../../Diagram";
 import { DataMapperOverlay } from "../../../Diagram/components/DataMapperOverlay";
 import { useHistoryContext } from "../../context/history";
+
 import { ServiceView } from "./components/ServiceView";
 
 interface DiagramViewProps {

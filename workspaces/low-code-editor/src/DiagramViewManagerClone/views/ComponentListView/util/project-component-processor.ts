@@ -19,6 +19,7 @@
 
 import { BallerinaProjectComponents, ComponentInfo, ComponentViewInfo, FileListEntry, ModuleSummary, PackageSummary } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { Uri } from "monaco-editor";
+
 import { ComponentCollection } from "../../../../OverviewDiagram/util";
 
 export class ProjectComponentProcessor {
@@ -147,9 +148,6 @@ export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, 
             filePath = filePath.replaceAll(/\//g, '\\');
         }
     }
-
-    // tslint:disable-next-line: no-console
-    console.log('>>> filePath',filePath)
 
     return filePath;
 }

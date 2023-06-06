@@ -17,15 +17,56 @@
  *
  */
 
+import React, { useEffect, useState } from "react";
+
 import { STKindChecker } from "@wso2-enterprise/syntax-tree";
-import React from "react";
+import { useDiagramContext } from "../../../../../Contexts/Diagram";
+import { getSTNodeForReference } from "../../../../utils";
 
 interface ServiceViewProps {
-
+    a: string;
 }
 
-export function ServiceView(props: ServiceViewProps) {
+export function ServiceView() {
+    const {
+        api: {
+            ls: { getDiagramEditorLangClient }
+        },
+        props: { syntaxTree, fullST, ballerinaVersion, currentFile }
+    } = useDiagramContext();
+    const [listenerType, setListenerType] = useState<string>();
 
+    useEffect(() => {
+        (async () => {
+            let listenerSignature: string;
+            if (syntaxTree && STKindChecker.isServiceDeclaration(syntaxTree)) {
+                const listenerExpression = syntaxTree.expressions[0];
+                if (STKindChecker.isExplicitNewExpression(listenerExpression)) {
+                    const typeData = listenerExpression.typeData;
+                    const typeSymbol = typeData?.typeSymbol;
+                    listenerSignature = typeSymbol?.signature;
+                } else {
+                    try {
+                        const langClient = await getDiagramEditorLangClient();
+                        const listenerSTDecl = await getSTNodeForReference(currentFile.path, listenerExpression.position, langClient);
+                        if (listenerSTDecl) {
+                            const typeData = listenerExpression.typeData;
+                            const typeSymbol = typeData?.typeSymbol;
+                            listenerSignature = typeSymbol?.signature;
+                        }
+                    } catch (err) {
+                        // tslint:disable-next-line: no-console
+                        console.error(err);
+                    }
+                }
+            }
+
+            setListenerType(listenerSignature);
+        })();
+    }, [syntaxTree])
+
+
+    console.log('listener type >>>', listenerType);
 
     return (
         <div>Service view stuff</div>

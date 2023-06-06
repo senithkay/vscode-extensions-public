@@ -59,7 +59,7 @@ export async function getSTNodeForReference(
 }
 
 export async function handleRecordNavigation(filePath: string, position: NodePosition,
-    langClientPromise: Promise<DiagramEditorLangClientInterface>) {
+                                             langClientPromise: Promise<DiagramEditorLangClientInterface>) {
     const langClientInstance = await langClientPromise;
     const generatedST = await getSyntaxTree(filePath, langClientInstance);
 
@@ -85,7 +85,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-        getLibrariesData, getLibrariesList, getLibraryData } = props;
+            getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {

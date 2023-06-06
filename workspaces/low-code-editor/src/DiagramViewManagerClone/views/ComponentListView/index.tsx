@@ -17,18 +17,20 @@
  *
  */
 
+import React from "react";
+
 import { FormControl, InputAdornment, InputLabel, Select, TextField, Typography } from "@material-ui/core";
 import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import React from "react";
+
 import SearchIcon from "../../../assets/icons/SearchIcon";
 import { TopLevelActionButton } from "../../../OverviewDiagram/components/TopLevelActionButton";
 import { ComponentCollection } from "../../../OverviewDiagram/util";
 import { useHistoryContext } from "../../context/history";
-import { ProjectComponentProcessor } from "./util/project-component-processor";
 
+import { ComponentView } from "./components/ComponentView";
 import useStyles from "./style";
 import './style.scss';
-import { ComponentView } from "./components/ComponentView";
+import { ProjectComponentProcessor } from "./util/project-component-processor";
 
 interface ComponentListViewProps {
     lastUpdatedAt: string;
@@ -51,11 +53,9 @@ export function ComponentListView(props: ComponentListViewProps) {
     if (projectComponents) {
         const projectComponentProcessor = new ProjectComponentProcessor(projectComponents);
         projectComponentProcessor.process();
-        if (history.length > 0 && history[history.length - 1].file.endsWith('.bal')) {
-            currentComponents = projectComponentProcessor.getComponentsFor(history[history.length - 1].file);
-        } else {
-            currentComponents = projectComponentProcessor.getComponents();
-        }
+        currentComponents = history.length > 0 && history[history.length - 1].file.endsWith('.bal') ?
+            projectComponentProcessor.getComponentsFor(history[history.length - 1].file)
+            : projectComponentProcessor.getComponents()
         fileList = Array.from(projectComponentProcessor.getFileMap().values());
     }
 
@@ -99,6 +99,14 @@ export function ComponentListView(props: ComponentListViewProps) {
             currentFileName = fileList?.find((file) => file.uri.path === history[history.length - 1].file)?.fileName || ALL_FILES;
         }
 
+        const textFieldInputProps = {
+            endAdornment: (
+                <InputAdornment position="end">
+                    <SearchIcon color="disabled" fontSize="small" />
+                </InputAdornment>
+            ),
+        };
+
         return (
             <div className="title-bar">
                 <FormControl variant="outlined" className={classes.selectorComponent}>
@@ -119,13 +127,7 @@ export function ComponentListView(props: ComponentListViewProps) {
                     variant="outlined"
                     className={classes.inputComponent}
                     onChange={handleSeachChange}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <SearchIcon color="disabled" fontSize="small" />
-                            </InputAdornment>
-                        ),
-                    }}
+                    InputProps={textFieldInputProps}
                 />
                 <TopLevelActionButton fileList={fileList} />
             </div>
@@ -133,7 +135,6 @@ export function ComponentListView(props: ComponentListViewProps) {
     };
 
     const handleComponentSelection = (info: ComponentViewInfo) => {
-        console.log(">>>", info);
         historyPush({
             file: info.filePath,
             position: info.position

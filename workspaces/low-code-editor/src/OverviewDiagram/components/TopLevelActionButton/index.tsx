@@ -14,11 +14,11 @@
 import React, { useState } from "react";
 
 import AddIcon from "@material-ui/icons/Add";
+import { FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { FormGenerator } from "../../../Diagram/components/FormComponents/FormGenerator";
 
 import { useStyles } from './styles';
-import { FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 export interface TopLevelActionButtonProps {
     fileList: FileListEntry[];

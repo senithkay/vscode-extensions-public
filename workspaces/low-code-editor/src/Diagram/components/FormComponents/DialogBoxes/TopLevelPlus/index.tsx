@@ -56,10 +56,10 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
         updateActiveFile(entry);
     };
 
-    // const handleGoBack = () => {
-    //     setShowFileList(true);
-    // };
-    console.log("TopLevelOptionRenderer >>>", fileList);
+    const handleGoBack = () => {
+        // setShowFileList(true);
+    }
+
     const showFileList = !currentFile.path.endsWith('.bal');
 
     return (
@@ -84,7 +84,7 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
                 <PlusOptionsSelector
                     kind={kind}
                     onClose={onCancel}
-                    goBack={() => {}}
+                    goBack={handleGoBack}
                     targetPosition={position}
                     isTriggerType={isTriggerType}
                     isLastMember={true}
