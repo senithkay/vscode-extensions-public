@@ -110,7 +110,7 @@ function setupWebviewPanel(langClient: ExtendedLangClient) {
         }
     ];
 
-    WebViewRPCHandler.create(diagramWebview, langClient, remoteMethods)
+    WebViewRPCHandler.create(diagramWebview, langClient, remoteMethods);
 
     diagramWebview.onDidDispose(() => {
         diagramWebview = undefined;

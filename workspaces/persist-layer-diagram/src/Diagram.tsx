@@ -72,7 +72,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
             }
             document.addEventListener('keydown', handleEscapePress);
         }
-    }, [diagramEngine?.getCanvas()]);
+    }, [diagramModel, diagramEngine.getCanvas()]);
 
     const refreshDiagram = () => {
         getPersistModel().then(response => {
