@@ -10,14 +10,17 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
+// tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
+import { CtrlClickHandler } from "../../../CtrlClickHandler";
+import { GoToSourceNodeMenu } from "../../../NodeActionMenu/GoToSourceNodeMenu";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { EnumIcon } from "../../../resources/assets/icons/EnumIcon";
 import { HeaderName } from "../../../resources/styles/styles";
+import { getFormattedPosition } from "../../../utils/common-util";
 import { EnumNodeModel } from "../EnumNodeModel";
 import { EnumHead } from "../styles";
 
@@ -39,21 +42,27 @@ export function EnumHeadWidget(props: EnumHeadProps) {
 
 
     return (
-        <EnumHead>
-            <EnumIcon/>
-            <GraphqlBasePortWidget
-                port={node.getPort(`left-${node.getID()}`)}
-                engine={engine}
-            />
-            <HeaderName>{displayName}</HeaderName>
-            <GraphqlBasePortWidget
-                port={node.getPort(`right-${node.getID()}`)}
-                engine={engine}
-            />
-            <GraphqlBasePortWidget
-                port={node.getPort(`top-${node.getID()}`)}
-                engine={engine}
-            />
-        </EnumHead>
+        <CtrlClickHandler
+            filePath={node.enumObject?.position?.filePath}
+            position={node.enumObject?.position && getFormattedPosition(node.enumObject.position)}
+        >
+            <EnumHead>
+                <EnumIcon />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`left-${node.getID()}`)}
+                    engine={engine}
+                />
+                <HeaderName>{displayName}</HeaderName>
+                <GoToSourceNodeMenu location={node?.enumObject?.position} />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`right-${node.getID()}`)}
+                    engine={engine}
+                />
+                <GraphqlBasePortWidget
+                    port={node.getPort(`top-${node.getID()}`)}
+                    engine={engine}
+                />
+            </EnumHead>
+        </CtrlClickHandler>
     );
 }

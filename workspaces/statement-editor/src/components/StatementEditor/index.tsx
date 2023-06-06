@@ -218,11 +218,11 @@ export function StatementEditor(props: StatementEditorProps) {
                         let completions: SuggestionItem[];
 
                         if (index === 0) {
-                            directSuggestions = await getCompletions(fileURI, targetPosition, model, currentModel,
-                                getLangClient);
+                            directSuggestions = await getCompletions(fileURI, draftPosition || targetPosition,
+                                model, currentModel, getLangClient);
                         } else {
-                            completions = await getCompletions(fileURI, targetPosition, model, currentModel,
-                                getLangClient, selectionWithDot);
+                            completions = await getCompletions(fileURI, draftPosition || targetPosition,
+                                model, currentModel, getLangClient, selectionWithDot);
                             secondLevelSuggestions = completions.map((suggestionItem) => ({
                                 ...suggestionItem,
                                 prefix: `${selectionWithDot}`
@@ -405,7 +405,7 @@ export function StatementEditor(props: StatementEditorProps) {
     };
 
     const handleCompletions = async (newValue: string) => {
-        const lsSuggestions = await getCompletions(fileURI, targetPosition, model,
+        const lsSuggestions = await getCompletions(fileURI, draftPosition || targetPosition, model,
             currentModel, getLangClient, newValue);
         setLSSuggestionsList({
             directSuggestions: lsSuggestions
