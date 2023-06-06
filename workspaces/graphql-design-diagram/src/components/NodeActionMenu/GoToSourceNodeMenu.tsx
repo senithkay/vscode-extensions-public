@@ -18,40 +18,33 @@ import { MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 
-import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
-import { FunctionType, Position } from "../../../resources/model";
+import { Position } from "../resources/model";
 
-import { DeleteFunctionWidget } from "./MenuActionComponents/DeleteFunction";
-import { DesignFunctionWidget } from "./MenuActionComponents/DesignFunction";
-import { EditFunctionWidget } from "./MenuActionComponents/EditFunction";
+import { GoToSourceMenuItem } from "./GoToSourceMenuItem";
 
-interface FunctionMenuWidgetProps {
+interface GoToSourceNodeMenuProps {
     location: Position;
-    functionType: FunctionType;
 }
 
-export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
-    const { location, functionType } = props;
+export function GoToSourceNodeMenu(props: GoToSourceNodeMenuProps) {
+    const { location } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
     return (
         <>
-            {location &&
+            {location?.filePath && location?.startLine && location?.endLine &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <Paper style={{ maxWidth: "100%" }}>
-                        <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                            <DesignFunctionWidget position={location} />
-                            <EditFunctionWidget position={location} functionType={functionType} />
-                            <DeleteFunctionWidget position={location} />
-                            {location?.filePath &&
-                            <GoToSourceMenuItem location={location} />
-                            }
-                        </MenuList>
-                    </Paper>
+                    <>
+                        <Paper style={{ maxWidth: "100%" }}>
+                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                                <GoToSourceMenuItem location={location} />
+                            </MenuList>
+                        </Paper>
+                    </>
                 }
                 PopperProps={{
                     modifiers: [

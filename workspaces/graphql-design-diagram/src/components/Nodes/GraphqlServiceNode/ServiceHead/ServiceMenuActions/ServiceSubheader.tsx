@@ -18,6 +18,7 @@ import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "
 import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
+import { GoToSourceMenuItem } from "../../../../NodeActionMenu/GoToSourceMenuItem";
 import { FunctionType, Position } from "../../../../resources/model";
 
 import { AddFunctionWidget } from "./AddFunctionWidget";
@@ -34,18 +35,24 @@ export function ServiceSubheader(props: ServiceSubheaderProps) {
 
     return (
         <>
-            <Paper style={{maxWidth: "100%"}}>
-                <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                    <MenuItem onClick={() => servicePanel()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                        <ListItemIcon  style={{marginRight: "10px", minWidth: "0px"}}>
-                            <LabelEditIcon/>
+            <Paper style={{ maxWidth: "100%" }}>
+                <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                    <MenuItem onClick={() => servicePanel()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                        <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
+                            <LabelEditIcon />
                         </ListItemIcon>
                         <ListItemText className={classes.listItemText}>Edit Service</ListItemText>
                     </MenuItem>
                     <Divider />
-                    <AddFunctionWidget position={location} functionType={FunctionType.QUERY}/>
-                    <AddFunctionWidget position={location} functionType={FunctionType.MUTATION}/>
-                    <AddFunctionWidget position={location} functionType={FunctionType.SUBSCRIPTION}/>
+                    <AddFunctionWidget position={location} functionType={FunctionType.QUERY} />
+                    <AddFunctionWidget position={location} functionType={FunctionType.MUTATION} />
+                    <AddFunctionWidget position={location} functionType={FunctionType.SUBSCRIPTION} />
+                    {location?.filePath &&
+                    <>
+                        <Divider />
+                        <GoToSourceMenuItem location={location} />
+                    </>
+                    }
                 </MenuList>
             </Paper>
         </>
