@@ -23,7 +23,7 @@ import { commands, OutputChannel, Uri, window } from "vscode";
 import { TM_EVENT_PROJECT_RUN_FAST, CMP_PROJECT_RUN, sendTelemetryEvent, sendTelemetryException } from "../../telemetry";
 import { PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile } from "../../utils/project-utils";
-import { openConfigEditor } from "../../config-editor/configEditorPanel";
+import { configGenerator } from '../../config-generator/configGenerator';
 
 export default class OutputLinkProvider implements vscode.DocumentLinkProvider {
     provideDocumentLinks(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.ProviderResult<vscode.DocumentLink[]> {
@@ -40,7 +40,7 @@ function activateRunCommand() {
 
     commands.registerCommand(PALETTE_COMMANDS.RUN, async (filePath: Uri) => {
         if (ballerinaExtInstance.isConfigurableEditorEnabled() || ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
-            openConfigEditor(ballerinaExtInstance, filePath ? filePath.toString() : "", false);
+            configGenerator(ballerinaExtInstance, filePath ? filePath.toString() : "", false);
             return;
         }
         if (ballerinaExtInstance.enabledRunFast()) {

@@ -24,24 +24,8 @@ import {
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runCommandWithConf, MESSAGES } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
-import { configGenerator } from "../../config-generator/configGenerator";
 
 function activateRunCmdCommand() {
-    // register the run command execution flow
-    commands.registerCommand(PALETTE_COMMANDS.RUN, async (filePath: Uri) => {
-        if (!ballerinaExtInstance.isConfigurableEditorEnabled() &&
-            !ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
-
-            // Experimental config generator
-            if (ballerinaExtInstance.enabledExperimentalFeatures()) {
-                configGenerator(ballerinaExtInstance, window.activeTextEditor!.document.uri.fsPath, true);
-                return;
-            }
-
-            commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
-            return;
-        }
-    });
 
     // register ballerina run handler
     commands.registerCommand(PALETTE_COMMANDS.RUN_CMD, async (...args: any[]) => {

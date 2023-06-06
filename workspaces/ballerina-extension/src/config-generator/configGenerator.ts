@@ -25,7 +25,7 @@ import { BallerinaExtension, BallerinaProject, PackageConfigSchemaResponse } fro
 import { getCurrentBallerinaProject } from "../utils/project-utils";
 import EventEmitter from "events";
 import { generateExistingValues, parseTomlToConfig } from "./utils";
-import { ConfigProperty, ConfigTypes } from "./model";
+import { ConfigProperty, ConfigTypes, Property } from "./model";
 
 
 export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string,
@@ -140,7 +140,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                         if (newValues.length > 0) {
                             let btnTitle = "Open config";
                             let message = "There are mandatory configurables that are required to run the project."
-                            if (!existsSync(configFile)) { 
+                            if (!existsSync(configFile)) {
                                 btnTitle = "Create new config";
                             }
                             // Config generation message with button
@@ -189,79 +189,11 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
 }
 
-
 function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPath) {
     newValues.forEach(obj => {
-        let newConfigValue = ''
-        switch (obj.type) {
-            case ConfigTypes.BOOLEAN:
-                newConfigValue = `${obj.name} = false\n`;
-                break;
-            case ConfigTypes.INTEGER:
-                newConfigValue = `${obj.name} = 0\n`;
-                break;
-            case ConfigTypes.NUMBER:
-                newConfigValue = `${obj.name} = 0.0\n`;
-                break;
-            case ConfigTypes.STRING:
-                newConfigValue = `${obj.name} = ""\n`;
-                break;
-            case ConfigTypes.ARRAY:
-                switch (obj.property.items.type) {
-                    case ConfigTypes.BOOLEAN:
-                        newConfigValue = `${obj.name} = [false, false]\n`;
-                        break;
-                    case ConfigTypes.INTEGER:
-                        newConfigValue = `${obj.name} = [0, 0]\n`;
-                        break;
-                    case ConfigTypes.NUMBER:
-                        newConfigValue = `${obj.name} = [0.0, 0.0]\n`;
-                        break;
-                    case ConfigTypes.STRING:
-                        newConfigValue = `${obj.name} = ["", ""]\n`;
-                        break;
-                    case ConfigTypes.OBJECT:
-                        if (obj.property.additionalProperties && obj.property.additionalProperties?.type === ConfigTypes.STRING) {
-                            newConfigValue = `[[${obj.name}]]\nname = "John"\ncity = "Paris"\n[[${obj.name}]]\nname = "Jack"\ncity = "Colombo"\n`;
-                        }
-                        break;
-                    default:
-                        newConfigValue = `${obj.name} = ""\n`;
-                        break;
-                }
-                break;
-            case ConfigTypes.OBJECT:
-                if (obj.property.additionalProperties && obj.property.additionalProperties?.type === ConfigTypes.STRING) {
-                    newConfigValue = `[${obj.name}]\nname = "Anna"\ncity = "London"\n`;
-                }
-                if (obj.property.type === ConfigTypes.OBJECT) {
-                    newConfigValue = `[${obj.name}]\n`;
-                    const objectProp = obj.property;
-                    if (objectProp.required.length > 0) {
-                        objectProp.required.forEach(val => {
-                            switch (objectProp.properties[val].type) {
-                                case ConfigTypes.INTEGER:
-                                    newConfigValue += `${val} = 0\n`
-                                    break;
-                                case ConfigTypes.STRING:
-                                    newConfigValue += `${val} = ""\n`
-                                    break;
-                                case ConfigTypes.NUMBER:
-                                    newConfigValue += `${val} = 0.0\n`
-                                    break;
-                                default:
-                                    newConfigValue += `${val} = ""\n`
-                                    break;
-                            }
-                        })
-                    }
-                }
-                break;
-            default:
-                newConfigValue = `${obj.name} = ""\n`;
-                break;
-        }
-        updatedContent += newConfigValue;
+        let comment = `# Following config value should be a type of ${obj.type && obj.type.toUpperCase() || "STRING"}\n`;
+        let newConfigValue = getConfigValue(obj.name, obj.property);
+        updatedContent += comment + newConfigValue + '\n';
     });
 
     writeFile(configPath, updatedContent, function (error) {
@@ -270,4 +202,110 @@ function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPat
         }
         window.showInformationMessage("Successfully updated the configurable values.");
     });
+}
+
+function getConfigValue(name: string, obj: Property): string {
+    let newConfigValue = '';
+    switch (obj.type) {
+        case ConfigTypes.BOOLEAN:
+            newConfigValue = `${name} = false\n`;
+            break;
+        case ConfigTypes.INTEGER:
+            newConfigValue = `${name} = 0\n`;
+            break;
+        case ConfigTypes.NUMBER:
+            newConfigValue = `${name} = 0.0\n`;
+            break;
+        case ConfigTypes.STRING:
+            newConfigValue = `${name} = ""\n`;
+            break;
+        case ConfigTypes.ARRAY:
+            newConfigValue = getArrayConfigValue(name, obj);
+            break;
+        case ConfigTypes.OBJECT:
+            newConfigValue = getObjectConfigValue(name, obj);
+            break;
+        default:
+            if ('anyOf' in obj) {
+                const anyType: Property = obj.anyOf[0];
+                if (anyType.type === ConfigTypes.INTEGER || anyType.type === ConfigTypes.NUMBER) {
+                    newConfigValue = `${name} = 0\n`;
+                } else if (anyType.type === ConfigTypes.STRING) {
+                    newConfigValue = `${name} = ""\n`;
+                } else {
+                    newConfigValue = `[${name}]\n`;
+                }
+            } else {
+                newConfigValue = `${name} = ""\n`;
+            }
+            break;
+    }
+    return newConfigValue;
+}
+
+function getArrayConfigValue(name: string, item: Property): string {
+    let newConfigValue = '';
+    switch (item.type) {
+        case ConfigTypes.BOOLEAN:
+            newConfigValue = `${name} = [false, false]\n`;
+            break;
+        case ConfigTypes.INTEGER:
+            newConfigValue = `${name} = [0, 0]\n`;
+            break;
+        case ConfigTypes.NUMBER:
+            newConfigValue = `${name} = [0.0, 0.0]\n`;
+            break;
+        case ConfigTypes.STRING:
+            newConfigValue = `${name} = ["", ""]\n`;
+            break;
+        case ConfigTypes.ARRAY:
+            newConfigValue = getArrayConfigValue(name, item.items);
+            break;
+        case ConfigTypes.OBJECT:
+            if (item.additionalProperties && item.additionalProperties.type === ConfigTypes.STRING) {
+                newConfigValue = `[[${name}]]\nname = "John"\ncity = "Paris"\n[[${name}]]\nname = "Jack"\ncity = "Colombo"\n`;
+            } else {
+                newConfigValue = getObjectConfigValue(`[${name}]`, item);
+            }
+            break;
+        default:
+            newConfigValue = `${name} = ""\n`;
+            break;
+    }
+    return newConfigValue;
+}
+
+function getObjectConfigValue(name: string, property: Property, parentObject?: string): string {
+    let newConfigValue = parentObject ? '' :`[${name}]\n`;
+    if (property && property.required?.length > 0) {
+        property.required.forEach(val => {
+            const obj: Property = property.properties[val];
+            let propertyValue = '';
+            if (parentObject) {
+                val = `${parentObject}.${val}`;
+            }
+            switch (obj.type) {
+                case ConfigTypes.INTEGER:
+                    propertyValue = `${val} = 0\n`;
+                    break;
+                case ConfigTypes.STRING:
+                    propertyValue = `${val} = ""\n`;
+                    break;
+                case ConfigTypes.NUMBER:
+                    propertyValue = `${val} = 0.0\n`;
+                    break;
+                case ConfigTypes.ARRAY:
+                    propertyValue = getArrayConfigValue(name, obj);
+                    break;
+                case ConfigTypes.OBJECT:
+                    propertyValue = getObjectConfigValue(name, obj, val);
+                    break;
+                default:
+                    propertyValue = `${val} = ""\n`;
+                    break;
+            }
+            newConfigValue += propertyValue;
+        });
+    }
+    return newConfigValue;
 }

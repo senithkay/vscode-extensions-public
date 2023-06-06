@@ -22,14 +22,16 @@ export const EXECUTE_RUN_WITH_CONFIGS: string = 'ballerina.executeRunWithConfigs
 export interface ConfigProperty {
     name: string,
     type: string,
-    property: {
-        properties?: {};
-        required?: string[];
-        description: string,
-        items: { type: string, additionalProperties?: { type: string } },
-        type: string,
-        additionalProperties?: { type: string }
-    }
+    property: Property
+}
+
+export interface Property { 
+    type: string;
+    additionalProperties?: { type: string };
+    properties?: {};
+    required?: string[];
+    description: string;
+    items: Property;
 }
 
 export interface ConfigValue {
