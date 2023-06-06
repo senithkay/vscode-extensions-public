@@ -35,7 +35,7 @@ export const choreoAIConfig = new ChoreoAIConfig();
 
 export const tokenStore = new KeyChainTokenStorage();
 
-const ChoreoEnvironment = workspace.getConfiguration().get("Advanced.ChoreoEnviornment");
+const ChoreoEnvironment = workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
 let authConfig: ChoreoAuthConfigParams;
 
 switch (ChoreoEnvironment) {
@@ -64,6 +64,7 @@ export const readonlyTokenStore: IReadOnlyTokenStorage = {
 export const authClient = new ChoreoAuthClient({
     loginUrl: choreoAuthConfig.getLoginUrl(),
     redirectUrl: choreoAuthConfig.getRedirectUri(),
+    signUpUrl: choreoAuthConfig.getSignUpUri(),
     apimTokenUrl: choreoAuthConfig.getApimTokenUri(),
     clientId: choreoAuthConfig.getClientId(),
     apimClientId: choreoAuthConfig.getApimClientId(),
@@ -96,7 +97,7 @@ export async function getChoreoToken(tokenType: ChoreoTokenType): Promise<Access
         && currentChoreoToken.loginTime && currentChoreoToken.refreshToken) {
         getLogger().debug("Found Choreo token in keychain.");
         let tokenDuration = (new Date().getTime() - new Date(currentChoreoToken.loginTime).getTime()) / 1000;
-        if (tokenDuration > currentChoreoToken.expirationTime) {
+        if (tokenDuration > (currentChoreoToken.expirationTime - (60 * 5) )) { // 5 minutes before expiry, we refresh the token
             getLogger().debug("Choreo token expired. Exchanging refresh token.");
             try {
                 await exchangeRefreshToken(currentChoreoToken.refreshToken);
@@ -140,7 +141,6 @@ export async function exchangeAuthToken(authCode: string) {
             getLogger().debug("Successfully exchanged auth code to token.");
             await signIn();
             getLogger().info("Total sign in time: " + (Date.now() - currentTime));
-            vscode.window.showInformationMessage(`Successfully signed into Choreo!`);
         } catch (error: any) {
             getLogger().error("Error while exchanging the auth code! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
             vscode.window.showErrorMessage(error.message);
@@ -200,17 +200,31 @@ export async function signIn(isExistingSession?: boolean) {
             await exchangeVSCodeToken(choreoTokenInfo?.accessToken, selectedOrg.handle);
             ext.api.selectedOrg = selectedOrg;
             ext.api.status = STATUS_LOGGED_IN;
+            vscode.window.showInformationMessage(`Successfully signed into Choreo!`);
             showChoreoProjectOverview();
         } catch (error: any) {
-            if (isExistingSession) {
-                sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
+            if (error.cause.response?.status === 404) {
+                registerUser();
+            } else {
+                if (isExistingSession) {
+                    sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
+                }
+                getLogger().error("Error while signing in! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
+                getLogger().debug("Attempting to access sign in error payload!" + (error.cause?.response ? "\nPayload: " + JSON.stringify(error.cause?.response?.data) : ""));
+                vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
             }
-            getLogger().error("Error while signing in! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : "")); 
-            getLogger().debug("Attempting to access sign in error payload!" + (error.cause?.response ? "\nPayload: " + JSON.stringify(error.cause?.response?.data) : ""));
-            vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
             signOut();
         }
     }
+}
+
+export async function registerUser() {
+    const signUpURL = authClient.getSignUpURL();
+    await vscode.window.showInformationMessage("Please complete signup in the Choreo Console", "Sign Up").then((selection) => {
+        if (selection === "Sign Up") {
+            return vscode.env.openExternal(vscode.Uri.parse(signUpURL));
+        }
+    });
 }
 
 export async function getDefaultSelectedOrg(userOrgs: Organization[]) {

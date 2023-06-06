@@ -377,12 +377,7 @@ export class InitVisitor implements Visitor {
 
         const actionName: SimpleNameReference = node.methodName as SimpleNameReference;
 
-        if (actionName) {
-            stmtViewState.action.actionName = actionName.name.value;
-        } else {
-            stmtViewState.action.actionName = "get";
-        }
-
+        stmtViewState.action.actionName = actionName ? actionName.name.value : "get";
 
         if (node.resourceAccessPath && node.resourceAccessPath.length > 0) {
             stmtViewState.action.resourcePath = node.resourceAccessPath

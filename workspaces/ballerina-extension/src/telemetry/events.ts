@@ -48,6 +48,9 @@ export const TM_EVENT_PROJECT_PACK = "execute.project.pack";
 // event for executing the ballerina run command
 export const TM_EVENT_PROJECT_RUN = "execute.project.run";
 
+// event for executing the ballerina run command in ls
+export const TM_EVENT_PROJECT_RUN_FAST = "execute.project.run.fast";
+
 // event for executing the ballerina doc command
 export const TM_EVENT_PROJECT_DOC = "execute.project.doc";
 

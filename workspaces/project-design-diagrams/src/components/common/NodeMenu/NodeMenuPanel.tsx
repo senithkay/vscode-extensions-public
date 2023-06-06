@@ -46,9 +46,9 @@ export function NodeMenuPanel(props: MenuProps) {
     } = props;
     const { deleteComponent } = useContext(DiagramContext);
 
-    const annotation: Annotation = node instanceof ServiceNodeModel ? node.nodeObject.annotation : undefined;
-    const isModelLinkingCompatible: boolean = node instanceof ServiceNodeModel ||
-        (node instanceof EntryNodeModel && node.modelVersion && parseFloat(node.modelVersion) > 0.2);
+    const isMainFuncEditable: boolean = node instanceof EntryNodeModel && node.modelVersion && parseFloat(node.modelVersion) > 0.2;
+    const annotation: Annotation = node instanceof ServiceNodeModel || isMainFuncEditable ? node.nodeObject.annotation : undefined;
+    const isModelLinkingCompatible: boolean = node instanceof ServiceNodeModel || isMainFuncEditable;
 
     return (
         <Paper sx={{ maxWidth: "100%" }}>

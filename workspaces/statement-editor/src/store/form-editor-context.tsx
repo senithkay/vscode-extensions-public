@@ -19,6 +19,7 @@ import {
     STSymbolInfo
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
+import { WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import { CurrentModel } from "../models/definitions";
 
@@ -44,7 +45,8 @@ export const FormEditorContext = React.createContext({
                diagnosticOffSet?: NodePosition) => undefined,
     getLangClient: () => (Promise.resolve({} as any)),
     applyModifications: (modifications: STModification[], filePath?: string) => undefined,
-    changeInProgress: false
+    changeInProgress: false,
+    renameSymbol: (workspaceEdits: WorkspaceEdit) =>  undefined
 });
 
 export interface FormEditorProps {
@@ -70,6 +72,7 @@ export interface FormEditorProps {
     };
     applyModifications: (modifications: STModification[], filePath?: string) => void;
     changeInProgress: boolean;
+    renameSymbol: (workspaceEdits: WorkspaceEdit) => Promise<boolean>;
 }
 
 export const FormEditorContextProvider = (props: FormEditorProps) => {
@@ -89,7 +92,8 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
         onSave,
         onChange,
         getLangClient,
-        changeInProgress
+        changeInProgress,
+        renameSymbol
     } = props;
 
     return (
@@ -109,7 +113,8 @@ export const FormEditorContextProvider = (props: FormEditorProps) => {
                 onSave,
                 onChange,
                 getLangClient,
-                changeInProgress
+                changeInProgress,
+                renameSymbol
             }}
         >
             {children}

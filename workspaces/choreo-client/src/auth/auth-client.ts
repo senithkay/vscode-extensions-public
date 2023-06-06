@@ -114,5 +114,8 @@ export class ChoreoAuthClient implements IAuthClient {
         return `${this._config.loginUrl}?profile=vs-code&client_id=${this._config.clientId}`
             + `&state=${stateBase64}&code_challenge=${this._challenge.code_challenge}`;
     }
-    
+
+    getSignUpURL(): string {
+        return `${this._config.signUpUrl}`;
+    }
 }

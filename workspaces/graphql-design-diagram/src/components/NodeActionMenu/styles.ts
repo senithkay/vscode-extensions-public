@@ -31,9 +31,22 @@ export const useStyles = makeStyles(() =>
             paddingTop: 0,
             paddingBottom: 0,
         },
+        shortcutMenuItem: {
+            paddingTop: 0,
+            paddingBottom: 0
+        },
         menuIcon: {
             marginRight: "10px",
             minWidth: 0
+        },
+        shortcutItem: {
+            color: "#595959F4",
+            paddingLeft: "10px",
+            "& .MuiListItemText-primary": {
+                fontFamily: "GilmerRegular",
+                fontSize: "11px",
+                lineHeight: "initial",
+            }
         }
     })
 );

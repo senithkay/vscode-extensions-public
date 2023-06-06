@@ -229,9 +229,9 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 						{label}
 					</span>
 				</TreeHeader>
-				<TreeBody>
-					{expanded && editableRecordFields &&
-						editableRecordFields.map((item, index) => {
+				{((expanded && editableRecordFields) || isAnyData) && (
+					<TreeBody>
+						{editableRecordFields?.map((item, index) => {
 							return (
 								<EditableRecordFieldWidget
 									key={index}
@@ -246,17 +246,17 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 									hasHoveredParent={isHovered}
 								/>
 							);
-						})
-					}
-					{isAnyData && (
-						<AddRecordFieldButton
-							addNewField={addNewField}
-							indentation={0}
-							existingFieldNames={subFieldNames}
-							fieldId={id}
-						/>
-					)}
-				</TreeBody>
+						})}
+						{isAnyData && (
+							<AddRecordFieldButton
+								addNewField={addNewField}
+								indentation={0}
+								existingFieldNames={subFieldNames}
+								fieldId={id}
+							/>
+						)}
+					</TreeBody>
+				)}
 			</TreeContainer>
 		</>
 	);

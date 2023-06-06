@@ -598,7 +598,7 @@ export class ExtendedLangClient extends LanguageClient {
     }
 
     async getDefinitionPosition(params: TextDocumentPositionParams): Promise<BallerinaSTModifyResponse | NOT_SUPPORTED_TYPE> {
-        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DEFINITION_POSITION)
+        const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DEFINITION_POSITION);
         return isSupported ? this.sendRequest<BallerinaSTModifyResponse>(EXTENDED_APIS.DEFINITION_POSITION, params) :
             Promise.resolve(NOT_SUPPORTED);
     }

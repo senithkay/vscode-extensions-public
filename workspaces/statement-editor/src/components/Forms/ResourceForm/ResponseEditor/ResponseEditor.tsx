@@ -14,8 +14,8 @@
 
 import React, { useContext, useEffect, useState } from 'react';
 
-import Autocomplete from '@material-ui/lab/Autocomplete';
 import { TextField } from '@material-ui/core';
+import Autocomplete, { AutocompleteInputChangeReason, AutocompleteRenderInputParams } from '@material-ui/lab/Autocomplete';
 import { LiteExpressionEditor, LiteTextField, TypeBrowser } from '@wso2-enterprise/ballerina-expression-editor';
 import { ResponseCode } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import {
@@ -207,6 +207,10 @@ export function ResponseEditor(props: ParamProps) {
         }
     }
 
+    const renderInput = (params: AutocompleteRenderInputParams) => {
+        return <TextField className={classes.searchList} {...params} />;
+    };
+
     return (
         <div className={classes.paramContainer}>
             <div className={classes.paramContent}>
@@ -214,12 +218,12 @@ export function ResponseEditor(props: ParamProps) {
                 <div className={classes.paramDataTypeWrapper}>
                     <FieldTitle title='Select Code' optional={false} />
                     <Autocomplete
-                        disablePortal
+                        disablePortal={true}
                         id="param-type-selector"
                         options={optionsListString}
                         defaultValue={response}
                         onChange={handleOnSelect}
-                        renderInput={(params) => <TextField className={classes.searchList} {...params} />}
+                        renderInput={renderInput}
                     />
                 </div>
 

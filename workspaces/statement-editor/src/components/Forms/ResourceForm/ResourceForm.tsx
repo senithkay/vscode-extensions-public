@@ -141,18 +141,18 @@ export function ResourceForm(props: FunctionProps) {
         const diagPath = model.relativeResourcePath?.find(
             resPath => resPath?.viewState?.diagnosticsInRange?.length > 0);
 
-        let resourcePathDiagnostics = [];
+        let diagnostics = [];
 
         if (diagPath && STKindChecker.isResourcePathSegmentParam(diagPath)) {
-            resourcePathDiagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.
+            diagnostics = diagPath?.paramName?.viewState?.diagnosticsInRange && diagPath?.paramName?.
                 viewState?.diagnosticsInRange || [];
-            resourcePathDiagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
+            diagnostics = diagPath?.typeDescriptor?.viewState?.diagnosticsInRange && diagPath?.
                 typeDescriptor?.viewState?.diagnosticsInRange || [];
         } else if (diagPath && STKindChecker.isIdentifierToken(diagPath)) {
-            resourcePathDiagnostics = diagPath?.viewState?.diagnostics || [];
+            diagnostics = diagPath?.viewState?.diagnostics || [];
         }
 
-        return resourcePathDiagnostics;
+        return diagnostics;
     }
 
     const handleResourceParamChange = async (
@@ -220,7 +220,7 @@ export function ResourceForm(props: FunctionProps) {
             resourceReturn.replace("returns", ""),
         );
     };
-    
+
     const [methodName, setMethodName] = useState<string>(model?.functionName?.value.toUpperCase());
     const handleMethodChange = async (value: string) => {
         setMethodName(value.toUpperCase());
@@ -360,7 +360,7 @@ export function ResourceForm(props: FunctionProps) {
                                 onChangeInProgress={setIsEditInProgress}
                             />
                             {
-                                methodName != HTTP_GET && (
+                                methodName !== HTTP_GET && (
                                     <PayloadEditor
                                         parameters={parametersValue}
                                         onChange={handleParamEditorChange}

@@ -12,41 +12,79 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
-import { STNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
+import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../resources/model";
+import { getParentSTNodeFromRange } from "../utils/common-util";
+import { getSyntaxTree } from "../utils/ls-util";
 
 import { DesignNode } from "./DesignNode";
 import { EditNode } from "./EditNode";
 
 interface ChildActionMenuProps {
-    model: STNode;
     functionType: FunctionType;
     location: Position;
-    st: STNode;
+    path?: string;
 }
 
 export function ChildActionMenu(props: ChildActionMenuProps) {
-    const { model, functionType, st, location } = props;
+    const { functionType, location, path } = props;
+    const { langClientPromise, currentFile, fullST } = useContext(DiagramContext);
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
+    const [currentModel, setCurrentModel] = useState<STNode>(null);
+    const [currentST, setST] = useState<STNode>(fullST);
+
+    useEffect(() => {
+        if (showTooltip) {
+            let parentModel: STNode;
+            (async () => {
+                const nodePosition: NodePosition = {
+                    endColumn: location.endLine.offset,
+                    endLine: location.endLine.line,
+                    startColumn: location.startLine.offset,
+                    startLine: location.startLine.line
+                };
+                if (location.filePath === currentFile.path) {
+                    const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
+                    parentModel = parentNode;
+                } else {
+                    // parent node is retrieved as the classObject.position only contains the position of the class name
+                    const syntaxTree: STNode = await getSyntaxTree(location.filePath, langClientPromise);
+                    const parentNode = getParentSTNodeFromRange(nodePosition, syntaxTree);
+                    parentModel = parentNode;
+                    setST(syntaxTree)
+                }
+                if (parentModel && STKindChecker.isClassDefinition(parentModel)) {
+                    parentModel.members.forEach((resource: any) => {
+                        if (STKindChecker.isResourceAccessorDefinition(resource)) {
+                            if (resource.relativeResourcePath.length === 1 && resource.relativeResourcePath[0]?.value === path) {
+                                setCurrentModel(resource);
+                            }
+                        }
+                    });
+                }
+            })();
+        }
+    }, [showTooltip]);
 
     return (
         <>
-            {model &&
+            {location?.filePath && location?.startLine && location?.endLine &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <Paper style={{ maxWidth: "100%" }}>
                         <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                            <EditNode model={model} functionType={functionType} location={location} st={st}/>
-                            <DesignNode model={model} location={location}/>
+                            <EditNode model={currentModel} functionType={functionType} location={location} st={currentST} />
+                            <DesignNode model={currentModel} location={location} />
                         </MenuList>
                     </Paper>
                 }

@@ -102,6 +102,8 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
     const portIn = getPort(`${id}.IN`);
     const portOut = getPort(`${id}.OUT`);
 
+    const hasFields = !!typeDesc?.fields?.length;
+
     let expanded = true;
     if ((portIn && portIn.collapsed) || (portOut && portOut.collapsed)) {
         expanded = false;
@@ -153,14 +155,16 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                 onMouseLeave={onMouseLeave}
             >
                 <span className={classes.label}>
-                    <IconButton
-                        id={"button-wrapper-" + id}
-                        className={classes.expandIcon}
-                        onClick={handleExpand}
-                        data-testid={`${id}-expand-icon-record-source-node`}
-                    >
-                        {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
-                    </IconButton>
+                    {hasFields && (
+                        <IconButton
+                            id={"button-wrapper-" + id}
+                            className={classes.expandIcon}
+                            onClick={handleExpand}
+                            data-testid={`${id}-expand-icon-record-source-node`}
+                        >
+                            {expanded ? <ExpandMoreIcon /> : <ChevronRightIcon />}
+                        </IconButton>
+                    )}
                     {label}
                     <span className={classes.nodeType}>{nodeHeaderSuffix}</span>
                 </span>
@@ -170,25 +174,27 @@ export function RecordTypeTreeWidget(props: RecordTypeTreeWidgetProps) {
                     }
                 </span>
             </TreeHeader>
-            <TreeBody>
-                {expanded &&
-                    typeDesc?.fields?.map((field, index) => {
-                        return (
-                            <RecordFieldTreeItemWidget
-                                key={index}
-                                engine={engine}
-                                field={field}
-                                getPort={getPort}
-                                parentId={id}
-                                handleCollapse={handleCollapse}
-                                treeDepth={0}
-                                isOptional={typeDesc.optional}
-                                hasHoveredParent={isHovered}
-                            />
-                        );
-                    })
-                }
-            </TreeBody>
+            {expanded && hasFields && (
+                <TreeBody>
+                    {
+                        typeDesc.fields.map((field, index) => {
+                            return (
+                                <RecordFieldTreeItemWidget
+                                    key={index}
+                                    engine={engine}
+                                    field={field}
+                                    getPort={getPort}
+                                    parentId={id}
+                                    handleCollapse={handleCollapse}
+                                    treeDepth={0}
+                                    isOptional={typeDesc.optional}
+                                    hasHoveredParent={isHovered}
+                                />
+                            );
+                        })
+                    }
+                </TreeBody>
+            )}
         </TreeContainer>
     );
 }

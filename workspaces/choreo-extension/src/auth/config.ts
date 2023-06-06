@@ -32,6 +32,7 @@ export interface ChoreoAuthConfigParams {
     loginUrl: string;
     tokenUrl: string;
     redirectUrl: string;
+    signUpUrl: string;
     clientId: string;
     apimClientId: string;
     vscodeClientId: string;
@@ -52,6 +53,7 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
     loginUrl: "https://console.choreo.dev/login",
     tokenUrl: "https://api.asgardeo.io/t/a/oauth2/token",
     redirectUrl: "https://console.choreo.dev/vscode-auth",
+    signUpUrl: "https://console.choreo.dev/signup",
     clientId: "aVKhTSUMu_QfEwmCtrcuWoLy92oa",
 
     apimClientId: "ciwnWuwZfbcdzBUcnkhKvi_mcBUa",
@@ -62,8 +64,8 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
     scope: "openid+email+profile",
     fidp: ChoreoFidp.google,
     ghApp: {
-        appUrl: "https://github.com/marketplace/choreo-apps",
-        installUrl: "https://github.com/apps/choreo-apps/installations/new",
+        appUrl: "https://github.com/marketplace/choreo-dev",
+        installUrl: "https://github.com/apps/choreo-dev/installations/new",
         authUrl: "https://github.com/login/oauth/authorize",
         clientId: "Iv1.804167a242012c66",
         redirectUrl: "https://console.choreo.dev/ghapp"
@@ -81,6 +83,7 @@ export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
     loginUrl: "https://console.st.choreo.dev/login",
     tokenUrl: "https://stage.api.asgardeo.io/t/a/oauth2/token",
     redirectUrl: "https://console.st.choreo.dev/vscode-auth",
+    signUpUrl: "https://console.st.choreo.dev/signup",
     clientId: "NoOBydRztff7iENCq0LM2uuRs2ca",
 
     apimClientId: "lxa0Z3jtHtNxE9fqev4HUryUTLUa",
@@ -110,6 +113,7 @@ export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
     loginUrl: "https://consolev2.preview-dv.choreo.dev/login",
     tokenUrl: "https://dev.api.asgardeo.io/t/a/oauth2/token",
     redirectUrl: "https://consolev2.preview-dv.choreo.dev/vscode-auth",
+    signUpUrl: "https://consolev2.preview-dv.choreo.dev/signup",
     clientId: "_eEveWFdTSJPaui7DmCuU5DUrUEa",
 
     apimClientId: "Wxqy0liCfLBsdpXOhkcxZz6uLPka",
@@ -154,6 +158,10 @@ export class ChoreoAuthConfig {
 
     public getRedirectUri(): string {
         return this._config.redirectUrl;
+    }
+
+    public getSignUpUri(): string {
+        return this._config.signUpUrl;
     }
 
     public getClientId(): string {

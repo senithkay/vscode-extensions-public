@@ -25,30 +25,26 @@ import { isSupportedVersion, VERSION } from "./config";
 function getCurrentBallerinaProject(file?: string): Promise<BallerinaProject> {
     return new Promise((resolve, reject) => {
         const activeEditor = window.activeTextEditor;
+        // get path of the current bal file
+        const uri = file ? Uri.file(file) : activeEditor.document.uri;
         // if currently opened file is a bal file
-        if (activeEditor || file) {
-            // get path of the current bal file
-            const uri = activeEditor ? activeEditor.document.uri.toString() : file!;
-            if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
-                // get Ballerina Project path for current Ballerina file
-                ballerinaExtInstance.langClient.getBallerinaProject({
-                    documentIdentifier: {
-                        uri,
-                    }
-                }).then((response) => {
-                    const project = response as BallerinaProject;
-                    if (!project.kind) {
-                        reject(`Current file does not belong to a ballerina project.`);
-                    }
-                    resolve(project);
-                }, _error => {
-                    reject("Language Client is not available.");
-                });
-            } else {
-                reject("Language Client is not available.");
-            }
+        if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
+            // get Ballerina Project path for current Ballerina file
+            ballerinaExtInstance.langClient.getBallerinaProject({
+                documentIdentifier: {
+                    uri: uri.toString(),
+                }
+            }).then((response) => {
+                const project = response as BallerinaProject;
+                if (!project.kind) {
+                    reject(`Current file does not belong to a ballerina project.`);
+                }
+                resolve(project);
+            }, _error => {
+                reject("Language Client did not return a project");
+            });
         } else {
-            reject("There is no active editor.");
+            reject("Language Client is not available.");
         }
     });
 }
@@ -56,7 +52,16 @@ function getCurrentBallerinaProject(file?: string): Promise<BallerinaProject> {
 function getCurrentBallerinaFile(): string {
     const activeEditor = window.activeTextEditor;
     if (activeEditor && activeEditor.document.fileName.endsWith('.bal')) {
-        return activeEditor.document.fileName.toString();
+        return activeEditor.document.fileName;
+    }
+    const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
+    if (document) {
+        return document.toString();
+    }
+    for (let editor of window.visibleTextEditors) {
+        if (editor.document.fileName.endsWith('.bal')) {
+            return editor.document.fileName;
+        }
     }
     throw new Error("Current file is not a Ballerina file");
 }

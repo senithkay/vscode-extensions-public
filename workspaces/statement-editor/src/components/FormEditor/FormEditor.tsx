@@ -21,6 +21,7 @@ import {
 } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
 import { NodePosition, STNode } from "@wso2-enterprise/syntax-tree";
 import * as monaco from "monaco-editor";
+import { WorkspaceEdit } from "vscode-languageserver-protocol";
 
 import { CurrentModel } from '../../models/definitions';
 import { FormEditorContextProvider } from "../../store/form-editor-context";
@@ -53,6 +54,7 @@ export interface FormEditorProps {
     applyModifications: (modifications: STModification[]) => void;
     getLangClient: () => Promise<ExpressionEditorLangClientInterface>;
     topLevelComponent?: boolean;
+    renameSymbol?: (workspaceEdits: WorkspaceEdit) => Promise<boolean>;
 }
 
 export function FormEditor(props: FormEditorProps) {
@@ -69,7 +71,8 @@ export function FormEditor(props: FormEditorProps) {
         type,
         targetPosition,
         topLevelComponent,
-        stSymbolInfo
+        stSymbolInfo,
+        renameSymbol
     } = props;
 
     const [model, setModel] = useState<STNode>(null);
@@ -221,6 +224,7 @@ export function FormEditor(props: FormEditorProps) {
                 isLastMember={isLastMember}
                 applyModifications={applyModifications}
                 changeInProgress={changeInProgress}
+                renameSymbol={renameSymbol}
             >
                 {
                     model && (

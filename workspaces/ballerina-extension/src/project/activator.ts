@@ -20,7 +20,8 @@
 import { activateTestRunner } from "./cmds/test";
 import { activateBuildCommand } from "./cmds/build";
 import { activateCloudCommand } from "./cmds/cloud";
-import { activateRunCommand } from "./cmds/run";
+import { activateRunCommand } from "./cmds/run-fast";
+import { activateRunCmdCommand } from "./cmds/run";
 import { activateDocCommand } from "./cmds/doc";
 import { activateAddCommand } from "./cmds/add";
 import { activatePasteJsonAsRecord } from "./cmds/json-to-record";
@@ -42,6 +43,9 @@ export function activate() {
 
     // activate ballerina run command
     activateRunCommand();
+
+    // activate ballerina run command
+    activateRunCmdCommand();
 
     // activate ballerina doc command
     activateDocCommand();

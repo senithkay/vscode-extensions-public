@@ -18,6 +18,7 @@ import { MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 
+import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
 import { FunctionType, Position } from "../../../resources/model";
 
 import { DeleteFunctionWidget } from "./MenuActionComponents/DeleteFunction";
@@ -41,11 +42,14 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <Paper style={{maxWidth: "100%"}}>
-                        <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                            <DesignFunctionWidget position={location}/>
-                            <EditFunctionWidget position={location} functionType={functionType}/>
-                            <DeleteFunctionWidget position={location}/>
+                    <Paper style={{ maxWidth: "100%" }}>
+                        <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                            <DesignFunctionWidget position={location} />
+                            <EditFunctionWidget position={location} functionType={functionType} />
+                            <DeleteFunctionWidget position={location} />
+                            {location?.filePath &&
+                            <GoToSourceMenuItem location={location} />
+                            }
                         </MenuList>
                     </Paper>
                 }

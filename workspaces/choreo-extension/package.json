@@ -2,7 +2,7 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"
@@ -82,6 +82,11 @@
       {
         "command": "wso2.choreo.project.overview",
         "title": "Project Overview",
+        "category": "Choreo"
+      },
+      {
+        "command": "wso2.choreo.project.overview.close",
+        "title": "Close Project Overview",
         "category": "Choreo"
       },
       {
@@ -172,7 +177,7 @@
           "order": 1,
           "scope": "window"
         },
-        "Advanced.ChoreoEnviornment": {
+        "Advanced.ChoreoEnvironment": {
           "type": "string",
           "enum": [
             "prod",

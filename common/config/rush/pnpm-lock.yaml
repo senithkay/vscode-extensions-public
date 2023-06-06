@@ -1234,6 +1234,7 @@ importers:
       fork-ts-checker-webpack-plugin: ^6.2.0
       graphql: ^14.6.0
       handlebars: ^4.7.7
+      html-to-image: ^1.10.8
       jest: ^26.6.3
       joi: ^17.3.0
       lodash: ^4.17.11
@@ -1324,6 +1325,7 @@ importers:
       fork-ts-checker-webpack-plugin: 6.5.3_cbz6r35m2it77sxuzifyafc6zi
       graphql: 14.7.0
       handlebars: 4.7.7
+      html-to-image: 1.11.11
       jest: 26.6.3
       joi: 17.8.4
       lodash: 4.17.21

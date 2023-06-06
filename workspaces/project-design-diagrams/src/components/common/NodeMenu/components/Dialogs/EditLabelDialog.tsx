@@ -19,6 +19,7 @@
 
 import React, { useContext, useState } from 'react';
 import { CMLocation as Location, CMAnnotation as Annotation } from '@wso2-enterprise/ballerina-languageclient';
+import { v4 as uuid } from 'uuid';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -39,8 +40,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
     const { node, showDialog, updateShowDialog } = props;
     const { editLayerAPI, refreshDiagram } = useContext(DiagramContext);
 
-    const annotation: Annotation = node instanceof ServiceNodeModel ? node.nodeObject.annotation : node.nodeObject.annotation;
-
+    const annotation: Annotation = node.nodeObject.annotation;
     const [serviceLabel, updateServiceLabel] = useState<string>(annotation?.label);
 
     const getAnnotationLocation = (): Location => {
@@ -57,7 +57,7 @@ export function EditLabelDialog(props: EditLabelDialogProps) {
     const editComponentLabel = async () => {
         const updatedAnnotation: Annotation = {
             label: serviceLabel,
-            id: annotation?.id,
+            id: annotation?.id || uuid(),
             elementLocation: getAnnotationLocation()
         }
         await editLayerAPI.editDisplayLabel(updatedAnnotation);
