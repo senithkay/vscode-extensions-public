@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,15 +17,14 @@
  *
  */
 
-import { window, Uri, commands, workspace, ProgressLocation } from "vscode";
+import { window, Uri, commands, workspace } from "vscode";
 import { existsSync, openSync, readFileSync, writeFile } from "fs";
 import { INTERNAL_DEBUG_COMMAND } from "../editor-support/codelens-provider";
-import { BALLERINA_COMMANDS, BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS, runCommand } from "../project";
+import { BAL_TOML, CONFIG_FILE, PALETTE_COMMANDS } from "../project";
 import { BallerinaExtension, BallerinaProject, PackageConfigSchemaResponse } from "../core";
 import { getCurrentBallerinaProject } from "../utils/project-utils";
-import EventEmitter from "events";
 import { generateExistingValues, parseTomlToConfig } from "./utils";
-import { ConfigProperty, ConfigTypes, Property } from "./model";
+import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
 
 
 export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string,
@@ -191,9 +190,9 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
 function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPath) {
     newValues.forEach(obj => {
-        let comment = `# Following config value should be a type of ${obj.type && obj.type.toUpperCase() || "STRING"}\n`;
-        let newConfigValue = getConfigValue(obj.name, obj.property);
-        updatedContent += comment + newConfigValue + '\n';
+        let comment = { value: `# Following config value should be a type of ${obj.type && obj.type.toUpperCase() || "STRING"}\n` };
+        let newConfigValue = getConfigValue(obj.name, obj.property, comment);
+        updatedContent += comment.value + newConfigValue + '\n';
     });
 
     writeFile(configPath, updatedContent, function (error) {
@@ -204,7 +203,7 @@ function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPat
     });
 }
 
-function getConfigValue(name: string, obj: Property): string {
+function getConfigValue(name: string, obj: Property, comment: { value: string }): string {
     let newConfigValue = '';
     switch (obj.type) {
         case ConfigTypes.BOOLEAN:
@@ -226,13 +225,18 @@ function getConfigValue(name: string, obj: Property): string {
             newConfigValue = getObjectConfigValue(name, obj);
             break;
         default:
-            if ('anyOf' in obj) {
+            if (Constants.ANY_OF in obj) {
                 const anyType: Property = obj.anyOf[0];
                 if (anyType.type === ConfigTypes.INTEGER || anyType.type === ConfigTypes.NUMBER) {
                     newConfigValue = `${name} = 0\n`;
                 } else if (anyType.type === ConfigTypes.STRING) {
                     newConfigValue = `${name} = ""\n`;
+                } else if (anyType.type === ConfigTypes.OBJECT && anyType.name.includes(Constants.HTTP)) {
+                    comment.value = `# Following config value should be a type of ${ConfigTypes.OBJECT.toUpperCase()}\n`
+                    comment.value += `# for more details refer https://lib.ballerina.io/ballerina/http/\n`
+                    newConfigValue = `[${name}]\n`;
                 } else {
+                    comment.value = `# Following config value should be a type of ${ConfigTypes.OBJECT.toUpperCase()}\n`
                     newConfigValue = `[${name}]\n`;
                 }
             } else {
@@ -276,7 +280,7 @@ function getArrayConfigValue(name: string, item: Property): string {
 }
 
 function getObjectConfigValue(name: string, property: Property, parentObject?: string): string {
-    let newConfigValue = parentObject ? '' :`[${name}]\n`;
+    let newConfigValue = parentObject ? '' : `[${name}]\n`;
     if (property && property.required?.length > 0) {
         property.required.forEach(val => {
             const obj: Property = property.properties[val];

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,28 +17,20 @@
  *
  */
 
-export const EXECUTE_RUN_WITH_CONFIGS: string = 'ballerina.executeRunWithConfigs';
-
 export interface ConfigProperty {
     name: string,
     type: string,
     property: Property
 }
 
-export interface Property { 
+export interface Property {
+    name?: string;
     type: string;
     additionalProperties?: { type: string };
     properties?: {};
     required?: string[];
     description: string;
     items: Property;
-}
-
-export interface ConfigValue {
-    configName: string;
-    configType: string;
-    configArrayType?: string;
-    configValue?: any;
 }
 
 export enum Constants {
@@ -58,29 +50,23 @@ export enum Constants {
     ARRAY_TYPE = "arrayType",
     FLOAT = "float",
     INTEGER = "integer",
+    HTTP = "http"
 }
 
-export enum Commands {
-    RUN = "Run",
-    DEBUG = "Debug",
-}
-
-
+/**
+ * xml no type defined but string value
+ * tuple no type defined
+ * map no type defined
+ * record no type defined
+ * table and table[] as arrays
+ */ 
 export enum ConfigTypes {
     BOOLEAN = "boolean",
-    INTEGER = "integer", // Int, Byte
-    NUMBER = "number", // Float, Decimal
+    INTEGER = "integer",
+    NUMBER = "number",
     STRING = "string",
-    ARRAY = "array", // Have items->type property
+    ARRAY = "array",
     OBJECT = "object",
-    ENUM = "enum", // enums have enum key but value as a string
-    ANY_OF = "anyOf", // unions have anyOf key and value as given type
-    // xml no type defined but string value
-    // tuple no type defined
-    // map no type defined
-    // record no type defined
-    // table and table[] as arrays
-
+    ENUM = "enum",
+    ANY_OF = "anyOf",
 }
-
-
