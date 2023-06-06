@@ -90,6 +90,9 @@ export async function getFnDefsForFnCalls(fnCallPositions: LinePosition[],
         });
         let defLoc: Location;
         if (Array.isArray(reply)) {
+            if (!reply.length) {
+                return [];
+            }
             if (isLocationLink(reply[0])) {
                 defLoc = {
                     uri: reply[0].targetUri,
