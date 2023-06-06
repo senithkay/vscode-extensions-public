@@ -14,13 +14,14 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
 import React, { useContext, useState } from "react";
 
-import { ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
+import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
 import { useStyles } from "../../../NodeActionMenu/styles";
 import { Colors, Position } from "../../../resources/model";
 import { getParentSTNodeFromRange } from "../../../utils/common-util";
@@ -47,7 +48,7 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
             startColumn: location.startLine.offset,
             startLine: location.startLine.line
         };
-        if  (location.filePath === currentFile.path) {
+        if (location.filePath === currentFile.path) {
             const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
             recordModel = parentNode;
         } else {
@@ -63,20 +64,22 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
 
     return (
         <>
-            { location.filePath && location.startLine && location.endLine &&
+            {location?.filePath && location?.startLine && location?.endLine &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <>
-                        <Paper style={{maxWidth: "100%"}}>
-                            <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                                <MenuItem onClick={() => handleEditRecord()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                                    <ListItemIcon  style={{marginRight: "10px", minWidth: "0px"}}>
-                                        <LabelEditIcon/>
+                        <Paper style={{ maxWidth: "100%" }}>
+                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                                <MenuItem onClick={() => handleEditRecord()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                                    <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
+                                        <LabelEditIcon />
                                     </ListItemIcon>
                                     <ListItemText className={classes.listItemText}>Edit Record</ListItemText>
                                 </MenuItem>
+                                <Divider />
+                                <GoToSourceMenuItem location={location} />
                             </MenuList>
                         </Paper>
                     </>
