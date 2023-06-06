@@ -23,6 +23,7 @@ import { ConfigElementProps } from "../../ConfigElement";
 import { ConfigType, SchemaConstants } from "../../model";
 import { getType } from "../../utils";
 
+import NestedArray, { NestedArrayProps }  from "./NestedArray";
 import ObjectArray, { ObjectArrayProps } from "./ObjectArray";
 import SimpleArray, { SimpleArrayProps } from "./SimpleArray";
 
@@ -37,16 +38,19 @@ export interface ArrayTypeProps extends ConfigElementProps {
 export const ArrayType = (props: ArrayTypeProps): ReactElement => {
     const arrayType = getType(props.schema[SchemaConstants.ITEMS][SchemaConstants.TYPE]);
 
-    const arrayTypeProps: ObjectArrayProps | SimpleArrayProps = {
+    const arrayTypeProps: NestedArrayProps | ObjectArrayProps | SimpleArrayProps = {
         ...props,
         arrayType,
         setArrayElement: props.setConfigElement,
     };
-
     switch (arrayType) {
         case ConfigType.OBJECT:
             return(
                 <ObjectArray {...arrayTypeProps} />
+            );
+        case ConfigType.NESTEDARRAY:
+            return(
+                <NestedArray {...arrayTypeProps} />
             );
         default:
             return(
