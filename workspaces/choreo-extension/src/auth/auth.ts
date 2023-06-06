@@ -72,7 +72,7 @@ export const authClient = new ChoreoAuthClient({
     tokenUrl: choreoAuthConfig.getTokenUri(),
 });
 
-export const orgClient = new ChoreoOrgClient(readonlyTokenStore, choreoAuthConfig.getAPIBaseURL());
+export const orgClient = new ChoreoOrgClient(readonlyTokenStore, choreoAuthConfig.getAPIBaseURL(), choreoAuthConfig.getOrgsAPI());
 
 export const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(),
     choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
@@ -139,7 +139,7 @@ export async function exchangeAuthToken(authCode: string) {
 
             await tokenStore.setToken("choreo.token", response);
             getLogger().debug("Successfully exchanged auth code to token.");
-            await signIn();
+            await chooseOrgAndExchangeVSCodeToken();
             getLogger().info("Total sign in time: " + (Date.now() - currentTime));
         } catch (error: any) {
             getLogger().error("Error while exchanging the auth code! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
@@ -184,19 +184,28 @@ export async function exchangeRefreshToken(refreshToken: string) {
     }
 }
 
-export async function signIn(isExistingSession?: boolean) {
-    getLogger().debug("Signing in to Choreo.");
-    ext.api.status = STATUS_LOGGING_IN;
+export async function chooseOrgAndExchangeVSCodeToken(isExistingSession?: boolean) {
+    getLogger().debug("Getting the org list.");
     const choreoTokenInfo = await tokenStore.getToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
         try {
             var currentTime = Date.now();
-            const userInfo = await orgClient.getUserInfo();
+            let orgs: Organization[] = [];
+            if (!isExistingSession) {
+                // If its a fresh login, we need to get the user info to get the org list.
+                const userInfo = await orgClient.validateUser();
+                ext.api.userInfo = userInfo;
+                orgs = userInfo.organizations;
+            } else {
+                orgs = await orgClient.getOrganizations();
+            }
+            if (ext.api.userInfo) {
+                ext.api.userInfo.organizations = orgs;
+            }
             getLogger().info("get user info request time: " + (Date.now() - currentTime));
             getLogger().debug("Successfully retrived user info.");
-            ext.api.userInfo = userInfo;
-            const selectedOrg = await getDefaultSelectedOrg(userInfo.organizations);
+            const selectedOrg = await getDefaultSelectedOrg(orgs);
             await exchangeVSCodeToken(choreoTokenInfo?.accessToken, selectedOrg.handle);
             ext.api.selectedOrg = selectedOrg;
             ext.api.status = STATUS_LOGGED_IN;
@@ -249,6 +258,7 @@ export async function exchangeOrgAccessTokens( orgHandle: string) {
 }
 
 export async function signOut() {
+    getLogger().info("Signing out.");
     getLogger().debug("Clear current Choreo session.");
     await tokenStore.deleteToken("choreo.token");
     await tokenStore.deleteToken("choreo.vscode.token");

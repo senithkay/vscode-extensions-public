@@ -14,6 +14,6 @@ import { ComponentCount, Organization, UserInfo } from "@wso2-enterprise/choreo-
 
 export interface IChoreoOrgClient  {
     getOrganizations(): Promise<Organization[]>;
-    getUserInfo(): Promise<UserInfo>;
+    validateUser(): Promise<UserInfo>;
     getComponentCount(orgId: number): Promise<ComponentCount>;
 }
