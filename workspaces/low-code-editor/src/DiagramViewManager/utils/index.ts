@@ -292,6 +292,23 @@ export function extractFilePath(uri: string): string | null {
         filePath = filePath.replace('/', '');
     }
 
-    return filePath;
+    if (filePath && filePath.match(/^[A-Z]:\//g)) {
+        const firstCharacter = filePath.charAt(0).toLowerCase();
+        const remaining = filePath.slice(1);
+        filePath = `${firstCharacter}${remaining}`;
+    }
 
+    return filePath;
+}
+
+export function isPathEqual(uri1: string, uri2: string): boolean {
+    const filePath1 = extractFilePath(uri1);
+    const filePath2 = extractFilePath(uri2);
+    return filePath1 === filePath2;
+}
+
+export function pathIncludesIn(fullPath: string, includedPath: string): boolean {
+    const filePath = extractFilePath(fullPath);
+    const includedFilePath = extractFilePath(includedPath);
+    return filePath?.includes(includedFilePath as string) as boolean;
 }
