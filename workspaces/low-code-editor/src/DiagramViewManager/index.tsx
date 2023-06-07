@@ -85,7 +85,6 @@ export function DiagramViewManager(props: EditorProps) {
     const [completeST, setCompleteST] = useState<STNode>();
     const [serviceTypeSignature, setServiceTypeSignature] = useState<string>();
     const [isLoadingST, setIsLoadingST] = useState<boolean>(false);
-    const [projectComponents, updateProjectComponenets] = useState<BallerinaProjectComponents>();
 
     projectPaths.forEach(path => {
         path.uri.path = extractFilePath(path.uri.path);
