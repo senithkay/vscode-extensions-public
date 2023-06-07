@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { CircularProgress, IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -70,9 +70,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         hasHoveredParent
     } = props;
     const {
-        fieldToBeEdited,
-        isStmtEditorCanceled,
-        handleFieldToBeEdited,
         enableStatementEditor,
         handleCollapse,
         applyModifications
@@ -100,17 +97,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     let indentation = treeDepth * 16;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
-    useEffect(() => {
-        if (fieldToBeEdited === fieldId) {
-            if (!isStmtEditorCanceled) {
-                handleEditValue();
-            } else {
-                void handleDeleteValue();
-                handleFieldToBeEdited(undefined);
-            }
-        }
-    }, [fieldToBeEdited, isStmtEditorCanceled]);
-
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
             return isConnectedViaLink(specificField.valueExpr);
@@ -124,9 +110,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const handleAddValue = async () => {
         setIsLoading(true);
         try {
-            await createSourceForUserInput(field, mappingConstruct, 'EXPRESSION', applyModifications);
-            // Adding field to the context to identify this newly initialized field in the next rendering
-            handleFieldToBeEdited(fieldId);
+            const defaultValue = getDefaultValue(field.type.typeName);
+            await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
         } finally {
             setIsLoading(false);
         }
@@ -259,7 +244,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
-        : { title: ValueConfigOption.AddValue, onClick: handleAddValue };
+        : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
 
     const deleteValueMenuItem: ValueConfigMenuItem = {
         title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
@@ -340,7 +325,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     </span>
                     {(!isDisabled || hasValue) && !isValueMappingConstructor && (
                         <>
-                            {(isLoading || fieldId === fieldToBeEdited) ? (
+                            {isLoading ? (
                                 <CircularProgress size={18} className={classes.loader} />
                             ) : (
                                 <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
