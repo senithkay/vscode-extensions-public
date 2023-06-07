@@ -62,7 +62,7 @@ export class CodeLensProviderVisitor implements Visitor {
 
     public beginVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
         if (STKindChecker.isRecordTypeDesc(node.typeDescriptor) && checkIsPersistModelFile(this.activeEditorUri)) {
-            this.createVisualizeERCodeLense(node.position, node.typeName.value);
+            this.createVisualizeERCodeLens(node.position, node.typeName.value);
         }
     }
 
@@ -90,7 +90,7 @@ export class CodeLensProviderVisitor implements Visitor {
         this.codeLenses.push(codeLens);
     }
 
-    private createVisualizeERCodeLense(range: any, recordName: string) {
+    private createVisualizeERCodeLens(range: any, recordName: string) {
         const codeLens = new CodeLens(new Range(
             range.startLine,
             range.startColumn,

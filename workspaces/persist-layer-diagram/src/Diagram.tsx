@@ -97,7 +97,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
     const autoDistribute = () => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
-            diagramEngine.zoomToFitNodes({ margin: 10 });
+            diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
             diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
         }, 30);
     };
