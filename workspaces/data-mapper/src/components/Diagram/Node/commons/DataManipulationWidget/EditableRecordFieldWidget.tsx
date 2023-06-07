@@ -91,9 +91,6 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
-    const isValueMappingConstructor = specificField
-        && specificField.valueExpr
-        && STKindChecker.isMappingConstructor(specificField.valueExpr);
     let indentation = treeDepth * 16;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
@@ -323,7 +320,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         )}
                         {label}
                     </span>
-                    {(!isDisabled || hasValue) && !isValueMappingConstructor && (
+                    {(!isDisabled || hasValue) && (
                         <>
                             {isLoading ? (
                                 <CircularProgress size={18} className={classes.loader} />
