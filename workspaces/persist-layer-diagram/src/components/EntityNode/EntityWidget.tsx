@@ -34,9 +34,9 @@ interface EntityWidgetProps {
 
 export function EntityWidget(props: EntityWidgetProps) {
     const { node, engine } = props;
-    const { selectedNodeId, setHasDiagnostics, setSelectedNodeId } = useContext(DiagramContext);
+    const { collapsedMode, selectedNodeId, setHasDiagnostics, setSelectedNodeId } = useContext(DiagramContext);
     const [selectedLink, setSelectedLink] = useState<EntityLinkModel>(undefined);
-    const [isCollapsed, setCollapsibleStatus] = useState<boolean>(true);
+    const [isCollapsed, setCollapsibleStatus] = useState<boolean>(collapsedMode);
 
     useEffect(() => {
         node.registerListener({
@@ -46,6 +46,10 @@ export function EntityWidget(props: EntityWidgetProps) {
             'UNSELECT': () => { setSelectedLink(undefined) }
         })
     }, [node]);
+
+    useEffect(() => {
+        setCollapsibleStatus(collapsedMode);
+    }, [collapsedMode])
 
     useEffect(() => {
         engine.getModel().getLinks().forEach((link) => {
@@ -66,7 +70,7 @@ export function EntityWidget(props: EntityWidgetProps) {
             }
         });
         engine.repaintCanvas();
-    }, [isCollapsed])
+    }, [isCollapsed]);
 
     if (node.entityObject.diagnostics.length) {
         setHasDiagnostics(true);

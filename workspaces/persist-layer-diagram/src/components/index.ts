@@ -32,6 +32,7 @@ export { EntityPortWidget } from './EntityPort/EntityPortWidget';
 export * from './OverlayLoader';
 
 export { DiagramControls } from './Controls/DiagramControls';
+export { NodeCollapser } from './Controls/NodeCollapser';
 
 export * from './DiagramContext/DiagramContext';
 

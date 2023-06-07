@@ -20,6 +20,7 @@
 import React, { createContext, ReactNode } from 'react';
 
 interface DiagramContextProps {
+    collapsedMode: boolean;
     selectedNodeId: string;
     hasDiagnostics: boolean;
     setHasDiagnostics: (hasDiagnostics: boolean) => void;
@@ -28,6 +29,7 @@ interface DiagramContextProps {
 }
 
 interface IDiagramContext {
+    collapsedMode: boolean;
     selectedNodeId: string;
     hasDiagnostics: boolean;
     setHasDiagnostics: (hasDiagnostics: boolean) => void;
@@ -38,9 +40,10 @@ const defaultState: any = {};
 export const DiagramContext = createContext<IDiagramContext>(defaultState);
 
 export function PersistDiagramContext(props: DiagramContextProps) {
-    const { selectedNodeId, setSelectedNodeId, setHasDiagnostics, hasDiagnostics, children } = props;
+    const { collapsedMode, selectedNodeId, setSelectedNodeId, setHasDiagnostics, hasDiagnostics, children } = props;
 
     let context: IDiagramContext = {
+        collapsedMode,
         selectedNodeId,
         hasDiagnostics,
         setHasDiagnostics,
