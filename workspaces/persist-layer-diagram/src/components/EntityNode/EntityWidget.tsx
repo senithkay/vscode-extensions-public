@@ -50,9 +50,22 @@ export function EntityWidget(props: EntityWidgetProps) {
     useEffect(() => {
         engine.getModel().getLinks().forEach((link) => {
             if (link.getID().includes(node.getID())) {
-                link.fireEvent({}, 'UNSELECT');
+                if (isCollapsed) {
+                    if (link.getID().split('::')[0].includes(node.getID())) {
+                        link.setSourcePort(node.getPort(link.getID().split('::')[0]));
+                    } else {
+                        link.setTargetPort(node.getPort(link.getID().split('::')[1]));
+                    }
+                } else {
+                    if (link.getID().split('::')[0].includes(node.getID())) {
+                        link.setSourcePort(node.getPort(`right-${node.getID()}`));
+                    } else {
+                        link.setTargetPort(node.getPort(`left-${node.getID()}`));
+                    }
+                }
             }
         });
+        engine.repaintCanvas();
     }, [isCollapsed])
 
     if (node.entityObject.diagnostics.length) {
@@ -73,7 +86,7 @@ export function EntityWidget(props: EntityWidgetProps) {
                 setCollapsedStatus={setCollapsibleStatus}
             />
 
-            {isCollapsed ? (
+            {isCollapsed && (
                 node.entityObject.attributes.map((attribute, index) => {
                     return (
                         <AttributeWidget
@@ -83,23 +96,6 @@ export function EntityWidget(props: EntityWidgetProps) {
                             attribute={attribute}
                             isSelected={node.isNodeSelected(selectedLink, `${node.getID()}/${attribute.name}`)}
                         />
-                    )
-                })
-            ) : (
-                node.entityObject.attributes.map((attribute, _index) => {
-                    return (
-                        <>
-                            <EntityPortWidget
-                                port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
-                                engine={engine}
-                                isShrunk={true}
-                            />
-                            <EntityPortWidget
-                                port={node.getPort(`right-${node.getID()}/${attribute.name}`)}
-                                engine={engine}
-                                isShrunk={true}
-                            />
-                        </>
                     )
                 })
             )}

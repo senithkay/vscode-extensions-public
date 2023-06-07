@@ -18,7 +18,7 @@
  */
 
 import createEngine, { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
+import { CMCardinality as Cardinality, CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import {
     EntityLinkModel, EntityModel, EntityPortModel, OverlayLayerFactory, EntityFactory, EntityLinkFactory, EntityPortFactory
 } from '../components';
@@ -79,17 +79,23 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
                             const linkId: string = Array.from(links.keys()).find(itemId =>
                                 itemId.slice(itemId.indexOf('-') + 1).startsWith(associatedEntity.getID()) && itemId.endsWith(key)
                             );
-                            const link2update = links.get(linkId);
-                            if (link2update) {
-                                link2update.cardinality.self = association.cardinality.associate;
-                                link2update.setTargetPort(sourcePort);
+                            if (linkId) {
+                                const link2update = links.get(linkId);
+                                const cardinality: Cardinality = {
+                                    associate: link2update.cardinality.associate,
+                                    self: association.cardinality.associate
+                                };
+                                const newLinkId: string = `${link2update.getSourcePort().getID()}::${sourcePort.getID()}`;
+                                const newLink: EntityLinkModel = new EntityLinkModel(newLinkId, cardinality);
+                                links.set(newLinkId, createLinks(link2update.getSourcePort(), sourcePort, newLink));
+                                links.delete(linkId);
                             }
                             const index = mappedLinkNodes.get(associatedEntity.getID()).indexOf(callingEntity.getID());
                             if (index > -1) {
                                 mappedLinkNodes.get(associatedEntity.getID()).splice(index, 1);
                             }
                         } else {
-                            const linkId: string = `${sourcePort.getID()}:${targetPort.getID()}`;
+                            const linkId: string = `${sourcePort.getID()}::${targetPort.getID()}`;
                             let link: EntityLinkModel = new EntityLinkModel(linkId, association.cardinality);
                             links.set(linkId, createLinks(sourcePort, targetPort, link));
                             mappedLinkNodes.set(key, [...mappedLinkNodes.get(key), associatedEntity.getID()]);
@@ -106,7 +112,7 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
                 let targetPort: EntityPortModel = associatedEntity.getPort(`bottom-${inclusion}`);
 
                 if (sourcePort && targetPort) {
-                    const linkId: string = `${sourcePort.getID()}:${targetPort.getID()}`;
+                    const linkId: string = `${sourcePort.getID()}::${targetPort.getID()}`;
                     let link: EntityLinkModel = new EntityLinkModel(linkId, undefined);
                     links.set(linkId, createLinks(sourcePort, targetPort, link));
                 }
@@ -123,4 +129,3 @@ function createLinks(sourcePort: EntityPortModel, targetPort: EntityPortModel, l
     sourcePort.addLink(link);
     return link;
 }
-
