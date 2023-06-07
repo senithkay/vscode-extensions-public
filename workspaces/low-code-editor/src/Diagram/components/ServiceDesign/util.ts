@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-import { monaco } from "react-monaco-editor";
 
 import { CompletionParams, CompletionResponse, ExpressionEditorLangClientInterface, PartialSTRequest } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { PARAM_TYPES } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
@@ -24,6 +23,7 @@ import {
     STKindChecker,
     STNode
 } from "@wso2-enterprise/syntax-tree";
+import { URI } from "vscode-uri";
 
 import {
     AdvancedParams,
@@ -749,7 +749,7 @@ export function addImportStatements(
 export async function getKeywordTypes(docUri: string, getLangClient: () => Promise<ExpressionEditorLangClientInterface>) {
     const completionParams: CompletionParams = {
         textDocument: {
-            uri: monaco.Uri.file(docUri).toString()
+            uri: URI.file(docUri).toString()
         },
         context: {
             triggerKind: 25,

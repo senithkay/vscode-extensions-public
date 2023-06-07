@@ -4,7 +4,7 @@ import {
 import * as rpc from "vscode-ws-jsonrpc";
 import { LSConnection } from "./LSConnection";
 // tslint:disable-next-line: no-var-requires
-const WebSocket = require("isomorphic-ws");
+// const WebSocket = require("isomorphic-ws");
 
 export class WSConnection implements LSConnection {
 

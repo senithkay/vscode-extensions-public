@@ -1,13 +1,14 @@
-import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import {
-    InitializeParams, InitializeRequest, InitializeResult, ProtocolConnection,
+    InitializeRequest, InitializeResult, ProtocolConnection,
     Trace, DidOpenTextDocumentNotification,
-    DidOpenTextDocumentParams, CodeAction, CodeActionParams, TextDocumentItem, InitializedNotification, ShutdownRequest, ExitNotification, PublishDiagnosticsNotification, PublishDiagnosticsParams,
-    TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation, DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification, DidCloseTextDocumentNotification, DefinitionParams, LocationLink, RenameParams, WorkspaceEdit
+    DidOpenTextDocumentParams, CodeAction, CodeActionParams, InitializedNotification,
+    ShutdownRequest, ExitNotification, PublishDiagnosticsNotification, PublishDiagnosticsParams,
+    TextDocumentPositionParams, Location, DocumentSymbol, DocumentSymbolParams, SymbolInformation,
+    DidCloseTextDocumentParams, DidChangeTextDocumentParams, DidChangeTextDocumentNotification,
+    DidCloseTextDocumentNotification, DefinitionParams, LocationLink, RenameParams, WorkspaceEdit
 } from 'vscode-languageserver-protocol';
 
 import { BLCTracer } from "./BLCTracer";
-import { BLCLogger } from "./BLCLogger";
 import { initializeRequest, didOpenTextDocumentParams } from "./messages"
 import {
     ASTDidChangeParams,
@@ -91,11 +92,15 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
     private _diagnosticsError: any = null;
 
     // constructor
-    public constructor(connection: LSConnection) {
+    public constructor(connection: LSConnection,
+                       disableTrace: boolean = false,
+                       traceLevel: Trace = Trace.Verbose) {
         this._lsConnection = connection;
         this._id = 1;
         this._clientConnection = connection.getProtocolConnection();
-        this._clientConnection.trace(Trace.Verbose, new BLCTracer());
+        if (!disableTrace)  {
+            this._clientConnection.trace(traceLevel, new BLCTracer());
+        }
         this._clientConnection.listen();
         this._onReady = new Promise((resolve, reject) => {
             this._ready = resolve;
@@ -114,10 +119,13 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
     }
 
     private initialize() {
-        this._clientConnection.sendRequest(InitializeRequest.type, initializeRequest(this._id)).then((result: InitializeResult) => {
-            this._clientConnection.sendNotification(InitializedNotification.type, {});
+        console.log("Sending initialize request");
+        this._clientConnection.sendRequest(InitializeRequest.type, initializeRequest(this._id)).then(async (result: InitializeResult) => {
+            await this._clientConnection.sendNotification(InitializedNotification.type, {});
             this._clientConnection.onNotification(PublishDiagnosticsNotification.type, this.handleDiagnostics);
             this._ready();
+        }).catch((error) => {
+            this._initializedError(error);
         });
     }
 

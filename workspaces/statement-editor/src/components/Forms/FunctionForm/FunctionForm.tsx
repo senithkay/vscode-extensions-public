@@ -248,6 +248,7 @@ export function FunctionForm(props: FunctionProps) {
             if (editingSegmentId !== index) {
                 paramElements.push(
                     <FunctionParamItem
+                        index={index}
                         key={index}
                         functionParam={param}
                         readonly={addingNewParam || (currentComponentSyntaxDiag?.length > 0)}

@@ -296,7 +296,7 @@ export function getFilteredDiagnosticMessages(statement: string, targetPosition:
         endColumn: targetPosition?.endColumn || 0
     };
 
-    const diagInPosition = diag.filter((diagnostic) => {
+    const diagInPosition = diag.filter((diagnostic: Diagnostic) => {
         const { start } = diagnostic.range || {};
         const diagnosticStartCol = start?.character;
         const diagnosticStartLine = start?.line;

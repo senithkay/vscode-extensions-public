@@ -23,8 +23,8 @@ export function startBallerinaLS() {
 
         stdioConnection.getChildProcess().on("exit", () => {
             // process.exit(0);
-        })
-
+        });
+        
         socket.onclose = () => {
             stdioConnection.stop();
         };
