@@ -2403,6 +2403,7 @@ importers:
       '@wso2-enterprise/choreo-core': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       babel-loader: ^8.2.5
+      buffer: ^6.0.3
       closest: ^0.0.1
       copyfiles: ^2.4.1
       css-loader: ^6.7.1
@@ -2480,6 +2481,7 @@ importers:
       '@wso2-enterprise/ballerina-low-code-edtior-commons': link:../low-code-editor-commons
       '@wso2-enterprise/choreo-core': link:../choreo-core
       babel-loader: 8.3.0_olvwa26bkc7sescpzrxlktjrvi
+      buffer: 6.0.3
       copyfiles: 2.4.1
       css-loader: 6.7.3_webpack@5.76.1
       source-map-loader: 4.0.1_webpack@5.76.1
