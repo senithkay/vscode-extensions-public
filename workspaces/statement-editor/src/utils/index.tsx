@@ -1226,7 +1226,7 @@ export function getStatementPosition(updatedContent: string, statement: string, 
     };
     sourceLines.forEach((sourceLine, index) => {
         if (position.startLine === undefined || position.endLine === undefined) {
-            let matches = findExactMatches(sourceLine, statementLines[lineIndex]);
+            let matches = statementLines[lineIndex] && findExactMatches(sourceLine, statementLines[lineIndex]);
             if (!matches && sourceLine.includes(statementLines[0])) {
                 lineIndex = 0;
                 position = {
@@ -1249,6 +1249,7 @@ export function getStatementPosition(updatedContent: string, statement: string, 
                 lineIndex++;
             } else if (matches && matches.length > 1) {
                 // If there are multiple matches in a single line, find the match at the given column index
+                noOfMatches++;
                 let startIndex = sourceLine.indexOf(matches[0]);
                 for (let columnIndex = 0; columnIndex <= stmtIndex.columnIndex; columnIndex++) {
                     startIndex = sourceLine.indexOf(matches[0], startIndex);
@@ -1256,10 +1257,13 @@ export function getStatementPosition(updatedContent: string, statement: string, 
                         startIndex += matches[0].length;
                     }
                 }
-                position.startLine = index;
-                position.startColumn = startIndex;
-                position.endLine = index;
-                position.endColumn = startIndex + matches[0].length;
+                if (lineIndex === statementLines.length - 1 && (noOfMatches === stmtIndex.lineIndex || isNewStatement)) {
+                    position.startLine = index;
+                    position.startColumn = startIndex;
+                    position.endLine = index;
+                    position.endColumn = startIndex + matches[0].length;
+                }
+                lineIndex++;
             } else {
                 lineIndex = 0;
                 position = {
@@ -1282,20 +1286,24 @@ export function getStatementIndex(source: string, statement: string, stmtPositio
     let lineIndex = -1;
     let columnIndex = -1;
     sourceLines.forEach((line: string, index: number) => {
-        const matches = findExactMatches(line, stmtFirstLine);
-        if (matches?.length === 1) {
-            if (line.includes(stmtFirstLine) && index <= stmtPosition.startLine) {
-                lineIndex++;
-            }
-        } else if (matches?.length > 1) {
-            // If there are multiple matches in a single line, find the match at the given column index
-            let startIndex = line.indexOf(stmtFirstLine);
-            matches.forEach((match) => {
-                if (line.indexOf(stmtFirstLine, startIndex) <= stmtPosition.startColumn) {
-                    startIndex = +match.length;
-                    columnIndex++;
+        if (index <= stmtPosition.startLine) {
+            const matches = findExactMatches(line, stmtFirstLine);
+            if (matches?.length === 1) {
+                if (line.includes(stmtFirstLine) && index <= stmtPosition.startLine) {
+                    lineIndex++;
                 }
-            });
+            } else if (matches?.length > 1) {
+                // If there are multiple matches in a single line, find the match at the given column index
+                lineIndex++;
+                columnIndex = -1;
+                let startIndex = line.indexOf(stmtFirstLine);
+                matches.forEach((match) => {
+                    if (line.indexOf(stmtFirstLine, startIndex) <= stmtPosition.startColumn) {
+                        startIndex = +match.length;
+                        columnIndex++;
+                    }
+                });
+            }
         }
     });
     return { lineIndex, columnIndex };
