@@ -40,3 +40,4 @@ export const choreoAccountTreeId = 'choreo-account';
 
 // state keys
 export const SELECTED_ORG_ID_KEY = 'selectedOrgId';
+export const USER_INFO_KEY = 'userInfo';
