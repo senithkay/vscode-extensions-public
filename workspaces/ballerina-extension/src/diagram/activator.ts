@@ -596,7 +596,12 @@ class DiagramPanel {
 				methodName: "getAllFilesInProject",
 				handler: async (args: any[]): Promise<Uri[]> => {
 					// TODO: handle ignore glob pattern as well, and change the frontend filter
-					return workspace.findFiles(args[0]);
+					console.log("getAllFilesInProject", args, process.platform);
+					if (process.platform === 'win32') {
+						return workspace.findFiles(args[0].replaceAll(/\//g, '\\'));
+					} else {
+						return workspace.findFiles(args[0]);
+					}
 				}
 			},
 			{

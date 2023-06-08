@@ -48,6 +48,7 @@ export function OverviewDiagram(props: OverviewDiagramProps) {
             try {
                 if (currentProject) {
                     const langClient = await getDiagramEditorLangClient();
+
                     const componentResponse: BallerinaProjectComponents = await langClient.getBallerinaProjectComponents({
                         documentIdentifiers: [{ uri: currentProject.uri.external }]
                     });
