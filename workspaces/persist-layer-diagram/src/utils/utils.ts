@@ -20,7 +20,7 @@
 import createEngine, { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { CMCardinality as Cardinality, CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import {
-    EntityLinkModel, EntityModel, EntityPortModel, OverlayLayerFactory, EntityFactory, EntityLinkFactory, EntityPortFactory
+    EntityLinkModel, EntityModel, EntityPortModel, OverlayLayerFactory, EntityFactory, EntityLinkFactory, EntityPortFactory, OverlayLayerModel
 } from '../components';
 
 export function generateEngine(): DiagramEngine {
@@ -40,6 +40,7 @@ export function modelMapper(entities: Map<string, Entity>): DiagramModel {
     let entityLinks: Map<string, EntityLinkModel> = generateLinks(entities, entityNodes);
 
     let model = new DiagramModel();
+    model.addLayer(new OverlayLayerModel());
     model.addAll(...Array.from(entityNodes.values()), ...Array.from(entityLinks.values()));
     return model;
 }

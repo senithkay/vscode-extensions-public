@@ -82,7 +82,6 @@ export function PersistDiagram(props: PersistDiagramProps) {
             setHasDiagnostics(response.diagnostics.length > 0);
             if (entities.size) {
                 const model = modelMapper(entities);
-                model.addLayer(new OverlayLayerModel());
                 diagramEngine.setModel(model);
                 autoDistribute();
                 setDiagramModel(model);
