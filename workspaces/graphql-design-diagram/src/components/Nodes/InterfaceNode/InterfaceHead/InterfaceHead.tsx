@@ -10,12 +10,13 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
+// tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
 import { CtrlClickHandler } from "../../../CtrlClickHandler";
+import { GoToSourceNodeMenu } from "../../../NodeActionMenu/GoToSourceNodeMenu";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { ServiceClassIcon } from "../../../resources/assets/icons/ServiceClassIcon";
 import { HeaderName, InterfaceNodeHeader, InterfaceSubHeader } from "../../../resources/styles/styles";
@@ -52,6 +53,7 @@ export function InterfaceHeadWidget(props: InterfaceHeadProps) {
                         engine={engine}
                     />
                     <HeaderName>{displayName}</HeaderName>
+                    <GoToSourceNodeMenu location={node.interfaceObject?.position} />
                     <GraphqlBasePortWidget
                         port={node.getPort(`right-${node.getID()}`)}
                         engine={engine}

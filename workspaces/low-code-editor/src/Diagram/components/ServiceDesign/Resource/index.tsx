@@ -10,11 +10,10 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js, jsx-no-lambda
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useContext, useEffect, useState } from "react";
-import { monaco } from "react-monaco-editor";
 
-import { Tooltip } from "@material-ui/core";
+import { CircularProgress, Tooltip } from "@material-ui/core";
 import {
     BallerinaSTModifyResponse, CompletionResponse, ConfigOverlayFormStatus, CtrlClickWrapper, DiagramEditorLangClientInterface,
     LabelEditIcon, responseCodes, STModification
@@ -23,6 +22,7 @@ import { ConfigPanelSection } from "@wso2-enterprise/ballerina-low-code-edtior-u
 import { ModulePart, NodePosition, ResourceAccessorDefinition, STKindChecker, STNode, traversNode, TypeDefinition } from "@wso2-enterprise/syntax-tree";
 import classNames from "classnames";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
+import { URI } from "vscode-uri";
 
 import { Context } from "../../../../Contexts/Diagram";
 import { removeStatement } from "../../../utils";
@@ -34,13 +34,14 @@ import { getKeywordTypes, HTTP_POST } from "../util";
 import { ResourceHeader } from "./ResourceHeader";
 
 export interface ResourceBodyProps {
+    id: number;
     model: ResourceAccessorDefinition;
     handleDiagramEdit: (model: STNode, targetPosition: NodePosition, configOverlayFormStatus: ConfigOverlayFormStatus, onClose?: () => void, onSave?: () => void) => void;
     isExpandedAll: boolean;
 }
 
 export function ResourceBody(props: ResourceBodyProps) {
-    const { model, handleDiagramEdit, isExpandedAll } = props;
+    const { id, model, handleDiagramEdit, isExpandedAll } = props;
     const {
         props: { currentFile, fullST },
         api: {
@@ -59,9 +60,13 @@ export function ResourceBody(props: ResourceBodyProps) {
     const [types, setTypes] = useState([]);
     const [paramArgs, setParamArgs] = useState([]);
     const [payloadSchema, setPayloadSchema] = useState([]);
+    const [fetchingKeywordTypes, setFetchingKeywordTypes] = useState(false);
+    const [fetchingResponseArgs, setFetchingResponseArgs] = useState(false);
+    const [isLoading, setIsLoading] = useState(fetchingKeywordTypes || fetchingResponseArgs);
 
     useEffect(() => {
-        getKeywordTypes(currentFile.path, getExpressionEditorLangClient).then(setTypes);
+        setFetchingKeywordTypes(true);
+        getKeywordTypes(currentFile.path, getExpressionEditorLangClient).then(setTypes).then(() => setFetchingKeywordTypes(false));
     }, []);
 
     useEffect(() => {
@@ -70,14 +75,16 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     useEffect(() => {
         if (types.length > 0) {
-            renderResponses(types).then(setResponseArgs);
+            setFetchingResponseArgs(true);
+            renderResponses(types).then(setResponseArgs).then(() => setFetchingResponseArgs(false));
         }
         renderParameters().then(setParamArgs);
     }, [schema, schemaParam]);
 
     useEffect(() => {
         if (types.length > 0) {
-            renderResponses(types).then(setResponseArgs);
+            setFetchingResponseArgs(true);
+            renderResponses(types).then(setResponseArgs).then(() => setFetchingResponseArgs(false));
         }
     }, [types]);
 
@@ -85,10 +92,15 @@ export function ResourceBody(props: ResourceBodyProps) {
         setSchema({});
         setSchemaParam({});
         if (types.length > 0) {
-            renderResponses(types).then(setResponseArgs);
+            setFetchingResponseArgs(true);
+            renderResponses(types).then(setResponseArgs).then(() => setFetchingResponseArgs(false));
         }
         renderParameters().then(setParamArgs);
     }, [model]);
+
+    useEffect(() => {
+        setIsLoading(fetchingKeywordTypes || fetchingResponseArgs);
+    }, [fetchingKeywordTypes, fetchingResponseArgs]);
 
     const handleIsExpand = () => {
         setIsExpanded(!isExpanded)
@@ -121,7 +133,9 @@ export function ResourceBody(props: ResourceBodyProps) {
 
     model.functionSignature?.parameters?.forEach((param, i) => {
         // value = record {|*http:Ok; Foo body;|}
+        let bodyArgIndex = -1;
         if (STKindChecker.isRequiredParam(param) && param.source.includes("Payload")) {
+            bodyArgIndex++;
             if (param.typeData?.typeSymbol?.name) {
                 const onClickHandler = () => openRecordEditor(param.typeData?.typeSymbol?.name)
                 const payloadSchemaComponent = (
@@ -132,8 +146,8 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </pre>
                 )
                 bodyArgs.push(
-                    <tr key={i} className={classes.signature}>
-                        <td>
+                    <tr key={i} className={classes.signature} data-testid={`body-row-${bodyArgIndex}`}>
+                        <td data-testid={`body-description-${bodyArgIndex}`}>
                             <div>
                                 Schema : <span className={classes.schemaButton} onClick={() => recordEditor(setPayloadSchema, param.typeData?.typeSymbol?.name, i)}>{param.typeData?.typeSymbol?.name}</span> :{param.paramName?.value}
                                 {payloadSchema[i] && payloadSchemaComponent}
@@ -143,7 +157,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                 )
             } else {
                 bodyArgs.push(
-                    <div key={i} className={classes.signature}>
+                    <div key={i} className={classes.signature} data-testid={`body-row-${bodyArgIndex}`}>
                         {param.source}
                     </div>
                 )
@@ -166,7 +180,7 @@ export function ResourceBody(props: ResourceBodyProps) {
         const record: STNode = records.get(recordName.replace(/[\[\]\?]/g, "").trim());
         if (record) {
             const request: TextDocumentPositionParams = {
-                textDocument: { uri: monaco.Uri.file(currentFile.path).toString() },
+                textDocument: { uri: URI.file(currentFile.path).toString() },
                 position: { line: record.position.startLine, character: record.position.startColumn }
             };
             return langClient.getDefinitionPosition(request);
@@ -240,11 +254,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </pre>
                 );
                 responses.push(
-                    <tr key={i} className={classes.signature}>
-                        <td>
+                    <tr key={i} className={classes.signature} data-testid={`responses-row-${i}`}>
+                        <td data-testid={`response-code-${i}`}>
                             {code}
                         </td>
-                        <td>
+                        <td data-testid={`response-description-${i}`}>
                             {des}
                             <div>
                                 Record Schema :
@@ -277,11 +291,11 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </pre>
                 );
                 responses.push(
-                    <tr key={i} className={classes.signature}>
-                        <td>
+                    <tr key={i} className={classes.signature} data-testid={`responses-row-${i}`}>
+                        <td data-testid={`response-code-${i}`}>
                             {code}
                         </td>
-                        <td>
+                        <td data-testid={`response-description-${i}`}>
                             <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchema, recordName, i)}>
                                 {recordName}
                             </span>
@@ -299,8 +313,10 @@ export function ResourceBody(props: ResourceBodyProps) {
         const values = model.functionSignature?.parameters;
         const langClient = await getDiagramEditorLangClient();
         const responses = [];
+        let paramIndex = -1;
         for (const [i, param] of values.entries()) {
             if ((STKindChecker.isRequiredParam(param) || STKindChecker.isDefaultableParam(param)) && !param.source.includes("Payload")) {
+                paramIndex++;
                 const paramDetails = param.source.split(" ");
                 const recordName = param.source.split(" ")[0];
                 let description = paramDetails.length > 0 && paramDetails[1];
@@ -318,14 +334,14 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </pre>
                 );
                 responses.push(
-                    <tr key={i} className={classes.signature}>
-                        <td>
+                    <tr key={i} className={classes.signature} data-testid={`params-row-${paramIndex}`}>
+                        <td data-testid={`param-type-${paramIndex}`}>
                             <span className={recordInfo && recordInfo.parseSuccess ? classes.schemaButton : ""} onClick={() => recordEditor(setSchemaParam, recordName, i)}>
                                 {recordName}
                             </span>
                             {schemaParam[i] && tooltip}
                         </td>
-                        <td>
+                        <td data-testid={`param-description-${paramIndex}`}>
                             {description}
                         </td>
                     </tr>
@@ -392,7 +408,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     )
 
     const metaData = (
-        <div className="service-member" onClick={handleIsExpand}>
+        <div className="service-member" onClick={handleIsExpand} data-testid={`resource-metadata-${id}`}>
             <table className={classes.responseTable}>
                 <tbody>
                     {model.metadata?.source.split("#").map(value => !value.includes("+") && value)}
@@ -402,7 +418,7 @@ export function ResourceBody(props: ResourceBodyProps) {
     )
 
     const body = (
-        <>
+        <div data-testid={`resource-info-${id}`}>
             {model.metadata && metaData}
             <div className="service-member">
                 {paramArgs.length > 0 && args}
@@ -421,7 +437,7 @@ export function ResourceBody(props: ResourceBodyProps) {
                     </table>
                 </ConfigPanelSection>
             </div>
-        </>
+        </div>
     )
 
 
@@ -435,8 +451,26 @@ export function ResourceBody(props: ResourceBodyProps) {
             onClick={handleGoToSource}
         >
             <div id={"resource"} className={classNames("function-box", model.functionName.value)}>
-                <ResourceHeader isExpanded={isExpanded} onExpandClick={handleIsExpand} model={model} onEdit={onEdit} onDelete={handleDeleteBtnClick} />
-                {isExpanded && body}
+                {isLoading ? (
+                    <div
+                        className={classNames("function-signature", model.functionName.value)}
+                        data-testid={`resource-loader-${id}`}
+                    >
+                        <CircularProgress size={18} className={classes.loader} />
+                    </div>
+                ) : (
+                    <>
+                        <ResourceHeader
+                            id={id}
+                            isExpanded={isExpanded}
+                            onExpandClick={handleIsExpand}
+                            model={model}
+                            onEdit={onEdit}
+                            onDelete={handleDeleteBtnClick}
+                        />
+                        {isExpanded && body}
+                    </>
+                )}
             </div>
         </CtrlClickWrapper>
     );

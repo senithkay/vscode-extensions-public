@@ -21,6 +21,7 @@ import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-common
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
 import { NodeMenuItem } from "../../../NodeActionMenu/NodeMenuItem";
 import { useStyles } from "../../../NodeActionMenu/styles";
 import { Colors, FunctionType, Position } from "../../../resources/model";
@@ -32,7 +33,7 @@ interface ServiceHeaderMenuProps {
 }
 
 export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
-    const { location} = props;
+    const { location } = props;
     const { langClientPromise, currentFile, fullST } = useContext(DiagramContext);
     const classes = useStyles();
 
@@ -63,7 +64,7 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
                     startColumn: location.startLine.offset,
                     startLine: location.startLine.line
                 };
-                if  (location.filePath === currentFile.path) {
+                if (location.filePath === currentFile.path) {
                     const parentNode = getParentSTNodeFromRange(nodePosition, fullST);
                     setClassModel(parentNode);
                 } else {
@@ -79,31 +80,33 @@ export function ClassHeaderMenu(props: ServiceHeaderMenuProps) {
 
     return (
         <>
-            {location.filePath && location.startLine && location.endLine &&
+            {location?.filePath && location?.startLine && location?.endLine &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
                     <>
-                    {classModel &&
-                        <Paper style={{maxWidth: "100%"}}>
-                            <MenuList style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                                <MenuItem onClick={() => handleEditClassDef()} style={{paddingTop: "0px", paddingBottom: "0px"}}>
-                                    <ListItemIcon  style={{marginRight: "10px", minWidth: "0px"}}>
-                                        <LabelEditIcon/>
+                        {classModel &&
+                        <Paper style={{ maxWidth: "100%" }}>
+                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                                <MenuItem onClick={() => handleEditClassDef()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                                    <ListItemIcon style={{ marginRight: "10px", minWidth: "0px" }}>
+                                        <LabelEditIcon />
                                     </ListItemIcon>
                                     <ListItemText className={classes.listItemText}>Rename Class</ListItemText>
                                 </MenuItem>
-                                <Divider/>
+                                <Divider />
                                 <NodeMenuItem
                                     position={location}
                                     model={classModel}
                                     functionType={FunctionType.CLASS_RESOURCE}
                                     currentST={currentST}
                                 />
+                                <Divider />
+                                <GoToSourceMenuItem location={location} />
                             </MenuList>
                         </Paper>
-                    }
+                        }
                     </>
                 }
                 PopperProps={{

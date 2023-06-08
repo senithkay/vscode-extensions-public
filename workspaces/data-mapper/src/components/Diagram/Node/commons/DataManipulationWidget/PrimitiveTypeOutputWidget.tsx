@@ -159,8 +159,8 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 					{label}
 				</span>
 			</TreeHeader>
-			<TreeBody>
-				{expanded && field && (
+			{expanded && field && (
+				<TreeBody>
 					<PrimitiveTypedEditableElementWidget
 						key={id}
 						parentId={id}
@@ -170,8 +170,8 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 						context={context}
 						deleteField={deleteField}
 					/>
-				)}
-			</TreeBody>
+				</TreeBody>
+			)}
 		</TreeContainer>
 	);
 }

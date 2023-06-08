@@ -219,8 +219,8 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 						{label}
 					</span>
 				</TreeHeader>
-				<TreeBody>
-					{expanded && field && isBodyListConstructor && (
+				{expanded && field && isBodyListConstructor && (
+					<TreeBody>
 						<ArrayTypedEditableRecordFieldWidget
 							key={id}
 							engine={engine}
@@ -232,8 +232,8 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 							deleteField={deleteField}
 							isReturnTypeDesc={true}
 						/>
-					)}
-				</TreeBody>
+					</TreeBody>
+				)}
 			</TreeContainer>
 		</>
 	);

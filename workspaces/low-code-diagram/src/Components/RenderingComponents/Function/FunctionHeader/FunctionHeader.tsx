@@ -66,21 +66,23 @@ export function FunctionHeader() {
     if (STKindChecker.isFunctionDefinition(functionNode)) {
         // TODO: handle general funciton
         titleComponents.push(
-            <div key={"title"} className="title-components">
+            <div key={"title"} className="title-components" data-testid={'fn-def-title'}>
                 {`Function ${functionNode.functionName.value}`}
             </div>
         );
 
+        let paramIndex = -1;
         functionNode.functionSignature.parameters
-            .forEach((param, paramIndex) => {
+            .forEach(param => {
                 if (STKindChecker.isRequiredParam(param)
                     || STKindChecker.isDefaultableParam(param)
                     || STKindChecker.isRestParam(param)) {
 
+                    paramIndex++;
                     argumentComponents.push(
-                        <div key={paramIndex} className={'argument-item'}>
-                            <span className="type-name">{param.typeName.source.trim()}</span>
-                            <span className="argument-name">{param.paramName.value}</span>
+                        <div key={paramIndex} className={'argument-item'} data-testid={`fn-def-param-${paramIndex}`}>
+                            <span className="type-name" data-testid={`type-name-${paramIndex}`}>{param.typeName.source.trim()}</span>
+                            <span className="argument-name" data-testid={`argument-name-${paramIndex}`}>{param.paramName.value}</span>
                         </div>
                     );
                 }
@@ -166,7 +168,7 @@ export function FunctionHeader() {
             <div className="title-container">
                 {titleComponents}
             </div>
-            <div className="argument-container">{argumentComponents}</div>
+            <div className="argument-container" data-testid={'argument-container'}>{argumentComponents}</div>
         </>
     )
 }

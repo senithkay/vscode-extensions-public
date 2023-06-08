@@ -34,14 +34,19 @@ export function TokenComponent(props: TokenComponentProps) {
 
     const statementRendererClasses = useStatementRendererStyles();
 
-    const { modelCtx } = useContext(StatementEditorContext);
+    const { modelCtx, isExpressionMode } = useContext(StatementEditorContext);
     const {
         currentModel: selectedModel,
         changeCurrentModel,
-        hasSyntaxDiagnostics
+        hasSyntaxDiagnostics,
+        statementModel
     } = modelCtx;
 
     const [isHovered, setHovered] = React.useState(false);
+
+    if (isExpressionMode && !selectedModel.model) {
+        changeCurrentModel(statementModel);
+    }
 
     const isSelected = selectedModel.model && model && model.parent &&
         (
