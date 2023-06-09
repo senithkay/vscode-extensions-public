@@ -300,7 +300,7 @@ function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels
     interaction: Interaction | Dependency, callingFunction?: ResourceFunction | RemoteFunction) {
     const identifier: string = ('resourceId' in interaction ? interaction.resourceId.serviceId : interaction.serviceId)
         || interaction.connectorType;
-    const label: string = validateUUID(identifier) || identifier === interaction.connectorType ? interaction.connectorType : undefined;
+    const label: string = getExternalNodeLabel(interaction);
 
     // create L1 external service node if not available
     let l1ExtService: ExtServiceNodeModel;
@@ -426,5 +426,20 @@ function generateLabels(packageName: string, serviceId: string): string {
     }
     const label: string = `${packageName} Component${untrackedPkgComponents.length > 0 ? untrackedPkgComponents.length + 1 : ''}`;
     untrackedPkgComponents.push(serviceId);
+    return label;
+}
+
+function getExternalNodeLabel(interaction: Dependency | Interaction): string {
+    let label: string = ('resourceId' in interaction ? interaction.resourceId.serviceLabel : interaction.serviceLabel)
+        || interaction.connectorType;
+    if (label === interaction.connectorType) {
+        // removes prefix org name
+        label = label.substring(label.indexOf('/') + 1);
+        // remove suffix version
+        label = label.substring(0, label.lastIndexOf(':'));
+        if (label.toLowerCase().endsWith('client')) {
+            label = label.slice(0, -6);
+        }
+    }
     return label;
 }

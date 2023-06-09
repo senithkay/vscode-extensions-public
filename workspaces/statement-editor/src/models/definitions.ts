@@ -117,3 +117,7 @@ export interface SuggestionIcon {
     color: string
 }
 
+export interface StatementIndex {
+    lineIndex: number;
+    columnIndex: number;
+}

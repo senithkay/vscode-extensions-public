@@ -73,7 +73,7 @@ export class MockOrgClient implements IChoreoOrgClient {
     async getOrganizations(): Promise<Organization[]> {
         return FOO_OWNER_ORGS;
     }
-    async getUserInfo(): Promise<UserInfo> {
+    async validateUser(): Promise<UserInfo> {
         return FOO_USER;
     }
     async getComponentCount(orgId: number): Promise<ComponentCount> {

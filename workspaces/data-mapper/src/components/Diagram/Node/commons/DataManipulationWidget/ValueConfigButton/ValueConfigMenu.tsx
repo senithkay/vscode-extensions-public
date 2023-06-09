@@ -42,7 +42,7 @@ const useStyles = makeStyles(() =>
 );
 
 export enum ValueConfigOption {
-    AddValue = "Add Value",
+    InitializeWithValue = "Initialize With Default Value",
     EditValue = "Edit Value",
     InitializeArray = "Initialize Array",
     DeleteValue = "Delete Value",

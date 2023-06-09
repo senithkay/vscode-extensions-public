@@ -65,6 +65,7 @@ export interface CMAnnotation extends CMNode {
 export interface CMDependency extends CMNode {
     connectorType: string;
     serviceId: string;
+    serviceLabel?: string;
 }
 
 export interface CMResourceFunction extends CMFunctionNode {
@@ -92,6 +93,7 @@ export interface CMResourceId {
     action: string;
     path: string;
     serviceId: string;
+    serviceLabel?: string;
 }
 
 export interface CMEntity extends CMNode {
