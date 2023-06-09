@@ -134,22 +134,24 @@ export class TypeDescriptorStore {
     }
 
     setTypeDescriptors(type: Type, startPosition: LinePosition, endPosition?: LinePosition) {
-        const position: NodePosition = {
-            startLine: startPosition.line,
-            startColumn: startPosition.offset,
-            endLine: endPosition ? endPosition.line : startPosition.line,
-            endColumn: endPosition ? endPosition.offset : startPosition.offset,
-        };
+        if (startPosition) {
+            const position: NodePosition = {
+                startLine: startPosition.line,
+                startColumn: startPosition.offset,
+                endLine: endPosition ? endPosition.line : startPosition.line,
+                endColumn: endPosition ? endPosition.offset : startPosition.offset,
+            };
 
-        // Check if a matching position already exists in the map
-        const existingPosition = Array.from(this.typeDescriptors.keys()).find(
-            pos => isPositionsEquals(pos, position)
-        );
+            // Check if a matching position already exists in the map
+            const existingPosition = Array.from(this.typeDescriptors.keys()).find(
+                pos => isPositionsEquals(pos, position)
+            );
 
-        if (existingPosition) {
-            this.typeDescriptors.set(existingPosition, type);
-        } else {
-            this.typeDescriptors.set(position, type);
+            if (existingPosition) {
+                this.typeDescriptors.set(existingPosition, type);
+            } else {
+                this.typeDescriptors.set(position, type);
+            }
         }
     }
 
