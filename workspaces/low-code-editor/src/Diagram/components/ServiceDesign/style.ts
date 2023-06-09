@@ -230,10 +230,6 @@ export const useStyles = makeStyles(() =>
         },
         gridContainer: {
             marginTop: "5%"
-        },
-        loader: {
-            display: 'block',
-            margin: 'auto'
         }
     }),
 );
