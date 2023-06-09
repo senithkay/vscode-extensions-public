@@ -20,6 +20,9 @@ module.exports = {
       "path": false,
       "fs": false,
       "child_process": false
+    },
+    fallback: {
+      buffer: require.resolve('buffer/'),
     }
   },
   module: {
@@ -66,5 +69,10 @@ module.exports = {
     devMiddleware: {
       mimeTypes: { 'text/css': ['css'] },
     },
-  }
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    })
+  ]
 };
