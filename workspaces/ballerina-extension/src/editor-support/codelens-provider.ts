@@ -86,11 +86,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
         commands.registerCommand(SOURCE_DEBUG_COMMAND, async () => {
             this.activeTextEditorUri = window.activeTextEditor!.document.uri;
-            if (!this.ballerinaExtension.isConfigurableEditorEnabled() &&
-                !this.ballerinaExtension.getDocumentContext().isActiveDiagram()) {
-                commands.executeCommand(INTERNAL_DEBUG_COMMAND);
-                return;
-            }
+            commands.executeCommand(INTERNAL_DEBUG_COMMAND);
+            return;
         });
 
         commands.registerCommand(TEST_DEBUG_COMMAND, async (...args: any[]) => {

@@ -18,9 +18,9 @@
  */
 
 export interface ConfigProperty {
-    name: string,
-    type: string,
-    property: Property
+    name: string;
+    type: string;
+    property: Property;
 }
 
 export interface Property {
