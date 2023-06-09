@@ -33,7 +33,13 @@ import {
     OFFSETS,
     PRIMITIVE_TYPE_TARGET_PORT_PREFIX
 } from "../../utils/constants";
-import { getDefaultValue, getExprBodyFromLetExpression, getFieldNames, getTypeFromStore } from "../../utils/dm-utils";
+import {
+    getDefaultValue,
+    getExprBodyFromLetExpression,
+    getFieldNames,
+    getMethodCallElements,
+    getTypeFromStore
+} from "../../utils/dm-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { FromClauseNode } from "../FromClause";
@@ -111,6 +117,10 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     && STKindChecker.isSimpleNameReference(sourceFieldAccess.lhsExpr.expression)) {
                     paramName = sourceFieldAccess.lhsExpr.expression.name.value;
                 }
+            } else if (STKindChecker.isMethodCall(sourceFieldAccess)) {
+                const elements = getMethodCallElements(sourceFieldAccess);
+                fieldId = elements.reduce((pV, cV) => pV ? `${pV}.${cV}` : cV, "");
+                paramName = elements[0];
             }
 
             this.getModel().getNodes().map((node) => {

@@ -33,7 +33,7 @@ import { getLogger } from './logger/logger';
 import * as path from "path";
 import { enrichDeploymentData } from "./utils";
 import { AxiosResponse } from 'axios';
-import { SELECTED_ORG_ID_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN } from './constants';
+import { SELECTED_ORG_ID_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 
 export interface IChoreoExtensionAPI {
     signIn(authCode: string): Promise<void>;
@@ -45,7 +45,7 @@ export interface IChoreoExtensionAPI {
 }
 
 export class ChoreoExtensionApi {
-    public userInfo: UserInfo | undefined;
+    private _userInfo: UserInfo | undefined;
 
     private _status: ChoreoLoginStatus;
     private _selectedOrg: Organization | undefined;
@@ -63,6 +63,29 @@ export class ChoreoExtensionApi {
 
     constructor() {
         this._status = STATUS_INITIALIZING;
+    }
+
+    public get userInfo(): UserInfo | undefined {
+        // retrieve the user info from the global state
+        if (!this._userInfo) {
+            const userInfo = ext.context.globalState.get<UserInfo>(USER_INFO_KEY);
+            if (userInfo) {
+                getLogger().debug("User info retrieved from global state");
+                this._userInfo = userInfo;
+            } else {
+                getLogger().debug("User info not found in global state");
+            }   
+        }
+        return this._userInfo;
+    }
+    public set userInfo(value: UserInfo | undefined) {
+        // update the user info in the global state
+        if (value) {
+            ext.context.globalState.update(USER_INFO_KEY, value);
+        } else {
+            ext.context.globalState.update(USER_INFO_KEY, undefined);
+        }
+        this._userInfo = value;
     }
 
     public get status(): ChoreoLoginStatus {
@@ -96,8 +119,8 @@ export class ChoreoExtensionApi {
         this._onChoreoProjectChanged.fire(this._selectedProjectId);
     }
 
-    public async signIn(authCode: string): Promise<void> {
-        getLogger().debug("Signin triggered from ChoreoExtensionApi");
+    public async signInWithAuthCode(authCode: string): Promise<void> {
+        getLogger().debug("Signin with auth code triggered from ChoreoExtensionApi");
         return exchangeAuthToken(authCode);
     }
 

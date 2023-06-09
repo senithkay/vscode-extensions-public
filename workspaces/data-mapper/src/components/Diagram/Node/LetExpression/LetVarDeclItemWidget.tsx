@@ -55,6 +55,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
     const expanded = !(portOut && portOut.collapsed);
     const isRecord = typeDesc.typeName === PrimitiveBalType.Record;
     const isQueryExpr = STKindChecker.isQueryExpression(declaration.expression);
+    const hasFields = !!typeDesc?.fields?.length;
 
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`local-var-widget-label-${id}`}>
@@ -107,7 +108,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                 onMouseLeave={onMouseLeave}
             >
                 <span className={classes.label}>
-                    {isRecord && (
+                    {isRecord && hasFields && (
                         <IconButton
                             id={"local-var-expand-button-wrapper-" + id}
                             className={classes.expandIcon}
@@ -135,7 +136,7 @@ export function LetVarDeclItemWidget(props: LetVarDeclItemProps) {
                 </span>
             </TreeHeader>
             {
-                expanded && isRecord && (
+                expanded && isRecord && hasFields && (
                     <TreeBody>
                         {typeDesc.fields.map((field, index) => {
                             return (

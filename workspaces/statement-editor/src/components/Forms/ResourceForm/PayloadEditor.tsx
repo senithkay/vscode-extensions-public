@@ -94,7 +94,7 @@ export function PayloadEditor(props: PayloadEditorProps) {
     };
 
     const onDelete = (param: ParameterConfig) => {
-        parameters.splice(param.id === 0 ? param.id : param.id - 1, 2)
+        parameters.splice(param.id, 1)
         setParamIndex(-1);
         setAddingParam(false);
         onChange(getParamString(parameters));

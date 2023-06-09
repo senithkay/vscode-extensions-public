@@ -204,7 +204,6 @@ function DataMapperC(props: DataMapperProps) {
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [isStmtEditorCanceled, setIsStmtEditorCanceled] = useState(false);
-    const [fieldTobeEdited, setFieldTobeEdited] = useState('');
     const [showDMOverlay, setShowDMOverlay] = useState(false);
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: { stNode: fnST, fieldPath: fnST && fnST.functionName.value },
@@ -258,19 +257,11 @@ function DataMapperC(props: DataMapperProps) {
 
     const closeStatementEditor = () => {
         setCurrentEditableField(null);
-        setFieldTobeEdited(undefined);
     }
 
     const cancelStatementEditor = () => {
         setCurrentEditableField(null);
         setIsStmtEditorCanceled(true);
-    }
-
-    const handleFieldToBeEdited = (fieldId: string) => {
-        setFieldTobeEdited(fieldId);
-        if (fieldId === undefined) {
-            setIsStmtEditorCanceled(false);
-        }
     }
 
     const handleCollapse = (fieldName: string, expand?: boolean) => {
@@ -346,8 +337,6 @@ function DataMapperC(props: DataMapperProps) {
                     collapsedFields,
                     handleCollapse,
                     isStmtEditorCanceled,
-                    fieldTobeEdited,
-                    handleFieldToBeEdited,
                     handleOverlay,
                     ballerinaVersion,
                     handleLocalVarConfigPanel,
@@ -365,7 +354,7 @@ function DataMapperC(props: DataMapperProps) {
                 setDmContext(context);
             }
         })();
-    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled, fieldTobeEdited]);
+    }, [selection.selectedST, collapsedFields, isStmtEditorCanceled]);
 
     useEffect(() => {
         if (dmContext && selection?.selectedST?.stNode) {

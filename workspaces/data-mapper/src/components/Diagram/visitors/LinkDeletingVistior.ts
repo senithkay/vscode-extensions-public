@@ -90,11 +90,12 @@ export class LinkDeletingVisitor implements Visitor {
             const deleteIndex = node.fields.findIndex((field: STNode) => {
                 if (STKindChecker.isSpecificField(field) && STKindChecker.isMappingConstructor(field.valueExpr)) {
                     // If its a nested map constructor, then compare with the value expression position
-                    return isPositionsEquals(this.fieldPosition, (field.valueExpr.position as NodePosition));
-                } else {
-                    // Else if its a normal field access elements
-                    return isPositionsEquals(this.fieldPosition, (field.position as NodePosition));
+                    if (isPositionsEquals(this.fieldPosition, (field.valueExpr.position as NodePosition))) {
+                        return true;
+                    }
                 }
+                // Else if its a normal field access elements
+                return isPositionsEquals(this.fieldPosition, (field.position as NodePosition));
             });
 
             if (deleteIndex !== -1) {
