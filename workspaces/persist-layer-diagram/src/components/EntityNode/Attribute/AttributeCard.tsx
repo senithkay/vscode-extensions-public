@@ -20,11 +20,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
 import VpnKeyRoundedIcon from '@mui/icons-material/VpnKeyRounded';
+import BlockIcon from '@mui/icons-material/Block';
 import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-languageclient';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { extractAttributeType } from '../entity-util';
-import { AttributeContainer, AttributeName, AttributeType, NullCheckContainer } from '../styles';
+import { AttributeContainer, AttributeName, AttributeType } from '../styles';
 
 interface AttributeProps {
     node: EntityModel;
@@ -62,9 +63,7 @@ export function AttributeWidget(props: AttributeProps) {
                 engine={engine}
             />
             {attribute.isReadOnly && <VpnKeyRoundedIcon fontSize={'small'} sx={{ transform: 'rotate(-270deg) scaleY(-1)', left: '5px', position: 'absolute' }} />}
-            <NullCheckContainer>
-                {!attribute.nillable && <AttributeType style={{ marginRight: '8px' }} isNullCheck={true}>NOT NULL</AttributeType>}
-            </NullCheckContainer>
+            {attribute.nillable && <BlockIcon fontSize={'small'} sx={{ left: '5px', position: 'absolute' }} />}
             <AttributeName>{attribute.name}</AttributeName>
             <AttributeType
                 isAnonymous={node.entityObject.isAnonymous}
