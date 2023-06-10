@@ -54,6 +54,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 		link.resetLinkedNodes();
 	}
 
+	const multiLinkedSource: boolean = Object.entries(link.getSourcePort().getLinks()).length > 1;
 	const multiLinkedTarget: boolean = Object.entries(link.getTargetPort().getLinks()).length > 1;
 
 	const getCardinalityProps = (port: PortModel): SVGProps<SVGTextElement> => {
@@ -78,7 +79,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 			{link.cardinality ?
 				<>
 					<text {...getCardinalityProps(link.getSourcePort())}>
-						{transformCardinality(link.cardinality.self)}
+						{isSelected || !multiLinkedSource ? transformCardinality(link.cardinality.self) : '...'}
 					</text>
 
 					<text {...getCardinalityProps(link.getTargetPort())}>
