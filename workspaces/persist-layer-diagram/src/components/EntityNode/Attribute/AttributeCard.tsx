@@ -24,7 +24,7 @@ import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-languagecli
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { extractAttributeType } from '../entity-util';
-import { AttributeContainer, AttributeName, AttributeType } from '../styles';
+import { AttributeContainer, AttributeName, AttributeType, NullCheckContainer } from '../styles';
 
 interface AttributeProps {
     node: EntityModel;
@@ -61,8 +61,11 @@ export function AttributeWidget(props: AttributeProps) {
                 port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
                 engine={engine}
             />
+            {attribute.isReadOnly && <VpnKeyRoundedIcon fontSize={'small'} sx={{ transform: 'rotate(-270deg) scaleY(-1)', left: '5px', position: 'absolute' }} />}
+            <NullCheckContainer>
+                {!attribute.nillable && <AttributeType style={{ marginRight: '8px' }} isNullCheck={true}>NOT NULL</AttributeType>}
+            </NullCheckContainer>
             <AttributeName>{attribute.name}</AttributeName>
-            {attribute.isReadOnly && <VpnKeyRoundedIcon fontSize={'small'} />}
             <AttributeType
                 isAnonymous={node.entityObject.isAnonymous}
                 isSelected={isSelected || isHovered}

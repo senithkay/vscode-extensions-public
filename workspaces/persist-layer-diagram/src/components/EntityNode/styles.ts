@@ -29,6 +29,7 @@ interface StyleProps {
     isSelected?: boolean;
     isClickable?: boolean;
     isCollapsed?: boolean;
+    isNullCheck?: boolean;
 }
 
 export const EntityNode: React.FC<any> = styled.div`
@@ -79,8 +80,8 @@ export const AttributeContainer: React.FC<any> = styled.div`
     gap: 5px;
     height: 30px;
     justify-content: space-between;
-    min-width: calc(100% - 20px);
-    padding: 8px 8px 8px 12px;
+    min-width: calc(100% - 38px);
+    padding: 8px 8px 8px 30px;
 `;
 
 export const AttributeName = styled.span`
@@ -97,7 +98,7 @@ export const AttributeName = styled.span`
 
 export const AttributeType: React.FC<any> = styled.span`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SHADED_SELECTED :
-        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
+        props.isNullCheck ? Colors.SECONDARY : props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.PRIMARY_LIGHT};
     border-radius: 3px;
     color: #000000;
     font-family: GilmerRegular;
@@ -113,4 +114,9 @@ export const AttributeType: React.FC<any> = styled.span`
 export const InclusionPortsContainer = styled.div`
     display: flex;
     justify-content: center;
+`;
+
+export const NullCheckContainer = styled.div`
+    margin-right: 8px;
+    width: 75px;
 `;
