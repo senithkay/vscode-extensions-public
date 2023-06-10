@@ -446,8 +446,8 @@
                 "command": "ballerina.view.entityDiagram",
                 "title": "Entity Relationship Diagram",
                 "icon": {
-                    "light": "./resources/images/icons/new-module.svg",
-                    "dark": "./resources/images/icons/new-module-inverse.svg"
+                    "light": "./resources/images/icons/persist-diagram.svg",
+                    "dark": "./resources/images/icons/persist-diagram-inverse.svg"
                 },
                 "category": "Ballerina"
             }
