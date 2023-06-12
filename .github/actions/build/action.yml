@@ -20,6 +20,9 @@ inputs:
     default: 'N/A'
     type: string
     required: false
+  balVersion:
+    default: 2201.5.0
+    type: string  
 
 runs:
   using: "composite"
@@ -57,7 +60,7 @@ runs:
     - uses: ballerina-platform/setup-ballerina@v1
       name: Install Ballerina
       with:
-        version: 2201.3.1
+        version: ${{ inputs.balVersion }}
 
     - name: Remove timestamp - balleina
       shell: bash

@@ -25,11 +25,6 @@ jobs:
           sudo apt-get install libsecret-1.0
           sudo apt install dbus-x11
 
-      - uses: ballerina-platform/setup-ballerina@v1
-        name: Install Ballerina
-        with:
-          version: 2201.5.0
-
       - name: run tests
         run: |
           node common/scripts/install-run-rush.js install
