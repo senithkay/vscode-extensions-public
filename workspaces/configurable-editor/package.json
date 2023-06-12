@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/ballerina-configurable-editor",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "description": "Ballerina Configurable Editor",
   "files": [
     "build"

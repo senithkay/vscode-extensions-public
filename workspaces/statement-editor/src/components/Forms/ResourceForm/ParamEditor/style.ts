@@ -131,11 +131,14 @@ export const useStyles = makeStyles((theme: Theme) =>
             marginLeft: -200
         },
         payload: {
-            fontSize: '13px',
-            fontWeight: 700,
-            letterSpacing: '0',
-            lineHeight: '14px',
-            paddingLeft: '0px',
+            margin: "0 0 8px",
+            fontSize: 14,
+            fontFamily: "Gilmer",
+            fontWeight: 600,
+            lineHeight: "1rem",
+            letterSpacing: "normal",
+            paddingBottom: "0.6rem",
+            textTransform: "capitalize",
         },
         invalidCode: {
             fontSize: '11px !important',

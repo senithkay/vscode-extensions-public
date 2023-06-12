@@ -46,6 +46,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
     const portOut = getPort(`${id}.OUT`);
     const expanded = !(portOut && portOut.collapsed);
     const isRecord = typeDesc.typeName === PrimitiveBalType.Record;
+    const hasFields = !!typeDesc?.fields?.length;
 
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`module-var-widget-label-${id}`}>
@@ -87,7 +88,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                 onMouseLeave={onMouseLeave}
             >
                 <span className={classes.label}>
-                {isRecord && (
+                {isRecord && hasFields && (
                     <IconButton
                         className={classes.expandIcon}
                         onClick={handleExpand}
@@ -109,7 +110,7 @@ export function ModuleVariableItemWidget(props: ModuleVariableItemProps) {
                 </span>
             </TreeHeader>
             {
-                expanded && isRecord && (
+                expanded && isRecord && hasFields && (
                     <TreeBody>
                         {typeDesc.fields.map((field, index) => {
                             return (

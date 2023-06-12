@@ -181,10 +181,11 @@ export const MapType = (props: MapTypeProps): ReactElement => {
             id: props.id + "-" + counter,
             isRequired: true,
             label: "value",
-            name: "",
+            name: undefined,
             properties: propertiesValue,
             schema: propertiesValue ? elementSchema : props.schema,
             type: propertyType,
+            value: undefined
         };
         setCounter((prevState) => prevState + 1);
         setMapValues([...mapValues, configElementProps]);

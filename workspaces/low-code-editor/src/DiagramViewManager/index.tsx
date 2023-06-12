@@ -14,7 +14,7 @@ import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 
 import { MuiThemeProvider } from "@material-ui/core";
-import { FileListEntry, Uri } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaProjectComponents, FileListEntry, Uri } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
@@ -44,7 +44,7 @@ import { useComponentHistory } from "./hooks/history";
 import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
-import { getDiagramProviderProps, getSTNodeForReference } from "./utils";
+import { extractFilePath, getDiagramProviderProps, getSTNodeForReference, pathIncludesIn } from "./utils";
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
@@ -78,7 +78,6 @@ export function DiagramViewManager(props: EditorProps) {
     const [currentProject, setCurrentProject] = useState<WorkspaceFolder>();
     const [fileList, setFileList] = useState<FileListEntry[]>();
     const [focusFile, setFocusFile] = useState<string>();
-    // const [focusUid, setFocusUid] = useState<string>();
     const [focusedST, setFocusedST] = useState<STNode>();
     const [lowCodeResourcesVersion, setLowCodeResourcesVersion] = React.useState(undefined);
     const [lowCodeEnvInstance, setLowCodeEnvInstance] = React.useState("");
@@ -87,16 +86,14 @@ export function DiagramViewManager(props: EditorProps) {
     const [serviceTypeSignature, setServiceTypeSignature] = useState<string>();
     const [isLoadingST, setIsLoadingST] = useState<boolean>(false);
 
+    projectPaths.forEach(path => {
+        path.uri.path = extractFilePath(path.uri.path);
+    })
+
     useEffect(() => {
         if (diagramFocus) {
             const { filePath: inputPath, position } = diagramFocus;
-            let filePath = inputPath;
-            if (window.navigator.userAgent.includes('Windows')) {
-                if (filePath.startsWith('/')) {
-                    filePath = filePath.replace('/', '');
-                    filePath = filePath.replaceAll('/', '\\');
-                }
-            }
+            const filePath = extractFilePath(inputPath);
 
             if (filePath && filePath.length > 0 && filePath !== focusFile) {
                 if (position) {
@@ -106,15 +103,19 @@ export function DiagramViewManager(props: EditorProps) {
 
                     (async () => {
                         const currentProjectPath = projectPaths
-                            && projectPaths.find(projectPath => filePath.includes(projectPath.uri.fsPath));
+                            && projectPaths.find(projectPath => pathIncludesIn(filePath, projectPath.uri.path));
                         const response = await getAllFiles('**/*.bal');
                         const filteredFileList: Uri[] = response
-                            .filter(fileUri => fileUri.path.includes(currentProjectPath.uri.fsPath));
+                            .filter(fileUri => {
+                                fileUri.path = extractFilePath(fileUri.path);
+                                return pathIncludesIn(fileUri.path, currentProjectPath.uri.path);
+                            });
                         const projectFiles: FileListEntry[] = filteredFileList.map(fileUri => ({
-                            fileName: fileUri.path.replace(`${currentProjectPath.uri.fsPath}/`, ''),
+                            fileName: fileUri.path.replace(`${currentProjectPath.uri.path}/`, ''),
                             uri: fileUri
                         }));
-                        const currentFile = projectFiles.find(projectFile => projectFile.uri.path.includes(filePath));
+                        const currentFile = projectFiles
+                            .find(projectFile => pathIncludesIn(projectFile.uri.path, filePath));
                         setCurrentProject(currentProjectPath);
                         setFocusFile(currentFile.uri.path);
                     })();
@@ -130,7 +131,7 @@ export function DiagramViewManager(props: EditorProps) {
             const { file, position, uid } = history[history.length - 1];
             fetchST(file, uid ? { uid } : { position });
             const currentProjectPath = projectPaths
-                && projectPaths.find(projectPath => file.includes(projectPath.uri.fsPath));
+                && projectPaths.find(projectPath => pathIncludesIn(file, projectPath.uri.path));
 
             if (!currentProject || (currentProjectPath && currentProject.name !== currentProjectPath.name)) {
                 setCurrentProject(currentProjectPath);
@@ -146,22 +147,15 @@ export function DiagramViewManager(props: EditorProps) {
         if (currentProject) {
             (async () => {
                 const response = await getAllFiles('**/*.bal');
-                // TODO: This fix is temporary need to investigate why the file path is not correct in windows
-                const isWindows = window.navigator.userAgent.indexOf('Windows') !== -1;
-                if (isWindows) {
-                    // check if the file path has forward slash at the begning and replace if the os is windows
-                    response.forEach((fileUri) => {
-                        if (fileUri.path.startsWith('/')) {
-                            fileUri.path = fileUri.path.replace('/', '');
-                            fileUri.path = fileUri.path.replaceAll('/', '\\');
-                        }
-                    });
-                }
+
+                response.forEach((fileUri) => {
+                    fileUri.path = extractFilePath(fileUri.path);
+                });
 
                 const fileListResponse: Uri[] = response
-                    .filter(fileUri => fileUri.path.includes(currentProject.uri.fsPath));
+                    .filter(fileUri => pathIncludesIn(fileUri.path, currentProject.uri.path));
                 const projectFiles: FileListEntry[] = fileListResponse.map(fileUri => ({
-                    fileName: fileUri.path.replace(`${currentProject.uri.fsPath}${isWindows ? '\\' : '/'}`, ''),
+                    fileName: fileUri.path.replace(`${currentProject.uri.path}/`, ''),
                     uri: fileUri
                 }));
 

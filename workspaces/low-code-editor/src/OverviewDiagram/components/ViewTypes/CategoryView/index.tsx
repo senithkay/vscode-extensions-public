@@ -175,7 +175,9 @@ export function CategoryView(props: CategoryViewProps) {
 
             categories.push(
                 <div className={classes.categoryContainer} key={key + categoryIndex}>
-                    <Typography variant="h3" className={classes.categoryTitle}>{key}</Typography>
+                    <Typography variant="h3" className={classes.categoryTitle}>
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                    </Typography>
                     <div className={classes.componentContainer}>{components}</div>
                 </div>
             );

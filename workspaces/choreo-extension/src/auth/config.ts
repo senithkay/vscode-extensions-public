@@ -42,6 +42,7 @@ export interface ChoreoAuthConfigParams {
     fidp: ChoreoFidp;
     ghApp: GHAppConfig,
     apis: {
+        orgsAPI: string;
         projectAPI: string;
         base: string;
     },
@@ -71,6 +72,7 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
         redirectUrl: "https://console.choreo.dev/ghapp"
     },
     apis: {
+        orgsAPI: "https://apis.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.choreo.dev/projects/1.0.0/graphql",
         base: "https://app.choreo.dev"
     },
@@ -101,6 +103,7 @@ export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
         redirectUrl: "https://console.st.choreo.dev/ghapp"
     },
     apis: {
+        orgsAPI: "https://apis.st.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.st.choreo.dev/projects/1.0.0/graphql",
         base: "https://app.st.choreo.dev"
     },
@@ -131,6 +134,7 @@ export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
         redirectUrl: "https://consolev2.preview-dv.choreo.dev/ghapp"
     },
     apis: {
+        orgsAPI: "https://apis.preview-dv.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.preview-dv.choreo.dev/projects/1.0.0/graphql",
         base: "https://app.preview-dv.choreo.dev"
     },
@@ -198,6 +202,10 @@ export class ChoreoAuthConfig {
 
     public getAPIBaseURL(): string {
         return this._config.apis.base;
+    }
+
+    public getOrgsAPI(): string {
+        return this._config.apis.orgsAPI;
     }
 
     public getGHAppConfig(): GHAppConfig {

@@ -15,6 +15,8 @@ import { ComponentInfo, ModuleSummary, PackageSummary } from "@wso2-enterprise/b
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 import { Uri } from "monaco-editor";
 
+import { extractFilePath } from "../DiagramViewManager/utils";
+
 export interface ComponentViewInfo {
     filePath: string;
     position: NodePosition;
@@ -39,14 +41,10 @@ export interface ComponentCollection {
 
 
 export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, element: ComponentInfo) {
-    const filePath = Uri.parse(`${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`)
+    let filePath = Uri.parse(`${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`)
 
-    // if (window.navigator.userAgent.indexOf("Win") > -1) {
-    //     if (filePath.startsWith('/')) {
-    //         filePath = filePath.substring(1);
-    //         filePath = filePath.replaceAll(/\//g, '\\');
-    //     }
-    // }
+    filePath = extractFilePath(filePath);
 
     return filePath.path;
 }
+

@@ -310,17 +310,6 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
-    const handleAddValue = async () => {
-        setLoading(true);
-        try {
-            await createSourceForUserInput(field, parentMappingConstruct, 'EXPRESSION', applyModifications);
-            // Adding field to the context to identify this newly initialized field in the next rendering
-            props.context.handleFieldToBeEdited(fieldId);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleAddArrayElement = async (typeNameStr: string) => {
         setIsAddingElement(true)
         try {
@@ -434,8 +423,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                                                 { title: ValueConfigOption.DeleteArray, onClick: handleArrayDeletion },
                                             ]
                                             : [
-                                                { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization },
-                                                { title: ValueConfigOption.AddValue, onClick: handleAddValue },
+                                                { title: ValueConfigOption.InitializeArray, onClick: handleArrayInitialization }
                                             ]
                                     }
                                     isDisabled={!typeName || typeName === "[]"}
