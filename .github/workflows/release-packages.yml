@@ -51,7 +51,6 @@ jobs:
           enableCache: false
           ballerina: false
           choreo: false
-        secrets: inherit 
 
       - uses: actions/setup-node@v3
         with:

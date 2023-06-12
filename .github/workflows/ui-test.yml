@@ -17,7 +17,6 @@ jobs:
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           version: ${{ inputs.version }}
-        secrets: inherit 
 
       - name: install packages
         run: |
