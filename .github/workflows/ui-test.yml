@@ -16,12 +16,6 @@ jobs:
   
       - name: Build
         uses: ./.github/actions/build
-        with:
-          isPreRelease: ${{ inputs.isPreRelease }}
-          enableCache: ${{ inputs.enableCache }}
-          ballerina: ${{ inputs.ballerina }}
-          choreo: ${{ inputs.choreo }}
-          version: ${{ inputs.version }}
 
       - name: install packages
         run: |
