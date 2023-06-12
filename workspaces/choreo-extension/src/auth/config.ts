@@ -44,8 +44,10 @@ export interface ChoreoAuthConfigParams {
     apis: {
         orgsAPI: string;
         projectAPI: string;
+        componentManageAPI: string;
         base: string;
     },
+    apimEnvScopes: string;
     choreoConsoleBaseUrl: string;
     billingConsoleBaseUrl: string;
 }
@@ -63,6 +65,7 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
     userRegistrationUrl: "https://app.choreo.dev/register-user",
 
     scope: "openid+email+profile",
+    apimEnvScopes: 'urn:choreosystem:componentsmanagement:component_create',
     fidp: ChoreoFidp.google,
     ghApp: {
         appUrl: "https://github.com/marketplace/choreo-dev",
@@ -74,6 +77,7 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
     apis: {
         orgsAPI: "https://apis.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.choreo.dev/projects/1.0.0/graphql",
+        componentManageAPI: "https://apis.choreo.dev/component-mgt/1.0.0/orgs",
         base: "https://app.choreo.dev"
     },
     
@@ -94,6 +98,7 @@ export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
     userRegistrationUrl: "https://app.choreo.dev/register-user",
 
     scope: "openid+email+profile",
+    apimEnvScopes: 'urn:choreosystem:componentsmanagement:component_create',
     fidp: ChoreoFidp.google,
     ghApp: {
         appUrl: "https://github.com/apps/choreo-apps-stage",
@@ -105,6 +110,7 @@ export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
     apis: {
         orgsAPI: "https://apis.st.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.st.choreo.dev/projects/1.0.0/graphql",
+        componentManageAPI: "https://apis.st.choreo.dev/component-mgt/1.0.0/orgs",
         base: "https://app.st.choreo.dev"
     },
 
@@ -125,6 +131,8 @@ export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
     userRegistrationUrl: "https://app.choreo.dev/register-user",
 
     scope: "openid+email+profile",
+    apimEnvScopes: 'urn:choreocontrolplane:componentsmanagement:component_create',
+
     fidp: ChoreoFidp.google,
     ghApp: {
         appUrl: "https://github.com/apps/choreo-apps-dev",
@@ -136,6 +144,7 @@ export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
     apis: {
         orgsAPI: "https://apis.preview-dv.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.preview-dv.choreo.dev/projects/1.0.0/graphql",
+        componentManageAPI: "https://apis.preview-dv.choreo.dev/component-mgt/1.0.0/orgs",
         base: "https://app.preview-dv.choreo.dev"
     },
 
@@ -218,5 +227,13 @@ export class ChoreoAuthConfig {
 
     public getBillingUrl(): string {
         return this._config.billingConsoleBaseUrl;
+    }
+
+    public getComponentManagementUrl(): string {
+        return this._config.apis.componentManageAPI;
+    }
+
+    public getApimEnvScopes(): string {
+        return this._config.apimEnvScopes;
     }
 }
