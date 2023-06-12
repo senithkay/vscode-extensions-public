@@ -21,6 +21,8 @@ inputs:
     type: string
     required: false
 
+env:
+  ballerina_version: 2201.3.1
 
 runs:
   using: "composite"
