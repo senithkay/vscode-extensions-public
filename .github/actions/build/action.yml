@@ -21,9 +21,6 @@ inputs:
     type: string
     required: false
 
-env:
-  ballerina_version: 2201.3.1
-
 runs:
   using: "composite"
   steps:
@@ -60,7 +57,7 @@ runs:
     - uses: ballerina-platform/setup-ballerina@v1
       name: Install Ballerina
       with:
-        version: ${{ env.ballerina_version }}
+        version: 2201.3.1
 
     - name: Remove timestamp - balleina
       shell: bash
