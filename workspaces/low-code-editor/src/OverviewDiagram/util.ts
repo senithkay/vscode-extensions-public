@@ -41,10 +41,10 @@ export interface ComponentCollection {
 
 
 export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, element: ComponentInfo) {
-    let filePath = Uri.parse(`${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`)
+    let filePath = Uri.parse(`${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`).toString();
 
     filePath = extractFilePath(filePath);
 
-    return filePath.path;
+    return filePath;
 }
 

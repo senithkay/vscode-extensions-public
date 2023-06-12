@@ -19,9 +19,14 @@
 
 import React, { useEffect, useState } from "react";
 
-import { STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { getSTNodeForReference } from "../../../../utils";
+import { ServiceDesignOverlay } from "../../../../../Diagram/components/ServiceDesignOverlay";
+import { GraphqlDiagramOverlay } from "../../../../../Diagram/components/GraphqlDiagramOverlay";
+import { ServiceInvalidOverlay } from "../../../../../Diagram/components/ServiceInvalidOverlay";
+import { ServiceUnsupportedOverlay } from "../../../../../Diagram/components/ServiceUnsupported";
 
 interface ServiceViewProps {
     a: string;
@@ -34,7 +39,7 @@ export function ServiceView() {
         },
         props: { syntaxTree, fullST, ballerinaVersion, currentFile }
     } = useDiagramContext();
-    const [listenerType, setListenerType] = useState<string>();
+    const [listnerType, setListenerType] = useState<string>();
 
     useEffect(() => {
         (async () => {
@@ -65,11 +70,48 @@ export function ServiceView() {
         })();
     }, [syntaxTree])
 
+    let serviceComponent: JSX.Element;
 
-    console.log('listener type >>>', listenerType);
+    if (listnerType) {
+
+        const listenerExpression = (syntaxTree as ServiceDeclaration).expressions[0];
+        const typeData = listenerExpression.typeData;
+        const typeSymbol = typeData?.typeSymbol;
+        const signature = typeSymbol?.signature;
+        if (listnerType.includes("http")) {
+            serviceComponent = (
+                <ServiceDesignOverlay
+                    model={syntaxTree}
+                    targetPosition={{ ...syntaxTree.position, startColumn: 0, endColumn: 0 }}
+                    onCancel={() => {/*TODO: fix this*/ }}
+                />
+            );
+        } else if (listnerType.includes('graphql')) {
+            serviceComponent = (
+                <GraphqlDiagramOverlay
+                    model={syntaxTree}
+                    targetPosition={syntaxTree.position}
+                    ballerinaVersion={ballerinaVersion}
+                    onCancel={() => {/*TODO: fix this*/ }}
+                    goToSource={() => {/*TODO: handle go to source*/ }}
+                    isLoadingST={false}
+                />
+            );
+        } else if (signature && signature === "$CompilationError$") {
+            serviceComponent = (
+                <ServiceInvalidOverlay />
+            );
+        } else {
+            serviceComponent = (
+                <ServiceUnsupportedOverlay />
+            )
+        }
+    }
 
     return (
-        <div>Service view stuff</div>
+        <>
+            {serviceComponent}
+        </>
     )
 }
 

@@ -81,17 +81,6 @@ export function CategoryView(props: CategoryViewProps) {
             });
         });
     }
-    // tslint:disable-next-line: jsx-key
-    // const views = components.map(comp => <ComponentView info={comp} updateSelection={updateSelection} />)
-
-    // return (
-    //     <div>
-    //         <h3>{heading}</h3>
-    //         <div className="component-container">
-    //             {views}
-    //         </div>
-    //     </div>
-    // );
 
     const renderFileFilterBar = () => {
         const handleFileChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {

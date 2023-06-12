@@ -100,6 +100,7 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         if (history.length > 0) {
+            console.log('history >>>',history[history.length - 1]);
             (async () => {
                 const { file, position, uid } = history[history.length - 1];
                 const langClient = await langClientPromise;

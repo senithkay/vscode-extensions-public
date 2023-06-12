@@ -29,6 +29,7 @@ import { useHistoryContext } from "../../context/history";
 import { NavButtonGroup } from "./NavButtonGroup";
 import useStyles from './style';
 import './style.scss';
+import { extractFilePath, isPathEqual } from "../../utils";
 
 interface NavigationBarProps {
     workspaceName: string;
@@ -46,7 +47,7 @@ export function NavigationBar(props: NavigationBarProps) {
     const { history, historySelect, historyPush, historyClearAndPopulateWith } = useHistoryContext();
     const currentHistoryEntry = history.length > 0 ? history[history.length - 1] : undefined;
     const currentProject = projectList && projectList.length > 0
-        && projectList.find(project => currentHistoryEntry?.file.includes(project.uri.fsPath)) || undefined;
+        && projectList.find(project => currentHistoryEntry?.file.includes(extractFilePath(project.uri.path))) || undefined;
 
     const [isProjectSelectorOpen, setIsProjectSelectorOpen] = React.useState(false);
     const popoverRef = React.useRef<HTMLDivElement>(null);
@@ -58,8 +59,8 @@ export function NavigationBar(props: NavigationBarProps) {
         && history[history.length - 1].dataMapperDepth === 0;
 
     const handleProjectChange = (selectedProject: WorkspaceFolder) => {
-        if (currentProject && selectedProject.uri.fsPath === currentProject.uri.fsPath) return;
-        historyPush({ file: selectedProject.uri.fsPath });
+        if (currentProject && isPathEqual(selectedProject.uri.path, currentProject.uri.path)) return;
+        historyPush({ file: extractFilePath(selectedProject.uri.path) });
     }
 
     const renderProjectSelectorComponent = () => {
@@ -122,7 +123,7 @@ export function NavigationBar(props: NavigationBarProps) {
     const renderWorkspaceNameComponent = () => {
         const handleOnClick = () => {
             if (projectInfo?.packages && projectInfo?.packages.length > 0) {
-                historyClearAndPopulateWith({ file: projectInfo?.packages[0]?.filePath });
+                historyClearAndPopulateWith({ file: extractFilePath(projectInfo?.packages[0]?.filePath) });
             }
         }
 
