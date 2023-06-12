@@ -38,6 +38,11 @@ jobs:
       runBalPluginTests: ${{ steps.testMatrix.outputs.runBalPluginTests }}
       testArray: ${{ steps.testMatrix.outputs.testArray }}
     steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
+
       - name: Build
         uses: ./.github/actions/build
         with:

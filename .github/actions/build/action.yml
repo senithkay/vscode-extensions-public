@@ -25,11 +25,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.BALLERINA_BOT_TOKEN }}
-        fetch-depth: 2
-
     - name: Cache env
       if: ${{ inputs.enableCache }}
       uses: gigara/rush-cache@v2
