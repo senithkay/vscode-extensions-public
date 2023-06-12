@@ -37,32 +37,20 @@ on:
           - 'N/A'     
 
 jobs:
-  Build:
-    uses: ./.github/workflows/build.yml
-    with:
-      isPreRelease: ${{ inputs.isPreRelease }}
-      enableCache: false
-      ballerina: ${{ inputs.ballerina }}
-      choreo: ${{ inputs.choreo }}
-      version: ${{ inputs.version }}
-    secrets: inherit  
-
   Release:
     name: Release VSIX
-    needs: [Build]
-    timeout-minutes: 15
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - name: Restore build
-        uses: actions/download-artifact@v3
+      - name: Build
+        uses: ./.github/actions/build
         with:
-          name: PluginBuild
-          path: ./
-
-      - name: Set up workspace
-        run: |
-          unzip build.zip
-          rm build.zip
+          isPreRelease: ${{ inputs.isPreRelease }}
+          enableCache: false
+          ballerina: ${{ inputs.ballerina }}
+          choreo: ${{ inputs.choreo }}
+          version: ${{ inputs.version }}
+        secrets: inherit 
 
       - uses: actions/setup-node@v3
         with:
@@ -147,7 +135,7 @@ jobs:
           bot_token: ${{ secrets.BALLERINA_BOT_TOKEN }}
 
   Notify:
-    needs: [Build, Release]
+    needs: [Release]
     if: ${{ always() && contains(needs.*.result, 'failure') }}
     runs-on: ubuntu-latest
     steps:
