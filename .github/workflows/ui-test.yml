@@ -4,46 +4,40 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
-    uses: ./.github/workflows/build.yml
-    with:
-      isPreRelease: true
-      enableCache: false
-    secrets: inherit  
-
   Test:
     name: Integration Tests
-    needs: [Build]
-    timeout-minutes: 15
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - name: Restore build
-        uses: actions/download-artifact@v3
+      - name: Build
+        uses: ./.github/actions/build
         with:
-          name: PluginBuild
-          path: ./
+          isPreRelease: ${{ inputs.isPreRelease }}
+          enableCache: ${{ inputs.enableCache }}
+          ballerina: ${{ inputs.ballerina }}
+          choreo: ${{ inputs.choreo }}
+          version: ${{ inputs.version }}
+        secrets: inherit 
 
-      - name: Set up workspace
+      - name: install packages
         run: |
-          unzip build.zip
-          rm build.zip
+          sudo apt-get install ffmpeg
+          sudo apt-get install xvfb
+          sudo apt-get install -y gnome-keyring
+          sudo apt-get install libsecret-1.0
+          sudo apt install dbus-x11
 
-      - uses: actions/setup-node@v3
+      - uses: ballerina-platform/setup-ballerina@v1
+        name: Install Ballerina
         with:
-          always-auth: true
-          node-version: 16.x
-          registry-url: "https://npm.pkg.github.com"
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 7.26.3
+          version: 2201.5.0
 
       - name: run tests
         run: |
           node common/scripts/install-run-rush.js install
           cd workspaces/choreo-extension 
-          sudo apt-get install xvfb
           pnpm run ui-test-setup
+          export $(dbus-launch)
           export DISPLAY=:98.0
           Xvfb -ac :98 -screen 0 1920x1080x16 & pnpm run ui-test
         env:
@@ -62,6 +56,13 @@ jobs:
           TOKEN_URL: https://api.asgardeo.io/t/a/oauth2/token
           VSCODE_CLIENT_ID: GWj5MzWNrOB28jX_wu5ZGu7I1VIa
           PROJECT_API: https://apis.choreo.dev/projects/1.0.0/graphql  
+
+      - name: Publish UI Test recording
+        uses: actions/upload-artifact@v3
+        with:
+          path: workspaces/choreo-extension/test-resources/ui-test-out.mp4
+          name: Integration-test-recording-${{ github.run_attempt }}
+        if: failure()
 
       - name: Publish UI Test Screenshots
         uses: actions/upload-artifact@v3
