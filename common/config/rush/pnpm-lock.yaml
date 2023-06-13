@@ -2381,7 +2381,6 @@ importers:
       '@types/react-dom': 17.0.14
       '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/design-diagram-commons': workspace:*
-      '@wso2-enterprise/project-design-diagrams': workspace:*
       babel-loader: ^8.2.5
       closest: ^0.0.1
       copyfiles: ^2.4.1
@@ -2417,7 +2416,6 @@ importers:
       '@types/lodash': 4.14.191
       '@types/node': 18.15.3
       '@wso2-enterprise/design-diagram-commons': link:../design-diagram-commons
-      '@wso2-enterprise/project-design-diagrams': link:../project-design-diagrams
       closest: 0.0.1
       dagre: 0.8.5
       file-loader: 5.1.0_webpack@5.76.1
@@ -2479,6 +2477,7 @@ importers:
       '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
+      '@wso2-enterprise/design-diagram-commons': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       babel-loader: ^8.2.5
       closest: ^0.0.1
@@ -2523,6 +2522,7 @@ importers:
       '@types/lodash.debounce': 4.0.7
       '@types/node': 18.15.3
       '@types/vscode-webview': 1.57.1
+      '@wso2-enterprise/design-diagram-commons': link:../design-diagram-commons
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       closest: 0.0.1
       dagre: 0.8.5
