@@ -22,12 +22,12 @@ import React, { useEffect, useState } from "react";
 import { NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
-import { getSTNodeForReference } from "../../../../utils";
-import { ServiceDesignOverlay } from "../../../../../Diagram/components/ServiceDesignOverlay";
 import { GraphqlDiagramOverlay } from "../../../../../Diagram/components/GraphqlDiagramOverlay";
+import { ServiceDesignOverlay } from "../../../../../Diagram/components/ServiceDesignOverlay";
 import { ServiceInvalidOverlay } from "../../../../../Diagram/components/ServiceInvalidOverlay";
 import { ServiceUnsupportedOverlay } from "../../../../../Diagram/components/ServiceUnsupported";
 import { useHistoryContext } from "../../../../context/history";
+import { getSTNodeForReference } from "../../../../utils";
 
 interface ServiceViewProps {
     a: string;

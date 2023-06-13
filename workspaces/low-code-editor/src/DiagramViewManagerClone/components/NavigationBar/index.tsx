@@ -11,7 +11,7 @@
  * associated services.
  */
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useMemo } from "react";
+import React, { useMemo } from "react";
 
 import { ClickAwayListener, Popover } from "@material-ui/core";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
@@ -25,11 +25,11 @@ import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree"
 import { PackageIcon } from "../../../assets/icons";
 import { WorkspaceFolder } from "../../../DiagramGenerator/vscode/Diagram";
 import { useHistoryContext } from "../../context/history";
+import { extractFilePath, getFileNameFromPath, isPathEqual } from "../../utils";
 
 import { NavButtonGroup } from "./NavButtonGroup";
 import useStyles from './style';
 import './style.scss';
-import { extractFilePath, getFileNameFromPath, isPathEqual } from "../../utils";
 
 interface NavigationBarProps {
     workspaceName: string;

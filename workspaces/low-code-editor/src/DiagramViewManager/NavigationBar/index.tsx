@@ -123,8 +123,6 @@ export function NavigationBar(props: NavigationBarProps) {
             }
         }
 
-        console.log('workspace >>>', currentProject);
-
         return (
             <div className="btn-container" onClick={handleOnClick} >
                 {isWorkspace ? <Apps className={'workspace-icon'} /> : <PackageIcon className={'icon'} />}

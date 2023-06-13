@@ -110,8 +110,6 @@ export function DiagramViewManager(props: EditorProps) {
                     ]
                 });
 
-                console.log('component response >>>', file, componentResponse)
-
                 if (file.endsWith(".bal")) {
                     const generatedST = await getSyntaxTree(file, langClient);
                     const visitedST = await getLowcodeST(generatedST, file, langClient, experimentalEnabled);
@@ -132,15 +130,16 @@ export function DiagramViewManager(props: EditorProps) {
                     }
 
                     if (uid && position) {
-
                         const nodeFindingVisitor = new FindNodeByUidVisitor(uid);
                         traversNode(visitedST, nodeFindingVisitor);
+
                         if (!nodeFindingVisitor.getNode()) {
                             const visitorToFindConstructByName = new FindConstructByNameVisitor(uid);
                             traversNode(visitedST, visitorToFindConstructByName);
+
                             if (visitorToFindConstructByName.getNode()) {
                                 selectedST = visitorToFindConstructByName.getNode();
-                                // setFocusUid(visitorToFindConstructByName.getUid());
+
                                 updateCurrentEntry({
                                     ...history[history.length - 1], uid: visitorToFindConstructByName.getUid()
                                 });
@@ -150,7 +149,7 @@ export function DiagramViewManager(props: EditorProps) {
                                 traversNode(visitedST, visitorToFindConstructByIndex);
                                 if (visitorToFindConstructByIndex.getNode()) {
                                     selectedST = visitorToFindConstructByIndex.getNode();
-                                    // setFocusUid(visitorToFindConstructByIndex.getUid());
+
                                     updateCurrentEntry({
                                         ...history[history.length - 1], uid: visitorToFindConstructByIndex.getUid()
                                     });
@@ -179,10 +178,6 @@ export function DiagramViewManager(props: EditorProps) {
             })();
         }
     }, [history[history.length - 1], updatedTimeStamp]);
-
-    const handleProjectChange = (project: WorkspaceFolder): void => {
-        throw new Error("Function not implemented.");
-    }
 
     const updateActiveFile = (currentFile: FileListEntry) => {
         historyPush({ file: currentFile.uri.path });
