@@ -103,18 +103,6 @@ jobs:
           echo $testArray
           echo "testArray=$testArray" >> $GITHUB_OUTPUT
 
-      - name: Compress build
-        shell: bash
-        run: |
-          zip -r build.zip ./ -x 'common/temp*' -y
-          zip VSIX.zip *.vsix
-
-      - name: Save build
-        uses: actions/upload-artifact@v3
-        with:
-          path: build.zip
-          name: PluginBuild
-
   PluginTest_Stage:
     name: Run Plugin test
     needs: Build_Stage
