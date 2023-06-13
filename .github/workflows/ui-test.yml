@@ -9,14 +9,13 @@ jobs:
     timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
+  
       - name: Build
         uses: ./.github/actions/build
-        with:
-          isPreRelease: ${{ inputs.isPreRelease }}
-          enableCache: ${{ inputs.enableCache }}
-          ballerina: ${{ inputs.ballerina }}
-          choreo: ${{ inputs.choreo }}
-          version: ${{ inputs.version }}
 
       - name: install packages
         run: |
@@ -25,11 +24,6 @@ jobs:
           sudo apt-get install -y gnome-keyring
           sudo apt-get install libsecret-1.0
           sudo apt install dbus-x11
-
-      - uses: ballerina-platform/setup-ballerina@v1
-        name: Install Ballerina
-        with:
-          version: 2201.5.0
 
       - name: run tests
         run: |

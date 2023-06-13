@@ -20,16 +20,13 @@ inputs:
     default: 'N/A'
     type: string
     required: false
-
+  balVersion:
+    default: 2201.5.0
+    type: string  
 
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.BALLERINA_BOT_TOKEN }}
-        fetch-depth: 2
-
     - name: Cache env
       if: ${{ inputs.enableCache }}
       uses: gigara/rush-cache@v2
@@ -63,7 +60,7 @@ runs:
     - uses: ballerina-platform/setup-ballerina@v1
       name: Install Ballerina
       with:
-        version: ${{ env.ballerina_version }}
+        version: ${{ inputs.balVersion }}
 
     - name: Remove timestamp - balleina
       shell: bash
