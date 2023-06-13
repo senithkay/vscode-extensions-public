@@ -48,7 +48,8 @@ jobs:
           REDIRECT_URL: https://console.choreo.dev/vscode-auth
           TOKEN_URL: https://api.asgardeo.io/t/a/oauth2/token
           VSCODE_CLIENT_ID: GWj5MzWNrOB28jX_wu5ZGu7I1VIa
-          PROJECT_API: https://apis.choreo.dev/projects/1.0.0/graphql  
+          PROJECT_API: https://apis.choreo.dev/projects/1.0.0/graphql
+          APIM_SCOPES: urn:choreosystem:componentsmanagement:component_create
 
       - name: Publish UI Test recording
         uses: actions/upload-artifact@v3
