@@ -45,12 +45,6 @@ function TypeBrowserC(props: TypeBrowserProps) {
 
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState("");
 
-    useEffect(() => {
-        if (type) {
-            setInputValue(type);
-        }
-    }, [type]);
-
     // Create new record and add it to the list
     const handleCreateNew = () => {
         const validName = inputValue.replace(/[\])}[{(]/g, '');
@@ -192,22 +186,6 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
 }
 
 export const TypeBrowser = React.memo(TypeBrowserC);
-
-const TypeSelectItem = styled.div`
-    width: 100%;
-    display: flex;
-    align-items: center;
-`;
-
-const TypeSelectItemLabel = styled.div`
-    word-break: break-word;
-    flex: 1;
-`;
-
-const TypeSelectItemModule = styled.div`
-    color: #8d91a3;
-    font-size: 11px;
-`;
 
 const TextFieldStyled = styled(TextField)`
     width: 100%;
