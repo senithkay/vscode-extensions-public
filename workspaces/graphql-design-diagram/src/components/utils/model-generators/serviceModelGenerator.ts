@@ -18,7 +18,7 @@ import { DefaultLinkModel } from "../../Link/DefaultLink/DefaultLinkModel";
 import { GraphqlServiceLinkModel } from "../../Link/GraphqlServiceLink/GraphqlServiceLinkModel";
 import { GraphqlDesignNode } from "../../Nodes/BaseNode/GraphqlDesignNode";
 import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
-import { GraphqlServiceNodeModel } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
+import { GraphqlServiceNodeModel, GRAPHQL_SERVICE_NODE } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
 import { HierarchicalNodeModel } from "../../Nodes/HierarchicalResourceNode/HierarchicalNodeModel";
 import { InterfaceNodeModel } from "../../Nodes/InterfaceNode/InterfaceNodeModel";
 import { RecordNodeModel } from "../../Nodes/RecordNode/RecordNodeModel";
@@ -274,15 +274,17 @@ function getRelatedNodes(graphqlModel: GraphqlDesignModel, typeList: string[]) {
 
 function removeUnlinkedModels() {
     diagramNodes.forEach((node, key) => {
-        let isLinked = false;
-        for (const [, value] of Object.entries(node.getPorts())) {
-            if (Object.keys(value.getLinks()).length !== 0) {
-                isLinked = true;
-                break;
+        if (node.getType() !== GRAPHQL_SERVICE_NODE) {
+            let isLinked = false;
+            for (const [, value] of Object.entries(node.getPorts())) {
+                if (Object.keys(value.getLinks()).length !== 0) {
+                    isLinked = true;
+                    break;
+                }
             }
-        }
-        if (!isLinked) {
-            diagramNodes.delete(key);
+            if (!isLinked) {
+                diagramNodes.delete(key);
+            }
         }
     });
 }
