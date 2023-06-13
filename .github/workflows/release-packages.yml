@@ -39,31 +39,23 @@ on:
           - 'prerelease'
 
 jobs:
-  Build:
-    uses: ./.github/workflows/build.yml
-    with:
-      isPreRelease: false
-      enableCache: false
-      ballerina: false
-      choreo: false
-    secrets: inherit  
-
   Release:
     name: Release VSIX
-    needs: [Build]
-    timeout-minutes: 15
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     steps:
-      - name: Restore build
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v2
         with:
-          name: PluginBuild
-          path: ./
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          fetch-depth: 2
 
-      - name: Set up workspace
-        run: |
-          unzip build.zip
-          rm build.zip
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          isPreRelease: false
+          enableCache: false
+          ballerina: false
+          choreo: false
 
       - uses: actions/setup-node@v3
         with:
