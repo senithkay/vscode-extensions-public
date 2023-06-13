@@ -24,7 +24,7 @@ import { PrimaryKeyIcon } from '../../../resources/';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { extractAttributeType } from '../entity-util';
-import { AttributeContainer, AttributeName, AttributeType, NullField } from '../styles';
+import { AttributeContainer, AttributeName, AttributeType } from '../styles';
 
 interface AttributeProps {
     node: EntityModel;
@@ -62,15 +62,6 @@ export function AttributeWidget(props: AttributeProps) {
                 engine={engine}
             />
             {attribute.isReadOnly && <PrimaryKeyIcon styles={{ left: '20px', position: 'absolute' }} />}
-            <div
-                style={{
-                    width: '70px',
-                    display: 'flex',
-                    marginRight: '8px'
-                }}
-            >
-                {!attribute.nillable && <NullField> NOT NULL </NullField>}
-            </div>
             <AttributeName>{attribute.name}</AttributeName>
             <AttributeType
                 isAnonymous={node.entityObject.isAnonymous}

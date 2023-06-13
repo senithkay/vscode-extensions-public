@@ -72,8 +72,8 @@ export const AttributeContainer: React.FC<any> = styled.div`
     display: flex;
     flex-direction: row;
     font-size: 12px;
-    gap: 10px;
-    height: 30px;
+    gap: 15px;
+    height: 35px;
     justify-content: space-between;
     min-width: calc(100% - 40px);
     padding: 8px 8px 8px 32px;
@@ -91,27 +91,17 @@ export const AttributeName = styled.span`
 `;
 
 export const AttributeType: React.FC<any> = styled.span`
-    color: ${Colors.DEFAULT_TEXT};
-    font-size: 12px;
-    height: 24px;
-    line-height: 24px;
-    min-width: 60px;
-    text-align: right;
-    white-space: nowrap;
-`;
-
-export const NullField: React.FC<any> = styled.span`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SHADED_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
     border-radius: 3px;
     color: #000000;
     font-family: GilmerRegular;
     font-size: 12px;
-    height: 24px;
+    height: 20px;
     gap: 10px;
-    line-height: 24px;
-    width: 75px;
-    padding: 5px 10px 3px;
+    line-height: 20px;
+    min-width: 50px;
+    padding-inline: 8px;
     text-align: center;
     white-space: nowrap;
 `;
