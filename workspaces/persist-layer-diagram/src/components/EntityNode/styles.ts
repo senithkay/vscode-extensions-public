@@ -33,20 +33,18 @@ interface StyleProps {
 
 export const EntityNode: React.FC<any> = styled.div`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SECONDARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
+        props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.NODE_BACKGROUND};
     border: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY_LIGHT}`};
-    border-radius: 5px !important;
+        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.NODE_BORDER}`};
+    border-radius: 6px !important;
     color: ${(props: StyleProps) => props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.DEFAULT_TEXT};
     display: flex;
     flex-direction: column;
-    min-height: 40px;
+    padding: 10px;
 `;
 
 export const EntityHead: React.FC<any> = styled.div`
     align-items: center;
-    border-bottom: ${(props: StyleProps) => `1px solid ${props.isSelected ? Colors.PRIMARY_SELECTED :
-        props.isAnonymous ? ANON_RECORD_PRIMARY : Colors.PRIMARY_LIGHT}`};
     display: flex;
     font-family: GilmerMedium;
     font-size: 13px;
@@ -70,13 +68,11 @@ export const EntityName: React.FC<any> = styled.span`
 export const AttributeContainer: React.FC<any> = styled.div`
     align-items: center;
     background-color: ${(props: { isSelected: boolean }) => props.isSelected ? Colors.SECONDARY_SELECTED : '#FFFFFF'};
-    border-bottom: 0.5px solid #cccde3;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
+    border: 0.5px solid ${Colors.NODE_BORDER};
     display: flex;
     flex-direction: row;
     font-size: 12px;
-    gap: 5px;
+    gap: 10px;
     height: 30px;
     justify-content: space-between;
     min-width: calc(100% - 40px);
@@ -85,17 +81,26 @@ export const AttributeContainer: React.FC<any> = styled.div`
 
 export const AttributeName = styled.span`
     align-items: center;
-    color: #000000;
+    color: ${Colors.DEFAULT_TEXT};
     display: flex;
     flex: 1;
     font-family: GilmerRegular;
     font-size: 12px;
-    line-height: 30px;
-    padding-right: 8px;
+    line-height: 16px;
     text-align: left;
 `;
 
 export const AttributeType: React.FC<any> = styled.span`
+    color: ${Colors.DEFAULT_TEXT};
+    font-size: 12px;
+    height: 24px;
+    line-height: 24px;
+    min-width: 60px;
+    text-align: right;
+    white-space: nowrap;
+`;
+
+export const NullField: React.FC<any> = styled.span`
     background-color: ${(props: StyleProps) => props.isSelected ? Colors.SHADED_SELECTED :
         props.isAnonymous ? ANON_RECORD_SECONDARY : Colors.SECONDARY};
     border-radius: 3px;
@@ -103,9 +108,10 @@ export const AttributeType: React.FC<any> = styled.span`
     font-family: GilmerRegular;
     font-size: 12px;
     height: 24px;
+    gap: 10px;
     line-height: 24px;
-    min-width: 60px;
-    padding-inline: 6px;
+    width: 75px;
+    padding: 5px 10px 3px;
     text-align: center;
     white-space: nowrap;
 `;

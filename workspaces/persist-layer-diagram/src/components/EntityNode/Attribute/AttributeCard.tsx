@@ -19,13 +19,12 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { DiagramEngine, PortModel } from '@projectstorm/react-diagrams';
-import VpnKeyRoundedIcon from '@mui/icons-material/VpnKeyRounded';
-import BlockIcon from '@mui/icons-material/Block';
 import { CMAttribute as Attribute } from '@wso2-enterprise/ballerina-languageclient';
+import { PrimaryKeyIcon } from '../../../resources/';
 import { EntityModel } from '../EntityModel';
 import { EntityPortWidget } from '../../EntityPort/EntityPortWidget';
 import { extractAttributeType } from '../entity-util';
-import { AttributeContainer, AttributeName, AttributeType } from '../styles';
+import { AttributeContainer, AttributeName, AttributeType, NullField } from '../styles';
 
 interface AttributeProps {
     node: EntityModel;
@@ -62,12 +61,23 @@ export function AttributeWidget(props: AttributeProps) {
                 port={node.getPort(`left-${node.getID()}/${attribute.name}`)}
                 engine={engine}
             />
-            {attribute.isReadOnly && <VpnKeyRoundedIcon fontSize={'small'} sx={{ transform: 'rotate(-270deg) scaleY(-1)', left: '5px', position: 'absolute' }} />}
-            {attribute.nillable && <BlockIcon fontSize={'small'} sx={{ left: '5px', position: 'absolute' }} />}
+            {attribute.isReadOnly && <PrimaryKeyIcon styles={{ left: '20px', position: 'absolute' }} />}
+            <div
+                style={{
+                    width: '70px',
+                    display: 'flex',
+                    marginRight: '8px'
+                }}
+            >
+                {!attribute.nillable && <NullField> NOT NULL </NullField>}
+            </div>
             <AttributeName>{attribute.name}</AttributeName>
             <AttributeType
                 isAnonymous={node.entityObject.isAnonymous}
                 isSelected={isSelected || isHovered}
+                styles={{
+                    fontFamily: 'Droid Sans Mono'
+                }}
             >
                 {attributeType}
             </AttributeType>

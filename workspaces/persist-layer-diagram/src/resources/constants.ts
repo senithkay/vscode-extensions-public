@@ -21,13 +21,14 @@ import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 
 export enum Colors {
     DEFAULT_TEXT = '#40404B',
-    DIAGRAM_BACKGROUND = '#FFF',
     PRIMARY = '#5567D5',
-    PRIMARY_LIGHT = '#A6B3FF',
+    PRIMARY_LIGHT = '#CBCEDB',
     PRIMARY_SELECTED = '#ffaf4d',
     SECONDARY = '#F0F1FB',
     SECONDARY_SELECTED = '#fffaf2',
-    SHADED_SELECTED = '#faead2'
+    SHADED_SELECTED = '#faead2',
+    NODE_BACKGROUND = '#F7F8FB',
+    NODE_BORDER = '#CBCEDB'
 }
 
 export const dagreEngine = new DagreEngine({

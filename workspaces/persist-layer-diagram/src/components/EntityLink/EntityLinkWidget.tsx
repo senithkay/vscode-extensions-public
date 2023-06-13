@@ -88,7 +88,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 				</> :
 				<polygon
 					points={link.getArrowHeadPoints()}
-					fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+					fill={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
 				/>
 			}
 			<path
@@ -99,7 +99,7 @@ export function EntityLinkWidget(props: WidgetProps) {
 				onMouseLeave={unselectPath}
 				onMouseOver={selectPath}
 				pointerEvents={'all'}
-				stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.PRIMARY}
+				stroke={isSelected ? Colors.PRIMARY_SELECTED : Colors.DEFAULT_TEXT}
 				strokeWidth={0.75}
 			/>
 		</g>
