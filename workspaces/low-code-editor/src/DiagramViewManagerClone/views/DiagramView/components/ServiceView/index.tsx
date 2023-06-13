@@ -19,7 +19,7 @@
 
 import React, { useEffect, useState } from "react";
 
-import { ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, ServiceDeclaration, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { useDiagramContext } from "../../../../../Contexts/Diagram";
 import { getSTNodeForReference } from "../../../../utils";
@@ -27,6 +27,7 @@ import { ServiceDesignOverlay } from "../../../../../Diagram/components/ServiceD
 import { GraphqlDiagramOverlay } from "../../../../../Diagram/components/GraphqlDiagramOverlay";
 import { ServiceInvalidOverlay } from "../../../../../Diagram/components/ServiceInvalidOverlay";
 import { ServiceUnsupportedOverlay } from "../../../../../Diagram/components/ServiceUnsupported";
+import { useHistoryContext } from "../../../../context/history";
 
 interface ServiceViewProps {
     a: string;
@@ -35,10 +36,12 @@ interface ServiceViewProps {
 export function ServiceView() {
     const {
         api: {
-            ls: { getDiagramEditorLangClient }
+            ls: { getDiagramEditorLangClient },
+            code: { gotoSource }
         },
-        props: { syntaxTree, fullST, ballerinaVersion, currentFile }
+        props: { syntaxTree, fullST, ballerinaVersion, currentFile },
     } = useDiagramContext();
+    const { history, historyClearAndPopulateWith } = useHistoryContext();
     const [listnerType, setListenerType] = useState<string>();
 
     useEffect(() => {
@@ -78,22 +81,34 @@ export function ServiceView() {
         const typeData = listenerExpression.typeData;
         const typeSymbol = typeData?.typeSymbol;
         const signature = typeSymbol?.signature;
+
+        const handleOnCancel = () => {
+            historyClearAndPopulateWith({ file: history[history.length - 1].file });
+        }
+
         if (listnerType.includes("http")) {
             serviceComponent = (
                 <ServiceDesignOverlay
                     model={syntaxTree}
                     targetPosition={{ ...syntaxTree.position, startColumn: 0, endColumn: 0 }}
-                    onCancel={() => {/*TODO: fix this*/ }}
+                    onCancel={handleOnCancel}
                 />
             );
         } else if (listnerType.includes('graphql')) {
+            const handleGoToSource = (filePath: string, position: NodePosition) => {
+                gotoSource(
+                    { startLine: position.startLine, startColumn: position.startColumn },
+                    filePath
+                );
+            }
+
             serviceComponent = (
                 <GraphqlDiagramOverlay
                     model={syntaxTree}
                     targetPosition={syntaxTree.position}
                     ballerinaVersion={ballerinaVersion}
-                    onCancel={() => {/*TODO: fix this*/ }}
-                    goToSource={() => {/*TODO: handle go to source*/ }}
+                    onCancel={handleOnCancel}
+                    goToSource={handleGoToSource}
                     isLoadingST={false}
                 />
             );

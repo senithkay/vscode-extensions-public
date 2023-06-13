@@ -34,8 +34,11 @@ interface DiagramViewProps {
 }
 
 export function DiagramView(props: DiagramViewProps) {
-    const { historyClearAndPopulateWith } = useHistoryContext();
-    const { props: { syntaxTree, fullST, ballerinaVersion, currentFile } } = useDiagramContext();
+    const { historyClearAndPopulateWith, historyPop } = useHistoryContext();
+    const {
+        props: { syntaxTree, fullST, ballerinaVersion, currentFile },
+        api: { openArchitectureView }
+    } = useDiagramContext();
     const { projectComponents } = props;
 
     let viewComponent: React.ReactElement;
@@ -60,6 +63,19 @@ export function DiagramView(props: DiagramViewProps) {
                 onCancel={handleNavigationHome}
             />
         )
+    } else if (STKindChecker.isTypeDefinition(syntaxTree)
+        && STKindChecker.isRecordTypeDesc(syntaxTree.typeDescriptor)) {
+        const name = syntaxTree.typeName.value;
+        const module = syntaxTree.typeData?.symbol?.moduleID;
+        if (!(name && module)) {
+            // TODO: Handle error properly
+            // tslint:disable-next-line
+            console.error('Couldn\'t generate record nodeId to open Architecture view', syntaxTree);
+        } else {
+            const nodeId = `${module?.orgName}/${module?.moduleName}:${module?.version}:${name}`
+            openArchitectureView(nodeId);
+        }
+        historyPop();
     } else {
         viewComponent = <Diagram />;
     }

@@ -34,7 +34,6 @@ import { getConstructBodyString } from "../Diagram/visitors/util";
 import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
 import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
-import { ComponentCollection } from "../OverviewDiagram/util";
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
 
 import { NavigationBar } from "./components/NavigationBar";
