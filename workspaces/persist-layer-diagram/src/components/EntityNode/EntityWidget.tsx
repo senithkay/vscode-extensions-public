@@ -57,14 +57,12 @@ export function EntityWidget(props: EntityWidgetProps) {
                 if (isCollapsed) {
                     if (link.getID().split('::')[0].includes(node.getID())) {
                         link.setSourcePort(node.getPort(link.getID().split('::')[0]));
-                        node.getPort(link.getID().split('::')[0])?.addLink(link);
                     } else {
                         link.setTargetPort(node.getPort(link.getID().split('::')[1]));
                     }
                 } else {
                     if (link.getID().split('::')[0].includes(node.getID())) {
                         link.setSourcePort(node.getPort(`right-${node.getID()}`));
-                        node.getPort(`right-${node.getID()}`)?.addLink(link);
                     } else {
                         link.setTargetPort(node.getPort(`left-${node.getID()}`));
                     }

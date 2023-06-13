@@ -37,7 +37,7 @@ const Container = styled.div`
 	background-image: url(${background});
 	display: flex;
 	flex-direction: row;
-	height: 100vh;
+	height: calc(100vh - 50px);
 	justify-content: center;
 	width: 100vw;
 `;

@@ -119,7 +119,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
         <PersistContainer>
             <PersistDiagramContext {...ctx}>
                 <HeaderWidget collapsedMode={collapsedMode} setIsCollapsedMode={switchCollapseMode} />
-                {diagramEngine?.getModel() ?
+                {diagramEngine?.getModel() && diagramModel ?
                     <>
                         <CanvasWidget engine={diagramEngine} className={'persist-diagram-container'} />
                         <DiagramControls
