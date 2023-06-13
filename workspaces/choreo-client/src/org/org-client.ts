@@ -18,23 +18,27 @@ import { getHttpClient } from "../http-client";
 
 export class ChoreoOrgClient implements IChoreoOrgClient {
     
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseURL: string) {  
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseApiURL: string, private _orgApiURL: string) {  
     }
 
-    private async _getClient() {
+    private async _getBaseClient() {
         const token = await this._tokenStore.getToken("choreo.token");
         if (!token) {
             throw new Error('User is not logged in');
         }
-        return getHttpClient(token.accessToken, this._baseURL)
+        return getHttpClient(token.accessToken, this._baseApiURL)
     }
 
-    getOrganizations(): Promise<Organization[]> {
-        throw new Error("Method not implemented.");
+    private async _getOrgClient() {
+        const token = await this._tokenStore.getToken("choreo.vscode.token");
+        if (!token) {   
+            throw new Error('User is not logged in');
+        }
+        return getHttpClient(token.accessToken, this._orgApiURL)
     }
 
-    async getUserInfo(): Promise<UserInfo> {
-        const client = await this._getClient();
+    async validateUser(): Promise<UserInfo> {
+        const client = await this._getBaseClient();
         try {
             const response = await client.get('/validate-user');
             return response.data as UserInfo;
@@ -43,10 +47,20 @@ export class ChoreoOrgClient implements IChoreoOrgClient {
         }
     }
 
-    async getComponentCount(orgId: number): Promise<ComponentCount> {
-        const client = await this._getClient();
+    async getOrganizations(): Promise<Organization[]> {
+        const client = await this._getOrgClient();
         try {
-            const response = await client.get(`/orgs/${orgId}/component-count`);
+            const response = await client.get('');
+            return response.data as Organization[];
+        } catch (error) {
+            throw new Error("Error while fetching user organizations.", { cause: error });
+        }
+    }
+
+    async getComponentCount(orgId: number): Promise<ComponentCount> {
+        const client = await this._getOrgClient();
+        try {
+            const response = await client.get(`/${orgId}/component-count`);
             return response.data?.data as ComponentCount;
         } catch (error) {
             throw new Error("Error while fetching component usage", { cause: error });

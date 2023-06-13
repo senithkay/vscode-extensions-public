@@ -85,8 +85,8 @@ export class WebViewRpc {
         this._messenger.onRequest(GetAllOrgsRequest, async () => {
             const loginSuccess = await ext.api.waitForLogin();
             if (loginSuccess) {
-                const info = await executeWithTaskRetryPrompt(() => orgClient.getUserInfo());
-                return info.organizations;
+                const organizations = await executeWithTaskRetryPrompt(() => orgClient.getOrganizations());
+                return organizations;
             }
         });
         // TODO: Remove this once the Choreo project client RPC handlers are registered

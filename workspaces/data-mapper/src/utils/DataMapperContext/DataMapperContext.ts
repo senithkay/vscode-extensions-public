@@ -41,8 +41,6 @@ export interface IDataMapperContext {
     collapsedFields: string[];
     handleCollapse: (fieldName: string, expand?: boolean) => void;
     isStmtEditorCanceled: boolean;
-    fieldToBeEdited: string;
-    handleFieldToBeEdited: (fieldId: string) => void;
     handleOverlay: (showOverlay: boolean) => void;
     ballerinaVersion: string;
     handleLocalVarConfigPanel: (showPanel: boolean) => void;
@@ -70,8 +68,6 @@ export class DataMapperContext implements IDataMapperContext {
         public collapsedFields: string[],
         public handleCollapse: (fieldName: string, expand?: boolean) => void,
         public isStmtEditorCanceled: boolean,
-        public fieldToBeEdited: string,
-        public handleFieldToBeEdited: (fieldId: string) => void,
         public handleOverlay: (showOverlay: boolean) => void,
         public ballerinaVersion: string,
         public handleLocalVarConfigPanel: (showPanel: boolean) => void,

@@ -3,7 +3,7 @@ import { monaco } from "react-monaco-editor";
 import {
     CommandResponse,
     DiagramDiagnostic,
-   DiagramEditorLangClientInterface, DIAGRAM_MODIFIED,
+    DiagramEditorLangClientInterface, DIAGRAM_MODIFIED,
     FileListEntry,
     FunctionDef,
     getImportStatements,
@@ -280,3 +280,35 @@ export function getDiagramProviderProps(
     };
 }
 
+export function extractFilePath(uri: string): string | null {
+    let filePath = uri;
+    if (uri.startsWith('file://')) {
+        const url = new URL(uri);
+        filePath = url.pathname;
+    }
+
+    if (filePath && filePath.match(/^\/[a-zA-Z]:/g)) {
+        // windows filepath matched
+        filePath = filePath.replace('/', '');
+    }
+
+    if (filePath && filePath.match(/^[A-Z]:\//g)) {
+        const firstCharacter = filePath.charAt(0).toLowerCase();
+        const remaining = filePath.slice(1);
+        filePath = `${firstCharacter}${remaining}`;
+    }
+
+    return filePath;
+}
+
+export function isPathEqual(uri1: string, uri2: string): boolean {
+    const filePath1 = extractFilePath(uri1);
+    const filePath2 = extractFilePath(uri2);
+    return filePath1 === filePath2;
+}
+
+export function pathIncludesIn(fullPath: string, includedPath: string): boolean {
+    const filePath = extractFilePath(fullPath);
+    const includedFilePath = extractFilePath(includedPath);
+    return filePath?.includes(includedFilePath as string) as boolean;
+}

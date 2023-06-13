@@ -66,9 +66,9 @@ export type AccountTreeItem = ChoreoSignOutTreeItem | ChoreoOrgTreeItem | Choreo
          const loginSuccess = await ext.api.waitForLogin();
          if (loginSuccess) {
              try {
-                 const userInfo = await executeWithTaskRetryPrompt(() => orgClient.getUserInfo());
-                 if (userInfo.organizations && userInfo.organizations.length > 0) {
-                     const treeItems: ChoreoOrgTreeItem[] = userInfo.organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.None));
+                 const organizations = await executeWithTaskRetryPrompt(() => orgClient.getOrganizations());
+                 if (organizations && organizations.length > 0) {
+                     const treeItems: ChoreoOrgTreeItem[] = organizations.map<ChoreoOrgTreeItem>((org) => new ChoreoOrgTreeItem(org, TreeItemCollapsibleState.None));
                      return treeItems;
                  }
              } catch (error: any) {

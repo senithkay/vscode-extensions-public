@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { ProgressLocation, commands, window } from "vscode";
-import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signIn, signOut, tokenStore } from "./auth";
+import { getChoreoToken, initiateInbuiltAuth as openAuthURL, chooseOrgAndExchangeVSCodeToken, signOut, tokenStore } from "./auth";
 import { ext } from '../extensionVariables';
 import { STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
@@ -87,7 +87,7 @@ export async function activateAuth() {
             if (apimResponse) {
                 const choreoTokenInfo = JSON.parse(apimResponse);
                 await tokenStore.setToken("choreo.token", choreoTokenInfo);
-                await signIn();
+                await chooseOrgAndExchangeVSCodeToken();
             } else {
                 window.showErrorMessage("APIM token response is required to login");
             }
@@ -106,9 +106,10 @@ async function initFromExistingChoreoSession() {
     const choreoTokenInfo = await getChoreoToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
+        ext.api.status = STATUS_LOGGING_IN;
         sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_START_EVENT);
         getLogger().debug("Found existing Choreo session");
-        await signIn(true);
+        await chooseOrgAndExchangeVSCodeToken(true);
         sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT);
     } else {
         getLogger().debug("No existing Choreo session found");
