@@ -26,7 +26,7 @@ export function GraphqlHeader(props: GraphqlHeaderProps) {
 
     return (
         <HeaderContainer>
-            <Title> Graphql Designer </Title>
+            <Title> GraphQL Designer </Title>
             <FilterBar>
                 <TypeFilter updateFilter={updateFilter} />
             </FilterBar>
