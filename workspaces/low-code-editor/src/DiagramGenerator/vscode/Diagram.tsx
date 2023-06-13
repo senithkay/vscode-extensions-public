@@ -88,18 +88,20 @@ export type EditorProps = EditorState & EditorAPI;
 
 export const WorkspaceOverview: React.FC<EditorProps> = (props: EditorProps) => {
     return (
-        <OverviewDiagramGenerator
-            {...props}
-        />
+        <DiagramGenErrorBoundary lastUpdatedAt={props.lastUpdatedAt}>
+            <OverviewDiagramGenerator
+                {...props}
+            />
+        </DiagramGenErrorBoundary>
     )
 }
 
 export const Diagram: React.FC<EditorProps> = (props: EditorProps) => {
 
     const { getFileContent, updateFileContent, gotoSource, showPerformanceGraph, getPerfDataFromChoreo,
-            sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
-            showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
-            runCommand, runBackgroundTerminalCommand, openArchitectureView, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, renameSymbol, ...restProps } = props;
+        sendTelemetryEvent, getSentryConfig, getBallerinaVersion,
+        showMessage, resolveMissingDependency, resolveMissingDependencyByCodeAction,
+        runCommand, runBackgroundTerminalCommand, openArchitectureView, getLibrariesList, getLibrariesData, getLibraryData, getEnv, openExternalUrl, renameSymbol, ...restProps } = props;
     const [state, setState] = React.useState<EditorState>(restProps);
 
     React.useEffect(() => {

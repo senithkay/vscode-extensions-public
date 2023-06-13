@@ -59,7 +59,7 @@ export async function getSTNodeForReference(
 }
 
 export async function handleRecordNavigation(filePath: string, position: NodePosition,
-                                             langClientPromise: Promise<DiagramEditorLangClientInterface>) {
+    langClientPromise: Promise<DiagramEditorLangClientInterface>) {
     const langClientInstance = await langClientPromise;
     const generatedST = await getSyntaxTree(filePath, langClientInstance);
 
@@ -85,7 +85,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+        getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
@@ -331,5 +331,10 @@ export function pathIncludesIn(fullPath: string, includedPath: string): boolean 
     const filePath = extractFilePath(fullPath);
     const includedFilePath = extractFilePath(includedPath);
     return filePath?.includes(includedFilePath as string) as boolean;
+}
+
+export function getFileNameFromPath(filePath: string): string {
+    const fileName = extractFilePath(filePath).split('/').pop();
+    return fileName as string;
 }
 

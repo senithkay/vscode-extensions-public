@@ -21,6 +21,7 @@ import { BallerinaProjectComponents, ComponentInfo, ComponentViewInfo, FileListE
 import { Uri } from "monaco-editor";
 
 import { ComponentCollection } from "../../../../OverviewDiagram/util";
+import { extractFilePath, isPathEqual } from "../../../utils";
 
 export class ProjectComponentProcessor {
     private projectComponents: BallerinaProjectComponents;
@@ -124,7 +125,7 @@ export class ProjectComponentProcessor {
 
         for (const [type, collection] of Object.entries(this.components)) {
             collection.forEach((el: ComponentViewInfo) => {
-                if (el.filePath === file) {
+                if (isPathEqual(el.filePath, file)) {
                     filteredComponents[type].push(el);
                 }
             })
@@ -139,15 +140,15 @@ export class ProjectComponentProcessor {
 }
 
 export function genFilePath(packageInfo: PackageSummary, module: ModuleSummary, element: ComponentInfo) {
-    let filePath = `${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`
-        .replace('file://', '');
-
-    if (window.navigator.userAgent.indexOf("Win") > -1) {
-        if (filePath.startsWith('/')) {
-            filePath = filePath.substring(1);
-            filePath = filePath.replaceAll(/\//g, '\\');
-        }
+    let filePath: string;
+    if (packageInfo.filePath.endsWith('.bal')) {
+        filePath = packageInfo.filePath.replace('file://', '');
+    } else {
+        filePath = `${packageInfo.filePath}${module.name ? `modules/${module.name}/` : ''}${element.filePath}`
+            .replace('file://', '');
     }
+
+    filePath = extractFilePath(filePath);
 
     return filePath;
 }

@@ -17,7 +17,7 @@ import { ClickAwayListener, Popover } from "@material-ui/core";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
-import { Apps, ArrowBack, ArrowDropDown, HomeOutlined } from "@material-ui/icons";
+import { Apps, ArrowBack, ArrowDropDown, Description } from "@material-ui/icons";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
@@ -29,7 +29,7 @@ import { useHistoryContext } from "../../context/history";
 import { NavButtonGroup } from "./NavButtonGroup";
 import useStyles from './style';
 import './style.scss';
-import { extractFilePath, isPathEqual } from "../../utils";
+import { extractFilePath, getFileNameFromPath, isPathEqual } from "../../utils";
 
 interface NavigationBarProps {
     workspaceName: string;
@@ -127,12 +127,27 @@ export function NavigationBar(props: NavigationBarProps) {
             }
         }
 
+        let nameContent: string = workspaceName;
+        let icon: React.ReactElement = <Apps className={'workspace-icon'} />;
+
+        if (!treatAsWorkspace) {
+            icon = <PackageIcon className={'icon'} />;
+            const packageInformation = projectInfo?.packages[0];
+            const packageName = packageInformation?.name;
+            const packagePath = packageInformation?.filePath;
+            if (packageName === '.' && packagePath.endsWith('.bal')) {
+                nameContent = getFileNameFromPath(packagePath);
+                icon = <Description className={'icon'} />;
+            } else if (packageName) {
+                nameContent = packageName;
+            }
+        }
 
         return (
             <div className="btn-container" onClick={handleOnClick} >
-                {treatAsWorkspace ? <Apps className={'workspace-icon'} /> : <PackageIcon className={'icon'} />}
+                {icon}
                 <Typography variant="h4">
-                    {treatAsWorkspace ? workspaceName : projectInfo?.packages[0]?.name}
+                    {nameContent}
                 </Typography>
             </div>
         )

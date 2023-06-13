@@ -92,7 +92,7 @@ export function NavigationBar(props: NavigationBarProps) {
         return (
             <div className="btn-container" ref={popoverRef} onClick={handlePojectSelectorOpen} >
                 <PackageIcon className={'icon'} />
-                    <Typography variant="h4">{currentProject?.name || ''}</Typography>
+                <Typography variant="h4">{currentProject?.name || ''}</Typography>
                 <ArrowDropDown />
                 <Popover
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}
@@ -122,6 +122,8 @@ export function NavigationBar(props: NavigationBarProps) {
                 historyReset();
             }
         }
+
+        console.log('workspace >>>', currentProject);
 
         return (
             <div className="btn-container" onClick={handleOnClick} >

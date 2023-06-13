@@ -99,7 +99,6 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         if (history.length > 0) {
-            console.log('history >>>',history[history.length - 1]);
             (async () => {
                 const { file, position, uid } = history[history.length - 1];
                 const langClient = await langClientPromise;
@@ -111,6 +110,7 @@ export function DiagramViewManager(props: EditorProps) {
                     ]
                 });
 
+                console.log('component response >>>', file, componentResponse)
 
                 if (file.endsWith(".bal")) {
                     const generatedST = await getSyntaxTree(file, langClient);
