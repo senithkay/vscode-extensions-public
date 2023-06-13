@@ -10,7 +10,6 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
@@ -38,14 +37,16 @@ export function GraphqlDiagramContainer(props: GraphqlDiagramContainerProps) {
         setOperationType(type);
     }
 
-    return (
-        <>
-            {graphqlServiceModel &&
+    const modelRenderer =  (
             <>
                 <GraphqlHeader updateFilter={updateFilter} />
                 <GraphqlDiagramCanvasWidget model={graphqlServiceModel} />
             </>
-            }
+        );
+
+    return (
+        <>
+            {graphqlServiceModel && modelRenderer}
         </>
     );
 }
