@@ -82,7 +82,7 @@ async function viewProjectDesignDiagrams(selectedNodeId: string) {
         if (html) {
             designDiagramWebview.webview.html = html;
         }
-        if (workspace.workspaceFolders && workspace.workspaceFolders.length === 1) {
+        if (workspace.workspaceFolders?.length === 1 && !isChoreoProject) {
             window.showInformationMessage(USER_TIP);
         }
     } else {
