@@ -18,26 +18,55 @@
  */
 
 import React, { ReactNode } from 'react';
+import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import { useStyles } from './style';
 
-interface CanvasControlButtonProps {
-    onClick: () => void;
+interface ControlButtonProps {
     children: ReactNode;
+    onClick: () => void;
+    tooltipTitle: string;
 }
 
-export function CanvasControlButton(props: CanvasControlButtonProps) {
-    const { onClick, children } = props;
-
+export function CanvasControlButton(props: ControlButtonProps) {
+    const { children, onClick, tooltipTitle } = props;
     const styles = useStyles();
 
     return (
-        <IconButton
-            className={styles.controlButton}
-            size='small'
-            onClick={onClick}
+        <Tooltip
+            arrow
+            placement={'left-end'}
+            title={tooltipTitle}
+            componentsProps={{
+                tooltip: {
+                    sx: {
+                        fontFamily: 'GilmerRegular',
+                        fontSize: '12px',
+                        padding: '6px 10px'
+                    }
+                }
+            }}
+            PopperProps={{
+                modifiers: [
+                    {
+                        name: 'offset',
+                        options: {
+                            offset: [0, -10],
+                        },
+                    },
+                ],
+            }}
         >
-            {children}
-        </IconButton>
+            <IconButton
+                className={styles.controlButton}
+                size='small'
+                onClick={onClick}
+                sx={{
+                    cursor: 'pointer'
+                }}
+            >
+                {children}
+            </IconButton>
+        </Tooltip>
     );
 }

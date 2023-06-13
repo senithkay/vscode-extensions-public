@@ -22,10 +22,11 @@ import AddIcon from '@mui/icons-material/Add';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
+import WarningIcon from '@mui/icons-material/Warning';
 import styled from '@emotion/styled';
 import CachedIcon from "@mui/icons-material/Cached";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { CanvasControlButton, DiagnosticsWarning } from '@wso2-enterprise/design-diagram-commons';
+import { CanvasControlButton } from '@wso2-enterprise/design-diagram-commons';
 import { toJpeg } from 'html-to-image';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
 
@@ -81,29 +82,28 @@ export function DiagramControls(props: ControlProps) {
     return (
         <ControlPanel >
             {hasDiagnostics &&
-                <DiagnosticsWarning
-                    onClick={showProblemPanel}
-                    tooltipTitle={'Diagnostics were detected in the model.'}
-                />
+                <CanvasControlButton onClick={showProblemPanel} tooltipTitle={'Diagnostics were detected in the model.'}>
+                    <WarningIcon sx={{ color: '#EA4C4D' }} />
+                </CanvasControlButton>
             }
-            <CanvasControlButton onClick={downloadDiagram}>
+            <CanvasControlButton onClick={downloadDiagram} tooltipTitle={'Download'}>
                 <DownloadIcon />
             </CanvasControlButton>
 
-            <CanvasControlButton onClick={refreshDiagram}>
+            <CanvasControlButton onClick={refreshDiagram} tooltipTitle={'Refresh'}>
                 <CachedIcon />
             </CanvasControlButton>
 
-            <CanvasControlButton onClick={zoomToFit}>
+            <CanvasControlButton onClick={zoomToFit} tooltipTitle={'Zoom to fit nodes'}>
                 <FullscreenIcon />
             </CanvasControlButton>
 
             <div>
-                <CanvasControlButton onClick={() => { onZoom(true) }}>
+                <CanvasControlButton onClick={() => { onZoom(true) }} tooltipTitle={'Zoom in'}>
                     <AddIcon />
                 </CanvasControlButton>
 
-                <CanvasControlButton onClick={() => { onZoom(false) }}>
+                <CanvasControlButton onClick={() => { onZoom(false) }} tooltipTitle={'Zoom out'}>
                     <RemoveIcon />
                 </CanvasControlButton>
             </div>
