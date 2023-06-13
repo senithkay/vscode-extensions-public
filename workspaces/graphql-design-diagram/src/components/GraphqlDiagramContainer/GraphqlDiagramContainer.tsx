@@ -10,13 +10,15 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-
+// tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useEffect, useState } from "react";
 
 import { DiagramModel } from '@projectstorm/react-diagrams';
 
 import { GraphqlDiagramCanvasWidget } from "../Canvas/GraphqlDiagramCanvasWidget";
+import { GraphqlHeader } from "../GraphqlHeader";
 import { GraphqlDesignModel } from "../resources/model";
+import { OperationTypes } from "../TypeFilter";
 import { graphqlModelGenerator } from "../utils/model-generators/serviceModelGenerator";
 
 interface GraphqlDiagramContainerProps {
@@ -26,14 +28,24 @@ interface GraphqlDiagramContainerProps {
 export function GraphqlDiagramContainer(props: GraphqlDiagramContainerProps) {
     const { designModel } = props;
     const [graphqlServiceModel, setGraphqlServiceModel] = useState<DiagramModel>(undefined);
+    const [operationType, setOperationType] = useState<OperationTypes>(OperationTypes.All_Operations);
 
     useEffect(() => {
-        setGraphqlServiceModel(graphqlModelGenerator(designModel));
-    }, [designModel]);
+        setGraphqlServiceModel(graphqlModelGenerator(designModel, operationType));
+    }, [designModel, operationType]);
+
+    const updateFilter = (type: OperationTypes) => {
+        setOperationType(type);
+    }
 
     return (
         <>
-            {graphqlServiceModel && <GraphqlDiagramCanvasWidget model={graphqlServiceModel}/>}
+            {graphqlServiceModel &&
+            <>
+                <GraphqlHeader updateFilter={updateFilter} />
+                <GraphqlDiagramCanvasWidget model={graphqlServiceModel} />
+            </>
+            }
         </>
     );
 }

@@ -17,7 +17,7 @@ import { GraphqlBaseLinkModel } from "../../Link/BaseLink/GraphqlBaseLinkModel";
 import { DefaultLinkModel } from "../../Link/DefaultLink/DefaultLinkModel";
 import { GraphqlServiceLinkModel } from "../../Link/GraphqlServiceLink/GraphqlServiceLinkModel";
 import { GraphqlDesignNode } from "../../Nodes/BaseNode/GraphqlDesignNode";
-import { EnumNodeModel, ENUM_NODE } from "../../Nodes/EnumNode/EnumNodeModel";
+import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
 import { GraphqlServiceNodeModel } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
 import { HierarchicalNodeModel } from "../../Nodes/HierarchicalResourceNode/HierarchicalNodeModel";
 import { InterfaceNodeModel } from "../../Nodes/InterfaceNode/InterfaceNodeModel";
@@ -33,12 +33,15 @@ import {
     Interaction,
     InterfaceComponent,
     RecordComponent,
+    RecordField,
     RemoteFunction,
     ResourceFunction,
     Service,
     ServiceClassComponent,
+    ServiceClassField,
     UnionComponent
 } from "../../resources/model";
+import { OperationTypes } from "../../TypeFilter";
 
 
 // all nodes in the diagram
@@ -46,39 +49,46 @@ let diagramNodes: Map<string, GraphqlDesignNode>;
 // all links in the diagram
 let nodeLinks: GraphqlBaseLinkModel[];
 
-export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel): DiagramModel {
+export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes): DiagramModel {
     diagramNodes = new Map<string, GraphqlDesignNode>();
     nodeLinks = [];
 
-    // generate the graphql service node
-    graphqlServiceModelMapper(graphqlModel.graphqlService);
-    // generate nodes for enums
-    if (graphqlModel.enums) {
-        const enums: Map<string, EnumComponent> = new Map(Object.entries(graphqlModel.enums));
-        enumModelMapper(enums);
-    }
-    if (graphqlModel.records) {
-        const records: Map<string, RecordComponent> = new Map(Object.entries(graphqlModel.records));
-        recordModelMapper(records);
-    }
-    if (graphqlModel.serviceClasses) {
-        const serviceClasses: Map<string, ServiceClassComponent> = new Map(Object.entries(graphqlModel.serviceClasses));
-        serviceClassModelMapper(serviceClasses);
-    }
-    if (graphqlModel.unions) {
-        const unions: Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
-        unionModelMapper(unions);
-    }
-    if (graphqlModel.interfaces) {
-        const interfaces: Map<string, InterfaceComponent> = new Map(Object.entries(graphqlModel.interfaces));
-        interfaceModelMapper(interfaces);
-    }
-    if (graphqlModel.hierarchicalResources) {
-        const hierarchicalResources: Map<string, HierarchicalResourceComponent> = new Map(Object.entries(graphqlModel.hierarchicalResources));
-        hierarchicalResourceModelMapper(hierarchicalResources);
-    }
 
-    generateLinks(graphqlModel);
+    if (typeFilter !== OperationTypes.All_Operations) {
+        filteredModelMapper(graphqlModel, typeFilter);
+    } else {
+        // generate the graphql service node
+        graphqlServiceModelMapper(graphqlModel.graphqlService);
+
+        // generate nodes for enums
+        if (graphqlModel.enums) {
+            const enums: Map<string, EnumComponent> = new Map(Object.entries(graphqlModel.enums));
+            enumModelMapper(enums);
+        }
+        if (graphqlModel.records) {
+            const records: Map<string, RecordComponent> = new Map(Object.entries(graphqlModel.records));
+            recordModelMapper(records);
+        }
+        if (graphqlModel.serviceClasses) {
+            const serviceClasses: Map<string, ServiceClassComponent> = new Map(Object.entries(graphqlModel.serviceClasses));
+            serviceClassModelMapper(serviceClasses);
+        }
+        if (graphqlModel.unions) {
+            const unions: Map<string, UnionComponent> = new Map(Object.entries(graphqlModel.unions));
+            unionModelMapper(unions);
+        }
+        if (graphqlModel.interfaces) {
+            const interfaces: Map<string, InterfaceComponent> = new Map(Object.entries(graphqlModel.interfaces));
+            interfaceModelMapper(interfaces);
+        }
+        if (graphqlModel.hierarchicalResources) {
+            const hierarchicalResources: Map<string, HierarchicalResourceComponent> = new Map(Object.entries(graphqlModel.hierarchicalResources));
+            hierarchicalResourceModelMapper(hierarchicalResources);
+        }
+
+        generateLinks(graphqlModel);
+
+    }
 
     removeUnlinkedModels();
 
@@ -87,19 +97,192 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel): Diagram
     return model;
 }
 
+
+function filteredModelMapper(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes) {
+    const updatedModel: GraphqlDesignModel = updatedGraphqlModel(graphqlModel, typeFilter);
+    // generate the graphql service node for filtered model
+    graphqlServiceModelMapper(updatedModel.graphqlService);
+
+    if (updatedModel.enums) {
+        enumModelMapper(updatedModel.enums);
+    }
+    if (updatedModel.records) {
+        recordModelMapper(updatedModel.records);
+    }
+    if (updatedModel.serviceClasses) {
+        serviceClassModelMapper(updatedModel.serviceClasses);
+    }
+    if (updatedModel.unions) {
+        unionModelMapper(updatedModel.unions);
+    }
+    if (updatedModel.interfaces) {
+        interfaceModelMapper(updatedModel.interfaces);
+    }
+    if (updatedModel.hierarchicalResources) {
+        hierarchicalResourceModelMapper(updatedModel.hierarchicalResources);
+    }
+
+    generateLinksForFilteredNodes(updatedModel);
+
+}
+
+function updatedGraphqlModel(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes): GraphqlDesignModel {
+    const updatedModel: GraphqlDesignModel = { ...graphqlModel };
+
+    updatedModel.graphqlService = filterFromOperationType(typeFilter, graphqlModel.graphqlService);
+
+    // get the list of types of resource and remote functions
+    const linkedNodeList: string[] = getTypesOfRootNodeFunctions(updatedModel);
+
+    // get the interactions of the current linkedNodeList
+    const updatedNodeList = getRelatedNodes(graphqlModel, linkedNodeList);
+
+
+    // iterate with the current model and obtain only the ones with the updatedNodeList
+    const unionMap = new Map<string, UnionComponent>();
+    const enumMap = new Map<string, EnumComponent>();
+    const recordMap = new Map<string, RecordComponent>();
+    const serviceClassMap = new Map<string, ServiceClassComponent>();
+    const interfaceMap = new Map<string, InterfaceComponent>();
+    const hierarchicalResourceMap = new Map<string, HierarchicalResourceComponent>();
+
+    updatedNodeList.forEach((type) => {
+        if (Object.keys(graphqlModel.records).includes(type)) {
+            if (!recordMap.has(type)) {
+                recordMap.set(type, new Map(Object.entries(graphqlModel.records)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.serviceClasses).includes(type)) {
+            if (!serviceClassMap.has(type)) {
+                serviceClassMap.set(type, new Map(Object.entries(graphqlModel.serviceClasses)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.unions).includes(type)) {
+            if (!unionMap.has(type)) {
+                unionMap.set(type, new Map(Object.entries(graphqlModel.unions)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.enums).includes(type)) {
+            if (!enumMap.has(type)) {
+                enumMap.set(type, new Map(Object.entries(graphqlModel.enums)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.interfaces).includes(type)) {
+            if (!interfaceMap.has(type)) {
+                interfaceMap.set(type, new Map(Object.entries(graphqlModel.interfaces)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.hierarchicalResources).includes(type)) {
+            if (!hierarchicalResourceMap.has(type)) {
+                hierarchicalResourceMap.set(type, new Map(Object.entries(graphqlModel.hierarchicalResources)).get(type));
+            }
+        }
+    });
+
+    updatedModel.unions = unionMap;
+    updatedModel.enums = enumMap;
+    updatedModel.records = recordMap;
+    updatedModel.serviceClasses = serviceClassMap;
+    updatedModel.interfaces = interfaceMap;
+    updatedModel.hierarchicalResources = hierarchicalResourceMap;
+
+    return updatedModel;
+}
+
+function getTypesOfRootNodeFunctions(updatedModel: GraphqlDesignModel) {
+    const typeList: string[] = [];
+    for (const functions of [updatedModel.graphqlService.resourceFunctions, updatedModel.graphqlService.remoteFunctions]) {
+        functions.forEach((func) => {
+            func.interactions.forEach((interaction) => {
+                if (!typeList.includes(interaction.componentName)) {
+                    typeList.push(interaction.componentName);
+                }
+            });
+        });
+    }
+    return typeList;
+}
+
+function getRelatedNodes(graphqlModel: GraphqlDesignModel, typeList: string[]) {
+    typeList.forEach((type) => {
+        if (Object.keys(graphqlModel.records).includes(type)) {
+            Object.values(graphqlModel.records).forEach((record: RecordComponent) => {
+                if (record.name === type && !record.isInputObject) {
+                    record.recordFields.forEach((field: RecordField) => {
+                        field.interactions.forEach((interaction) => {
+                            if (!typeList.includes(interaction.componentName)) {
+                                typeList.push(interaction.componentName);
+                                getRelatedNodes(graphqlModel, typeList);
+                            }
+                        });
+                    });
+                }
+            });
+        }
+        if (Object.keys(graphqlModel.serviceClasses).includes(type)) {
+            Object.values(graphqlModel.serviceClasses).forEach((serviceClass: ServiceClassComponent) => {
+                if (serviceClass.serviceName === type) {
+                    serviceClass.functions.forEach((func: ServiceClassField) => {
+                        func.interactions.forEach((interaction) => {
+                            if (!typeList.includes(interaction.componentName)) {
+                                typeList.push(interaction.componentName);
+                                getRelatedNodes(graphqlModel, typeList);
+                            }
+                        });
+                    });
+                }
+            });
+        }
+        if (Object.keys(graphqlModel.unions).includes(type)) {
+            Object.values(graphqlModel.unions).forEach((union: UnionComponent) => {
+                if (union.name === type) {
+                    union.possibleTypes.forEach((possibleType) => {
+                        if (!typeList.includes(possibleType.componentName)) {
+                            typeList.push(possibleType.componentName);
+                            getRelatedNodes(graphqlModel, typeList);
+                        }
+                    });
+                }
+            });
+        }
+        if (Object.keys(graphqlModel.interfaces).includes(type)) {
+            Object.values(graphqlModel.interfaces).forEach((interfaceComp: InterfaceComponent) => {
+                if (interfaceComp.name === type) {
+                    interfaceComp.possibleTypes.forEach((interaction: Interaction) => {
+                        if (!typeList.includes(interaction.componentName)) {
+                            typeList.push(interaction.componentName);
+                            getRelatedNodes(graphqlModel, typeList);
+                        }
+                    });
+                }
+            });
+        }
+        if (Object.keys(graphqlModel.hierarchicalResources).includes(type)) {
+            Object.values(graphqlModel.hierarchicalResources).forEach((hierarchicalResource: HierarchicalResourceComponent) => {
+                if (hierarchicalResource.name === type) {
+                    hierarchicalResource.hierarchicalResources.forEach((resourceFunction: ResourceFunction) => {
+                        resourceFunction.interactions.forEach((interaction) => {
+                            if (!typeList.includes(interaction.componentName)) {
+                                typeList.push(interaction.componentName);
+                                getRelatedNodes(graphqlModel, typeList);
+                            }
+                        });
+                    });
+                }
+            });
+        }
+    });
+
+    return typeList;
+}
+
+
 function removeUnlinkedModels() {
     diagramNodes.forEach((node, key) => {
-        if (node.getType() === ENUM_NODE) {
-            let isLinked = false;
-            for (const [, value] of Object.entries(node.getPorts())) {
-                if (Object.keys(value.getLinks()).length !== 0) {
-                    isLinked = true;
-                    break;
-                }
+        let isLinked = false;
+        for (const [, value] of Object.entries(node.getPorts())) {
+            if (Object.keys(value.getLinks()).length !== 0) {
+                isLinked = true;
+                break;
             }
-            if (!isLinked) {
-                diagramNodes.delete(key);
-            }
+        }
+        if (!isLinked) {
+            diagramNodes.delete(key);
         }
     });
 }
@@ -107,6 +290,33 @@ function removeUnlinkedModels() {
 function graphqlServiceModelMapper(service: Service) {
     const serviceNode: GraphqlServiceNodeModel = new GraphqlServiceNodeModel(service);
     diagramNodes.set(service.serviceName, serviceNode);
+}
+
+function filterFromOperationType(operationType: OperationTypes, service: Service) {
+    const filteredResourceFunctions: ResourceFunction[] = [];
+    let filteredRemoteFunctions: RemoteFunction[] = [];
+
+    if (operationType === OperationTypes.Queries) {
+        service.resourceFunctions.forEach((resourceFunction) => {
+            if (!resourceFunction.subscription) {
+                filteredResourceFunctions.push(resourceFunction);
+            }
+        });
+    } else if (operationType === OperationTypes.Mutations) {
+        filteredRemoteFunctions = service.remoteFunctions;
+    } else if (operationType === OperationTypes.Subscriptions) {
+        service.resourceFunctions.forEach((resourceFunction) => {
+            if (resourceFunction.subscription) {
+                filteredResourceFunctions.push(resourceFunction);
+            }
+        });
+    }
+    const newService: Service = {
+        ...service,
+        resourceFunctions: filteredResourceFunctions,
+        remoteFunctions: filteredRemoteFunctions
+    };
+    return newService;
 }
 
 function enumModelMapper(enums: Map<string, EnumComponent>) {
@@ -176,6 +386,27 @@ function generateLinks(graphqlModel: GraphqlDesignModel) {
     if (graphqlModel.hierarchicalResources) {
         const hierarchicalResources: Map<string, HierarchicalResourceComponent> = new Map(Object.entries(graphqlModel.hierarchicalResources));
         generateLinksForHierarchicalResources(hierarchicalResources);
+    }
+}
+
+
+function generateLinksForFilteredNodes(graphqlModel: GraphqlDesignModel) {
+    generateLinksForGraphqlService(graphqlModel.graphqlService);
+
+    if (graphqlModel.unions) {
+        generateLinksForUnions(graphqlModel.unions);
+    }
+    if (graphqlModel.interfaces) {
+        generateLinksForInterfaces(graphqlModel.interfaces);
+    }
+    if (graphqlModel.records) {
+        generateLinksForRecords(graphqlModel.records);
+    }
+    if (graphqlModel.serviceClasses) {
+        generateLinksForServiceClasses(graphqlModel.serviceClasses);
+    }
+    if (graphqlModel.hierarchicalResources) {
+        generateLinksForHierarchicalResources(graphqlModel.hierarchicalResources);
     }
 }
 
