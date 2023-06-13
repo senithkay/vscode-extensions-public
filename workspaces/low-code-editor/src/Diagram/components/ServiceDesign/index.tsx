@@ -67,13 +67,12 @@ export function ServiceDesign(props: ServiceDesignProps) {
 
     useEffect(() => {
         const cc: JSX.Element[] = [];
-        serviceST?.members.forEach((member, index) => {
+        serviceST?.members.forEach((member) => {
             if (STKindChecker.isResourceAccessorDefinition(member)) {
                 const startPosition = member.position?.startLine + ":" + member.position?.startColumn;
                 cc.push(
                     <div className={'service-member'} data-start-position={startPosition} >
                         <ResourceBody
-                            id={index}
                             handleDiagramEdit={handleDiagramEdit}
                             model={member as ResourceAccessorDefinition}
                             isExpandedAll={isAllExpanded}
@@ -171,13 +170,13 @@ export function ServiceDesign(props: ServiceDesignProps) {
     return (
         <div className={classes.root}>
             {serviceST && (
-                <div data-testid={"service-container"}>
+                <>
                     <div className={classes.serviceTitle}>
                         <div className={classes.flexRow}>
-                            <Typography variant="h4" data-testid={"service-path"}>
+                            <Typography variant="h4">
                                 Service {servicePath}
                             </Typography>
-                            <Typography variant="h4" className={classes.listenerText} data-testid={"listener-text"}>
+                            <Typography variant="h4" className={classes.listenerText}>
                                 {listeningOnText.length > 0 ? ` listening on ${listeningOnText}` : ""}
                             </Typography>
                         </div>
@@ -208,7 +207,7 @@ export function ServiceDesign(props: ServiceDesignProps) {
                         </>
                     </div>
 
-                </div>
+                </>
             )}
 
         </div>

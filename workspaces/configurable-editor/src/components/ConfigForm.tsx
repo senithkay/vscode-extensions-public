@@ -220,6 +220,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
                             color="secondary"
                             size="small"
                             onClick={handleDefaultButtonClick}
+                            data-cyid="btn-back-configform"
                         >
                             {defaultButtonText}
                         </Button>
@@ -230,6 +231,7 @@ export const ConfigForm = (props: ConfigFormProps) => {
                                     color="primary"
                                     size="small"
                                     type="submit"
+                                    data-cyid="btn-submit-configform"
                                 >
                                     {primaryButtonText}
                                 </Button>
