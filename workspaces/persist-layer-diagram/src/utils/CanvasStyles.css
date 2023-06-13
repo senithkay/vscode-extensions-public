@@ -1,7 +1,7 @@
 .persist-diagram-container {
     background-image: url('../resources/assets/PatternBg.svg');
     background-repeat: repeat;
-    min-height: 100vh;
+    min-height: calc(100vh - 50px);
     min-width: 100vw;
 }
 

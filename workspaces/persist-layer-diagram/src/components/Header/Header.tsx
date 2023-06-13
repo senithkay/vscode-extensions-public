@@ -18,29 +18,35 @@
  */
 
 import React from 'react';
-import Button from '@mui/material/Button';
-import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
-import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
-import { useStyles } from './styles';
+import styled from '@emotion/styled';
+import { Colors } from '../../resources';
+import { NodeCollapser } from '../Controls/NodeCollapser';
 
-interface NodeCollapserProps {
+interface HeaderProps {
     collapsedMode: boolean;
     setIsCollapsedMode: (collapsedMode: boolean) => void;
 }
 
-export function NodeCollapser(props: NodeCollapserProps) {
-    const { collapsedMode, setIsCollapsedMode } = props;
-    const styles = useStyles();
+const HeaderContainer = styled.div`
+    align-items: center;
+    color: ${Colors.DEFAULT_TEXT};
+    display: flex;
+    flex-direction: row;
+    font-family: GilmerBold;
+    font-size: 16px;
+    height: 50px;
+    justify-content: space-between;
+    padding-inline: 10px;
+    width: calc(100vw - 20px);
+`;
+
+export function HeaderWidget(props: HeaderProps) {
+    const {collapsedMode, setIsCollapsedMode} = props;
 
     return (
-        <Button
-            variant='outlined'
-            size='small'
-            className={styles.button}
-            onClick={() => setIsCollapsedMode(!collapsedMode)}
-            startIcon={collapsedMode ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
-        >
-            {collapsedMode ? 'Expand' : 'Collapse'}
-        </Button>
+        <HeaderContainer>
+            Entity Relationship Diagram
+            <NodeCollapser collapsedMode={collapsedMode} setIsCollapsedMode={setIsCollapsedMode} />
+        </HeaderContainer>
     );
 }

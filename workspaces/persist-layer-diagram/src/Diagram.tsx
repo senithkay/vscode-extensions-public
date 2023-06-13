@@ -25,7 +25,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { modelMapper, generateEngine } from './utils';
-import { DiagramControls, NodeCollapser, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
+import { DiagramControls, HeaderWidget, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
 import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine, Colors } from './resources';
 import './utils/CanvasStyles.css';
 
@@ -40,7 +40,7 @@ interface PersistDiagramProps {
 const PersistContainer = styled.div`
     align-items: center;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     height: 100vh;
     justify-content: center;
     width: 100vw;
@@ -118,6 +118,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
     return (
         <PersistContainer>
             <PersistDiagramContext {...ctx}>
+                <HeaderWidget collapsedMode={collapsedMode} setIsCollapsedMode={switchCollapseMode} />
                 {diagramEngine?.getModel() ?
                     <>
                         <CanvasWidget engine={diagramEngine} className={'persist-diagram-container'} />
@@ -125,10 +126,6 @@ export function PersistDiagram(props: PersistDiagramProps) {
                             engine={diagramEngine}
                             refreshDiagram={refreshDiagram}
                             showProblemPanel={showProblemPanel}
-                        />
-                        <NodeCollapser
-                            collapsedMode={collapsedMode}
-                            setIsCollapsedMode={switchCollapseMode}
                         />
                     </> :
                     userMessage ?
