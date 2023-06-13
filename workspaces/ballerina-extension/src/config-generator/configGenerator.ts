@@ -26,198 +26,6 @@ import { generateExistingValues, parseTomlToConfig } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
 
 
-// export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string,
-//     isDebug: boolean): Promise<void> {
-//     let configFile: string = filePath;
-//     let packageName: string = "packageName";
-
-//     if (!filePath || !filePath.toString().endsWith(CONFIG_FILE)) {
-//         let currentProject: BallerinaProject = {};
-//         if (window.activeTextEditor) {
-//             currentProject = await getCurrentBallerinaProject();
-//         } else {
-//             const document = ballerinaExtInstance.getDocumentContext().getLatestDocument();
-//             if (document) {
-//                 currentProject = await getCurrentBallerinaProject(document.toString());
-//             }
-//         }
-
-//         if (!currentProject) {
-//             return;
-//         } else {
-//             ballerinaExtInstance.getDocumentContext().setCurrentProject(currentProject);
-//         }
-
-//         if (currentProject.kind == "SINGLE_FILE_PROJECT") {
-//             // TODO: How to pass config values to single files
-//             isDebug ? commands.executeCommand(INTERNAL_DEBUG_COMMAND) : commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
-//             return;
-//         }
-
-//         filePath = `${currentProject.path}/${BAL_TOML}`;
-
-//         packageName = currentProject.packageName!;
-//         await ballerinaExtInstance.langClient?.getBallerinaProjectConfigSchema({
-//             documentIdentifier: {
-//                 uri: Uri.file(filePath).toString()
-//             }
-//         }).then(async response => {
-//             const data = response as PackageConfigSchemaResponse;
-//             if (data.configSchema === undefined || data.configSchema === null) {
-//                 window.showErrorMessage('Unable to generate the configurables: Error while '
-//                     + 'retrieving the configurable schema.');
-//                 return Promise.reject();
-//             }
-
-//             if (Object.keys(data.configSchema?.properties).length > 0) {
-//                 const props: object = data.configSchema?.properties;
-//                 var firstKey = Object.keys(props)[0];
-//                 var orgName = props[firstKey].properties;
-//                 if (orgName) {
-//                     const configs: {
-//                         additionalProperties: boolean
-//                         properties: {}
-//                         required: []
-//                     } = orgName[packageName];
-//                     if (configs.required?.length > 0) {
-
-//                         configFile = `${currentProject.path}/${CONFIG_FILE}`;
-//                         const ignoreFile = `${currentProject.path}/.gitignore`;
-//                         const uri = Uri.file(configFile);
-
-//                         const newValues: ConfigProperty[] = [];
-//                         let updatedContent = '';
-
-//                         // If the config file exist check for existing values
-//                         if (existsSync(configFile)) {
-//                             const tomlContent: string = readFileSync(uri.fsPath, 'utf8');
-//                             const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), orgName, packageName);
-//                             const obj = existingConfigs['[object Object]'][packageName];
-
-//                             // If there are existing configs check for new ones
-//                             if (Object.keys(obj).length > 0) {
-
-//                                 configs.required.forEach(value => {
-//                                     if (!(value in obj)) {
-//                                         // New configs found
-//                                         newValues.push({ name: value, type: '', property: undefined });
-//                                     }
-//                                 });
-//                                 // Assign types to values
-//                                 newValues.forEach(val => {
-//                                     val.type = configs.properties[val.name].type;
-//                                     val.property = configs.properties[val.name];
-//                                 });
-
-//                                 updatedContent = tomlContent + `\n`;
-
-//                             } else {
-//                                 // If the config file is empty
-//                                 configs.required.forEach(value => {
-//                                     // New configs
-//                                     newValues.push({ name: value, type: '', property: undefined });
-//                                 });
-//                                 // Assign types to values
-//                                 newValues.forEach(val => {
-//                                     val.type = configs.properties[val.name].type;
-//                                     val.property = configs.properties[val.name];
-//                                 });
-//                             }
-//                         } else {
-//                             // If no config files add all the required config values
-//                             configs.required.forEach(value => {
-//                                 // New configs found
-//                                 newValues.push({ name: value, type: '', property: undefined });
-//                             });
-//                             // Assign types to values
-//                             newValues.forEach(val => {
-//                                 val.type = configs.properties[val.name].type;
-//                                 val.property = configs.properties[val.name];
-//                             });
-//                         }
-
-//                         // If there are newValues to be added to the config ask the message
-//                         if (newValues.length > 0) {
-//                             let btnTitle = "Open config";
-//                             let message = "There are mandatory configurables that are required to run the project.";
-//                             if (!existsSync(configFile)) {
-//                                 btnTitle = "Create new config";
-//                             }
-//                             // Config generation message with button
-//                             const openConfigButton = { title: btnTitle, isCloseAffordance: true };
-//                             const ignoreButton = { title: 'Ignore' };
-
-//                             const result = await window.showInformationMessage(
-//                                 message,
-//                                 openConfigButton,
-//                                 ignoreButton
-//                             );
-
-//                             if (result === openConfigButton) {
-
-//                                 if (!existsSync(configFile)) {
-//                                     openSync(configFile, 'w');
-//                                     if (existsSync(ignoreFile)) {
-//                                         const ignoreUri = Uri.file(ignoreFile);
-//                                         let ignoreConent: string = readFileSync(ignoreUri.fsPath, 'utf8');
-//                                         if (!ignoreConent.includes(CONFIG_FILE)) {
-//                                             ignoreConent += `\n${CONFIG_FILE}\n`;
-//                                             writeFile(ignoreUri.fsPath, ignoreConent, function (error) {
-//                                                 if (error) {
-//                                                     return window.showInformationMessage("Unable to update the .gitIgnore file: " + error);
-//                                                 }
-//                                                 window.showInformationMessage("Successfully updated the .gitIgnore file.");
-//                                             });
-//                                         }
-//                                     }
-//                                 }
-
-//                                 // Update the config toml file with new values
-//                                 updateConfigToml(newValues, updatedContent, uri.fsPath);
-
-//                                 await workspace.openTextDocument(uri).then(async document => {
-//                                     window.showTextDocument(document, { preview: false });
-//                                     window.showWarningMessage('You have to run the project again after updating the new configurable values.');
-//                                 });
-
-//                             } else if (result === ignoreButton) {
-//                                 if (ballerinaExtInstance.enabledRunFast()) {
-//                                     commands.executeCommand(PALETTE_COMMANDS.RUN_FAST);
-//                                 } else {
-//                                     commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
-//                                 }
-//                             }
-
-//                         } else {
-//                             if (ballerinaExtInstance.enabledRunFast()) {
-//                                 commands.executeCommand(PALETTE_COMMANDS.RUN_FAST);
-//                             } else {
-//                                 commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
-//                             }
-//                         }
-//                     } else {
-//                         if (ballerinaExtInstance.enabledRunFast()) {
-//                             commands.executeCommand(PALETTE_COMMANDS.RUN_FAST);
-//                         } else {
-//                             commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
-//                         }
-//                     }
-
-//                 }
-
-//             } else {
-//                 if (ballerinaExtInstance.enabledRunFast()) {
-//                     commands.executeCommand(PALETTE_COMMANDS.RUN_FAST);
-//                 } else {
-//                     commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
-//                 }
-//             }
-//         });
-
-//     }
-
-// }
-
 export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
     let configFile: string = filePath;
     let packageName: string = 'packageName';
@@ -263,9 +71,6 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             const props: object = configSchema.properties;
             const firstKey = Object.keys(props)[0];
             const orgName = props[firstKey].properties;
-            // const props: object = data.configSchema?.properties;
-            // //                 var firstKey = Object.keys(props)[0];
-            // //                 var orgName = props[firstKey].properties;
 
             if (!orgName) {
                 executeRunCommand(ballerinaExtInstance);
@@ -360,13 +165,14 @@ async function handleNewValues(newValues: ConfigProperty[], configFile: string, 
     }
 
     const openConfigButton = { title: btnTitle, isCloseAffordance: true };
-    const ignoreButton = { title: 'Ignore' };
+    const ignoreButton = { title: 'Run Anyway' };
 
     const result = await window.showInformationMessage(message, openConfigButton, ignoreButton);
 
     if (result === openConfigButton) {
         if (!existsSync(configFile)) {
             openSync(configFile, 'w');
+            updatedContent = "# For more information please visit\n# https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/\n\n\n" + updatedContent;
             if (existsSync(ignoreFile)) {
                 const ignoreUri = Uri.file(ignoreFile);
                 let ignoreContent: string = readFileSync(ignoreUri.fsPath, 'utf8');
@@ -386,7 +192,6 @@ async function handleNewValues(newValues: ConfigProperty[], configFile: string, 
 
         await workspace.openTextDocument(uri).then(async document => {
             window.showTextDocument(document, { preview: false });
-            window.showWarningMessage('You have to run the project again after updating the new configurable values.');
         });
     } else if (result === ignoreButton) {
         executeRunCommand(ballerinaExtInstance);
@@ -433,10 +238,10 @@ function getConfigValue(name: string, obj: Property, comment: { value: string })
             newConfigValue = `${name} = ""\n`;
             break;
         case ConfigTypes.ARRAY:
-            newConfigValue = getArrayConfigValue(name, obj);
+            newConfigValue = getArrayConfigValue(comment, name, obj);
             break;
         case ConfigTypes.OBJECT:
-            newConfigValue = getObjectConfigValue(name, obj);
+            newConfigValue = getObjectConfigValue(comment, name, obj);
             break;
         default:
             if (Constants.ANY_OF in obj) {
@@ -462,29 +267,35 @@ function getConfigValue(name: string, obj: Property, comment: { value: string })
     return newConfigValue;
 }
 
-function getArrayConfigValue(name: string, item: Property): string {
+function getArrayConfigValue(comment: { value: string }, name: string, item: Property): string {
     let newConfigValue = '';
     switch (item.type) {
         case ConfigTypes.BOOLEAN:
-            newConfigValue = `${name} = [false, false]\n`;
+            comment.value = `# Following config value should be a ${ConfigTypes.BOOLEAN} array\n`;
+            newConfigValue = `${name} = []\n# Example: ${name} = [false, false]\n`;
             break;
         case ConfigTypes.INTEGER:
-            newConfigValue = `${name} = [0, 0]\n`;
+            comment.value = `# Following config value should be an ${ConfigTypes.INTEGER} array\n`;
+            newConfigValue = `${name} = []\n# Example: ${name} = [0, 0]\n`;
             break;
         case ConfigTypes.NUMBER:
-            newConfigValue = `${name} = [0.0, 0.0]\n`;
+            comment.value = `# Following config value should be a ${ConfigTypes.NUMBER} array\n`;
+            newConfigValue = `${name} = []\n# Example: ${name} = [0.0, 0.0]\n`;
             break;
         case ConfigTypes.STRING:
-            newConfigValue = `${name} = ["", ""]\n`;
+            comment.value = `# Following config value should be a ${ConfigTypes.STRING} array\n`;
+            newConfigValue = `${name} = []\n# Example: ${name} = ["red", "green"]\n`;
             break;
         case ConfigTypes.ARRAY:
-            newConfigValue = getArrayConfigValue(name, item.items);
+            comment.value = `# Following config value should be an ${ConfigTypes.ARRAY} of array\n`;
+            newConfigValue = getArrayConfigValue(comment, name, item.items);
             break;
         case ConfigTypes.OBJECT:
+            comment.value = `# Following config value should be an ${ConfigTypes.OBJECT} array\n`;
             if (item.additionalProperties && item.additionalProperties.type === ConfigTypes.STRING) {
-                newConfigValue = `[[${name}]]\nname = "John"\ncity = "Paris"\n[[${name}]]\nname = "Jack"\ncity = "Colombo"\n`;
+                newConfigValue = `[[${name}]]\n# Example:\n# [[${name}]]\n# name = "John"\n# city = "Paris"\n# [[${name}]]\n# name = "Jack"\n# city = "Colombo"\n`;
             } else {
-                newConfigValue = getObjectConfigValue(`[${name}]`, item);
+                newConfigValue = getObjectConfigValue(comment, `[${name}]`, item);
             }
             break;
         default:
@@ -494,15 +305,16 @@ function getArrayConfigValue(name: string, item: Property): string {
     return newConfigValue;
 }
 
-function getObjectConfigValue(name: string, property: Property, parentObject?: string): string {
+function getObjectConfigValue(comment: { value: string }, name: string, property: Property, parentObject?: string): string {
     let newConfigValue = parentObject ? '' : `[${name}]\n`;
     if (property && property.required?.length > 0) {
         property.required.forEach(val => {
             const obj: Property = property.properties[val];
             let propertyValue = '';
-            if (parentObject) {
-                val = `${parentObject}.${val}`;
-            }
+            // TODO: Following code block gives errors when parsing the toml file due to the dotted object notations. Find a better parser for toml
+            // if (parentObject) {
+            //     val = `${parentObject}.${val}`;
+            // }
             switch (obj.type) {
                 case ConfigTypes.INTEGER:
                     propertyValue = `${val} = 0\n`;
@@ -514,10 +326,10 @@ function getObjectConfigValue(name: string, property: Property, parentObject?: s
                     propertyValue = `${val} = 0.0\n`;
                     break;
                 case ConfigTypes.ARRAY:
-                    propertyValue = getArrayConfigValue(name, obj);
+                    propertyValue = getArrayConfigValue(comment, name, obj);
                     break;
                 case ConfigTypes.OBJECT:
-                    propertyValue = getObjectConfigValue(name, obj, val);
+                    propertyValue = getObjectConfigValue(comment, name, obj, val);
                     break;
                 default:
                     propertyValue = `${val} = ""\n`;
