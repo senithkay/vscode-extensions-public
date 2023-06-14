@@ -97,6 +97,8 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
             if (existsSync(configFile)) {
                 const tomlContent: string = readFileSync(uri.fsPath, 'utf8');
+                // TODO: There is an issue when parsing the toml file where we have variables after object definitions using [] notations and it takes
+                // the rest of the variables below that as attributes of that object.
                 const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), orgName, packageName);
                 const obj = existingConfigs['[object Object]'][packageName];
 
