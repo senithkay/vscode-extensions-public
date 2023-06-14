@@ -1,0 +1,108 @@
+# For more information please visit
+# https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/
+
+
+# Following config value should be a type of BOOLEAN
+isAdmin = false
+
+# Following config value should be a type of INTEGER
+age = 0
+
+# Following config value should be a type of INTEGER
+port = 0
+
+# Following config value should be a type of NUMBER
+height = 0.0
+
+# Following config value should be a type of NUMBER
+salary = 0.0
+
+# Following config value should be a type of STRING
+name = ""
+
+# Following config value should be a type of STRING
+book = ""
+
+# Following config value should be a boolean array
+switches = []
+# Example: switches = [false, false]
+
+# Following config value should be an integer array
+ports = []
+# Example: ports = [0, 0]
+
+# Following config value should be a number array
+rates = []
+# Example: rates = [0.0, 0.0]
+
+# Following config value should be a string array
+colors = []
+# Example: colors = ["red", "green"]
+
+# Following config value should be a type of OBJECT
+[person]
+
+# Following config value should be an object array
+[[people]]
+# Example:
+# [[people]]
+# name = "John"
+# city = "Paris"
+# [[people]]
+# name = "Jack"
+# city = "Colombo"
+
+# Following config value should be a type of OBJECT
+[personx]
+name = ""
+age = 0
+
+# Following config value should be a type of OBJECT
+[input]
+name = ""
+cal = 0
+age = 0
+
+# Following config value should be an object array
+[[peopex]]
+name = ""
+cal = 0
+name = ""
+age = 0
+
+# Following config value should be an object array
+[[users]]
+# Example:
+# [[users]]
+# name = "John"
+# city = "Paris"
+# [[users]]
+# name = "Jack"
+# city = "Colombo"
+
+# Following config value should be an object array
+[[userTeams]]
+# Example:
+# [[userTeams]]
+# name = "John"
+# city = "Paris"
+# [[userTeams]]
+# name = "Jack"
+# city = "Colombo"
+
+# Following config value should be a type of STRING
+country = ""
+
+# Following config value should be a type of NUMBER
+code = 0
+
+# Following config value should be a type of STRING
+data = ""
+
+# Following config value should be a type of STRING
+url = ""
+
+# Following config value should be a type of OBJECT
+# for more details refer https://lib.ballerina.io/ballerina/http/
+[authConfig]
+
