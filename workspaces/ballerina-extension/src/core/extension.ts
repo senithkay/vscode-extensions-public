@@ -571,11 +571,6 @@ export class BallerinaExtension {
         return <boolean>workspace.getConfiguration().get(ENABLE_PERFORMANCE_FORECAST);
     }
 
-    // public isConfigurableEditorEnabled(): boolean {
-    //     return this.isCodeServerEnv() ||
-    //         <boolean>workspace.getConfiguration().get(ENABLE_CONFIGURABLE_EDITOR);
-    // }
-
     public enabledExperimentalFeatures(): boolean {
         return <boolean>workspace.getConfiguration().get(ENABLE_EXPERIMENTAL_FEATURES);
     }
