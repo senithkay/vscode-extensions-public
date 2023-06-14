@@ -51,7 +51,9 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
 
     const handleOnHover = (task: string) => {
         setIsHovered(task === 'SELECT' ? true : false);
-        node.handleHover(headPorts.current, task);
+        if (!isCollapsed) {
+            node.handleHover(headPorts.current, task);
+        }
     }
 
     const handleCollapsedStatus = () => {
@@ -92,7 +94,7 @@ export function EntityHeadWidget(props: ServiceHeadProps) {
                         position: 'absolute'
                     }}
                 >
-                    {isCollapsed ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    {isCollapsed ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
                 </IconButton>
             }
         </EntityHead>

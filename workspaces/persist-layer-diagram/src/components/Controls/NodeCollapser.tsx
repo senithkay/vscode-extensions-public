@@ -38,7 +38,7 @@ export function NodeCollapser(props: NodeCollapserProps) {
             size='small'
             className={styles.button}
             onClick={() => setIsCollapsedMode(!collapsedMode)}
-            startIcon={collapsedMode ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
+            startIcon={collapsedMode ? <UnfoldMoreIcon /> : <UnfoldLessIcon />}
         >
             {collapsedMode ? 'Expand' : 'Collapse'}
         </Button>
