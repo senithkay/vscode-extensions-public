@@ -31,6 +31,7 @@ export const useStyles = makeStyles(() =>
             flexDirection: 'row !important',
             justifyContent: 'space-between !important',
             fontFamily: 'GilmerRegular !important',
+            fontSize: '13px !important',
             height: '30px !important',
             textTransform: 'none !important',
             width: '100px !important'

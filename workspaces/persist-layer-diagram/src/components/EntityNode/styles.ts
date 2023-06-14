@@ -48,7 +48,7 @@ export const EntityHead: React.FC<any> = styled.div`
     display: flex;
     font-family: GilmerMedium;
     font-size: 13px;
-    height: 40px;
+    height: 30px;
     justify-content: center;
     line-height: 20px;
     min-width:  ${(props: StyleProps) => props.isCollapsed ? `calc(100% - 40px)` : `calc(100% - 100px)`};
