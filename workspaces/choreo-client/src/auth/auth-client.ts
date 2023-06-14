@@ -65,7 +65,7 @@ export class ChoreoAuthClient implements IAuthClient {
             grant_type: ExchangeGrantType,
             subject_token_type: JWTTokenType,
             requested_token_type: JWTTokenType,
-            scope: ApimScope,
+            scope: `${ApimScope} ${this._config.apimScopes}`,
             subject_token: apimAccessToken,
             orgHandle,
         });

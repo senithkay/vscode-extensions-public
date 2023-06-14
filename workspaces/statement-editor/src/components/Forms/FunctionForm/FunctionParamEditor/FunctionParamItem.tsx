@@ -27,7 +27,6 @@ export interface FunctionParam {
 }
 
 interface FunctionParamItemProps {
-    index: number;
     functionParam: FunctionParam;
     readonly : boolean;
     onDelete?: (functionParam: FunctionParam) => void;
@@ -35,7 +34,7 @@ interface FunctionParamItemProps {
 }
 
 export function FunctionParamItem(props: FunctionParamItemProps) {
-    const { index, functionParam, readonly, onDelete, onEditClick } = props;
+    const { functionParam, readonly, onDelete, onEditClick } = props;
     const classes = useStyles();
 
     const segmentLabel = functionParam.type + " " + functionParam.name;
@@ -50,7 +49,7 @@ export function FunctionParamItem(props: FunctionParamItemProps) {
     return (
         <div className={classes.headerWrapper}>
             <div className={classes.headerLabel}>
-                <div data-testid={`function-param-${index}`} className={readonly ? classes.disabledColor : classes.headerLabelCursor} onClick={handleEdit}>
+                <div data-test-id={"function-param"} className={readonly ? classes.disabledColor : classes.headerLabelCursor} onClick={handleEdit}>
                     {segmentLabel}
                 </div>
                 {!readonly && (

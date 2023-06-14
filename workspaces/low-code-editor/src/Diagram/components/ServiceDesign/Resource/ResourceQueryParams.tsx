@@ -31,7 +31,6 @@ import {
 import "./style.scss";
 
 interface ResourceQueryParamsProps {
-    id: number;
     parameters: (
         | CommaToken
         | DefaultableParam
@@ -43,19 +42,19 @@ interface ResourceQueryParamsProps {
 }
 
 export function ResourceQueryParams(props: ResourceQueryParamsProps) {
-    const { id, parameters, relativeResourcePath } = props;
+    const { parameters, relativeResourcePath } = props;
 
-    const pathElements = relativeResourcePath.map((node, index) => {
+    const pathElements = relativeResourcePath.map(node => {
         if (STKindChecker.isIdentifierToken(node) || STKindChecker.isSlashToken(node)) {
             return node.value
         } else if (STKindChecker.isResourcePathSegmentParam(node) || STKindChecker.isResourcePathRestParam(node)) {
             return (
-                <div data-testid={`resource-${id}-path-param-${index}`}>
-                    [<span className={'type-descriptor'} data-testid={`resource-${id}-path-param-${index}-type-desc`}>
+                <>
+                    [<span className={'type-descriptor'}>
                         {`${(node as any).typeDescriptor?.name?.value} `}
                     </span>
                     {STKindChecker.isResourcePathRestParam(node) ? '...' : ''}{(node as any).paramName?.value}]
-                </div>
+                </>
             );
         } else if (STKindChecker.isDotToken(node)) {
             return (<>/</>);
@@ -83,7 +82,7 @@ export function ResourceQueryParams(props: ResourceQueryParamsProps) {
 
     return (
         <div className={"param-container"}>
-            <p className={"path-text"} data-testid={`resource-${id}-relative-resource-path`}>
+            <p className={"path-text"}>
                 {pathElements.length === 1 && pathElements[0] === '.' ? "/" : pathElements}
                 <span>&nbsp;</span>
             </p>

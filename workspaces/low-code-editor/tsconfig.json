@@ -3,7 +3,7 @@
         "outDir": "./build",
         "rootDir": "./src",
         "skipLibCheck": true,
-        "module": "CommonJS",
+        "module": "esnext",
         "target": "es6",
         "lib": [
             "esnext",

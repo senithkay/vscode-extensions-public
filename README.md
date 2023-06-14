@@ -71,21 +71,6 @@ Replace <package-name> with the name of the package you want to add. If `-m` arg
 - `rush check`: This command checks the consistency of the package dependencies, and ensures that all the packages are built with the same version of the dependencies.
 - `rush purge`: This command cleans up the temporary files and folders in the mono-repo.
 
-## Running Component Tests
-
-Component tests are available in `low-code-editor`, `low-code-diagram` and `statement-editor` workspaces.
-
-Before running the tests, run the following command inside the `low-code-editor` workspace to start a lang server.
-
-```bash
-npm run start-servers
-```
-Then within each workspace, run the following command to run the tests.
-
-```bash
-npm test
-```
-
 ## License
 
 By downloading and using the Visual Studio Code Ballerina extension, you agree to the [license terms](https://wso2.com/licenses/ballerina-vscode-plugin-2021-05-25/) and [privacy statement](https://wso2.com/privacy-policy).
