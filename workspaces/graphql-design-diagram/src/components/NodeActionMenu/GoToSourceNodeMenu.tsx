@@ -38,13 +38,13 @@ export function GoToSourceNodeMenu(props: GoToSourceNodeMenuProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <>
+                    <div onClick={() => setTooltipStatus(false)}>
                         <Paper style={{ maxWidth: "100%" }}>
                             <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
                                 <GoToSourceMenuItem location={location} />
                             </MenuList>
                         </Paper>
-                    </>
+                    </div>
                 }
                 PopperProps={{
                     modifiers: [

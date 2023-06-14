@@ -69,7 +69,7 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <>
+                    <div onClick={() =>  setTooltipStatus(false)}>
                         <Paper style={{ maxWidth: "100%" }}>
                             <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
                                 <MenuItem onClick={() => handleEditRecord()} style={{ paddingTop: "0px", paddingBottom: "0px" }}>
@@ -82,7 +82,7 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
                                 <GoToSourceMenuItem location={location} />
                             </MenuList>
                         </Paper>
-                    </>
+                    </div>
                 }
                 PopperProps={{
                     modifiers: [

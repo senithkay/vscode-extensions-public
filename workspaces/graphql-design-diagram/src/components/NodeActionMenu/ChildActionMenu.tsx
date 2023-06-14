@@ -81,12 +81,14 @@ export function ChildActionMenu(props: ChildActionMenuProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <Paper style={{ maxWidth: "100%" }}>
-                        <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                            <EditNode model={currentModel} functionType={functionType} location={location} st={currentST} />
-                            <DesignNode model={currentModel} location={location} />
-                        </MenuList>
-                    </Paper>
+                    <div onClick={() => setTooltipStatus(false)}>
+                        <Paper style={{ maxWidth: "100%" }}>
+                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                                <EditNode model={currentModel} functionType={functionType} location={location} st={currentST} />
+                                <DesignNode model={currentModel} location={location} />
+                            </MenuList>
+                        </Paper>
+                    </div>
                 }
                 PopperProps={{
                     modifiers: [

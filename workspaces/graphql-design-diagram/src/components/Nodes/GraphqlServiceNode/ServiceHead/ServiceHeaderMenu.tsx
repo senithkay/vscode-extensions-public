@@ -37,9 +37,9 @@ export function ServiceHeaderMenu(props: ServiceHeaderMenuProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <>
+                    <div onClick={() => setTooltipStatus(false)}>
                         <ServiceSubheader location={location}/>
-                    </>
+                    </div>
                 }
                 PopperProps={{
                     modifiers: [
