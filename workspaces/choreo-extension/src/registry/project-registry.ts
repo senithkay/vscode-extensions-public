@@ -24,6 +24,7 @@ import { initGit, } from "../git/main";
 import { getLogger } from "../logger/logger";
 import { ProgressLocation, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
+import { makeURLSafe } from "../utils";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -527,7 +528,7 @@ export class ProjectRegistry {
     private async _createComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
         const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
         const componentRequest: CreateComponentParams = {
-            name: componentMetadata.displayName,
+            name: makeURLSafe(componentMetadata.displayName),
             displayName: componentMetadata.displayName,
             displayType: componentMetadata.displayType,
             description: componentMetadata.description,
@@ -548,7 +549,7 @@ export class ProjectRegistry {
             throw new Error("BYOC config is undefined");
         }
         const componentRequest: CreateByocComponentParams = {
-            name: componentMetadata.displayName,
+            name: makeURLSafe(componentMetadata.displayName),
             displayName: componentMetadata.displayName,
             componentType: componentMetadata.displayType,
             description: componentMetadata.description,
