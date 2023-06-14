@@ -23,7 +23,7 @@ export const CellContainer: React.FC<any> = styled.div`
   height: 100%;
   position: relative;
   clip-path: ${(props: CellContainerProps) => props.path };
-  background: ${(props: CellContainerProps) => props.isConsoleRendered ? '#5567D5' : '#F8FCFC'};
+  background: #5567D5;
   overflow: hidden;
 `;
 
@@ -36,7 +36,6 @@ export const CanvasWrapper: React.FC<any> = styled.div`
 
 interface CellContainerProps {
   isConsoleView?: boolean;
-  isConsoleRendered?: boolean;
   consoleView?: ConsoleView;
   canvasHeight?: number;
   path: string;
