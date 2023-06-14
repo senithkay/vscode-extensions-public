@@ -1466,6 +1466,22 @@ export function getDiagnosticsPosition(outPortField: EditableRecordField, mappin
 	return diagnosticsPosition;
 }
 
+export function isRepresentFnBody(queryParentNode: STNode, fnBody: ExpressionFunctionBody) {
+	const isExprFnBody = STKindChecker.isExpressionFunctionBody(queryParentNode);
+	const isQueryParentNodeFnBody = isExprFnBody && isPositionsEquals(queryParentNode.position, fnBody.position);
+	if (isQueryParentNodeFnBody) {
+		return true;
+	}
+	let nextNode: STNode;
+	while (STKindChecker.isTypeCastExpression(fnBody.expression) || STKindChecker.isLetVarDecl(fnBody.expression)) {
+		if (isPositionsEquals(queryParentNode.position, fnBody.expression.position)) {
+			return true;
+		}
+		nextNode = fnBody.expression;
+	}
+	return false;
+}
+
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)
 		&& targetPort?.editableRecordField?.value

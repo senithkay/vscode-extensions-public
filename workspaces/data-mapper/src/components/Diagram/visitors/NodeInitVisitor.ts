@@ -244,6 +244,15 @@ export class NodeInitVisitor implements Visitor {
                                 typeDesc,
                                 returnType
                             );
+                        } else if (returnType.typeName === PrimitiveBalType.Union) {
+                            // TODO: Uncomment this once the union type support is added in the lang
+                            //  (https://github.com/ballerina-platform/ballerina-lang/issues/40012)
+                            this.outputNode = new UnionTypeNode(
+                                this.context,
+                                exprFuncBody,
+                                typeDesc,
+                                returnType
+                            );
                         } else {
                             this.outputNode = new PrimitiveTypeNode(
                                 this.context,

@@ -10,6 +10,7 @@ import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     CaptureBindingPattern,
+    ExpressionFunctionBody,
     NodePosition,
     QueryExpression,
     STKindChecker,
@@ -27,14 +28,16 @@ import {
     LET_EXPRESSION_SOURCE_PORT_PREFIX,
     LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
     OFFSETS,
-    PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+    PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
+    UNION_TYPE_TARGET_PORT_PREFIX
 } from "../../utils/constants";
 import {
     getDefaultValue,
     getExprBodyFromLetExpression,
     getFieldNames,
+    getInnermostExpressionBody,
     getMethodCallElements,
-    getTypeFromStore
+    getTypeFromStore, isRepresentFnBody
 } from "../../utils/dm-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
@@ -44,6 +47,7 @@ import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { PrimitiveTypeNode } from "../PrimitiveType";
 import { RequiredParamNode } from "../RequiredParam";
+import { UnionTypeNode } from "../UnionType";
 
 export const QUERY_EXPR_NODE_TYPE = "datamapper-node-query-expr";
 
@@ -143,8 +147,14 @@ export class QueryExpressionNode extends DataMapperNodeModel {
     }
 
     private getTargetType(): void {
-        const fieldNamePosition = STKindChecker.isSpecificField(this.parentNode)
-                                    && this.parentNode.fieldName.position as NodePosition;
+        const innerMostExpr = getInnermostExpressionBody(this.parentNode);
+        const selectedST = this.context.selection.selectedST.stNode;
+        let exprFuncBody : ExpressionFunctionBody;
+        if (STKindChecker.isFunctionDefinition(selectedST) && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
+            exprFuncBody = selectedST.functionBody;
+        }
+        const fieldNamePosition = STKindChecker.isSpecificField(innerMostExpr)
+                                    && innerMostExpr.fieldName.position as NodePosition;
         if (fieldNamePosition) {
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode || node instanceof ListConstructorNode) {
@@ -181,6 +191,22 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     });
                 }
             });
+        } else if (isRepresentFnBody(this.parentNode, exprFuncBody)) {
+        // } else if (STKindChecker.isTypeCastExpression(this.parentNode) && isPositionsEquals(this.parentNode.position, exprFuncBody.expression.position)) {
+            this.getModel().getNodes().forEach((node) => {
+                if (node instanceof UnionTypeNode) {
+                    const ports = Object.entries(node.getPorts());
+                    ports.map((entry) => {
+                        const port = entry[1];
+                        if (port instanceof RecordFieldPortModel
+                            && port.portName === `${UNION_TYPE_TARGET_PORT_PREFIX}`
+                            && port.portType === 'IN'
+                        ) {
+                            this.targetPort = port;
+                        }
+                    });
+                }
+            });
         } else if (STKindChecker.isLetExpression(this.parentNode)) {
             const exprPosition = this.parentNode.expression.position;
             this.getModel().getNodes().forEach((node) => {
@@ -200,7 +226,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     });
                 }
             });
-        } else if (STKindChecker.isBracedExpression(this.parentNode)) {
+        } else if (STKindChecker.isBracedExpression(innerMostExpr)) {
             // To draw link between query node and output node
             // when having indexed query expressions at function body level
             this.getModel().getNodes().forEach((node) => {
@@ -211,9 +237,9 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         if (port instanceof RecordFieldPortModel
                             && port?.editableRecordField && port.editableRecordField?.value
                             && STKindChecker.isQueryExpression(port.editableRecordField.value)
-                            && STKindChecker.isBracedExpression(this.parentNode)
-                            && STKindChecker.isQueryExpression(this.parentNode.expression)
-                            && isPositionsEquals(port.editableRecordField.value.position, this.parentNode.expression.position)
+                            && STKindChecker.isBracedExpression(innerMostExpr)
+                            && STKindChecker.isQueryExpression(innerMostExpr.expression)
+                            && isPositionsEquals(port.editableRecordField.value.position, innerMostExpr.expression.position)
                             && port.portName === `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.typeDef.name ? `${node.typeDef.typeName}.${node.typeDef.name}` : node.typeName}`
                             && port.portType === 'IN'
                         ) {

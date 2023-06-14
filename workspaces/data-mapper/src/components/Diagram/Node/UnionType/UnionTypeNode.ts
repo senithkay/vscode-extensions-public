@@ -96,6 +96,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
         this.typeName = getTypeName(this.typeDef);
         this.resolveType();
         const renderResolvedTypes = !this.shouldRenderUnionType();
+        const isSelectClause = STKindChecker.isSelectClause(this.innermostExpr);
         if (this.resolvedType && renderResolvedTypes) {
             this.typeDef = getSearchFilteredOutput(this.resolvedType);
             if (this.typeDef) {
@@ -104,7 +105,6 @@ export class UnionTypeNode extends DataMapperNodeModel {
                     : this.resolvedType.typeName === PrimitiveBalType.Array
                         ? this.typeDef.typeName
                         : undefined;
-                const isSelectClause = STKindChecker.isSelectClause(this.value);
                 if (isSelectClause
                     && this.typeDef.typeName === PrimitiveBalType.Array
                     && this.typeDef?.memberType)
@@ -120,7 +120,7 @@ export class UnionTypeNode extends DataMapperNodeModel {
             }
         } else {
             this.rootName = undefined;
-            this.addPortsForHeaderField(this.typeDef, this.rootName, "IN", UNION_TYPE_TARGET_PORT_PREFIX);
+            this.addPortsForHeaderField(this.typeDef, this.rootName, "IN", UNION_TYPE_TARGET_PORT_PREFIX, [], isSelectClause);
         }
     }
 
