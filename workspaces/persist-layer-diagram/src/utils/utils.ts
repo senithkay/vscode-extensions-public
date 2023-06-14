@@ -89,6 +89,7 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
                                 const newLinkId: string = `${link2update.getSourcePort().getID()}::${sourcePort.getID()}`;
                                 const newLink: EntityLinkModel = new EntityLinkModel(newLinkId, cardinality);
                                 links.set(newLinkId, createLinks(link2update.getSourcePort(), sourcePort, newLink));
+                                link2update.getSourcePort().removeLink(link2update);
                                 links.delete(linkId);
                             }
                             const index = mappedLinkNodes.get(associatedEntity.getID()).indexOf(callingEntity.getID());
