@@ -26,7 +26,8 @@ export const signIntoChoreo = async (editor: EditorView, workbench: Workbench) =
             redirectUrl: process.env.REDIRECT_URL!,
             tokenUrl: process.env.TOKEN_URL!,
             vscodeClientId: process.env.VSCODE_CLIENT_ID!,
-            signUpUrl: process.env.SIGNUP_URL!
+            signUpUrl: process.env.SIGNUP_URL!,
+            apimScopes: process.env.APIM_SCOPES!
         });
 
         const authUrl = client.getAuthURL("vscode://wso2.choreo/signin");

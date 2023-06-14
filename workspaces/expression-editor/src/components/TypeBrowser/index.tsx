@@ -191,22 +191,6 @@ const isGraphqlRelated = (isGraphqlForm: boolean, message: string) : boolean => 
 
 export const TypeBrowser = React.memo(TypeBrowserC);
 
-const TypeSelectItem = styled.div`
-    width: 100%;
-    display: flex;
-    align-items: center;
-`;
-
-const TypeSelectItemLabel = styled.div`
-    word-break: break-word;
-    flex: 1;
-`;
-
-const TypeSelectItemModule = styled.div`
-    color: #8d91a3;
-    font-size: 11px;
-`;
-
 const TextFieldStyled = styled(TextField)`
     width: 100%;
     border: 1px solid #DEE0E7;

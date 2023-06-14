@@ -12,7 +12,7 @@
  */
 
 import { Component, ComponentCount, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
-import { orgClient, projectClient, subscriptionClient } from "../auth/auth";
+import { componentManagementClient, projectClient, subscriptionClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
@@ -373,7 +373,7 @@ export class ProjectRegistry {
 
     async getComponentCount(orgId: number): Promise<ComponentCount> {
         try {
-            return orgClient.getComponentCount(orgId);
+            return componentManagementClient.getComponentCount(orgId);
         } catch (error: any) {
             getLogger().error("Failed to fetch the component count. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
             throw new Error("Failed to fetch the component count. " + error?.message);

@@ -2,7 +2,7 @@
   "name": "choreo",
   "displayName": "Choreo",
   "description": "An extension for Signing in to Choreo and managing your projects",
-  "version": "1.2.3",
+  "version": "1.2.5",
   "publisher": "wso2",
   "bugs": {
     "url": "https://github.com/wso2/choreo-vscode/issues"

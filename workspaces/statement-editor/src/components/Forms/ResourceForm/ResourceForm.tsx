@@ -34,13 +34,15 @@ import {
     NodePosition,
     ResourceAccessorDefinition,
     STKindChecker,
-    STNode
+    STNode,
+    traversNode
 } from "@wso2-enterprise/syntax-tree";
 
 import { StatementSyntaxDiagnostics, SuggestionItem } from "../../../models/definitions";
 import { FormEditorContext } from "../../../store/form-editor-context";
 import { getUpdatedSource } from "../../../utils";
 import { getCompletionsForType, getPartialSTForModuleMembers } from "../../../utils/ls-utils";
+import { ResourcePathFinderVisitor } from '../../../visitors/resource-path-finder-visitor';
 import { completionEditorTypeKinds, EXPR_SCHEME, FILE_SCHEME } from '../../InputEditor/constants';
 import { FieldTitle } from '../components/FieldTitle/fieldTitle';
 
@@ -77,6 +79,7 @@ export function ResourceForm(props: FunctionProps) {
     // States related to syntax diagnostics
     const [currentComponentName, setCurrentComponentName] = useState<string>("");
     const [resourcePathDiagnostics, setResourcePathDiagnostics] = useState<StatementSyntaxDiagnostics[]>([]);
+    const [otherDiagnostics, setOtherDiagnostics] = useState<StatementSyntaxDiagnostics[]>([]);
     const [isEditInProgress, setIsEditInProgress] = useState<boolean>(false);
 
     const resourceConfigTitle = intl.formatMessage({
@@ -109,6 +112,7 @@ export function ResourceForm(props: FunctionProps) {
     useEffect(() => {
         if (model) {
             handleResourceParamChange(
+                setResourcePathDiagnostics,
                 methodName,
                 resourcePath,
                 getParamString(parametersValue),
@@ -156,6 +160,7 @@ export function ResourceForm(props: FunctionProps) {
     }
 
     const handleResourceParamChange = async (
+        setDiagnostics: (value: React.SetStateAction<StatementSyntaxDiagnostics[]>) => void,
         resMethod: string,
         pathStr: string,
         paramStr: string,
@@ -181,9 +186,9 @@ export function ResourceForm(props: FunctionProps) {
             onChange(updatedContent, partialST, undefined, { model: stModel }, currentValue, completionEditorTypeKinds, 0,
                 { startLine: -1, startColumn: -4 });
 
-            setResourcePathDiagnostics(undefined);
+            setDiagnostics(undefined);
         } else {
-            setResourcePathDiagnostics(partialST.syntaxDiagnostics);
+            setDiagnostics(partialST.syntaxDiagnostics);
         }
 
     };
@@ -214,6 +219,7 @@ export function ResourceForm(props: FunctionProps) {
         }
         setResourcePath(newPath);
         await handleResourceParamChange(
+            setResourcePathDiagnostics,
             methodName,
             newPath,
             getParamString(parametersValue),
@@ -224,24 +230,47 @@ export function ResourceForm(props: FunctionProps) {
     const [methodName, setMethodName] = useState<string>(model?.functionName?.value.toUpperCase());
     const handleMethodChange = async (value: string) => {
         setMethodName(value.toUpperCase());
-        await handleResourceParamChange(
-            value.toLowerCase(),
-            resourcePath,
-            getParamString(parametersValue),
-            resourceReturn.replace("returns", "")
-        );
+        // Path visiter to find the duplicate resource method and name
+        setResourcePathDiagnostics(undefined);
+        const visitor = new ResourcePathFinderVisitor(value, resourcePath);
+        traversNode(fullST, visitor);
+        const isValidPath = visitor.getResourcePathValidity();
+
+        if (isValidPath) {
+            await handleResourceParamChange(
+                setResourcePathDiagnostics,
+                value.toLowerCase(),
+                resourcePath,
+                getParamString(parametersValue),
+                resourceReturn.replace("returns", "")
+            );
+        } else {
+            setResourcePathDiagnostics([{ message: `Duplicated resource. '${value} ${resourcePath}'` }])
+        }
     };
 
     const [resourcePath, setResourcePath] = useState<string>(getResourcePath(model?.relativeResourcePath).trim());
     const handlePathChange = async (value: string) => {
-        const sanitizedValue = value.replace(/[^a-zA-Z0-9.\[\]\/ ]/g, '');
+        const sanitizedValue = value;
         setResourcePath(sanitizedValue);
-        await handleResourceParamChange(
-            methodName,
-            sanitizedValue,
-            getParamString(parametersValue),
-            resourceReturn.replace("returns", ""),
-        );
+        // Path visiter to find the duplicate resource method and name
+        setResourcePathDiagnostics(undefined);
+        const visitor = new ResourcePathFinderVisitor(methodName, sanitizedValue);
+        traversNode(fullST, visitor);
+        const isValidPath = visitor.getResourcePathValidity();
+
+        if (isValidPath) {
+            await handleResourceParamChange(
+                setResourcePathDiagnostics,
+                methodName,
+                sanitizedValue,
+                getParamString(parametersValue),
+                resourceReturn.replace("returns", ""),
+            );
+        } else {
+            setResourcePathDiagnostics([{ message: `Duplicated resource. '${methodName} ${sanitizedValue}'` }])
+        }
+
     };
 
     const [parametersValue, setParametersValue] = useState<ResourceParam[]>(getParamArray(model.functionSignature));
@@ -249,6 +278,7 @@ export function ResourceForm(props: FunctionProps) {
     const handleParamEditorChange = async (paramString: string, stModel?: STNode, currentValue?: string) => {
         setCurrentComponentName("QueryParam");
         await handleResourceParamChange(
+            setOtherDiagnostics,
             methodName,
             resourcePath,
             paramString,
@@ -262,6 +292,7 @@ export function ResourceForm(props: FunctionProps) {
     const onReturnTypeChange = async (value: string) => {
         setResourceReturn(value);
         await handleResourceParamChange(
+            setOtherDiagnostics,
             methodName,
             resourcePath,
             getParamString(parametersValue),
@@ -301,7 +332,7 @@ export function ResourceForm(props: FunctionProps) {
     }
 
     return (
-        <FormControl data-testid="resource-form" className={connectorClasses.wizardFormControlExtended}>
+        <div data-testid="resource-form" className={connectorClasses.wizardFormControlExtended}>
             <div
                 key={"resource"}
                 className={classes.resourceWrapper}
@@ -330,7 +361,7 @@ export function ResourceForm(props: FunctionProps) {
                                     value={resourcePath}
                                     isLoading={false}
                                     onChange={handlePathChange}
-                                    diagnostics={currentComponentName === "Path" && resourcePathDiagnostics}
+                                    diagnostics={resourcePathDiagnostics}
                                     onFocus={onPathFocus}
                                 />
                             </div>
@@ -353,7 +384,7 @@ export function ResourceForm(props: FunctionProps) {
                         <ConfigPanelSection title={"Parameters"}>
                             <ResourceParamEditor
                                 parameters={parametersValue}
-                                syntaxDiag={[]}
+                                syntaxDiag={otherDiagnostics}
                                 onChange={handleParamEditorChange}
                                 completions={completions}
                                 readonly={isEditInProgress} // todo: implement the disable logic
@@ -364,7 +395,7 @@ export function ResourceForm(props: FunctionProps) {
                                     <PayloadEditor
                                         parameters={parametersValue}
                                         onChange={handleParamEditorChange}
-                                        syntaxDiag={[]}
+                                        syntaxDiag={otherDiagnostics}
                                         completions={completions}
                                         readonly={isEditInProgress}
                                         onChangeInProgress={setIsEditInProgress}
@@ -373,7 +404,7 @@ export function ResourceForm(props: FunctionProps) {
                             }
                             <AdvancedParamEditor
                                 parameters={parametersValue}
-                                syntaxDiag={[]}
+                                syntaxDiag={otherDiagnostics}
                                 onChange={handleParamEditorChange}
                                 readonly={isEditInProgress}
                                 onChangeInProgress={setIsEditInProgress}
@@ -405,6 +436,7 @@ export function ResourceForm(props: FunctionProps) {
                                     className={classes.saveBtn}
                                     onClick={handleOnSave}
                                     disabled={resourcePathDiagnostics?.length > 0
+                                        || otherDiagnostics?.length > 0
                                         || getResourcePathDiagnostics().length > 0
                                         || isEditInProgress
                                         || changeInProgress}
@@ -414,6 +446,6 @@ export function ResourceForm(props: FunctionProps) {
                     </div>
                 </div>
             </div>
-        </FormControl>
+        </div>
     )
 }

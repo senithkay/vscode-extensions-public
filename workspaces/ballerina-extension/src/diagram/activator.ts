@@ -91,13 +91,12 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 	}
 
 	const projectPaths: WorkspaceFolder[] = [];
-	const choreoProjectFile = await workspace.findFiles('**/\.choreo-project');
-
+	const choreoProjectFile = await workspace.findFiles(process.platform === 'win32' ? '**\\.choreo-project' : '**/.choreo-project');
 
 	if (choreoProjectFile.length > 0) {
 		const choreoProjectFolderPath = choreoProjectFile[0].path.replace(/\/\.choreo-project$/, '');
 		workspace.workspaceFolders.forEach((workspaceFolder) => {
-			if (workspaceFolder.uri.path !== choreoProjectFolderPath) {
+			if (extractFilePath(workspaceFolder.uri.path) !== extractFilePath(choreoProjectFolderPath)) {
 				projectPaths.push(workspaceFolder);
 			}
 		});
@@ -596,7 +595,12 @@ class DiagramPanel {
 				methodName: "getAllFilesInProject",
 				handler: async (args: any[]): Promise<Uri[]> => {
 					// TODO: handle ignore glob pattern as well, and change the frontend filter
-					return workspace.findFiles(args[0]);
+					console.log("getAllFilesInProject", args, process.platform);
+					if (process.platform === 'win32') {
+						return workspace.findFiles(args[0].replaceAll(/\//g, '\\'));
+					} else {
+						return workspace.findFiles(args[0]);
+					}
 				}
 			},
 			{
@@ -809,4 +813,25 @@ function getCurrentFileName(): string | undefined {
 
 export function updateDiagramElement(element: DiagramOptions | undefined) {
 	diagramElement = element;
+}
+
+export function extractFilePath(uri: string): string | null {
+	let filePath = uri;
+	if (uri.startsWith('file://')) {
+		const url = new URL(uri);
+		filePath = url.pathname;
+	}
+
+	if (filePath && filePath.match(/^\/[a-zA-Z]:/g)) {
+		// windows filepath matched
+		filePath = filePath.replace('/', '');
+	}
+
+	if (filePath && filePath.match(/^[A-Z]:\//g)) {
+		const firstCharacter = filePath.charAt(0).toLowerCase();
+		const remaining = filePath.slice(1);
+		filePath = `${firstCharacter}${remaining}`;
+	}
+
+	return filePath;
 }
