@@ -55,16 +55,16 @@ export function EntityWidget(props: EntityWidgetProps) {
         engine.getModel().getLinks().forEach((link) => {
             if (link.getID().includes(node.getID())) {
                 if (isCollapsed) {
-                    if (link.getID().split('::')[0].includes(node.getID())) {
-                        link.setSourcePort(node.getPort(link.getID().split('::')[0]));
-                    } else {
-                        link.setTargetPort(node.getPort(link.getID().split('::')[1]));
+                    if (link.getID().split('::')[0].includes(node.getID()) && link.getSourcePort().getID() !== `right-${node.getID()}`) {
+                        link.setSourcePort(node.getPort(`right-${node.getID()}`));
+                    } else if (link.getTargetPort().getID() !== `left-${node.getID()}`) {
+                        link.setTargetPort(node.getPort(`left-${node.getID()}`));
                     }
                 } else {
-                    if (link.getID().split('::')[0].includes(node.getID())) {
-                        link.setSourcePort(node.getPort(`right-${node.getID()}`));
-                    } else {
-                        link.setTargetPort(node.getPort(`left-${node.getID()}`));
+                    if (link.getID().split('::')[0].includes(node.getID()) && link.getSourcePort().getID() !== link.getID().split('::')[0]) {
+                        link.setSourcePort(node.getPort(link.getID().split('::')[0]));
+                    } else if (link.getTargetPort().getID() !== link.getID().split('::')[1]) {
+                        link.setTargetPort(node.getPort(link.getID().split('::')[1]));
                     }
                 }
             }
@@ -90,7 +90,7 @@ export function EntityWidget(props: EntityWidgetProps) {
                 setCollapsedStatus={setCollapsibleStatus}
             />
 
-            {isCollapsed && (
+            {!isCollapsed && (
                 node.entityObject.attributes.map((attribute, index) => {
                     return (
                         <AttributeWidget

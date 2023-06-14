@@ -57,7 +57,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
     const [selectedNodeId, setSelectedNodeId] = useState<string>(undefined);
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>(undefined);
-    const [collapsedMode, setIsCollapsedMode] = useState<boolean>(true);
+    const [collapsedMode, setIsCollapsedMode] = useState<boolean>(false);
 
     const styles = useStyles();
 

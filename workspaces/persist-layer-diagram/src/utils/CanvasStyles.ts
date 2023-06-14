@@ -28,9 +28,6 @@ export const useStyles = makeStyles(() =>
             backgroundRepeat: 'repeat',
             minHeight: 'calc(100vh - 50px)',
             minWidth: '100vw'
-        },
-        svg: {
-            overflow: 'visible'
         }
     })
 );

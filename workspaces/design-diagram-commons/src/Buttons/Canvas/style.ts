@@ -22,11 +22,11 @@ import { createStyles, makeStyles } from "@material-ui/core/styles";
 export const useStyles = makeStyles(() =>
     createStyles({
         controlButton: {
-            backgroundColor: "white",
-            border: "1px solid #E0E2E9",
-            borderRadius: "2px",
-            height: "32px",
-            width: "32px"
+            backgroundColor: "white !important",
+            border: "1px solid #E0E2E9 !important",
+            borderRadius: "2px !important",
+            height: "32px !important",
+            width: "32px !important"
         }
     })
 );
