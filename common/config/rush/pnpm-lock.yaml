@@ -717,6 +717,7 @@ importers:
       paths-js: ^0.4.11
       react: ^17.0.2
       react-dom: ^17.0.2
+      react-icons: ^4.4.0
       react-intl: ^5.10.19
       react-lottie: ^1.2.3
       react-monaco-editor: 0.43.0
@@ -796,6 +797,7 @@ importers:
       monaco-languageclient: 0.13.1-next.9
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-icons: 4.8.0_react@17.0.2
       react-intl: 5.25.1_oatgdhaahtizs2uezdzbohxvne
       react-lottie: 1.2.3_react@17.0.2
       react-monaco-editor: 0.43.0_h7fc2el62uaa77gho3xhys6ola

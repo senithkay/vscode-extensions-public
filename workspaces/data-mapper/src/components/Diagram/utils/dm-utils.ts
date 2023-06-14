@@ -771,8 +771,8 @@ export function getEnrichedRecordType(type: Type,
 	let valueNode: STNode;
 	let nextNode: STNode;
 
-	if (type.typeName === PrimitiveBalType.Union && type?.resolvedUnionType) {
-		type = !Array.isArray(type.resolvedUnionType) && type.resolvedUnionType;
+	if (type.typeName === PrimitiveBalType.Union && type?.resolvedUnionType && !Array.isArray(type?.resolvedUnionType)) {
+		type = type.resolvedUnionType;
 	}
 
 	if (parentType) {
@@ -861,6 +861,9 @@ export function getEnrichedRecordType(type: Type,
 						member: childType,
 						elementNode: nextNode
 					}];
+				} else {
+					editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, innerExprOfNextNode,
+						selectedST, editableRecordField);
 				}
 			} else if (STKindChecker.isListConstructor(innerExprOfNextNode)) {
 				editableRecordField.elements = getEnrichedArrayType(type.memberType, innerExprOfNextNode,

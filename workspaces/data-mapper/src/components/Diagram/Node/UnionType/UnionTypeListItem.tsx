@@ -10,7 +10,7 @@
  * entered into with WSO2 governing the purchase of this software and any
  * associated services.
  */
-// tslint:disable: jsx-no-multiline-js
+// tslint:disable: jsx-no-multiline-js no-submodule-imports
 import React, { useState } from "react";
 import { VscSymbolStructure } from "react-icons/vsc";
 

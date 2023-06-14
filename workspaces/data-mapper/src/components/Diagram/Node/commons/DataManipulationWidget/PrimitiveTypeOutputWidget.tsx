@@ -123,13 +123,13 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 	const getUnionType = () => {
 		const typeText: JSX.Element[] = [];
 		const { unionTypes, resolvedTypeName } = unionTypeLabel;
-		unionTypes.forEach((type) => {
-			if (type.trim() === resolvedTypeName) {
-				typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
+		unionTypes.forEach((unionType) => {
+			if (unionType.trim() === resolvedTypeName) {
+				typeText.push(<span className={classes.boldedTypeLabel}>{unionType}</span>);
 			} else {
-				typeText.push(<>{type}</>);
+				typeText.push(<>{unionType}</>);
 			}
-			if (type !== unionTypes[unionTypes.length - 1]) {
+			if (unionType !== unionTypes[unionTypes.length - 1]) {
 				typeText.push(<> | </>);
 			}
 		});

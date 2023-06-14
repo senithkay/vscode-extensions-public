@@ -47,7 +47,7 @@ import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
 import { UnionTypeNode } from "../Node/UnionType";
-import { UnsupportedIONode, UnsupportedExprNodeKind } from "../Node/UnsupportedIO";
+import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Node/UnsupportedIO";
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
@@ -121,7 +121,33 @@ export class NodeInitVisitor implements Visitor {
                         isFnBodyQueryExpr = true;
                         const selectClause = bodyExpr.selectClause;
                         const intermediateClausesHeight = 100 + bodyExpr.queryPipeline.intermediateClauses.length * OFFSETS.INTERMEDIATE_CLAUSE_HEIGHT;
-                        if (returnType?.typeName === PrimitiveBalType.Record || returnType?.memberType?.typeName === PrimitiveBalType.Record) {
+                        if (returnType?.typeName === PrimitiveBalType.Array) {
+                            const { memberType } = returnType;
+                            if (memberType?.typeName === PrimitiveBalType.Record) {
+                                this.outputNode = new MappingConstructorNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    returnType,
+                                    bodyExpr
+                                );
+                            } else if (memberType?.typeName === PrimitiveBalType.Array) {
+                                this.outputNode = new ListConstructorNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    returnType,
+                                    bodyExpr
+                                );
+                            } else if (memberType?.typeName === PrimitiveBalType.Union) {
+                                this.outputNode = new UnionTypeNode(
+                                    this.context,
+                                    selectClause,
+                                    typeDesc,
+                                    returnType
+                                );
+                            }
+                        } else if (returnType?.typeName === PrimitiveBalType.Record) {
                             this.outputNode = new MappingConstructorNode(
                                 this.context,
                                 selectClause,
@@ -129,14 +155,22 @@ export class NodeInitVisitor implements Visitor {
                                 returnType,
                                 bodyExpr
                             );
-                        } else if (returnType?.memberType && returnType.memberType.typeName === PrimitiveBalType.Array) {
-                            this.outputNode = new ListConstructorNode(
+                        } else if (returnType?.typeName === PrimitiveBalType.Union) {
+                            const message = "Union types within query expressions are not supported at the moment"
+                            this.outputNode = new UnsupportedIONode(
                                 this.context,
-                                selectClause,
-                                typeDesc,
-                                returnType,
-                                bodyExpr
+                                UnsupportedExprNodeKind.Output,
+                                message,
+                                undefined
                             );
+                            // TODO: Uncomment this once the union type support is added in the lang
+                            //  (https://github.com/ballerina-platform/ballerina-lang/issues/40012)
+                            // this.outputNode = new UnionTypeNode(
+                            //     this.context,
+                            //     node.selectClause,
+                            //     parentIdentifier,
+                            //     exprType
+                            // );
                         } else {
                             this.outputNode = new PrimitiveTypeNode(
                                 this.context,
