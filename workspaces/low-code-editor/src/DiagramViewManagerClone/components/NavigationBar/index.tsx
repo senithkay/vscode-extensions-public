@@ -17,10 +17,9 @@ import { ClickAwayListener, Popover } from "@material-ui/core";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
-import { Apps, ArrowBack, ArrowDropDown, Description } from "@material-ui/icons";
+import { Apps, ArrowDropDown, Description } from "@material-ui/icons";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import { BallerinaProjectComponents } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { FunctionDefinition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { PackageIcon } from "../../../assets/icons";
 import { WorkspaceFolder } from "../../../DiagramGenerator/vscode/Diagram";

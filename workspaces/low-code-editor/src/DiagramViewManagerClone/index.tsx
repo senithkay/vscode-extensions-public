@@ -219,6 +219,8 @@ export function DiagramViewManager(props: EditorProps) {
         setUpdatedTimeStamp
     );
 
+    console.log('show mode overview >>>', showOverviewMode);
+    console.log('show mode st >>>', showSTMode);
 
     return (
         <MuiThemeProvider theme={theme}>

@@ -29,11 +29,11 @@ import {
 import { Uri } from "monaco-editor";
 
 import { Context } from "../../../Contexts/Diagram";
-import { useHistoryContext } from "../../../DiagramViewManager/context/history";
 import { RecordEditor } from "../FormComponents/ConfigForms";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
+import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
 
 export interface DataMapperProps {
     model?: STNode;
@@ -62,7 +62,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
         }
     } = useContext(Context);
 
-    const { historyClearAndPopulateWith, history } = useHistoryContext();
+    const { history, historyPush } = useHistoryContext();
 
     const [functionST, setFunctionST] =
         React.useState<FunctionDefinition>(undefined);
@@ -92,6 +92,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
     }, [model]);
 
     const handleFunctionST = async (funcName: string) => {
+        console.log("handleFunctionST >>>", funcName);
         const langClient: DiagramEditorLangClientInterface =
             await getDiagramEditorLangClient();
         const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
@@ -100,12 +101,14 @@ export function DataMapperOverlay(props: DataMapperProps) {
             },
         });
         if (parseSuccess) {
+            console.log("syntaxTree >>>", syntaxTree);
             const modPart = syntaxTree as ModulePart;
             const fns = modPart.members.filter((mem) =>
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
             const st = fns.find((mem) => mem.functionName.value === funcName);
-            if (history.length === 0) historyClearAndPopulateWith({ file: currentFile.path, position: st.position });
+            console.log("st >>>", currentFile.path, st.position);
+            historyPush({ file: currentFile.path, position: st.position, fromDataMapper: true, dataMapperDepth: 0 });
             setFunctionST(st);
             return;
         }
@@ -131,31 +134,29 @@ export function DataMapperOverlay(props: DataMapperProps) {
     };
 
     return (
-        <DiagramOverlayContainer>
-            <div className={dataMapperClasses.dataMapperContainer}>
-                <DataMapper
-                    library={library}
-                    targetPosition={targetPosition}
-                    fnST={functionST}
-                    langClientPromise={
-                        getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-                    }
-                    filePath={currentFile.path}
-                    currentFile={currentFile}
-                    openedViaPlus={openedViaPlus}
-                    stSymbolInfo={stSymbolInfo}
-                    ballerinaVersion={ballerinaVersion}
-                    applyModifications={modifyDiagram}
-                    updateFileContent={updateFileContent}
-                    onClose={onClose}
-                    onSave={onSave}
-                    importStatements={importStatements}
-                    recordPanel={renderRecordPanel}
-                    syntaxTree={fullST}
-                    updateActiveFile={updateActiveFile}
-                    updateSelectedComponent={updateSelectedComponent}
-                />
-            </div>
-        </DiagramOverlayContainer>
+        <div className={dataMapperClasses.dataMapperContainer}>
+            <DataMapper
+                library={library}
+                targetPosition={targetPosition}
+                fnST={functionST}
+                langClientPromise={
+                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                }
+                filePath={currentFile.path}
+                currentFile={currentFile}
+                openedViaPlus={openedViaPlus}
+                stSymbolInfo={stSymbolInfo}
+                ballerinaVersion={ballerinaVersion}
+                applyModifications={modifyDiagram}
+                updateFileContent={updateFileContent}
+                onClose={onClose}
+                onSave={onSave}
+                importStatements={importStatements}
+                recordPanel={renderRecordPanel}
+                syntaxTree={fullST}
+                updateActiveFile={updateActiveFile}
+                updateSelectedComponent={updateSelectedComponent}
+            />
+        </div>
     );
 }
