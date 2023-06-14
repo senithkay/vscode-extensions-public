@@ -33,7 +33,7 @@ describe('VSCode UI Tests', () => {
         await wait(4000);
     });
 
-    it.skip('Test Title bar', async () => {
+    it('Test Title bar', async () => {
         const editorView = new ExtendedEditorView(new EditorView());
         expect(await editorView.getAction("Run")).is.not.undefined;
         expect(await editorView.getAction("Debug")).is.not.undefined;
