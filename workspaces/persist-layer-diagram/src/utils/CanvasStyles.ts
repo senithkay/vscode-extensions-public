@@ -17,8 +17,20 @@
  *
  */
 
-export * from './constants';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-export { PrimaryKeyIcon } from './assets/icons/PrimaryKeyIcon';
+import { CanvasBackground } from '../resources';
 
-export { default as CanvasBackground } from './assets/PatternBg.svg';
+export const useStyles = makeStyles(() =>
+    createStyles({
+        canvas: {
+            backgroundImage: `url('${CanvasBackground}')`,
+            backgroundRepeat: 'repeat',
+            minHeight: 'calc(100vh - 50px)',
+            minWidth: '100vw'
+        },
+        svg: {
+            overflow: 'visible'
+        }
+    })
+);

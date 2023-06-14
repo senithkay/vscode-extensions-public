@@ -27,7 +27,7 @@ import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { modelMapper, generateEngine } from './utils';
 import { DiagramControls, HeaderWidget, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
 import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine, Colors } from './resources';
-import './utils/CanvasStyles.css';
+import { useStyles } from './utils/CanvasStyles';
 
 import './resources/assets/font/fonts.css';
 
@@ -44,6 +44,9 @@ const PersistContainer = styled.div`
     height: 100vh;
     justify-content: center;
     width: 100vw;
+    svg:not(:root) {
+        overflow: visible;
+    }
 `;
 
 export function PersistDiagram(props: PersistDiagramProps) {
@@ -55,6 +58,8 @@ export function PersistDiagram(props: PersistDiagramProps) {
     const [hasDiagnostics, setHasDiagnostics] = useState<boolean>(false);
     const [userMessage, setUserMessage] = useState<string>(undefined);
     const [collapsedMode, setIsCollapsedMode] = useState<boolean>(true);
+
+    const styles = useStyles();
 
     useEffect(() => {
         refreshDiagram();
@@ -121,7 +126,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
                 <HeaderWidget collapsedMode={collapsedMode} setIsCollapsedMode={switchCollapseMode} />
                 {diagramEngine?.getModel() && diagramModel ?
                     <>
-                        <CanvasWidget engine={diagramEngine} className={'persist-diagram-container'} />
+                        <CanvasWidget engine={diagramEngine} className={styles.canvas} />
                         <DiagramControls
                             engine={diagramEngine}
                             refreshDiagram={refreshDiagram}

@@ -1,7 +1,7 @@
 {
   "name": "@wso2-enterprise/design-diagram-commons",
   "version": "1.0.0",
-  "description": "A library that contains common components and styled elements used for the desgin diagrams.",
+  "description": "A library that contains common components and styled elements used for the design diagrams.",
   "files": [
     "lib"
   ],
