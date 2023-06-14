@@ -18,7 +18,7 @@
  */
 
 import createEngine, { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
-import { CMCardinality as Cardinality, CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
+import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import {
     EntityLinkModel, EntityModel, EntityPortModel, OverlayLayerFactory, EntityFactory, EntityLinkFactory, EntityPortFactory, OverlayLayerModel
 } from '../components';
@@ -82,15 +82,9 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
                             );
                             if (linkId) {
                                 const link2update = links.get(linkId);
-                                const cardinality: Cardinality = {
-                                    associate: link2update.cardinality.associate,
-                                    self: association.cardinality.associate
-                                };
-                                const newLinkId: string = `${link2update.getSourcePort().getID()}::${sourcePort.getID()}`;
-                                const newLink: EntityLinkModel = new EntityLinkModel(newLinkId, cardinality);
-                                links.set(newLinkId, createLinks(link2update.getSourcePort(), sourcePort, newLink));
-                                link2update.getSourcePort().removeLink(link2update);
-                                links.delete(linkId);
+                                link2update.cardinality.self = association.cardinality.associate;
+                                link2update.setTargetPort(sourcePort);
+                                link2update.setTargetNode(callingEntity.getID(), attribute.name);
                             }
                             const index = mappedLinkNodes.get(associatedEntity.getID()).indexOf(callingEntity.getID());
                             if (index > -1) {
@@ -100,6 +94,8 @@ function generateLinks(entities: Map<string, Entity>, nodes: Map<string, EntityM
                             const linkId: string = `${sourcePort.getID()}::${targetPort.getID()}`;
                             let link: EntityLinkModel = new EntityLinkModel(linkId, association.cardinality);
                             links.set(linkId, createLinks(sourcePort, targetPort, link));
+                            link.setSourceNode(callingEntity.getID(), attribute.name);
+                            link.setTargetNode(associatedEntity.getID());
                             mappedLinkNodes.set(key, [...mappedLinkNodes.get(key), associatedEntity.getID()]);
                         }
                     }

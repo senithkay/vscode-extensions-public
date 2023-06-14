@@ -53,19 +53,20 @@ export function EntityWidget(props: EntityWidgetProps) {
 
     useEffect(() => {
         engine.getModel().getLinks().forEach((link) => {
-            if (link.getID().includes(node.getID())) {
-                if (isCollapsed) {
-                    if (link.getID().split('::')[0].includes(node.getID()) && link.getSourcePort().getID() !== `right-${node.getID()}`) {
-                        link.setSourcePort(node.getPort(`right-${node.getID()}`));
-                    } else if (link.getTargetPort().getID() !== `left-${node.getID()}`) {
-                        link.setTargetPort(node.getPort(`left-${node.getID()}`));
-                    }
-                } else {
-                    if (link.getID().split('::')[0].includes(node.getID()) && link.getSourcePort().getID() !== link.getID().split('::')[0]) {
-                        link.setSourcePort(node.getPort(link.getID().split('::')[0]));
-                    } else if (link.getTargetPort().getID() !== link.getID().split('::')[1]) {
-                        link.setTargetPort(node.getPort(link.getID().split('::')[1]));
-                    }
+            const entityLink: EntityLinkModel = link as EntityLinkModel;
+            if (entityLink.sourceNode?.nodeId === node.getID()) {
+                if (isCollapsed && entityLink.getSourcePort().getID() !== `right-${node.getID()}`) {
+                    link.setSourcePort(node.getPort(`right-${node.getID()}`));
+                } else if (!isCollapsed &&
+                    entityLink.getSourcePort().getID() !== `right-${node.getID()}/${entityLink.sourceNode.attributeId}`) {
+                    link.setSourcePort(node.getPort(`right-${node.getID()}/${entityLink.sourceNode.attributeId}`));
+                }
+            } else if (entityLink.targetNode?.nodeId === node.getID()) {
+                if (isCollapsed && entityLink.getTargetPort().getID() !== `left-${node.getID()}`) {
+                    link.setTargetPort(node.getPort(`left-${node.getID()}`));
+                } else if (!isCollapsed &&
+                    entityLink.getTargetPort().getID() !== `right-${node.getID()}/${entityLink.targetNode?.attributeId}`) {
+                    link.setTargetPort(node.getPort(`left-${node.getID()}/${entityLink.targetNode.attributeId}`));
                 }
             }
         });
