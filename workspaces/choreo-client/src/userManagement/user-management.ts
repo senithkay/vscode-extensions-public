@@ -11,31 +11,31 @@
  *  associated services.
  */
 
-import { Organization } from "@wso2-enterprise/choreo-core";
+import { UserInfo } from "@wso2-enterprise/choreo-core";
 import { IReadOnlyTokenStorage } from "../auth";
-import { IChoreoOrgClient } from "./types";
+import { IChoreoUserManagementClient } from "./types";
 import { getHttpClient } from "../http-client";
 
-export class ChoreoOrgClient implements IChoreoOrgClient {
+export class ChoreoUserManagementClient implements IChoreoUserManagementClient {
     
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _orgApiURL: string) {  
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseApiURL: string) {  
     }
 
-    private async _getOrgClient() {
-        const token = await this._tokenStore.getToken("choreo.vscode.token");
-        if (!token) {   
+    private async _getClient() {
+        const token = await this._tokenStore.getToken("choreo.token");
+        if (!token) {
             throw new Error('User is not logged in');
         }
-        return getHttpClient(token.accessToken, this._orgApiURL)
+        return getHttpClient(token.accessToken, this._baseApiURL)
     }
 
-    async getOrganizations(): Promise<Organization[]> {
-        const client = await this._getOrgClient();
+    async validateUser(): Promise<UserInfo> {
+        const client = await this._getClient();
         try {
-            const response = await client.get('');
-            return response.data as Organization[];
+            const response = await client.get('/validate/user');
+            return response.data as UserInfo;
         } catch (error) {
-            throw new Error("Error while fetching user organizations.", { cause: error });
+            throw new Error("Error while fetching user info.", { cause: error });
         }
     }
 }

@@ -45,7 +45,7 @@ export interface ChoreoAuthConfigParams {
         orgsAPI: string;
         projectAPI: string;
         componentManageAPI: string;
-        base: string;
+        userMgtAPI: string;
     },
     apimEnvScopes: string;
     choreoConsoleBaseUrl: string;
@@ -78,7 +78,7 @@ export const DEFAULT_CHOREO_AUTH_CONFIG: ChoreoAuthConfigParams = {
         orgsAPI: "https://apis.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.choreo.dev/projects/1.0.0/graphql",
         componentManageAPI: "https://apis.choreo.dev/component-mgt/1.0.0/orgs",
-        base: "https://app.choreo.dev"
+        userMgtAPI: "https://apis.choreo.dev/users-mgt/1.0.0",
     },
     
     choreoConsoleBaseUrl: "https://console.choreo.dev",
@@ -111,7 +111,7 @@ export const CHOREO_AUTH_CONFIG_STAGE: ChoreoAuthConfigParams = {
         orgsAPI: "https://apis.st.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.st.choreo.dev/projects/1.0.0/graphql",
         componentManageAPI: "https://apis.st.choreo.dev/component-mgt/1.0.0/orgs",
-        base: "https://app.st.choreo.dev"
+        userMgtAPI: "https://apis.st.choreo.dev/users-mgt/1.0.0",
     },
 
     choreoConsoleBaseUrl: "https://console.st.choreo.dev",
@@ -145,7 +145,7 @@ export const CHOREO_AUTH_CONFIG_DEV: ChoreoAuthConfigParams = {
         orgsAPI: "https://apis.preview-dv.choreo.dev/orgs/1.0.0/orgs",
         projectAPI: "https://apis.preview-dv.choreo.dev/projects/1.0.0/graphql",
         componentManageAPI: "https://apis.preview-dv.choreo.dev/component-mgt/1.0.0/orgs",
-        base: "https://app.preview-dv.choreo.dev"
+        userMgtAPI: "https://apis.preview-dv.choreo.dev/users-mgt/1.0.0",
     },
 
     choreoConsoleBaseUrl: "https://consolev2.preview-dv.choreo.dev",
@@ -209,10 +209,6 @@ export class ChoreoAuthConfig {
         return this._config.apis.projectAPI;
     }
 
-    public getAPIBaseURL(): string {
-        return this._config.apis.base;
-    }
-
     public getOrgsAPI(): string {
         return this._config.apis.orgsAPI;
     }
@@ -231,6 +227,10 @@ export class ChoreoAuthConfig {
 
     public getComponentManagementUrl(): string {
         return this._config.apis.componentManageAPI;
+    }
+
+    public getUserManagementUrl(): string {
+        return this._config.apis.userMgtAPI;
     }
 
     public getApimEnvScopes(): string {

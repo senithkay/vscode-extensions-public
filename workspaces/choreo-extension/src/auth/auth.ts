@@ -11,7 +11,7 @@
  *  associated services.
  */
 import * as vscode from 'vscode';
-import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient, ComponentManagementClient } from "@wso2-enterprise/choreo-client";
+import { AccessToken, ChoreoAuthClient, ChoreoTokenType, KeyChainTokenStorage, ChoreoOrgClient, ChoreoProjectClient, IReadOnlyTokenStorage, ChoreoSubscriptionClient, ComponentManagementClient, ChoreoUserManagementClient } from "@wso2-enterprise/choreo-client";
 import { ChoreoGithubAppClient } from "@wso2-enterprise/choreo-client/lib/github";
 
 import { CHOREO_AUTH_CONFIG_DEV, CHOREO_AUTH_CONFIG_STAGE, ChoreoAuthConfig, ChoreoAuthConfigParams, DEFAULT_CHOREO_AUTH_CONFIG } from "./config";
@@ -73,7 +73,9 @@ export const authClient = new ChoreoAuthClient({
     apimScopes: choreoAuthConfig.getApimEnvScopes()
 });
 
-export const orgClient = new ChoreoOrgClient(readonlyTokenStore, choreoAuthConfig.getAPIBaseURL(), choreoAuthConfig.getOrgsAPI());
+export const orgClient = new ChoreoOrgClient(readonlyTokenStore, choreoAuthConfig.getOrgsAPI());
+
+export const userManagementClient = new ChoreoUserManagementClient(readonlyTokenStore, choreoAuthConfig.getUserManagementUrl());
 
 export const projectClient = new ChoreoProjectClient(readonlyTokenStore, choreoAuthConfig.getProjectAPI(),
     choreoAIConfig.getPerfAPI(), choreoAIConfig.getSwaggerExamplesAPI());
@@ -197,7 +199,7 @@ export async function chooseOrgAndExchangeVSCodeToken(isExistingSession?: boolea
             let orgs: Organization[] = [];
             if (!isExistingSession) {
                 // If its a fresh login, we need to get the user info to get the org list.
-                const userInfo = await orgClient.validateUser();
+                const userInfo = await userManagementClient.validateUser();
                 ext.api.userInfo = userInfo;
                 orgs = userInfo.organizations;
             } else {
