@@ -26,7 +26,7 @@ import { DIAGRAM_LOADING_TIME } from './constants';
 import { getDiagramExplorer, wait } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
 
-describe('VSCode Webview UI Tests', () => {
+describe('VSCode Config Generation UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
