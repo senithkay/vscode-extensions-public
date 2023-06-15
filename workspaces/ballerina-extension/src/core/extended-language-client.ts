@@ -1,21 +1,11 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
- */
+ * Copyright (c) 2018, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content."
+ */
 
 import { ClientCapabilities, LanguageClient, LanguageClientOptions, ServerOptions } from "vscode-languageclient/node";
 import { CodeAction, CodeActionParams, DocumentSymbol, DocumentSymbolParams, ExecuteCommandParams, RenameParams, SymbolInformation, WorkspaceEdit } from "monaco-languageclient";
@@ -29,7 +19,9 @@ import {
     ExpressionTypeRequest,
     ExpressionTypeResponse,
     GetComponentModelRequest,
-    GetComponentModelResponse
+    GetComponentModelResponse,
+    GetPersistERModelRequest,
+    GetPersistERModelResponse
 } from "@wso2-enterprise/ballerina-languageclient";
 import {
     BallerinaConnectorsRequest,
@@ -91,7 +83,8 @@ enum EXTENDED_APIS {
     COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
     GRAPHQL_DESIGN_MODEL = 'graphqlDesignService/getGraphqlModel',
     DOCUMENT_ST_FUNCTION = 'ballerinaDocument/syntaxTreeByName',
-    DEFINITION_POSITION = 'ballerinaDocument/syntaxTreeNodeByPosition'
+    DEFINITION_POSITION = 'ballerinaDocument/syntaxTreeNodeByPosition',
+    PERSIST_MODEL_ENDPOINT = 'persistERGeneratorService/getPersistERModels'
 }
 
 enum EXTENDED_APIS_ORG {
@@ -513,6 +506,9 @@ export class ExtendedLangClient extends LanguageClient {
     }
     async getPackageComponentModels(params: GetComponentModelRequest): Promise<GetComponentModelResponse> {
         return this.sendRequest(EXTENDED_APIS.COMPONENT_MODEL_ENDPOINT, params);
+    }
+    async getPersistERModel(params: GetPersistERModelRequest): Promise<GetPersistERModelResponse> {
+        return this.sendRequest(EXTENDED_APIS.PERSIST_MODEL_ENDPOINT, params);
     }
     async getDiagnostics(params: BallerinaProjectParams): Promise<PublishDiagnosticsParams[] | NOT_SUPPORTED_TYPE> {
         const isSupported = await this.isExtendedServiceSupported(EXTENDED_APIS.DOCUMENT_DIAGNOSTICS);

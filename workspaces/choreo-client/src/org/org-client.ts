@@ -11,22 +11,14 @@
  *  associated services.
  */
 
-import { ComponentCount, Organization, UserInfo } from "@wso2-enterprise/choreo-core";
+import { Organization } from "@wso2-enterprise/choreo-core";
 import { IReadOnlyTokenStorage } from "../auth";
 import { IChoreoOrgClient } from "./types";
 import { getHttpClient } from "../http-client";
 
 export class ChoreoOrgClient implements IChoreoOrgClient {
     
-    constructor(private _tokenStore: IReadOnlyTokenStorage, private _baseApiURL: string, private _orgApiURL: string) {  
-    }
-
-    private async _getBaseClient() {
-        const token = await this._tokenStore.getToken("choreo.token");
-        if (!token) {
-            throw new Error('User is not logged in');
-        }
-        return getHttpClient(token.accessToken, this._baseApiURL)
+    constructor(private _tokenStore: IReadOnlyTokenStorage, private _orgApiURL: string) {  
     }
 
     private async _getOrgClient() {
@@ -37,16 +29,6 @@ export class ChoreoOrgClient implements IChoreoOrgClient {
         return getHttpClient(token.accessToken, this._orgApiURL)
     }
 
-    async validateUser(): Promise<UserInfo> {
-        const client = await this._getBaseClient();
-        try {
-            const response = await client.get('/validate-user');
-            return response.data as UserInfo;
-        } catch (error) {
-            throw new Error("Error while fetching user info.", { cause: error });
-        }
-    }
-
     async getOrganizations(): Promise<Organization[]> {
         const client = await this._getOrgClient();
         try {
@@ -54,16 +36,6 @@ export class ChoreoOrgClient implements IChoreoOrgClient {
             return response.data as Organization[];
         } catch (error) {
             throw new Error("Error while fetching user organizations.", { cause: error });
-        }
-    }
-
-    async getComponentCount(orgId: number): Promise<ComponentCount> {
-        const client = await this._getOrgClient();
-        try {
-            const response = await client.get(`/${orgId}/component-count`);
-            return response.data?.data as ComponentCount;
-        } catch (error) {
-            throw new Error("Error while fetching component usage", { cause: error });
         }
     }
 }

@@ -1,25 +1,15 @@
 /**
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- *
- */
+ * Copyright (c) 2018, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content."
+ */
 
 import {
     workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
-    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env
+    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -49,6 +39,7 @@ import {
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { gitStatusBarItem } from "../editor-support/git-status";
+import { checkIsPersistModelFile } from "../persist-layer-diagram/activator";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -594,6 +585,17 @@ export class BallerinaExtension {
     public setDiagramActiveContext(value: boolean) {
         commands.executeCommand('setContext', 'isBallerinaDiagram', value);
         this.documentContext.setActiveDiagram(value);
+    }
+
+    public setPersistStatusContext(textEditor: TextEditor) {
+        if (textEditor?.document) {
+            const fileUri: Uri = textEditor.document.uri;
+            if (checkIsPersistModelFile(fileUri)) {
+                commands.executeCommand('setContext', 'isPersistModelActive', true);
+                return;
+            }
+        }
+        commands.executeCommand('setContext', 'isPersistModelActive', false);
     }
 
     public setChoreoAuthEnabled(value: boolean) {

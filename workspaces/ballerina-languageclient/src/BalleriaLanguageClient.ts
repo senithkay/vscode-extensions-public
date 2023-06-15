@@ -41,6 +41,8 @@ import {
     GetBallerinaProjectParams,
     GetComponentModelRequest,
     GetComponentModelResponse,
+    GetPersistERModelRequest,
+    GetPersistERModelResponse,
     GetProjectASTParams,
     GetProjectASTResponse,
     GetSyntaxTreeParams,
@@ -319,5 +321,9 @@ export class BalleriaLanguageClient implements IBallerinaLangClient {
 
     public getPackageComponentModels(params: GetComponentModelRequest): Promise<GetComponentModelResponse> {
         return this._clientConnection.sendRequest(EXTENDED_APIS.COMPONENT_MODEL_ENDPOINT, params);
+    }
+
+    public getPersistERModel(params: GetPersistERModelRequest): Promise<GetPersistERModelResponse> {
+        return this._clientConnection.sendRequest(EXTENDED_APIS.PERSIST_MODEL_ENDPOINT, params);
     }
 }

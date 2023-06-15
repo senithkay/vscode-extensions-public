@@ -1,15 +1,11 @@
-/*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 Inc. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein is strictly forbidden, unless permitted by WSO2 in accordance with
- * the WSO2 Commercial License available at http://wso2.com/licenses.
- * For specific language governing the permissions and limitations under
- * this license, please see the license as well as any agreement you’ve
- * entered into with WSO2 governing the purchase of this software and any
- * associated services.
- */
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content."
+ */
 
 // tslint:disable: jsx-no-lambda no-submodule-imports
 import React from 'react';
@@ -19,6 +15,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from "@mui/icons-material/FileDownloadOutlined";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { Tooltip } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 
 interface ContainerControllerProps {
@@ -55,38 +52,46 @@ export function ContainerController(props: ContainerControllerProps) {
     return (
         <ControlPanel>
             <div>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={onDownload}
-                >
-                    <DownloadIcon fontSize='medium' />
-                </IconButton>
+                <Tooltip title="Download" disableInteractive={true}>
+                    <IconButton
+                        className={'control-button'}
+                        size='small'
+                        onClick={onDownload}
+                    >
+                        <DownloadIcon fontSize='medium' />
+                    </IconButton>
+                </Tooltip>
             </div>
             <div>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={zoomToFit}
-                >
-                    <FullscreenIcon fontSize='small' />
-                </IconButton>
+                <Tooltip title="Fit to screen" disableInteractive={true}>
+                    <IconButton
+                        className={'control-button'}
+                        size='small'
+                        onClick={zoomToFit}
+                    >
+                        <FullscreenIcon fontSize='small' />
+                    </IconButton>
+                </Tooltip>
             </div>
             <div>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={() => {onZoom(true)}}
-                >
-                    <AddIcon fontSize='small' />
-                </IconButton>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={() => {onZoom(false)}}
-                >
-                    <RemoveIcon fontSize='small' />
-                </IconButton>
+                <Tooltip title="Zoom in" disableInteractive={true}>
+                    <IconButton
+                        className={'control-button'}
+                        size='small'
+                        onClick={() => {onZoom(true)}}
+                    >
+                        <AddIcon fontSize='small' />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title="Zoom out" disableInteractive={true}>
+                    <IconButton
+                        className={'control-button'}
+                        size='small'
+                        onClick={() => {onZoom(false)}}
+                    >
+                        <RemoveIcon fontSize='small' />
+                    </IconButton>
+                </Tooltip>
             </div>
         </ControlPanel>
     )
