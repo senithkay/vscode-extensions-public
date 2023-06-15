@@ -14,7 +14,6 @@ import {
 } from "../../telemetry";
 import { runCommand, BALLERINA_COMMANDS, PROJECT_TYPE, PALETTE_COMMANDS, runCommandWithConf, MESSAGES } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile, getCurrenDirectoryPath } from "../../utils/project-utils";
-import { openConfigEditor } from "../../config-editor/configEditorPanel";
 
 function activateRunCmdCommand() {
 

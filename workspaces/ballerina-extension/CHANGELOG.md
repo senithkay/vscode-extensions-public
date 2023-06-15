@@ -6,6 +6,8 @@
 
 - Entity Relationship Diagram
   - A diagram that visualises the entities and their relationships defined in the Ballerina persist model.
+- Config toml file creation
+  - When you run a ballerina program with configurables now it creates the config toml file with required configurable values.
 
 ### Improved
 

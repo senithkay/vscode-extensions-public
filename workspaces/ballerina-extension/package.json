@@ -127,11 +127,6 @@
                     "default": false,
                     "description": "Enable Language Server debug mode."
                 },
-                "ballerina.enableConfigurableEditor": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable the configurable editor in code view."
-                },
                 "ballerina.experimental": {
                     "type": "boolean",
                     "default": false,
@@ -364,6 +359,14 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.project.run.config",
+                "title": "Run",
+                "icon": {
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
+                }
+            },
+            {
                 "command": "ballerina.project.stop",
                 "title": "Stop",
                 "category": "Ballerina"
@@ -485,6 +488,12 @@
                     "group": "navigation@1",
                     "title": "Run project in terminal",
                     "when": "resourceLangId == ballerina || isBallerinaDiagram"
+                },
+                {
+                    "command": "ballerina.project.run.config",
+                    "group": "navigation@1",
+                    "title": "Run project in terminal",
+                    "when": "resourceLangId == toml && isBallerinaProject"
                 },
                 {
                     "command": "ballerina.source.debug",
