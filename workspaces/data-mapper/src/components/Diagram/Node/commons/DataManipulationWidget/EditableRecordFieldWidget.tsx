@@ -13,7 +13,7 @@ import { CircularProgress, IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     MappingConstructor,
     NodePosition,
@@ -35,7 +35,8 @@ import {
     getFieldName,
     getNewFieldAdditionModification,
     getTypeName,
-    isConnectedViaLink
+    isConnectedViaLink,
+    isEmptyValue
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 import { getUnionTypes } from "../../../utils/union-type-utils";
@@ -96,7 +97,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
-    const isUnionTypedElement = field.type.typeName === PrimitiveBalType.Union && !field.type.resolvedUnionType;
+    const isUnionTypedElement = field.originalType.typeName === PrimitiveBalType.Union;
+    const isUnresolvedUnionTypedElement = isUnionTypedElement && field.type.typeName === PrimitiveBalType.Union;
     let indentation = treeDepth * 16;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
@@ -155,30 +157,49 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsHovered(false);
     };
 
-    const handleWrapWithTypeCast = async (type: string) => {
+    const handleWrapWithTypeCast = async (type: Type) => {
         setIsAddingTypeCast(true)
         try {
-            let targetPosition: NodePosition;
-            const typeCastExpr = STKindChecker.isTypeCastExpression(field.value) && field.value;
-            const valueExprPosition: NodePosition = typeCastExpr
-                ? getExprBodyFromTypeCastExpression(typeCastExpr).position
-                : field.value.position;
-            if (typeCastExpr) {
-                const typeCastExprPosition: NodePosition = typeCastExpr.position;
-                targetPosition = {
-                    ...typeCastExprPosition,
-                    endLine: valueExprPosition.startLine,
-                    endColumn: valueExprPosition.startColumn
-                };
+            const name = getTypeName(type);
+            if (field?.value) {
+                let targetPosition: NodePosition;
+                const typeCastExpr = STKindChecker.isTypeCastExpression(field.value) && field.value;
+                const specificFieldValueExpr = STKindChecker.isSpecificField(field.value) && field.value.valueExpr;
+                let valueExprPosition: NodePosition = field.value.position;
+                let defaultValue: string;
+                if (typeCastExpr) {
+                    valueExprPosition = getExprBodyFromTypeCastExpression(typeCastExpr).position;
+                } else if (specificFieldValueExpr) {
+                    defaultValue = getDefaultValue(type.typeName);
+                    valueExprPosition = specificFieldValueExpr.position;
+                    if (isEmptyValue(specificFieldValueExpr.position)) {
+                        valueExprPosition = {
+                            ...field.value.position,
+                            startLine: field.value.position.endLine,
+                            startColumn: field.value.position.endColumn
+                        }
+                    }
+                }
+                if (typeCastExpr) {
+                    const typeCastExprPosition: NodePosition = typeCastExpr.position;
+                    targetPosition = {
+                        ...typeCastExprPosition,
+                        endLine: valueExprPosition.startLine,
+                        endColumn: valueExprPosition.startColumn
+                    };
+                } else {
+                    targetPosition = {
+                        ...valueExprPosition,
+                        endLine: valueExprPosition.startLine,
+                        endColumn: valueExprPosition.startColumn
+                    };
+                }
+                const modification = [getModification(`<${name}>${defaultValue || ''}`, targetPosition)];
+                await applyModifications(modification);
             } else {
-                targetPosition = {
-                    ...valueExprPosition,
-                    endLine: valueExprPosition.startLine,
-                    endColumn: valueExprPosition.startColumn
-                };
+                const defaultValue = `<${name}>${getDefaultValue(type.typeName)}`;
+                await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
             }
-            const modification = [getModification(`<${type}>`, targetPosition)];
-            await applyModifications(modification);
         } finally {
             setIsAddingTypeCast(false);
         }
@@ -294,7 +315,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
-        : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
+        : !isUnionTypedElement && { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
 
     const deleteValueMenuItem: ValueConfigMenuItem = {
         title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
@@ -302,11 +323,11 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     };
 
     const typeSelectorMenuItems: ValueConfigMenuItem[] = isUnionTypedElement
-        && field.type.members.map(member => {
+        && field.originalType.members.map(member => {
             const memberTypeName = getTypeName(member);
             return {
-                title: `Re-initialize as ${memberTypeName}`,
-                onClick: () => handleWrapWithTypeCast(memberTypeName)
+                title: `${isUnresolvedUnionTypedElement ? 'Initialize' : 'Re-initialize'} as ${memberTypeName}`,
+                onClick: () => handleWrapWithTypeCast(member)
             }
         });
 
@@ -336,16 +357,15 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     }
 
     const subFieldNames = useMemo(() => {
-		const fieldNames: string[] = [];
-  if (expanded && fields){
+        const fieldNames: string[] = [];
+        if (expanded && fields) {
             fields?.forEach(fieldItem => {
                 if (fieldItem.value && STKindChecker.isSpecificField(fieldItem.value)) {
-                    fieldNames.push(fieldItem.value?.fieldName?.value)
-                }
+                        fieldNames.push(fieldItem.value?.fieldName?.value)
+                    }
             })
         }
-
-		return fieldNames;
+        return fieldNames;
 	}, [fields, expanded])
 
     return (
