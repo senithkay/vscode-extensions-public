@@ -19,6 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from "@mui/icons-material/FileDownloadOutlined";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { Tooltip } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 
 interface ContainerControllerProps {
@@ -55,38 +56,46 @@ export function ContainerController(props: ContainerControllerProps) {
     return (
         <ControlPanel>
             <div>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={onDownload}
-                >
-                    <DownloadIcon fontSize='medium' />
-                </IconButton>
+                <Tooltip title="Download" disableInteractive={true}>
+                    <IconButton
+                        className={'control-button'}
+                        size='small'
+                        onClick={onDownload}
+                    >
+                        <DownloadIcon fontSize='medium' />
+                    </IconButton>
+                </Tooltip>
             </div>
             <div>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={zoomToFit}
-                >
-                    <FullscreenIcon fontSize='small' />
-                </IconButton>
+                <Tooltip title="Fit to screen" disableInteractive={true}>
+                    <IconButton
+                        className={'control-button'}
+                        size='small'
+                        onClick={zoomToFit}
+                    >
+                        <FullscreenIcon fontSize='small' />
+                    </IconButton>
+                </Tooltip>
             </div>
             <div>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={() => {onZoom(true)}}
-                >
-                    <AddIcon fontSize='small' />
-                </IconButton>
-                <IconButton
-                    className={'control-button'}
-                    size='small'
-                    onClick={() => {onZoom(false)}}
-                >
-                    <RemoveIcon fontSize='small' />
-                </IconButton>
+                <Tooltip title="Zoom in" disableInteractive={true}>
+                    <IconButton
+                        className={'control-button'}
+                        size='small'
+                        onClick={() => {onZoom(true)}}
+                    >
+                        <AddIcon fontSize='small' />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title="Zoom out" disableInteractive={true}>
+                    <IconButton
+                        className={'control-button'}
+                        size='small'
+                        onClick={() => {onZoom(false)}}
+                    >
+                        <RemoveIcon fontSize='small' />
+                    </IconButton>
+                </Tooltip>
             </div>
         </ControlPanel>
     )
