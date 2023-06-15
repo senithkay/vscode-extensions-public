@@ -1,1 +1,1 @@
-public configurable float height = ?;
+public configurable float bar = ?;

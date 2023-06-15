@@ -275,6 +275,7 @@ dependencies = [
 	{org = "ballerina", name = "http"}
 ]
 modules = [
-	{org = "wso2", packageName = "configServiceProject", moduleName = "configServiceProject"}
+	{org = "wso2", packageName = "configServiceProject", moduleName = "configServiceProject"},
+	{org = "wso2", packageName = "configServiceProject", moduleName = "configServiceProject.hello_world"}
 ]
 
