@@ -22,6 +22,7 @@ import styled from '@emotion/styled';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import { DiagramContext } from '../../DiagramContext/DiagramContext';
+import { useStyles } from './styles';
 import { CellViewIcon, L1ServicesIcon, L2ServicesIcon, TypesDiagramIcon, Views } from '../../../../resources';
 
 const ViewTypePanel = styled.div`
@@ -73,6 +74,8 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
     const { isChoreoProject, setCurrentView } = useContext(DiagramContext);
     const { setShowTypeDropdown } = props;
 
+    const styles = useStyles();
+
     const handleOnClick = (type: Views) => {
         setShowTypeDropdown(false);
         setCurrentView(type);
@@ -109,7 +112,7 @@ export function ViewSwitcher(props: ViewSwitcherProps) {
                                 }}
                             >
                                 <IconButton
-                                    className={'control-button'}
+                                    className={styles.controlButton}
                                     size='small'
                                     onClick={() => handleOnClick(viewType.type)}
                                 >
