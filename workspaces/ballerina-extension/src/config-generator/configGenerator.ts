@@ -25,6 +25,7 @@ import { getCurrentBallerinaProject } from "../utils/project-utils";
 import { generateExistingValues, parseTomlToConfig } from "./utils";
 import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
 
+const typeOfComment = 'Type of';
 
 export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
     let configFile: string = filePath;
@@ -77,11 +78,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                 return;
             }
 
-            const configs: {
-                additionalProperties: boolean
-                properties: {}
-                required: []
-            } = orgName[packageName];
+            const configs: Property = orgName[packageName];
 
             if (configs.required?.length === 0) {
                 executeRunCommand(ballerinaExtInstance);
@@ -103,43 +100,44 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                 const obj = existingConfigs['[object Object]'][packageName];
 
                 if (Object.keys(obj).length > 0) {
-                    configs.required.forEach(value => {
-                        if (!(value in obj)) {
-                            newValues.push({ name: value, type: '', property: undefined });
-                        }
-                    });
-                    newValues.forEach(val => {
-                        val.type = configs.properties[val.name].type;
-                        val.property = configs.properties[val.name];
-                    });
-
+                    findPropertyValues(configs, newValues, obj);
                     updatedContent = tomlContent + '\n';
                 } else {
-                    configs.required.forEach(value => {
-                        newValues.push({ name: value, type: '', property: undefined });
-                    });
-                    newValues.forEach(val => {
-                        val.type = configs.properties[val.name].type;
-                        val.property = configs.properties[val.name];
-                    });
+                    findPropertyValues(configs, newValues);
                 }
             } else {
-                configs.required.forEach(value => {
-                    newValues.push({ name: value, type: '', property: undefined });
-                });
-                newValues.forEach(val => {
-                    val.type = configs.properties[val.name].type;
-                    val.property = configs.properties[val.name];
-                });
+                findPropertyValues(configs, newValues);
             }
 
             if (newValues.length > 0) {
-                await handleNewValues(newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance);
+                await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance);
             } else {
                 executeRunCommand(ballerinaExtInstance);
             }
         } catch (error) {
             console.error('Error while generating config:', error);
+        }
+    }
+}
+
+function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any): void {
+    const properties = configs.properties;
+    const requiredKeys = configs.required || [];
+
+    for (let propertyKey in properties) {
+        if (properties.hasOwnProperty(propertyKey)) {
+            const property = properties[propertyKey];
+            const isRequired = requiredKeys.includes(propertyKey);
+            const valueExists = obj ? (propertyKey in obj) : false;
+
+            if (!valueExists) {
+                newValues.push({
+                    name: propertyKey,
+                    type: property.type,
+                    property,
+                    required: isRequired
+                });
+            }
         }
     }
 }
@@ -159,22 +157,23 @@ async function getCurrentBallerinaProjectFromContext(ballerinaExtInstance: Balle
     return currentProject;
 }
 
-async function handleNewValues(newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension): Promise<void> {
-    let btnTitle = 'Open config';
-    let message = 'There are mandatory configurables that are required to run the project.';
+async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension): Promise<void> {
+    let btnTitle = 'Add to config';
+    let message = 'There are missing mandatory configurables that are required to run the program.';
     if (!existsSync(configFile)) {
-        btnTitle = 'Create new config';
+        btnTitle = 'Create Config.toml';
+        message = 'There are mandatory configurables that are required to run the program.';
     }
 
     const openConfigButton = { title: btnTitle, isCloseAffordance: true };
     const ignoreButton = { title: 'Run Anyway' };
 
     const result = await window.showInformationMessage(message, openConfigButton, ignoreButton);
-
+    const docLink = "https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax";
     if (result === openConfigButton) {
         if (!existsSync(configFile)) {
             openSync(configFile, 'w');
-            updatedContent = "# For more information please visit\n# https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/\n\n\n" + updatedContent;
+            updatedContent = `# Configuration file for "${packageName}"\n# How to use see:\n# ${docLink}\n\n\n` + updatedContent;
             if (existsSync(ignoreFile)) {
                 const ignoreUri = Uri.file(ignoreFile);
                 let ignoreContent: string = readFileSync(ignoreUri.fsPath, 'utf8');
@@ -190,6 +189,15 @@ async function handleNewValues(newValues: ConfigProperty[], configFile: string, 
             }
         }
 
+        newValues.sort((a, b) => {
+            if (a.required === false && b.required === true) {
+                return -1; // a should come before b
+            } else if (a.required === true && b.required === false) {
+                return 1; // a should come after b
+            } else {
+                return 0; // the order of a and b remains unchanged
+            }
+        });
         updateConfigToml(newValues, updatedContent, uri.fsPath);
 
         await workspace.openTextDocument(uri).then(async document => {
@@ -211,9 +219,14 @@ function executeRunCommand(ballerinaExtInstance: BallerinaExtension): void {
 
 function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPath) {
     newValues.forEach(obj => {
-        let comment = { value: `# Following config value should be a type of ${obj.type && obj.type.toUpperCase() || "STRING"}\n` };
-        let newConfigValue = getConfigValue(obj.name, obj.property, comment);
-        updatedContent += comment.value + newConfigValue + '\n';
+        if (obj.required) {
+            let comment = { value: `# ${typeOfComment} ${obj.type && obj.type.toUpperCase() || "STRING"}` };
+            let newConfigValue = getConfigValue(obj.name, obj.property, comment);
+            updatedContent += newConfigValue + comment.value + '\n\n';
+        } else {
+            let comment = { value: `# "${obj.name}" is an optional value\n\n` };
+            updatedContent += comment.value;
+        }
     });
 
     writeFile(configPath, updatedContent, function (error) {
@@ -228,16 +241,16 @@ function getConfigValue(name: string, obj: Property, comment: { value: string })
     let newConfigValue = '';
     switch (obj.type) {
         case ConfigTypes.BOOLEAN:
-            newConfigValue = `${name} = false\n`;
+            newConfigValue = `${name} = false\t`;
             break;
         case ConfigTypes.INTEGER:
-            newConfigValue = `${name} = 0\n`;
+            newConfigValue = `${name} = 0\t`;
             break;
         case ConfigTypes.NUMBER:
-            newConfigValue = `${name} = 0.0\n`;
+            newConfigValue = `${name} = 0.0\t`;
             break;
         case ConfigTypes.STRING:
-            newConfigValue = `${name} = ""\n`;
+            newConfigValue = `${name} = ""\t`;
             break;
         case ConfigTypes.ARRAY:
             newConfigValue = getArrayConfigValue(comment, name, obj);
@@ -249,20 +262,20 @@ function getConfigValue(name: string, obj: Property, comment: { value: string })
             if (Constants.ANY_OF in obj) {
                 const anyType: Property = obj.anyOf[0];
                 if (anyType.type === ConfigTypes.INTEGER || anyType.type === ConfigTypes.NUMBER) {
-                    comment.value = `# Following config value should be a type of ${ConfigTypes.NUMBER.toUpperCase()}\n`;
-                    newConfigValue = `${name} = 0\n`;
+                    comment.value = `# ${typeOfComment} ${ConfigTypes.NUMBER.toUpperCase()}`;
+                    newConfigValue = `${name} = 0\t`;
                 } else if (anyType.type === ConfigTypes.STRING) {
-                    newConfigValue = `${name} = ""\n`;
+                    newConfigValue = `${name} = ""\t`;
                 } else if (anyType.type === ConfigTypes.OBJECT && anyType.name.includes(Constants.HTTP)) {
-                    comment.value = `# Following config value should be a type of ${ConfigTypes.OBJECT.toUpperCase()}\n`;
-                    comment.value += `# for more details refer https://lib.ballerina.io/ballerina/http/\n`;
-                    newConfigValue = `[${name}]\n`;
+                    comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}\n`;
+                    comment.value += `# For more information refer https://lib.ballerina.io/ballerina/http/\n`;
+                    newConfigValue = `[${name}]\t`;
                 } else {
-                    comment.value = `# Following config value should be a type of ${ConfigTypes.OBJECT.toUpperCase()}\n`;
-                    newConfigValue = `[${name}]\n`;
+                    comment.value = `# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}`;
+                    newConfigValue = `[${name}]\t`;
                 }
             } else {
-                newConfigValue = `${name} = ""\n`;
+                newConfigValue = `${name} = ""\t`;
             }
             break;
     }
@@ -273,42 +286,47 @@ function getArrayConfigValue(comment: { value: string }, name: string, item: Pro
     let newConfigValue = '';
     switch (item.type) {
         case ConfigTypes.BOOLEAN:
-            comment.value = `# Following config value should be a ${ConfigTypes.BOOLEAN} array\n`;
-            newConfigValue = `${name} = []\n# Example: ${name} = [false, false]\n`;
+            comment.value = ``;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.BOOLEAN.toUpperCase()} array\n# Example: ${name} = [false, false]\n`;
             break;
         case ConfigTypes.INTEGER:
-            comment.value = `# Following config value should be an ${ConfigTypes.INTEGER} array\n`;
-            newConfigValue = `${name} = []\n# Example: ${name} = [0, 0]\n`;
+            comment.value = ``;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.INTEGER.toUpperCase()} array\n# Example: ${name} = [0, 0]\n`;
             break;
         case ConfigTypes.NUMBER:
-            comment.value = `# Following config value should be a ${ConfigTypes.NUMBER} array\n`;
-            newConfigValue = `${name} = []\n# Example: ${name} = [0.0, 0.0]\n`;
+            comment.value = ``;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.NUMBER.toUpperCase()} array\n# Example: ${name} = [0.0, 0.0]\n`;
             break;
         case ConfigTypes.STRING:
-            comment.value = `# Following config value should be a ${ConfigTypes.STRING} array\n`;
-            newConfigValue = `${name} = []\n# Example: ${name} = ["red", "green"]\n`;
+            comment.value = ``;
+            newConfigValue = `${name} = []\t# ${typeOfComment} ${ConfigTypes.STRING.toUpperCase()} array\n# Example: ${name} = ["red", "green"]\n`;
             break;
         case ConfigTypes.ARRAY:
-            comment.value = `# Following config value should be an ${ConfigTypes.ARRAY} of array\n`;
+            comment.value = `# ${typeOfComment} ${ConfigTypes.ARRAY.toUpperCase()} of array\n`;
             newConfigValue = getArrayConfigValue(comment, name, item.items);
             break;
         case ConfigTypes.OBJECT:
-            comment.value = `# Following config value should be an ${ConfigTypes.OBJECT} array\n`;
+            comment.value = ``;
             if (item.additionalProperties && item.additionalProperties.type === ConfigTypes.STRING) {
-                newConfigValue = `[[${name}]]\n# Example:\n# [[${name}]]\n# name = "John"\n# city = "Paris"\n# [[${name}]]\n# name = "Jack"\n# city = "Colombo"\n`;
+                newConfigValue = `[[${name}]]\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()} array\n# Example:\n# [[${name}]]\n# name = "John"\n# city = "Paris"\n# [[${name}]]\n# name = "Jack"\n# city = "Colombo"\n`;
             } else {
                 newConfigValue = getObjectConfigValue(comment, `[${name}]`, item);
             }
             break;
         default:
-            newConfigValue = `${name} = ""\n`;
+            newConfigValue = `${name} = ""\t`;
             break;
     }
     return newConfigValue;
 }
 
 function getObjectConfigValue(comment: { value: string }, name: string, property: Property, parentObject?: string): string {
-    let newConfigValue = parentObject ? '' : `[${name}]\n`;
+    let newConfigValue = `[${name}]\t# ${typeOfComment} ${ConfigTypes.OBJECT.toUpperCase()}\n`;
+    comment.value = ``;
+    if (parentObject) {
+        newConfigValue = ``;
+    }
+
     if (property && property.required?.length > 0) {
         property.required.forEach(val => {
             const obj: Property = property.properties[val];

@@ -21,6 +21,7 @@ export interface ConfigProperty {
     name: string;
     type: string;
     property: Property;
+    required: boolean;
 }
 
 export interface Property {
@@ -29,8 +30,8 @@ export interface Property {
     additionalProperties?: { type: string };
     properties?: {};
     required?: string[];
-    description: string;
-    items: Property;
+    description?: string;
+    items?: Property;
 }
 
 export enum Constants {
