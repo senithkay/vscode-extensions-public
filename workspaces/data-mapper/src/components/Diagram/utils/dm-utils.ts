@@ -770,15 +770,19 @@ export function getEnrichedRecordType(type: Type,
 	let fields: Type[] = null;
 	let valueNode: STNode;
 	let nextNode: STNode;
+	let originalType: Type = type;
 
 	if (type.typeName === PrimitiveBalType.Union && type?.resolvedUnionType && !Array.isArray(type?.resolvedUnionType)) {
+		originalType = type;
 		type = type.resolvedUnionType;
 	}
 
 	if (parentType) {
 		if (innerExpr && STKindChecker.isMappingConstructor(innerExpr)) {
 			const specificField: SpecificField = innerExpr.fields.find((val) =>
-				STKindChecker.isSpecificField(val) && type?.name && val.fieldName.value === getBalRecFieldName(type.name)
+				STKindChecker.isSpecificField(val)
+				&& originalType?.name
+				&& val.fieldName.value === getBalRecFieldName(originalType.name)
 			) as SpecificField;
 			if (specificField) {
 				valueNode = specificField;
@@ -822,7 +826,7 @@ export function getEnrichedRecordType(type: Type,
 				: node;
 	}
 
-	editableRecordField = new EditableRecordField(type, valueNode, parentType);
+	editableRecordField = new EditableRecordField(type, valueNode, parentType, originalType);
 
 	if (type.typeName === PrimitiveBalType.Record) {
 		fields = type.fields;
@@ -1056,7 +1060,7 @@ export function getModuleVariables(node: STNode, symbolInfo: STSymbolInfo) {
 }
 
 export function getFieldName(field: EditableRecordField) {
-	return field.type?.name ? getBalRecFieldName(field.type.name) : '';
+	return field.originalType?.name ? getBalRecFieldName(field.originalType.name) : '';
 }
 
 export function getFieldLabel(fieldId: string) {

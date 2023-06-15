@@ -32,9 +32,12 @@ export interface UnionTypeLabel {
 }
 
 export function resolveUnionType(expr: STNode, unionType: Type): Type {
-	const innerExpr = STKindChecker.isLetExpression(expr)
-		? getExprBodyFromLetExpression(expr)
-		: expr;
+	let innerExpr = expr;
+	if (STKindChecker.isLetExpression(expr)) {
+		innerExpr = getExprBodyFromLetExpression(expr);
+	} else if (STKindChecker.isSpecificField(expr)) {
+		innerExpr = expr.valueExpr;
+	}
 	const supportedTypes = getSupportedUnionTypes(unionType);
 	if (STKindChecker.isTypeCastExpression(innerExpr)) {
 		// when the expr is wrapped with a type cast
@@ -51,8 +54,8 @@ export function resolveUnionType(expr: STNode, unionType: Type): Type {
 	} else {
 		// when the type is derivable from the expr
 		let typeName: string;
-		if (expr.typeData?.typeSymbol && expr.typeData?.typeSymbol?.signature !== "$CompilationError$") {
-			const typeSignature = expr.typeData?.typeSymbol?.signature;
+		if (innerExpr.typeData?.typeSymbol && innerExpr.typeData?.typeSymbol?.signature !== "$CompilationError$") {
+			const typeSignature = innerExpr.typeData?.typeSymbol?.signature;
 			const orgAndModule = typeSignature.split(':')[0];
 			typeName = typeSignature.split(':')[2];
 			const importStatements = useDMStore.getState().imports;

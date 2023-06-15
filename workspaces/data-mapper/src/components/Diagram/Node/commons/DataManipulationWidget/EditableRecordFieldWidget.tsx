@@ -38,6 +38,7 @@ import {
     isConnectedViaLink
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
+import { getUnionTypes } from "../../../utils/union-type-utils";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
 import { OutputSearchHighlight } from "../Search";
 
@@ -211,7 +212,24 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         fieldName = elementName ? `${elementName}Item` : 'item';
     }
 
-    const diagnostic = (specificField.valueExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
+    const diagnostic = (specificField.valueExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic;
+
+    const getUnionType = () => {
+        const typeText: JSX.Element[] = [];
+        const unionTypes = getUnionTypes(field.originalType);
+        const resolvedTypeName = field.type?.name;
+        unionTypes.forEach((type) => {
+            if (type.trim() === resolvedTypeName) {
+                typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
+            } else {
+                typeText.push(<>{type}</>);
+            }
+            if (type !== unionTypes[unionTypes.length - 1]) {
+                typeText.push(<> | </>);
+            }
+        });
+        return typeText;
+    };
 
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
@@ -231,7 +249,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
                     )}
                 >
-                    {typeName}
+				    {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
                 </span>
             )}
             {value && !connectedViaLink && (
