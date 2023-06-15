@@ -77,7 +77,7 @@ export function PersistDiagram(props: PersistDiagramProps) {
                 model.addLayer(new OverlayLayerModel());
                 diagramEngine.setModel(model);
                 setDiagramModel(model);
-                autoDistribute();
+                autoDistribute(model);
             } else if (response.diagnostics.length && !diagramModel) {
                 setUserMessage(ERRONEOUS_MODEL);
             } else if (!response.diagnostics?.length) {
@@ -87,17 +87,20 @@ export function PersistDiagram(props: PersistDiagramProps) {
         });
     }
 
-    const autoDistribute = () => {
+    const autoDistribute = (model: DiagramModel) => {
         setTimeout(() => {
             dagreEngine.redistribute(diagramEngine.getModel());
             diagramEngine.zoomToFitNodes({ margin: 10, maxZoom: 1 });
             diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
+            diagramEngine.setModel(model);
         }, 30);
     };
 
     const switchCollapseMode = (shouldCollapse: boolean) => {
         setIsCollapsedMode(shouldCollapse);
-        autoDistribute();
+        if (diagramModel) {
+            autoDistribute(diagramModel);
+        }
     }
 
     let ctx = {
