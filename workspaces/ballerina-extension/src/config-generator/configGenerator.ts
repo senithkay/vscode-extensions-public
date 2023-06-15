@@ -100,7 +100,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                 const obj = existingConfigs['[object Object]'][packageName];
 
                 if (Object.keys(obj).length > 0) {
-                    findPropertyValues(configs, newValues, obj);
+                    findPropertyValues(configs, newValues, obj, tomlContent);
                     updatedContent = tomlContent + '\n';
                 } else {
                     findPropertyValues(configs, newValues);
@@ -120,23 +120,26 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
     }
 }
 
-function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any): void {
+function findPropertyValues(configs: Property, newValues: ConfigProperty[], obj?: any, tomlContent?: string): void {
     const properties = configs.properties;
     const requiredKeys = configs.required || [];
 
     for (let propertyKey in properties) {
         if (properties.hasOwnProperty(propertyKey)) {
-            const property = properties[propertyKey];
+            const property: Property = properties[propertyKey];
             const isRequired = requiredKeys.includes(propertyKey);
-            const valueExists = obj ? (propertyKey in obj) : false;
-
-            if (!valueExists) {
-                newValues.push({
-                    name: propertyKey,
-                    type: property.type,
-                    property,
-                    required: isRequired
-                });
+            if (!isRequired && property.required && property.required.length > 0) {
+                findPropertyValues(property, newValues, obj, tomlContent);
+            } else {
+                const valueExists = obj ? (propertyKey in obj || tomlContent.includes(propertyKey)) : false;
+                if (!valueExists) {
+                    newValues.push({
+                        name: propertyKey,
+                        type: property.type,
+                        property,
+                        required: isRequired
+                    });
+                }
             }
         }
     }
