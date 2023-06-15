@@ -352,7 +352,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 		const specificField = STKindChecker.isMappingConstructor(targetMappingConstructor)
 			&& getSpecificField(targetMappingConstructor, getFieldName(field));
 		if (specificField && !specificField.valueExpr.source) {
-			return createValueExprSource(field.type.name, newValue, parentFields, 1,
+			return createValueExprSource(field.originalType.name, newValue, parentFields, 1,
 				specificField.colon.position as NodePosition, applyModifications);
 		}
 		source = createSpecificField(parentFields.reverse());
@@ -691,15 +691,15 @@ export function getOutputPortForField(fields: STNode[],
 					return innerExpr && isPositionsEquals(nextPosition, innerExpr.position as NodePosition);
 				});
 				if (fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${getBalRecFieldName(nextTypeNode.type.name)}` : ''}`;
+					portIdBuffer = `${portIdBuffer}${nextTypeNode.originalType?.name ? `.${getBalRecFieldName(nextTypeNode.originalType.name)}` : ''}`;
 					nextTypeNode = nextTypeNode.childrenTypes[fieldIndex];
 				} else if (isPositionsEquals(nextPosition, nextTypeNode?.value.position)) {
-					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${getBalRecFieldName(nextTypeNode.type.name)}` : ''}`;
+					portIdBuffer = `${portIdBuffer}${nextTypeNode.originalType?.name ? `.${getBalRecFieldName(nextTypeNode.originalType.name)}` : ''}`;
 				}
 			} else if (nextTypeNode.elements) {
 				const [nextField, fieldIndex] = getNextField(nextTypeNode.elements, nextPosition);
 				if (nextField && fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}.${getBalRecFieldName(nextField.type?.name) || ''}`;
+					portIdBuffer = `${portIdBuffer}.${getBalRecFieldName(nextField.originalType?.name) || ''}`;
 				}
 			}
 		}
@@ -798,7 +798,7 @@ export function getEnrichedRecordType(type: Type,
 			if (mappingConstructors.length > 0) {
 				for (const expr of mappingConstructors) {
 					valueNode = expr.fields.find((val) =>
-						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
+						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(originalType?.name)
 					);
 				}
 				if (!valueNode) {
