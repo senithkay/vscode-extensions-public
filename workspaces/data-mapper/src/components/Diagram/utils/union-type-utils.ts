@@ -56,11 +56,12 @@ export function resolveUnionType(expr: STNode, unionType: Type): Type {
 		let typeName: string;
 		if (innerExpr.typeData?.typeSymbol && innerExpr.typeData?.typeSymbol?.signature !== "$CompilationError$") {
 			const typeSignature = innerExpr.typeData?.typeSymbol?.signature;
-			const orgAndModule = typeSignature.split(':')[0];
-			typeName = typeSignature.split(':')[2];
+			const typeSignatureSegments = typeSignature.split(':');
+			typeName = typeSignatureSegments.length === 1 ? typeSignatureSegments[0] : typeSignature.split(':')[2];
+			// If record is from an imported package
+			const orgAndModule = typeSignatureSegments[0];
 			const importStatements = useDMStore.getState().imports;
 			if (importStatements.some(item => item.includes(orgAndModule))){
-				// If record is from an imported package
 				typeName = `${orgAndModule.split('/')[1]}:${typeName}`;
 			}
 		}

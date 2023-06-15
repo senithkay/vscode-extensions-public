@@ -248,7 +248,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const getUnionType = () => {
         const typeText: JSX.Element[] = [];
         const unionTypes = getUnionTypes(field.originalType);
-        const resolvedTypeName = field.type?.name;
+        const resolvedTypeName = field.type?.name || field.type.typeName;
         unionTypes.forEach((type) => {
             if (type.trim() === resolvedTypeName) {
                 typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
