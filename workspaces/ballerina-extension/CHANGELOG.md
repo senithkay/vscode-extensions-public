@@ -1,5 +1,18 @@
 # Change log
 
+## **4.3.0** 
+
+### Added
+
+- Entity Relationship Diagram
+  - A new diagram that visualises the Ballerina persist model.
+
+### Improved
+
+- GraphQL Designer
+  - Enable option to filter between queries, mutations and subscriptions.
+  - Improvements related to GraphQL Designer UI.
+
 ## **4.0.0** (2023-04-21)
 
 For more information, see the [release note](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.0.0/).
