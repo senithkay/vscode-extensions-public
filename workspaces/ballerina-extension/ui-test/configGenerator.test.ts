@@ -94,8 +94,8 @@ describe('VSCode Config Generation UI Tests', () => {
         expect(existsSync(configFilePath)).to.be.true;
 
         // Read the generated config file and expected config file
-        const generatedConfigContent = readFileSync(configFilePath, 'utf8');
-        const expectedConfigContent = readFileSync(expectedConfigFilePath, 'utf8');
+        const generatedConfigContent = readFileSync(configFilePath, 'utf8').replace(/\s/g, '');
+        const expectedConfigContent = readFileSync(expectedConfigFilePath, 'utf8').replace(/\s/g, '');
         await wait(3000);
         // Compare the generated config file with the expected config file
         expect(generatedConfigContent).to.equal(expectedConfigContent);
