@@ -586,19 +586,20 @@ export class NodeInitVisitor implements Visitor {
     beginVisitSpecificField(node: SpecificField, parent?: STNode) {
         const selectedSTNode = this.selection.selectedST.stNode;
         let valueExpr: STNode = node.valueExpr;
+        const innerExpr = getInnermostExpressionBody(valueExpr);
         if (!isPositionsEquals(selectedSTNode.position as NodePosition, node.position as NodePosition)) {
             this.mapIdentifiers.push(node)
         }
         if (this.isWithinQuery === 0
             && (this.isWithinLetVarDecl === 0
                 || (this.isWithinLetVarDecl > 0 && STKindChecker.isLetVarDecl(this.selection.selectedST.stNode)))
-            && valueExpr
-            && !STKindChecker.isMappingConstructor(valueExpr)
-            && !STKindChecker.isListConstructor(valueExpr)
+            && innerExpr
+            && !STKindChecker.isMappingConstructor(innerExpr)
+            && !STKindChecker.isListConstructor(innerExpr)
         ) {
-            const inputNodes = getInputNodes(valueExpr);
-            valueExpr = STKindChecker.isCheckExpression(valueExpr) ? valueExpr.expression : valueExpr;
-            const fnDefForFnCall = STKindChecker.isFunctionCall(valueExpr) && getFnDefForFnCall(valueExpr);
+            const inputNodes = getInputNodes(innerExpr);
+            valueExpr = STKindChecker.isCheckExpression(innerExpr) ? innerExpr.expression : innerExpr;
+            const fnDefForFnCall = STKindChecker.isFunctionCall(innerExpr) && getFnDefForFnCall(innerExpr);
             if (inputNodes.length > 1
                 || (inputNodes.length === 1 && (isComplexExpression(valueExpr) || fnDefForFnCall))) {
                 const linkConnectorNode = new LinkConnectorNode(
