@@ -55,17 +55,23 @@ export function EntityWidget(props: EntityWidgetProps) {
         engine.getModel().getLinks().forEach((link) => {
             const entityLink: EntityLinkModel = link as EntityLinkModel;
             if (entityLink.sourceNode?.nodeId === node.getID()) {
+                const attributeId: string = `${node.getID()}/${entityLink.sourceNode.attributeId}`;
                 if (isCollapsed && entityLink.getSourcePort().getID() !== `right-${node.getID()}`) {
                     link.setSourcePort(node.getPort(`right-${node.getID()}`));
                 } else if (!isCollapsed &&
-                    entityLink.getSourcePort().getID() !== `right-${node.getID()}/${entityLink.sourceNode.attributeId}`) {
-                    link.setSourcePort(node.getPort(`right-${node.getID()}/${entityLink.sourceNode.attributeId}`));
+                    node.getPort(`right-${attributeId}`) &&
+                    entityLink.getSourcePort().getID() !== `right-${attributeId}`
+                ) {
+                    link.setSourcePort(node.getPort(`right-${attributeId}`));
                 }
             } else if (entityLink.targetNode?.nodeId === node.getID()) {
+                const attributeId: string = `${node.getID()}/${entityLink.targetNode.attributeId}`;
                 if (isCollapsed && entityLink.getTargetPort().getID() !== `left-${node.getID()}`) {
                     link.setTargetPort(node.getPort(`left-${node.getID()}`));
                 } else if (!isCollapsed &&
-                    entityLink.getTargetPort().getID() !== `right-${node.getID()}/${entityLink.targetNode?.attributeId}`) {
+                    node.getPort(`left-${attributeId}`) &&
+                    entityLink.getTargetPort().getID() !== `left-${attributeId}`
+                ) {
                     link.setTargetPort(node.getPort(`left-${node.getID()}/${entityLink.targetNode.attributeId}`));
                 }
             }

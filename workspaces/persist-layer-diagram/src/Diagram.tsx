@@ -22,12 +22,11 @@ import { ComponentModel, GetPersistERModelResponse } from '@wso2-enterprise/ball
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import CircularProgress from '@mui/material/CircularProgress';
-import styled from '@emotion/styled';
 import { CMEntity as Entity } from '@wso2-enterprise/ballerina-languageclient';
 import { modelMapper, generateEngine } from './utils';
 import { DiagramControls, HeaderWidget, OverlayLayerModel, PersistDiagramContext, PromptScreen } from './components';
 import { ERRONEOUS_MODEL, NO_ENTITIES_DETECTED, dagreEngine, Colors } from './resources';
-import { useStyles } from './utils/CanvasStyles';
+import { Container, DiagramContainer, useStyles } from './utils/CanvasStyles';
 
 import './resources/assets/font/fonts.css';
 
@@ -36,18 +35,6 @@ interface PersistDiagramProps {
     selectedRecordName: string;
     showProblemPanel: () => void;
 }
-
-const PersistContainer = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    justify-content: center;
-    width: 100vw;
-    svg:not(:root) {
-        overflow: visible;
-    }
-`;
 
 export function PersistDiagram(props: PersistDiagramProps) {
     const { getPersistModel, selectedRecordName, showProblemPanel } = props;
@@ -87,9 +74,10 @@ export function PersistDiagram(props: PersistDiagramProps) {
             setHasDiagnostics(response.diagnostics.length > 0);
             if (entities.size) {
                 const model = modelMapper(entities);
+                model.addLayer(new OverlayLayerModel());
                 diagramEngine.setModel(model);
-                autoDistribute();
                 setDiagramModel(model);
+                autoDistribute();
             } else if (response.diagnostics.length && !diagramModel) {
                 setUserMessage(ERRONEOUS_MODEL);
             } else if (!response.diagnostics?.length) {
@@ -121,26 +109,28 @@ export function PersistDiagram(props: PersistDiagramProps) {
     }
 
     return (
-        <PersistContainer>
+        <Container>
             <PersistDiagramContext {...ctx}>
                 <HeaderWidget collapsedMode={collapsedMode} setIsCollapsedMode={switchCollapseMode} />
-                {diagramEngine?.getModel() && diagramModel ?
-                    <>
-                        <CanvasWidget engine={diagramEngine} className={styles.canvas} />
-                        <DiagramControls
-                            engine={diagramEngine}
-                            refreshDiagram={refreshDiagram}
-                            showProblemPanel={showProblemPanel}
-                        />
-                    </> :
-                    userMessage ?
-                        <PromptScreen
-                            userMessage={userMessage}
-                            showProblemPanel={hasDiagnostics ? showProblemPanel : undefined}
-                        /> :
-                        <CircularProgress sx={{ color: Colors.PRIMARY }} />
-                }
+                <DiagramContainer>
+                    {diagramEngine?.getModel() && diagramModel ?
+                        <>
+                            <CanvasWidget engine={diagramEngine} className={styles.canvas} />
+                            <DiagramControls
+                                engine={diagramEngine}
+                                refreshDiagram={refreshDiagram}
+                                showProblemPanel={showProblemPanel}
+                            />
+                        </> :
+                        userMessage ?
+                            <PromptScreen
+                                userMessage={userMessage}
+                                showProblemPanel={hasDiagnostics ? showProblemPanel : undefined}
+                            /> :
+                            <CircularProgress sx={{ color: Colors.PRIMARY }} />
+                    }
+                </DiagramContainer>
             </PersistDiagramContext>
-        </PersistContainer>
+        </Container>
     );
 }

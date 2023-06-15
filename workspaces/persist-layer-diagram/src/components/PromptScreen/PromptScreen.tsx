@@ -45,7 +45,8 @@ export function PromptScreen(props: PromptScreenProps) {
                 >
                     <SearchIcon sx={{ marginRight: '5px' }} />
                     View Diagnostics
-                </Fab>}
+                </Fab>
+            }
         </div>
     );
 }

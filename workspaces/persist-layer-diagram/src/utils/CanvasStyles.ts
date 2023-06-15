@@ -18,6 +18,7 @@
  */
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import styled from '@emotion/styled';
 
 import { CanvasBackground } from '../resources';
 
@@ -31,3 +32,25 @@ export const useStyles = makeStyles(() =>
         }
     })
 );
+
+export const Container = styled.div`
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: center;
+    width: 100vw;
+`;
+
+export const DiagramContainer = styled.div`
+    align-items: center;
+    background-image: url(${CanvasBackground});
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 50px);
+    justify-content: center;
+    width: 100vw;
+    svg:not(:root) {
+        overflow: visible;
+    }
+`;
