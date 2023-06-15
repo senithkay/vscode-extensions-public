@@ -5,12 +5,12 @@
 ### Added
 
 - Entity Relationship Diagram
-  - A new diagram that visualises the Ballerina persist model.
+  - A diagram that visualises the entities and their relationships defined in the Ballerina persist model.
 
 ### Improved
 
 - GraphQL Designer
-  - Enable option to filter between queries, mutations and subscriptions.
+  - Enable an option to filter between queries, mutations and subscriptions.
   - Improvements related to GraphQL Designer UI.
 
 ## **4.0.0** (2023-04-21)
