@@ -36,6 +36,7 @@ const HeaderContainer = styled.div`
     font-size: 16px;
     height: 50px;
     justify-content: space-between;
+    min-width: 350px;
     padding-inline: 10px;
     width: calc(100vw - 20px);
 `;
