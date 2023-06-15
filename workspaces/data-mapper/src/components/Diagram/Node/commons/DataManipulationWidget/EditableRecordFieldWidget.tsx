@@ -157,44 +157,54 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsHovered(false);
     };
 
+    const getTargetPositionForWrappedTypeCast = () => {
+        let valueExpr: STNode = field.value;
+        let valueExprPosition: NodePosition = valueExpr.position;
+        let targetPosition: NodePosition = {
+            ...valueExprPosition,
+            endLine: valueExprPosition.startLine,
+            endColumn: valueExprPosition.startColumn
+        }
+
+        if (STKindChecker.isSpecificField(field.value)) {
+            valueExpr = field.value.valueExpr;
+            const isValueExprEmpty = isEmptyValue(valueExpr.position);
+            if (isValueExprEmpty) {
+                return {
+                    ...field.value.position,
+                    startLine: field.value.position.endLine,
+                    startColumn: field.value.position.endColumn
+                }
+            }
+            valueExprPosition = valueExpr.position;
+            targetPosition = {
+                ...valueExprPosition,
+                endLine: valueExprPosition.startLine,
+                endColumn: valueExprPosition.startColumn
+            }
+        }
+
+        if (STKindChecker.isTypeCastExpression(valueExpr)) {
+            const exprBodyPosition = getExprBodyFromTypeCastExpression(valueExpr).position;
+            targetPosition = {
+                ...valueExprPosition,
+                endLine: exprBodyPosition.startLine,
+                endColumn: exprBodyPosition.startColumn
+            };
+        }
+
+        return targetPosition;
+    }
+
     const handleWrapWithTypeCast = async (type: Type) => {
         setIsAddingTypeCast(true)
         try {
             const name = getTypeName(type);
             if (field?.value) {
-                let targetPosition: NodePosition;
-                const typeCastExpr = STKindChecker.isTypeCastExpression(field.value) && field.value;
-                const specificFieldValueExpr = STKindChecker.isSpecificField(field.value) && field.value.valueExpr;
-                let valueExprPosition: NodePosition = field.value.position;
-                let defaultValue: string;
-                if (typeCastExpr) {
-                    valueExprPosition = getExprBodyFromTypeCastExpression(typeCastExpr).position;
-                } else if (specificFieldValueExpr) {
-                    defaultValue = getDefaultValue(type.typeName);
-                    valueExprPosition = specificFieldValueExpr.position;
-                    if (isEmptyValue(specificFieldValueExpr.position)) {
-                        valueExprPosition = {
-                            ...field.value.position,
-                            startLine: field.value.position.endLine,
-                            startColumn: field.value.position.endColumn
-                        }
-                    }
-                }
-                if (typeCastExpr) {
-                    const typeCastExprPosition: NodePosition = typeCastExpr.position;
-                    targetPosition = {
-                        ...typeCastExprPosition,
-                        endLine: valueExprPosition.startLine,
-                        endColumn: valueExprPosition.startColumn
-                    };
-                } else {
-                    targetPosition = {
-                        ...valueExprPosition,
-                        endLine: valueExprPosition.startLine,
-                        endColumn: valueExprPosition.startColumn
-                    };
-                }
-                const modification = [getModification(`<${name}>${defaultValue || ''}`, targetPosition)];
+                const targetPosition = getTargetPositionForWrappedTypeCast();
+                const defaultValue = STKindChecker.isSpecificField(field.value)
+                    && isEmptyValue(field.value.valueExpr.position) ? getDefaultValue(type.typeName) : '';
+                const modification = [getModification(`<${name}>${defaultValue}`, targetPosition)];
                 await applyModifications(modification);
             } else {
                 const defaultValue = `<${name}>${getDefaultValue(type.typeName)}`;
