@@ -23,7 +23,7 @@ import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core";
 import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
 import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
@@ -57,6 +57,7 @@ export function DiagramViewManager(props: EditorProps) {
         workspaceName,
         diagramFocus
     } = props;
+
     const [
         history,
         historyPush,
@@ -163,6 +164,18 @@ export function DiagramViewManager(props: EditorProps) {
                         }
                     }
 
+                    if (selectedST && STKindChecker.isFunctionDefinition(selectedST)
+                        && STKindChecker.isExpressionFunctionBody(selectedST.functionBody)) {
+                        if (!history[history.length - 1].fromDataMapper) {
+                            updateCurrentEntry({
+                                ...history[history.length - 1],
+                                fromDataMapper: true,
+                                dataMapperDepth: 0,
+                                name: selectedST.functionName.value
+                            });
+                        }
+                    }
+
                     setFocusedST(selectedST);
                     setCompleteST(visitedST);
                     setCurrentFileContent(content);
@@ -219,9 +232,6 @@ export function DiagramViewManager(props: EditorProps) {
         setUpdatedTimeStamp
     );
 
-    console.log('show mode overview >>>', showOverviewMode);
-    console.log('show mode st >>>', showSTMode);
-
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
@@ -233,6 +243,7 @@ export function DiagramViewManager(props: EditorProps) {
                         historyClearAndPopulateWith={historyClearAndPopulateWith}
                         historySelect={historySelect}
                         historyReset={historyClear}
+                        historyUpdateCurrentEntry={updateCurrentEntry}
                     >
 
                         <ViewManagerProvider

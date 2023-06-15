@@ -28,16 +28,17 @@ import { DataMapperOverlay } from "../../../Diagram/components/DataMapperOverlay
 import { useHistoryContext } from "../../context/history";
 
 import { ServiceView } from "./components/ServiceView";
+import { extractFilePath } from "../../utils";
 
 interface DiagramViewProps {
     projectComponents: BallerinaProjectComponents;
 }
 
 export function DiagramView(props: DiagramViewProps) {
-    const { historyClearAndPopulateWith, historyPop } = useHistoryContext();
+    const { historyClearAndPopulateWith, historyPop, history, historyUpdateCurrentEntry } = useHistoryContext();
     const {
         props: { syntaxTree, fullST, ballerinaVersion, currentFile },
-        api: { openArchitectureView }
+        api: { openArchitectureView },
     } = useDiagramContext();
     const { projectComponents } = props;
 
@@ -46,12 +47,13 @@ export function DiagramView(props: DiagramViewProps) {
 
     if (STKindChecker.isServiceDeclaration(syntaxTree)) {
         viewComponent = <ServiceView />;
-    } else if (STKindChecker.isFunctionDefinition(syntaxTree)
+    } else if (currentFile && currentFile.content && STKindChecker.isFunctionDefinition(syntaxTree)
         && STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody)) {
+
 
         const handleNavigationHome = () => {
             historyClearAndPopulateWith({
-                file: projectComponents?.packages[0]?.filePath
+                file: extractFilePath(projectComponents?.packages[0]?.filePath)
             })
         }
 

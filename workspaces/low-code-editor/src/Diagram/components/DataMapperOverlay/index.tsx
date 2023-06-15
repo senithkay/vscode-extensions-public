@@ -16,6 +16,7 @@ import React, { useContext, useEffect, useRef } from "react";
 import { DataMapper } from "@wso2-enterprise/ballerina-data-mapper";
 import { IBallerinaLangClient } from "@wso2-enterprise/ballerina-languageclient";
 import {
+    ComponentViewInfo,
     ConfigOverlayFormStatus,
     DiagramEditorLangClientInterface,
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -29,11 +30,12 @@ import {
 import { Uri } from "monaco-editor";
 
 import { Context } from "../../../Contexts/Diagram";
+import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
 import { RecordEditor } from "../FormComponents/ConfigForms";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
-import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
+import { extractFilePath } from "../../../DiagramViewManagerClone/utils";
 
 export interface DataMapperProps {
     model?: STNode;
@@ -64,35 +66,41 @@ export function DataMapperOverlay(props: DataMapperProps) {
 
     const { history, historyPush } = useHistoryContext();
 
-    const [functionST, setFunctionST] =
-        React.useState<FunctionDefinition>(undefined);
+    // const [functionST, setFunctionST] =
+    //     React.useState<FunctionDefinition>(undefined);
     const [newFnName, setNewFnName] = React.useState("");
     const isMounted = useRef(false);
 
-    useEffect(() => {
-        (async () => {
-            if (isMounted.current) {
-                if (newFnName !== "") {
-                    handleFunctionST(newFnName).then();
-                } else if (model && STKindChecker.isFunctionDefinition(model)) {
-                    handleFunctionST(model.functionName.value).then();
-                } else if (!!functionST) {
-                    handleFunctionST(functionST.functionName.value).then();
-                }
-            } else {
-                isMounted.current = true;
-            }
-        })();
-    }, [currentFile.content]);
+    // useEffect(() => {
+    //     (async () => {
+    //         if (isMounted.current) {
+    //             if (newFnName !== "") {
+    //                 handleFunctionST(newFnName).then();
+    //             } else if (model && STKindChecker.isFunctionDefinition(model)) {
+    //                 handleFunctionST(model.functionName.value).then();
+    //             } else if (!!functionST) {
+    //                 handleFunctionST(functionST.functionName.value).then();
+    //             }
+    //         } else {
+    //             isMounted.current = true;
+    //         }
+    //     })();
+    // }, [currentFile.content]);
+    //
+    // useEffect(() => {
+    //     if (model && STKindChecker.isFunctionDefinition(model)) {
+    //         setFunctionST(model);
+    //     }
+    // }, [model]);
+    //
 
     useEffect(() => {
-        if (model && STKindChecker.isFunctionDefinition(model)) {
-            setFunctionST(model);
+        if (newFnName && newFnName !== "") {
+            handleFunctionST(newFnName).then();
         }
-    }, [model]);
+    }, [newFnName]);
 
     const handleFunctionST = async (funcName: string) => {
-        console.log("handleFunctionST >>>", funcName);
         const langClient: DiagramEditorLangClientInterface =
             await getDiagramEditorLangClient();
         const { parseSuccess, syntaxTree } = await langClient.getSyntaxTree({
@@ -101,18 +109,16 @@ export function DataMapperOverlay(props: DataMapperProps) {
             },
         });
         if (parseSuccess) {
-            console.log("syntaxTree >>>", syntaxTree);
             const modPart = syntaxTree as ModulePart;
             const fns = modPart.members.filter((mem) =>
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
             const st = fns.find((mem) => mem.functionName.value === funcName);
-            console.log("st >>>", currentFile.path, st.position);
             historyPush({ file: currentFile.path, position: st.position, fromDataMapper: true, dataMapperDepth: 0 });
-            setFunctionST(st);
+            // setFunctionST(st);
             return;
         }
-        setFunctionST(undefined);
+        // setFunctionST(undefined);
     };
 
     const onSave = (fnName: string) => {
@@ -133,12 +139,22 @@ export function DataMapperOverlay(props: DataMapperProps) {
         );
     };
 
+    const handleInternalNavigation = (info: ComponentViewInfo) => {
+        historyPush({
+            file: extractFilePath(info.filePath),
+            position: info.position,
+            fromDataMapper: true,
+            dataMapperDepth: history[history.length - 1].dataMapperDepth + 1,
+            name: info.name
+        });
+    }
+
     return (
         <div className={dataMapperClasses.dataMapperContainer}>
             <DataMapper
                 library={library}
                 targetPosition={targetPosition}
-                fnST={functionST}
+                fnST={model as FunctionDefinition}
                 langClientPromise={
                     getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
                 }
@@ -155,7 +171,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
                 recordPanel={renderRecordPanel}
                 syntaxTree={fullST}
                 updateActiveFile={updateActiveFile}
-                updateSelectedComponent={updateSelectedComponent}
+                updateSelectedComponent={handleInternalNavigation}
             />
         </div>
     );

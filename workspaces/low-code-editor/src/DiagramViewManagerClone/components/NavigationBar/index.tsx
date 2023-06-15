@@ -53,9 +53,8 @@ export function NavigationBar(props: NavigationBarProps) {
 
     const treatAsWorkspace = projectList && projectList.length > 1 && currentProject;
 
-    const isRootDataMapper = history.length > 0
+    const fromDataMapper = history.length > 0
         && history[history.length - 1].fromDataMapper
-        && history[history.length - 1].dataMapperDepth === 0;
 
     const handleProjectChange = (selectedProject: WorkspaceFolder) => {
         if (currentProject && isPathEqual(selectedProject.uri.path, currentProject.uri.path)) return;
@@ -152,30 +151,27 @@ export function NavigationBar(props: NavigationBarProps) {
         )
     };
 
-
-    const handleClick = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        event.preventDefault();
-        const index: number = +event.currentTarget.getAttribute('data-index');
-        historySelect(index);
-    };
-
     const [activeLink, links] = useMemo(() => {
-        if (isRootDataMapper && history.length > 0) {
-            if (history.length === 1) {
-                // TODO: Fix with the proper function name when updating the history entry
-                history[0].name = 'Data Mapper Root';
-            }
-            let label = history[history.length - 1]?.name;
+        if (fromDataMapper && history.length > 0
+            && history[history.length - 1].dataMapperDepth < history.length) {
+
+            const currentEntry = history[history.length - 1];
+            const startIndex = history.length - 1 - currentEntry.dataMapperDepth;
+            let label = currentEntry?.name;
             const selectedLink = (
                 <Typography className={classes.active}>
                     {label}
                 </Typography>
             );
+            const restLinks: JSX.Element[] = [];
 
-            const restLinks = history.length > 1 && (
-                history.slice(0, -1).map((node, index) => {
+            if (currentEntry.dataMapperDepth > 0) {
+                history.slice(startIndex, history.length - 1).forEach((node, index) => {
+                    const handleClick = () => {
+                        historySelect(startIndex + index);
+                    }
                     label = node?.name;
-                    return (
+                    restLinks.push(
                         <Link
                             data-index={index}
                             key={index}
@@ -188,12 +184,12 @@ export function NavigationBar(props: NavigationBarProps) {
                         </Link>
                     );
                 })
-            );
+            }
 
             return [selectedLink, restLinks];
         }
         return [undefined, undefined];
-    }, [history, isRootDataMapper]);
+    }, [history, fromDataMapper]);
 
     return (
         <div id="nav-bar-main" className="header-bar">
@@ -201,7 +197,7 @@ export function NavigationBar(props: NavigationBarProps) {
             {renderWorkspaceNameComponent()}
             {treatAsWorkspace && <div style={{ display: "flex", alignItems: 'center', justifyContent: 'center' }} >/</div>}
             {treatAsWorkspace && renderProjectSelectorComponent()}
-            {isRootDataMapper ? (
+            {fromDataMapper ? (
                 <Breadcrumbs
                     maxItems={3}
                     separator={<NavigateNextIcon fontSize="small" />}

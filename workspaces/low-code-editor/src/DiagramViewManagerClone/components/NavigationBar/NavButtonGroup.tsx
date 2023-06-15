@@ -22,6 +22,7 @@ import React from "react";
 import { ArrowBack, HomeOutlined } from "@material-ui/icons";
 
 import { useHistoryContext } from "../../context/history";
+import { extractFilePath } from "../../utils";
 
 interface NavButtonGroupProps {
     currentProjectPath: string;
@@ -41,7 +42,9 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
 
     const handleHomeButtonClick = () => {
         if (!buttonsEnabled) {
-            historyClearAndPopulateWith({ file: currentProjectPath });
+            historyClearAndPopulateWith({
+                file: extractFilePath(currentProjectPath)
+            });
         }
     }
 

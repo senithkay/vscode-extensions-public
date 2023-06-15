@@ -101,7 +101,7 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 			}
 		});
 	} else {
-		if (workspace && workspace.workspaceFolders) projectPaths.push(...workspace.workspaceFolders);
+		if (workspace && workspace.workspaceFolders) { projectPaths.push(...workspace.workspaceFolders); }
 	}
 
 	if (isCommand) {
