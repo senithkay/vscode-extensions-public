@@ -84,7 +84,7 @@ describe('VSCode Config Generation UI Tests', () => {
         // Iterate over the information message boxes
         for (const infoNotification of infoNotifications) {
             // Find the button within the information message box
-            const button = await infoNotification.findElement(By.linkText('Create new config'));
+            const button = await infoNotification.findElement(By.linkText('Create Config.toml'));
 
             // Perform the desired action on the button (e.g., click)
             await button.click();
