@@ -160,7 +160,7 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
                     </FormHelperText>
                 </TooltipCodeSnippet>
                 )}
-            {isGraphqlForm && (message.includes("unknown type") ?
+            {isGraphqlRelated(isGraphqlForm, message) ?
                 (
                 <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
                     <>
@@ -179,10 +179,14 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
                             {truncateDiagnosticMsg(message)}
                         </FormHelperText>
                     </TooltipCodeSnippet>
-                ))
+                )
             }
         </>
     );
+}
+
+const isGraphqlRelated = (isGraphqlForm: boolean, message: string) : boolean => {
+    return isGraphqlForm && (message !== "unknown type 'undefined'") && message.includes("unknown type");
 }
 
 export const TypeBrowser = React.memo(TypeBrowserC);

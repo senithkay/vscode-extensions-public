@@ -42,16 +42,18 @@ export function FunctionMenuWidget(props: FunctionMenuWidgetProps) {
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
                 title={
-                    <Paper style={{ maxWidth: "100%" }}>
-                        <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                            <DesignFunctionWidget position={location} />
-                            <EditFunctionWidget position={location} functionType={functionType} />
-                            <DeleteFunctionWidget position={location} />
-                            {location?.filePath &&
-                            <GoToSourceMenuItem location={location} />
-                            }
-                        </MenuList>
-                    </Paper>
+                    <div onClick={() => setTooltipStatus(false)}>
+                        <Paper style={{ maxWidth: "100%" }}>
+                            <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
+                                <DesignFunctionWidget position={location} />
+                                <EditFunctionWidget position={location} functionType={functionType} />
+                                <DeleteFunctionWidget position={location} />
+                                {location?.filePath &&
+                                <GoToSourceMenuItem location={location} />
+                                }
+                            </MenuList>
+                        </Paper>
+                    </div>
                 }
                 PopperProps={{
                     modifiers: [
