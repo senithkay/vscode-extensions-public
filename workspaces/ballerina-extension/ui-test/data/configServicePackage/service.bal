@@ -2,6 +2,7 @@
 import ballerina/http;
 
 # Working
+configurable string foo = "cats";
 configurable boolean isAdmin = ?;
 configurable byte age = ?;
 configurable int port = ?;

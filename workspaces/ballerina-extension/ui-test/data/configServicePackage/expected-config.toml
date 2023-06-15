@@ -1,49 +1,44 @@
-# For more information please visit
-# https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/
+# Configuration file for "pconvet"
+# How to use see:
+# https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax
 
 
-# Following config value should be a type of BOOLEAN
-isAdmin = false
+# "foo" is an optional value
 
-# Following config value should be a type of INTEGER
-age = 0
+isAdmin = false	# Type of BOOLEAN
 
-# Following config value should be a type of INTEGER
-port = 0
+age = 0	# Type of INTEGER
 
-# Following config value should be a type of NUMBER
-height = 0.0
+port = 0	# Type of INTEGER
 
-# Following config value should be a type of NUMBER
-salary = 0.0
+height = 0.0	# Type of NUMBER
 
-# Following config value should be a type of STRING
-name = ""
+salary = 0.0	# Type of NUMBER
 
-# Following config value should be a type of STRING
-book = ""
+name = ""	# Type of STRING
 
-# Following config value should be a boolean array
-switches = []
+book = ""	# Type of STRING
+
+switches = []	# Type of BOOLEAN array
 # Example: switches = [false, false]
 
-# Following config value should be an integer array
-ports = []
+
+ports = []	# Type of INTEGER array
 # Example: ports = [0, 0]
 
-# Following config value should be a number array
-rates = []
+
+rates = []	# Type of NUMBER array
 # Example: rates = [0.0, 0.0]
 
-# Following config value should be a string array
-colors = []
+
+colors = []	# Type of STRING array
 # Example: colors = ["red", "green"]
 
-# Following config value should be a type of OBJECT
-[person]
 
-# Following config value should be an object array
-[[people]]
+[person]	# Type of OBJECT
+
+
+[[people]]	# Type of OBJECT array
 # Example:
 # [[people]]
 # name = "John"
@@ -52,26 +47,26 @@ colors = []
 # name = "Jack"
 # city = "Colombo"
 
-# Following config value should be a type of OBJECT
-[personx]
+
+[personx]	# Type of OBJECT
 name = ""
 age = 0
 
-# Following config value should be a type of OBJECT
-[input]
+
+[input]	# Type of OBJECT
 name = ""
 cal = 0
 age = 0
 
-# Following config value should be an object array
-[[peopex]]
+
+[[peopex]]	# Type of OBJECT
 name = ""
 cal = 0
 name = ""
 age = 0
 
-# Following config value should be an object array
-[[users]]
+
+[[users]]	# Type of OBJECT array
 # Example:
 # [[users]]
 # name = "John"
@@ -80,8 +75,8 @@ age = 0
 # name = "Jack"
 # city = "Colombo"
 
-# Following config value should be an object array
-[[userTeams]]
+
+[[userTeams]]	# Type of OBJECT array
 # Example:
 # [[userTeams]]
 # name = "John"
@@ -90,19 +85,16 @@ age = 0
 # name = "Jack"
 # city = "Colombo"
 
-# Following config value should be a type of STRING
-country = ""
 
-# Following config value should be a type of NUMBER
-code = 0
+country = ""	# Type of STRING
 
-# Following config value should be a type of STRING
-data = ""
+code = 0	# Type of NUMBER
 
-# Following config value should be a type of STRING
-url = ""
+data = ""	# Type of STRING
 
-# Following config value should be a type of OBJECT
-# for more details refer https://lib.ballerina.io/ballerina/http/
-[authConfig]
+url = ""	# Type of STRING
+
+[authConfig]	# Type of OBJECT
+# For more information refer https://lib.ballerina.io/ballerina/http/
+
 
