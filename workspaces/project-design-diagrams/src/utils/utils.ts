@@ -105,8 +105,8 @@ export function getZoomOffSet(engine: DiagramEngine): ZoomOffset {
         node => !(node instanceof GatewayNodeModel)
     ));
     // work out zoom
-    const xFactor = canvas.clientWidth / (nodesRect.getWidth());
-    const yFactor = canvas.clientHeight / (nodesRect.getHeight());
+    const xFactor = canvas?.clientWidth / (nodesRect.getWidth());
+    const yFactor = canvas?.clientHeight / (nodesRect.getHeight());
     return {
         topXOffset: (xFactor * zoomDiff * ((zoomDiff > 0) ? 0.4 : 1)),
         topYOffset: (yFactor * zoomDiff * ((zoomDiff > 0) ? 0.2 : 1)),

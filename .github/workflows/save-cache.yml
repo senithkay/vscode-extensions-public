@@ -6,7 +6,7 @@ on:
       - dev
 
 env:
-  ballerina_version: 2201.3.1
+  ballerina_version: 2201.5.0
 
 jobs:
   Build_Stage:

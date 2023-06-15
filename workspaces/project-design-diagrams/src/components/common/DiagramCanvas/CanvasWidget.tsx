@@ -17,7 +17,7 @@
  *
  */
 
-import React, { lazy, Suspense, useCallback, useContext, useEffect, useState } from 'react';
+import React, { Suspense, useCallback, useContext, useEffect, useState } from 'react';
 import { DiagramEngine, DiagramModel } from '@projectstorm/react-diagrams';
 import { DagreEngine } from '@projectstorm/react-diagrams-routing';
 import { toJpeg } from 'html-to-image';
@@ -38,8 +38,7 @@ import {
 } from '../../../utils';
 import './styles/styles.css';
 import { CircularProgress } from "@mui/material";
-
-const CanvasWidget = lazy(() => import('@projectstorm/react-canvas-core').then(module => ({ default: module.CanvasWidget })));
+import { CanvasWidget } from "@projectstorm/react-canvas-core";
 
 interface DiagramCanvasProps {
     model: DiagramModel;

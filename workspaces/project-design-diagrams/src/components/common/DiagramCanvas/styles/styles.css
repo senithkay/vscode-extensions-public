@@ -31,14 +31,14 @@
 }
 
 .choreo-cell-diagram-container {
-    background-image: url('../../../../resources/assets/PatternBg.svg');
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAAXNSR0IArs4c6QAAAH1JREFUWEft1zEOgCAMQNH2ZE54X+MGLp4KEgc8AdMfdPisTZPmQQvkcV5zL1usVm13fBnPPp65rO4HAQukm6CgglSA5qdzEBLaxRAwFFSQCtB85yAW9MEKCZ2DENCbhAKGc5AS2sUKUgGa7xnEgv6LIaFnEAL6mqGACmLBF9HB2JEg2CRZAAAAAElFTkSuQmCC');
     background-repeat: repeat;
     min-height: calc(100vh - 260px);
     min-width: 86vw;
 }
 
 .choreo-project-cell-diagram-container {
-    background-image: url('../../../../resources/assets/PatternBg.svg');
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAAXNSR0IArs4c6QAAAH1JREFUWEft1zEOgCAMQNH2ZE54X+MGLp4KEgc8AdMfdPisTZPmQQvkcV5zL1usVm13fBnPPp65rO4HAQukm6CgglSA5qdzEBLaxRAwFFSQCtB85yAW9MEKCZ2DENCbhAKGc5AS2sUKUgGa7xnEgv6LIaFnEAL6mqGACmLBF9HB2JEg2CRZAAAAAElFTkSuQmCC');
     background-repeat: repeat;
     min-height: calc(100vh - 260px);
     min-width: 58vw;
