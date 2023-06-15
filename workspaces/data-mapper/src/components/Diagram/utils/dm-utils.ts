@@ -150,7 +150,8 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		return updateValueExprSource(rhs, exprPosition, applyModifications);
 	}
 
-	lhs = getBalRecFieldName(targetPort.field.name);
+	const targetFieldName = getFieldNameFromOutputPort(targetPort);
+	lhs = getBalRecFieldName(targetFieldName);
 
 	// Inserting a new specific field
 	let mappingConstruct;
@@ -159,12 +160,13 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	let fromFieldIdx = -1;
 
 	while (parent != null && parent.parentModel) {
-		if (parent.field?.name
+		const parentFieldName = getFieldNameFromOutputPort(parent);
+		if (parentFieldName
 			&& !(parent.field.typeName === PrimitiveBalType.Record
 				&& ([PrimitiveBalType.Array, PrimitiveBalType.Union].includes(parent.parentModel.field.typeName as PrimitiveBalType))
 				&& !parent.isWithinSelectClause)
 		) {
-			parentFieldNames.push(getBalRecFieldName(parent.field.name));
+			parentFieldNames.push(getBalRecFieldName(parentFieldName));
 		}
 		parent = parent.parentModel;
 	}
@@ -212,11 +214,12 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 												applyModifications);
 				}
 
-				if (STKindChecker.isMappingConstructor(valueExpr)) {
-					mappingConstruct = valueExpr;
-				} else if (STKindChecker.isListConstructor(valueExpr)
+				const innerExpr = getInnermostExpressionBody(valueExpr);
+				if (STKindChecker.isMappingConstructor(innerExpr)) {
+					mappingConstruct = innerExpr;
+				} else if (STKindChecker.isListConstructor(innerExpr)
 					&& fieldIndexes !== undefined && !!fieldIndexes.length) {
-					mappingConstruct = getNextMappingConstructor(valueExpr);
+					mappingConstruct = getNextMappingConstructor(innerExpr);
 				}
 
 				if (i === fieldNames.length - 1) {
@@ -1538,6 +1541,14 @@ function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel)
 		&& (STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression)
 			|| STKindChecker.isMappingConstructor(targetPort.editableRecordField.value.selectClause.expression)
 		);
+}
+
+function getFieldNameFromOutputPort(outputPort: RecordFieldPortModel): string {
+	let fieldName = outputPort.field?.name;
+	if (outputPort?.editableRecordField?.originalType) {
+		fieldName = outputPort.editableRecordField.originalType?.name;
+	}
+	return fieldName;
 }
 
 export const getOptionalRecordField = (field: Type): Type | undefined => {
