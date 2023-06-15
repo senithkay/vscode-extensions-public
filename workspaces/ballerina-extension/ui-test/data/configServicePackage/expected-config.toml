@@ -5,6 +5,8 @@
 
 # "foo" is an optional value
 
+bar = 0.0	# Type of NUMBER
+
 isAdmin = false	# Type of BOOLEAN
 
 age = 0	# Type of INTEGER
@@ -94,9 +96,5 @@ data = ""	# Type of STRING
 
 url = ""	# Type of STRING
 
-[authConfig]	# Type of OBJECT
-# For more information refer https://lib.ballerina.io/ballerina/http/
-
-
-bar = 0.0	# Type of NUMBER
+authConfig = ""	# Type of STRING
 
