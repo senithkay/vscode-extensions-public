@@ -328,7 +328,7 @@ export function ServiceClassResourceForm(props: FunctionProps) {
     };
 
     const onPathFocus = () => {
-        setCurrentComponentName("Path");
+        setCurrentComponentName("Field");
     };
 
     const handleResourceParamChange = async (
@@ -396,13 +396,13 @@ export function ServiceClassResourceForm(props: FunctionProps) {
             <>
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
-                        <FieldTitle title="Path" optional={false}/>
+                        <FieldTitle title="Field" optional={false}/>
                         <LiteTextField
                             value={resourceName}
                             onChange={handlePathChange}
                             onFocus={onPathFocus}
-                            isLoading={currentComponentName !== "Path" && isEditInProgress}
-                            diagnostics={(currentComponentName === "Path")
+                            isLoading={currentComponentName !== "Field" && isEditInProgress}
+                            diagnostics={(currentComponentName === "Field")
                             && getPathDiagnostic()}
                         />
                         <Divider className={connectorClasses.sectionSeperatorHR}/>

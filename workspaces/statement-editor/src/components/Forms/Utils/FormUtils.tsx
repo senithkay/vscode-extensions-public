@@ -66,15 +66,17 @@ export function getInitialSource(type: string, targetPosition: NodePosition): st
         case "Resource": {
             return getSource(createResource("get", "path", '', "error?", targetPosition));
         }
-        case "GraphqlResource":
+        case "GraphqlResource": {
+            return getSource(createResource("get", "queryName", '', "string", targetPosition));
+        }
         case "ServiceClassResource": {
-            return getSource(createResource("get", "path", '', "string", targetPosition));
+            return getSource(createResource("get", "fieldName", '', "string", targetPosition));
         }
         case "GraphqlMutation": {
             return getSource(createRemoteFunction("mutate", '', "string", targetPosition));
         }
         case "GraphqlSubscription": {
-            return getSource(createResource("subscribe", "path", '', "stream<string>", targetPosition));
+            return getSource(createResource("subscribe", "subscriptionName", '', "stream<string>", targetPosition));
         }
     }
     return;

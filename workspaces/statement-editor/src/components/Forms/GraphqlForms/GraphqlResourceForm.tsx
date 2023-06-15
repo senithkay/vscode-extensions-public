@@ -330,7 +330,7 @@ export function GraphqlResourceForm(props: FunctionProps) {
     };
 
     const onPathFocus = () => {
-        setCurrentComponentName("Path");
+        setCurrentComponentName("Name");
     };
 
     const handleResourceParamChange = async (
@@ -400,13 +400,13 @@ export function GraphqlResourceForm(props: FunctionProps) {
             <>
                 <div className={connectorClasses.formContentWrapper}>
                     <div className={connectorClasses.formNameWrapper}>
-                        <FieldTitle title="Path" optional={false}/>
+                        <FieldTitle title="Name" optional={false}/>
                         <LiteTextField
                             value={resourceName}
                             onChange={handlePathChange}
                             onFocus={onPathFocus}
-                            isLoading={currentComponentName !== "Path" && isEditInProgress}
-                            diagnostics={(currentComponentName === "Path")
+                            isLoading={currentComponentName !== "Name" && isEditInProgress}
+                            diagnostics={(currentComponentName === "Name")
                             && getPathDiagnostic()}
                         />
                         <Divider className={connectorClasses.sectionSeperatorHR}/>
