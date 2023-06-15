@@ -19,7 +19,7 @@
 
 import {
     workspace, window, commands, languages, Uri, ConfigurationChangeEvent, extensions, Extension, ExtensionContext,
-    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env
+    IndentAction, OutputChannel, StatusBarItem, StatusBarAlignment, env, TextEditor
 } from "vscode";
 import {
     INVALID_HOME_MSG, INSTALL_BALLERINA, DOWNLOAD_BALLERINA, MISSING_SERVER_CAPABILITY, ERROR, COMMAND_NOT_FOUND,
@@ -49,6 +49,7 @@ import {
 } from "../telemetry";
 import { BALLERINA_COMMANDS, runCommand } from "../project";
 import { gitStatusBarItem } from "../editor-support/git-status";
+import { checkIsPersistModelFile } from "../persist-layer-diagram/activator";
 
 const SWAN_LAKE_REGEX = /(s|S)wan( |-)(l|L)ake/g;
 
@@ -599,6 +600,17 @@ export class BallerinaExtension {
     public setDiagramActiveContext(value: boolean) {
         commands.executeCommand('setContext', 'isBallerinaDiagram', value);
         this.documentContext.setActiveDiagram(value);
+    }
+
+    public setPersistStatusContext(textEditor: TextEditor) {
+        if (textEditor?.document) {
+            const fileUri: Uri = textEditor.document.uri;
+            if (checkIsPersistModelFile(fileUri)) {
+                commands.executeCommand('setContext', 'isPersistModelActive', true);
+                return;
+            }
+        }
+        commands.executeCommand('setContext', 'isPersistModelActive', false);
     }
 
     public setChoreoAuthEnabled(value: boolean) {

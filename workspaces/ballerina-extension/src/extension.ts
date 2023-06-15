@@ -36,6 +36,7 @@ import { activate as activatePerformanceForecaster } from './forecaster';
 import { activate as activateTryIt } from './tryIt/tryit';
 import { activate as activateNotebook } from './notebook';
 import { activate as activateLibraryBrowser } from './library-browser';
+import { activate as activateERDiagram } from './persist-layer-diagram';
 import { activate as activateDesignDiagramView } from './project-design-diagrams';
 import { debug, log } from './utils';
 import { activateChoreoFeatures } from './choreo-features/activate';
@@ -112,6 +113,7 @@ export async function activate(context: ExtensionContext): Promise<BallerinaExte
         activateDesignDiagramView(ballerinaExtInstance);
         // Enable Choreo Related Features
         activateChoreoFeatures(ballerinaExtInstance);
+        activateERDiagram(ballerinaExtInstance);
 
         langClient = <ExtendedLangClient>ballerinaExtInstance.langClient;
         // Register showTextDocument listener

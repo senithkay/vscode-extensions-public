@@ -17,31 +17,32 @@
  *
  */
 
-import React, { useContext } from 'react';
+import React, { ReactNode } from 'react';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import WarningIcon from '@mui/icons-material/Warning';
-import { DiagramContext } from '../../DiagramContext/DiagramContext';
-import '../styles/styles.css';
+import { useStyles } from './style';
 
-export function DiagnosticsWarning() {
-    const { editingEnabled, editLayerAPI } = useContext(DiagramContext);
+interface ControlButtonProps {
+    children: ReactNode;
+    onClick: () => void;
+    tooltipTitle: string;
+}
 
-    const handleOnClick = () => {
-        editLayerAPI?.executeCommand('workbench.action.problems.focus');
-    }
+export function CanvasControlButton(props: ControlButtonProps) {
+    const { children, onClick, tooltipTitle } = props;
+    const styles = useStyles();
 
     return (
         <Tooltip
             arrow
             placement={'left-end'}
-            title={ editingEnabled ? 'Project contains diagnostics' : 'Error while fetching diagram data' }
+            title={tooltipTitle}
             componentsProps={{
                 tooltip: {
                     sx: {
-                       fontFamily: 'GilmerRegular',
-                       fontSize: '12px',
-                       padding: '6px'
+                        fontFamily: 'GilmerRegular',
+                        fontSize: '12px',
+                        padding: '6px 10px'
                     }
                 }
             }}
@@ -57,19 +58,14 @@ export function DiagnosticsWarning() {
             }}
         >
             <IconButton
-                className={'control-button'}
+                className={styles.controlButton}
                 size='small'
-                onClick={handleOnClick}
+                onClick={onClick}
                 sx={{
-                    cursor: editingEnabled ? 'pointer' : 'default'
+                    cursor: 'pointer'
                 }}
             >
-                <WarningIcon
-                    fontSize='medium'
-                    sx={{
-                        color: '#EA4C4D'
-                    }}
-                />
+                {children}
             </IconButton>
         </Tooltip>
     );

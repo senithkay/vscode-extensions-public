@@ -24,11 +24,13 @@ import {
     ServiceDeclaration,
     ObjectMethodDefinition,
     ResourceAccessorDefinition,
-    STKindChecker
+    STKindChecker,
+    TypeDefinition
 } from "@wso2-enterprise/syntax-tree";
 import { PALETTE_COMMANDS } from "../project";
 import { CodeLens, Range, Uri } from "vscode";
 import { Position } from "../forecaster/model";
+import { checkIsPersistModelFile } from "../persist-layer-diagram/activator";
 
 export class CodeLensProviderVisitor implements Visitor {
     activeEditorUri: Uri;
@@ -58,6 +60,12 @@ export class CodeLensProviderVisitor implements Visitor {
         }
     }
 
+    public beginVisitTypeDefinition(node: TypeDefinition, parent?: STNode): void {
+        if (STKindChecker.isRecordTypeDesc(node.typeDescriptor) && checkIsPersistModelFile(this.activeEditorUri)) {
+            this.createVisualizeERCodeLens(node.position, node.typeName.value);
+        }
+    }
+
     public beginVisitObjectMethodDefinition(node: ObjectMethodDefinition, parent?: STNode): void {
         this.createVisulizeCodeLens(node.functionKeyword.position, node.position);
     }
@@ -78,6 +86,22 @@ export class CodeLensProviderVisitor implements Visitor {
             tooltip: "Open this code block in low code view",
             command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
             arguments: [this.activeEditorUri.fsPath, position]
+        };
+        this.codeLenses.push(codeLens);
+    }
+
+    private createVisualizeERCodeLens(range: any, recordName: string) {
+        const codeLens = new CodeLens(new Range(
+            range.startLine,
+            range.startColumn,
+            range.endLine,
+            range.endColumn
+        ));
+        codeLens.command = {
+            title: "Visualize",
+            tooltip: "View this entity in the Entity Relationship diagram",
+            command: PALETTE_COMMANDS.SHOW_ENTITY_DIAGRAM,
+            arguments: [recordName]
         };
         this.codeLenses.push(codeLens);
     }

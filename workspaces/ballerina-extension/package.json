@@ -441,6 +441,15 @@
                 "command": "ballerina.view.architectureView",
                 "title": "Architecture View",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.view.entityDiagram",
+                "title": "Entity Relationship Diagram",
+                "icon": {
+                    "light": "./resources/images/icons/persist-diagram.svg",
+                    "dark": "./resources/images/icons/persist-diagram-inverse.svg"
+                },
+                "category": "Ballerina"
             }
         ],
         "views": {
@@ -484,8 +493,13 @@
                     "when": "resourceLangId == ballerina"
                 },
                 {
-                    "when": "resourceLangId == ballerina",
+                    "when": "resourceLangId == ballerina && !isPersistModelActive",
                     "command": "ballerina.show.diagram",
+                    "group": "navigation@3"
+                },
+                {
+                    "when": "resourceLangId == ballerina && isPersistModelActive",
+                    "command": "ballerina.view.entityDiagram",
                     "group": "navigation@3"
                 },
                 {
@@ -544,6 +558,10 @@
                 },
                 {
                     "command": "ballerina.notebook.createNotebook"
+                },
+                {
+                    "command": "ballerina.view.entityDiagram",
+                    "when": "isPersistModelActive"
                 }
             ]
         },

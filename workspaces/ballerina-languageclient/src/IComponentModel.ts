@@ -108,6 +108,7 @@ export interface CMAttribute extends CMNode {
     defaultValue: string;
     required: boolean;
     nillable: boolean;
+    isReadOnly?: boolean;
     associations: CMAssociation[];
 }
 
