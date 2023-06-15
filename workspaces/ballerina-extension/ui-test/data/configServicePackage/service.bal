@@ -1,4 +1,4 @@
-// import ballerina/io;
+import configServiceProject.hello_world;
 import ballerina/http;
 
 # Working
@@ -54,15 +54,16 @@ enum Country {
 configurable Country country = ?;
 configurable int|string code = ?;
 configurable anydata data = ?;
-
-// # Not Working
-// // configurable [string, int, string[], map<anydata>, int...] student = ?; // This is not supported
-// // configurable json payload = ?; // This is not supported
 configurable string url = ?;
 configurable http:ClientAuthConfig authConfig = ?;
 
+# Not Working
+// configurable [string, int, string[], map<anydata>, int...] student = ?; // This is not supported
+// configurable json payload = ?; // This is not supported
+
 service on new http:Listener(0) {
     function init() returns error? {
+        float height = hello_world:height;
         http:Client myClient = check new (url, {
             auth: authConfig
         });

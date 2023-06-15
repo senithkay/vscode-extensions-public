@@ -99,7 +99,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
                 const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), orgName, packageName);
                 const obj = existingConfigs['[object Object]'][packageName];
 
-                if (Object.keys(obj).length > 0) {
+                if (Object.keys(obj).length > 0 || tomlContent.length > 0) {
                     findPropertyValues(configs, newValues, obj, tomlContent);
                     updatedContent = tomlContent + '\n';
                 } else {

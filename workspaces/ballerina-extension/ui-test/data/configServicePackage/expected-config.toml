@@ -1,9 +1,11 @@
-# Configuration file for "pconvet"
+# Configuration file for "configServiceProject"
 # How to use see:
 # https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax
 
 
 # "foo" is an optional value
+
+height = 0.0	# Type of NUMBER
 
 isAdmin = false	# Type of BOOLEAN
 
