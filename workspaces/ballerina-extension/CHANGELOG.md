@@ -1,6 +1,6 @@
 # Change log
 
-## **4.3.0** 
+## **4.3.0** (2023-06-16)
 
 ### Added
 
@@ -11,7 +11,7 @@
 
 - GraphQL Designer
   - Enable an option to filter between queries, mutations and subscriptions.
-  - Improvements related to GraphQL Designer UI.
+  - Improvements related to the GraphQL Designer UI.
 
 ## **4.0.0** (2023-04-21)
 
