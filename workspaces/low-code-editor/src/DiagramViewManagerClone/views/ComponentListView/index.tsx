@@ -176,9 +176,9 @@ export function ComponentListView(props: ComponentListViewProps) {
     }
 
     return (
-        <>
+        <div className={'view-container'}>
             {renderFileFilterBar()}
             {categories}
-        </>
+        </div>
     )
 }

@@ -31,11 +31,11 @@ import { Uri } from "monaco-editor";
 
 import { Context } from "../../../Contexts/Diagram";
 import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
+import { extractFilePath } from "../../../DiagramViewManagerClone/utils";
 import { RecordEditor } from "../FormComponents/ConfigForms";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
-import { extractFilePath } from "../../../DiagramViewManagerClone/utils";
 
 export interface DataMapperProps {
     model?: STNode;

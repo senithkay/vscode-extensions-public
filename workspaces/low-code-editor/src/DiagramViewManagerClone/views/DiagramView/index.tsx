@@ -26,9 +26,9 @@ import { useDiagramContext } from "../../../Contexts/Diagram";
 import { Diagram } from "../../../Diagram";
 import { DataMapperOverlay } from "../../../Diagram/components/DataMapperOverlay";
 import { useHistoryContext } from "../../context/history";
+import { extractFilePath } from "../../utils";
 
 import { ServiceView } from "./components/ServiceView";
-import { extractFilePath } from "../../utils";
 
 interface DiagramViewProps {
     projectComponents: BallerinaProjectComponents;
