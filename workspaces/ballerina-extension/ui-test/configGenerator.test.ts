@@ -89,14 +89,14 @@ describe('VSCode Config Generation UI Tests', () => {
             // Perform the desired action on the button (e.g., click)
             await button.click();
         }
-
+        await wait(3000);
         // Check if the config file has been generated
         expect(existsSync(configFilePath)).to.be.true;
 
         // Read the generated config file and expected config file
         const generatedConfigContent = readFileSync(configFilePath, 'utf8');
         const expectedConfigContent = readFileSync(expectedConfigFilePath, 'utf8');
-
+        await wait(3000);
         // Compare the generated config file with the expected config file
         expect(generatedConfigContent).to.equal(expectedConfigContent);
 
