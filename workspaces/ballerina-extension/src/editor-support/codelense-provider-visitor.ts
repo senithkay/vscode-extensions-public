@@ -83,7 +83,7 @@ export class CodeLensProviderVisitor implements Visitor {
         ));
         codeLens.command = {
             title: "Visualize",
-            tooltip: "Open this code block in low code view",
+            tooltip: "Visualize code block",
             command: PALETTE_COMMANDS.OPEN_IN_DIAGRAM,
             arguments: [this.activeEditorUri.fsPath, position]
         };
