@@ -1,6 +1,7 @@
 # Change log
 
 ## **4.3.0** (2023-06-16)
+For more information, see the [release note](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.3.0/).
 
 ### Added
 
