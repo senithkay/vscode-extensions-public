@@ -121,28 +121,29 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
 
         const activeEditorUri = window.activeTextEditor!.document.uri;
         const fileUri = activeEditorUri.toString();
-        await langClient!.getExecutorPositions({
-            documentIdentifier: {
-                uri: fileUri
-            }
-        }).then(executorsResponse => {
-            const response = executorsResponse as ExecutorPositionsResponse;
+
+        try {
+            const response = await langClient!.getExecutorPositions({
+                    documentIdentifier: {
+                        uri: fileUri
+                    }
+                }) as ExecutorPositionsResponse;
             if (response.executorPositions) {
                 response.executorPositions.forEach(position => {
                     codeLenses.push(this.createCodeLens(position, EXEC_TYPE.RUN));
                     codeLenses.push(this.createCodeLens(position, EXEC_TYPE.DEBUG));
                 });
             }
-        }, _error => {
-            return codeLenses;
-        });
+        } catch (error) {
+        }
 
         // Open in diagram code lenses
-        await langClient!.getSyntaxTree({
-            documentIdentifier: {
-                uri: fileUri
-            }
-        }).then(syntaxTreeResponse => {
+        try {
+            const syntaxTreeResponse = await langClient!.getSyntaxTree({
+                    documentIdentifier: {
+                        uri: fileUri
+                    }
+                });
             const response = syntaxTreeResponse as GetSyntaxTreeResponse;
             if (response.parseSuccess && response.syntaxTree) {
                 const syntaxTree = response.syntaxTree;
@@ -151,7 +152,8 @@ export class ExecutorCodeLensProvider implements CodeLensProvider {
                 traversNode(syntaxTree, visitor, undefined);
                 codeLenses.push(...visitor.getCodeLenses());
             }
-        });
+        } catch (error) {
+        }
 
         return codeLenses;
     }
