@@ -458,6 +458,38 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 
 }
 
+export function replaceSpecificFieldValue(link: DataMapperLinkModel) {
+	const modifications: STModification[] = [];
+	const sourcePort = link.getSourcePort();
+	const rhs = sourcePort && sourcePort instanceof RecordFieldPortModel ? sourcePort.fieldFQN : undefined;
+
+	if (link.getTargetPort() && rhs) {
+		const targetPort = link.getTargetPort() as RecordFieldPortModel;
+		const targetNode = targetPort.getNode();
+		const editableRecordField = targetPort.editableRecordField;
+		let targetPosition: NodePosition;
+		if (editableRecordField?.value) {
+			let expr = editableRecordField.value;
+			if (STKindChecker.isSpecificField(expr)) {
+				expr = expr.valueExpr;
+			}
+			const innerExpr = getInnermostExpressionBody(expr);
+			targetPosition = innerExpr.position as NodePosition;
+		}
+		if (targetPosition) {
+			modifications.push({
+				type: "INSERT",
+				config: {
+					"STATEMENT": rhs,
+				},
+				...targetPosition
+			});
+
+			void (targetNode as DataMapperNodeModel).context.applyModifications(modifications)
+		}
+	}
+}
+
 export function findNodeByValueNode(value: STNode,
 	                                   dmNode: DataMapperNodeModel
 ): RequiredParamNode | FromClauseNode | LetClauseNode | JoinClauseNode | LetExpressionNode {
@@ -1333,6 +1365,14 @@ export function getMethodCallElements(methodCall: MethodCall): string[] {
 	}
 
 	return elements;
+}
+
+export function isDefaultValue(field: Type, value: string): boolean {
+	if (value === '()'){
+		return true;
+	}
+	const defaultValue = getDefaultValue(field?.typeName);
+	return defaultValue === value?.trim();
 }
 
 function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {

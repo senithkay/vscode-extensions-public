@@ -228,7 +228,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
     };
 
-    let isDisabled = portIn?.descendantHasValue || (value && !connectedViaLink);
+    const hasValueWithoutLink = value && !connectedViaLink;
+    const hasDefaultValue = value && getDefaultValue(field.type.typeName) === value.trim();
+    let isDisabled = portIn?.descendantHasValue;
 
     if (!isDisabled) {
         if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
@@ -237,7 +239,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
         if (hasValue
             && !connectedViaLink
-            && (isArray && !STKindChecker.isQueryExpression(specificField.valueExpr) || isRecord)) {
+            && !hasDefaultValue
+            && ((isArray && !STKindChecker.isQueryExpression(specificField.valueExpr)) || isRecord || hasValueWithoutLink)) {
             portIn?.setDescendantHasValue();
             isDisabled = true;
         }
