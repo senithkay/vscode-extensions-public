@@ -28,7 +28,7 @@ runs:
   using: "composite"
   steps:
     - name: Cache env
-      if: ${{ inputs.enableCache }}
+      if: ${{ inputs.enableCache == 'true' }}
       uses: gigara/rush-cache@v2
 
     - uses: actions/setup-node@v3
@@ -40,7 +40,7 @@ runs:
         version: 7.26.3
 
     - name: Cache Rush
-      if: ${{ inputs.enableCache }}
+      if: ${{ inputs.enableCache == 'true' }}
       uses: actions/cache@v2
       with:
         path: |
@@ -49,7 +49,7 @@ runs:
         key: Rush-cache-${{ hashFiles('rush.json') }}
 
     - name: Cache pnpm
-      if: ${{ inputs.enableCache }}
+      if: ${{ inputs.enableCache == 'true' }}
       uses: actions/cache@v3
       with:
         path: |
@@ -64,7 +64,7 @@ runs:
 
     - name: Remove timestamp - balleina
       shell: bash
-      if: ${{ inputs.ballerina }}
+      if: ${{ inputs.ballerina == 'true' }}
       run: |
         cd workspaces/ballerina-extension
         currentVersion=$(node -p "require('./package.json').version")
@@ -78,7 +78,7 @@ runs:
         fi
     - name: Remove timestamp - choreo
       shell: bash
-      if: ${{ inputs.choreo }}
+      if: ${{ inputs.choreo == 'true' }}
       run: |
         cd workspaces/choreo-extension
         currentVersion=$(node -p "require('./package.json').version")
@@ -93,17 +93,17 @@ runs:
 
     - name: Update ballerina extension versions
       shell: bash
-      if: ${{ inputs.version != 'N/A' && inputs.ballerina }}
+      if: ${{ inputs.version != 'N/A' && inputs.ballerina == 'true' }}
       run: |
         cd workspaces/ballerina-extension
-        npm version ${{ inputs.version }} --preid beta --no-git-tag-version
+        npm version ${{ inputs.version == 'true' }} --preid beta --no-git-tag-version
 
     - name: Update choreo extension versions
       shell: bash
-      if: ${{ inputs.version != 'N/A' && inputs.choreo }}
+      if: ${{ inputs.version != 'N/A' && inputs.choreo == 'true' }}
       run: |
         cd workspaces/choreo-extension
-        npm version ${{ inputs.version }} --preid beta --no-git-tag-version
+        npm version ${{ inputs.version == 'true' }} --preid beta --no-git-tag-version
 
     - name: Get timestamp
       shell: bash
@@ -114,7 +114,7 @@ runs:
 
     - name: Set prerelase version - ballerina
       shell: bash
-      if: ${{ inputs.isPreRelease && inputs.ballerina }}
+      if: ${{ inputs.isPreRelease == 'true' && inputs.ballerina == 'true' }}
       run: |
         cd workspaces/ballerina-extension
         currentVersion=$(node -p "require('./package.json').version")
@@ -124,7 +124,7 @@ runs:
         
     - name: Set prerelase version - choreo
       shell: bash
-      if: ${{ inputs.isPreRelease && inputs.choreo }}
+      if: ${{ inputs.isPreRelease == 'true' && inputs.choreo == 'true' }}
       run: |
         cd workspaces/choreo-extension
         currentVersion=$(node -p "require('./package.json').version")
@@ -139,7 +139,7 @@ runs:
         node common/scripts/install-run-rush.js install
         node common/scripts/install-run-rush.js build --verbose
       env:
-        isPreRelease: ${{ inputs.isPreRelease  }}
+        isPreRelease: ${{ inputs.isPreRelease == 'true' }}
 
     - name: Compress build
       shell: bash
