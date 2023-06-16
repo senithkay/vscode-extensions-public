@@ -231,7 +231,7 @@ export class ChoreoExtensionApi {
             const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, handle, uuid);
             const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
             const toDelete = components.find(component =>
-                folder?.name && ((component.name === folder.name) || component.name === makeURLSafe(folder.name))
+                folder?.name && (component.name === folder.name || component.name === makeURLSafe(folder.name))
             );
             if (toDelete) {
                 await ProjectRegistry.getInstance().deleteComponent(toDelete, handle, projectId);
