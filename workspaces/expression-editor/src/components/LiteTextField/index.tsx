@@ -2,12 +2,11 @@
 import React, { useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
-import { Button, FormHelperText, LinearProgress, TextField } from "@material-ui/core";
+import { Button, FormHelperText, LinearProgress, TextField, Theme, createStyles, makeStyles } from "@material-ui/core";
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete'
 import { TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
-import { useStyles as useFormStyles } from "../../themes";
 import { DIAGNOSTIC_MAX_LENGTH } from "../ExpressionEditor/constants";
 import { truncateDiagnosticMsg } from "../ExpressionEditor/utils";
 import { SuggestionItem } from "../LiteExpressionEditor";
@@ -94,7 +93,18 @@ function LiteTextFieldC(props: LiteTextFieldProps) {
 
 function DiagnosticView(props: { message: string }) {
     const { message } = props;
-    const formClasses = useFormStyles();
+    const diagnosticStyles = makeStyles((theme: Theme) =>
+        createStyles({
+            invalidCode: {
+                fontSize: '11px !important',
+                color: '#ea4c4d !important',
+                "&:first-letter": {
+                    textTransform: 'capitalize',
+                }
+            },
+        })
+    );
+    const formClasses = diagnosticStyles();
 
     return (
         <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
