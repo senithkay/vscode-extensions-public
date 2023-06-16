@@ -78,6 +78,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [focusedST, setFocusedST] = useState<STNode>();
     const [completeST, setCompleteST] = useState<STNode>();
     const [currentFileContent, setCurrentFileContent] = useState<string>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
@@ -101,6 +102,7 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (history.length > 0) {
             (async () => {
+                setIsLoading(true);
                 const { file, position, uid } = history[history.length - 1];
                 const langClient = await langClientPromise;
                 const componentResponse = await langClient.getBallerinaProjectComponents({
@@ -188,6 +190,7 @@ export function DiagramViewManager(props: EditorProps) {
                 }
 
                 setProjectComponents(componentResponse);
+                setIsLoading(false);
             })();
         }
     }, [history[history.length - 1], updatedTimeStamp]);
@@ -207,9 +210,9 @@ export function DiagramViewManager(props: EditorProps) {
     }
 
     const showOverviewMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
-        && history[history.length - 1].position === undefined;
+        && history[history.length - 1].position === undefined && !isLoading;
     const showSTMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
-        && history[history.length - 1].position !== undefined && !!focusedST;
+        && history[history.length - 1].position !== undefined && !!focusedST && !isLoading;
 
 
     const diagramProps = getDiagramProviderProps(

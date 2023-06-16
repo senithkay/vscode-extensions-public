@@ -41,7 +41,8 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
     }
 
     const handleHomeButtonClick = () => {
-        if (!buttonsEnabled) {
+
+        if (buttonsEnabled) {
             historyClearAndPopulateWith({
                 file: extractFilePath(currentProjectPath)
             });

@@ -31,6 +31,7 @@ import { ComponentView } from "./components/ComponentView";
 import useStyles from "./style";
 import './style.scss';
 import { ProjectComponentProcessor } from "./util/project-component-processor";
+import { extractFilePath } from "../../utils";
 
 interface ComponentListViewProps {
     lastUpdatedAt: string;
@@ -63,10 +64,10 @@ export function ComponentListView(props: ComponentListViewProps) {
     const renderFileFilterBar = () => {
         const handleFileChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
             if (evt.target.value === ALL_FILES) {
-                historyPush({ file: projectComponents?.packages[0]?.filePath })
+                historyPush({ file: extractFilePath(projectComponents?.packages[0]?.filePath) })
             } else {
                 const selectedFile = fileList.find((file) => file.fileName === evt.target.value);
-                historyPush({ file: selectedFile.uri.path })
+                historyPush({ file: extractFilePath(selectedFile.uri.path) })
             }
         };
 

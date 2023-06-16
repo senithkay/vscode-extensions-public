@@ -39,7 +39,7 @@ export function ServiceView() {
             ls: { getDiagramEditorLangClient },
             code: { gotoSource }
         },
-        props: { syntaxTree, fullST, ballerinaVersion, currentFile },
+        props: { syntaxTree, ballerinaVersion, currentFile },
     } = useDiagramContext();
     const { history, historyClearAndPopulateWith } = useHistoryContext();
     const [listnerType, setListenerType] = useState<string>();
