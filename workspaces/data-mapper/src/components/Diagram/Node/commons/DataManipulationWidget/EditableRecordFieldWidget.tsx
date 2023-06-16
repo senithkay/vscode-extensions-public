@@ -13,7 +13,7 @@ import { CircularProgress, IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { AnydataType, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { AnydataType, PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     MappingConstructor,
     NodePosition,
@@ -157,31 +157,37 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsHovered(false);
     };
 
-    const getTargetPositionForWrappedTypeCast = () => {
-        let valueExpr: STNode = field.value;
-        let valueExprPosition: NodePosition = valueExpr.position;
-        let targetPosition: NodePosition = {
-            ...valueExprPosition,
-            endLine: valueExprPosition.startLine,
-            endColumn: valueExprPosition.startColumn
-        }
+    const getTargetPositionForReInitWithTypeCast = () => {
+        let targetPosition: NodePosition = field.value.position;
 
         if (STKindChecker.isSpecificField(field.value)) {
-            valueExpr = field.value.valueExpr;
-            const isValueExprEmpty = isEmptyValue(valueExpr.position);
+            targetPosition = field.value.valueExpr.position;
+            const isValueExprEmpty = isEmptyValue(field.value.valueExpr.position);
             if (isValueExprEmpty) {
-                return {
+                targetPosition = {
                     ...field.value.position,
                     startLine: field.value.position.endLine,
                     startColumn: field.value.position.endColumn
                 }
             }
+        }
+
+        return targetPosition;
+    }
+
+    const getTargetPositionForWrapWithTypeCast = () => {
+        let valueExpr: STNode = field.value;
+        let valueExprPosition: NodePosition = valueExpr.position;
+
+        if (STKindChecker.isSpecificField(field.value)) {
+            valueExpr = field.value.valueExpr;
             valueExprPosition = valueExpr.position;
-            targetPosition = {
-                ...valueExprPosition,
-                endLine: valueExprPosition.startLine,
-                endColumn: valueExprPosition.startColumn
-            }
+        }
+
+        let targetPosition: NodePosition = {
+            ...valueExprPosition,
+            endLine: valueExprPosition.startLine,
+            endColumn: valueExprPosition.startColumn
         }
 
         if (STKindChecker.isTypeCastExpression(valueExpr)) {
@@ -196,15 +202,20 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return targetPosition;
     }
 
-    const handleWrapWithTypeCast = async (type: Type) => {
+    const handleWrapWithTypeCast = async (type: Type, shouldReInitialize?: boolean) => {
         setIsAddingTypeCast(true)
         try {
             const name = getTypeName(type);
             if (field?.value) {
-                const targetPosition = getTargetPositionForWrappedTypeCast();
-                const defaultValue = STKindChecker.isSpecificField(field.value)
-                    && isEmptyValue(field.value.valueExpr.position) ? getDefaultValue(type.typeName) : '';
-                const modification = [getModification(`<${name}>${defaultValue}`, targetPosition)];
+                const modification: STModification[] = [];
+                if (shouldReInitialize) {
+                    const defaultValue = getDefaultValue(type.typeName);
+                    const targetPosition = getTargetPositionForReInitWithTypeCast();
+                    modification.push(getModification(`<${name}>${defaultValue}`, targetPosition));
+                } else {
+                    const targetPosition = getTargetPositionForWrapWithTypeCast();
+                    modification.push(getModification(`<${name}>`, targetPosition));
+                }
                 await applyModifications(modification);
             } else {
                 const defaultValue = `<${name}>${getDefaultValue(type.typeName)}`;
@@ -350,7 +361,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 if (isUnresolvedUnionTypedElement) {
                     menuItems.push({
                         title: `Re-initialize as ${memberTypeName}`,
-                        onClick: () => handleWrapWithTypeCast(member)
+                        onClick: () => handleWrapWithTypeCast(member, true)
                     })
                 } else {
                     const isResolvedType = memberTypeName === resolvedTypeName;
@@ -358,13 +369,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         if (!isResolvedType) {
                             menuItems.push({
                                 title: `Re-initialize as ${memberTypeName}`,
-                                onClick: () => handleWrapWithTypeCast(member)
+                                onClick: () => handleWrapWithTypeCast(member, true)
                             });
                         }
                     } else if (supportedTypes.length > 1) {
                         menuItems.push({
                             title: `${isResolvedType ? 'Cast type' : 'Re-initialize'} as ${memberTypeName}`,
-                            onClick: () => handleWrapWithTypeCast(member)
+                            onClick: () => handleWrapWithTypeCast(member, !isResolvedType)
                         });
                     }
                 }
