@@ -322,17 +322,18 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 					rootField.colon.position as NodePosition, applyModifications);
 			}
 
-			if (STKindChecker.isMappingConstructor(rootField.valueExpr)) {
-				const specificField = getSpecificField(rootField.valueExpr, fieldName);
+			const rootInnerExpr = getInnermostExpressionBody(rootField.valueExpr);
+			if (STKindChecker.isMappingConstructor(rootInnerExpr)) {
+				const specificField = getSpecificField(rootInnerExpr, fieldName);
 				if (specificField && !specificField.valueExpr.source) {
 					return createValueExprSource(fieldName, newValue, parentFields, 1,
 						specificField.colon.position as NodePosition, applyModifications);
 				}
 				source = createSpecificField(parentFields.reverse());
-				targetMappingConstructor = rootField.valueExpr;
-			} else if (STKindChecker.isListConstructor(rootField.valueExpr)
-				&& STKindChecker.isMappingConstructor(rootField.valueExpr.expressions[0])) {
-				for (const expr of rootField.valueExpr.expressions) {
+				targetMappingConstructor = rootInnerExpr;
+			} else if (STKindChecker.isListConstructor(rootInnerExpr)
+				&& STKindChecker.isMappingConstructor(rootInnerExpr.expressions[0])) {
+				for (const expr of rootInnerExpr.expressions) {
 					if (STKindChecker.isMappingConstructor(expr)
 						&& isPositionsEquals(expr.position as NodePosition, mappingConstruct.position as NodePosition)) {
 						const specificField = getSpecificField(expr, fieldName);
@@ -368,7 +369,12 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 			targetPosition = targetMappingConstructor.fields[targetMappingConstructor.fields.length - 1].position as NodePosition;
 			source = `,${source}`;
 		} else {
-			targetPosition = targetMappingConstructor.openBrace.position as NodePosition;
+			const openBracePosition = targetMappingConstructor.openBrace.position as NodePosition;
+			const closeBracePosition = targetMappingConstructor.closeBrace.position as NodePosition;
+			targetPosition = openBracePosition;
+			if (openBracePosition.startLine === closeBracePosition.endLine) {
+				source = `${getLinebreak()}${source}`;
+			}
 		}
 		targetPosition = {
 			...targetPosition,
