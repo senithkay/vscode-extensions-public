@@ -127,11 +127,6 @@
                     "default": false,
                     "description": "Enable Language Server debug mode."
                 },
-                "ballerina.enableConfigurableEditor": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Enable the configurable editor in code view."
-                },
                 "ballerina.experimental": {
                     "type": "boolean",
                     "default": false,
@@ -364,6 +359,14 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.project.run.config",
+                "title": "Run",
+                "icon": {
+                    "dark": "./resources/images/icons/start-inverse.svg",
+                    "light": "./resources/images/icons/start.svg"
+                }
+            },
+            {
                 "command": "ballerina.project.stop",
                 "title": "Stop",
                 "category": "Ballerina"
@@ -441,6 +444,15 @@
                 "command": "ballerina.view.architectureView",
                 "title": "Architecture View",
                 "category": "Ballerina"
+            },
+            {
+                "command": "ballerina.view.entityDiagram",
+                "title": "Entity Relationship Diagram",
+                "icon": {
+                    "light": "./resources/images/icons/persist-diagram.svg",
+                    "dark": "./resources/images/icons/persist-diagram-inverse.svg"
+                },
+                "category": "Ballerina"
             }
         ],
         "views": {
@@ -478,14 +490,25 @@
                     "when": "resourceLangId == ballerina || isBallerinaDiagram"
                 },
                 {
+                    "command": "ballerina.project.run.config",
+                    "group": "navigation@1",
+                    "title": "Run project in terminal",
+                    "when": "resourceLangId == toml && isBallerinaProject"
+                },
+                {
                     "command": "ballerina.source.debug",
                     "group": "navigation@2",
                     "title": "Debug project in terminal",
                     "when": "resourceLangId == ballerina"
                 },
                 {
-                    "when": "resourceLangId == ballerina",
+                    "when": "resourceLangId == ballerina && !isPersistModelActive",
                     "command": "ballerina.show.diagram",
+                    "group": "navigation@3"
+                },
+                {
+                    "when": "resourceLangId == ballerina && isPersistModelActive",
+                    "command": "ballerina.view.entityDiagram",
                     "group": "navigation@3"
                 },
                 {
@@ -544,6 +567,10 @@
                 },
                 {
                     "command": "ballerina.notebook.createNotebook"
+                },
+                {
+                    "command": "ballerina.view.entityDiagram",
+                    "when": "isPersistModelActive"
                 }
             ]
         },

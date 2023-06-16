@@ -53,6 +53,7 @@ export enum EXTENDED_APIS {
     SYMBOL_GET_TYPES_FROM_FN_DEFINITION = 'ballerinaSymbol/getTypesFromFnDefinition',
     GRAPHQL_DESIGN_MODEL = 'graphqlDesignService/getGraphqlModel',
     COMPONENT_MODEL_ENDPOINT = 'projectDesignService/getProjectComponentModels',
+    PERSIST_MODEL_ENDPOINT = 'persistERGeneratorService/getPersistERModels'
 }
 
 export enum DIAGNOSTIC_SEVERITY {
@@ -841,8 +842,19 @@ export interface GetComponentModelRequest {
     documentUris: string[];
 }
 
+export interface GetPersistERModelRequest {
+    documentUri: string;
+}
+
 export interface GetComponentModelResponse {
     componentModels: {
+        [key: string]: ComponentModel;
+    };
+    diagnostics: CMDiagnostics[];
+}
+
+export interface GetPersistERModelResponse {
+    persistERModel: {
         [key: string]: ComponentModel;
     };
     diagnostics: CMDiagnostics[];
@@ -935,6 +947,8 @@ export interface IBallerinaLangClient {
     rename: (params: RenameParams) => Thenable<WorkspaceEdit>;
 
     getPackageComponentModels: (params: GetComponentModelRequest) => Promise<GetComponentModelResponse>;
+
+    getPersistERModel: (params: GetPersistERModelRequest) => Promise<GetPersistERModelResponse>;
 
     getGraphqlModel: (params: GraphqlDesignServiceRequest) => Thenable<GraphqlDesignServiceResponse>;
     // close: () => void;
