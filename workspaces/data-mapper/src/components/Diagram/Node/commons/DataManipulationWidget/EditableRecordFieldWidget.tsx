@@ -39,7 +39,7 @@ import {
     isEmptyValue
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
-import { getUnionTypes } from "../../../utils/union-type-utils";
+import { getSupportedUnionTypes, getUnionTypes } from "../../../utils/union-type-utils";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
 import { OutputSearchHighlight } from "../Search";
 
@@ -332,14 +332,52 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         onClick: handleDeleteValue
     };
 
-    const typeSelectorMenuItems: ValueConfigMenuItem[] = isUnionTypedElement
-        && field.originalType.members.map(member => {
+    const getTypedElementMenuItems = () => {
+        const menuItems: ValueConfigMenuItem[] = [];
+        const resolvedTypeName = getTypeName(field.type);
+        const supportedTypes = getSupportedUnionTypes(field.originalType);
+        const resolvedViaTypeCast = field?.value
+            && !isUnresolvedUnionTypedElement
+            && STKindChecker.isSpecificField(field.value)
+            && STKindChecker.isTypeCastExpression(field.value.valueExpr);
+
+        for (const member of field.originalType.members) {
             const memberTypeName = getTypeName(member);
-            return {
-                title: `${isUnresolvedUnionTypedElement ? 'Initialize' : 'Re-initialize'} as ${memberTypeName}`,
-                onClick: () => handleWrapWithTypeCast(member)
+            if (!supportedTypes.includes(memberTypeName)) {
+                continue;
             }
-        });
+            if (field.hasValue()) {
+                if (isUnresolvedUnionTypedElement) {
+                    menuItems.push({
+                        title: `Re-initialize as ${memberTypeName}`,
+                        onClick: () => handleWrapWithTypeCast(member)
+                    })
+                } else {
+                    const isResolvedType = memberTypeName === resolvedTypeName;
+                    if (resolvedViaTypeCast) {
+                        if (!isResolvedType) {
+                            menuItems.push({
+                                title: `Re-initialize as ${memberTypeName}`,
+                                onClick: () => handleWrapWithTypeCast(member)
+                            });
+                        }
+                    } else if (supportedTypes.length > 1) {
+                        menuItems.push({
+                            title: `${isResolvedType ? 'Cast type' : 'Re-initialize'} as ${memberTypeName}`,
+                            onClick: () => handleWrapWithTypeCast(member)
+                        });
+                    }
+                }
+            } else {
+                menuItems.push({
+                    title: `Initialize as ${memberTypeName}`,
+                    onClick: () => handleWrapWithTypeCast(member)
+                })
+            }
+        }
+
+        return menuItems;
+    };
 
     const valConfigMenuItems = [
         !isWithinArray && addOrEditValueMenuItem,
@@ -356,7 +394,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     }
 
     if (isUnionTypedElement) {
-        valConfigMenuItems.push(...typeSelectorMenuItems);
+        valConfigMenuItems.push(...getTypedElementMenuItems());
     }
 
     const addNewField = async (newFieldNameStr: string) => {
