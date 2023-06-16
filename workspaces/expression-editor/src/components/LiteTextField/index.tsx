@@ -1,15 +1,12 @@
 // tslint:disable: jsx-no-lambda jsx-no-multiline-js
 import React, { useEffect, useState } from "react";
 
-import styled from "@emotion/styled";
-import { Button, FormHelperText, LinearProgress, TextField, Theme, createStyles, makeStyles } from "@material-ui/core";
-import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete'
+import { createStyles, FormHelperText, makeStyles, TextField, Theme } from "@material-ui/core";
 import { TooltipCodeSnippet } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
 import { DIAGNOSTIC_MAX_LENGTH } from "../ExpressionEditor/constants";
 import { truncateDiagnosticMsg } from "../ExpressionEditor/utils";
-import { SuggestionItem } from "../LiteExpressionEditor";
 
 
 interface StatementSyntaxDiagnostics {
