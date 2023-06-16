@@ -33,6 +33,7 @@ import {
     getDefaultValue,
     getExprBodyFromTypeCastExpression,
     getFieldName,
+    getInnermostExpressionBody,
     getNewFieldAdditionModification,
     getTypeName,
     isConnectedViaLink,
@@ -109,7 +110,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
-    const value: string = !isArray && !isRecord && hasValue && specificField.valueExpr.source;
+    const value: string = !isArray && !isRecord && hasValue && getInnermostExpressionBody(specificField.valueExpr).source;
     let expanded = true;
 
     const handleAddValue = async () => {
@@ -124,9 +125,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const handleEditValue = () => {
         if (field.value && STKindChecker.isSpecificField(field.value)) {
+            const innerExpr = getInnermostExpressionBody(field.value.valueExpr);
             enableStatementEditor({
-                value: field.value.valueExpr.source,
-                valuePosition: field.value.valueExpr.position as NodePosition,
+                value: innerExpr.source,
+                valuePosition: innerExpr.position as NodePosition,
                 label: field.value.fieldName.value as string
             });
         }
