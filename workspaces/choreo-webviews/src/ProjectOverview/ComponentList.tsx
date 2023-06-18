@@ -262,7 +262,7 @@ export function ComponentList(props: ComponentListProps) {
                     return (
                         <VSCodeDataGridRow key={component.id || component.name}>
                             <VSCodeDataGridCenterCell gridColumn="1">
-                                {component.name}
+                                {component.displayName}
                             </VSCodeDataGridCenterCell>
                             <VSCodeDataGridCenterCell gridColumn="2">
                                 <VSCodeTag title={`Branch: ${repo.branchApp}`}>
