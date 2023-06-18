@@ -26,12 +26,12 @@ import SearchIcon from "../../../assets/icons/SearchIcon";
 import { TopLevelActionButton } from "../../../OverviewDiagram/components/TopLevelActionButton";
 import { ComponentCollection } from "../../../OverviewDiagram/util";
 import { useHistoryContext } from "../../context/history";
+import { extractFilePath } from "../../utils";
 
 import { ComponentView } from "./components/ComponentView";
 import useStyles from "./style";
 import './style.scss';
 import { ProjectComponentProcessor } from "./util/project-component-processor";
-import { extractFilePath } from "../../utils";
 
 interface ComponentListViewProps {
     lastUpdatedAt: string;

@@ -18,11 +18,11 @@ import { NodePosition, ResourceAccessorDefinition } from "@wso2-enterprise/synta
 import classNames from "classnames";
 
 import { useDiagramContext } from "../../../../Contexts/Diagram";
+import { useHistoryContext } from "../../../../DiagramViewManagerClone/context/history";
 import { ComponentViewInfo } from "../../../../OverviewDiagram/util";
 import "../style.scss";
 
 import { ResourceQueryParams } from "./ResourceQueryParams";
-import { useHistoryContext } from "../../../../DiagramViewManagerClone/context/history";
 
 interface ResourceHeaderProps {
     model: ResourceAccessorDefinition;
