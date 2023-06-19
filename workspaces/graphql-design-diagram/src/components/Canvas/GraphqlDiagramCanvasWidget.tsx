@@ -21,7 +21,6 @@ import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
 import { ContainerController } from "./ContainerController";
-import { GRAPHQL_SERVICE_NODE } from "../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
