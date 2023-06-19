@@ -51,7 +51,6 @@ import { UnsupportedExprNodeKind, UnsupportedIONode } from "../Node/UnsupportedI
 import { RightAnglePortModel } from "../Port/RightAnglePort/RightAnglePortModel";
 import { EXPANDED_QUERY_INPUT_NODE_PREFIX, FUNCTION_BODY_QUERY, OFFSETS } from "../utils/constants";
 import {
-    constructTypeFromSTNode,
     getExprBodyFromLetExpression,
     getExprBodyFromTypeCastExpression,
     getFnDefForFnCall,
@@ -63,6 +62,7 @@ import {
     getTypeOfOutput,
     isComplexExpression
 } from "../utils/dm-utils";
+import { constructTypeFromSTNode } from "../utils/type-utils";
 
 import { QueryParentFindingVisitor } from "./QueryParentFindingVisitor"
 

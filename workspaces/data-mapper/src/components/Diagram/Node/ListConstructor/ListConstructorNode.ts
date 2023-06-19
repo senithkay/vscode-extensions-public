@@ -12,8 +12,6 @@ import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edti
 import {
     ExpressionFunctionBody,
     IdentifierToken,
-    ListConstructor,
-    NodePosition,
     QueryExpression,
     SelectClause,
     STKindChecker,
@@ -30,12 +28,9 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
-    enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
     getDiagnosticsPosition,
-    getExprBodyFromLetExpression,
-    getExprBodyFromTypeCastExpression,
     getFilteredMappings,
     getFilteredUnionOutputTypes,
     getInnermostExpressionBody,
@@ -48,6 +43,7 @@ import {
     hasNoMatchFound
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { enrichAndProcessType } from "../../utils/type-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 

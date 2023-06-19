@@ -36,7 +36,6 @@ import {
     UNION_TYPE_TARGET_PORT_PREFIX
 } from "../../utils/constants";
 import {
-    enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
     getExprBodyFromLetExpression,
@@ -51,6 +50,7 @@ import {
     isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { enrichAndProcessType } from "../../utils/type-utils";
 import { getResolvedType, getSupportedUnionTypes, getUnionTypes } from "../../utils/union-type-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";

@@ -11,7 +11,6 @@ import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/balleri
 import {
     ExpressionFunctionBody,
     IdentifierToken,
-    NodePosition,
     QueryExpression,
     SelectClause,
     STKindChecker,
@@ -25,13 +24,10 @@ import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import { OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getDefaultValue,
     getDiagnosticsPosition,
-    getEnrichedRecordType,
-    getExprBodyFromLetExpression,
-    getExprBodyFromTypeCastExpression,
     getFilteredMappings,
     getFilteredUnionOutputTypes,
     getInnermostExpressionBody,
@@ -42,6 +38,7 @@ import {
     isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { getEnrichedRecordType } from "../../utils/type-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
