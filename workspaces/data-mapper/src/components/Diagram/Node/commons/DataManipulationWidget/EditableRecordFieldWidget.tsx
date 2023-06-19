@@ -264,7 +264,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const getUnionType = () => {
         const typeText: JSX.Element[] = [];
         const unionTypes = getUnionTypes(field.originalType);
-        const resolvedTypeName = field.type?.name || field.type.typeName;
+        const resolvedTypeName = getTypeName(field.type);
         unionTypes.forEach((type) => {
             if (type.trim() === resolvedTypeName) {
                 typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
@@ -278,7 +278,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return typeText;
     };
 
-    const label = (
+    const label = !isArray && (
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
@@ -482,39 +482,35 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 </div>
             )}
             {isArray && (
-                <>
-                    <ArrayTypedEditableRecordFieldWidget
-                        key={fieldId}
-                        engine={engine}
-                        field={field}
-                        getPort={getPort}
-                        parentId={parentId}
-                        parentMappingConstruct={mappingConstruct}
-                        context={context}
-                        fieldIndex={fieldIndex}
-                        treeDepth={treeDepth}
-                        deleteField={deleteField}
-                        hasHoveredParent={isHovered || hasHoveredParent}
-                    />
-                </>
+                <ArrayTypedEditableRecordFieldWidget
+                    key={fieldId}
+                    engine={engine}
+                    field={field}
+                    getPort={getPort}
+                    parentId={parentId}
+                    parentMappingConstruct={mappingConstruct}
+                    context={context}
+                    fieldIndex={fieldIndex}
+                    treeDepth={treeDepth}
+                    deleteField={deleteField}
+                    hasHoveredParent={isHovered || hasHoveredParent}
+                />
             )}
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
-                        <>
-                            <EditableRecordFieldWidget
-                                key={index}
-                                engine={engine}
-                                field={subField}
-                                getPort={getPort}
-                                parentId={fieldId}
-                                parentMappingConstruct={mappingConstruct}
-                                context={context}
-                                treeDepth={treeDepth + 1}
-                                deleteField={deleteField}
-                                hasHoveredParent={isHovered || hasHoveredParent}
-                            />
-                        </>
+                        <EditableRecordFieldWidget
+                            key={index}
+                            engine={engine}
+                            field={subField}
+                            getPort={getPort}
+                            parentId={fieldId}
+                            parentMappingConstruct={mappingConstruct}
+                            context={context}
+                            treeDepth={treeDepth + 1}
+                            deleteField={deleteField}
+                            hasHoveredParent={isHovered || hasHoveredParent}
+                        />
                     );
                 })
             }

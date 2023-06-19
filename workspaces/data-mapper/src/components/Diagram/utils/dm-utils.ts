@@ -710,12 +710,14 @@ export function getOutputPortForField(fields: STNode[],
 		const nextPosition: NodePosition = next ? next.position : field.position;
 		if (STKindChecker.isSpecificField(field) && STKindChecker.isSpecificField(nextTypeNode.value)) {
 			const isLastField = i === fields.length - 1;
+			const innerExprOfNextTypeNode = getInnermostExpressionBody(nextTypeNode.value.valueExpr);
+			const innerExprOfFieldValue = getInnermostExpressionBody(field?.valueExpr);
 			const targetPosition: NodePosition = isLastField
 				? nextTypeNode.value.position
-				: field?.valueExpr && nextTypeNode.value.valueExpr.position;
+				: field?.valueExpr && innerExprOfNextTypeNode.position;
 			if (isPositionsEquals(targetPosition, nextPosition)
 				&& field.valueExpr
-				&& !STKindChecker.isMappingConstructor(field.valueExpr))
+				&& !STKindChecker.isMappingConstructor(innerExprOfFieldValue))
 			{
 				portIdBuffer = `${portIdBuffer}.${getBalRecFieldName(field.fieldName.value)}`;
 			}

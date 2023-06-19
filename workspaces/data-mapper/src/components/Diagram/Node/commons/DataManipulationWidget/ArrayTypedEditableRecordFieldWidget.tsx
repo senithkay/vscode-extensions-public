@@ -42,7 +42,7 @@ import {
     isConnectedViaLink,
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
-import { getSupportedUnionTypes } from "../../../utils/union-type-utils";
+import { getSupportedUnionTypes, getUnionTypes } from "../../../utils/union-type-utils";
 import { OutputSearchHighlight } from "../Search";
 import { TreeBody } from "../Tree/Tree";
 
@@ -94,20 +94,21 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
     const portIn = getPort(`${fieldId}.IN`);
     const body = field.hasValue() && getInnermostExpressionBody(field.value);
     const valExpr = body && STKindChecker.isSpecificField(body) ? body.valueExpr : body;
+    const diagnostic = (valExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
     const hasValue = valExpr && !!valExpr.source;
-    const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(valExpr);
+    const innerValExpr = getInnermostExpressionBody(valExpr);
+    const isValQueryExpr = valExpr && STKindChecker.isQueryExpression(innerValExpr);
     const isUnionTypedElement = field.type.typeName === PrimitiveBalType.Union && !field.type.resolvedUnionType;
     const typeName = getTypeName(field.type);
     const elements = field.elements;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
-    const diagnostic = (valExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
     const [addElementAnchorEl, addElementSetAnchorEl] = React.useState<null | HTMLButtonElement>(null);
     const addMenuOpen = Boolean(addElementAnchorEl);
     const searchValue = useDMSearchStore.getState().outputSearch;
 
     const connectedViaLink = useMemo(() => {
         if (hasValue) {
-            return isConnectedViaLink(valExpr);
+            return isConnectedViaLink(innerValExpr);
         }
         return false;
     }, [field]);
@@ -117,7 +118,7 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         expanded = false;
     }
 
-    const listConstructor = hasValue ? (STKindChecker.isListConstructor(valExpr) ? valExpr : null) : null;
+    const listConstructor = hasValue ? (STKindChecker.isListConstructor(innerValExpr) ? innerValExpr : null) : null;
 
     let indentation = treeDepth * 16;
     if (!portIn) {
@@ -164,6 +165,23 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
         }
     };
 
+    const getUnionType = () => {
+        const typeText: JSX.Element[] = [];
+        const unionTypes = getUnionTypes(field.originalType);
+        const resolvedTypeName = getTypeName(field.type);
+        unionTypes.forEach((type) => {
+            if (type.trim() === resolvedTypeName) {
+                typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
+            } else {
+                typeText.push(<>{type}</>);
+            }
+            if (type !== unionTypes[unionTypes.length - 1]) {
+                typeText.push(<> | </>);
+            }
+        });
+        return typeText;
+    };
+
     const label = (
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
@@ -176,11 +194,8 @@ export function ArrayTypedEditableRecordFieldWidget(props: ArrayTypedEditableRec
                 {fieldName && typeName && ":"}
             </span>
             {typeName !== '[]' ? (
-                <span
-                    className={classnames(
-                        classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}
-                >
-                    {typeName}
+                <span className={classnames(classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
+                    {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
                 </span>
             ) : (
                 <DiagnosticTooltip
