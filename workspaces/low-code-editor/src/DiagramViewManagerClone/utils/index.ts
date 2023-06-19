@@ -19,12 +19,14 @@ import {
     LowcodeEvent,
     STModification
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { NodePosition, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 import { TextDocumentPositionParams } from "vscode-languageserver-protocol";
 
 import { FindNodeByUidVisitor } from "../../Diagram/visitors/find-node-by-uid";
 import { getSymbolInfo } from "../../Diagram/visitors/symbol-finder-visitor";
-import { getFunctionSyntaxTree, getLowcodeST, getSyntaxTree, isDeleteModificationAvailable, isUnresolvedModulesAvailable } from "../../DiagramGenerator/generatorUtil";
+import {
+    getFunctionSyntaxTree, getLowcodeST, isDeleteModificationAvailable, isUnresolvedModulesAvailable
+} from "../../DiagramGenerator/generatorUtil";
 import { EditorProps, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
@@ -48,13 +50,6 @@ export async function getSTNodeForReference(
     });
 }
 
-export async function handleRecordNavigation(filePath: string, position: NodePosition,
-                                             langClientPromise: Promise<DiagramEditorLangClientInterface>) {
-    const langClientInstance = await langClientPromise;
-    const generatedST = await getSyntaxTree(filePath, langClientInstance);
-
-}
-
 export function getDiagramProviderProps(
     focusedST: STNode,
     lowCodeEnvInstance: string,
@@ -75,7 +70,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+        getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
@@ -137,7 +132,6 @@ export function getDiagramProviderProps(
                     });
                     let visitedST: STNode;
                     if (parseSuccess) {
-                        // undoRedo.addModification(source);
                         setUpdateTimestamp(new Date().getTime().toString());
                         props.updateFileContent(fileToModify, source);
                         if (focusFile === fileToModify) {
@@ -148,9 +142,6 @@ export function getDiagramProviderProps(
                                 traversNode(visitedST, stFindingVisitor);
                                 setFocusedST(stFindingVisitor.getNode());
                             }
-                            // const stFindingVisitor = new STFindingVisitor();
-                            // stFindingVisitor.setPosition(diagramFocusState?.position);
-                            // traversNode(visitedST, stFindingVisitor);
 
                             // TODO: add performance data fetching logic here
                             // setFocusedST(stFindingVisitor.getSTNode());
@@ -161,8 +152,6 @@ export function getDiagramProviderProps(
                             if (newST?.typeData?.diagnostics && newST?.typeData?.diagnostics?.length > 0) {
                                 const { isAvailable } = isUnresolvedModulesAvailable(newST?.typeData?.diagnostics as DiagramDiagnostic[]);
                                 if (isAvailable) {
-                                    // setModulePullInProgress(true);
-                                    // setLoaderText('Pulling packages...');
                                     const {
                                         parseSuccess: pullSuccess,
                                     } = await resolveMissingDependency(focusFile, source);
@@ -196,21 +185,9 @@ export function getDiagramProviderProps(
                                 }
                             }
                         }
-
-                        // let newActivePosition: SelectedPosition = { ...selectedPosition };
-                        // for (const mutation of mutations) {
-                        //     if (mutation.type.toLowerCase() !== "import" && mutation.type.toLowerCase() !== "delete") {
-                        //         newActivePosition = getSelectedPosition(visitedST as ModulePart, mutation.startLine, mutation.startColumn);
-                        //         break;
-                        //     }
-                        // }
-                        // setSelectedPosition(newActivePosition.startColumn === 0 && newActivePosition.startLine === 0 && visitedST
-                        //     ? getDefaultSelectedPosition(visitedST as ModulePart)
-                        //     : newActivePosition);
                     } else {
                         // TODO show error
                     }
-                    // setMutationInProgress(false);
                     if (mutations.length > 0) {
                         const event: LowcodeEvent = {
                             type: DIAGRAM_MODIFIED,
@@ -226,24 +203,17 @@ export function getDiagramProviderProps(
                 },
                 getFunctionDef: async (lineRange: Range, defFilePath?: string) => {
                     const langClient = await langClientPromise;
-                    // setMutationInProgress(true);
-                    // setLoaderText('Fetching...');
                     const res: FunctionDef = await getFunctionSyntaxTree(
                         defFilePath ? defFilePath : monaco.Uri.file(focusFile).toString(),
                         lineRange,
                         langClient
                     );
-                    // setMutationInProgress(false);
                     return res;
                 },
                 updateFileContent: (content: string, skipForceSave?: boolean, filePath?: string) => {
                     const fileToModify = filePath ? filePath : focusFile;
                     return props.updateFileContent(fileToModify, content, skipForceSave);
                 },
-                // undo,
-                // isMutationInProgress,
-                // isModulePullInProgress,
-                // loaderText
             },
             // FIXME Doesn't make sense to take these methods below from outside
             // Move these inside and get an external API for pref persistance
@@ -298,7 +268,6 @@ export function extractFilePath(uri: string): string | null {
     }
 
     if (filePath && filePath.match(/^\/[a-zA-Z]:/g)) {
-        // windows filepath matched
         filePath = filePath.replace('/', '');
     }
 

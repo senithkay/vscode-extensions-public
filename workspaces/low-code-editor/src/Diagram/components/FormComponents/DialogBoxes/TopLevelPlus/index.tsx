@@ -33,7 +33,6 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
         props: { currentFile, fullST },
     } = useDiagramContext();
 
-    // const [showFileList, setShowFileList] = useState(currentFile.path && fullST ? false : true);
     const [position, setPosition] = useState<NodePosition>(targetPosition);
 
     useEffect(() => {
@@ -48,7 +47,6 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
     }, [fullST]);
 
     const handleFileSelect = (entry: FileListEntry) => {
-        // setShowFileList(false);
         updateActiveFile(entry);
     };
 
