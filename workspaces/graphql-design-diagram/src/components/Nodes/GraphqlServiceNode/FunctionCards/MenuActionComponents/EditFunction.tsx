@@ -8,7 +8,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext } from "react";
+import React from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
@@ -16,7 +16,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../../../../resources/model";
 import { getSTNodeFromRange } from "../../../../utils/common-util";
 
@@ -29,7 +29,7 @@ interface EditFunctionWidgetProps {
 
 export function EditFunctionWidget(props: EditFunctionWidgetProps) {
     const { position, functionType } = props;
-    const { functionPanel, model } = useContext(DiagramContext);
+    const { functionPanel, model } = useGraphQlContext();
 
     const classes = useStyles();
 

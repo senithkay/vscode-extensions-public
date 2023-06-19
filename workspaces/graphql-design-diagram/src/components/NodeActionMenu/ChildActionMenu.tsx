@@ -8,14 +8,14 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../resources/model";
 import { getParentSTNodeFromRange } from "../utils/common-util";
 import { getSyntaxTree } from "../utils/ls-util";
@@ -31,7 +31,7 @@ interface ChildActionMenuProps {
 
 export function ChildActionMenu(props: ChildActionMenuProps) {
     const { functionType, location, path } = props;
-    const { langClientPromise, currentFile, fullST } = useContext(DiagramContext);
+    const { langClientPromise, currentFile, fullST } = useGraphQlContext();
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
     const [currentModel, setCurrentModel] = useState<STNode>(null);

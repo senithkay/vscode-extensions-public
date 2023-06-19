@@ -8,7 +8,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext } from "react";
+import React from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
@@ -16,7 +16,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { Position } from "../resources/model";
 
 import { useStyles } from "./styles";
@@ -28,7 +28,7 @@ interface DesignNodeProps {
 
 export function DesignNode(props: DesignNodeProps) {
     const { model, location } = props;
-    const { operationDesignView } = useContext(DiagramContext);
+    const { operationDesignView } = useGraphQlContext();
 
     const menuStyles = useStyles();
 

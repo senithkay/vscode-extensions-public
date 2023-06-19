@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
-import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { Interaction } from "../../../resources/model";
 import { FieldName, NodeFieldContainer } from "../../../resources/styles/styles";
@@ -25,7 +25,7 @@ interface UnionFieldProps {
 
 export function UnionField(props: UnionFieldProps) {
     const { engine, node, unionField } = props;
-    const { setSelectedNode } = useContext(DiagramContext);
+    const { setSelectedNode } = useGraphQlContext();
 
     const functionPorts = useRef<PortModel[]>([]);
 

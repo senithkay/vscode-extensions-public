@@ -8,12 +8,12 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
-import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ChildActionMenu } from "../../../NodeActionMenu/ChildActionMenu";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
 import { popOverStyle } from "../../../Popup/styles";
@@ -30,7 +30,7 @@ interface ServiceFieldProps {
 
 export function ServiceField(props: ServiceFieldProps) {
     const { engine, node, functionElement } = props;
-    const { setSelectedNode } = useContext(DiagramContext);
+    const { setSelectedNode } = useGraphQlContext();
 
     const functionPorts = useRef<PortModel[]>([]);
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);

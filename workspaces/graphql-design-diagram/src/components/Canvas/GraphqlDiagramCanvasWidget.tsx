@@ -8,13 +8,13 @@
  */
 
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { toJpeg } from 'html-to-image';
 
-import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlOverlayLayerModel } from "../OverlayLoader";
 import { getComponentName } from "../utils/common-util";
 import { createGraphqlDiagramEngine } from "../utils/engine-util";
@@ -43,7 +43,7 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const [diagramEngine] = useState<DiagramEngine>(createGraphqlDiagramEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
-    const { selectedDiagramNode, setSelectedNode } = useContext(DiagramContext);
+    const { selectedDiagramNode, setSelectedNode } = useGraphQlContext();
 
     useEffect(() => {
         model.addLayer(new GraphqlOverlayLayerModel());

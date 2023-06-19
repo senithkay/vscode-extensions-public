@@ -8,7 +8,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext } from "react";
+import React from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
@@ -16,7 +16,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { Position } from "../../../../resources/model";
 
 import { useStyles } from "./styles";
@@ -27,7 +27,7 @@ interface DeleteFunctionWidgetProps {
 
 export function DeleteFunctionWidget(props: DeleteFunctionWidgetProps) {
     const { position } = props;
-    const { onDelete } = useContext(DiagramContext);
+    const { onDelete } = useGraphQlContext();
 
     const classes = useStyles();
 

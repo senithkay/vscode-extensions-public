@@ -7,11 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React, { useContext } from "react";
+import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
-import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { RecordField } from "../../../resources/model";
 import { FieldName, FieldType } from "../../../resources/styles/styles";
@@ -26,7 +26,7 @@ interface RecordFieldWidgetProps {
 
 export function RecordFieldWidget(props: RecordFieldWidgetProps) {
     const { engine, node, field } = props;
-    const { setSelectedNode } = useContext(DiagramContext);
+    const { setSelectedNode } = useGraphQlContext();
 
     const updateSelectedNode = () => {
         setSelectedNode(field.type);

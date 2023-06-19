@@ -14,7 +14,7 @@ import { Popover } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { GraphqlQueryIcon, GraphqlSubscriptionIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { DiagramContext, useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
 import { popOverStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
@@ -32,7 +32,7 @@ interface ResourceFunctionProps {
 export function ResourceFunctionWidget(props: ResourceFunctionProps) {
     const { engine, node, resource, resourcePath } = props;
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
-    const { setSelectedNode } = useContext(DiagramContext);
+    const { setSelectedNode } = useGraphQlContext();
 
     const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorElement(event.currentTarget);

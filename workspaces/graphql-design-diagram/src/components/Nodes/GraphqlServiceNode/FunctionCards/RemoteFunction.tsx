@@ -8,13 +8,13 @@
  */
 
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 
 import { Popover } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { GraphqlMutationIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
 import { popOverStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
@@ -32,7 +32,7 @@ interface RemoteFunctionProps {
 export function RemoteFunctionWidget(props: RemoteFunctionProps) {
     const { engine, node, remoteFunc, remotePath } = props;
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
-    const { setSelectedNode } = useContext(DiagramContext);
+    const { setSelectedNode } = useGraphQlContext();
 
     const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorElement(event.currentTarget);

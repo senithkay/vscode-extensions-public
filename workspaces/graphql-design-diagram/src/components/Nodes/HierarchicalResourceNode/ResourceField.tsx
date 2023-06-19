@@ -8,12 +8,12 @@
  */
 
 // tslint:disable: jsx-no-multiline-js
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
-import { DiagramContext } from "../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../Popup/ParametersPopup";
 import { popOverStyle } from "../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../Port/GraphqlBasePortWidget";
@@ -34,7 +34,7 @@ export function ResourceField(props: ResourceFieldProps) {
 
     const functionPorts = useRef<PortModel[]>([]);
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
-    const { setSelectedNode } = useContext(DiagramContext);
+    const { setSelectedNode } = useGraphQlContext();
 
     const path = resource.identifier;
 

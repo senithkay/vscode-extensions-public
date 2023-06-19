@@ -8,7 +8,7 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline  no-implicit-dependencies no-submodule-imports
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 
 import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -16,7 +16,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { GoToSourceMenuItem } from "../../../NodeActionMenu/GoToSourceMenuItem";
 import { useStyles } from "../../../NodeActionMenu/styles";
 import { Colors, Position } from "../../../resources/model";
@@ -31,7 +31,7 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
     const { location } = props;
     const classes = useStyles();
 
-    const { recordEditor, langClientPromise, fullST, currentFile } = useContext(DiagramContext);
+    const { recordEditor, langClientPromise, fullST, currentFile } = useGraphQlContext();
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
