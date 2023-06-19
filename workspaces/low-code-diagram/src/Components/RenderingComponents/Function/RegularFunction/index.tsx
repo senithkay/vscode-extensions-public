@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content."
+ */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useEffect, useRef, useState } from "react";
 
@@ -40,7 +40,7 @@ export function RegularFuncComponent(props: FunctionProps) {
     const diagramContext = useContext(Context);
     const { isReadOnly, syntaxTree } = diagramContext.props;
     const { diagramRedraw, diagramCleanDraw } = diagramContext.actions;
-    const { navigation } = diagramContext.api;
+    const { navigation } = diagramContext?.api;
     const navigateUptoParent = navigation?.navigateUptoParent;
 
     const run = diagramContext?.api?.project?.run;
@@ -163,7 +163,7 @@ export function RegularFuncComponent(props: FunctionProps) {
         }
         headerComponent.push(
             <div className="btn-container" onClick={handleParentNavigation}>
-               {viewState.parentNamePlaceHolder}
+                {viewState.parentNamePlaceHolder}
             </div>
         )
         // <span className="component-name">{model?.functionName.value}</span>
