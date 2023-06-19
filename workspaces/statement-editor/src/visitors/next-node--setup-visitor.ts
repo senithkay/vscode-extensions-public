@@ -4,7 +4,7 @@
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import { AsteriskToken, BitwiseAndToken, BitwiseXorToken, BooleanKeyword, CaptureBindingPattern, CheckAction, CheckExpression, DecimalFloatingPointLiteralToken, DecimalIntegerLiteralToken, DecimalKeyword, DoubleDotLtToken, DoubleEqualToken, DoubleGtToken, DoubleLtToken, EllipsisToken, ElvisToken, ExclamationMarkToken, FalseKeyword, FloatKeyword, GtEqualToken, GtToken, IdentifierToken, IntKeyword, JsonKeyword, ListBindingPattern, LogicalAndToken, LogicalOrToken, LtEqualToken, LtToken, MappingBindingPattern, MinusToken, NilLiteral, NotDoubleEqualToken, NotEqualToken, NullKeyword, PercentToken, PipeToken, PlusToken, SlashToken, STNode, StringKeyword, StringLiteral, StringLiteralToken, TemplateString, TrapExpression, TrippleEqualToken, TrippleGtToken, TrueKeyword, VarKeyword, Visitor } from "@wso2-enterprise/syntax-tree";
 
