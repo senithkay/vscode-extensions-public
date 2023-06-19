@@ -66,6 +66,7 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     } = props;
 
     const [modelData, setModelData] = useState<GraphqlModelData>(undefined);
+    const [selectedDiagramNode, setSelectedDiagramNode] = useState<string>(undefined);
 
     useEffect(() => {
         if (fullST) {
@@ -82,8 +83,15 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
             endLine: { line: targetPosition.endLine, offset: targetPosition.endColumn }
         };
         const graphqlModel: GraphqlDesignServiceResponse = await getModelForGraphqlService(request, langClientPromise);
-        setModelData({designModel: graphqlModel.graphqlDesignModel, isIncompleteModel: graphqlModel.isIncompleteModel});
+        setModelData({
+            designModel: graphqlModel.graphqlDesignModel,
+            isIncompleteModel: graphqlModel.isIncompleteModel
+        });
     };
+
+    const setSelectedNode = (node: string) => {
+        setSelectedDiagramNode(node);
+    }
 
     const ctxt = {
         model,
@@ -95,7 +103,9 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
         goToSource,
         recordEditor,
         langClientPromise,
-        currentFile
+        currentFile,
+        setSelectedNode,
+        selectedDiagramNode
     };
 
     return (
@@ -105,9 +115,9 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
             </GraphqlDiagramContext>
             {modelData?.isIncompleteModel && <GraphqlUnsupportedOverlay />}
             {!modelData?.designModel &&
-                <Container className="dotted-background">
-                    <TextPreLoader position="absolute" text="Fetching data..."/>
-                </Container>
+            <Container className="dotted-background">
+                <TextPreLoader position="absolute" text="Fetching data..." />
+            </Container>
             }
         </>
     );

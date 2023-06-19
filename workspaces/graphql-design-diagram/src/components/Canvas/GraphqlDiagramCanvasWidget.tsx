@@ -8,17 +8,20 @@
  */
 
 // tslint:disable: no-implicit-dependencies jsx-no-multiline-js jsx-wrap-multiline
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { CanvasWidget } from "@projectstorm/react-canvas-core";
 import { DagreEngine, DiagramEngine, DiagramModel } from "@projectstorm/react-diagrams";
 import { toJpeg } from 'html-to-image';
 
+import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlOverlayLayerModel } from "../OverlayLoader";
+import { getComponentName } from "../utils/common-util";
 import { createGraphqlDiagramEngine } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
 import { ContainerController } from "./ContainerController";
+import { GRAPHQL_SERVICE_NODE } from "../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
 
 interface DiagramCanvasProps {
     model: DiagramModel;
@@ -41,6 +44,7 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const [diagramEngine] = useState<DiagramEngine>(createGraphqlDiagramEngine);
     const [diagramModel, setDiagramModel] = useState<DiagramModel>(undefined);
+    const { selectedDiagramNode, setSelectedNode } = useContext(DiagramContext);
 
     useEffect(() => {
         model.addLayer(new GraphqlOverlayLayerModel());
@@ -49,6 +53,16 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         autoDistribute();
 
     }, [model]);
+
+    useEffect(() => {
+        if (selectedDiagramNode) {
+            const selectedNewModel = diagramEngine.getModel().getNode(getComponentName(selectedDiagramNode));
+            if (selectedNewModel) {
+                diagramEngine.zoomToFitNodes({ maxZoom: 1, nodes: [selectedNewModel] });
+            }
+            setSelectedNode(undefined);
+        }
+    }, [selectedDiagramNode]);
 
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });

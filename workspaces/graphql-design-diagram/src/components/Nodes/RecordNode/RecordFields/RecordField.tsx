@@ -7,10 +7,11 @@
  * You may not alter or remove any copyright or other notice from copies of this content."
  */
 
-import React from "react";
+import React, { useContext } from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
+import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { RecordField } from "../../../resources/model";
 import { FieldName, FieldType } from "../../../resources/styles/styles";
@@ -25,6 +26,11 @@ interface RecordFieldWidgetProps {
 
 export function RecordFieldWidget(props: RecordFieldWidgetProps) {
     const { engine, node, field } = props;
+    const { setSelectedNode } = useContext(DiagramContext);
+
+    const updateSelectedNode = () => {
+        setSelectedNode(field.type);
+    }
 
     return (
         <RecordFieldContainer>
@@ -33,7 +39,9 @@ export function RecordFieldWidget(props: RecordFieldWidgetProps) {
                 engine={engine}
             />
             <FieldName>{field.name}</FieldName>
-            <FieldType>{field.type}</FieldType>
+            <div onClick={updateSelectedNode}>
+                <FieldType>{field.type}</FieldType>
+            </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${field.name}`)}
                 engine={engine}

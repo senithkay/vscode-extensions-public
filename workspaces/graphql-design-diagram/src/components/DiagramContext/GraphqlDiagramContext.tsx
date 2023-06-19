@@ -26,6 +26,8 @@ interface GraphqlDiagramContextProps {
     recordEditor?: (recordModel: STNode, filePath?: string, completeST?: STNode) => void;
     langClientPromise?: Promise<IBallerinaLangClient>;
     currentFile?: CurrentFile;
+    setSelectedNode?: (nodeId: string) => void;
+    selectedDiagramNode?: string;
 }
 
 export const DiagramContext = createContext({
@@ -38,13 +40,29 @@ export const DiagramContext = createContext({
         goToSource: (filePath: string, position: NodePosition) => {},
         recordEditor: (recordModel: STNode, filePath?: string, completeST?: STNode) => {},
         langClientPromise: undefined,
-        currentFile: undefined
+        currentFile: undefined,
+        setSelectedNode: (nodeId: string) => {},
+        selectedDiagramNode: undefined
     }
 );
 
 export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
 
-    const { children, functionPanel, servicePanel, model, operationDesignView, onDelete, fullST, goToSource, recordEditor, langClientPromise, currentFile } = props;
+    const {
+        children,
+        functionPanel,
+        servicePanel,
+        model,
+        operationDesignView,
+        onDelete,
+        fullST,
+        goToSource,
+        recordEditor,
+        langClientPromise,
+        currentFile,
+        setSelectedNode,
+        selectedDiagramNode
+    } = props;
 
     return (
         <DiagramContext.Provider
@@ -58,7 +76,9 @@ export function GraphqlDiagramContext(props: GraphqlDiagramContextProps) {
                 goToSource,
                 recordEditor,
                 langClientPromise,
-                currentFile
+                currentFile,
+                setSelectedNode,
+                selectedDiagramNode
             }}
         >
             {children}

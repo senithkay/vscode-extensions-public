@@ -8,12 +8,13 @@
  */
 
 // tslint:disable: jsx-no-multiline-js
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { Popover } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { GraphqlMutationIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
+import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
 import { popOverStyle } from "../../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
@@ -31,6 +32,7 @@ interface RemoteFunctionProps {
 export function RemoteFunctionWidget(props: RemoteFunctionProps) {
     const { engine, node, remoteFunc, remotePath } = props;
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
+    const { setSelectedNode } = useContext(DiagramContext);
 
     const onMouseOver = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorElement(event.currentTarget);
@@ -40,6 +42,10 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
         setAnchorElement(null);
     };
 
+    const updateSelectedNode = () => {
+        setSelectedNode(remoteFunc.returns);
+    }
+
     const classes = popOverStyle();
 
     return (
@@ -48,11 +54,13 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                 port={node.getPort(`left-${remotePath}`)}
                 engine={engine}
             />
-            <GraphqlMutationIcon/>
+            <GraphqlMutationIcon />
             <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
                 {remoteFunc.identifier}
             </FieldName>
-            <FieldType>{remoteFunc.returns}</FieldType>
+            <div onClick={updateSelectedNode}>
+                <FieldType>{remoteFunc.returns}</FieldType>
+            </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${remotePath}`)}
                 engine={engine}
@@ -77,7 +85,7 @@ export function RemoteFunctionWidget(props: RemoteFunctionProps) {
                         horizontal: 'center'
                     }}
                 >
-                    <ParametersPopup parameters={remoteFunc.parameters}/>
+                    <ParametersPopup parameters={remoteFunc.parameters} />
                 </Popover>
             )}
         </>

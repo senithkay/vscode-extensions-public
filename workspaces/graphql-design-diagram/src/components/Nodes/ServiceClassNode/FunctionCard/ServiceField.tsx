@@ -8,11 +8,12 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
+import { DiagramContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { ChildActionMenu } from "../../../NodeActionMenu/ChildActionMenu";
 import { ParametersPopup } from "../../../Popup/ParametersPopup";
 import { popOverStyle } from "../../../Popup/styles";
@@ -29,6 +30,7 @@ interface ServiceFieldProps {
 
 export function ServiceField(props: ServiceFieldProps) {
     const { engine, node, functionElement } = props;
+    const { setSelectedNode } = useContext(DiagramContext);
 
     const functionPorts = useRef<PortModel[]>([]);
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
@@ -49,6 +51,10 @@ export function ServiceField(props: ServiceFieldProps) {
         setAnchorElement(null);
     };
 
+    const updateSelectedNode = () => {
+        setSelectedNode(functionElement.returnType);
+    }
+
     const classes = popOverStyle();
 
     const handleOnHover = (task: string) => {
@@ -67,13 +73,15 @@ export function ServiceField(props: ServiceFieldProps) {
             <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
                 {functionElement.identifier}
             </FieldName>
-            <FieldType>{functionElement.returnType}</FieldType>
+            <div onClick={updateSelectedNode}>
+                <FieldType>{functionElement.returnType}</FieldType>
+            </div>
             {isHovered &&
-                <ChildActionMenu
-                    functionType={FunctionType.CLASS_RESOURCE}
-                    location={node.classObject.position}
-                    path={functionElement.identifier}
-                />
+            <ChildActionMenu
+                functionType={FunctionType.CLASS_RESOURCE}
+                location={node.classObject.position}
+                path={functionElement.identifier}
+            />
             }
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}
@@ -100,7 +108,7 @@ export function ServiceField(props: ServiceFieldProps) {
                         horizontal: 'center'
                     }}
                 >
-                    <ParametersPopup parameters={functionElement.parameters}/>
+                    <ParametersPopup parameters={functionElement.parameters} />
                 </Popover>
             )}
         </NodeFieldContainer>

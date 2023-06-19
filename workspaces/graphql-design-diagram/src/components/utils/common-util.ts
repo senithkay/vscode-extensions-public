@@ -32,3 +32,7 @@ export function getFormattedPosition(position: Position): NodePosition {
         endColumn: position.endLine.offset,
     };
 }
+
+export function getComponentName(name: string): string {
+    return name.replace(/[!\[\]]/g, "");
+}
