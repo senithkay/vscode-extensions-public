@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content."
+ */
 .header-bar {
     display: flex;
     flex-direction: row;
@@ -43,30 +51,6 @@
     .btn-container:hover {
         background-color: #e6e7ec;
     }
-
-    // .btn-container:after, .arrow_box:before {
-    //     left: 100%;
-    //     top: 50%;
-    //     border: solid transparent;
-    //     content: "";
-    //     height: 0;
-    //     width: 0;
-    //     position: absolute;
-    //     pointer-events: none;
-    // }
-    //
-    // .btn-container:after {
-    //     border-color: rgba(136, 183, 213, 0);
-    //     border-left-color: #88b7d5;
-    //     border-width: 25px;
-    //     margin-top: -25px;
-    // }
-    // .btn-container:before {
-    //     border-color: rgba(194, 225, 245, 0);
-    //     border-left-color: #c2e1f5;
-    //     border-width: 31px;
-    //     margin-top: -31px;
-    // }
 
     .project-selector-container {
         .project-selector-option {
