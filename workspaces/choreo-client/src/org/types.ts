@@ -10,10 +10,8 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { ComponentCount, Organization, UserInfo } from "@wso2-enterprise/choreo-core";
+import { Organization } from "@wso2-enterprise/choreo-core";
 
 export interface IChoreoOrgClient  {
     getOrganizations(): Promise<Organization[]>;
-    validateUser(): Promise<UserInfo>;
-    getComponentCount(orgId: number): Promise<ComponentCount>;
 }

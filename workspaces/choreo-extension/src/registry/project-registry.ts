@@ -12,7 +12,7 @@
  */
 
 import { Component, ComponentCount, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
-import { orgClient, projectClient, subscriptionClient } from "../auth/auth";
+import { componentManagementClient, projectClient, subscriptionClient } from "../auth/auth";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
@@ -24,6 +24,7 @@ import { initGit, } from "../git/main";
 import { getLogger } from "../logger/logger";
 import { ProgressLocation, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
+import { makeURLSafe } from "../utils";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -373,7 +374,7 @@ export class ProjectRegistry {
 
     async getComponentCount(orgId: number): Promise<ComponentCount> {
         try {
-            return orgClient.getComponentCount(orgId);
+            return componentManagementClient.getComponentCount(orgId);
         } catch (error: any) {
             getLogger().error("Failed to fetch the component count. " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
             throw new Error("Failed to fetch the component count. " + error?.message);
@@ -527,7 +528,7 @@ export class ProjectRegistry {
     private async _createComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
         const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
         const componentRequest: CreateComponentParams = {
-            name: componentMetadata.displayName,
+            name: makeURLSafe(componentMetadata.displayName),
             displayName: componentMetadata.displayName,
             displayType: componentMetadata.displayType,
             description: componentMetadata.description,
@@ -548,7 +549,7 @@ export class ProjectRegistry {
             throw new Error("BYOC config is undefined");
         }
         const componentRequest: CreateByocComponentParams = {
-            name: componentMetadata.displayName,
+            name: makeURLSafe(componentMetadata.displayName),
             displayName: componentMetadata.displayName,
             componentType: componentMetadata.displayType,
             description: componentMetadata.description,

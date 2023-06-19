@@ -505,8 +505,18 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/design-diagram-commons",
+      "projectFolder": "workspaces/design-diagram-commons",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
       "packageName": "@wso2-enterprise/project-design-diagrams",
       "projectFolder": "workspaces/project-design-diagrams",
+      "versionPolicyName": "ballerina-extension"
+    },
+    {
+      "packageName": "@wso2-enterprise/persist-layer-diagram",
+      "projectFolder": "workspaces/persist-layer-diagram",
       "versionPolicyName": "ballerina-extension"
     },
     {

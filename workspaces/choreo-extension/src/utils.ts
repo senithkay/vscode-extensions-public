@@ -110,3 +110,9 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
         hasCompilationErrors: false
     };
 }
+
+
+// sanitize the component display name to make it url friendly
+export function makeURLSafe(input: string): string {
+    return input.trim().replace(/\s+/g, '-').toLowerCase();
+}

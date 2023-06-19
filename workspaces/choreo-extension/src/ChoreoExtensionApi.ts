@@ -31,7 +31,7 @@ import { ProjectRegistry } from './registry/project-registry';
 import { getLogger } from './logger/logger';
 
 import * as path from "path";
-import { enrichDeploymentData } from "./utils";
+import { enrichDeploymentData, makeURLSafe } from "./utils";
 import { AxiosResponse } from 'axios';
 import { SELECTED_ORG_ID_KEY, STATUS_INITIALIZING, STATUS_LOGGED_IN, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, USER_INFO_KEY } from './constants';
 
@@ -200,7 +200,9 @@ export class ChoreoExtensionApi {
                         (this._selectedOrg as Organization).handle, (this._selectedOrg as Organization).uuid);
 
                     choreoComponents?.forEach(({ name, displayType, apiVersions, accessibility, local = false }) => {
-                        const wsConfig = workspaceFileConfig.folders.find(component => component.name === name);
+                        const wsConfig = workspaceFileConfig.folders.find(component =>
+                            component.name === name || makeURLSafe(component.name) === name
+                        );
                         if (wsConfig && wsConfig.path) {
                             const componentPath: string = path.join(projectRoot, wsConfig.path);
                             for (const localModel of model.values()) {
@@ -228,7 +230,9 @@ export class ChoreoExtensionApi {
             const { handle, uuid } = ext.api.selectedOrg;
             const components: Component[] = await ProjectRegistry.getInstance().getComponents(projectId, handle, uuid);
             const folder: WorkspaceFolder | undefined = workspace.getWorkspaceFolder(Uri.file(componentPath));
-            const toDelete = components.find(component => component.name === folder?.name);
+            const toDelete = components.find(component =>
+                folder?.name && (component.name === folder.name || component.name === makeURLSafe(folder.name))
+            );
             if (toDelete) {
                 await ProjectRegistry.getInstance().deleteComponent(toDelete, handle, projectId);
             }

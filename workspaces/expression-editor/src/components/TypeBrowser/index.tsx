@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
-import { FormHelperText, LinearProgress, TextField } from "@material-ui/core";
+import { createStyles, FormHelperText, LinearProgress, makeStyles, TextField, Theme } from "@material-ui/core";
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete'
 import {
     SecondaryButton,
@@ -10,7 +10,6 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
-import { useStyles as useFormStyles } from "../../themes";
 import { DIAGNOSTIC_MAX_LENGTH } from "../ExpressionEditor/constants";
 import { truncateDiagnosticMsg } from "../ExpressionEditor/utils";
 import { SuggestionItem } from "../LiteExpressionEditor";
@@ -45,12 +44,6 @@ function TypeBrowserC(props: TypeBrowserProps) {
 
     const [expressionDiagnosticMsg, setExpressionDiagnosticMsg] = useState("");
 
-    useEffect(() => {
-        if (type) {
-            setInputValue(type);
-        }
-    }, [type]);
-
     // Create new record and add it to the list
     const handleCreateNew = () => {
         const validName = inputValue.replace(/[\])}[{(]/g, '');
@@ -70,9 +63,9 @@ function TypeBrowserC(props: TypeBrowserProps) {
         setExpressionDiagnosticMsg("");
     }
 
-    const handleCreatingNewConstruct = (nodeType : ConstructType) => {
+    const handleCreatingNewConstruct = (nodeType: ConstructType) => {
         const typeName = expressionDiagnosticMsg.match(/'(.*)'/)[1];
-        let codeSnippet : string = "";
+        let codeSnippet: string = "";
         if (nodeType === ConstructType.RECORD_CONSTRUCT) {
             codeSnippet = `type ${typeName} record {};`;
         } else if (nodeType === ConstructType.CLASS_CONSTRUCT) {
@@ -149,7 +142,25 @@ enum ConstructType {
 
 function DiagnosticView(props: { handleCreateNew: () => void, message: string, isGraphqlForm?: boolean, isParameterType?: boolean, createNewConstruct?: (constructType: ConstructType) => void }) {
     const { message, handleCreateNew, isGraphqlForm, isParameterType, createNewConstruct } = props;
-    const formClasses = useFormStyles();
+    const diagnosticStyles = makeStyles((theme: Theme) =>
+        createStyles({
+            invalidCode: {
+                fontSize: '11px !important',
+                color: '#ea4c4d !important',
+                "&:first-letter": {
+                    textTransform: 'capitalize',
+                }
+            },
+            recordCreate: {
+                textTransform: 'none',
+                minWidth: '32px',
+                color: theme.palette.primary.main,
+                marginLeft: theme.spacing(0.5),
+                cursor: 'pointer',
+            }
+        })
+    );
+    const formClasses = diagnosticStyles();
 
 
     const handleConstructOption = async (mode: ConstructType) => {
@@ -165,49 +176,37 @@ function DiagnosticView(props: { handleCreateNew: () => void, message: string, i
                         <span className={formClasses.recordCreate} onClick={handleCreateNew} >Create Record</span>
                     </FormHelperText>
                 </TooltipCodeSnippet>
-                )}
-            {isGraphqlForm && (message.includes("unknown type") ?
+            )}
+            {isGraphqlRelated(isGraphqlForm, message) ?
                 (
-                <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
-                    <>
-                        <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
-                            {truncateDiagnosticMsg(message + ". Do you want to create a new construct?")}
-                        </FormHelperText>
-                        {!isParameterType &&
-                            <SecondaryButton text={"Create Service Class"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.CLASS_CONSTRUCT)} />
-                        }
-                        <SecondaryButton text={"Create Record"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.RECORD_CONSTRUCT)} />
-                    </>
-                </TooltipCodeSnippet>
+                    <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
+                        <>
+                            <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
+                                {truncateDiagnosticMsg(message + ". Do you want to create a new construct?")}
+                            </FormHelperText>
+                            {!isParameterType &&
+                                <SecondaryButton text={"Create Service Class"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.CLASS_CONSTRUCT)} />
+                            }
+                            <SecondaryButton text={"Create Record"} fullWidth={false} onClick={() => handleConstructOption(ConstructType.RECORD_CONSTRUCT)} />
+                        </>
+                    </TooltipCodeSnippet>
                 ) : (
                     <TooltipCodeSnippet disabled={message.length <= DIAGNOSTIC_MAX_LENGTH} content={message} placement="right" arrow={true}>
                         <FormHelperText className={formClasses.invalidCode} data-testid="expr-diagnostics">
                             {truncateDiagnosticMsg(message)}
                         </FormHelperText>
                     </TooltipCodeSnippet>
-                ))
+                )
             }
         </>
     );
 }
 
+const isGraphqlRelated = (isGraphqlForm: boolean, message: string): boolean => {
+    return isGraphqlForm && (message !== "unknown type 'undefined'") && message.includes("unknown type");
+}
+
 export const TypeBrowser = React.memo(TypeBrowserC);
-
-const TypeSelectItem = styled.div`
-    width: 100%;
-    display: flex;
-    align-items: center;
-`;
-
-const TypeSelectItemLabel = styled.div`
-    word-break: break-word;
-    flex: 1;
-`;
-
-const TypeSelectItemModule = styled.div`
-    color: #8d91a3;
-    font-size: 11px;
-`;
 
 const TextFieldStyled = styled(TextField)`
     width: 100%;

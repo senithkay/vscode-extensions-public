@@ -15,3 +15,5 @@ export * from "./auth";
 export * from "./http-client";
 export * from "./org";
 export * from "./subscription";
+export * from "./componentManagement";
+export * from "./userManagement";

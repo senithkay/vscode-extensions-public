@@ -1,5 +1,21 @@
 # Change log
 
+## **4.3.0** (2023-06-16)
+For more information, see the [release note](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.3.0/).
+
+### Added
+
+- Entity Relationship Diagram
+  - A diagram that visualises the entities and their relationships defined in the Ballerina persist model.
+- Config toml file creation
+  - When you run a ballerina program with configurables now it creates the config toml file with required configurable values.
+
+### Improved
+
+- GraphQL Designer
+  - Enable an option to filter between queries, mutations and subscriptions.
+  - Improvements related to the GraphQL Designer UI.
+
 ## **4.0.0** (2023-04-21)
 
 For more information, see the [release note](https://wso2.com/ballerina/vscode/docs/release-notes/version-4.0.0/).

@@ -40,6 +40,7 @@ export interface AuthClientConfig {
     tokenUrl: string;
     apimTokenUrl: string;
     signUpUrl: string;
+    apimScopes: string;
 }
 
 export interface IAuthClient {

@@ -48,8 +48,6 @@ suite('Choreo Project Tests', () => {
             await mockTokenStore.getToken(params));
 
         const mockOrgClient = new MockOrgClient();
-        getUserInfoStub = sinon.stub(ChoreoOrgClient.prototype, 'validateUser').callsFake(async () =>
-            await mockOrgClient.validateUser());
 
         const mockProjectClient = new MockProjectClient();
         getProjectsStub = sinon.stub(ChoreoProjectClient.prototype, 'getProjects').callsFake(async (params) =>

@@ -1,19 +1,16 @@
 {
 	"folders": [
 		{
-			"path": "workspaces/choreo-extension"
-		},
-		{
-			"path": "workspaces/choreo-webviews"
-		},
-		{
 			"path": "workspaces/choreo-client"
 		},
 		{
 			"path": "workspaces/choreo-core"
+		},
+		{
+			"path": "workspaces/choreo-extension"
+		},
+		{
+			"path": "workspaces/choreo-webviews"
 		}
-	],
-	"settings": {
-		"typescript.tsc.autoDetect": "off"
-	}
+	]
 }

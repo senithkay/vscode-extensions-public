@@ -23,7 +23,7 @@ import { commands, OutputChannel, Uri, window } from "vscode";
 import { TM_EVENT_PROJECT_RUN_FAST, CMP_PROJECT_RUN, sendTelemetryEvent, sendTelemetryException } from "../../telemetry";
 import { PROJECT_TYPE, PALETTE_COMMANDS } from "./cmd-runner";
 import { getCurrentBallerinaProject, getCurrentBallerinaFile } from "../../utils/project-utils";
-import { openConfigEditor } from "../../config-editor/configEditorPanel";
+import { configGenerator } from '../../config-generator/configGenerator';
 
 export default class OutputLinkProvider implements vscode.DocumentLinkProvider {
     provideDocumentLinks(document: vscode.TextDocument, token: vscode.CancellationToken): vscode.ProviderResult<vscode.DocumentLink[]> {
@@ -39,15 +39,8 @@ function activateRunCommand() {
     const outputChannel = vscode.window.createOutputChannel("Ballerina Output", "x-ballerina-output-log");
 
     commands.registerCommand(PALETTE_COMMANDS.RUN, async (filePath: Uri) => {
-        if (ballerinaExtInstance.isConfigurableEditorEnabled() || ballerinaExtInstance.getDocumentContext().isActiveDiagram()) {
-            openConfigEditor(ballerinaExtInstance, filePath ? filePath.toString() : "", false);
-            return;
-        }
-        if (ballerinaExtInstance.enabledRunFast()) {
-            commands.executeCommand(PALETTE_COMMANDS.RUN_FAST);
-        } else {
-            commands.executeCommand(PALETTE_COMMANDS.RUN_CMD);
-        }
+        configGenerator(ballerinaExtInstance, filePath ? filePath.toString() : "");
+        return;
     });
 
     commands.registerCommand(PALETTE_COMMANDS.RUN_FAST, async () => {
@@ -64,7 +57,7 @@ function activateRunCommand() {
     });
 
     commands.registerCommand(PALETTE_COMMANDS.STOP, async () => {
-        ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value : await getCurrentRoot() }]});
+        ballerinaExtInstance.langClient.executeCommand({ command: "STOP", arguments: [{ key: "path", value: await getCurrentRoot() }] });
     });
 
     const langClient = ballerinaExtInstance.langClient;
@@ -89,7 +82,7 @@ async function runFast(outputChannel: OutputChannel) {
     if (textEditor) {
         window.showTextDocument(textEditor.document);
     }
-    const didRun = await langClient.executeCommand({ command: "RUN", arguments: [{ key: "path", value : await getCurrentRoot() }]});
+    const didRun = await langClient.executeCommand({ command: "RUN", arguments: [{ key: "path", value: await getCurrentRoot() }] });
     outputChannel.clear();
     if (didRun) {
         outputChannel.appendLine("Started. Execute 'Ballerina: Stop' command to stop the process.\n");
