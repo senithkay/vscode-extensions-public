@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import React, { useEffect, useState } from "react";
 import { IntlProvider } from "react-intl";
 
@@ -41,6 +41,10 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { extractFilePath, getDiagramProviderProps, getSTNodeForReference, pathIncludesIn } from "./utils";
+import { addPerformanceData, addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
+
+const debounceTime: number = 5000;
+let lastPerfUpdate = 0;
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
@@ -185,7 +189,8 @@ export function DiagramViewManager(props: EditorProps) {
                 setIsLoadingST(true);
                 const langClient = await langClientPromise;
                 const generatedST = await getSyntaxTree(filePath, langClient);
-                const visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
+                let visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
+                visitedST = await addPerformanceDataNew(visitedST, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
                 const content = await getFileContent(filePath);
                 const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                 const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
@@ -453,5 +458,15 @@ export function DiagramViewManager(props: EditorProps) {
             </MuiThemeProvider>
         </div>
     )
+
+
+    async function addPerfData(filePath: string) {
+        const currentTime: number = Date.now();
+        const langClient = await langClientPromise;
+        if (currentTime - lastPerfUpdate > debounceTime) {
+            await addPerformanceData(focusedST, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
+            lastPerfUpdate = currentTime;
+        }
+    }
 }
 
