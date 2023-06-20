@@ -11,11 +11,32 @@
  *  associated services.
  */
 
-import React from "react";
+import React, { useContext } from "react";
+import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { ComponentsCard } from "./Components/ComponentsCard";
+import { ProjectActions } from "./Components/ProjectActions";
+import { SignIn } from "../SignIn/SignIn";
+import styled from "@emotion/styled";
 
-// This react component will be rendered in the webview which is in the Choreo Activity Bar.
-// It will list down the components of the currently opened Choreo project.
-// It will use VSCode webview toolkit components to render the list.
+const Container = styled.div`
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    height: 100%;
+    width: 100%;
+`;
+
 export const ProjectView = () => {
-    return <div>Project View Panel</div>;
+    const { choreoProject, loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
+    return (
+        <Container>
+            {loginStatus !== "LoggedIn" && <SignIn />}
+            {choreoProject && <ProjectActions />}
+            {choreoProject && <ComponentsCard />}
+            {!isChoreoProject && <>Not a Choreo Project</>}
+            {isChoreoProject && !choreoProject && loginStatus === "LoggedIn" && <>Loading</>}
+            {isChoreoProject && !choreoProject && loginStatus === "LoggedOut" && <>Please login first</>}
+        </Container>
+    )
 };

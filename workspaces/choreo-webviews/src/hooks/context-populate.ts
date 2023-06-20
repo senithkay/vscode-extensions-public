@@ -28,14 +28,25 @@ export function usePopulateContext(): IChoreoWebViewContext {
 
     useEffect(() => {
       const rpcInstance = ChoreoWebViewAPI.getInstance();
+      const getChoreoProject = async () => {
+        try {
+          if (isChoreoProject && loginStatus === "LoggedIn") {
+            const choreoProject = await rpcInstance.getChoreoProject();
+            setChoreoProject(choreoProject);
+          }
+        } catch (err: any) {
+          setError(err);    
+        }
+      }
+      getChoreoProject();
+    }, [isChoreoProject, loginStatus])
+
+    useEffect(() => {
+      const rpcInstance = ChoreoWebViewAPI.getInstance();
       const checkIsChoreoProject = async () => {
         try {
           const isChoreoProject = await rpcInstance.isChoreoProject();
           setIsChoreoProject(isChoreoProject);
-          if (isChoreoProject) {
-            const choreoProject = await rpcInstance.getChoreoProject();
-            setChoreoProject(choreoProject);
-          }
         } catch (err: any) {
           setError(err);
         }

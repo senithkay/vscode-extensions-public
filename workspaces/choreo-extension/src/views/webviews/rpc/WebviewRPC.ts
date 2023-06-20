@@ -385,7 +385,7 @@ export class WebViewViewRPC {
 
     public registerView(view: WebviewView) {
         if (!this._view) {
-            this._messenger.registerWebviewView(view);
+            this._messenger.registerWebviewView(view, { broadcastMethods: ['loginStatusChanged', 'selectedOrgChanged', 'selectedProjectChanged', 'ghapp/onGHAppAuthCallback'] });
             this._view = view;
         } else {
             throw new Error("View already registered");

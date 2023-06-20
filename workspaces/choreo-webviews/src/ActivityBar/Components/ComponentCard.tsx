@@ -10,18 +10,26 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext } from "react";
-import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { UserDetails } from "./Components/UserDetails";
-import { SignIn } from "../SignIn/SignIn";
+import React from "react";
+import styled from "@emotion/styled";
+import { Component } from "@wso2-enterprise/choreo-core";
 
-// This react component will be rendered in the webview which is in the Choreo Activity Bar.
-// It will use VSCode webview toolkit components to render the list.
-export const AccountView = () => {
-    const { loginStatus } = useContext(ChoreoWebViewContext);
-    return (
-        <>
-            {loginStatus === "LoggedIn" ? <UserDetails /> : <SignIn />}
-        </>
-    )
+const ComponentCardContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin: 0px;
+`;
+
+const ComponentName = styled.span`
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+`;
+
+export const ComponentCard = (props: { component: Component}) => {
+    return (<ComponentCardContainer>
+        <ComponentName>{props.component.name}</ComponentName>
+        <span>{props.component.description}</span>
+    </ComponentCardContainer>)
 };
