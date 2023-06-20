@@ -16,14 +16,13 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { AnydataType, STModification, Type } from '@wso2-enterprise/ballerina-low-code-edtior-commons';
-import { MappingConstructor, NodePosition, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
+import { NodePosition, STKindChecker, STNode } from '@wso2-enterprise/syntax-tree';
 
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import {
-	createSourceForUserInput,
 	getDefaultValue, getExprBodyFromTypeCastExpression,
 	getNewFieldAdditionModification,
 	getTypeName,
