@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
-import { createStyles, FormHelperText, LinearProgress, makeStyles, TextField, Theme } from "@material-ui/core";
+import { FormHelperText, LinearProgress, TextField } from "@material-ui/core";
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete'
 import {
     SecondaryButton,
@@ -10,6 +10,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 import { CodeAction, Diagnostic } from "vscode-languageserver-protocol";
 
+import { useStyles as useFormStyles } from "../../themes";
 import { DIAGNOSTIC_MAX_LENGTH } from "../ExpressionEditor/constants";
 import { truncateDiagnosticMsg } from "../ExpressionEditor/utils";
 import { SuggestionItem } from "../LiteExpressionEditor";
@@ -142,25 +143,7 @@ enum ConstructType {
 
 function DiagnosticView(props: { handleCreateNew: () => void, message: string, isGraphqlForm?: boolean, isParameterType?: boolean, createNewConstruct?: (constructType: ConstructType) => void }) {
     const { message, handleCreateNew, isGraphqlForm, isParameterType, createNewConstruct } = props;
-    const diagnosticStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            invalidCode: {
-                fontSize: '11px !important',
-                color: '#ea4c4d !important',
-                "&:first-letter": {
-                    textTransform: 'capitalize',
-                }
-            },
-            recordCreate: {
-                textTransform: 'none',
-                minWidth: '32px',
-                color: theme.palette.primary.main,
-                marginLeft: theme.spacing(0.5),
-                cursor: 'pointer',
-            }
-        })
-    );
-    const formClasses = diagnosticStyles();
+    const formClasses = useFormStyles();
 
 
     const handleConstructOption = async (mode: ConstructType) => {
