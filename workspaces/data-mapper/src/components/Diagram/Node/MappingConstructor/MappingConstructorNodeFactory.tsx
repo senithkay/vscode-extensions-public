@@ -46,7 +46,7 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 					<EditableMappingConstructorWidget
 						engine={this.engine}
 						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
+						editableRecordField={event.model.recordField}
 						typeName={event.model.typeName}
 						value={event.model.innermostExpr}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}

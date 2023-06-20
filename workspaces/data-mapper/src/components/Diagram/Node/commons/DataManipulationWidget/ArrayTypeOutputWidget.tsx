@@ -17,7 +17,6 @@ import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 
-import { useDMSearchStore } from "../../../../../store/store";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
@@ -25,7 +24,7 @@ import {
 	getInnermostExpressionBody,
 	isConnectedViaLink
 } from "../../../utils/dm-utils";
-import { UnionTypeLabel } from "../../../utils/union-type-utils";
+import { UnionTypeInfo } from "../../../utils/union-type-utils";
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
@@ -129,13 +128,12 @@ export interface ArrayTypeOutputWidgetProps {
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: STNode) => Promise<void>;
-	unionTypeLabel?: UnionTypeLabel;
+	unionTypeInfo?: UnionTypeInfo;
 }
 
 export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeLabel } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeInfo } = props;
 	const classes = useStyles();
-	const dmStore = useDMSearchStore();
 
 	const [ portState, setPortState ] = useState<PortState>(PortState.Unselected);
 
@@ -174,14 +172,14 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 
 	const getUnionType = () => {
 		const typeText: JSX.Element[] = [];
-		const { unionTypes, resolvedTypeName } = unionTypeLabel;
-		unionTypes.forEach((type) => {
+		const { typeNames, resolvedTypeName } = unionTypeInfo;
+		typeNames.forEach((type) => {
 			if (type.trim() === resolvedTypeName) {
 				typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
 			} else {
 				typeText.push(<>{type}</>);
 			}
-			if (type !== unionTypes[unionTypes.length - 1]) {
+			if (type !== typeNames[typeNames.length - 1]) {
 				typeText.push(<> | </>);
 			}
 		});
@@ -197,7 +195,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 				</span>
 			)}
 			<span className={classnames(classes.typeLabel, isDisabled ? classes.typeLabelDisabled : "")}>
-				{unionTypeLabel ? getUnionType() : typeName || ''}
+				{unionTypeInfo ? getUnionType() : typeName || ''}
 			</span>
 		</span>
 	);

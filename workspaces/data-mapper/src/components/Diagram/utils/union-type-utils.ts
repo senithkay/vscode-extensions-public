@@ -13,6 +13,8 @@
 
 import { OtherBalType, PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
+	ExpressionFunctionBody,
+	SelectClause,
 	STKindChecker,
 	STNode
 } from "@wso2-enterprise/syntax-tree";
@@ -26,9 +28,12 @@ import {
 	getTypeName
 } from "./dm-utils";
 
-export interface UnionTypeLabel {
-	unionTypes: string[];
+export interface UnionTypeInfo {
+	unionType: Type;
+	typeNames: string[];
 	resolvedTypeName: string;
+	isResolvedViaTypeCast: boolean;
+	valueExpr: ExpressionFunctionBody | SelectClause;
 }
 
 export function resolveUnionType(expr: STNode, unionType: Type): Type {

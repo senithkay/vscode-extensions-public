@@ -29,6 +29,7 @@ import {
 	UNION_TYPE_TARGET_PORT_PREFIX
 } from '../../utils/constants';
 import { getTypeName } from "../../utils/dm-utils";
+import { UnionTypeInfo } from "../../utils/union-type-utils";
 import { ArrayTypeOutputWidget } from "../commons/DataManipulationWidget/ArrayTypeOutputWidget";
 import { EditableMappingConstructorWidget } from "../commons/DataManipulationWidget/EditableMappingConstructorWidget";
 import { PrimitiveTypeOutputWidget } from "../commons/DataManipulationWidget/PrimitiveTypeOutputWidget";
@@ -52,11 +53,21 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 		const resolvedType = event.model.resolvedType;
 		const resolvedTypeName = getTypeName(resolvedType);
 		const shouldRenderUnionType = event.model.shouldRenderUnionType();
+
 		if (STKindChecker.isSelectClause(event.model.value)
 			&& event.model.context.selection.selectedST.fieldPath !== FUNCTION_BODY_QUERY)
 		{
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
+
+		const unionTypeInfo: UnionTypeInfo = {
+			unionType: event.model.unionTypeDef,
+			typeNames: event.model.unionTypes,
+			resolvedTypeName,
+			isResolvedViaTypeCast: !!event.model.typeCastExpr,
+			valueExpr: event.model.value
+		};
+
 		return (
 			<>
 				{shouldRenderUnionType && (
@@ -70,10 +81,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						hasInvalidTypeCast={event.model.hasInvalidTypeCast}
 						innermostExpr={event.model.innermostExpr}
 						typeCastExpr={event.model.typeCastExpr}
-						unionTypeLabel={{
-							unionTypes: event.model.unionTypes,
-							resolvedTypeName
-						}}
+						unionTypeInfo={unionTypeInfo}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 					/>
 				)}
@@ -81,7 +89,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 					<EditableMappingConstructorWidget
 						engine={this.engine}
 						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
+						editableRecordField={event.model.recordField}
 						typeName={event.model.typeName}
 						value={event.model.innermostExpr}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
@@ -90,10 +98,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
 						originalTypeName={event.model.typeDef.originalTypeName}
-						unionTypeLabel={{
-							unionTypes: event.model.unionTypes,
-							resolvedTypeName
-						}}
+						unionTypeInfo={unionTypeInfo}
 					/>
 				)}
 				{!shouldRenderUnionType && resolvedType && resolvedType.typeName === PrimitiveBalType.Array && (
@@ -106,10 +111,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						typeName={event.model.typeName}
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
-						unionTypeLabel={{
-							unionTypes: event.model.unionTypes,
-							resolvedTypeName
-						}}
+						unionTypeInfo={unionTypeInfo}
 					/>
 				)}
 				{!shouldRenderUnionType
@@ -126,10 +128,7 @@ export class UnionTypeNodeFactory extends AbstractReactFactory<UnionTypeNode, Di
 						typeName={event.model.typeName}
 						valueLabel={valueLabel}
 						deleteField={(node: STNode) => event.model.deleteField(node)}
-						unionTypeLabel={{
-							unionTypes: event.model.unionTypes,
-							resolvedTypeName
-						}}
+						unionTypeInfo={unionTypeInfo}
 					/>
 				)}
 			</>

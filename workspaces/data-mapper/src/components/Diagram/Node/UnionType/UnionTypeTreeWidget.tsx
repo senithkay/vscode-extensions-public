@@ -19,7 +19,7 @@ import { IdentifierToken, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
-import { UnionTypeLabel } from "../../utils/union-type-utils";
+import { UnionTypeInfo } from "../../utils/union-type-utils";
 import { TypeDescriptor } from "../commons/DataMapperNode";
 import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
@@ -38,7 +38,7 @@ export interface UnionTypeTreeWidgetProps {
     hasInvalidTypeCast: boolean;
     innermostExpr: STNode;
     typeCastExpr: STNode;
-    unionTypeLabel: UnionTypeLabel;
+    unionTypeInfo: UnionTypeInfo;
     getPort: (portId: string) => RecordFieldPortModel;
 }
 
@@ -54,10 +54,10 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         hasInvalidTypeCast,
         innermostExpr,
         typeCastExpr,
-        unionTypeLabel,
+        unionTypeInfo,
         getPort
     } = props;
-    const { unionTypes, resolvedTypeName } = unionTypeLabel;
+    const { typeNames, resolvedTypeName } = unionTypeInfo;
     const classes = useStyles();
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
@@ -78,13 +78,13 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
 
     const getUnionType = () => {
         const typeText: JSX.Element[] = [];
-        unionTypes.forEach((type) => {
+        typeNames.forEach((type) => {
             if (type.trim() === resolvedTypeName) {
                 typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
             } else {
                 typeText.push(<>{type}</>);
             }
-            if (type !== unionTypes[unionTypes.length - 1]) {
+            if (type !== typeNames[typeNames.length - 1]) {
                 typeText.push(<> | </>);
             }
         });

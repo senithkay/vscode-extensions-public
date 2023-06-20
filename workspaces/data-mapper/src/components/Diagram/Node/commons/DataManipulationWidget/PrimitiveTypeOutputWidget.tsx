@@ -19,7 +19,7 @@ import { STNode } from "@wso2-enterprise/syntax-tree";
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { UnionTypeLabel } from "../../../utils/union-type-utils";
+import { UnionTypeInfo } from "../../../utils/union-type-utils";
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from "../Tree/Tree";
 
@@ -101,12 +101,12 @@ export interface PrimitiveTypeOutputWidgetProps {
 	typeName: string;
 	valueLabel?: string;
 	deleteField?: (node: STNode) => Promise<void>;
-	unionTypeLabel?: UnionTypeLabel;
+	unionTypeInfo?: UnionTypeInfo;
 }
 
 
 export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps) {
-	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeLabel } = props;
+	const { id, field, getPort, engine, context, typeName, valueLabel, deleteField, unionTypeInfo } = props;
 	const classes = useStyles();
 
 	const type = typeName || field?.type?.typeName;
@@ -122,14 +122,14 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 
 	const getUnionType = () => {
 		const typeText: JSX.Element[] = [];
-		const { unionTypes, resolvedTypeName } = unionTypeLabel;
-		unionTypes.forEach((unionType) => {
+		const { typeNames, resolvedTypeName } = unionTypeInfo;
+		typeNames.forEach((unionType) => {
 			if (unionType.trim() === resolvedTypeName) {
 				typeText.push(<span className={classes.boldedTypeLabel}>{unionType}</span>);
 			} else {
 				typeText.push(<>{unionType}</>);
 			}
-			if (unionType !== unionTypes[unionTypes.length - 1]) {
+			if (unionType !== typeNames[typeNames.length - 1]) {
 				typeText.push(<> | </>);
 			}
 		});
@@ -145,7 +145,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 				</span>
 			)}
 			<span className={classes.typeLabel}>
-				{unionTypeLabel ? getUnionType() : type}
+				{unionTypeInfo ? getUnionType() : type}
 			</span>
 		</span>
 	);
