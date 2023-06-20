@@ -172,8 +172,7 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                     });
                 }
             });
-        } else if (STKindChecker.isExpressionFunctionBody(this.parentNode)) {
-            const exprPosition = this.parentNode.expression.position;
+        } else if (isRepresentFnBody(this.parentNode, exprFuncBody)) {
             this.getModel().getNodes().forEach((node) => {
                 if (node instanceof ListConstructorNode) {
                     const ports = Object.entries(node.getPorts());
@@ -182,19 +181,14 @@ export class QueryExpressionNode extends DataMapperNodeModel {
                         if (port instanceof RecordFieldPortModel
                             && port?.editableRecordField && port.editableRecordField?.value
                             && STKindChecker.isQueryExpression(port.editableRecordField.value)
-                            && isPositionsEquals(port.editableRecordField.value.position, exprPosition)
+                            && isPositionsEquals(port.editableRecordField.value.position, this.value.position)
                             && port.portName === `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}`
                             && port.portType === 'IN'
                         ) {
                             this.targetPort = port;
                         }
                     });
-                }
-            });
-        } else if (isRepresentFnBody(this.parentNode, exprFuncBody)) {
-        // } else if (STKindChecker.isTypeCastExpression(this.parentNode) && isPositionsEquals(this.parentNode.position, exprFuncBody.expression.position)) {
-            this.getModel().getNodes().forEach((node) => {
-                if (node instanceof UnionTypeNode) {
+                } else if (node instanceof UnionTypeNode) {
                     const ports = Object.entries(node.getPorts());
                     ports.map((entry) => {
                         const port = entry[1];

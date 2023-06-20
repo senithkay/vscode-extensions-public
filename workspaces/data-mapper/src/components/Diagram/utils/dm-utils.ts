@@ -1212,7 +1212,7 @@ export function isRepresentFnBody(queryParentNode: STNode, fnBody: ExpressionFun
 		return true;
 	}
 	let nextNode: STNode;
-	while (STKindChecker.isTypeCastExpression(fnBody.expression) || STKindChecker.isLetVarDecl(fnBody.expression)) {
+	while (STKindChecker.isTypeCastExpression(fnBody.expression) || STKindChecker.isLetExpression(fnBody.expression)) {
 		if (isPositionsEquals(queryParentNode.position, fnBody.expression.position)) {
 			return true;
 		}
