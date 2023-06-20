@@ -217,8 +217,10 @@ function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPat
             let newConfigValue = getConfigValue(obj.name, obj.property, comment);
             updatedContent += newConfigValue + comment.value + '\n\n';
         } else {
-            let comment = { value: `# "${obj.name}" is an optional value\n\n` };
-            updatedContent += comment.value;
+            let comment = { value: `# ${typeOfComment} ${obj.type && obj.type.toUpperCase() || "STRING"}` };
+            const optional = `# "${obj.name}" is an optional value\n`;
+            let newConfigValue = getConfigValue(obj.name, obj.property, comment);
+            updatedContent += `${optional}# ${newConfigValue}${comment.value}\n\n`;
         }
     });
 
