@@ -54,7 +54,8 @@ export const FOO_PROJECT_1: Project = {
     name: "Foo Project1",
     orgId: "120",
     region: "US",
-    version: "1.0.0"
+    version: "1.0.0",
+    description: "Foo Project1 Description"
 };
 
 export const FOO_PROJECT_2: Project = {
@@ -64,7 +65,8 @@ export const FOO_PROJECT_2: Project = {
     name: "Foo Project2",
     orgId: "120",
     region: "US",
-    version: "1.0.0"
+    version: "1.0.0",
+    description: "Foo Project2 Description"
 };
 
 export const BAR_PROJECT_1: Project = {
@@ -74,7 +76,8 @@ export const BAR_PROJECT_1: Project = {
     name: "Bar Project1",
     orgId: "130",
     region: "US",
-    version: "1.0.0"
+    version: "1.0.0",
+    description: "Bar Project1 Description"
 };
 
 export const FOO_P1_COMPONENT: Component = {

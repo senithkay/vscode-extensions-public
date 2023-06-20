@@ -33,8 +33,8 @@ export async function openChoreoProject() {
     const quickPicks: vscode.QuickPickItem[] = projects.map(project => {
         return {
             label: project.name,
-            description: project.version,
-            picked: project.id === currentProject?.id,
+            description: project.version + (project.id === currentProject?.id ? ' (opened) ' : ''),
+            detail: project.description.trim() !== '' ? project.description : undefined,
         };
     });
     quickPicks.push({
@@ -42,15 +42,14 @@ export async function openChoreoProject() {
         label: '+',
     });
     quickPicks.push({
-        label: 'Create new',
-        description: 'Create and open a new project',
+        label: 'Create new Project',
+        detail: 'Create and open a new Choreo project',
     });
 
     // show a popup to select a project
     const selection = await vscode.window.showQuickPick(quickPicks, {
         title: 'Select a project to continue',
         canPickMany: false,
-        placeHolder: "Current project: " + (currentProject?.name ?? 'None'),
         matchOnDescription: true,
         matchOnDetail: true,
     });
