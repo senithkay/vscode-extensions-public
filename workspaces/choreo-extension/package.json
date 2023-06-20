@@ -75,6 +75,12 @@
         "icon": "$(add)"
       },
       {
+        "command": "wso2.choreo.project.open",
+        "title": "Open Choreo Project",
+        "category": "Choreo",
+        "icon": "$(project)"
+      },
+      {
         "command": "wso2.choreo.architecture.view",
         "title": "View Choreo Project Architecture",
         "category": "Choreo"
@@ -122,6 +128,11 @@
       "view/title": [
         {
           "command": "wso2.choreo.project.create",
+          "when": "view == choreo.activity.project",
+          "group": "navigation"
+        },
+        {
+          "command": "wso2.choreo.project.open",
           "when": "view == choreo.activity.project",
           "group": "navigation"
         },
