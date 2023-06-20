@@ -29,6 +29,7 @@ import {
     getLowcodeST,
     getSyntaxTree
 } from "../DiagramGenerator/generatorUtil";
+import { addPerformanceData, addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
 import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
@@ -41,7 +42,6 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { extractFilePath, getDiagramProviderProps, getSTNodeForReference, pathIncludesIn } from "./utils";
-import { addPerformanceData, addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
 
 const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
