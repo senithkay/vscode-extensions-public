@@ -125,11 +125,11 @@ export const RepoStructureConfig = (props: RepoStructureConfigProps) => {
             {mode === "fromScratch" && (
                 <StepContainer>
                     <VSCodeTextField
-                        placeholder="Sub folder"
+                        placeholder="Folder Name"
                         onInput={(e: any) => updateSubFolderName(e.target.value)}
                         value={repository?.subPath}
                     >
-                        Sub Folder <RequiredFormInput />
+                        Folder Name <RequiredFormInput />
                         {folderNameError && <span slot="end" className={`codicon codicon-error ${cx(ErrorIcon)}`} />}
                     </VSCodeTextField>
                 </StepContainer>
