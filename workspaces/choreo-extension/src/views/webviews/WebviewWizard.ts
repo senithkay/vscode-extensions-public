@@ -11,7 +11,7 @@
  *  associated services.
  */
 import * as vscode from "vscode";
-import { WebViewRpc } from "./rpc/WebviewRPC";
+import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
 
 export enum WizardTypes {
@@ -23,13 +23,13 @@ export class WebviewWizard {
   public static currentPanel: WebviewWizard | undefined;
   private _panel: vscode.WebviewPanel | undefined;
   private _disposables: vscode.Disposable[] = [];
-  private _rpcHandler: WebViewRpc;
+  private _rpcHandler: WebViewPanelRpc;
 
   constructor(extensionUri: vscode.Uri, type: WizardTypes) {
     this._panel = WebviewWizard.createWebview(type);
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
     this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, type);
-    this._rpcHandler = new WebViewRpc(this._panel);
+    this._rpcHandler = new WebViewPanelRpc(this._panel);
   }
 
   private static createWebview(type: WizardTypes): vscode.WebviewPanel {

@@ -20,6 +20,8 @@ import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
 import { ProjectOverview } from "./ProjectOverview/ProjectOverview";
 import { ChoreoArchitectureView } from "./ChoreoArchitectureView/ArchitectureView";
 import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
+import { ProjectView } from "./ActivityBar/ProjectView";
+import { AccountView } from "./ActivityBar/AccountView";
 
 export const Main: React.FC<any> = styled.main`
   display: flex;
@@ -46,6 +48,10 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
                 return <ProjectWizard />;
             case "ComponentCreateForm":
                 return <ComponentWizard />;
+            case "ActivityBarProjectView":
+                return <ProjectView />;
+            case "ActivityBarAccountView":
+                return <AccountView />;
             case "ProjectOverview":
                 return (
                     <ProjectOverview

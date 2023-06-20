@@ -12,7 +12,7 @@
  */
 import { Organization, Project } from "@wso2-enterprise/choreo-core";
 import * as vscode from "vscode";
-import { WebViewRpc } from "./rpc/WebviewRPC";
+import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { ext } from "../../extensionVariables";
 import { getUri } from "./utils";
 import { FREE_COMPONENT_LIMIT } from "../../auth/config";
@@ -21,7 +21,7 @@ import { choreoAuthConfig } from "../../auth/auth";
 export class ProjectOverview {
 
   public static currentPanel: ProjectOverview | undefined;
-  private static _rpcHandler: WebViewRpc;
+  private static _rpcHandler: WebViewPanelRpc;
   public static project: Project | undefined;
   private readonly _panel: vscode.WebviewPanel;
   private _disposables: vscode.Disposable[] = [];
@@ -31,9 +31,9 @@ export class ProjectOverview {
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
     this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, initialProject, orgName);
     if (!ProjectOverview._rpcHandler) {
-      ProjectOverview._rpcHandler = new WebViewRpc(this._panel);
+      ProjectOverview._rpcHandler = new WebViewPanelRpc(this._panel);
     } else if (ProjectOverview._rpcHandler.panel !== panel) {
-      ProjectOverview._rpcHandler = new WebViewRpc(this._panel);
+      ProjectOverview._rpcHandler = new WebViewPanelRpc(this._panel);
     }
     this._panel.onDidChangeViewState(e => {
       if (e.webviewPanel.visible) {

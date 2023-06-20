@@ -12,14 +12,14 @@
  */
 
 import * as vscode from "vscode";
-import { WebViewRpc } from "./rpc/WebviewRPC";
+import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
 import { FREE_COMPONENT_LIMIT } from "../../auth/config";
 import { choreoAuthConfig } from "../../auth/auth";
 
 export class ChoreoArchitectureView {
 	public static currentPanel: ChoreoArchitectureView | undefined;
-	private static _rpcHandler: WebViewRpc;
+	private static _rpcHandler: WebViewPanelRpc;
 	private readonly _panel: vscode.WebviewPanel;
 	private _disposables: vscode.Disposable[] = [];
 
@@ -29,7 +29,7 @@ export class ChoreoArchitectureView {
 
 		this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, orgName, projectId);
 		if (!ChoreoArchitectureView._rpcHandler || ChoreoArchitectureView._rpcHandler.panel !== panel) {
-			ChoreoArchitectureView._rpcHandler = new WebViewRpc(this._panel);
+			ChoreoArchitectureView._rpcHandler = new WebViewPanelRpc(this._panel);
 		}
 	}
 
