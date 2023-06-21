@@ -10,7 +10,7 @@ import React from "react";
 
 import { Typography } from "@material-ui/core";
 import { getConstructIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import classNames from "classnames";
+import { ComponentCard } from "@wso2-enterprise/ui-toolkit";
 
 import { ComponentViewInfo } from "../../../util";
 
@@ -28,36 +28,13 @@ export function ComponentView(props: ComponentViewProps) {
     const { info, updateSelection } = props;
     const classes = useStyles();
 
-    const handleComponentClick = () => {
-        updateSelection(info);
-    };
-
-    const isComponentAllowed = (type: string) => {
-        switch (type) {
-            case 'classes':
-            case 'objects':
-            case 'types':
-            case 'enums':
-            case 'listeners':
-            case 'constants':
-            case 'moduleVariables':
-                return false;
-            default:
-                return true;
-        }
-    }
-
     return (
-        <div
-            className={classNames("component", { 'not-allowed': !isComponentAllowed(props.type) })}
-            onClick={isComponentAllowed(props.type) ? handleComponentClick : undefined}
-            title={info.name.length ? info.name : '/'}
-        >
+        <ComponentCard type="" info={info} updateSelection={updateSelection}>
             <div className="icon">
                 {getConstructIcon(`${iconNameTranslator(props.type)}Icon`)}
             </div>
             <Typography className={classes.label} variant="h4">{info.name.length ? info.name : '/'}</Typography>
-        </div>
+        </ComponentCard>
     )
 }
 
