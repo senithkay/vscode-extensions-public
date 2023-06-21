@@ -415,6 +415,11 @@
       "versionPolicyName": "ballerina-extension"
     },
     {
+      "packageName": "@wso2-enterprise/ui-toolkit",
+      "projectFolder": "workspaces/ui-toolkit",
+      "versionPolicyName": "ui-toolkit"
+    },
+    {
       "packageName": "@wso2-enterprise/choreo-client",
       "projectFolder": "workspaces/choreo-client",
       "versionPolicyName": "choreo-extension"
