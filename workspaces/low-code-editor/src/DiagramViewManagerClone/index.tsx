@@ -15,6 +15,7 @@ import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry, KeyboardN
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
+import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
 import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
@@ -33,7 +34,6 @@ import { theme } from './theme';
 import { extractFilePath, getDiagramProviderProps } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
-import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import { FailedToIdentifyMessageOverlay } from "./views/FailedToIdentifyMessage";
 
 const undoRedoManager = new UndoRedoManager();
@@ -96,22 +96,16 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         const mouseTrapClient = KeyboardNavigationManager.getClient();
         mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
-            // tslint:disable-next-line: no-console
-            console.log("undo >>>");
             const lastsource = undoRedoManager.undo();
             if (lastsource) {
-                console.log("undo >>>", lastsource);
                 props.updateFileContent(history[history.length - 1].file, lastsource);
                 setUpdatedTimeStamp(new Date().getTime().toString());
             }
         });
 
         mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => {
-            // tslint:disable-next-line: no-console
-            console.log("redo >>>");
             const lastsource = undoRedoManager.redo();
             if (lastsource) {
-                console.log("redo >>>", lastsource);
                 props.updateFileContent(history[history.length - 1].file, lastsource);
                 setUpdatedTimeStamp(new Date().getTime().toString());
             }
@@ -124,7 +118,6 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         if (history.length > 0) {
-            console.log("history >>>", history, history[history.length - 1]);
             (async () => {
                 setIsLoading(true);
                 const { file, position, uid } = history[history.length - 1];
