@@ -25,11 +25,11 @@ interface ComponentViewProps {
 
 
 export function ComponentView(props: ComponentViewProps) {
-    const { info, updateSelection } = props;
+    const { info, updateSelection, type } = props;
     const classes = useStyles();
 
     return (
-        <ComponentCard type="" info={info} updateSelection={updateSelection}>
+        <ComponentCard type={type} info={info} updateSelection={updateSelection}>
             <div className="icon">
                 {getConstructIcon(`${iconNameTranslator(props.type)}Icon`)}
             </div>

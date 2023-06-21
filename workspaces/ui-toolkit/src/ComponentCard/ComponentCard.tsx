@@ -31,11 +31,11 @@ export interface ComponentCardProps {
     updateSelection: (info: ComponentViewInfo) => void;
 }
 
-const StyledComponent = styled.div`
+const ComponentContainer = styled.div`
   height: 50px;
   cursor: pointer;
   border-radius: 5px;
-  border: 1px solid var(--contrastActiveBorder);   
+  border: 1px solid var(--vscode-editor-foreground);   
   display: flex;
   align-items: center;
   padding: 10px;
@@ -55,11 +55,11 @@ const StyledComponent = styled.div`
   }
 
   &:hover {
-    border: 1px solid var(--vscode-editor-infoForeground);
-    background-color: var(--vscode-editor-hoverBackground);
-    color: var(--vscode-editor-infoForeground);
+    border: 1px solid var(--vscode-editorGroup.border);
+    background-color: var(--vscode-editorGroup.background);
+    color: var(--vscode-editor-foreground);
     .icon svg g {
-      fill: var(--vscode-editor-infoForeground);
+      fill: var(--vscode-editor-foreground);
     }
   }
 
@@ -113,12 +113,12 @@ export const ComponentCard: React.FC<ComponentCardProps> = (props: ComponentCard
     };
 
     return (
-        <StyledComponent
+        <ComponentContainer
             className={classNames("component", { 'not-allowed': !isComponentAllowed(type) })}
             onClick={isComponentAllowed(type) ? handleComponentClick : undefined}
             title={info.name.length ? info.name : '/'}
         >
             {children}
-        </StyledComponent>
+        </ComponentContainer>
     )
 };
