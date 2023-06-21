@@ -225,12 +225,6 @@ export function DiagramViewManager(props: EditorProps) {
         }
     }, [history[history.length - 1], updatedTimeStamp]);
 
-    useEffect(() => {
-        // if (history.length > 0) {
-        //     undoRedoManager.lear();
-        // }
-    }, [history[history.length - 1]?.file]);
-
     const updateActiveFile = (currentFile: FileListEntry) => {
         historyPush({ file: currentFile.uri.path });
     };
