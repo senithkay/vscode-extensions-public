@@ -98,8 +98,8 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             } else {
                 findPropertyValues(configs, newValues);
             }
-
-            if (newValues.length > 0) {
+            const haveRequired = newValues.filter(value => value.required);
+            if (newValues.length > 0 && haveRequired.length > 0) {
                 await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance);
             } else {
                 executeRunCommand(ballerinaExtInstance);
