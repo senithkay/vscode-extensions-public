@@ -30,10 +30,11 @@ import { Provider as HistoryProvider } from './context/history';
 import { useComponentHistory } from "./hooks/history";
 import { useGeneratorStyles } from "./style";
 import { theme } from './theme';
-import { getDiagramProviderProps } from "./utils";
+import { extractFilePath, getDiagramProviderProps } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
+import { FailedToIdentifyMessageOverlay } from "./views/FailedToIdentifyMessage";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -71,6 +72,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [completeST, setCompleteST] = useState<STNode>();
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [showIdentificationFailureMessage, setShowIdentificationFailureMessage] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
@@ -122,6 +124,7 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         if (history.length > 0) {
+            console.log("history >>>", history, history[history.length - 1]);
             (async () => {
                 setIsLoading(true);
                 const { file, position, uid } = history[history.length - 1];
@@ -150,7 +153,11 @@ export function DiagramViewManager(props: EditorProps) {
                         const nodeFindingVisitor = new FindNodeByUidVisitor(generatedUid);
                         traversNode(visitedST, nodeFindingVisitor);
                         selectedST = nodeFindingVisitor.getNode();
-                        updateCurrentEntry({ ...history[history.length - 1], uid: generatedUid });
+                        if (generatedUid) {
+                            updateCurrentEntry({ ...history[history.length - 1], uid: generatedUid });
+                        } else {
+                            setShowIdentificationFailureMessage(true);
+                        }
                     }
 
                     if (uid && position) {
@@ -214,6 +221,7 @@ export function DiagramViewManager(props: EditorProps) {
                 setProjectComponents(componentResponse);
                 setIsLoading(false);
             })();
+            setShowIdentificationFailureMessage(false);
         }
     }, [history[history.length - 1], updatedTimeStamp]);
 
@@ -264,6 +272,12 @@ export function DiagramViewManager(props: EditorProps) {
         setUpdatedTimeStamp
     );
 
+    const handleNavigationHome = () => {
+        historyClearAndPopulateWith({
+            file: extractFilePath(history[history.length - 1].file)
+        });
+    }
+
     return (
         <MuiThemeProvider theme={theme}>
             <div className={classes.lowCodeContainer}>
@@ -286,7 +300,8 @@ export function DiagramViewManager(props: EditorProps) {
                                 projectList={projectPaths}
                                 projectInfo={projectComponents}
                             />
-                            {!showOverviewMode && !showSTMode && <TextPreLoader position={'absolute'} />}
+                            {!showOverviewMode && !showSTMode && !showIdentificationFailureMessage && <TextPreLoader position={'absolute'} />}
+                            {!showOverviewMode && !showSTMode && showIdentificationFailureMessage && <FailedToIdentifyMessageOverlay onResetClick={handleNavigationHome} />}
                             {showOverviewMode && <ComponentListView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
                             {showSTMode && <DiagramView projectComponents={projectComponents} />}
                             <div id={'canvas-overlay'} className={"overlayContainer"} />
