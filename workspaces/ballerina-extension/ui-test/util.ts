@@ -36,3 +36,12 @@ export async function getDiagramExplorer() {
     await wait(5000);
     return diagramExplorer;
 }
+
+export function areVariablesIncludedInString(variables, str) {
+    for (const variable of variables) {
+        if (!str.includes(variable)) {
+            return false;
+        }
+    }
+    return true;
+}

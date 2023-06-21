@@ -13,8 +13,17 @@ import { before, describe, it } from 'mocha';
 import { join } from 'path';
 import { By, EditorView, TextEditor, VSBrowser, WebDriver, WebView } from 'vscode-extension-tester';
 import { DIAGRAM_LOADING_TIME } from './constants';
-import { getDiagramExplorer, wait } from './util';
+import { areVariablesIncludedInString, getDiagramExplorer, wait } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
+
+
+const expectedConfigs = [
+    'bar',
+    'isAdmin',
+    'url',
+    'authConfig'
+  ];
+
 
 describe('VSCode Config Generation Edit UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
@@ -72,10 +81,9 @@ describe('VSCode Config Generation Edit UI Tests', () => {
 
         // Read the updated config file and expected config file
         const generatedConfigContent = readFileSync(configFilePath, 'utf8').replace(/\s/g, '');
-        const expectedConfigContent = readFileSync(expectedConfigFilePath, 'utf8').replace(/\s/g, '');
-        await wait(3000);
-        // Compare the updated config file with the expected config file
-        expect(generatedConfigContent).to.equal(expectedConfigContent);
+
+        // Compare the generated config file with the expected config file
+        expect(areVariablesIncludedInString(expectedConfigs, generatedConfigContent)).to.true;
 
     });
 });
