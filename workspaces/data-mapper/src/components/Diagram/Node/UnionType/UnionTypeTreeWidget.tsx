@@ -14,6 +14,7 @@
 import React, { useState } from "react";
 
 import { CircularProgress } from "@material-ui/core";
+import { WarningOutlined } from "@material-ui/icons";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { IdentifierToken, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
@@ -244,7 +245,10 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                         className={classes.selectTypeWrap}
                         data-testid={"union-type-selector-list"}
                     >
-                        <span>Types are ambiguous. Please select a type to continue.</span>
+                        <div className={classes.warningText}>
+                            <WarningOutlined />
+                            <span>Types are ambiguous. Please select a type to continue.</span>
+                        </div>
                         <UnionTypeSelector
                             context={context}
                             typeIdentifier={typeIdentifier}

@@ -83,6 +83,11 @@ export const useStyles = makeStyles((theme: Theme) =>
                 marginRight: '3px',
                 alignSelf: 'center'
             },
+            warningText: {
+                color:  '#e85454',
+                display: 'flex',
+                justifyContent: 'space-between'
+            },
         }),
     { index: 1 }
 );
