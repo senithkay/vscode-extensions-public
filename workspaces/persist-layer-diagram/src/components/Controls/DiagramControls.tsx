@@ -26,9 +26,9 @@ import WarningIcon from '@mui/icons-material/Warning';
 import styled from '@emotion/styled';
 import CachedIcon from "@mui/icons-material/Cached";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { CanvasControlButton } from '@wso2-enterprise/design-diagram-commons';
 import { toJpeg } from 'html-to-image';
 import { DiagramContext } from '../DiagramContext/DiagramContext';
+import { CanvasControlButton } from './ControlButtons/ControlButton';
 
 interface ControlProps {
     engine: DiagramEngine;

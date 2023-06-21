@@ -870,37 +870,6 @@ importers:
       webpack-cli: 4.10.0_ddmenyhdwz6ocoybpsmzbonb6y
       webpack-dev-server: 4.11.1_mcbxwmiss5njtiqwgktfxc4sg4
 
-  ../../workspaces/design-diagram-commons:
-    specifiers:
-      '@emotion/react': ^11.9.3
-      '@emotion/styled': ^11.10.5
-      '@material-ui/core': ^4.12.3
-      '@material-ui/icons': ^4.9.1
-      '@mui/icons-material': ^5.10.3
-      '@mui/material': ^5.10.3
-      '@types/node': ^18.11.19
-      '@types/react': ^17.0.37
-      '@types/react-dom': 17.0.14
-      copyfiles: ^2.4.1
-      react: ^17.0.2
-      react-dom: ^17.0.2
-      typescript: ^4.9.4
-    dependencies:
-      '@emotion/react': 11.10.6_h7fc2el62uaa77gho3xhys6ola
-      '@emotion/styled': 11.10.6_7hisdke2c3hq4r3q5z4dcdhmzi
-      '@material-ui/core': 4.12.4_zsjcj4gvi24ks76nprapl4hsmq
-      '@material-ui/icons': 4.11.3_ix2yut7rilqbdm4h4dqhlnprni
-      '@mui/icons-material': 5.11.11_egfqb6ct27nizmb7q4idufxyty
-      '@mui/material': 5.11.12_okmdg45agjnois7npz2g5lj5ue
-      '@types/node': 18.15.3
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
-      typescript: 4.9.5
-    devDependencies:
-      '@types/react': 17.0.53
-      '@types/react-dom': 17.0.14
-      copyfiles: 2.4.1
-
   ../../workspaces/expression-editor:
     specifiers:
       '@babel/core': ^7.20.12
@@ -2348,7 +2317,6 @@ importers:
       '@types/react': ^17.0.37
       '@types/react-dom': 17.0.14
       '@wso2-enterprise/ballerina-languageclient': workspace:*
-      '@wso2-enterprise/design-diagram-commons': workspace:*
       babel-loader: ^8.2.5
       closest: ^0.0.1
       copyfiles: ^2.4.1
@@ -2383,7 +2351,6 @@ importers:
       '@projectstorm/react-diagrams-routing': 6.7.4_4o2oinud4o3tzn3nyeyt23cih4
       '@types/lodash': 4.14.191
       '@types/node': 18.15.3
-      '@wso2-enterprise/design-diagram-commons': link:../design-diagram-commons
       closest: 0.0.1
       dagre: 0.8.5
       file-loader: 5.1.0_webpack@5.76.1
@@ -2445,7 +2412,6 @@ importers:
       '@wso2-enterprise/ballerina-languageclient': workspace:*
       '@wso2-enterprise/ballerina-low-code-edtior-commons': workspace:*
       '@wso2-enterprise/choreo-core': workspace:*
-      '@wso2-enterprise/design-diagram-commons': workspace:*
       '@wso2-enterprise/syntax-tree': workspace:*
       babel-loader: ^8.2.5
       closest: ^0.0.1
@@ -2490,7 +2456,6 @@ importers:
       '@types/lodash.debounce': 4.0.7
       '@types/node': 18.15.3
       '@types/vscode-webview': 1.57.1
-      '@wso2-enterprise/design-diagram-commons': link:../design-diagram-commons
       '@wso2-enterprise/syntax-tree': link:../syntax-tree
       closest: 0.0.1
       dagre: 0.8.5

@@ -13,10 +13,10 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DownloadIcon from '@mui/icons-material/FileDownloadOutlined';
 import WarningIcon from '@mui/icons-material/Warning';
-import { CanvasControlButton } from '@wso2-enterprise/design-diagram-commons';
-import { DiagramContext } from '../../DiagramContext/DiagramContext';
-import { ControlPanel } from '../styles/styles';
 import CachedIcon from "@mui/icons-material/Cached";
+import { DiagramContext } from '../../DiagramContext/DiagramContext';
+import { CanvasControlButton } from './ControlButtons/ControlButton';
+import { ControlPanel } from '../styles/styles';
 import '../styles/styles.css';
 
 interface ControlProps {

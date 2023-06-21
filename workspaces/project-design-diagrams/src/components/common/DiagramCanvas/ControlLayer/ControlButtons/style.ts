@@ -17,4 +17,16 @@
  *
  */
 
-export * from './Buttons';
+import { createStyles, makeStyles } from "@material-ui/core/styles";
+
+export const useStyles = makeStyles(() =>
+    createStyles({
+        controlButton: {
+            backgroundColor: "white !important",
+            border: "1px solid #E0E2E9 !important",
+            borderRadius: "2px !important",
+            height: "32px !important",
+            width: "32px !important"
+        }
+    })
+);
