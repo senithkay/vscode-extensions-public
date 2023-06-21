@@ -17,6 +17,9 @@ import { ComponentsCard } from "./Components/ComponentsCard";
 import { ProjectActions } from "./Components/ProjectActions";
 import { SignIn } from "../SignIn/SignIn";
 import styled from "@emotion/styled";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { ChoreoWebViewAPI } from "./../utilities/WebViewRpc";
+
 
 const Container = styled.div`
     margin-top: 10px;
@@ -27,6 +30,17 @@ const Container = styled.div`
     width: 100%;
 `;
 
+const NotAChoreoProjectCard = () => {
+    const openChoreoProject = () => {
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");
+    }
+    return (
+        <div>
+            <p><VSCodeLink onClick={openChoreoProject}>Open a Choreo Project</VSCodeLink> to view the components</p>
+        </div>
+    )
+}
+
 export const ProjectView = () => {
     const { choreoProject, loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
     return (
@@ -34,7 +48,7 @@ export const ProjectView = () => {
             {loginStatus !== "LoggedIn" && <SignIn />}
             {choreoProject && <ProjectActions />}
             {choreoProject && <ComponentsCard />}
-            {!isChoreoProject && <>Not a Choreo Project</>}
+            {!isChoreoProject && <NotAChoreoProjectCard />}
             {isChoreoProject && !choreoProject && loginStatus === "LoggedIn" && <>Loading</>}
             {isChoreoProject && !choreoProject && loginStatus === "LoggedOut" && <>Please login first</>}
         </Container>

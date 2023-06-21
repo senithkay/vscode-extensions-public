@@ -12,9 +12,11 @@
  */
 // 
 import * as vscode from 'vscode';
-import { openProjectCmdId } from '../constants';
+import { createNewProjectCmdId, openProjectCmdId } from '../constants';
 import { ext } from '../extensionVariables';
 import { ProjectRegistry } from '../registry/project-registry';
+import { cloneProject } from './clone';
+import path = require('path');
 
 export function activateOpenProjectCmd(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand(openProjectCmdId, () => {
@@ -24,17 +26,27 @@ export function activateOpenProjectCmd(context: vscode.ExtensionContext) {
 
 export async function openChoreoProject() {
     // show a message if user is not logged in
-    if(ext.api.status !== 'LoggedIn') {
+    if (ext.api.status !== 'LoggedIn') {
         vscode.window.showInformationMessage('You are not logged in. Please log in to continue.');
         return;
     }
     const projects = await ProjectRegistry.getInstance().getProjects(ext.api.selectedOrg?.id!);
     const currentProject = await ext.api.getChoreoProject();
     const quickPicks: vscode.QuickPickItem[] = projects.map(project => {
+        const currentlyOpened = currentProject?.id === project.id;
+        const location = ProjectRegistry.getInstance().getProjectLocation(project.id);
+        let detail = '';
+        if (currentlyOpened) {
+            detail = 'Currently opened';
+        } else if (location) {
+            detail = 'Local copy at ' + path.dirname(location);
+        } else {
+            detail = 'Not cloned locally';
+        }
         return {
             label: project.name,
-            description: project.version + (project.id === currentProject?.id ? ' (opened) ' : ''),
-            detail: project.description.trim() !== '' ? project.description : undefined,
+            description: project.description,
+            detail,
         };
     });
     quickPicks.push({
@@ -42,7 +54,7 @@ export async function openChoreoProject() {
         label: '+',
     });
     quickPicks.push({
-        label: 'Create new Project',
+        label: 'Create new',
         detail: 'Create and open a new Choreo project',
     });
 
@@ -51,8 +63,52 @@ export async function openChoreoProject() {
         title: 'Select a project to continue',
         canPickMany: false,
         matchOnDescription: true,
-        matchOnDetail: true,
+        matchOnDetail: false,
     });
-    // show a quick pick with a title and list of projects to select from, each item should have a description
-    // and a detail, also show a button to create a new project
+
+    // show project creation wizard if user selects the last item
+    if (selection?.label === 'Create new') {
+        vscode.commands.executeCommand(createNewProjectCmdId);
+        return;
+    }
+    // if the selected project is already opened, show a message and return
+    if (selection?.label === currentProject?.name) {
+        vscode.window.showInformationMessage('The project is already opened in current window.');
+        return;
+    }
+
+    const selectedProject = projects.find(project => project.name === selection?.label);
+    if (selectedProject) {
+        const projectLocation = ProjectRegistry.getInstance().getProjectLocation(selectedProject.id);
+        if (projectLocation) {
+            // ask user where to open the project, current window or a new window
+            const openInCurrentWorkspace = await vscode.window.showInformationMessage(
+                'Where do you want to open the project?',
+                {
+                    modal: true,
+                },
+                'Current Window',
+                'New Window',
+            );
+            if (openInCurrentWorkspace === 'Current Window') {
+                await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectLocation), {
+                    forceNewWindow: false,
+                });
+            } else if (openInCurrentWorkspace === 'New Window') {
+                await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectLocation), {
+                    forceNewWindow: true,
+                });
+            }
+        } else {
+            // Project is not cloned yet, clone the project and open it
+            const cloneSelection = await vscode.window.showInformationMessage(
+                'The project is not cloned yet. Do you want to clone and open it?',
+                'OK',
+                'Cancel'
+            );
+            if (cloneSelection === 'OK') {
+                cloneProject(selectedProject);
+            }
+        }
+    }
 }

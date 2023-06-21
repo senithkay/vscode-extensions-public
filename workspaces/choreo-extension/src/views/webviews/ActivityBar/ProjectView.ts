@@ -49,8 +49,7 @@ export class ProjectView implements vscode.WebviewViewProvider {
 	private async updateProjectInfo() {
 		const currentProject = await ext.api.getChoreoProject();
 		if (currentProject && this._view) {
-			this._view.title = "Project: " + currentProject.name;
-			this._view.description = currentProject.description;
+			this._view.description = currentProject.name;
 		}
 	}
 
