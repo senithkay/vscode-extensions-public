@@ -161,6 +161,7 @@ async function handleNewValues(packageName: string, newValues: ConfigProperty[],
     const openConfigButton = { title: btnTitle, isCloseAffordance: true };
     const ignoreButton = { title: 'Run Anyway' };
 
+    await new Promise((resolve) => setTimeout(resolve, 500));
     const result = await window.showInformationMessage(message, { detail: "", modal: true }, openConfigButton, ignoreButton);
     const docLink = "https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax";
     if (result === openConfigButton) {
