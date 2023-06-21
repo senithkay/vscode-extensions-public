@@ -4,7 +4,7 @@
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 import * as React from "react";
 import { IntlProvider } from "react-intl";
@@ -33,7 +33,7 @@ import LowCodeEditor, { getSymbolInfo, InsertorDelete } from "..";
 import "../assets/fonts/Glimer/glimer.css";
 import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import { STFindingVisitor } from "../Diagram/visitors/st-finder-visitor";
-import { DiagramViewManager } from "../DiagramViewManager";
+import { DiagramViewManager } from "../DiagramViewManagerClone";
 import messages from '../lang/en.json';
 import { CirclePreloader } from "../PreLoader/CirclePreloader";
 import { MESSAGE_TYPE, SelectedPosition } from "../types";

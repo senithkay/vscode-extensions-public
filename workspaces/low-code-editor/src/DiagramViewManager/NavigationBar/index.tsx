@@ -4,7 +4,7 @@
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useContext, useMemo } from "react";
@@ -88,7 +88,7 @@ export function NavigationBar(props: NavigationBarProps) {
         return (
             <div className="btn-container" ref={popoverRef} onClick={handlePojectSelectorOpen} >
                 <PackageIcon className={'icon'} />
-                    <Typography variant="h4">{currentProject?.name || ''}</Typography>
+                <Typography variant="h4">{currentProject?.name || ''}</Typography>
                 <ArrowDropDown />
                 <Popover
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'left', }}

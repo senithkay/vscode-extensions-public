@@ -144,11 +144,13 @@ export async function exchangeAuthToken(authCode: string) {
 
             await tokenStore.setToken("choreo.token", response);
             getLogger().debug("Successfully exchanged auth code to token.");
-            await chooseOrgAndExchangeVSCodeToken();
+            await signin();
+            vscode.window.showInformationMessage("Successfully signed in to Choreo.");
             getLogger().info("Total sign in time: " + (Date.now() - currentTime));
         } catch (error: any) {
-            getLogger().error("Error while exchanging the auth code! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
-            vscode.window.showErrorMessage(error.message);
+            const errMsg = "Error while exchanging the auth code! " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : "");
+            getLogger().error(errMsg);
+            vscode.window.showErrorMessage("Error while signing in to Choreo! " + error.message);
             signOut();
         }
     }
@@ -189,50 +191,51 @@ export async function exchangeRefreshToken(refreshToken: string) {
     }
 }
 
-export async function chooseOrgAndExchangeVSCodeToken(isExistingSession?: boolean) {
-    getLogger().debug("Getting the org list.");
+export async function chooseUserOrg(isExistingSession?: boolean): Promise<Organization|undefined> {
     const choreoTokenInfo = await tokenStore.getToken("choreo.token");
     if (choreoTokenInfo?.accessToken && choreoTokenInfo.expirationTime
         && choreoTokenInfo.loginTime && choreoTokenInfo.refreshToken) {
+        getLogger().debug("Getting the org list of current user.");
         try {
             var currentTime = Date.now();
-            let orgs: Organization[] = [];
+            let selectedOrg: Organization;
             if (!isExistingSession) {
+                getLogger().debug("Validating the user.");
                 // If its a fresh login, we need to get the user info to get the org list.
                 const userInfo = await userManagementClient.validateUser();
                 ext.api.userInfo = userInfo;
-                orgs = userInfo.organizations;
+                selectedOrg = await getDefaultSelectedOrg(userInfo?.organizations);
             } else {
-                orgs = await orgClient.getOrganizations();
-            }
-            if (ext.api.userInfo) {
-                ext.api.userInfo.organizations = orgs;
+                getLogger().debug("Getting the org list.");
+                const orgs = await orgClient.getOrganizations();
+                if (ext.api.userInfo) {
+                    ext.api.userInfo.organizations = orgs;
+                }
+                selectedOrg = await getDefaultSelectedOrg(orgs);
             }
             getLogger().info("get user info request time: " + (Date.now() - currentTime));
             getLogger().debug("Successfully retrived user info.");
-            const selectedOrg = await getDefaultSelectedOrg(orgs);
-            await exchangeVSCodeToken(choreoTokenInfo?.accessToken, selectedOrg.handle);
-            ext.api.selectedOrg = selectedOrg;
-            ext.api.status = STATUS_LOGGED_IN;
-            vscode.window.showInformationMessage(`Successfully signed into Choreo!`);
-            showChoreoProjectOverview();
+            return selectedOrg;
         } catch (error: any) {
             if (error.cause.response?.status === 404) {
-                registerUser();
-            } else {
-                if (isExistingSession) {
-                    sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
-                }
-                getLogger().error("Error while signing in! " + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
-                getLogger().debug("Attempting to access sign in error payload!" + (error.cause?.response ? "\nPayload: " + JSON.stringify(error.cause?.response?.data) : ""));
-                vscode.window.showErrorMessage(CHOREO_AUTH_ERROR_PREFIX + error.message);
+                getLogger().warn("User not found. Prompting to open signup page.");
+                promptToOpenSignupPage();
+                return;
             }
-            signOut();
+            if (isExistingSession) {
+                sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
+            }
+            const errMsg = "Error getting User Org: " + error?.message  + (error?.cause ? " Cause: " + error.cause.message : "");
+            getLogger().error(errMsg);
+            getLogger().debug("Error payload: " + (error.cause?.response ? JSON.stringify(error.cause?.response?.data) : ""));
+            throw new Error(errMsg);
         }
     }
+    throw new Error("Choreo token not found in keychain.");
 }
 
-export async function registerUser() {
+
+export async function promptToOpenSignupPage() {
     const signUpURL = authClient.getSignUpURL();
     await vscode.window.showInformationMessage("Please complete signup in the Choreo Console", "Sign Up").then((selection) => {
         if (selection === "Sign Up") {
@@ -263,6 +266,21 @@ export async function exchangeOrgAccessTokens( orgHandle: string) {
     } else {
         throw new Error("Choreo token not found in token store!");
     }
+}
+
+export async function signin(isExistingSession?: boolean) {
+    const selectedOrg = await chooseUserOrg(isExistingSession);
+    const choreoTokenInfo = await getChoreoToken("choreo.token");
+    if (!choreoTokenInfo?.accessToken) {
+        throw new Error("Choreo token not found in token store!");
+    }
+    if (!selectedOrg) {
+        throw new Error("No organizations found for the user.");
+    }
+    await exchangeVSCodeToken(choreoTokenInfo?.accessToken, selectedOrg.handle);
+    ext.api.selectedOrg = selectedOrg;
+    ext.api.status = STATUS_LOGGED_IN;
+    showChoreoProjectOverview();
 }
 
 export async function signOut() {

@@ -4,7 +4,7 @@
  * This software is the property of WSO2 LLC. and its suppliers, if any.
  * Dissemination of any information or reproduction of any material contained
  * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
+ * You may not alter or remove any copyright or other notice from copies of this content.
  */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useMemo, useReducer, useState } from "react";
@@ -161,7 +161,7 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
             const targetST = state.prevST[action.index];
             return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
         }
-        case ViewOption.RESET:  {
+        case ViewOption.RESET: {
             return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED };
         }
         case ViewOption.INITIALIZE: {

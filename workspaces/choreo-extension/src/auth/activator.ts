@@ -11,12 +11,12 @@
  *  associated services.
  */
 import { ProgressLocation, commands, window } from "vscode";
-import { getChoreoToken, initiateInbuiltAuth as openAuthURL, chooseOrgAndExchangeVSCodeToken, signOut, tokenStore } from "./auth";
+import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signOut, tokenStore, signin } from "./auth";
 import { ext } from '../extensionVariables';
 import { STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent } from '../telemetry/utils';
-import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
+import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
 import * as vscode from 'vscode';
 
 export async function activateAuth() {
@@ -87,7 +87,7 @@ export async function activateAuth() {
             if (apimResponse) {
                 const choreoTokenInfo = JSON.parse(apimResponse);
                 await tokenStore.setToken("choreo.token", choreoTokenInfo);
-                await chooseOrgAndExchangeVSCodeToken();
+                await signin();
             } else {
                 window.showErrorMessage("APIM token response is required to login");
             }
@@ -109,8 +109,14 @@ async function initFromExistingChoreoSession() {
         ext.api.status = STATUS_LOGGING_IN;
         sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_START_EVENT);
         getLogger().debug("Found existing Choreo session");
-        await chooseOrgAndExchangeVSCodeToken(true);
-        sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT);
+        try {
+            await signin(true);
+            sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT);
+        } catch (error: any) {
+            getLogger().error("Error while signing in from existing Choreo session. " + error?.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
+            sendTelemetryEvent(SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, { cause: error?.message });
+            await signOut();
+        }
     } else {
         getLogger().debug("No existing Choreo session found");
         await signOut();
