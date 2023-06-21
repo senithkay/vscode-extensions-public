@@ -13,9 +13,12 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { ReactNode } from "react";
 
+import { Divider } from "@material-ui/core";
 import { createStyles, makeStyles } from "@material-ui/core/styles";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { InfoOutlined } from "@material-ui/icons";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
+import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { TreeContainer } from "../commons/Tree/Tree";
 
 interface UnsupportedIOProp {
@@ -24,7 +27,8 @@ interface UnsupportedIOProp {
 
 interface UnsupportedExprProps {
     filePath: string;
-    exprPosition: NodePosition;
+    unsupportedExpr: STNode;
+    context: IDataMapperContext;
 }
 
 interface UnsupportedIOProps {
@@ -39,10 +43,29 @@ const useStyles = makeStyles(() =>
         unsupportedIOBanner: {
             width: "320px"
         },
-        filePath: {
+        infoContainer: {
+            display: 'flex',
+            lineHeight: 'initial',
+            fontSize: '13.5px',
+            padding: '5px'
+        },
+        unsupportedFile: {
+            color: "#0000FF",
+            backgroundColor: "#f4f4f4",
             fontFamily: "monospace",
-            fontWeight: 100
-        }
+            fontWeight: 100,
+            cursor: "pointer",
+            '&:hover': {
+                textDecoration: "underline"
+            }
+        },
+        infoSymbol: {
+            fontSize: "17px",
+            marginRight: "5px"
+        },
+        divider: {
+            margin: '5px 0px'
+        },
     })
 );
 
@@ -58,32 +81,44 @@ function UnsupportedIOWidget({ children }: UnsupportedIOProp) {
 }
 
 export function UnsupportedIO({ message }: UnsupportedIOProps) {
+    const classes = useStyles();
+
     return (
         <UnsupportedIOWidget>
-            <span>
-                {message}
-            </span>
+            <div className={classes.infoContainer}>
+                <InfoOutlined className={classes.infoSymbol} />
+                <span>{message}</span>
+            </div>
         </UnsupportedIOWidget>
     );
 }
 
-export function UnsupportedExpr({ filePath, exprPosition }: UnsupportedExprProps) {
+export function UnsupportedExpr({ filePath, unsupportedExpr, context }: UnsupportedExprProps) {
     const classes = useStyles();
+
+    const handleGoToSource = () => {
+        context.goToSource({
+                startLine: unsupportedExpr.position.startLine,
+                startColumn: unsupportedExpr.position.startColumn
+            }, filePath);
+    }
+
+
     return (
         <UnsupportedIOWidget>
-            <span>
-                {`The expression at `}
-            </span>
-            <span className={classes.filePath}>
-                {`${filePath}:${exprPosition.startLine}:${exprPosition.startColumn} `}
-            </span>
-            <span>
-                {`is currently not supported by the Data Mapper.`}
-            </span>
-            <br/><br/>
-            <span>
-                {`Please change the source and try again`}
-            </span>
+            <div className={classes.infoContainer}>
+                <InfoOutlined className={classes.infoSymbol} />
+                <span>{`Unsupported Expression`}</span>
+            </div>
+            <Divider className={classes.divider} light={true} />
+            <a
+                onClick={handleGoToSource}
+                className={classes.unsupportedFile}
+            >
+                {`${unsupportedExpr?.value || unsupportedExpr.source}`}
+            </a>
+            <div>{`Conditional outputs are not supported by the Data Mapper.`}</div>
+            <span>{`Please change the source and try again.`}</span>
         </UnsupportedIOWidget>
     );
 }

@@ -132,6 +132,7 @@ export function DataMapperWrapper(props: DataMapperWrapperProps) {
                             filePath={filePath}
                             applyModifications={applyModifications}
                             updateFileContent={updateActiveFileContent}
+                            goToSource={() => { }}
                             onClose={() => { }}
                             onSave={() => { }}
                             library={{

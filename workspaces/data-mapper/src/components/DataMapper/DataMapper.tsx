@@ -102,6 +102,7 @@ export interface DataMapperProps {
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => Promise<void>;
     updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
+    goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
     onSave: (fnName: string) => void;
     onClose: () => void;
     library: {
@@ -187,6 +188,7 @@ function DataMapperC(props: DataMapperProps) {
         stSymbolInfo,
         applyModifications,
         updateFileContent,
+        goToSource,
         library,
         onClose,
         onSave,
@@ -328,6 +330,7 @@ function DataMapperC(props: DataMapperProps) {
                     stSymbolInfo,
                     handleSelectedST,
                     applyModifications,
+                    goToSource,
                     diagnostics,
                     enableStatementEditor,
                     collapsedFields,

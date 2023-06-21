@@ -11,7 +11,7 @@
  * associated services.
  */
 import { Point } from "@projectstorm/geometry";
-import { NodePosition } from "@wso2-enterprise/syntax-tree";
+import { STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperNodeModel } from "../commons/DataMapperNode";
@@ -33,7 +33,7 @@ export class UnsupportedIONode extends DataMapperNodeModel {
         public context: IDataMapperContext,
         public kind: UnsupportedExprNodeKind,
         public message?: string,
-        public exprPosition?: NodePosition
+        public unsupportedExpr?: STNode
     ) {
         super(
             context,

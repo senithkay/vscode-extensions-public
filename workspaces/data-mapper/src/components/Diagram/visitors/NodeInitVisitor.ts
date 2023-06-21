@@ -114,7 +114,7 @@ export class NodeInitVisitor implements Visitor {
                         this.context,
                         UnsupportedExprNodeKind.Output,
                         undefined,
-                        bodyExpr.position,
+                        bodyExpr,
                     );
                 } else if (STKindChecker.isQueryExpression(bodyExpr)) {
                     if (this.context.selection.selectedST.fieldPath === FUNCTION_BODY_QUERY) {
@@ -393,7 +393,7 @@ export class NodeInitVisitor implements Visitor {
                         this.context,
                         UnsupportedExprNodeKind.Output,
                         undefined,
-                        innerExpr.position,
+                        innerExpr,
                     );
                 } else if (exprType?.typeName === PrimitiveBalType.Array) {
                     if (exprType.memberType.typeName === PrimitiveBalType.Record) {

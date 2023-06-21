@@ -40,7 +40,8 @@ export class UnsupportedIONodeFactory extends AbstractReactFactory<UnsupportedIO
 				) : (
 					<UnsupportedExpr
 						filePath={event.model.filePath}
-						exprPosition={event.model.exprPosition}
+						unsupportedExpr={event.model.unsupportedExpr}
+						context={event.model.context}
 					/>
 				)}
 			</>
