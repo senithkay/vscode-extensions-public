@@ -246,8 +246,11 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                         data-testid={"union-type-selector-list"}
                     >
                         <div className={classes.warningText}>
-                            <WarningOutlined />
-                            <span>Types are ambiguous. Please select a type to continue.</span>
+                            <div className={classes.warningContainer}>
+                                <WarningOutlined className={classes.warningSymbol} />
+                                <span>{`Types are ambiguous.`}</span>
+                            </div>
+                            <span>{`Please select a type to continue.`}</span>
                         </div>
                         <UnionTypeSelector
                             context={context}

@@ -83,10 +83,17 @@ export const useStyles = makeStyles((theme: Theme) =>
                 marginRight: '3px',
                 alignSelf: 'center'
             },
-            warningText: {
-                color:  '#e85454',
+            warningContainer: {
                 display: 'flex',
-                justifyContent: 'space-between'
+                alignItems: 'center'
+            },
+            warningText: {
+                color:  '#FF0000',
+                fontSize: '13.5px',
+            },
+            warningSymbol: {
+                fontSize: '16px',
+                marginRight: '5px'
             },
         }),
     { index: 1 }
