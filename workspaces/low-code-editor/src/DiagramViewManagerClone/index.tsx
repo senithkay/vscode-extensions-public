@@ -11,7 +11,7 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core";
-import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
@@ -33,6 +33,9 @@ import { theme } from './theme';
 import { getDiagramProviderProps } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
+import { UndoRedoManager } from "./utils/UndoRedoManager";
+
+const undoRedoManager = new UndoRedoManager();
 
 export function DiagramViewManager(props: EditorProps) {
     const {
@@ -87,6 +90,21 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         setUpdatedTimeStamp(lastUpdatedAt);
     }, [lastUpdatedAt]);
+
+    useEffect(() => {
+        const mouseTrapClient = KeyboardNavigationManager.getClient();
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => {
+            console.log("undo");
+        });
+
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], () => {
+            console.log("redo");
+        });
+
+        return () => {
+            mouseTrapClient.resetMouseTrapInstance();
+        }
+    }, [focusedST]);
 
     useEffect(() => {
         if (history.length > 0) {
@@ -184,6 +202,12 @@ export function DiagramViewManager(props: EditorProps) {
         }
     }, [history[history.length - 1], updatedTimeStamp]);
 
+    useEffect(() => {
+        if (history.length > 0) {
+            undoRedoManager.clear();
+        }
+    }, [history[history.length - 1].file]);
+
     const updateActiveFile = (currentFile: FileListEntry) => {
         historyPush({ file: currentFile.uri.path });
     };
@@ -215,6 +239,7 @@ export function DiagramViewManager(props: EditorProps) {
         lowCodeResourcesVersion,
         balVersion,
         props,
+        undoRedoManager,
         setFocusedST,
         setCompleteST,
         setCurrentFileContent,
