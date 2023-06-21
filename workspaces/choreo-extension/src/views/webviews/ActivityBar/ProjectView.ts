@@ -41,9 +41,16 @@ export class ProjectView implements vscode.WebviewViewProvider {
 				this._extensionUri
 			]
 		};
-
 		webviewView.webview.html = this._getWebviewContent(webviewView.webview);
 		this._rpc = new WebViewViewRPC(webviewView);
+		this.updateProjectInfo();
+	}
+
+	private async updateProjectInfo() {
+		const currentProject = await ext.api.getChoreoProject();
+		if (currentProject && this._view) {
+			this._view.description = currentProject.name;
+		}
 	}
 
 	private _getWebviewContent(webview: vscode.Webview) {
