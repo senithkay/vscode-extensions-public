@@ -28,7 +28,12 @@ import {
     getTypeName
 } from "../../utils/dm-utils";
 import { getModification } from "../../utils/modifications";
-import { getSupportedUnionTypes, UnionTypeInfo } from "../../utils/union-type-utils";
+import {
+    CLEAR_EXISTING_MAPPINGS_WARNING,
+    getSupportedUnionTypes,
+    INCOMPATIBLE_CASTING_WARNING,
+    UnionTypeInfo
+} from "../../utils/union-type-utils";
 import { ValueConfigMenu } from "../commons/DataManipulationWidget/ValueConfigButton";
 import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
 import { TypeDescriptor } from "../commons/DataMapperNode";
@@ -185,23 +190,30 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                 if (!isResolvedType) {
                     menuItems.push({
                         title: `Change type cast to ${memberTypeName}`,
-                        onClick: () => handleWrapWithTypeCast(member, false)
+                        onClick: () => handleWrapWithTypeCast(member, false),
+                        level: 2,
+                        warningMsg: INCOMPATIBLE_CASTING_WARNING
                     });
                 }
             } else if (supportedTypes.length > 1) {
                 if (isResolvedType) {
                     menuItems.push({
                         title: `Cast type as ${memberTypeName}`,
-                        onClick: () => handleWrapWithTypeCast(member, false)
+                        onClick: () => handleWrapWithTypeCast(member, false),
+                        level: 0
                     });
                 } else {
                     menuItems.push(
                         {
-                            title: `Cast type as ${memberTypeName}!`,
-                            onClick: () => handleWrapWithTypeCast(member, false)
+                            title: `Cast type as ${memberTypeName}`,
+                            onClick: () => handleWrapWithTypeCast(member, false),
+                            level: 1,
+                            warningMsg: INCOMPATIBLE_CASTING_WARNING
                         }, {
                             title: `Re-initialize as ${memberTypeName}`,
-                            onClick: () => handleWrapWithTypeCast(member, true)
+                            onClick: () => handleWrapWithTypeCast(member, true),
+                            level: 3,
+                            warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
                         }
                     );
                 }

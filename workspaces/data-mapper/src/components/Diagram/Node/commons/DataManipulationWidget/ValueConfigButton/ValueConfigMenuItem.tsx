@@ -19,13 +19,16 @@ const useStyles = makeStyles((theme: Theme) =>
         itemContainer: {
             display: 'flex',
             justifyContent: 'space-between',
-            width: '100%'
+            width: '100%',
+            alignItems: 'center'
         },
         symbol: {
             alignSelf: 'flex-end',
         },
         warning: {
-            color: '#e85454'
+            color: '#e85454',
+            fontSize: '16px',
+            marginLeft: '5px'
         }
     }),
 );
