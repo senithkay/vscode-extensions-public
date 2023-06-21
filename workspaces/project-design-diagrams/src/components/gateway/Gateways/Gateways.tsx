@@ -17,7 +17,7 @@ export function Gateways() {
 
     const westGWLeft = '-30px';
     const westGWTop = consoleView ? `calc(48% - 40px)` : `calc(50% - 40px)`;
-    const northGWLeft = `calc(50% - 40px)`;
+    const northGWLeft = `calc(50% - 30px)`;
     const northGWTop = '0px';
 
     return (
