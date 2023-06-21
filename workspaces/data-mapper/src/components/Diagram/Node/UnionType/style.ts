@@ -77,6 +77,12 @@ export const useStyles = makeStyles((theme: Theme) =>
                 overflow: 'hidden',
                 textOverflow: 'ellipsis'
             },
+            loader: {
+                float: "right",
+                marginLeft: "auto",
+                marginRight: '3px',
+                alignSelf: 'center'
+            },
         }),
     { index: 1 }
 );

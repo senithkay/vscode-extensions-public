@@ -13,13 +13,23 @@
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React, { useState } from "react";
 
+import { CircularProgress } from "@material-ui/core";
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { IdentifierToken, STNode } from "@wso2-enterprise/syntax-tree";
+import { STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { IdentifierToken, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
 import { IDataMapperContext } from "../../../../utils/DataMapperContext/DataMapperContext";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../Port';
-import { UnionTypeInfo } from "../../utils/union-type-utils";
+import {
+    getDefaultValue,
+    getExprBodyFromLetExpression,
+    getExprBodyFromTypeCastExpression,
+    getTypeName
+} from "../../utils/dm-utils";
+import { getModification } from "../../utils/modifications";
+import { getSupportedUnionTypes, UnionTypeInfo } from "../../utils/union-type-utils";
+import { ValueConfigMenu } from "../commons/DataManipulationWidget/ValueConfigButton";
+import { ValueConfigMenuItem } from "../commons/DataManipulationWidget/ValueConfigButton/ValueConfigMenuItem";
 import { TypeDescriptor } from "../commons/DataMapperNode";
 import { OutputSearchHighlight } from "../commons/Search";
 import { TreeBody, TreeContainer, TreeHeader } from '../commons/Tree/Tree';
@@ -58,9 +68,11 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
         getPort
     } = props;
     const { typeNames, resolvedTypeName } = unionTypeInfo;
+    const {	applyModifications } = context;
     const classes = useStyles();
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
     const [isHovered, setIsHovered] = useState(false);
+    const [isModifyingTypeCast, setIsModifyingTypeCast] = useState(false);
 
     const portIn = getPort(`${id}.IN`);
 
@@ -105,6 +117,101 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
 		</span>
     );
 
+    const getTargetPositionForReInitWithTypeCast = () => {
+        const rootValueExpr = unionTypeInfo.valueExpr.expression;
+        const valueExpr: STNode = STKindChecker.isLetExpression(rootValueExpr)
+            ? getExprBodyFromLetExpression(rootValueExpr)
+            : rootValueExpr;
+
+        return valueExpr.position;
+    }
+
+    const getTargetPositionForWrapWithTypeCast = () => {
+        const rootValueExpr = unionTypeInfo.valueExpr.expression;
+        const valueExpr: STNode = STKindChecker.isLetExpression(rootValueExpr)
+            ? getExprBodyFromLetExpression(rootValueExpr)
+            : rootValueExpr;
+        const valueExprPosition: NodePosition = valueExpr.position;
+
+        let targetPosition: NodePosition = {
+            ...valueExprPosition,
+            endLine: valueExprPosition.startLine,
+            endColumn: valueExprPosition.startColumn
+        }
+
+        if (STKindChecker.isTypeCastExpression(valueExpr)) {
+            const exprBodyPosition = getExprBodyFromTypeCastExpression(valueExpr).position;
+            targetPosition = {
+                ...valueExprPosition,
+                endLine: exprBodyPosition.startLine,
+                endColumn: exprBodyPosition.startColumn
+            };
+        }
+
+        return targetPosition;
+    }
+
+    const handleWrapWithTypeCast = async (type: Type, shouldReInitialize?: boolean) => {
+        setIsModifyingTypeCast(true)
+        try {
+            const name = getTypeName(type);
+            const modification: STModification[] = [];
+            if (shouldReInitialize) {
+                const defaultValue = getDefaultValue(type.typeName);
+                const targetPosition = getTargetPositionForReInitWithTypeCast();
+                modification.push(getModification(`<${name}>${defaultValue}`, targetPosition));
+            } else {
+                const targetPosition = getTargetPositionForWrapWithTypeCast();
+                modification.push(getModification(`<${name}>`, targetPosition));
+            }
+            await applyModifications(modification);
+        } finally {
+            setIsModifyingTypeCast(false);
+        }
+    };
+
+    const getTypedElementMenuItems = () => {
+        const menuItems: ValueConfigMenuItem[] = [];
+        const supportedTypes = getSupportedUnionTypes(unionTypeInfo.unionType);
+
+        for (const member of unionTypeInfo.unionType.members) {
+            const memberTypeName = getTypeName(member);
+            if (!supportedTypes.includes(memberTypeName)) {
+                continue;
+            }
+            const isResolvedType = memberTypeName === resolvedTypeName;
+            if (unionTypeInfo.isResolvedViaTypeCast) {
+                if (!isResolvedType) {
+                    menuItems.push({
+                        title: `Change type cast to ${memberTypeName}`,
+                        onClick: () => handleWrapWithTypeCast(member, false)
+                    });
+                }
+            } else if (supportedTypes.length > 1) {
+                if (isResolvedType) {
+                    menuItems.push({
+                        title: `Cast type as ${memberTypeName}`,
+                        onClick: () => handleWrapWithTypeCast(member, false)
+                    });
+                } else {
+                    menuItems.push(
+                        {
+                            title: `Cast type as ${memberTypeName}!`,
+                            onClick: () => handleWrapWithTypeCast(member, false)
+                        }, {
+                            title: `Re-initialize as ${memberTypeName}`,
+                            onClick: () => handleWrapWithTypeCast(member, true)
+                        }
+                    );
+                }
+            }
+        }
+
+        return menuItems;
+    };
+
+    const valConfigMenuItems = unionTypeInfo && getTypedElementMenuItems();
+
     return (
         <TreeContainer data-testid={"union-type-selector-node"}>
             <TreeHeader
@@ -121,6 +228,15 @@ export function UnionTypeTreeWidget(props: UnionTypeTreeWidgetProps) {
                 <span className={classes.label}>
                     {label}
                 </span>
+                {unionTypeInfo && resolvedTypeName && (
+                    <>
+                        {isModifyingTypeCast ? (
+                            <CircularProgress size={18} className={classes.loader} />
+                        ) : (
+                            <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
+                        )}
+                    </>
+                )}
             </TreeHeader>
             {!resolvedTypeName && (
                 <TreeBody>
