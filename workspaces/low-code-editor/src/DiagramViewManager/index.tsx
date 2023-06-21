@@ -420,7 +420,7 @@ export function DiagramViewManager(props: EditorProps) {
         updateSelectedComponent,
         navigateUptoParent,
         setUpdatedTimeStamp
-    )
+    );
 
     return (
         <div>

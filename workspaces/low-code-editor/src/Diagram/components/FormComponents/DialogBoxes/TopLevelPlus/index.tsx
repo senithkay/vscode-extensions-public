@@ -22,16 +22,17 @@ import { PlusOptionsSelector } from "./PlusOptionsSelector";
 
 export function TopLevelOptionRenderer(props: FormGeneratorProps) {
     const { onCancel } = props;
-    const { kind, targetPosition, isTriggerType, showCategorized } = props.configOverlayFormStatus.formArgs;
+    const {
+        kind, targetPosition, isTriggerType, showCategorized, fileList
+    } = props.configOverlayFormStatus.formArgs;
 
     const {
         api: {
             navigation: { updateActiveFile },
         },
-        props: { currentFile, fileList, fullST },
+        props: { currentFile, fullST },
     } = useDiagramContext();
 
-    const [showFileList, setShowFileList] = useState(currentFile.path && fullST ? false : true);
     const [position, setPosition] = useState<NodePosition>(targetPosition);
 
     useEffect(() => {
@@ -46,13 +47,14 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
     }, [fullST]);
 
     const handleFileSelect = (entry: FileListEntry) => {
-        setShowFileList(false);
         updateActiveFile(entry);
     };
 
     const handleGoBack = () => {
-        setShowFileList(true);
-    };
+        // setShowFileList(true);
+    }
+
+    const showFileList = !currentFile.path.endsWith('.bal');
 
     return (
         <>
@@ -64,7 +66,7 @@ export function TopLevelOptionRenderer(props: FormGeneratorProps) {
                         defaultMessage={"Select a file to add a component"}
                     />
                     <List component="nav" style={{ width: 315 }}>
-                        {fileList.map((file, index) => (
+                        {fileList.map((file: any, index: any) => (
                             <ListItem button={true} key={index} onClick={() => handleFileSelect(file)}>
                                 <ListItemText primary={file.fileName} secondary={file.uri.path} />
                             </ListItem>

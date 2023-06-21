@@ -9,14 +9,18 @@
 // tslint:disable: jsx-no-multiline-js
 import React, { useState } from "react";
 
-import { Button } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
+import { FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
 import { FormGenerator } from "../../../Diagram/components/FormComponents/FormGenerator";
 
 import { useStyles } from './styles';
 
-export function TopLevelActionButton() {
+export interface TopLevelActionButtonProps {
+    fileList: FileListEntry[];
+}
+
+export function TopLevelActionButton(props: TopLevelActionButtonProps) {
     const [showDrawer, setShowDrawer] = useState(false);
     const classes = useStyles();
 
@@ -48,6 +52,7 @@ export function TopLevelActionButton() {
                             isTriggerType: false,
                             isLastMember: true,
                             showCategorized: true,
+                            fileList: props.fileList
                         },
                         isLoading: false,
                     }}

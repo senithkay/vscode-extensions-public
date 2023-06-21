@@ -161,7 +161,7 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
             const targetST = state.prevST[action.index];
             return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
         }
-        case ViewOption.RESET:  {
+        case ViewOption.RESET: {
             return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED };
         }
         case ViewOption.INITIALIZE: {
