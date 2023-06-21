@@ -88,9 +88,11 @@ export type EditorProps = EditorState & EditorAPI;
 
 export const WorkspaceOverview: React.FC<EditorProps> = (props: EditorProps) => {
     return (
-        <OverviewDiagramGenerator
-            {...props}
-        />
+        <DiagramGenErrorBoundary lastUpdatedAt={props.lastUpdatedAt}>
+            <OverviewDiagramGenerator
+                {...props}
+            />
+        </DiagramGenErrorBoundary>
     )
 }
 

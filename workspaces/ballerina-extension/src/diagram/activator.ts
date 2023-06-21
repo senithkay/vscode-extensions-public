@@ -90,9 +90,10 @@ export async function showDiagramEditor(startLine: number, startColumn: number, 
 				projectPaths.push(workspaceFolder);
 			}
 		});
-	} else {
-		projectPaths.push(...workspace.workspaceFolders);
+	} else if (workspace && workspace.workspaceFolders) { 
+		projectPaths.push(...workspace.workspaceFolders); 
 	}
+	
 
 	if (isCommand) {
 		if (!editor) {
