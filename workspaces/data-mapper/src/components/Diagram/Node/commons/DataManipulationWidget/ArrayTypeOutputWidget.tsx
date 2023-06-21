@@ -24,6 +24,7 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../Port";
 import {
 	getDefaultValue,
+	getExprBodyFromLetExpression,
 	getExprBodyFromTypeCastExpression,
 	getInnermostExpressionBody,
 	getTypeName,
@@ -224,8 +225,20 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 		setPortState(state)
 	};
 
+	const getTargetPositionForReInitWithTypeCast = () => {
+		const rootValueExpr = unionTypeInfo.valueExpr.expression;
+		const valueExpr: STNode = STKindChecker.isLetExpression(rootValueExpr)
+			? getExprBodyFromLetExpression(rootValueExpr)
+			: rootValueExpr;
+
+		return valueExpr.position;
+	}
+
 	const getTargetPositionForWrapWithTypeCast = () => {
-		const valueExpr = unionTypeInfo.valueExpr.expression;
+		const rootValueExpr = unionTypeInfo.valueExpr.expression;
+		const valueExpr: STNode = STKindChecker.isLetExpression(rootValueExpr)
+			? getExprBodyFromLetExpression(rootValueExpr)
+			: rootValueExpr;
 		const valueExprPosition: NodePosition = valueExpr.position;
 
 		let targetPosition: NodePosition = {
@@ -253,7 +266,7 @@ export function ArrayTypeOutputWidget(props: ArrayTypeOutputWidgetProps) {
 			const modification: STModification[] = [];
 			if (shouldReInitialize) {
 				const defaultValue = getDefaultValue(type.typeName);
-				const targetPosition = unionTypeInfo.valueExpr.expression.position;
+				const targetPosition = getTargetPositionForReInitWithTypeCast();
 				modification.push(getModification(`<${name}>${defaultValue}`, targetPosition));
 			} else {
 				const targetPosition = getTargetPositionForWrapWithTypeCast();

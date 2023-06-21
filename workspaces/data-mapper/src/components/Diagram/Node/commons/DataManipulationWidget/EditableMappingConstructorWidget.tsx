@@ -23,7 +23,9 @@ import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../../Mappings/FieldAccessToSpecificFied";
 import { DataMapperPortWidget, PortState, RecordFieldPortModel } from '../../../Port';
 import {
-	getDefaultValue, getExprBodyFromTypeCastExpression,
+	getDefaultValue,
+	getExprBodyFromLetExpression,
+	getExprBodyFromTypeCastExpression,
 	getNewFieldAdditionModification,
 	getTypeName,
 	isEmptyValue
@@ -231,8 +233,20 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 		return fieldNames;
 	}, [editableRecordFields])
 
+	const getTargetPositionForReInitWithTypeCast = () => {
+		const rootValueExpr = unionTypeInfo.valueExpr.expression;
+		const valueExpr: STNode = STKindChecker.isLetExpression(rootValueExpr)
+			? getExprBodyFromLetExpression(rootValueExpr)
+			: rootValueExpr;
+
+		return valueExpr.position;
+	}
+
 	const getTargetPositionForWrapWithTypeCast = () => {
-		const valueExpr = unionTypeInfo.valueExpr.expression;
+		const rootValueExpr = unionTypeInfo.valueExpr.expression;
+		const valueExpr: STNode = STKindChecker.isLetExpression(rootValueExpr)
+			? getExprBodyFromLetExpression(rootValueExpr)
+			: rootValueExpr;
 		const valueExprPosition: NodePosition = valueExpr.position;
 
 		let targetPosition: NodePosition = {
@@ -260,7 +274,7 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 			const modification: STModification[] = [];
 			if (shouldReInitialize) {
 				const defaultValue = getDefaultValue(type.typeName);
-				const targetPosition = unionTypeInfo.valueExpr.expression.position;
+				const targetPosition = getTargetPositionForReInitWithTypeCast();
 				modification.push(getModification(`<${name}>${defaultValue}`, targetPosition));
 			} else {
 				const targetPosition = getTargetPositionForWrapWithTypeCast();

@@ -23,7 +23,12 @@ import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tre
 import { IDataMapperContext } from "../../../../../utils/DataMapperContext/DataMapperContext";
 import { EditableRecordField } from "../../../Mappings/EditableRecordField";
 import { DataMapperPortWidget, RecordFieldPortModel } from "../../../Port";
-import { getDefaultValue, getExprBodyFromTypeCastExpression, getTypeName } from "../../../utils/dm-utils";
+import {
+	getDefaultValue,
+	getExprBodyFromLetExpression,
+	getExprBodyFromTypeCastExpression,
+	getTypeName
+} from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
 import { getSupportedUnionTypes, UnionTypeInfo } from "../../../utils/union-type-utils";
 import { OutputSearchHighlight } from '../Search';
@@ -171,8 +176,20 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 		context.handleCollapse(fieldId, !expanded);
 	}
 
+	const getTargetPositionForReInitWithTypeCast = () => {
+		const rootValueExpr = unionTypeInfo.valueExpr.expression;
+		const valueExpr: STNode = STKindChecker.isLetExpression(rootValueExpr)
+			? getExprBodyFromLetExpression(rootValueExpr)
+			: rootValueExpr;
+
+		return valueExpr.position;
+	}
+
 	const getTargetPositionForWrapWithTypeCast = () => {
-		const valueExpr = unionTypeInfo.valueExpr.expression;
+		const rootValueExpr = unionTypeInfo.valueExpr.expression;
+		const valueExpr: STNode = STKindChecker.isLetExpression(rootValueExpr)
+			? getExprBodyFromLetExpression(rootValueExpr)
+			: rootValueExpr;
 		const valueExprPosition: NodePosition = valueExpr.position;
 
 		let targetPosition: NodePosition = {
@@ -200,7 +217,7 @@ export function PrimitiveTypeOutputWidget(props: PrimitiveTypeOutputWidgetProps)
 			const modification: STModification[] = [];
 			if (shouldReInitialize) {
 				const defaultValue = getDefaultValue(selectedType.typeName);
-				const targetPosition = unionTypeInfo.valueExpr.expression.position;
+				const targetPosition = getTargetPositionForReInitWithTypeCast();
 				modification.push(getModification(`<${name}>${defaultValue}`, targetPosition));
 			} else {
 				const targetPosition = getTargetPositionForWrapWithTypeCast();
