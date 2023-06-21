@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import { window, Uri, commands, workspace } from "vscode";
 import { existsSync, openSync, readFileSync, writeFile } from "fs";
@@ -161,7 +161,7 @@ async function handleNewValues(packageName: string, newValues: ConfigProperty[],
     const openConfigButton = { title: btnTitle, isCloseAffordance: true };
     const ignoreButton = { title: 'Run Anyway' };
 
-    const result = await window.showInformationMessage(message, openConfigButton, ignoreButton);
+    const result = await window.showInformationMessage(message, { detail: "", modal: true }, openConfigButton, ignoreButton);
     const docLink = "https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax";
     if (result === openConfigButton) {
         if (!existsSync(configFile)) {
@@ -174,7 +174,7 @@ async function handleNewValues(packageName: string, newValues: ConfigProperty[],
                     ignoreContent += `\n${CONFIG_FILE}\n`;
                     writeFile(ignoreUri.fsPath, ignoreContent, function (error) {
                         if (error) {
-                            return window.showInformationMessage('Unable to update the .gitIgnore file: ' + error);
+                            return window.showErrorMessage('Unable to update the .gitIgnore file: ' + error);
                         }
                         window.showInformationMessage('Successfully updated the .gitIgnore file.');
                     });
@@ -226,7 +226,7 @@ function updateConfigToml(newValues: ConfigProperty[], updatedContent, configPat
 
     writeFile(configPath, updatedContent, function (error) {
         if (error) {
-            return window.showInformationMessage("Unable to update the configurable values: " + error);
+            return window.showErrorMessage("Unable to update the configurable values: " + error);
         }
         window.showInformationMessage("Successfully updated the configurable values.");
     });
