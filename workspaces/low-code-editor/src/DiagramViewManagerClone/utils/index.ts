@@ -30,7 +30,8 @@ import {
 import { EditorProps, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
-import { UndoRedoManager } from "./UndoRedoManager";
+import { UndoRedoManager } from "../../Diagram/components/FormComponents/UndoRedoManager";
+
 
 export async function getSTNodeForReference(
     file: string,
@@ -132,9 +133,9 @@ export function getDiagramProviderProps(
                             uri
                         }
                     });
+                    undoRedoManager.addModification(currentFileContent);
                     let visitedST: STNode;
                     if (parseSuccess) {
-                        undoRedoManager.addModification(source);
                         setUpdateTimestamp(new Date().getTime().toString());
                         props.updateFileContent(fileToModify, source);
                         if (focusFile === fileToModify) {

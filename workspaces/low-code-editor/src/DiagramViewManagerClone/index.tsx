@@ -33,7 +33,7 @@ import { theme } from './theme';
 import { getDiagramProviderProps } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
-import { UndoRedoManager } from "./utils/UndoRedoManager";
+import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 
 const undoRedoManager = new UndoRedoManager();
 
@@ -93,12 +93,26 @@ export function DiagramViewManager(props: EditorProps) {
 
     useEffect(() => {
         const mouseTrapClient = KeyboardNavigationManager.getClient();
-        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], () => {
-            console.log("undo");
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
+            // tslint:disable-next-line: no-console
+            console.log("undo >>>");
+            const lastsource = undoRedoManager.undo();
+            if (lastsource) {
+                console.log("undo >>>", lastsource);
+                props.updateFileContent(history[history.length - 1].file, lastsource);
+                setUpdatedTimeStamp(new Date().getTime().toString());
+            }
         });
 
-        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], () => {
-            console.log("redo");
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => {
+            // tslint:disable-next-line: no-console
+            console.log("redo >>>");
+            const lastsource = undoRedoManager.redo();
+            if (lastsource) {
+                console.log("redo >>>", lastsource);
+                props.updateFileContent(history[history.length - 1].file, lastsource);
+                setUpdatedTimeStamp(new Date().getTime().toString());
+            }
         });
 
         return () => {
@@ -185,6 +199,7 @@ export function DiagramViewManager(props: EditorProps) {
                         }
                     }
 
+                    undoRedoManager.updateContent(file, content);
                     setFocusedST(selectedST);
                     setCompleteST(visitedST);
                     setCurrentFileContent(content);
@@ -203,10 +218,10 @@ export function DiagramViewManager(props: EditorProps) {
     }, [history[history.length - 1], updatedTimeStamp]);
 
     useEffect(() => {
-        if (history.length > 0) {
-            undoRedoManager.clear();
-        }
-    }, [history[history.length - 1].file]);
+        // if (history.length > 0) {
+        //     undoRedoManager.lear();
+        // }
+    }, [history[history.length - 1]?.file]);
 
     const updateActiveFile = (currentFile: FileListEntry) => {
         historyPush({ file: currentFile.uri.path });
