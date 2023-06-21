@@ -36,6 +36,9 @@ export interface UnionTypeInfo {
 	valueExpr: ExpressionFunctionBody | SelectClause;
 }
 
+export const CLEAR_EXISTING_MAPPINGS_WARNING = "This will clear the existing mappings associated with current type";
+export const INCOMPATIBLE_CASTING_WARNING = "This may leads to syntax errors if the type is not matched";
+
 export function resolveUnionType(expr: STNode, unionType: Type): Type {
 	let innerExpr = expr;
 	if (STKindChecker.isLetExpression(expr)) {

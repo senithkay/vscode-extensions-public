@@ -40,7 +40,7 @@ import {
     isEmptyValue
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
-import { getSupportedUnionTypes, getUnionTypes } from "../../../utils/union-type-utils";
+import { CLEAR_EXISTING_MAPPINGS_WARNING, getSupportedUnionTypes, getUnionTypes } from "../../../utils/union-type-utils";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
 import { OutputSearchHighlight } from "../Search";
 
@@ -366,7 +366,9 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 if (isUnresolvedUnionTypedElement) {
                     menuItems.push({
                         title: `Re-initialize as ${memberTypeName}`,
-                        onClick: () => handleWrapWithTypeCast(member, true)
+                        onClick: () => handleWrapWithTypeCast(member, true),
+                        level: 3,
+                        warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
                     })
                 } else {
                     const isResolvedType = memberTypeName === resolvedTypeName;
@@ -374,14 +376,26 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         if (!isResolvedType) {
                             menuItems.push({
                                 title: `Re-initialize as ${memberTypeName}`,
-                                onClick: () => handleWrapWithTypeCast(member, true)
+                                onClick: () => handleWrapWithTypeCast(member, true),
+                                level: 3,
+                                warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
                             });
                         }
                     } else if (supportedTypes.length > 1) {
-                        menuItems.push({
-                            title: `${isResolvedType ? 'Cast type' : 'Re-initialize'} as ${memberTypeName}`,
-                            onClick: () => handleWrapWithTypeCast(member, !isResolvedType)
-                        });
+                        if (isResolvedType) {
+                            menuItems.push({
+                                title: `Cast type as ${memberTypeName}`,
+                                onClick: () => handleWrapWithTypeCast(member),
+                                level: 0
+                            });
+                        } else {
+                            menuItems.push({
+                                title: `Re-initialize as ${memberTypeName}`,
+                                onClick: () => handleWrapWithTypeCast(member, true),
+                                level: 3,
+                                warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
+                            });
+                        }
                     }
                 }
             } else {

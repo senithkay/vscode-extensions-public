@@ -31,7 +31,12 @@ import {
 	isEmptyValue
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
-import { getSupportedUnionTypes, UnionTypeInfo } from "../../../utils/union-type-utils";
+import {
+	CLEAR_EXISTING_MAPPINGS_WARNING,
+	getSupportedUnionTypes,
+	INCOMPATIBLE_CASTING_WARNING,
+	UnionTypeInfo
+} from "../../../utils/union-type-utils";
 import { AddRecordFieldButton } from '../AddRecordFieldButton';
 import { OutputSearchHighlight } from '../Search';
 import { TreeBody, TreeContainer, TreeHeader } from '../Tree/Tree';
@@ -301,12 +306,16 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 				if (!isResolvedType) {
 					menuItems.push({
 						title: `Change type cast to ${memberTypeName}`,
-						onClick: () => handleWrapWithTypeCast(member, false)
+						onClick: () => handleWrapWithTypeCast(member, false),
+						level: 2,
+						warningMsg: INCOMPATIBLE_CASTING_WARNING
 					});
 					if (!hasEmptyFields) {
 						menuItems.push({
 							title: `Re-initialize as ${memberTypeName}`,
-							onClick: () => handleWrapWithTypeCast(member, true)
+							onClick: () => handleWrapWithTypeCast(member, true),
+							level: 3,
+							warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
 						});
 					}
 				}
@@ -314,23 +323,28 @@ export function EditableMappingConstructorWidget(props: EditableMappingConstruct
 				if (isResolvedType) {
 					menuItems.push({
 						title: `Cast type as ${memberTypeName}`,
-						onClick: () => handleWrapWithTypeCast(member, false)
+						onClick: () => handleWrapWithTypeCast(member, false),
+						level: 0
 					});
 				} else {
 					menuItems.push(
 						{
-							title: `Cast type as ${memberTypeName}!`,
-							onClick: () => handleWrapWithTypeCast(member, false)
+							title: `Cast type as ${memberTypeName}`,
+							onClick: () => handleWrapWithTypeCast(member, false),
+							level: 1,
+							warningMsg: INCOMPATIBLE_CASTING_WARNING
 						}, {
 							title: `Re-initialize as ${memberTypeName}`,
-							onClick: () => handleWrapWithTypeCast(member, true)
+							onClick: () => handleWrapWithTypeCast(member, true),
+							level: 3,
+							warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
 						}
 					);
 				}
 			}
 		}
 
-		return menuItems;
+		return menuItems.sort((a, b) => (a.level || 0) - (b.level || 0));
 	};
 
 	const valConfigMenuItems = unionTypeInfo && getTypedElementMenuItems();
