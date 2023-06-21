@@ -648,18 +648,19 @@ export class NodeInitVisitor implements Visitor {
     }
 
     beginVisitSelectClause(node: SelectClause, parent?: STNode): void {
+        const innerExpr = getInnermostExpressionBody(node.expression);
         if (this.isWithinQuery === 0
-            && !STKindChecker.isMappingConstructor(node.expression)
-            && !STKindChecker.isListConstructor(node.expression)) {
-            const inputNodes = getInputNodes(node.expression);
+            && !STKindChecker.isMappingConstructor(innerExpr)
+            && !STKindChecker.isListConstructor(innerExpr)) {
+            const inputNodes = getInputNodes(innerExpr);
             if (inputNodes.length > 1) {
                 const linkConnectorNode = new LinkConnectorNode(
                     this.context,
-                    node.expression,
+                    innerExpr,
                     "",
                     parent,
                     inputNodes,
-                    [...this.mapIdentifiers, node.expression]
+                    [...this.mapIdentifiers, innerExpr]
                 );
                 this.intermediateNodes.push(linkConnectorNode);
             }
