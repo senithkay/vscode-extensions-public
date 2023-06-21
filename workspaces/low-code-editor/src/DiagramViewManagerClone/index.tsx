@@ -33,6 +33,7 @@ import { theme } from './theme';
 import { getDiagramProviderProps } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
+import { addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
 
 export function DiagramViewManager(props: EditorProps) {
     const {
@@ -104,7 +105,8 @@ export function DiagramViewManager(props: EditorProps) {
 
                 if (file.endsWith(".bal")) {
                     const generatedST = await getSyntaxTree(file, langClient);
-                    const visitedST = await getLowcodeST(generatedST, file, langClient, experimentalEnabled);
+                    let visitedST = await getLowcodeST(generatedST, file, langClient, experimentalEnabled);
+                    visitedST = await addPerformanceDataNew(visitedST, file, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
                     const content = await getFileContent(file);
                     const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                     const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
