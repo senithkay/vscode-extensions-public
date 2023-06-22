@@ -57,27 +57,22 @@ describe('VSCode Config Generation Edit UI Tests', () => {
         browser = VSBrowser.instance;
         driver = browser.driver;
         await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackageEdit/service.bal`);
-        await wait(2000);
+        await wait(10000);
     });
 
     it('Click on run button to add configs to the file', async () => {
         const editorView = new ExtendedEditorView(new EditorView());
         expect(await editorView.getAction("Run")).is.not.undefined;
         (await editorView.getAction("Run"))!.click();
-        await wait(10000);
+        await wait(5000);
 
         // Find the information message boxes
-        const infoNotifications = await driver.findElements(By.className('notification-list-item'));
-
+        const infoNotifications = await driver.findElements(By.linkText('Add to config'));
         // Iterate over the information message boxes
         for (const infoNotification of infoNotifications) {
-            // Find the button within the information message box
-            const button = await infoNotification.findElement(By.linkText('Add to config'));
-
-            // Perform the desired action on the button (e.g., click)
-            await button.click();
+            await infoNotification.click();
         }
-        await wait(3000);
+        await wait(15000);
 
         // Read the updated config file and expected config file
         const generatedConfigContent = readFileSync(configFilePath, 'utf8').replace(/\s/g, '');
