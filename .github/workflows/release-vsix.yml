@@ -140,7 +140,7 @@ jobs:
 
   Notify:
     needs: [Release]
-    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    if: ${{ always() && contains(needs.*.result, 'failure') && github.repository == 'wso2-enterprise/ballerina-plugin-vscode'}}
     runs-on: ubuntu-latest
     steps:
       - name: "Release Notification"
