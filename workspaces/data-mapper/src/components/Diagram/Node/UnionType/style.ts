@@ -88,8 +88,10 @@ export const useStyles = makeStyles((theme: Theme) =>
                 alignItems: 'center'
             },
             warningText: {
-                color:  '#FF0000',
-                fontSize: '13.5px',
+                color:  '#FE523C',
+                fontSize: '15px',
+                fontFamily: 'Droid Sans Mono',
+                fontWeight: 'normal'
             },
             warningSymbol: {
                 fontSize: '16px',

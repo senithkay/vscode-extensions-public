@@ -40,7 +40,12 @@ import {
     isEmptyValue
 } from "../../../utils/dm-utils";
 import { getModification } from "../../../utils/modifications";
-import { CLEAR_EXISTING_MAPPINGS_WARNING, getSupportedUnionTypes, getUnionTypes } from "../../../utils/union-type-utils";
+import {
+    CLEAR_EXISTING_MAPPINGS_WARNING,
+    getSupportedUnionTypes,
+    getUnionTypes,
+    INCOMPATIBLE_CASTING_WARNING
+} from "../../../utils/union-type-utils";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
 import { OutputSearchHighlight } from "../Search";
 
@@ -348,6 +353,26 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         onClick: handleDeleteValue
     };
 
+    const getTypeCastMenuItem = (unionMember: Type): ValueConfigMenuItem => {
+        const memberTypeName = getTypeName(unionMember);
+        return {
+            title: `Cast type as ${memberTypeName}`,
+            onClick: () => handleWrapWithTypeCast(unionMember),
+            level: 0,
+            warningMsg: INCOMPATIBLE_CASTING_WARNING
+        };
+    };
+
+    const getReInitMenuItem = (unionMember: Type): ValueConfigMenuItem => {
+        const memberTypeName = getTypeName(unionMember);
+        return {
+            title: `Re-initialize as ${memberTypeName}`,
+            onClick: () => handleWrapWithTypeCast(unionMember, true),
+            level: 1,
+            warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
+        };
+    };
+
     const getTypedElementMenuItems = () => {
         const menuItems: ValueConfigMenuItem[] = [];
         const resolvedTypeName = getTypeName(field.type);
@@ -364,37 +389,21 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             }
             if (field.hasValue()) {
                 if (isUnresolvedUnionTypedElement) {
-                    menuItems.push({
-                        title: `Re-initialize as ${memberTypeName}`,
-                        onClick: () => handleWrapWithTypeCast(member, true),
-                        level: 3,
-                        warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
-                    })
+                    menuItems.push(getReInitMenuItem(member));
+                    if (field?.value && STKindChecker.isSpecificField(field.value) && !isEmptyValue(field.value.valueExpr.position)) {
+                        menuItems.push(getTypeCastMenuItem(member));
+                    }
                 } else {
                     const isResolvedType = memberTypeName === resolvedTypeName;
                     if (resolvedViaTypeCast) {
                         if (!isResolvedType) {
-                            menuItems.push({
-                                title: `Re-initialize as ${memberTypeName}`,
-                                onClick: () => handleWrapWithTypeCast(member, true),
-                                level: 3,
-                                warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
-                            });
+                            menuItems.push(getTypeCastMenuItem(member), getReInitMenuItem(member));
                         }
                     } else if (supportedTypes.length > 1) {
                         if (isResolvedType) {
-                            menuItems.push({
-                                title: `Cast type as ${memberTypeName}`,
-                                onClick: () => handleWrapWithTypeCast(member),
-                                level: 0
-                            });
+                            menuItems.push(getTypeCastMenuItem(member));
                         } else {
-                            menuItems.push({
-                                title: `Re-initialize as ${memberTypeName}`,
-                                onClick: () => handleWrapWithTypeCast(member, true),
-                                level: 3,
-                                warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
-                            });
+                            menuItems.push(getReInitMenuItem(member));
                         }
                     }
                 }
@@ -406,7 +415,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
             }
         }
 
-        return menuItems;
+        return menuItems.sort((a, b) => (a.level || 0) - (b.level || 0));
     };
 
     const valConfigMenuItems = [
