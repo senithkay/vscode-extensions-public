@@ -18,6 +18,7 @@ export interface HistoryEntry {
     name?: string;
     fromDataMapper?: boolean;
     dataMapperDepth?: number;
+    dmPrevSTList?: any[];
 }
 
 type historyPushFnType = (info: HistoryEntry) => void;
@@ -28,7 +29,7 @@ type historyClearFnType = () => void;
 type updateCurrentEntryFnType = (info: HistoryEntry) => void;
 
 export function useComponentHistory():
-        [HistoryEntry[],
+    [HistoryEntry[],
         historyPushFnType,
         historyPopFnType,
         historyClearAndPopulateWithFnType,
