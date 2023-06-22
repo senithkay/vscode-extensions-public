@@ -16,4 +16,11 @@ export class GraphqlDesignNode extends NodeModel<NodeModelGenerics> {
             id
         });
     }
+
+    selectNode = () => {
+        this.fireEvent({entity: this}, 'SELECT');
+        // this.getSourcePort().getNode().fireEvent({ entity: this }, 'SELECT');
+        // this.getTargetPort().getNode().fireEvent({ entity: this }, 'SELECT');
+    };
+
 }

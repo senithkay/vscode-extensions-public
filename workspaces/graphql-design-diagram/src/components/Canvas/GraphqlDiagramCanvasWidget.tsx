@@ -17,7 +17,7 @@ import { toJpeg } from 'html-to-image';
 import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlOverlayLayerModel } from "../OverlayLoader";
 import { getComponentName } from "../utils/common-util";
-import { createGraphqlDiagramEngine } from "../utils/engine-util";
+import { createGraphqlDiagramEngine, focusToNode } from "../utils/engine-util";
 
 import { CanvasWidgetContainer } from "./CanvasWidgetContainer";
 import { ContainerController } from "./ContainerController";
@@ -57,7 +57,8 @@ export function GraphqlDiagramCanvasWidget(props: DiagramCanvasProps) {
         if (selectedDiagramNode) {
             const selectedNewModel = diagramEngine.getModel().getNode(getComponentName(selectedDiagramNode));
             if (selectedNewModel) {
-                diagramEngine.zoomToFitNodes({ maxZoom: 1, nodes: [selectedNewModel] });
+                const zoomLevel = diagramEngine.getModel().getZoomLevel();
+                focusToNode(selectedNewModel, zoomLevel, diagramEngine);
             }
             setSelectedNode(undefined);
         }
