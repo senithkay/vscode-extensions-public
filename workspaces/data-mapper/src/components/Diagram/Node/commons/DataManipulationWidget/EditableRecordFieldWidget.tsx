@@ -353,13 +353,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         onClick: handleDeleteValue
     };
 
-    const getTypeCastMenuItem = (unionMember: Type): ValueConfigMenuItem => {
+    const getTypeCastMenuItem = (unionMember: Type, shouldWarn?: boolean): ValueConfigMenuItem => {
         const memberTypeName = getTypeName(unionMember);
         return {
             title: `Cast type as ${memberTypeName}`,
             onClick: () => handleWrapWithTypeCast(unionMember),
             level: 0,
-            warningMsg: INCOMPATIBLE_CASTING_WARNING
+            warningMsg: shouldWarn && INCOMPATIBLE_CASTING_WARNING
         };
     };
 
@@ -391,13 +391,13 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 if (isUnresolvedUnionTypedElement) {
                     menuItems.push(getReInitMenuItem(member));
                     if (field?.value && STKindChecker.isSpecificField(field.value) && !isEmptyValue(field.value.valueExpr.position)) {
-                        menuItems.push(getTypeCastMenuItem(member));
+                        menuItems.push(getTypeCastMenuItem(member, true));
                     }
                 } else {
                     const isResolvedType = memberTypeName === resolvedTypeName;
                     if (resolvedViaTypeCast) {
                         if (!isResolvedType) {
-                            menuItems.push(getTypeCastMenuItem(member), getReInitMenuItem(member));
+                            menuItems.push(getTypeCastMenuItem(member, true), getReInitMenuItem(member));
                         }
                     } else if (supportedTypes.length > 1) {
                         if (isResolvedType) {
