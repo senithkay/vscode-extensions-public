@@ -26,6 +26,7 @@ import "./style.scss";
 export function FunctionHeader() {
     const { functionNode } = useFunctionContext();
     const diagramContext = useDiagramContext();
+    const contextProps = diagramContext?.props;
     const diagramApi = diagramContext?.api;
     const editApi = diagramApi?.edit;
     const renderEditForm = editApi?.renderEditForm;
@@ -151,11 +152,13 @@ export function FunctionHeader() {
             });
     }
 
-    titleComponents.push(
-        <div key={"config"} className="config-form-btn" onClick={handleConfigFormClick}>
-            <SettingsIcon onClick={handleConfigFormClick}/>
-        </div>
-    );
+    if (!contextProps.isReadOnly) {
+        titleComponents.push(
+            <div key={"config"} className="config-form-btn" onClick={handleConfigFormClick}>
+                <SettingsIcon onClick={handleConfigFormClick} />
+            </div>
+        );
+    }
 
     return (
         <>
