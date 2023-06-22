@@ -17,8 +17,11 @@ import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
+import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
+import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import { CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT } from "@wso2-enterprise/choreo-core";
+import { FilteredCredentialData, GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -57,6 +60,8 @@ export function ProjectWizard() {
     const [selectedGHOrgName, setSelectedGHOrgName] = useState("");
     const [selectedGHRepo, setSelectedGHRepo] = useState("");
     const [isBareRepo, setIsBareRepo] = useState(false);
+    const [gitProvider, setGitProvider] = useState(GitProvider.GITHUB);
+    const [selectedCredential, setSelectedCredential] = useState<FilteredCredentialData>({ id: '', name: '' });
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -78,7 +83,8 @@ export function ProjectWizard() {
                 const repoMetaData = await projectClient.getRepoMetadata({
                     repo: selectedGHRepo,
                     organization: selectedGHOrgName,
-                    branch: "main"
+                    branch: "main",
+                    credentialId: selectedCredential.id
                 });
                 if (repoMetaData?.isBareRepo) {
                     setIsBareRepo(true);
@@ -93,6 +99,7 @@ export function ProjectWizard() {
                 });
                 if (initMonoRepo) {
                     await webviewAPI.setProjectRepository(createdProject.id, `${selectedGHOrgName}/${selectedGHRepo}`);
+                    await webviewAPI.setProjectProvider(createdProject.id, gitProvider);
                 }
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
                     eventName: CREATE_PROJECT_SUCCESS_EVENT, 
@@ -126,9 +133,22 @@ export function ProjectWizard() {
     const handleRepoInit = async () => {
         // open github repo in browser with vscode open external
         if (selectedGHOrgName && selectedGHRepo) {
-            ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedGHOrgName}/${selectedGHRepo}`);
+            if (gitProvider === GitProvider.GITHUB) {
+                ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedGHOrgName}/${selectedGHRepo}`);
+            } else if(gitProvider === GitProvider.BITBUCKET) {
+                ChoreoWebViewAPI.getInstance().openExternal(`http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}`);
+            }
         }
     };
+
+    const changeGitProvider = () => {
+        if (gitProvider === GitProvider.GITHUB) {
+            setGitProvider(GitProvider.BITBUCKET);
+        } else {
+            setSelectedCredential({ id: '', name: '' });
+            setGitProvider(GitProvider.GITHUB);
+        }
+    }
 
     const isValid: boolean = projectName.length > 0;
 
@@ -172,7 +192,19 @@ export function ProjectWizard() {
                     >
                         Initialize a mono repo
                     </VSCodeCheckbox>
-                    {initMonoRepo && <GithubRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} />}
+                    {initMonoRepo &&
+                        (<div>
+                            Git Provider: {gitProvider}&nbsp;&nbsp;&nbsp;&nbsp;
+                            <VSCodeLink onClick={changeGitProvider}>Change to {gitProvider === GitProvider.GITHUB ? GitProvider.BITBUCKET : GitProvider.GITHUB}</VSCodeLink>
+                        </div>)
+                    }
+                    {initMonoRepo && selectedOrg !== undefined &&
+                        (<>
+                            {gitProvider === GitProvider.GITHUB && <GithubRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} />}
+                            {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential}/>}
+                            {gitProvider === GitProvider.BITBUCKET && <BitbucketRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} selectedCred={selectedCredential} />}
+                        </>)
+                    }
                     {initMonoRepo && isBareRepo &&
                         (<>
                             Repository is not initialized. Please initialize the repository before cloning can continue.
