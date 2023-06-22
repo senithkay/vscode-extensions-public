@@ -186,6 +186,28 @@ export function getRepoMetadataQuery(organizationName: string, repoName: string,
         }`;
 }
 
+
+export function getBitBucketRepoMetadataQuery(organizationName: string, repoName: string, branch: string, credentialId: string, subPath?: string, dockerFilePath = "", dockerContextPath = "", openAPIPath = "", componentId = "") {
+    return gql`
+        query {
+            repoMetadata (organizationName: "${organizationName}", repoName: "${repoName}", branch: "${branch}", subPath: "${subPath}", dockerFilePath: "${dockerFilePath}", dockerContextPath: "${dockerContextPath}", openAPIPath: "${openAPIPath}", componentId: "${componentId}", secretRef: "${credentialId}") {
+                 isBareRepo,
+                 isSubPathEmpty
+                 isSubPathValid
+                 isValidRepo
+                 hasBallerinaTomlInPath
+                 hasBallerinaTomlInRoot
+                 isDockerfilePathValid
+                 hasDockerfileInPath
+                 isDockerContextPathValid
+                 isOpenApiFilePathValid
+                 hasOpenApiFileInPath
+                 hasPomXmlInPath
+                 hasPomXmlInRoot
+            }
+        }`;
+}
+
 export function getComponentsWithCellDiagramQuery(orgHandle: string, projectId: string) {
     return gql`   
         query { 

@@ -11,7 +11,7 @@
  *  associated services.
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
-import { GHAppAuthStatus, GithubOrgnization  } from '../types';
+import { CredentialData, GHAppAuthStatus, GithubOrgnization, UserRepo  } from '../types';
 
 export const CheckStatusRquest: RequestType<void, void> = { method: 'ghapp/checkStatus' };
 export const GetStatusRquest: RequestType<void, GHAppAuthStatus> = { method: 'ghapp/getStatus' };
@@ -21,5 +21,7 @@ export const TriggerInstallFlowRequest: RequestType<void, boolean> = { method: '
 export const GetAuthorizedRepositoriesRequest: RequestType<void, GithubOrgnization[]> = { method: 'ghapp/getAuthorizedRepositories' };
 export const FireGHAppAuthCallbackRequest: NotificationType<GHAppAuthStatus> = { method: 'ghapp/fireGHAppAuthCallback' };
 export const GetRepoBranchesRequest: RequestType<{orgName: string, repoName: string}, string[]> = { method: 'ghapp/getRepoBranches' };
+export const GetCredentialsRequest: RequestType<string, CredentialData[]> = { method: 'ghapp/getCredentials' };
+export const GetUserBitBucketReposRequest: RequestType<string, UserRepo[]> = { method: 'ghapp/getUserBitBucketRepos' };
 
 export const OnGithubAppAuthCallbackNotification: NotificationType<GHAppAuthStatus> = { method: 'ghapp/onGHAppAuthCallback' };

@@ -30,6 +30,8 @@ export interface IChoreoGithubAppClient {
     getRepoBranches(orgName: string, repoName: string): Promise<string[]>;
     onGHAppAuthCallback: Event<GHAppAuthStatus>;
     fireGHAppAuthCallback(status: GHAppAuthStatus): void;
+    getCredentials(org_uuid: string): Promise<CredentialData[]>;
+    getUserBitBucketRepos(bitbucketCredentialId: string): Promise<UserRepo[]>;
 }
 
 export type GHAppAuthStatus = {
@@ -46,4 +48,32 @@ export interface GithubRepository {
 export interface GithubOrgnization {
     orgName: string;
     repositories: GithubRepository[];
+}
+
+export interface CredentialData {
+    id: string;
+    createdAt: Date;
+    name: string;
+    organizationUuid: string;
+    type: GitProvider;
+    reference_token: string;
+}
+
+export interface FilteredCredentialData {
+    id: string;
+    name: string;
+}
+
+export enum GitProvider {
+    GITHUB = 'github',
+    BITBUCKET = 'bitbucket',
+}
+
+export interface Repo {
+    name: string;
+}
+
+export interface UserRepo {
+    orgName: string;
+    repositories: Repo[];
 }

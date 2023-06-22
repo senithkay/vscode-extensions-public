@@ -12,8 +12,8 @@
  */
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { GHAppAuthStatus, GithubOrgnization, IChoreoGithubAppClient } from "../types";
-import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest, GetRepoBranchesRequest, GetStatusRquest, CheckStatusRquest } from "./types";
+import { CredentialData, GHAppAuthStatus, GithubOrgnization, IChoreoGithubAppClient, UserRepo } from "../types";
+import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest, GetRepoBranchesRequest, GetStatusRquest, CheckStatusRquest, GetCredentialsRequest, GetUserBitBucketReposRequest } from "./types";
 
 export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
 
@@ -42,6 +42,10 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
         return this._messenger.sendRequest(GetAuthorizedRepositoriesRequest, HOST_EXTENSION, undefined);
     }
 
+    getUserBitBucketRepos(bitbucketCredentialId: string): Promise<UserRepo[]> {
+        return this._messenger.sendRequest(GetUserBitBucketReposRequest, HOST_EXTENSION, bitbucketCredentialId);
+    }
+
     getRepoBranches(orgName: string, repoName: string): Promise<string[]> {
         return this._messenger.sendRequest(GetRepoBranchesRequest, HOST_EXTENSION, {orgName, repoName});
     }
@@ -56,5 +60,7 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
         return this._messenger.sendNotification(FireGHAppAuthCallbackRequest, HOST_EXTENSION, status);
     }
 
-
+    getCredentials(org_uuid: string): Promise<CredentialData[]> {
+        return this._messenger.sendRequest(GetCredentialsRequest, HOST_EXTENSION, org_uuid);
+    }
 }

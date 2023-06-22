@@ -14,6 +14,7 @@ import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployment, BuildStatus, ProjectDeleteResponse } from "@wso2-enterprise/choreo-core";
 import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams } from "./types";
 import {
+    getBitBucketRepoMetadataQuery,
     getComponentBuildStatus,
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
@@ -246,8 +247,14 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
-        const { organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId } = params;
-        const query = getRepoMetadataQuery(organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId);
+        const { organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId, credentialId } = params;
+        let query;
+        if (credentialId) {
+            query = getBitBucketRepoMetadataQuery(organization, repo, branch, credentialId, path, dockerfile, dockerContextPath, openApiPath, componentId);
+        } else {
+            query = getRepoMetadataQuery(organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId);
+        }
+        
         try {
             const client = await this._getClient();
             const data = await client.request(query);
