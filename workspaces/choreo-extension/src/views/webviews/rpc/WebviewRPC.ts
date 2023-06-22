@@ -48,7 +48,9 @@ import {
     SendTelemetryExceptionNotification,
     SendTelemetryExceptionParams,
     SendProjectTelemetryEventNotification,
-    GetEnrichedComponent
+    GetEnrichedComponent,
+    setProjectProvider,
+    getProjectProvider
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -220,6 +222,14 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(getProjectRepository, (projectId: string) => {
         return ProjectRegistry.getInstance().getProjectRepository(projectId);
+    });
+
+    messenger.onRequest(setProjectProvider, async (params) => {
+        ProjectRegistry.getInstance().setProjectProvider(params.projId, params.gitProvider);
+    });
+
+    messenger.onRequest(getProjectProvider, (projectId: string) => {
+        return ProjectRegistry.getInstance().getProjectProvider(projectId);
     });
 
     messenger.onRequest(setPreferredProjectRepository, async (params) => {

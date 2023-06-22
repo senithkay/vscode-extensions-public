@@ -66,6 +66,8 @@ import {
     SendTelemetryExceptionNotification,
     SendProjectTelemetryEventNotification,
     GetEnrichedComponent,
+    setProjectProvider,
+    getProjectProvider,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -161,6 +163,14 @@ export class ChoreoWebViewAPI {
 
     public async getProjectRepository(projId: string): Promise<string> {
         return this._messenger.sendRequest(getProjectRepository, HOST_EXTENSION, projId);
+    }
+
+    public async setProjectProvider(projId: string, gitProvider: string): Promise<void> {
+        return this._messenger.sendRequest(setProjectProvider, HOST_EXTENSION, { projId, gitProvider });
+    }
+
+    public async getProjectProvider(projId: string): Promise<string> {
+        return this._messenger.sendRequest(getProjectProvider, HOST_EXTENSION, projId);
     }
 
     public async setPreferredProjectRepository(projId: string, repo: string): Promise<void> {

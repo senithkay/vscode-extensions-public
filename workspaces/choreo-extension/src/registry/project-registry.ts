@@ -30,6 +30,7 @@ import { makeURLSafe } from "../utils";
 const PROJECT_LOCATIONS = "project-locations";
 const PROJECT_REPOSITORIES = "project-repositories";
 const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories";
+const PROJECT_PROVIDERS = "project-providers";
 
 
 export class ProjectRegistry {
@@ -450,6 +451,20 @@ export class ProjectRegistry {
     getProjectRepository(projectId: string): string | undefined {
         const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
         return projectRepositories ? projectRepositories[projectId] : undefined;
+    }
+
+    setProjectProvider(projectId: string, gitProvider: string) {
+        let projectProviders: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_PROVIDERS);
+        if (projectProviders === undefined) {
+            projectProviders = {};
+        }
+        projectProviders[projectId] = gitProvider;
+        ext.context.globalState.update(PROJECT_PROVIDERS, projectProviders);
+    }
+
+    getProjectProvider(projectId: string): string | undefined {
+        const projectProviders: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_PROVIDERS);
+        return projectProviders ? projectProviders[projectId] : undefined;
     }
 
     setPreferredProjectRepository(projectId: string, repository: string) {
