@@ -13,23 +13,63 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Component } from "@wso2-enterprise/choreo-core";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { Codicon } from "../../Codicon/Codicon";
+import { ComponentDetails } from "./ComponentDetails";
 
-const ComponentCardContainer = styled.div`
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+// Header div will lay the items horizontally
+const Header = styled.div`
     display: flex;
     flex-direction: row;
     gap: 10px;
-    margin: 0px;
+    margin: 5px;
+`;
+// Body div will lay the items vertically
+const Body = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 15px;
+    position: relative;
 `;
 
 const ComponentName = styled.span`
     font-size: 14px;
-    font-weight: bold;
     cursor: pointer;
 `;
 
-export const ComponentCard = (props: { component: Component}) => {
-    return (<ComponentCardContainer>
-        <ComponentName>{props.component.name}</ComponentName>
-        <span>{props.component.description}</span>
-    </ComponentCardContainer>)
+
+export const ComponentCard = (props: { component: Component }) => {
+
+    const [expanded, setExpanded] = React.useState(false);
+
+    const handleExpandClick = () => {
+        setExpanded(!expanded);
+    }
+    return (<Container>
+        <Header>
+            <ComponentName>{props.component.name}</ComponentName>
+            <span>{props.component.description}</span>
+
+            <VSCodeButton
+                appearance="icon"
+                onClick={handleExpandClick}
+                title={expanded ? "Collapse" : "Expand"}
+                id="expand-components-btn"
+                style={{ marginLeft: "auto" }}
+            >
+                <Codicon name={expanded ? "chevron-up" : "chevron-down"} />
+            </VSCodeButton>
+        </Header>
+        {expanded && (
+            <Body>
+                <ComponentDetails component={props.component} />
+            </Body>
+        )}
+    </Container>)
 };

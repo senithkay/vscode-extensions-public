@@ -70,7 +70,7 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
             <Main>
                 {type === 'ChoreoArchitectureView' ?
                     <ChoreoArchitectureView projectId={projectId} orgName={orgName} /> :
-                    <ChoreoWebViewContext.Provider value={usePopulateContext()}>
+                    <ChoreoWebViewContext.Provider value={usePopulateContext({ choreoUrl })}>
                         {switchViews()}
                     </ChoreoWebViewContext.Provider>
                 }

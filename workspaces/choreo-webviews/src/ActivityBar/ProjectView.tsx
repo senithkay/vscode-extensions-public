@@ -14,18 +14,18 @@
 import React, { useContext } from "react";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ComponentsCard } from "./Components/ComponentsCard";
-import { ProjectActions } from "./Components/ProjectActions";
+import { ProjectActionsCard } from "./Components/ProjectActionsCard";
 import { SignIn } from "../SignIn/SignIn";
 import styled from "@emotion/styled";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "./../utilities/WebViewRpc";
+import { ProgressIndicator } from "./Components/ProgressIndicator";
 
 
 const Container = styled.div`
-    margin-top: 10px;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    position: relative;
     height: 100%;
     width: 100%;
 `;
@@ -46,11 +46,10 @@ export const ProjectView = () => {
     return (
         <Container>
             {loginStatus !== "LoggedIn" && <SignIn />}
-            {choreoProject && <ProjectActions />}
+            {choreoProject && <ProjectActionsCard />}
             {choreoProject && <ComponentsCard />}
-            {!isChoreoProject && <NotAChoreoProjectCard />}
-            {isChoreoProject && !choreoProject && loginStatus === "LoggedIn" && <>Loading</>}
-            {isChoreoProject && !choreoProject && loginStatus === "LoggedOut" && <>Please login first</>}
+            {!isChoreoProject && loginStatus == "LoggedIn" && <NotAChoreoProjectCard />}
+            {isChoreoProject && !choreoProject && loginStatus === "LoggedIn" && <ProgressIndicator />}
         </Container>
     )
 };

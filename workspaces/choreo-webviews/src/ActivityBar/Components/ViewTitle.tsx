@@ -10,20 +10,14 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import styled from "@emotion/styled";
 import React from "react";
-import { ArchiViewButton } from "./ArchitectureViewButton";
+import styled from "@emotion/styled";
 
-const ProjectActionsContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
+const Title = styled.div`
+    font-size: 14px;
+    font-weight: 700;
 `;
 
-export const ProjectActions: React.FC = () => {
-    return (
-        <ProjectActionsContainer>
-            <ArchiViewButton />
-        </ProjectActionsContainer>
-    );
-};
+export const ViewTitle: React.FC = (props) => (
+    <Title>{props.children}</Title>
+);

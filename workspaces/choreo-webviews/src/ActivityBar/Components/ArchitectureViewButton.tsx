@@ -10,31 +10,33 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import React, { useContext } from "react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { OPEN_EDITABLE_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
+import { OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 
 
 export const ArchiViewButton = () => {
     
-    const { choreoProject, selectedOrg } = useContext(ChoreoWebViewContext);
+    const { choreoProject } = useContext(ChoreoWebViewContext);
 
     const handleClick = () => {
-        ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
-            eventName: OPEN_EDITABLE_ARCHITECTURE_DIAGRAM_EVENT
+        ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
+            eventName: OPEN_READ_ONLY_ARCHITECTURE_DIAGRAM_EVENT,
+            properties: {
+                project: choreoProject?.name
+            }
         });
-        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.architecture.view", selectedOrg?.handle, choreoProject?.id);
+        ChoreoWebViewAPI.getInstance().openArchitectureView();
     }
     
     return (
-        <VSCodeButton
-            appearance="primary"
+        <VSCodeLink
             onClick={handleClick}
         >
             Architecture View
 
-        </VSCodeButton>
+        </VSCodeLink>
     );
 }

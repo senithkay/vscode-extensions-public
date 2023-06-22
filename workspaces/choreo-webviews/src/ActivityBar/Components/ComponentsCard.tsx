@@ -13,20 +13,28 @@
 import React, { useContext } from "react";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import styled from "@emotion/styled";
-import { Component, OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
+import { OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentCard } from "./ComponentCard";
 import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
+import { useGetComponents } from "../../hooks/use-get-components";
+import { ProgressIndicator } from "./ProgressIndicator";
+import { ViewTitle } from "./ViewTitle";
 
 const Container = styled.div`
-    margin-top: 10px;
     display: flex;
     flex-direction: column;
-    gap: 0;
-    height: 100%;
-    width: 100%;
+    margin-top: 10px;
 `;
+
+const Body = styled.div`
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 15px;
+`
 
 const Header = styled.div`
     display  : flex;
@@ -37,19 +45,8 @@ const Header = styled.div`
 
 export const ComponentsCard = () => {
     const { choreoProject } = useContext(ChoreoWebViewContext);
-    const [components, setComponents] = React.useState<Component[] | undefined>(undefined);
-    const [err, setErr] = React.useState<string | undefined>(undefined);
 
-    React.useEffect(() => {
-        if (choreoProject) {
-            // TODO: Use react-query
-            ChoreoWebViewAPI.getInstance().getComponents(choreoProject?.id).then((components) => {
-                setComponents(components);
-            }).catch((err) => {
-                setErr(err?.message);
-            });
-        }
-    }, [choreoProject]);
+    const { components, componentLoadError, isLoadingComponents, isRefetchingComponents, refreshComponents } = useGetComponents();
 
     const handleCreateComponentClick = () => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
@@ -58,10 +55,14 @@ export const ComponentsCard = () => {
         ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.component.create");
     }
 
+    const handleRefreshComponentsClick = () => {
+        refreshComponents();
+    }
+    
     const componentsView = (
         <Container>
             <Header>
-                <h3>Components</h3>
+                <ViewTitle>Components</ViewTitle>
                 <VSCodeButton
                     appearance="icon"
                     onClick={handleCreateComponentClick}
@@ -70,16 +71,26 @@ export const ComponentsCard = () => {
                 >
                     <Codicon name="plus" />
                 </VSCodeButton>
+                <VSCodeButton
+                    appearance="icon"
+                    onClick={handleRefreshComponentsClick}
+                    title="Refresh Component List"
+                    id="refresh-components-btn"
+                >
+                    <Codicon name="refresh" />
+                </VSCodeButton>
             </Header>
-            <VSCodeDivider />
-            {components && components.map((component) => 
-                (<>
-                    <ComponentCard component={component} />
-                    <VSCodeDivider />
-                </>)
-            )}
-            {components && components.length === 0 && <div>No Components</div>}
-            {err && <div>{err}</div>}
+            <Body>
+                {(isLoadingComponents || isRefetchingComponents) && <ProgressIndicator />}
+                {components && components.map((component, index) => 
+                    (<>
+                        <ComponentCard component={component} />
+                        {index !== components.length - 1 && <VSCodeDivider />}
+                    </>)
+                )}
+                {!isLoadingComponents && components && components.length === 0 && <div>No Components</div>}
+                {componentLoadError && <div>{componentLoadError}</div>}
+            </Body>
         </Container> 
     );
 

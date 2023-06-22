@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -10,26 +10,31 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import styled from "@emotion/styled";
 import React from "react";
-import { ChoreoLoginStatus, Organization, Project } from "@wso2-enterprise/choreo-core";
+import { ArchiViewButton } from "./ArchitectureViewButton";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { ViewTitle } from "./ViewTitle";
 
-export interface IChoreoWebViewContext {
-    loginStatus: ChoreoLoginStatus;
-    loginStatusPending: boolean;
-    fetchingOrgInfo: boolean;
-    selectedOrg?: Organization;
-    userOrgs?: Organization[];
-    error?: Error;
-    isChoreoProject?: boolean;
-    choreoProject?: Project;
-    choreoUrl: string;
-}
+const Container = styled.div`
+    margin-top: 10px;
+`;
 
-const defaultContext: IChoreoWebViewContext = {
-    loginStatus: "Initializing",
-    loginStatusPending: true,
-    fetchingOrgInfo: true,
-    choreoUrl: "",
+const Body = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 15px;
+`;
+
+export const ProjectActionsCard: React.FC = () => {
+    return (
+        <Container>
+            <ViewTitle>Views</ViewTitle>
+            <Body>
+                <ArchiViewButton />
+                <VSCodeLink>Cell View</VSCodeLink>
+            </Body>
+        </Container>
+    );
 };
-
-export const ChoreoWebViewContext = React.createContext(defaultContext);
