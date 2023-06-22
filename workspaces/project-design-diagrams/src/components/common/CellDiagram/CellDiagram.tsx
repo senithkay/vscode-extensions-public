@@ -65,7 +65,7 @@ export function CellDiagram(props: CellDiagramProps) {
     }, []);
 
     const redrawDiagram = () => {
-        positionGatewayNodes(diagramEngine);
+        positionGatewayNodes(diagramEngine, (consoleView !== undefined));
         diagramEngine.repaintCanvas();
     };
 
@@ -77,7 +77,7 @@ export function CellDiagram(props: CellDiagramProps) {
 
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
-        cellDiagramZoomToFit(diagramEngine);
+        cellDiagramZoomToFit(diagramEngine, (consoleView !== undefined));
     };
 
     let canvasWOffset = 102;

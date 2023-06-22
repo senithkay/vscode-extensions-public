@@ -74,7 +74,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 link.fireEvent({ hide: true }, 'updateVisibility');
             }
         });
-        positionGatewayNodes(diagramEngine);
+        positionGatewayNodes(diagramEngine, (consoleView !== undefined));
     };
 
     const showGWLinks = () => {
@@ -83,7 +83,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 link.fireEvent({ hide: false }, 'updateVisibility');
             }
         });
-        positionGatewayNodes(diagramEngine);
+        positionGatewayNodes(diagramEngine, (consoleView !== undefined));
     };
 
     const onDiagramMoveStarted = debounce(() => {
@@ -156,7 +156,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
                 const hasGwNode = diagramEngine.getModel().getNodes().find(node => (node instanceof GatewayNodeModel));
                 // Adding GW links and nodes after dagre distribution
                 addGWNodesModel(diagramEngine, !hasGwNode);
-                positionGatewayNodes(diagramEngine);
+                onDiagramMoveFinished();
             }
             zoomToFit();
             diagramEngine.getModel().removeLayer(diagramEngine.getModel().getLayers().find(layer => layer instanceof OverlayLayerModel));
@@ -166,7 +166,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
 
     const redrawDiagram = () => {
         if (type === Views.CELL_VIEW) {
-            positionGatewayNodes(diagramEngine);
+            positionGatewayNodes(diagramEngine, (consoleView !== undefined));
         }
         diagramEngine.repaintCanvas();
     };
@@ -180,7 +180,7 @@ export function DiagramCanvasWidget(props: DiagramCanvasProps) {
     const zoomToFit = () => {
         diagramEngine.zoomToFitNodes({ maxZoom: 1 });
         if (type === Views.CELL_VIEW) {
-            cellDiagramZoomToFit(diagramEngine);
+            cellDiagramZoomToFit(diagramEngine, (consoleView !== undefined));
         }
     };
 
