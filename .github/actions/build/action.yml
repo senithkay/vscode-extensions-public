@@ -96,14 +96,14 @@ runs:
       if: ${{ inputs.version != 'N/A' && inputs.ballerina == 'true' }}
       run: |
         cd workspaces/ballerina-extension
-        npm version ${{ inputs.version == 'true' }} --preid beta --no-git-tag-version
+        npm version ${{ inputs.version }} --preid beta --no-git-tag-version
 
     - name: Update choreo extension versions
       shell: bash
       if: ${{ inputs.version != 'N/A' && inputs.choreo == 'true' }}
       run: |
         cd workspaces/choreo-extension
-        npm version ${{ inputs.version == 'true' }} --preid beta --no-git-tag-version
+        npm version ${{ inputs.version }} --preid beta --no-git-tag-version
 
     - name: Get timestamp
       shell: bash
