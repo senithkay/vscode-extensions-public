@@ -47,7 +47,7 @@ import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeade
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
 
-let selectionStateVar: any = undefined;
+let selectionStateVar: any;
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
