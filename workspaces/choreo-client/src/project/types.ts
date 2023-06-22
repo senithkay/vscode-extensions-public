@@ -146,6 +146,7 @@ export interface GitHubRepoValidationResponse {
     dockerContextPath?: string;
     openApiPath?: string;
     componentId?: string;
+    credentialId?: string;
   }
 
 export interface IChoreoProjectClient {

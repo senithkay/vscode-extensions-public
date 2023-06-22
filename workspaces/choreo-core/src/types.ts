@@ -260,6 +260,7 @@ export interface WorkspaceConfig {
             projectID: string;
             orgId: number;
             monoRepo?: string;
+            gitProvider?: string;
         }
     }
 }
