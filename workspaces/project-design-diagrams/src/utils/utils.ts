@@ -74,11 +74,12 @@ export function createEntitiesEngine(): DiagramEngine {
     return diagramEngine;
 }
 
-export function positionGatewayNodes(engine: DiagramEngine) {
+export function positionGatewayNodes(engine: DiagramEngine, isConsole: boolean) {
     const model = engine.getModel();
     const gatewayNodes: GatewayNodeModel[] = <GatewayNodeModel[]>
         (model?.getNodes()?.filter((node) => node instanceof GatewayNodeModel));
     const canvas = engine.getCanvas();
+    const letMidYPadding = isConsole ? 30 : 60;
     if (canvas) {
         const viewPort = document.getElementById('cell-canvas-wrapper');
         const viewPortBoundingRect = viewPort.getBoundingClientRect();
@@ -87,7 +88,8 @@ export function positionGatewayNodes(engine: DiagramEngine) {
         const gwTopMidY = (0 - model.getOffsetY() + 30) / (model.getZoomLevel() / 100);
 
         const gwLeftMidX = (0 - model.getOffsetX() + 30) / (model.getZoomLevel() / 100);
-        const gwLeftMidY = (viewPortBoundingRect.height / 2 - model.getOffsetY() - 60) / (model.getZoomLevel() / 100);
+        const gwLeftMidY = (viewPortBoundingRect.height / 2 - model.getOffsetY() - letMidYPadding) /
+            (model.getZoomLevel() / 100);
         gatewayNodes.forEach((node) => {
             const inPort = node.getPorts()["in"];
             const outPort = node.getPorts()["out"];
@@ -192,7 +194,7 @@ export function removeGWLinks(engine: DiagramEngine) {
     });
 }
 
-export function cellDiagramZoomToFit(diagramEngine: DiagramEngine) {
+export function cellDiagramZoomToFit(diagramEngine: DiagramEngine, isConsole: boolean) {
     // Exclude gateway nodes from the zoom to fit, since we are manually positioning them after zoom to fit
     const nodesWithoutGW = diagramEngine.getModel().getNodes().filter(
         node => !(node instanceof GatewayNodeModel)
@@ -214,7 +216,7 @@ export function cellDiagramZoomToFit(diagramEngine: DiagramEngine) {
         : modelHeightOffset;
     diagramEngine.getModel().setOffset(modelWidthOffset - (nodesRect.getWidth() * 0.4),
         modelHeightOffset);
-    positionGatewayNodes(diagramEngine);
+    positionGatewayNodes(diagramEngine, isConsole);
     diagramEngine.repaintCanvas();
 }
 
