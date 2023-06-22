@@ -55,6 +55,7 @@ jobs:
           ballerina: ${{ inputs.ballerina }}
           choreo: ${{ inputs.choreo }}
           version: ${{ inputs.version }}
+          packages: ${{ inputs.packages }}
 
       - uses: actions/setup-node@v3
         with:

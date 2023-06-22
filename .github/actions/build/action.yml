@@ -23,6 +23,11 @@ inputs:
   balVersion:
     default: 2201.5.0
     type: string  
+  packages:
+    description: Update packages version
+    type: boolean
+    required: false
+    default: false    
 
 runs:
   using: "composite"
