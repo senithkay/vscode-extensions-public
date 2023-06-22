@@ -133,6 +133,7 @@ runs:
         npm version $newVersion --preid beta --no-git-tag-version
 
     - name: Update package versions
+      shell: bash
       if: ${{ inputs.packages == 'true' }}
       run: |
         cd workspaces
