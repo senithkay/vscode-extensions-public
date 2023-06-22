@@ -29,22 +29,10 @@ import { GatewayType } from "../components/gateway/types";
 import { GatewayPortModel } from "../components/gateway/GatewayPort/GatewayPortModel";
 import { GatewayLinkModel } from "../components/gateway/GatewayLink/GatewayLinkModel";
 
-export const defaultZoomLevel = 100;
-export const diagramTopXOffset = 600;
-export const diagramTopYOffset = 190;
-export const diagramLeftXOffset = 30;
-export const diagramLeftYOffset = 5;
 export const CELL_DIAGRAM_MIN_WIDTH = 400;
 export const CELL_DIAGRAM_MAX_WIDTH = 800;
 export const CELL_DIAGRAM_MIN_HEIGHT = 250;
 export const CELL_DIAGRAM_MAX_HEIGHT = 600;
-
-export interface ZoomOffset {
-    topXOffset: number;
-    topYOffset: number;
-    leftXOffset: number;
-    leftYOffset: number;
-}
 
 export function createRenderPackageObject(projectPackages: IterableIterator<string>): Map<string, boolean> {
     let packages2render: Map<string, boolean> = new Map<string, boolean>();
@@ -86,52 +74,35 @@ export function createEntitiesEngine(): DiagramEngine {
     return diagramEngine;
 }
 
-export function getZoomOffSet(engine: DiagramEngine): ZoomOffset {
-    const model = engine.getModel();
-    const canvas = engine.getCanvas();
-    const zoomDiff = model.getZoomLevel() - defaultZoomLevel;
-    // Get the bounding rect of nodes excluding gateway nodes
-    const nodesRect = engine.getBoundingNodesRect(engine.getModel().getNodes().filter(
-        node => !(node instanceof GatewayNodeModel)
-    ));
-    // work out zoom
-    const xFactor = canvas?.clientWidth / (nodesRect.getWidth());
-    const yFactor = canvas?.clientHeight / (nodesRect.getHeight());
-    return {
-        topXOffset: (xFactor * zoomDiff * ((zoomDiff > 0) ? 0.4 : 1)),
-        topYOffset: (yFactor * zoomDiff * ((zoomDiff > 0) ? 0.2 : 1)),
-        leftXOffset: (xFactor * zoomDiff * ((zoomDiff > 0) ? 0.5 : 2.6)),
-        leftYOffset: (yFactor * zoomDiff * ((zoomDiff > 0) ? 0.2 : 0.5))
-    };
-}
-
 export function positionGatewayNodes(engine: DiagramEngine) {
     const model = engine.getModel();
     const gatewayNodes: GatewayNodeModel[] = <GatewayNodeModel[]>
         (model?.getNodes()?.filter((node) => node instanceof GatewayNodeModel));
     const canvas = engine.getCanvas();
-    const zoomOffset = getZoomOffSet(engine);
     if (canvas) {
-        const canvasTopMidX = (canvas.clientWidth * 0.5) - diagramTopXOffset - model.getOffsetX()
-            - zoomOffset.topXOffset;
-        const canvasTopMidY = diagramTopYOffset - model.getOffsetY() + zoomOffset.topYOffset;
-        const canvasRightMidX = (canvas.clientWidth * 0.265) - model.getOffsetX();
-        const canvasRightMidY = (canvas.clientHeight * 0.15) - model.getOffsetY();
-        const canvasBottomMidX = (-(canvas.clientWidth * 0.254) - model.getOffsetX());
-        const canvasBottomMidY = (canvas.clientWidth * 0.4) - model.getOffsetY();
-        const canvasLeftMidX = (canvas.clientWidth * 0.006) - diagramLeftXOffset - model.getOffsetX()
-            + zoomOffset.leftXOffset;
-        const canvasLeftMidY = (canvas.clientHeight * 0.42) + diagramLeftYOffset - model.getOffsetY()
-            - zoomOffset.leftYOffset;
+        const viewPort = document.getElementById('cell-canvas-wrapper');
+        const viewPortBoundingRect = viewPort.getBoundingClientRect();
+
+        const gwTopMidX = ((viewPortBoundingRect.width / 2) - model.getOffsetX()) / (model.getZoomLevel() / 100);
+        const gwTopMidY = (0 - model.getOffsetY() + 30) / (model.getZoomLevel() / 100);
+
+        const gwLeftMidX = (0 - model.getOffsetX() + 30) / (model.getZoomLevel() / 100);
+        const gwLeftMidY = (viewPortBoundingRect.height / 2 - model.getOffsetY() - 60) / (model.getZoomLevel() / 100);
         gatewayNodes.forEach((node) => {
+            const inPort = node.getPorts()["in"];
+            const outPort = node.getPorts()["out"];
             if (node.type === 'NORTH') {
-                node.setPosition(canvasTopMidX, canvasTopMidY);
+                node.setPosition(gwTopMidX, gwTopMidY);
+                inPort.setPosition(gwTopMidX, gwTopMidY);
+                outPort.setPosition(gwTopMidX, gwTopMidY);
             } else if (node.type === 'SOUTH') {
-                node.setPosition(canvasBottomMidX, canvasBottomMidY);
+                // TODO: Implement
             } else if (node.type === 'EAST') {
-                node.setPosition(canvasRightMidX, canvasRightMidY);
+                // TODO: Implement
             } else if (node.type === 'WEST') {
-                node.setPosition(canvasLeftMidX, canvasLeftMidY);
+                node.setPosition(gwLeftMidX, gwLeftMidY);
+                inPort.setPosition(gwLeftMidX, gwLeftMidY);
+                outPort.setPosition(gwLeftMidX, gwLeftMidY);
             }
         });
     }
@@ -208,7 +179,7 @@ function mapGWInteraction(sourceGWType: GatewayType, targetNode: ServiceNodeMode
 
 export function addGWNodesModel(engine: DiagramEngine, addNodes: boolean = false) {
     if (addNodes) {
-        addGWNodes(engine);
+        addGWNodes(engine); // todo check and remove the if condition
     }
     addGWLinks(engine);
 }
