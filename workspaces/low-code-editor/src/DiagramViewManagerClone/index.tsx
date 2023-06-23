@@ -11,10 +11,11 @@ import { IntlProvider } from "react-intl";
 import { monaco } from "react-monaco-editor";
 
 import { MuiThemeProvider } from "@material-ui/core";
-import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry, KeyboardNavigationManager } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
+import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
 import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
@@ -31,9 +32,12 @@ import { Provider as HistoryProvider } from './context/history';
 import { useComponentHistory } from "./hooks/history";
 import { useGeneratorStyles } from "./style";
 import { theme } from './theme';
-import { getDiagramProviderProps } from "./utils";
+import { extractFilePath, getDiagramProviderProps } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
+import { FailedToIdentifyMessageOverlay } from "./views/FailedToIdentifyMessage";
+
+const undoRedoManager = new UndoRedoManager();
 
 const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
@@ -72,6 +76,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [completeST, setCompleteST] = useState<STNode>();
     const [currentFileContent, setCurrentFileContent] = useState<string>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [showIdentificationFailureMessage, setShowIdentificationFailureMessage] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
@@ -91,6 +96,29 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         setUpdatedTimeStamp(lastUpdatedAt);
     }, [lastUpdatedAt]);
+
+    useEffect(() => {
+        const mouseTrapClient = KeyboardNavigationManager.getClient();
+        mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
+            const lastsource = undoRedoManager.undo();
+            if (lastsource) {
+                props.updateFileContent(history[history.length - 1].file, lastsource);
+                setUpdatedTimeStamp(new Date().getTime().toString());
+            }
+        });
+
+        mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => {
+            const lastsource = undoRedoManager.redo();
+            if (lastsource) {
+                props.updateFileContent(history[history.length - 1].file, lastsource);
+                setUpdatedTimeStamp(new Date().getTime().toString());
+            }
+        });
+
+        return () => {
+            mouseTrapClient.resetMouseTrapInstance();
+        }
+    }, [focusedST]);
 
     useEffect(() => {
         if (history.length > 0) {
@@ -127,7 +155,11 @@ export function DiagramViewManager(props: EditorProps) {
                         const nodeFindingVisitor = new FindNodeByUidVisitor(generatedUid);
                         traversNode(visitedST, nodeFindingVisitor);
                         selectedST = nodeFindingVisitor.getNode();
-                        updateCurrentEntry({ ...history[history.length - 1], uid: generatedUid });
+                        if (generatedUid) {
+                            updateCurrentEntry({ ...history[history.length - 1], uid: generatedUid });
+                        } else {
+                            setShowIdentificationFailureMessage(true);
+                        }
                     }
 
                     if (uid && position) {
@@ -176,6 +208,7 @@ export function DiagramViewManager(props: EditorProps) {
                         }
                     }
 
+                    undoRedoManager.updateContent(file, content);
                     setFocusedST(selectedST);
                     setCompleteST(visitedST);
                     setCurrentFileContent(content);
@@ -190,6 +223,7 @@ export function DiagramViewManager(props: EditorProps) {
                 setProjectComponents(componentResponse);
                 setIsLoading(false);
             })();
+            setShowIdentificationFailureMessage(false);
         }
     }, [history[history.length - 1], updatedTimeStamp]);
 
@@ -224,6 +258,7 @@ export function DiagramViewManager(props: EditorProps) {
         lowCodeResourcesVersion,
         balVersion,
         props,
+        undoRedoManager,
         setFocusedST,
         setCompleteST,
         setCurrentFileContent,
@@ -232,6 +267,12 @@ export function DiagramViewManager(props: EditorProps) {
         navigateUptoParent,
         setUpdatedTimeStamp
     );
+
+    const handleNavigationHome = () => {
+        historyClearAndPopulateWith({
+            file: extractFilePath(history[history.length - 1].file)
+        });
+    }
 
     return (
         <MuiThemeProvider theme={theme}>
@@ -255,7 +296,8 @@ export function DiagramViewManager(props: EditorProps) {
                                 projectList={projectPaths}
                                 projectInfo={projectComponents}
                             />
-                            {!showOverviewMode && !showSTMode && <TextPreLoader position={'absolute'} />}
+                            {!showOverviewMode && !showSTMode && !showIdentificationFailureMessage && <TextPreLoader position={'absolute'} />}
+                            {!showOverviewMode && !showSTMode && showIdentificationFailureMessage && <FailedToIdentifyMessageOverlay onResetClick={handleNavigationHome} />}
                             {showOverviewMode && <ComponentListView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
                             {showSTMode && <DiagramView projectComponents={projectComponents} />}
                             <div id={'canvas-overlay'} className={"overlayContainer"} />

@@ -60,7 +60,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
         }
     } = useContext(Context);
 
-    const { history, historyPush } = useHistoryContext();
+    const { history, historyPush, historyUpdateCurrentEntry } = useHistoryContext();
 
     // const [functionST, setFunctionST] =
     //     React.useState<FunctionDefinition>(undefined);
