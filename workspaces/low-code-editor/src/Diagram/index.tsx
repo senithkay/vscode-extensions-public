@@ -74,7 +74,7 @@ export function Diagram() {
             ballerinaVersion,
             experimentalEnabled,
             openInDiagram,
-            currentFile,
+            currentFile
         },
     } = useContext(DiagramContext);
 
