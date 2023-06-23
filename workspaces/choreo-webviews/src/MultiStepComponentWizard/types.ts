@@ -10,6 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
 
 
@@ -28,6 +29,8 @@ export interface ComponentWizardState {
         subPath?: string;
         dockerContext?: string;
         dockerFile?: string;
+        gitProvider?: GitProvider;
+        credentialID?: string;
     };
     trigger?: {
         id: string;

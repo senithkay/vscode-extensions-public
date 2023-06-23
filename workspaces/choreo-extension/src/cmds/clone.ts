@@ -41,7 +41,7 @@ export function checkSSHAccessToGitHub() {
 
 export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneRequestParams) => {
     sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_START_EVENT);
-    const { repository, branch, workspaceFilePath } = params;
+    const { repository, branch, workspaceFilePath, gitProvider } = params;
     let success = false;
     await window.withProgress({
         title: `Cloning ${repository} repository to Choreo project workspace.`,
@@ -76,7 +76,11 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
         }
         const git = await initGit(ext.context);
         if (git) {
-            await executeWithTaskRetryPrompt(() => git.clone(`https://github.com/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken));        
+            if (gitProvider === GitProvider.BITBUCKET) {
+                await executeWithTaskRetryPrompt(() => git.clone(`https://bitbucket.org/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken));        
+            } else {
+                await executeWithTaskRetryPrompt(() => git.clone(`https://github.com/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken));   
+            }
             getLogger().debug("Cloned repository: " + repository + " to " + repoPath);
             success = true;
         } else {

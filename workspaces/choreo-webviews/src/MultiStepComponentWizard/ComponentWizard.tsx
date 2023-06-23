@@ -24,9 +24,10 @@ import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentTy
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
+import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
 
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
-    const { mode, name, type, repository: { org, repo, branch, subPath, dockerContext, dockerFile }, description, accessibility, trigger } = formData;
+    const { mode, name, type, repository: { org, repo, branch, subPath, dockerContext, dockerFile, credentialID, gitProvider }, description, accessibility, trigger } = formData;
 
     const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
     const selectedOrg = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
@@ -44,7 +45,9 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             org,
             repo,
             branch,
-            subPath
+            subPath,
+            credentialID,
+            gitProvider
         }
     };
 
@@ -109,6 +112,8 @@ export const ComponentWizard: React.FC = () => {
                 subPath: '',
                 isBareRepo: false,
                 isCloned: false,
+                gitProvider: GitProvider.GITHUB,
+                credentialID: ''
             }
         },
         isFormValid: false,

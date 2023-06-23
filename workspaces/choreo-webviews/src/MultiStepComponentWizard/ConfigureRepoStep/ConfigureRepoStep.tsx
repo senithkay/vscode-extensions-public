@@ -13,7 +13,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeLink, VSCodeProgressRing, VSCodeOption, VSCodeDropdown } from "@vscode/webview-ui-toolkit/react";
-import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { CredentialData, FilteredCredentialData, GHAppAuthStatus, GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { useContext, useEffect, useState } from "react";
 import { Step, StepProps } from "../../Commons/MultiStepWizard/types";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
@@ -22,6 +22,7 @@ import { ComponentWizardState } from "../types";
 import { GithubRepoBranchSelector } from "./GithubRepoBranchSelector";
 import { RepoStructureConfig } from "./RepoStructureConfig";
 import { useQuery } from "@tanstack/react-query";
+import { ProjectTypeCard } from "../../ProjectWizard/ProjectTypeCard";
 
 const StepContainer = styled.div`
     display: flex;
@@ -62,20 +63,86 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
     width: calc(var(--design-unit) * 4px);
 `;
 
+const CardContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+`;
+
+const SubContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 20px;
+`;
+
 export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
-    const { formData, onFormDataChange  } = props;
+    const { formData, onFormDataChange } = props;
 
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
     const [isCloneInProgress, setIsCloneInProgress] = useState<boolean>(false);
+    // const [gitProvider, setGitProvider] = useState(GitProvider.GITHUB);
+    const [credentials, setCredentials] = useState<FilteredCredentialData[]>([]);
+    const [selectedCredential, setSelectedCredential] = useState<FilteredCredentialData>({ id: '', name: '' });
 
-    const { choreoProject } = useContext(ChoreoWebViewContext);
 
-    const {isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching: isRefetchingRepos } = useQuery({
+    const { choreoProject, selectedOrg: org } = useContext(ChoreoWebViewContext);
+
+    const { isLoading: isFetchingCredentials, data: gitCredentialsData, refetch: refetchCredentials, isRefetching: isRefetching } = useQuery({
+        queryKey: [org],
+        queryFn: async () => ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org.uuid),
+        enabled: !!org
+    });
+
+    useEffect(() => {
+        const credentialNameArr: FilteredCredentialData[] = [];
+        if (gitCredentialsData && gitCredentialsData.length > 0) {
+            gitCredentialsData?.forEach(
+                (cred: CredentialData) => {
+                    if (cred.type === GitProvider.BITBUCKET) {
+                        const i: FilteredCredentialData = {
+                            id: cred.id,
+                            name: cred.name
+                        };
+                        credentialNameArr.push(i);
+                    }
+                }
+            );
+            setCredentials(credentialNameArr);
+        }
+    }, [gitCredentialsData]);
+
+    const handleCredDropdownChange = (credName: string) => {
+        let credId = '';
+        if (credName) {
+            credentials?.forEach(
+                (credential: FilteredCredentialData) => {
+                    if (credential.name === credName) {
+                        credId = credential.id;
+                    };
+                }
+            );
+
+            setSelectedCredential({ id: credId, name: credName });
+            setCredential(credId);
+        }
+    };
+
+    const handleConfigureNewCred = async () => {
+        // open add credentials page in browser with vscode open external
+        ChoreoWebViewAPI.getInstance().openExternal(`https://console.choreo.dev/`);
+    };
+
+    const { isLoading: isFetchingRepos, data: authorizedOrgs, refetch, isRefetching: isRefetchingRepos } = useQuery({
         queryKey: [`repoData${choreoProject?.id}`], //TODO: add userId to the key instead of choreoProjectId
         queryFn: async () => {
             const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
             try {
-                return ghClient.getAuthorizedRepositories();
+                return ghClient.getUserBitBucketRepos(selectedCredential.id);
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. Please authorize with GitHub.");
                 throw error;
@@ -83,23 +150,37 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         }
     });
 
+    useEffect(() => {
+        refetch();
+    }, [selectedCredential]);
+    
+    const gitProvider = formData?.repository?.gitProvider;
+
     const selectedRepoString = formData?.repository ? `${formData?.repository?.org}/${formData?.repository?.repo}` : undefined;
 
     const filteredOrgs = authorizedOrgs?.filter(org => org.repositories.length > 0);
 
     const selectedOrg = filteredOrgs && filteredOrgs.find((org) => org.orgName === formData?.repository?.org);
 
+    const setGitProvider = (gitProvider: GitProvider) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, gitProvider } }));
+    };
+
+    const setCredential = (credentialID: string) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, credentialID } }));
+    };
+
     const setRepository = (org: string, repo: string) => {
-        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, org, repo} }));
+        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, org, repo } }));
         ChoreoWebViewAPI.getInstance().setPreferredProjectRepository(choreoProject?.id, `${org}/${repo}`);
     };
 
-    const setIsRepoCloned = (isCloned: boolean ) => {
-        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isCloned} }));
+    const setIsRepoCloned = (isCloned: boolean) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isCloned } }));
     };
 
-    const setIsBareRepo = (isBareRepo: boolean ) => {
-        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isBareRepo} }));
+    const setIsBareRepo = (isBareRepo: boolean) => {
+        onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, isBareRepo } }));
     };
 
     const setDefaultSelection = async () => {
@@ -164,7 +245,8 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                         workspaceFilePath: projectPath,
                         // TODO: Handle this properly from the backend
                         // Currently, backend is not validating the branch name
-                        branch: formData?.repository?.branch || "main"
+                        branch: formData?.repository?.branch || "main",
+                        gitProvider: gitProvider
                     });
                     setIsRepoCloned(isCloned);
                 }
@@ -172,6 +254,15 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         };
         checkRepoCloneStatus();
     }, [selectedRepoString, choreoProject]);
+
+    const changeGitProvider = (type: GitProvider) => {
+        if (type === GitProvider.BITBUCKET) {
+            setSelectedCredential({ id: '', name: '' });
+            setCredential('');
+        }
+        setGitProvider(type);
+        setRepository(undefined, undefined);
+    }
 
     const handleAuthorizeWithGithub = () => {
         ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerAuthFlow();
@@ -203,7 +294,8 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
             const repoMetaData = await ChoreoWebViewAPI.getInstance().getProjectClient().getRepoMetadata({
                 repo: formData?.repository?.repo,
                 organization: formData?.repository?.org,
-                branch: formData?.repository?.branch
+                branch: formData?.repository?.branch,
+                credentialId: selectedCredential.id
             });
             if (repoMetaData?.isBareRepo) {
                 setIsBareRepo(true);
@@ -215,7 +307,8 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                 const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
                     repository: selectedRepoString,
                     workspaceFilePath: projectPath,
-                    branch: formData?.repository?.branch
+                    branch: formData?.repository?.branch,
+                    gitProvider: gitProvider
                 });
                 setIsRepoCloned(isCloned);
             }
@@ -226,7 +319,11 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     const handleRepoInit = async () => {
         // open github repo in browser with vscode open external
         if (choreoProject?.id && selectedRepoString) {
-            ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedRepoString}`);
+            if (gitProvider === GitProvider.GITHUB) {
+                ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedRepoString}`);
+            } else if (gitProvider === GitProvider.BITBUCKET) {
+                ChoreoWebViewAPI.getInstance().openExternal(`http://bitbucket.org/${selectedRepoString}`);
+            }
         }
     };
 
@@ -234,6 +331,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
     const showLoader = ghStatus.status === "auth-inprogress" || ghStatus.status === "install-inprogress" || isFetchingRepos;
     const showAuthorizeButton = ghStatus.status === "not-authorized" || ghStatus.status === "error";
     const showConfigureButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
+    const showCredLoader = isFetchingCredentials || isRefetching;
     let loaderMessage = "Loading repositories...";
     if (ghStatus.status === "auth-inprogress") {
         loaderMessage = "Authorizing with Github...";
@@ -243,12 +341,70 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
     return (
         <StepContainer>
-            <GhRepoSelectorActions>
-                {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh repo list or to configure a new repository.</span>}
-                {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
-                {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
-                {!showLoader && isRefetchingRepos && <SmallProgressRing />}
-            </GhRepoSelectorActions>
+            <SubContainer>
+                <CardContainer>
+                    <ProjectTypeCard
+                        type={GitProvider.GITHUB}
+                        label="GitHub"
+                        currentType={gitProvider}
+                        onChange={changeGitProvider}
+                    />
+                    <ProjectTypeCard
+                        type={GitProvider.BITBUCKET}
+                        label="BitBucket"
+                        currentType={gitProvider}
+                        onChange={changeGitProvider}
+                    />
+                </CardContainer>
+            </SubContainer>
+            {gitProvider === GitProvider.GITHUB && (
+                <>
+                    <GhRepoSelectorActions>
+                        {showAuthorizeButton && <span><VSCodeLink onClick={handleAuthorizeWithGithub}>Authorize with Github</VSCodeLink> to refresh repo list or to configure a new repository.</span>}
+                        {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
+                        {showConfigureButton && <VSCodeLink onClick={handleConfigureNewRepo}>Configure New Repo</VSCodeLink>}
+                        {!showLoader && isRefetchingRepos && <SmallProgressRing />}
+                    </GhRepoSelectorActions>
+                </>
+            )}
+            {gitProvider === GitProvider.BITBUCKET && (
+                <>
+                    <GhRepoSelectorActions>
+                        {showRefreshButton && <VSCodeLink onClick={() => refetchCredentials()}>Refresh Credentials</VSCodeLink>}
+                        {showCredLoader && <SmallProgressRing />}
+                    </GhRepoSelectorActions>
+                    {!isFetchingCredentials && credentials.length === 0 &&
+                        <VSCodeLink onClick={handleConfigureNewCred}>Configure New Credential</VSCodeLink>
+                    }
+                    {!isFetchingCredentials &&
+                        (<>
+                            <GhRepoSelectorContainer>
+                                <GhRepoSelectorOrgContainer>
+                                    <label htmlFor="cred-drop-down">Select Credential</label>
+                                    <VSCodeDropdown
+                                        id="cred-drop-down"
+                                        value={selectedCredential.name}
+                                        onChange={(e: any) => { handleCredDropdownChange(e.target.value) }}>
+                                        {credentials.map((credential) => (
+                                            <VSCodeOption
+                                                key={credential.id}
+                                                value={credential.name}
+                                                id={`cred-item-${credential.name}`}
+                                            >
+                                                {credential.name}
+                                            </VSCodeOption>
+                                        ))}
+                                    </VSCodeDropdown>
+                                </GhRepoSelectorOrgContainer>
+                            </GhRepoSelectorContainer>
+                        </>)
+                    }
+                    <GhRepoSelectorActions>
+                        {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
+                        {!showLoader && isRefetchingRepos && <SmallProgressRing />}
+                    </GhRepoSelectorActions>
+                </>
+            )}
             {showLoader && loaderMessage}
             {showLoader && <VSCodeProgressRing />}
             {filteredOrgs && filteredOrgs.length > 0 && (
@@ -283,47 +439,58 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                     </GhRepoSelectorRepoContainer>
                 </GhRepoSelectorContainer>
             )}
-            {!isFetchingRepos && !formData?.repository?.isCloned && !formData?.repository?.isBareRepo && !isCloneInProgress &&
-                <>
-                    Selected Repository is not available locally in Project folder. Clone the repository to continue.
-                    <VSCodeLink onClick={handleRepoClone}>
-                        Clone Repository
-                    </VSCodeLink>
-                </>
-            }
-            {!isFetchingRepos && formData?.repository?.isBareRepo &&
-                <>
-                    Repository is not initialized. Please initialize the repository before cloning can continue.
-                    <GhRepoSelectorActions>
-                        <VSCodeLink onClick={handleRepoInit}>
-                            Initialize
-                        </VSCodeLink> 
+            {
+                !isFetchingRepos && !formData?.repository?.isCloned && !formData?.repository?.isBareRepo && !isCloneInProgress && (
+                    <>
+                        Selected Repository is not available locally in Project folder. Clone the repository to continue.
                         <VSCodeLink onClick={handleRepoClone}>
-                            Recheck & Clone
+                            Clone Repository
                         </VSCodeLink>
-                    </GhRepoSelectorActions>
-                </>
+                    </>
+                )
             }
-            {isCloneInProgress &&
-                <>
-                    <span>Cloning Repository...</span>
-                    <VSCodeProgressRing />
-                </>
+            {
+                !isFetchingRepos && formData?.repository?.isBareRepo && (
+                    <>
+                        Repository is not initialized. Please initialize the repository before cloning can continue.
+                        <GhRepoSelectorActions>
+                            <VSCodeLink onClick={handleRepoInit}>
+                                Initialize
+                            </VSCodeLink>
+                            <VSCodeLink onClick={handleRepoClone}>
+                                Recheck & Clone
+                            </VSCodeLink>
+                        </GhRepoSelectorActions>
+                    </>
+                )
+            }
+            {
+                isCloneInProgress && (
+                    <>
+                        <span>Cloning Repository...</span>
+                        <VSCodeProgressRing />
+                    </>
+                )
             }
 
-            {selectedRepoString && !isFetchingRepos && formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
-                <GithubRepoBranchSelector 
-                    formData={formData}
-                    onFormDataChange={onFormDataChange}
-                />
-            )}
-            {formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
-                <RepoStructureConfig
-                    formData={formData}
-                    onFormDataChange={onFormDataChange}
-                />
-            )}
-        </StepContainer>
+            {
+                selectedRepoString && !isFetchingRepos && formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
+                    <GithubRepoBranchSelector
+                        formData={formData}
+                        onFormDataChange={onFormDataChange}
+                    />
+                )
+            }
+            {
+                formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
+                    <RepoStructureConfig
+                        formData={formData}
+                        onFormDataChange={onFormDataChange}
+                    />
+                )
+            }
+        </StepContainer >
+
     );
 };
 

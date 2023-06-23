@@ -210,10 +210,10 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         }
     }
 
-    async getRepoBranches(orgName: string, repoName: string): Promise<string[]> {
+    async getRepoBranches(orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]> {
         const query = gql`
             query {
-                repoBranchList(repositoryOrganization: "${orgName}", repositoryName: "${repoName}") {
+                repoBranchList(secretRef: "${bitbucketCredentialId}", repositoryOrganization: "${orgName}", repositoryName: "${repoName}") {
                     name
                 }
             }

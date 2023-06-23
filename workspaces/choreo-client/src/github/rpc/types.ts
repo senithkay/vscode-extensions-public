@@ -20,7 +20,7 @@ export const ObtainAccessTokenRequest: RequestType<string, void> = { method: 'gh
 export const TriggerInstallFlowRequest: RequestType<void, boolean> = { method: 'ghapp/triggerInstallFlow' };
 export const GetAuthorizedRepositoriesRequest: RequestType<void, GithubOrgnization[]> = { method: 'ghapp/getAuthorizedRepositories' };
 export const FireGHAppAuthCallbackRequest: NotificationType<GHAppAuthStatus> = { method: 'ghapp/fireGHAppAuthCallback' };
-export const GetRepoBranchesRequest: RequestType<{orgName: string, repoName: string}, string[]> = { method: 'ghapp/getRepoBranches' };
+export const GetRepoBranchesRequest: RequestType<{orgName: string, repoName: string, bitbucketCredentialId: string}, string[]> = { method: 'ghapp/getRepoBranches' };
 export const GetCredentialsRequest: RequestType<string, CredentialData[]> = { method: 'ghapp/getCredentials' };
 export const GetUserBitBucketReposRequest: RequestType<string, UserRepo[]> = { method: 'ghapp/getUserBitBucketRepos' };
 

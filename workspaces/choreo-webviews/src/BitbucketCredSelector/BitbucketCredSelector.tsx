@@ -98,7 +98,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
                     <BranchListContainer>
                         Select Credential
                         <VSCodeDropdown
-                            id="branch-drop-down"
+                            id="cred-drop-down"
                             value={selectedCred.name}
                             onChange={(e: any) => {
                                 handleBitbucketDropdownChange(e.target.value)

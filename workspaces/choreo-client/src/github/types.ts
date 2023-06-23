@@ -27,7 +27,7 @@ export interface IChoreoGithubAppClient {
     obatainAccessToken(authCode: string): Promise<void>;
     triggerInstallFlow(): Promise<boolean>;
     getAuthorizedRepositories(): Promise<GithubOrgnization[]>;
-    getRepoBranches(orgName: string, repoName: string): Promise<string[]>;
+    getRepoBranches(orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]>;
     onGHAppAuthCallback: Event<GHAppAuthStatus>;
     fireGHAppAuthCallback(status: GHAppAuthStatus): void;
     getCredentials(org_uuid: string): Promise<CredentialData[]>;

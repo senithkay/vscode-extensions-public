@@ -145,18 +145,23 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                     appSubPath: repositoryInfo.subPath,
                     orgApp: repositoryInfo.org,
                     nameApp: repositoryInfo.repo,
-                    branchApp: repositoryInfo.branch
+                    branchApp: repositoryInfo.branch,
+                    gitProvider: repositoryInfo.gitProvider,
                 }
             };
             let componentPath = join('repos', repositoryInfo.org, repositoryInfo.repo);
             
             if (args.displayType.startsWith("byoc")) {
                 const repoInfo = args.repositoryInfo as BYOCRepositoryDetails;
+                let srcGitRepoUrl = `https://github.com/${repoInfo.org}/${repoInfo.repo}`;
+                if (repositoryInfo.gitProvider === "bitbucket") {
+                    srcGitRepoUrl = `https://bitbucket.org/${repoInfo.org}/${repoInfo.repo}`;
+                }
                 metadata.byocConfig = {
                     dockerfilePath: repoInfo.dockerFile,
                     dockerContext: repoInfo.dockerContext,
                     srcGitRepoBranch: repoInfo.branch,
-                    srcGitRepoUrl: `https://github.com/${repoInfo.org}/${repoInfo.repo}`,
+                    srcGitRepoUrl: srcGitRepoUrl,
                 }
                 if (repoInfo.dockerContext) {
                     componentPath = join(componentPath, repoInfo.dockerContext);

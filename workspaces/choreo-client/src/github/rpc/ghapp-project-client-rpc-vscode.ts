@@ -20,7 +20,7 @@ export function registerChoreoGithubRPCHandlers(messenger: Messenger, githubAppC
    messenger.onRequest(GetStatusRquest, () => githubAppClient.status);
    messenger.onNotification(FireGHAppAuthCallbackRequest, (params) => githubAppClient.fireGHAppAuthCallback(params));
    messenger.onRequest(GetAuthorizedRepositoriesRequest, () => githubAppClient.getAuthorizedRepositories());
-   messenger.onRequest(GetRepoBranchesRequest, (params) => githubAppClient.getRepoBranches(params.orgName, params.repoName));
+   messenger.onRequest(GetRepoBranchesRequest, (params) => githubAppClient.getRepoBranches(params.orgName, params.repoName, params.bitbucketCredentialId));
    messenger.onRequest(ObtainAccessTokenRequest, (authCode) => githubAppClient.obatainAccessToken(authCode));
    messenger.onRequest(TriggerAuthFlowRequest, () => githubAppClient.triggerAuthFlow());
    messenger.onRequest(TriggerInstallFlowRequest, () => githubAppClient.triggerInstallFlow());

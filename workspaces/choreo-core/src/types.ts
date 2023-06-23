@@ -279,6 +279,7 @@ export interface WorkspaceComponentMetadata {
         nameApp: string;
         branchApp: string;
         appSubPath: string;
+        gitProvider: string;
     };
     byocConfig?: {
         dockerfilePath: string;
@@ -329,6 +330,8 @@ export interface RepositoryDetails {
     repo: string;
     branch: string;
     subPath: string;
+    credentialID: string;
+    gitProvider: string;
 }
 
 export interface BYOCRepositoryDetails extends RepositoryDetails {

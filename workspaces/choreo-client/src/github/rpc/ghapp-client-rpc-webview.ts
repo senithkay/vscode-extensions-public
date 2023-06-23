@@ -46,8 +46,8 @@ export class ChoreoGithubAppClientRPCWebView implements IChoreoGithubAppClient {
         return this._messenger.sendRequest(GetUserBitBucketReposRequest, HOST_EXTENSION, bitbucketCredentialId);
     }
 
-    getRepoBranches(orgName: string, repoName: string): Promise<string[]> {
-        return this._messenger.sendRequest(GetRepoBranchesRequest, HOST_EXTENSION, {orgName, repoName});
+    getRepoBranches(orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]> {
+        return this._messenger.sendRequest(GetRepoBranchesRequest, HOST_EXTENSION, {orgName, repoName, bitbucketCredentialId});
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
