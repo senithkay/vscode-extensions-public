@@ -35,6 +35,9 @@ import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
 import { addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
 
+const debounceTime: number = 5000;
+let lastPerfUpdate = 0;
+
 export function DiagramViewManager(props: EditorProps) {
     const {
         lastUpdatedAt,
@@ -106,7 +109,11 @@ export function DiagramViewManager(props: EditorProps) {
                 if (file.endsWith(".bal")) {
                     const generatedST = await getSyntaxTree(file, langClient);
                     let visitedST = await getLowcodeST(generatedST, file, langClient, experimentalEnabled);
-                    visitedST = await addPerformanceDataNew(visitedST, file, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
+                    const currentTime: number = Date.now();
+                    if (currentTime - lastPerfUpdate > debounceTime) {
+                        visitedST = await addPerformanceDataNew(visitedST, file, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
+                        lastPerfUpdate = currentTime;
+                    }
                     const content = await getFileContent(file);
                     const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                     const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
