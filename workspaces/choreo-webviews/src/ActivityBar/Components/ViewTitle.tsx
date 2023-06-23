@@ -12,24 +12,12 @@
  */
 import React from "react";
 import styled from "@emotion/styled";
-import { Component } from "@wso2-enterprise/choreo-core";
 
-const ComponentCardContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    margin: 0px;
-`;
-
-const ComponentName = styled.span`
+const Title = styled.div`
     font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
+    font-weight: 700;
 `;
 
-export const ComponentCard = (props: { component: Component}) => {
-    return (<ComponentCardContainer>
-        <ComponentName>{props.component.name}</ComponentName>
-        <span>{props.component.description}</span>
-    </ComponentCardContainer>)
-};
+export const ViewTitle: React.FC = (props) => (
+    <Title>{props.children}</Title>
+);

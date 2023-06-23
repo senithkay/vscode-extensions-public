@@ -22,12 +22,14 @@ export interface IChoreoWebViewContext {
     error?: Error;
     isChoreoProject?: boolean;
     choreoProject?: Project;
+    choreoUrl: string;
 }
 
 const defaultContext: IChoreoWebViewContext = {
     loginStatus: "Initializing",
     loginStatusPending: true,
-    fetchingOrgInfo: true
+    fetchingOrgInfo: true,
+    choreoUrl: "",
 };
 
 export const ChoreoWebViewContext = React.createContext(defaultContext);

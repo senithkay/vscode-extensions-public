@@ -13,17 +13,28 @@
 import styled from "@emotion/styled";
 import React from "react";
 import { ArchiViewButton } from "./ArchitectureViewButton";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { ViewTitle } from "./ViewTitle";
 
-const ProjectActionsContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
+const Container = styled.div`
+    margin-top: 10px;
 `;
 
-export const ProjectActions: React.FC = () => {
+const Body = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 15px;
+`;
+
+export const ProjectActionsCard: React.FC = () => {
     return (
-        <ProjectActionsContainer>
-            <ArchiViewButton />
-        </ProjectActionsContainer>
+        <Container>
+            <ViewTitle>Views</ViewTitle>
+            <Body>
+                <ArchiViewButton />
+                <VSCodeLink>Cell View</VSCodeLink>
+            </Body>
+        </Container>
     );
 };

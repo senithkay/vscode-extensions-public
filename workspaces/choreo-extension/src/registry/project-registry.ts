@@ -232,54 +232,9 @@ export class ProjectRegistry {
             const openedProject = await ext.api.getChoreoProject();
             const isActive = projectId === openedProject?.id;
 
-            let envData = this._projectEnvs.get(projectId);
-            if (!envData) {
-                envData = await executeWithTaskRetryPrompt(() => projectClient.getProjectEnv({ orgUuid, projId: projectId }));
-                if (envData) {
-                    this._projectEnvs.set(projectId, envData);
-                }
-            }
-
-            const devEnv = envData?.find((env: Environment) => env.name === 'Development');
-
             const enrichedComponents: Component[] = await Promise.all(
                 components.map(async (component) => {
-                    const selectedVersion = component.apiVersions?.find(item => item.latest);
-                    const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo, buildStatus] = await Promise.all([
-                        isActive && this.hasUnPushedLocalCommit(projectId, component),
-                        isActive && this.hasDirtyLocalRepo(projectId, component),
-                        !component.local && selectedVersion && devEnv && executeWithTaskRetryPrompt(() => projectClient.getComponentDeploymentStatus({
-                            component,
-                            envId: devEnv?.id,
-                            orgHandle,
-                            orgUuid,
-                            projId: projectId,
-                            versionId: selectedVersion.id
-                        })),
-                        component.local && isActive && this.isComponentInRepo(component),
-                        !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({ componentId: component.id, versionId: selectedVersion.id }))
-                    ]);
-
-                    let isRemoteOnly = true;
-                    if ((component.repository?.appSubPath || component.repository?.byocBuildConfig) && isActive) {
-                        if (component.repository?.appSubPath) {
-                            const { organizationApp, nameApp, appSubPath } = component.repository;
-                            isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
-                        } else if (component.repository?.byocBuildConfig) {
-                            const { organizationApp, nameApp } = component.repository;
-                            isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, component.repository?.byocBuildConfig?.dockerContext);
-                        }
-                    }
-
-                    return {
-                        ...component,
-                        hasUnPushedLocalCommits,
-                        hasDirtyLocalRepo,
-                        isRemoteOnly,
-                        isInRemoteRepo,
-                        deployments: { dev: devDeployment },
-                        buildStatus
-                    } as Component;
+                    return await this.getEnrichedComponent(component, isActive, projectId, orgHandle, orgUuid);
                 })
             );
 
@@ -290,6 +245,53 @@ export class ProjectRegistry {
             getLogger().error("Error while fetching components. "+ error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
             throw new Error("Failed to fetch the status of components. " + error?.message);
         }
+    }
+
+    public async getEnrichedComponent(component: Component, isActive: boolean, projectId: string, orgHandle: string, orgUuid: string) {
+        let envData = this._projectEnvs.get(projectId);
+        if (!envData) {
+            envData = await executeWithTaskRetryPrompt(() => projectClient.getProjectEnv({ orgUuid, projId: projectId }));
+            if (envData) {
+                this._projectEnvs.set(projectId, envData);
+            }
+        }
+        const devEnv = envData?.find((env: Environment) => env.name === 'Development');
+        const selectedVersion = component.apiVersions?.find(item => item.latest);
+        const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo, buildStatus] = await Promise.all([
+            isActive && this.hasUnPushedLocalCommit(projectId, component),
+            isActive && this.hasDirtyLocalRepo(projectId, component),
+            !component.local && selectedVersion && devEnv && executeWithTaskRetryPrompt(() => projectClient.getComponentDeploymentStatus({
+                component,
+                envId: devEnv?.id,
+                orgHandle,
+                orgUuid,
+                projId: projectId,
+                versionId: selectedVersion.id
+            })),
+            component.local && isActive && this.isComponentInRepo(component),
+            !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({ componentId: component.id, versionId: selectedVersion.id }))
+        ]);
+
+        let isRemoteOnly = true;
+        if ((component.repository?.appSubPath || component.repository?.byocBuildConfig) && isActive) {
+            if (component.repository?.appSubPath) {
+                const { organizationApp, nameApp, appSubPath } = component.repository;
+                isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
+            } else if (component.repository?.byocBuildConfig) {
+                const { organizationApp, nameApp } = component.repository;
+                isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, component.repository?.byocBuildConfig?.dockerContext);
+            }
+        }
+
+        return {
+            ...component,
+            hasUnPushedLocalCommits,
+            hasDirtyLocalRepo,
+            isRemoteOnly,
+            isInRemoteRepo,
+            deployments: { dev: devDeployment },
+            buildStatus
+        } as Component;
     }
 
     async deleteComponent(component: Component, orgHandler: string, projectId: string): Promise<void> {

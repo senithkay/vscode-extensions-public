@@ -47,7 +47,8 @@ import {
     SendTelemetryEventParams,
     SendTelemetryExceptionNotification,
     SendTelemetryExceptionParams,
-    SendProjectTelemetryEventNotification
+    SendProjectTelemetryEventNotification,
+    GetEnrichedComponent
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -134,6 +135,13 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             return ProjectRegistry.getInstance().getEnrichedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
         }
         return [];
+    });
+
+    messenger.onRequest(GetEnrichedComponent, async (component: Component) => {
+        if (ext.api.selectedOrg) {
+            return ProjectRegistry.getInstance().getEnrichedComponent(component, true, component.projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
+        }
+        return component;
     });
 
     messenger.onRequest(DeleteComponent, async (params: { projectId: string, component: Component }) => {
