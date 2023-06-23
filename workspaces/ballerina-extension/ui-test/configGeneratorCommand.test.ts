@@ -67,7 +67,7 @@ describe('VSCode Config Creation Using Command UI Tests', () => {
         await wait(10000);
     });
 
-    it.only('Open command palette to select config create command', async () => {
+    it('Open command palette to select config create command', async () => {
         // Send keyboard shortcut to open the command palette
         await driver.actions().sendKeys(Key.F1).perform();
 
