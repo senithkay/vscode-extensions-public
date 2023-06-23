@@ -23,7 +23,7 @@ export function useEnrichComponent(component: Component) {
         error: componentLoadError,
         isFetched,
     } = useQuery({
-        queryKey: ["project_component_details", component?.id],
+        queryKey: ["project_component_details", component?.id, component?.displayName],
         queryFn: async (): Promise<Component|undefined> => {
             return await ChoreoWebViewAPI.getInstance().getEnrichedComponent(component);
         },

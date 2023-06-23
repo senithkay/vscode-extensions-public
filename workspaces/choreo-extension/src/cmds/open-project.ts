@@ -101,12 +101,12 @@ export async function openChoreoProject() {
             }
         } else {
             // Project is not cloned yet, clone the project and open it
-            const cloneSelection = await vscode.window.showInformationMessage(
-                'The project is not cloned yet. Do you want to clone and open it?',
-                'OK',
-                'Cancel'
-            );
-            if (cloneSelection === 'OK') {
+            // show a quick pick to ask user whether to clone the project or not
+            const cloneSelection = await vscode.window.showQuickPick([
+                {  label: 'Yes', description: 'Clone and open the project' },
+                {  label: 'No', description: 'Do not clone the project' },
+            ], { title: 'The project is not cloned yet. Do you want to clone and open it?' });
+            if (cloneSelection?.label === 'Yes') {
                 cloneProject(selectedProject);
             }
         }

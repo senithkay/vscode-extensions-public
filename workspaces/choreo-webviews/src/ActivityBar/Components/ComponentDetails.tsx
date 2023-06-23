@@ -14,69 +14,37 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Component } from "@wso2-enterprise/choreo-core";
 // import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
-// import { mapBuildStatus } from "../../ProjectOverview/ComponentList";
 import { useEnrichComponent } from "../../hooks/use-enrich-component";
 import { ProgressIndicator } from "./ProgressIndicator";
+import { DeploymentStatusText } from "./DeploymentStatusText";
+import { RepositoryDetails } from "./RepositoryDetails";
+import { BuildStatus } from "./BuildStatus";
 
 const Container = styled.div`
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
     gap: 10px;
-    margin: 5px;
+    padding: 10px;
 `;
 
 export const ComponentDetails = (props: { component: Component}) => {
     const { enrichedComponent, isLoadingComponent, isRefetchingComponent } = useEnrichComponent(props.component);
-    // const { choreoUrl, selectedOrg, choreoProject } = useContext(ChoreoWebViewContext);
 
     if (isLoadingComponent || isRefetchingComponent || !enrichedComponent) {
         return <ProgressIndicator />;
     }
-    // const repo: Repository = enrichedComponent.repository
-    //     ? enrichedComponent.repository
-    //     : {
-    //         nameApp: "-",
-    //         appSubPath: "-",
-    //         nameConfig: "-",
-    //         branch: "-",
-    //         branchApp: "-",
-    //         organizationApp: "-",
-    //         organizationConfig: "-",
-    //         isUserManage: false,
-    //     };
 
-    // const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg.name}/projects/${choreoProject?.id}/components/${enrichedComponent.handler}`;
-    // const componentOverviewLink = `${componentBaseUrl}/overview`;
-    // const componentDeployLink = `${componentBaseUrl}/deploy`;
-    // const gitHubBaseUrl = `https://github.com/${repo.organizationApp}/${repo.nameApp}`;
-    // const repoLink = `${gitHubBaseUrl}/tree/${repo.branchApp}${repo.appSubPath ? `/${repo.appSubPath}` : ''}`;
-
-
-    // const deploymentStatus: DeploymentStatus =
-    //     (enrichedComponent.deployments?.dev
-    //         ?.deploymentStatusV2 as DeploymentStatus.NotDeployed) ||
-    //     DeploymentStatus.NotDeployed;
-
-    // let deploymentStatusColor = '--vscode-foreground';
-    // switch (deploymentStatus as DeploymentStatus) {
-    //     case DeploymentStatus.Active:
-    //         deploymentStatusColor = '--vscode-charts-green';
-    //         break;
-    //     case DeploymentStatus.InProgress:
-    //         deploymentStatusColor = '--vscode-charts-orange';
-    //         break;
-    //     case DeploymentStatus.Error:
-    //         deploymentStatusColor = '--vscode-errorForeground';
-    //         break;
-    //     case DeploymentStatus.Suspended:
-    //         deploymentStatusColor = '--vscode-charts-lines';
-    //         break;
-    // }
-
-    // const buildStatusMappedValue = enrichedComponent.buildStatus && mapBuildStatus(enrichedComponent.buildStatus?.status, enrichedComponent.buildStatus?.conclusion);
-
-    // const hasDirtyLocalRepo = enrichedComponent.hasDirtyLocalRepo || enrichedComponent.hasUnPushedLocalCommits;
     return (<Container>
         {(isLoadingComponent || isRefetchingComponent) && <ProgressIndicator />}
+        {enrichedComponent && (
+            <>
+                <DeploymentStatusText enrichedComponent={enrichedComponent} />
+                <RepositoryDetails enrichedComponent={enrichedComponent} />
+                <BuildStatus enrichedComponent={enrichedComponent} />
+            </>
+        )}
     </Container>)
 };

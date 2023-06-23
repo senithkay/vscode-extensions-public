@@ -15,7 +15,7 @@ import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import styled from "@emotion/styled";
 import { OPEN_COMPONENT_CREATION_FROM_OVERVIEW_PAGE_EVENT } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
-import { ComponentCard } from "./ComponentCard";
+import { ComponentRow } from "./ComponentRow";
 import { VSCodeButton, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { useGetComponents } from "../../hooks/use-get-components";
@@ -39,7 +39,7 @@ const Body = styled.div`
 const Header = styled.div`
     display  : flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 2px;
     align-items: center;
 `;
 
@@ -84,7 +84,7 @@ export const ComponentsCard = () => {
                 {(isLoadingComponents || isRefetchingComponents) && <ProgressIndicator />}
                 {components && components.map((component, index) => 
                     (<>
-                        <ComponentCard component={component} />
+                        <ComponentRow component={component} />
                         {index !== components.length - 1 && <VSCodeDivider />}
                     </>)
                 )}

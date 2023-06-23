@@ -10,12 +10,15 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
+import React, { useContext } from "react";
 import styled from "@emotion/styled";
 import { Component } from "@wso2-enterprise/choreo-core";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
 import { Codicon } from "../../Codicon/Codicon";
 import { ComponentDetails } from "./ComponentDetails";
+import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { RepositoryLink } from "./RepositoryLink"
 
 const Container = styled.div`
     display: flex;
@@ -26,7 +29,7 @@ const Container = styled.div`
 const Header = styled.div`
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 2px;
     margin: 5px;
 `;
 // Body div will lay the items vertically
@@ -44,27 +47,57 @@ const ComponentName = styled.span`
 `;
 
 
-export const ComponentCard = (props: { component: Component }) => {
-
+export const ComponentRow = (props: { component: Component }) => {
+    const { component } = props;
+    const { selectedOrg, choreoUrl } = useContext(ChoreoWebViewContext);
     const [expanded, setExpanded] = React.useState(false);
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
     }
+
+    // component URL
+    const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.name}/projects/${component.projectId}/components/${component.handler}`;
+    const openComponentUrl = () => {
+        ChoreoWebViewAPI.getInstance().openExternal(componentBaseUrl);
+    }
+    
     return (<Container>
         <Header>
-            <ComponentName>{props.component.name}</ComponentName>
-            <span>{props.component.description}</span>
-
             <VSCodeButton
                 appearance="icon"
                 onClick={handleExpandClick}
                 title={expanded ? "Collapse" : "Expand"}
                 id="expand-components-btn"
-                style={{ marginLeft: "auto" }}
             >
-                <Codicon name={expanded ? "chevron-up" : "chevron-down"} />
+                <Codicon name={expanded ? "chevron-down" : "chevron-right"} />
             </VSCodeButton>
+            <ComponentName>{props.component.displayName}</ComponentName>
+            {component.local && 
+                <VSCodeTag 
+                    title={"Only available locally"}
+                    style={{ marginLeft: "3px" }}
+                >
+                    Local
+                </VSCodeTag>}
+            {component.isRemoteOnly && 
+                <VSCodeTag 
+                    title={"Only available remotely"}
+                    style={{ marginLeft: "3px" }}
+                >
+                    Remote
+                </VSCodeTag>}
+            <VSCodeButton
+                appearance="icon"
+                onClick={openComponentUrl}
+                title={"Open in console"}
+                id="open-in-console-btn"
+                style={{ marginLeft: "auto" }}
+                disabled={component?.local}
+            >
+                <Codicon name={"link-external"} />
+            </VSCodeButton>
+            <RepositoryLink repo={component?.repository} />
         </Header>
         {expanded && (
             <Body>
