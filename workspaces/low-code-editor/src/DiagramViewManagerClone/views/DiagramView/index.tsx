@@ -40,7 +40,6 @@ export function DiagramView(props: DiagramViewProps) {
     } else if (currentFile && currentFile.content && STKindChecker.isFunctionDefinition(syntaxTree)
         && STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody)) {
 
-
         const handleNavigationHome = () => {
             historyClearAndPopulateWith({
                 file: extractFilePath(projectComponents?.packages[0]?.filePath)
