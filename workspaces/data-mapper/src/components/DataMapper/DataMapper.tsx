@@ -242,6 +242,7 @@ function DataMapperC(props: DataMapperProps) {
         setConfigPanelOpen(false);
         if (showConfigPanel) {
             // Close data mapper when having incomplete fnST
+            selectionStateVar = undefined;
             onClose();
         }
     }
@@ -292,7 +293,6 @@ function DataMapperC(props: DataMapperProps) {
                 traversNode(fnST, selectedSTFindingVisitor);
                 const { selectedST, prevST } = selectedSTFindingVisitor.getST();
 
-                // updatePreviousSTList(prevST);
                 dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST, selectedST: selectedST || defaultSt } });
             } else {
                 dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST: [], selectedST: defaultSt } });
@@ -416,6 +416,7 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {
+            selectionStateVar = undefined;
             onClose();
         }
     }, [selection.state])
