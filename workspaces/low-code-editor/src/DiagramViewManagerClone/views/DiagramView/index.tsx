@@ -25,9 +25,9 @@ interface DiagramViewProps {
 }
 
 export function DiagramView(props: DiagramViewProps) {
-    const { historyClearAndPopulateWith, historyPop } = useHistoryContext();
+    const { historyClearAndPopulateWith, historyPop, history, historyUpdateCurrentEntry } = useHistoryContext();
     const {
-        props: { syntaxTree, ballerinaVersion, currentFile },
+        props: { syntaxTree, fullST, ballerinaVersion, currentFile },
         api: { openArchitectureView },
     } = useDiagramContext();
     const { projectComponents } = props;
