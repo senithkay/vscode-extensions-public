@@ -17,7 +17,7 @@ import { ConfigProperty, ConfigTypes, Constants, Property } from "./model";
 
 const typeOfComment = 'Type of';
 
-export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string): Promise<void> {
+export async function configGenerator(ballerinaExtInstance: BallerinaExtension, filePath: string, isCommand?: boolean): Promise<void> {
     let configFile: string = filePath;
     let packageName: string = 'packageName';
 
@@ -30,7 +30,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
 
         ballerinaExtInstance.getDocumentContext().setCurrentProject(currentProject);
 
-        if (currentProject.kind === 'SINGLE_FILE_PROJECT') {
+        if (!isCommand && currentProject.kind === 'SINGLE_FILE_PROJECT') {
             // TODO: How to pass config values to single files
             executeRunCommand(ballerinaExtInstance);
             return;
@@ -54,7 +54,7 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             }
 
             const configSchema = data.configSchema;
-            if (Object.keys(configSchema.properties).length === 0) {
+            if (!isCommand && Object.keys(configSchema.properties).length === 0) {
                 executeRunCommand(ballerinaExtInstance);
                 return;
             }
@@ -63,14 +63,14 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             const firstKey = Object.keys(props)[0];
             const orgName = props[firstKey].properties;
 
-            if (!orgName) {
+            if (!isCommand && !orgName) {
                 executeRunCommand(ballerinaExtInstance);
                 return;
             }
 
             const configs: Property = orgName[packageName];
 
-            if (configs.required?.length === 0) {
+            if (!isCommand && configs.required?.length === 0) {
                 executeRunCommand(ballerinaExtInstance);
                 return;
             }
@@ -100,9 +100,11 @@ export async function configGenerator(ballerinaExtInstance: BallerinaExtension, 
             }
             const haveRequired = newValues.filter(value => value.required);
             if (newValues.length > 0 && haveRequired.length > 0) {
-                await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance);
+                await handleNewValues(packageName, newValues, configFile, updatedContent, uri, ignoreFile, ballerinaExtInstance, isCommand);
             } else {
-                executeRunCommand(ballerinaExtInstance);
+                if (!isCommand) {
+                    executeRunCommand(ballerinaExtInstance);
+                }
             }
         } catch (error) {
             console.error('Error while generating config:', error);
@@ -150,21 +152,23 @@ async function getCurrentBallerinaProjectFromContext(ballerinaExtInstance: Balle
     return currentProject;
 }
 
-async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension): Promise<void> {
+async function handleNewValues(packageName: string, newValues: ConfigProperty[], configFile: string, updatedContent: string, uri: Uri, ignoreFile: string, ballerinaExtInstance: BallerinaExtension, isCommand: boolean): Promise<void> {
+    let result;
     let btnTitle = 'Add to config';
     let message = 'There are missing mandatory configurables that are required to run the program.';
     if (!existsSync(configFile)) {
         btnTitle = 'Create Config.toml';
         message = 'There are mandatory configurables that are required to run the program.';
     }
-
     const openConfigButton = { title: btnTitle, isCloseAffordance: true };
     const ignoreButton = { title: 'Run Anyway' };
+    if (!isCommand) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        result = await window.showInformationMessage(message, { detail: "", modal: true }, openConfigButton, ignoreButton);
+    }
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    const result = await window.showInformationMessage(message, { detail: "", modal: true }, openConfigButton, ignoreButton);
     const docLink = "https://ballerina.io/learn/configure-ballerina-programs/provide-values-to-configurable-variables/#provide-via-toml-syntax";
-    if (result === openConfigButton) {
+    if (isCommand || result === openConfigButton) {
         if (!existsSync(configFile)) {
             openSync(configFile, 'w');
             updatedContent = `# Configuration file for "${packageName}"\n# How to use see:\n# ${docLink}\n\n\n` + updatedContent;
@@ -197,7 +201,7 @@ async function handleNewValues(packageName: string, newValues: ConfigProperty[],
         await workspace.openTextDocument(uri).then(async document => {
             window.showTextDocument(document, { preview: false });
         });
-    } else if (result === ignoreButton) {
+    } else if (!isCommand && result === ignoreButton) {
         executeRunCommand(ballerinaExtInstance);
     }
 }
