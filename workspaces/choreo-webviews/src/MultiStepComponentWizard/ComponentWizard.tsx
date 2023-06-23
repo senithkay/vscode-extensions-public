@@ -57,6 +57,9 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                 case ChoreoComponentType.ScheduledTask:
                     selectedDisplayType = ComponentDisplayType.ScheduledTask;
                     break;
+                case ChoreoComponentType.Webhook:
+                    selectedDisplayType = ComponentDisplayType.Webhook;
+                    break;
             }
         } else if(implementationType === ChoreoImplementationType.Docker){
             switch (type) {

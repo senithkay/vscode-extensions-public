@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 
 import { VSCodeCheckbox, VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 import { BallerinaTriggerInfo, DisplayAnnotation, ServiceType, Trigger } from '@wso2-enterprise/ballerina-languageclient';
@@ -86,43 +86,37 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
 
     const { isLoading: fetchingTriggers, error: triggersError, data: triggers, refetch: refetchTriggers } = useQuery({
         queryKey: ['availableTriggers'],
-        queryFn: () =>
-            ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTriggers().then(async (response) => {
-                if (response && response.central?.length) {
-                    return response.central;
+        queryFn: async () => {
+            const response = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTriggers();
+            if (response && response.central?.length) {
+                return response.central;
+            } else {
+                const res = await fetch(GET_TRIGGERS_PATH, { headers: { 'User-Agent': await getLocalBallerinaVersion()} });
+                const data = await res.json();
+                if (data && data.triggers?.length) {
+                    return data.triggers;
                 } else {
-                    return fetch(GET_TRIGGERS_PATH, {
-                        headers: {
-                            'User-Agent': await getLocalBallerinaVersion()
-                        }
-                    }).then((res) => res.json())
-                        .then((data) => {
-                            if (data && data.triggers?.length) {
-                                return data.triggers;
-                            } else {
-                                throw new Error(DEFAULT_ERROR_MSG);
-                            }
-                        })
+                    throw new Error(DEFAULT_ERROR_MSG);
                 }
-            })
-      })
+            }
+        },
+        onSuccess: data => {
+            if (!triggerId && data && data.length) {
+                handleTriggerChange(data[0].id);
+            }
+        }
+    })
 
     const { isLoading: fetchingTrigger, error: triggerError, data: trigger, refetch: refetchTrigger } = useQuery({
-        enabled: triggerId !== undefined,
+        enabled: !!triggerId,
         queryKey: [`triggerData-${triggerId}`],
         queryFn: async () =>{
-            if (!triggerId) {
-                return Promise.resolve();
+            const balTriggerData = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTrigger(triggerId);
+            if (balTriggerData) { 
+                return balTriggerData;
             }
-            ChoreoWebViewAPI.getInstance().getChoreoProjectManager().fetchTrigger(triggerId).then(async (response) => {
-                if (response) {                    
-                    return response;
-                }
-            })
             const response = await fetch(`${GET_TRIGGERS_PATH}/${triggerId}`, {
-                headers: {
-                    'User-Agent': await getLocalBallerinaVersion()
-                }
+                headers: { 'User-Agent': await getLocalBallerinaVersion() }
             });
             const triggerData = await response.json();
             if (!triggerData) {
@@ -130,6 +124,19 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
             }
             return triggerData;
         },
+        onSuccess: trigger =>{
+            if (!triggerServices && trigger?.serviceTypes?.length) {
+                onFormDataChange((prevFormData) => {
+                    return {
+                        ...prevFormData,
+                        trigger: {
+                            ...prevFormData.trigger,
+                            services: [trigger.serviceTypes[0].name]
+                        }
+                    };
+                });
+            }
+        }
     })
 
     const handleTriggerChange = (id: string | undefined) => {
@@ -162,33 +169,6 @@ export const WebhookTriggerSelector = (props: StepProps<Partial<ComponentWizardS
         });
     };
 
-    const setDefaultTrigger = () => {
-        if (!triggerId && triggers && triggers.length) {
-            handleTriggerChange(triggers[0].id);
-        }
-    };
-
-    const setDefaultService = () => {
-        if (!triggerServices && trigger && trigger.serviceTypes?.length) {
-            onFormDataChange((prevFormData) => {
-                return {
-                    ...prevFormData,
-                    trigger: {
-                        ...prevFormData.trigger,
-                        services: [trigger.serviceTypes[0].name]
-                    }
-                };
-            });
-        }
-    };
-
-    useEffect(() => {
-        setDefaultTrigger();
-    }, [triggers]);
-    
-    useEffect(() => {
-        setDefaultService();
-    }, [trigger]);
 
     return (
         <StepContainer>
