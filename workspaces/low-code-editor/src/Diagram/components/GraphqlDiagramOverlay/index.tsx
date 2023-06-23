@@ -23,6 +23,7 @@ import {
 
 import { Context, useDiagramContext } from "../../../Contexts/Diagram";
 import { getSyntaxTree } from "../../../DiagramGenerator/generatorUtil";
+import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
 import { ComponentViewInfo } from "../../../OverviewDiagram/util";
 import { removeStatement } from "../../utils";
 import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
@@ -30,7 +31,6 @@ import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerat
 import { graphQLOverlayStyles } from "./style";
 import { GraphqlUnsupportedVersionOverlay } from "./UnsupportedVersionOverlay";
 import { isGraphqlVisualizerSupported } from "./utils/ls-util";
-import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
 
 export interface GraphqlDesignOverlayProps {
     model?: STNode;

@@ -34,7 +34,7 @@ export function DiagramView(props: DiagramViewProps) {
 
     let viewComponent: React.ReactElement;
 
-    if ( STKindChecker.isServiceDeclaration(syntaxTree)) {
+    if (STKindChecker.isServiceDeclaration(syntaxTree)) {
         viewComponent = <ServiceView />;
     } else if (currentFile && currentFile.content && STKindChecker.isFunctionDefinition(syntaxTree)
         && STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody)) {
