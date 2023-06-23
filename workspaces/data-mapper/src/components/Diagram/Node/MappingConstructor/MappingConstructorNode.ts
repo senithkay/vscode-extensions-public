@@ -29,11 +29,12 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import { MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
-    enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
+    getDiagnosticsPosition,
     getFilteredMappings,
     getFilteredUnionOutputTypes,
+    getInnermostExpressionBody,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
@@ -43,6 +44,7 @@ import {
     hasNoMatchFound
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { enrichAndProcessType } from "../../utils/type-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -55,6 +57,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
     public rootName: string;
     public mappings: FieldAccessToSpecificFied[];
     public hasNoMatchingFields: boolean;
+    public innermostExpr: STNode;
     public x: number;
     public y: number;
 
@@ -67,6 +70,10 @@ export class MappingConstructorNode extends DataMapperNodeModel {
         super(
             context,
             MAPPING_CONSTRUCTOR_NODE_TYPE
+        );
+        this.innermostExpr = getInnermostExpressionBody(this.queryExpr
+            ? this.queryExpr.selectClause.expression
+            : this.value.expression
         );
     }
 
@@ -91,7 +98,7 @@ export class MappingConstructorNode extends DataMapperNodeModel {
                     this.rootName = acceptedMembers[0]?.name;
                 }
             }
-            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
+            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.innermostExpr,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
             this.hasNoMatchingFields = hasNoMatchFound(originalTypeDef, valueEnrichedType);
@@ -142,10 +149,13 @@ export class MappingConstructorNode extends DataMapperNodeModel {
             if (inputNode) {
                 inPort = getInputPortsForExpr(inputNode, value);
             }
-            const [outPort, mappedOutPort] = getOutputPortForField(fields, this);
-            const diagnostics = filterDiagnostics(
-                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
+            const [outPort, mappedOutPort] = getOutputPortForField(fields,
+                this.recordField,
+                MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
+                (portId: string) =>  this.getPort(portId) as RecordFieldPortModel);
             if (inPort && mappedOutPort) {
+                const diagnostics = filterDiagnostics(this.context.diagnostics,
+                    getDiagnosticsPosition(mappedOutPort.editableRecordField, mapping));
                 const lm = new DataMapperLinkModel(value, diagnostics, true);
                 const mappedField = mappedOutPort.editableRecordField && mappedOutPort.editableRecordField.type;
                 const keepDefault = ((mappedField && !mappedField?.name

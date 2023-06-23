@@ -13,8 +13,13 @@ import { CircularProgress, IconButton } from "@material-ui/core";
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { DiagramEngine } from "@projectstorm/react-diagrams-core";
-import { AnydataType, PrimitiveBalType } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { MappingConstructor, NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
+import { AnydataType, PrimitiveBalType, STModification, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import {
+    MappingConstructor,
+    NodePosition,
+    STKindChecker,
+    STNode
+} from "@wso2-enterprise/syntax-tree";
 import classnames from "classnames";
 import { Diagnostic } from "vscode-languageserver-protocol";
 
@@ -26,11 +31,21 @@ import { DataMapperPortWidget, PortState, RecordFieldPortModel } from "../../../
 import {
     createSourceForUserInput,
     getDefaultValue,
+    getExprBodyFromTypeCastExpression,
     getFieldName,
+    getInnermostExpressionBody,
     getNewFieldAdditionModification,
     getTypeName,
-    isConnectedViaLink
+    isConnectedViaLink,
+    isEmptyValue
 } from "../../../utils/dm-utils";
+import { getModification } from "../../../utils/modifications";
+import {
+    CLEAR_EXISTING_MAPPINGS_WARNING,
+    getSupportedUnionTypes,
+    getUnionTypes,
+    INCOMPATIBLE_CASTING_WARNING
+} from "../../../utils/union-type-utils";
 import { AddRecordFieldButton } from "../AddRecordFieldButton";
 import { OutputSearchHighlight } from "../Search";
 
@@ -73,6 +88,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const classes = useStyles();
     const [isLoading, setIsLoading] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isAddingTypeCast, setIsAddingTypeCast] = useState(false);
 
     let fieldName = getFieldName(field);
     const fieldId = fieldIndex !== undefined
@@ -87,6 +103,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     const typeName = getTypeName(field.type);
     const fields = isRecord && field.childrenTypes;
     const isWithinArray = fieldIndex !== undefined;
+    const isUnionTypedElement = field.originalType.typeName === PrimitiveBalType.Union;
+    const isUnresolvedUnionTypedElement = isUnionTypedElement && field.type.typeName === PrimitiveBalType.Union;
     let indentation = treeDepth * 16;
     const [portState, setPortState] = useState<PortState>(PortState.Unselected);
 
@@ -97,7 +115,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         return false;
     }, [field]);
 
-    const value: string = !isArray && !isRecord && hasValue && specificField.valueExpr.source;
+    const value: string = !isArray && !isRecord && hasValue && getInnermostExpressionBody(specificField.valueExpr).source;
     let expanded = true;
 
     const handleAddValue = async () => {
@@ -112,9 +130,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const handleEditValue = () => {
         if (field.value && STKindChecker.isSpecificField(field.value)) {
+            const innerExpr = getInnermostExpressionBody(field.value.valueExpr);
             enableStatementEditor({
-                value: field.value.valueExpr.source,
-                valuePosition: field.value.valueExpr.position as NodePosition,
+                value: innerExpr.source,
+                valuePosition: innerExpr.position as NodePosition,
                 label: field.value.fieldName.value as string
             });
         }
@@ -145,7 +164,78 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         setIsHovered(false);
     };
 
-    let isDisabled = portIn?.descendantHasValue || (value && !connectedViaLink);
+    const getTargetPositionForReInitWithTypeCast = () => {
+        let targetPosition: NodePosition = field.value.position;
+
+        if (STKindChecker.isSpecificField(field.value)) {
+            targetPosition = field.value.valueExpr.position;
+            const isValueExprEmpty = isEmptyValue(field.value.valueExpr.position);
+            if (isValueExprEmpty) {
+                targetPosition = {
+                    ...field.value.position,
+                    startLine: field.value.position.endLine,
+                    startColumn: field.value.position.endColumn
+                }
+            }
+        }
+
+        return targetPosition;
+    }
+
+    const getTargetPositionForWrapWithTypeCast = () => {
+        let valueExpr: STNode = field.value;
+        let valueExprPosition: NodePosition = valueExpr.position;
+
+        if (STKindChecker.isSpecificField(field.value)) {
+            valueExpr = field.value.valueExpr;
+            valueExprPosition = valueExpr.position;
+        }
+
+        let targetPosition: NodePosition = {
+            ...valueExprPosition,
+            endLine: valueExprPosition.startLine,
+            endColumn: valueExprPosition.startColumn
+        }
+
+        if (STKindChecker.isTypeCastExpression(valueExpr)) {
+            const exprBodyPosition = getExprBodyFromTypeCastExpression(valueExpr).position;
+            targetPosition = {
+                ...valueExprPosition,
+                endLine: exprBodyPosition.startLine,
+                endColumn: exprBodyPosition.startColumn
+            };
+        }
+
+        return targetPosition;
+    }
+
+    const handleWrapWithTypeCast = async (type: Type, shouldReInitialize?: boolean) => {
+        setIsAddingTypeCast(true)
+        try {
+            const name = getTypeName(type);
+            if (field?.value) {
+                const modification: STModification[] = [];
+                if (shouldReInitialize) {
+                    const defaultValue = getDefaultValue(type.typeName);
+                    const targetPosition = getTargetPositionForReInitWithTypeCast();
+                    modification.push(getModification(`<${name}>${defaultValue}`, targetPosition));
+                } else {
+                    const targetPosition = getTargetPositionForWrapWithTypeCast();
+                    modification.push(getModification(`<${name}>`, targetPosition));
+                }
+                await applyModifications(modification);
+            } else {
+                const defaultValue = `<${name}>${getDefaultValue(type.typeName)}`;
+                await createSourceForUserInput(field, mappingConstruct, defaultValue, applyModifications);
+            }
+        } finally {
+            setIsAddingTypeCast(false);
+        }
+    };
+
+    const hasValueWithoutLink = value && !connectedViaLink;
+    const hasDefaultValue = value && getDefaultValue(field.type.typeName) === value.trim();
+    let isDisabled = portIn?.descendantHasValue;
 
     if (!isDisabled) {
         if (portIn?.parentModel && (Object.entries(portIn?.parentModel.links).length > 0 || portIn?.parentModel.ancestorHasValue)) {
@@ -154,7 +244,8 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         }
         if (hasValue
             && !connectedViaLink
-            && (isArray && !STKindChecker.isQueryExpression(specificField.valueExpr) || isRecord)) {
+            && !hasDefaultValue
+            && ((isArray && !STKindChecker.isQueryExpression(specificField.valueExpr)) || isRecord || hasValueWithoutLink)) {
             portIn?.setDescendantHasValue();
             isDisabled = true;
         }
@@ -168,13 +259,31 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         indentation += 24;
     }
 
-    if (!fieldName && isWithinArray) {
-        fieldName = field.parentType.type?.name ? `${field.parentType.type?.name}Item` : 'item';
+    if (isWithinArray) {
+        const elementName = fieldName || field.parentType.type?.name;
+        fieldName = elementName ? `${elementName}Item` : 'item';
     }
 
-    const diagnostic = (specificField.valueExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic
+    const diagnostic = (specificField.valueExpr as STNode)?.typeData?.diagnostics[0] as Diagnostic;
 
-    const label = (
+    const getUnionType = () => {
+        const typeText: JSX.Element[] = [];
+        const unionTypes = getUnionTypes(field.originalType);
+        const resolvedTypeName = getTypeName(field.type);
+        unionTypes.forEach((type) => {
+            if (type.trim() === resolvedTypeName) {
+                typeText.push(<span className={classes.boldedTypeLabel}>{type}</span>);
+            } else {
+                typeText.push(<>{type}</>);
+            }
+            if (type !== unionTypes[unionTypes.length - 1]) {
+                typeText.push(<> | </>);
+            }
+        });
+        return typeText;
+    };
+
+    const label = !isArray && (
         <span style={{ marginRight: "auto" }} data-testid={`record-widget-field-label-${portIn?.getName()}`}>
             <span
                 className={classnames(classes.valueLabel,
@@ -192,7 +301,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                         isDisabled && !hasHoveredParent ? classes.typeLabelDisabled : ""
                     )}
                 >
-                    {typeName}
+				    {field.originalType.typeName === PrimitiveBalType.Union ? getUnionType() : typeName || ''}
                 </span>
             )}
             {value && !connectedViaLink && (
@@ -237,11 +346,76 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
 
     const addOrEditValueMenuItem: ValueConfigMenuItem = hasValue
         ? { title: ValueConfigOption.EditValue, onClick: handleEditValue }
-        : { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
+        : !isUnionTypedElement && { title: ValueConfigOption.InitializeWithValue, onClick: handleAddValue };
 
     const deleteValueMenuItem: ValueConfigMenuItem = {
         title: isWithinArray ? ValueConfigOption.DeleteElement : ValueConfigOption.DeleteValue,
         onClick: handleDeleteValue
+    };
+
+    const getTypeCastMenuItem = (unionMember: Type, shouldWarn?: boolean): ValueConfigMenuItem => {
+        const memberTypeName = getTypeName(unionMember);
+        return {
+            title: `Cast type as ${memberTypeName}`,
+            onClick: () => handleWrapWithTypeCast(unionMember),
+            level: 0,
+            warningMsg: shouldWarn && INCOMPATIBLE_CASTING_WARNING
+        };
+    };
+
+    const getReInitMenuItem = (unionMember: Type): ValueConfigMenuItem => {
+        const memberTypeName = getTypeName(unionMember);
+        return {
+            title: `Re-initialize as ${memberTypeName}`,
+            onClick: () => handleWrapWithTypeCast(unionMember, true),
+            level: 1,
+            warningMsg: CLEAR_EXISTING_MAPPINGS_WARNING
+        };
+    };
+
+    const getTypedElementMenuItems = () => {
+        const menuItems: ValueConfigMenuItem[] = [];
+        const resolvedTypeName = getTypeName(field.type);
+        const supportedTypes = getSupportedUnionTypes(field.originalType);
+        const resolvedViaTypeCast = field?.value
+            && !isUnresolvedUnionTypedElement
+            && STKindChecker.isSpecificField(field.value)
+            && STKindChecker.isTypeCastExpression(field.value.valueExpr);
+
+        for (const member of field.originalType.members) {
+            const memberTypeName = getTypeName(member);
+            if (!supportedTypes.includes(memberTypeName)) {
+                continue;
+            }
+            if (field.hasValue()) {
+                if (isUnresolvedUnionTypedElement) {
+                    menuItems.push(getReInitMenuItem(member));
+                    if (field?.value && STKindChecker.isSpecificField(field.value) && !isEmptyValue(field.value.valueExpr.position)) {
+                        menuItems.push(getTypeCastMenuItem(member, true));
+                    }
+                } else {
+                    const isResolvedType = memberTypeName === resolvedTypeName;
+                    if (resolvedViaTypeCast) {
+                        if (!isResolvedType) {
+                            menuItems.push(getTypeCastMenuItem(member, true), getReInitMenuItem(member));
+                        }
+                    } else if (supportedTypes.length > 1) {
+                        if (isResolvedType) {
+                            menuItems.push(getTypeCastMenuItem(member));
+                        } else {
+                            menuItems.push(getReInitMenuItem(member));
+                        }
+                    }
+                }
+            } else {
+                menuItems.push({
+                    title: `Initialize as ${memberTypeName}`,
+                    onClick: () => handleWrapWithTypeCast(member)
+                })
+            }
+        }
+
+        return menuItems.sort((a, b) => (a.level || 0) - (b.level || 0));
     };
 
     const valConfigMenuItems = [
@@ -258,6 +432,10 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
         valConfigMenuItems.push(...anyDataConvertOptions)
     }
 
+    if (isUnionTypedElement) {
+        valConfigMenuItems.push(...getTypedElementMenuItems());
+    }
+
     const addNewField = async (newFieldNameStr: string) => {
         const modification = getNewFieldAdditionModification(field.value, newFieldNameStr);
         if (modification) {
@@ -266,16 +444,15 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
     }
 
     const subFieldNames = useMemo(() => {
-		const fieldNames: string[] = [];
-  if (expanded && fields){
+        const fieldNames: string[] = [];
+        if (expanded && fields) {
             fields?.forEach(fieldItem => {
                 if (fieldItem.value && STKindChecker.isSpecificField(fieldItem.value)) {
-                    fieldNames.push(fieldItem.value?.fieldName?.value)
-                }
+                        fieldNames.push(fieldItem.value?.fieldName?.value)
+                    }
             })
         }
-
-		return fieldNames;
+        return fieldNames;
 	}, [fields, expanded])
 
     return (
@@ -318,7 +495,7 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                     </span>
                     {(!isDisabled || hasValue) && (
                         <>
-                            {isLoading ? (
+                            {(isLoading || isAddingTypeCast) ? (
                                 <CircularProgress size={18} className={classes.loader} />
                             ) : (
                                 <ValueConfigMenu menuItems={valConfigMenuItems} portName={portIn?.getName()} />
@@ -328,39 +505,35 @@ export function EditableRecordFieldWidget(props: EditableRecordFieldWidgetProps)
                 </div>
             )}
             {isArray && (
-                <>
-                    <ArrayTypedEditableRecordFieldWidget
-                        key={fieldId}
-                        engine={engine}
-                        field={field}
-                        getPort={getPort}
-                        parentId={parentId}
-                        parentMappingConstruct={mappingConstruct}
-                        context={context}
-                        fieldIndex={fieldIndex}
-                        treeDepth={treeDepth}
-                        deleteField={deleteField}
-                        hasHoveredParent={isHovered || hasHoveredParent}
-                    />
-                </>
+                <ArrayTypedEditableRecordFieldWidget
+                    key={fieldId}
+                    engine={engine}
+                    field={field}
+                    getPort={getPort}
+                    parentId={parentId}
+                    parentMappingConstruct={mappingConstruct}
+                    context={context}
+                    fieldIndex={fieldIndex}
+                    treeDepth={treeDepth}
+                    deleteField={deleteField}
+                    hasHoveredParent={isHovered || hasHoveredParent}
+                />
             )}
             {fields && expanded &&
                 fields.map((subField, index) => {
                     return (
-                        <>
-                            <EditableRecordFieldWidget
-                                key={index}
-                                engine={engine}
-                                field={subField}
-                                getPort={getPort}
-                                parentId={fieldId}
-                                parentMappingConstruct={mappingConstruct}
-                                context={context}
-                                treeDepth={treeDepth + 1}
-                                deleteField={deleteField}
-                                hasHoveredParent={isHovered || hasHoveredParent}
-                            />
-                        </>
+                        <EditableRecordFieldWidget
+                            key={index}
+                            engine={engine}
+                            field={subField}
+                            getPort={getPort}
+                            parentId={fieldId}
+                            parentMappingConstruct={mappingConstruct}
+                            context={context}
+                            treeDepth={treeDepth + 1}
+                            deleteField={deleteField}
+                            hasHoveredParent={isHovered || hasHoveredParent}
+                        />
                     );
                 })
             }

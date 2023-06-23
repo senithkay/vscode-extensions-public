@@ -53,12 +53,13 @@ import { ModuleVariableNode } from "./Node/ModuleVariable";
 import { PrimitiveTypeNode } from './Node/PrimitiveType';
 import { QueryExpressionNode } from './Node/QueryExpression';
 import { RequiredParamNode } from './Node/RequiredParam';
+import { UnionTypeNode } from "./Node/UnionType";
+import { UnsupportedExprNodeKind, UnsupportedIONode } from "./Node/UnsupportedIO";
 import { OverlayLayerFactory } from './OverlayLayer/OverlayLayerFactory';
 import { OverlayLayerModel } from './OverlayLayer/OverlayLayerModel';
 import { OverriddenLinkLayerFactory } from './OverriddenLinkLayer/LinkLayerFactory';
 import * as Ports from "./Port";
 import { OFFSETS } from './utils/constants';
-
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -195,7 +196,9 @@ function DataMapperDiagram(props: DataMapperDiagramProps): React.ReactElement {
 			nodes.forEach((node) => {
 				if (node instanceof MappingConstructorNode
 					|| node instanceof ListConstructorNode
-					|| node instanceof PrimitiveTypeNode) {
+					|| node instanceof PrimitiveTypeNode
+					|| node instanceof UnionTypeNode
+					|| (node instanceof UnsupportedIONode && node.kind === UnsupportedExprNodeKind.Output)) {
 						if (Object.values(node.getPorts()).some(port => Object.keys(port.links).length)){
 							node.setPosition(OFFSETS.TARGET_NODE.X, 0);
 						} else {

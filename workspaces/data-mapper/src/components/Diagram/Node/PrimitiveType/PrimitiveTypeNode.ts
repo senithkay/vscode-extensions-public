@@ -11,7 +11,6 @@ import { PrimitiveBalType, STModification, Type } from "@wso2-enterprise/balleri
 import {
     ExpressionFunctionBody,
     IdentifierToken,
-    NodePosition,
     QueryExpression,
     SelectClause,
     STKindChecker,
@@ -25,12 +24,13 @@ import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
 import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificFied";
 import { RecordFieldPortModel } from "../../Port";
-import { OFFSETS, PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
+import { PRIMITIVE_TYPE_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
     getDefaultValue,
-    getEnrichedRecordType,
+    getDiagnosticsPosition,
     getFilteredMappings,
     getFilteredUnionOutputTypes,
+    getInnermostExpressionBody,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
@@ -38,6 +38,7 @@ import {
     isArrayOrRecord
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { getEnrichedRecordType } from "../../utils/type-utils";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
 export const PRIMITIVE_TYPE_NODE_TYPE = "data-mapper-node-primitive-type";
@@ -47,6 +48,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
     public recordField: EditableRecordField;
     public typeName: string;
     public hasNoMatchingFields: boolean;
+    public innermostExpr: STNode;
     public x: number;
     public y: number;
 
@@ -59,6 +61,10 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
         super(
             context,
             PRIMITIVE_TYPE_NODE_TYPE
+        );
+        this.innermostExpr = getInnermostExpressionBody(this.queryExpr
+            ? this.queryExpr.selectClause.expression
+            : this.value.expression
         );
     }
 
@@ -74,7 +80,7 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                 }
             }
             const valueEnrichedType = getEnrichedRecordType(this.typeDef,
-                this.queryExpr || this.value.expression, this.context.selection.selectedST.stNode);
+                this.innermostExpr, this.context.selection.selectedST.stNode);
             this.typeName = !this.typeName ? getTypeName(valueEnrichedType.type) : this.typeName;
             this.recordField = valueEnrichedType;
             if (valueEnrichedType.type.typeName === PrimitiveBalType.Array
@@ -118,12 +124,15 @@ export class PrimitiveTypeNode extends DataMapperNodeModel {
                     this.recordField.type.typeName}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
             } else {
-                [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+                [outPort, mappedOutPort] = getOutputPortForField(fields,
+                    this.recordField,
+                    PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
+                    (portId: string) =>  this.getPort(portId) as RecordFieldPortModel);
             }
-            const diagnostics = filterDiagnostics(
-                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
-            const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
+                const diagnostics = filterDiagnostics(this.context.diagnostics,
+                    getDiagnosticsPosition(mappedOutPort.editableRecordField, mapping));
+                const lm = new DataMapperLinkModel(value, diagnostics, true);
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,

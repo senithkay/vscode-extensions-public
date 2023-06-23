@@ -30,7 +30,8 @@ import * as monaco from "monaco-editor";
 import { CompletionItemKind, Diagnostic } from "vscode-languageserver-protocol";
 
 import { TypeDescriptor } from "../../Diagram/Node/commons/DataMapperNode";
-import { getFilteredUnionOutputTypes, getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-utils";
+import { getTypeOfInputParam, getTypeOfOutput } from "../../Diagram/utils/dm-utils";
+import { getUnsupportedTypesFromTypeDesc } from "../../Diagram/utils/union-type-utils";
 import { DM_INHERENTLY_SUPPORTED_INPUT_TYPES, DM_UNSUPPORTED_TYPES, isArraysSupported } from "../utils";
 
 import { DM_DEFAULT_FUNCTION_NAME } from "./DataMapperConfigPanel";
@@ -67,6 +68,7 @@ function isSupportedType(node: STNode,
     const isRecordType = STKindChecker.isRecordTypeDesc(node);
     const isOptionalType = STKindChecker.isOptionalTypeDesc(node);
     const isTypeMissing = STKindChecker.isSimpleNameReference(node) && node.name.isMissing;
+    const isParenthesisedType = STKindChecker.isParenthesisedTypeDesc(node);
 
     if (!type && isRecordType) {
         return [false, TypeNature.WHITELISTED];
@@ -91,10 +93,12 @@ function isSupportedType(node: STNode,
 
     if (isTypeMissing) {
         return [false, TypeNature.TYPE_UNAVAILABLE];
-    } else if ((isUnionType || isOptionalType) && kind === 'output' && getFilteredUnionOutputTypes(type)?.length === 1) {
+    } else if ((isUnionType || isOptionalType) && kind === 'output' && getUnsupportedTypesFromTypeDesc(node).length === 0) {
         return [true];
     } else if (isUnionType || isMapType || isOptionalType) {
         return [false, TypeNature.YET_TO_SUPPORT];
+    } else if (isArrayType || isParenthesisedType) {
+        return [getUnsupportedTypesFromTypeDesc(node).length === 0, TypeNature.BLACKLISTED]
     } else if (isInvalid) {
         return [false, TypeNature.INVALID];
     } else if (isAlreadySupportedType || (!isUnsupportedType && isArraysSupported(balVersion))) {

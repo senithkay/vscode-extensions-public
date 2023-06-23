@@ -209,6 +209,10 @@ export const useStyles = makeStyles((theme: Theme) =>
                 paddingBottom: "1px",
                 paddingTop: "1px"
             }
-        }
+        },
+        boldedTypeLabel: {
+            fontFamily: "GilmerBold",
+            fontSize: "14px",
+        },
     }),
 );

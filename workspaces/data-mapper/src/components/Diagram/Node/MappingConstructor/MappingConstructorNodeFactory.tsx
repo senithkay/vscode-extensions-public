@@ -38,9 +38,6 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 		{
 			valueLabel = event.model.typeIdentifier.value as string || event.model.typeIdentifier.source;
 		}
-		const mappingConstruct = STKindChecker.isLetExpression(event.model.value.expression)
-			? getExprBodyFromLetExpression(event.model.value.expression)
-			: event.model.value.expression;
 		return (
 			<>
 				{event.model.hasNoMatchingFields ? (
@@ -49,9 +46,9 @@ export class ExpressionFunctionBodyFactory extends AbstractReactFactory<MappingC
 					<EditableMappingConstructorWidget
 						engine={this.engine}
 						id={`${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}${event.model.rootName ? `.${event.model.rootName}` : ''}`}
-						editableRecordFields={event.model.recordField && event.model.recordField.childrenTypes}
+						editableRecordField={event.model.recordField}
 						typeName={event.model.typeName}
-						value={mappingConstruct}
+						value={event.model.innermostExpr}
 						getPort={(portId: string) => event.model.getPort(portId) as RecordFieldPortModel}
 						context={event.model.context}
 						mappings={event.model.mappings}

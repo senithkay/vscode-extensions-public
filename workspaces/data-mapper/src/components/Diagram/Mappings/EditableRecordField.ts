@@ -19,6 +19,7 @@ export class EditableRecordField {
 		public type: Type,
 		public value?: STNode,
 		public parentType?: EditableRecordField,
+		public originalType?: Type,
 		public childrenTypes?: EditableRecordField[],
 		public elements?: ArrayElement[]
 	){}

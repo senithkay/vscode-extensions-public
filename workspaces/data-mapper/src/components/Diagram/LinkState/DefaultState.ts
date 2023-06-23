@@ -19,6 +19,7 @@ import { JoinClauseNode } from "../Node/JoinClause";
 import { LetClauseNode } from "../Node/LetClause";
 import { LetExpressionNode } from "../Node/LetExpression";
 import { ModuleVariableNode } from "../Node/ModuleVariable";
+import { UnionTypeNode } from "../Node/UnionType";
 import { LinkOverayContainerID } from '../OverriddenLinkLayer/LinkOverlayPortal';
 
 import { CreateLinkState } from './CreateLinkState';
@@ -96,6 +97,7 @@ export class DefaultState extends State<DiagramEngine> {
 							|| element instanceof MappingConstructorNode
 							|| element instanceof ListConstructorNode
 							|| element instanceof PrimitiveTypeNode
+							|| element instanceof UnionTypeNode
 							|| element instanceof RequiredParamNode
 							|| element instanceof FromClauseNode
 							|| element instanceof LetExpressionNode

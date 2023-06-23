@@ -93,6 +93,7 @@ export function ValueConfigMenu(props: ValueConfigMenuProps) {
                                 key={menuItem.title}
                                 title={menuItem.title}
                                 onClick={menuItem.onClick}
+                                warningMsg={menuItem?.warningMsg}
                                 onClose={handleClose}
                                 data-testid={`value-config-${portName}-item-${menuItem.title}`}
                             />

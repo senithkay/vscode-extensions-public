@@ -8,23 +8,25 @@
  */
 import { ExpressionRange, LinePosition } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
-    CaptureBindingPattern,
+    ExpressionFunctionBody,
     FieldAccess,
     FromClause,
     FunctionDefinition,
-    FunctionSignature,
     JoinClause,
     LetClause,
     LetExpression,
     LetVarDecl,
     NodePosition,
     OptionalFieldAccess,
+    SelectClause,
     SimpleNameReference,
     SpecificField,
     STKindChecker,
     STNode,
     Visitor
 } from "@wso2-enterprise/syntax-tree";
+
+import { getInnermostExpressionBody } from "../utils/dm-utils";
 
 export interface FnDefPositions {
     fnNamePosition: LinePosition;
@@ -85,6 +87,21 @@ export class TypeFindingVisitor implements Visitor {
         }
     }
 
+    public beginVisitExpressionFunctionBody(node: ExpressionFunctionBody) {
+        const fnBody = getInnermostExpressionBody(node.expression);
+        const fnBodyPosition: NodePosition = fnBody.position as NodePosition;
+        this.expressionNodeRanges.push({
+            startLine: {
+                line: fnBodyPosition.startLine,
+                offset: fnBodyPosition.startColumn
+            },
+            endLine: {
+                line: fnBodyPosition.endLine,
+                offset: fnBodyPosition.endColumn
+            }
+        });
+    }
+
     public beginVisitFromClause(node: FromClause) {
         let typePosition: NodePosition;
         // tslint:disable-next-line: prefer-conditional-expression
@@ -110,6 +127,21 @@ export class TypeFindingVisitor implements Visitor {
         this.symbolNodesPositions.push({
             line: fieldNamePosition.startLine,
             offset: fieldNamePosition.startColumn
+        });
+    }
+
+    public beginVisitSelectClause(node: SelectClause){
+        const exprBody = getInnermostExpressionBody(node.expression);
+        const typePosition: NodePosition = exprBody.position as NodePosition;
+        this.expressionNodeRanges.push({
+            startLine: {
+                line: typePosition.startLine,
+                offset: typePosition.startColumn
+            },
+            endLine: {
+                line: typePosition.endLine,
+                offset: typePosition.endColumn
+            }
         });
     }
 

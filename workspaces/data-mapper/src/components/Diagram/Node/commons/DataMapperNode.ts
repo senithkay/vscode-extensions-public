@@ -53,9 +53,9 @@ import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import {
 	getBalRecFieldName,
-	getExprBodyFromLetExpression,
 	getFieldName,
 	getFnDefForFnCall,
+	getInnermostExpressionBody,
 	getInputNodes,
 	getOptionalRecordField,
 	isComplexExpression
@@ -203,10 +203,11 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 					}
 				});
 			} else if (STKindChecker.isSpecificField(val) && val.valueExpr) {
-				const isMappingConstructor = STKindChecker.isMappingConstructor(val.valueExpr);
-				const isListConstructor = STKindChecker.isListConstructor(val.valueExpr);
+				const expr = getInnermostExpressionBody(val.valueExpr);
+				const isMappingConstructor = STKindChecker.isMappingConstructor(expr);
+				const isListConstructor = STKindChecker.isListConstructor(expr);
 				if (isMappingConstructor || isListConstructor) {
-					foundMappings = [...foundMappings, ...this.genMappings(val.valueExpr, [...currentFields, val])];
+					foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
 				} else {
 					foundMappings.push(this.getOtherMappings(val, currentFields));
 				}
@@ -216,8 +217,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
 					}
 				})
-			} else if (STKindChecker.isLetExpression(val)) {
-				const expr = getExprBodyFromLetExpression(val);
+			} else if (STKindChecker.isLetExpression(val) || STKindChecker.isTypeCastExpression(val)) {
+				const expr = getInnermostExpressionBody(val);
 				foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields])];
 			} else {
 				foundMappings.push(this.getOtherMappings(val, currentFields));
