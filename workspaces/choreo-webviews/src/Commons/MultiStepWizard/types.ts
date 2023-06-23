@@ -41,13 +41,15 @@ export interface Step<T> {
 export interface WizardProps<T> {
     title: string;
     steps: Step<T>[];
-    initialState: WizardState<T>;
     validationRules: ValidationRule<T>[];
     saveButtonText?: string;
     onSave: (formData: T, context: IChoreoWebViewContext) => Promise<void>;
     cancelButtonText?: string;
     onCancel: (formData: T, context: IChoreoWebViewContext) => void;
     closeOnSave?: boolean;
+    state: WizardState<T>;
+    setState: React.Dispatch<React.SetStateAction<WizardState<T>>>;
+    loading: boolean;
 }
 
 export type ValidationRule<T> = {

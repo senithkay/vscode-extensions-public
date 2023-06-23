@@ -14,7 +14,7 @@ import { BallerinaTriggerResponse, BallerinaTriggersResponse } from "@wso2-enter
 import { ChoreoComponentCreationParams, Component, IProjectManager, IsRepoClonedRequestParams, Project, PushedComponent, RepoCloneRequestParams } from "@wso2-enterprise/choreo-core";
 import { HOST_EXTENSION } from "vscode-messenger-common";
 import { Messenger } from "vscode-messenger-webview";
-import { CloneRepoRequeset, CreateLocalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTrigger, FetchBallerinaTriggers, GetBallerinaVersion, GetRepoPathRequest, IsComponentNameAvailableRequest, IsRepoClonedRequest } from "./types";
+import { CloneRepoRequeset, CreateLocalBalComponentFromExistingSourceRequest, CreateLocalComponentRequest, FetchBallerinaTrigger, FetchBallerinaTriggers, GetBallerinaVersion, GetRepoPathRequest, IsComponentNameAvailableRequest, IsRepoClonedRequest } from "./types";
 
 export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     constructor (private _messenger: Messenger) {
@@ -36,8 +36,8 @@ export class ChoreoProjectManagerRPCWebview implements IProjectManager {
     createLocalComponent(args: ChoreoComponentCreationParams): Promise<string | boolean> {
         return this._messenger.sendRequest(CreateLocalComponentRequest, HOST_EXTENSION, args);
     }
-    createLocalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<string | boolean> {
-        return this._messenger.sendRequest(CreateLocalComponentFromExistingSourceRequest, HOST_EXTENSION, args);
+    createLocalBalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<string | boolean> {
+        return this._messenger.sendRequest(CreateLocalBalComponentFromExistingSourceRequest, HOST_EXTENSION, args);
     }
     getProjectDetails(): Promise<Project> {
         throw new Error("Method not implemented.");

@@ -14,7 +14,7 @@ import React, { useEffect } from "react";
 import { VSCodeDivider, VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 
 import styled from "@emotion/styled";
-import { createElement, useContext, useState } from "react";
+import { createElement, useContext } from "react";
 import { ValidationRule, WizardProps } from "./types";
 import { ChoreoWebViewContext, IChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
@@ -42,8 +42,7 @@ const StepContainer = styled.div`
     padding: 15px;
 `;
 
-export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveButtonText, cancelButtonText, onCancel, closeOnSave }: WizardProps<T>) => {
-    const [state, setState] = useState(initialState);
+export const Wizard = <T extends {}>({ title, steps, state, setState, onSave, saveButtonText, cancelButtonText, onCancel, closeOnSave, loading }: WizardProps<T>) => {
     const context = useContext(ChoreoWebViewContext);
 
     // const allValidationRules: ValidationRule<T>[] = [steps.map((step) => step.validationRules).flat(), validationRules].flat();
@@ -174,12 +173,12 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
                     </VSCodeButton>
                 )}
                 {!isLastStep && (
-                    <VSCodeButton onClick={handleNextClick} disabled={!state.isStepValid || state.isSaving} id='wizard-next-btn'>
+                    <VSCodeButton onClick={handleNextClick} disabled={!state.isStepValid || state.isSaving || loading} id='wizard-next-btn'>
                         Next
                     </VSCodeButton>
                 )}
                 {isLastStep && (
-                    <VSCodeButton onClick={handleSaveClick} disabled={!state.isStepValid || state.isSaving} id='wizard-save-btn'>
+                    <VSCodeButton onClick={handleSaveClick} disabled={!state.isStepValid || state.isSaving || loading} id='wizard-save-btn'>
                         {saveButtonText ? saveButtonText : "Save"}
                     </VSCodeButton>
                 )}
@@ -190,7 +189,7 @@ export const Wizard = <T extends {}>({ title, steps, initialState, onSave, saveB
     return (
         <WizardContainer>
             <h1>{title}</h1>
-            <h4>{steps[state.currentStep].title}</h4>
+            <h4>{steps[state.currentStep]?.title}</h4>
             <VSCodeDivider />
             <StepContainer>
                 {renderStep()}

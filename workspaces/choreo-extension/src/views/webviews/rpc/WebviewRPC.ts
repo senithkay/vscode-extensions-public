@@ -47,7 +47,12 @@ import {
     SendTelemetryEventParams,
     SendTelemetryExceptionNotification,
     SendTelemetryExceptionParams,
-    SendProjectTelemetryEventNotification
+    SendProjectTelemetryEventNotification,
+    CreateNonBalLocalComponent,
+    ChoreoComponentCreationParams,
+    GetLocalComponentDirMetaData,
+    getLocalComponentDirMetaDataRequest,
+    CreateNonBalLocalComponentFromExistingSource
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -117,6 +122,14 @@ export class WebViewRpc {
                         }
                     });
             }
+        });
+
+        this._messenger.onRequest(CreateNonBalLocalComponent, async (params: ChoreoComponentCreationParams) => {
+            return ProjectRegistry.getInstance().createNonBalLocalComponent(params);
+        });
+
+        this._messenger.onRequest(CreateNonBalLocalComponentFromExistingSource, async (params: ChoreoComponentCreationParams) => {
+            return ProjectRegistry.getInstance().createNonBalLocalComponentFromExistingSource(params);
         });
 
         this._messenger.onRequest(GetDeletedComponents, async (projectId: string) => {
@@ -231,6 +244,10 @@ export class WebViewRpc {
 
         this._messenger.onRequest(isSubpathAvailable, (params: SubpathAvailableRequest) => {
             return ProjectRegistry.getInstance().isSubpathAvailable(params.projectID, params.orgName, params.repoName, params.subpath);
+        });
+
+        this._messenger.onRequest(GetLocalComponentDirMetaData, async (params: getLocalComponentDirMetaDataRequest) => {
+            return ProjectRegistry.getInstance().getLocalComponentDirMetaData(params);
         });
 
         this._messenger.onRequest(getChoreoProject, () => {

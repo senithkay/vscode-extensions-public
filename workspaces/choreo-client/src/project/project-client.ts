@@ -23,7 +23,7 @@ import {
     getProjectsByOrgIdQuery,
     getRepoMetadataQuery,
 } from './project-queries';
-import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation } from './project-mutations';
+import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation, getCreateWebAppBYOCComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
 import { getHttpClient } from '../http-client';
 import { AxiosResponse } from 'axios';
@@ -173,11 +173,20 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
     async createByocComponent(params: CreateByocComponentParams): Promise<Component> {
         const mutation = getCreateByocComponentMutation(params);
-        console.log(mutation);
         try {
             const client = await this._getClient();
             const data = await client.request(mutation);
-            console.log(data);
+            return data.createComponent;
+        } catch (error) {
+            throw new Error("Error while creating component.", { cause: error });
+        }
+    }
+
+    async createWebAppByocComponent(params: CreateByocComponentParams): Promise<Component> {
+        const mutation = getCreateWebAppBYOCComponentMutation(params);
+        try {
+            const client = await this._getClient();
+            const data = await client.request(mutation);
             return data.createComponent;
         } catch (error) {
             throw new Error("Error while creating component.", { cause: error });
