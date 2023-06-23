@@ -38,6 +38,7 @@ export const FieldName: React.FC<any> = styled.span`
 
 export const HeaderName: React.FC<any> = styled.span`
   margin-left: 8px;
+  margin-right: 15px;
 `;
 
 export const NodeContainer: React.FC<any> = styled.div`

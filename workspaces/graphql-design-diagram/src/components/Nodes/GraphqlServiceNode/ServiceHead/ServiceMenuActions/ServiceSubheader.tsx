@@ -8,12 +8,12 @@
  */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline no-implicit-dependencies no-submodule-imports
-import React, { useContext } from "react";
+import React from "react";
 
 import { Divider, ListItemIcon, ListItemText, MenuItem, MenuList, Paper } from "@material-ui/core";
 import { LabelEditIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 
-import { DiagramContext } from "../../../../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../../../../DiagramContext/GraphqlDiagramContext";
 import { GoToSourceMenuItem } from "../../../../NodeActionMenu/GoToSourceMenuItem";
 import { FunctionType, Position } from "../../../../resources/model";
 
@@ -26,7 +26,7 @@ interface ServiceSubheaderProps {
 
 export function ServiceSubheader(props: ServiceSubheaderProps) {
     const { location } = props;
-    const { servicePanel } = useContext(DiagramContext);
+    const { servicePanel } = useGraphQlContext();
     const classes = useStyles();
 
     return (

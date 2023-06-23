@@ -11,6 +11,7 @@ import React, { useEffect, useRef } from "react";
 
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { Interaction } from "../../../resources/model";
 import { FieldName, NodeFieldContainer } from "../../../resources/styles/styles";
@@ -24,6 +25,7 @@ interface UnionFieldProps {
 
 export function UnionField(props: UnionFieldProps) {
     const { engine, node, unionField } = props;
+    const { setSelectedNode } = useGraphQlContext();
 
     const functionPorts = useRef<PortModel[]>([]);
 
@@ -34,19 +36,25 @@ export function UnionField(props: UnionFieldProps) {
         functionPorts.current.push(node.getPortFromID(`right-${field}`));
     }, [unionField]);
 
+    const updateSelectedNode = () => {
+        setSelectedNode(field);
+    }
+
     return (
-        <NodeFieldContainer>
-            <GraphqlBasePortWidget
-                port={node.getPort(`left-${field}`)}
-                engine={engine}
-            />
-            <FieldName style={{ marginLeft: '7px' }}>
-                {field}
-            </FieldName>
-            <GraphqlBasePortWidget
-                port={node.getPort(`right-${field}`)}
-                engine={engine}
-            />
-        </NodeFieldContainer>
+        <div onClick={updateSelectedNode}>
+            <NodeFieldContainer>
+                <GraphqlBasePortWidget
+                    port={node.getPort(`left-${field}`)}
+                    engine={engine}
+                />
+                <FieldName style={{ marginLeft: '7px' }}>
+                    {field}
+                </FieldName>
+                <GraphqlBasePortWidget
+                    port={node.getPort(`right-${field}`)}
+                    engine={engine}
+                />
+            </NodeFieldContainer>
+        </div>
     );
 }

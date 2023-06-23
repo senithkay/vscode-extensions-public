@@ -11,6 +11,7 @@ import React from "react";
 
 import { DiagramEngine } from "@projectstorm/react-diagrams";
 
+import { useGraphQlContext } from "../../../DiagramContext/GraphqlDiagramContext";
 import { GraphqlBasePortWidget } from "../../../Port/GraphqlBasePortWidget";
 import { Interaction } from "../../../resources/model";
 import { FieldName, NodeFieldContainer } from "../../../resources/styles/styles";
@@ -24,18 +25,25 @@ interface InterfaceImplWidgetProps {
 
 export function InterfaceImplWidget(props: InterfaceImplWidgetProps) {
     const { engine, node, field } = props;
+    const { setSelectedNode } = useGraphQlContext();
+
+    const updateSelectedNode = () => {
+        setSelectedNode(field.componentName);
+    }
 
     return (
-        <NodeFieldContainer>
-            <GraphqlBasePortWidget
-                port={node.getPort(`left-${field.componentName}`)}
-                engine={engine}
-            />
-            <FieldName>{field.componentName}</FieldName>
-            <GraphqlBasePortWidget
-                port={node.getPort(`right-${field.componentName}`)}
-                engine={engine}
-            />
-        </NodeFieldContainer>
+        <div onClick={updateSelectedNode}>
+            <NodeFieldContainer>
+                <GraphqlBasePortWidget
+                    port={node.getPort(`left-${field.componentName}`)}
+                    engine={engine}
+                />
+                <FieldName>{field.componentName}</FieldName>
+                <GraphqlBasePortWidget
+                    port={node.getPort(`right-${field.componentName}`)}
+                    engine={engine}
+                />
+            </NodeFieldContainer>
+        </div>
     );
 }

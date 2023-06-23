@@ -13,6 +13,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Popover } from "@material-ui/core";
 import { DiagramEngine, PortModel } from "@projectstorm/react-diagrams";
 
+import { useGraphQlContext } from "../../DiagramContext/GraphqlDiagramContext";
 import { ParametersPopup } from "../../Popup/ParametersPopup";
 import { popOverStyle } from "../../Popup/styles";
 import { GraphqlBasePortWidget } from "../../Port/GraphqlBasePortWidget";
@@ -33,6 +34,7 @@ export function ResourceField(props: ResourceFieldProps) {
 
     const functionPorts = useRef<PortModel[]>([]);
     const [anchorElement, setAnchorElement] = useState<HTMLDivElement | null>(null);
+    const { setSelectedNode } = useGraphQlContext();
 
     const path = resource.identifier;
 
@@ -49,6 +51,10 @@ export function ResourceField(props: ResourceFieldProps) {
         setAnchorElement(null);
     };
 
+    const updateSelectedNode = () => {
+        setSelectedNode(resource.returns);
+    }
+
     const classes = popOverStyle();
 
     return (
@@ -60,7 +66,9 @@ export function ResourceField(props: ResourceFieldProps) {
             <FieldName onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} style={{ marginLeft: '7px' }}>
                 {resource.identifier}
             </FieldName>
-            <FieldType>{resource.returns}</FieldType>
+            <div onClick={updateSelectedNode}>
+                <FieldType>{resource.returns}</FieldType>
+            </div>
             <GraphqlBasePortWidget
                 port={node.getPort(`right-${path}`)}
                 engine={engine}
@@ -86,12 +94,12 @@ export function ResourceField(props: ResourceFieldProps) {
                         horizontal: 'center'
                     }}
                 >
-                    <ParametersPopup parameters={resource.parameters}/>
+                    <ParametersPopup parameters={resource.parameters} />
                 </Popover>
             )}
             {resource.subscription ?
-                <FunctionMenuWidget location={resource.position} functionType={FunctionType.SUBSCRIPTION}/> :
-                <FunctionMenuWidget location={resource.position} functionType={FunctionType.QUERY}/>
+                <FunctionMenuWidget location={resource.position} functionType={FunctionType.SUBSCRIPTION} /> :
+                <FunctionMenuWidget location={resource.position} functionType={FunctionType.QUERY} />
             }
         </NodeFieldContainer>
     );
