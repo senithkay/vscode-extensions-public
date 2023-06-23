@@ -1,0 +1,187 @@
+/**
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+
+import { Uri, WorkspaceFolder, window, workspace } from "vscode";
+import { existsSync, rmSync } from "fs";
+import * as path from "path";
+import { CMLocation as Location, CMAnnotation as Annotation, STModification } from "@wso2-enterprise/ballerina-languageclient";
+import { AssignmentStatement, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
+import { getLangClient, STResponse } from "../../activator";
+import { DeleteLinkArgs, SUCCESSFUL_LINK_DELETION, UNSUPPORTED_LINK_DELETION } from "../../resources";
+import { getInitFunction, go2source, updateSyntaxTree, updateSourceFile, visitor as STNodeFindingVisitor } from "../shared-utils";
+
+export function deleteBallerinaPackage(filePath: string): void {
+    let basePath: string = path.dirname(filePath);
+    while (!existsSync(path.join(basePath, 'Ballerina.toml'))) {
+        basePath = path.dirname(basePath);
+    }
+    rmSync(basePath, { recursive: true });
+    updateWorkspaceFileOnDelete(basePath).then(() => {
+        window.showInformationMessage('Component was deleted successfully');
+    }).catch((err) => {
+        console.log(err);
+        window.showErrorMessage('Error: Could not update workspace file');
+    });
+}
+
+export async function deleteComponentOnly(location: Location) {
+    const modifications: STModification[] = [];
+    modifications.push({
+        startLine: location.startPosition.line,
+        startColumn: location.startPosition.offset,
+        endLine: location.endPosition.line,
+        endColumn: location.endPosition.offset,
+        type: "DELETE"
+    });
+
+    const langClient: any = getLangClient();
+    const response: STResponse = (await langClient.stModify({
+        astModifications: modifications,
+        documentIdentifier: {
+            uri: Uri.file(location.filePath).toString(),
+        }
+    })) as STResponse;
+
+    if (response.parseSuccess && response.source) {
+        await updateSourceFile(langClient, location.filePath, response.source).then(() => {
+            window.showInformationMessage('Component was deleted successfully');
+        });
+    }
+}
+
+async function updateWorkspaceFileOnDelete(componentPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const folder: WorkspaceFolder = workspace.getWorkspaceFolder(Uri.file(componentPath));
+        if (folder) {
+            const didDelete = workspace.updateWorkspaceFolders(folder.index, 1);
+            if (didDelete) {
+                resolve();
+            } else {
+                reject(new Error('Could not update the workspace file'));
+            }
+        } else {
+            reject(new Error('Could not locate the package in the workspace'));
+        }
+    });
+}
+
+export async function deleteLink(langClient: any, args: DeleteLinkArgs): Promise<void> {
+    const { linkLocation, nodeLocation } = args;
+    let userFeedback = UNSUPPORTED_LINK_DELETION;
+    const stResponse: STResponse = await langClient.getSyntaxTree({
+        documentIdentifier: {
+            uri: Uri.file(linkLocation.filePath).toString()
+        }
+    }) as STResponse;
+    if (stResponse.parseSuccess) {
+        let modifications: STModification[] = [];
+        STNodeFindingVisitor.setPosition({
+            startColumn: linkLocation.startPosition.offset,
+            startLine: linkLocation.startPosition.line,
+            endColumn: linkLocation.endPosition.offset,
+            endLine: linkLocation.endPosition.line
+        });
+        traversNode(stResponse.syntaxTree, STNodeFindingVisitor);
+        const node: STNode = STNodeFindingVisitor.getSTNode();
+        if (STKindChecker.isObjectField(node) && node.typeData.isEndpoint) {
+            const identifierName: string = node.fieldName.value;
+            STNodeFindingVisitor.setPosition({
+                startColumn: nodeLocation.startPosition.offset,
+                startLine: nodeLocation.startPosition.line,
+                endColumn: nodeLocation.endPosition.offset,
+                endLine: nodeLocation.endPosition.line
+            });
+            traversNode(stResponse.syntaxTree, STNodeFindingVisitor);
+            const serviceNode: STNode = STNodeFindingVisitor.getSTNode();
+            const initFunction = getInitFunction(serviceNode);
+            const initStatement: AssignmentStatement = initFunction?.functionBody?.statements?.find((statement: STNode) =>
+                STKindChecker.isAssignmentStatement(statement) && STKindChecker.isFieldAccess(statement.varRef) &&
+                STKindChecker.isSimpleNameReference(statement.varRef.fieldName) &&
+                statement.varRef.fieldName.name.value === identifierName
+            );
+
+            if (initStatement) {
+                modifications = [
+                    {
+                        startLine: linkLocation.startPosition.line,
+                        startColumn: linkLocation.startPosition.offset,
+                        endLine: linkLocation.endPosition.line,
+                        endColumn: linkLocation.endPosition.offset,
+                        type: "DELETE"
+                    },
+                    {
+                        type: "DELETE",
+                        ...initStatement.position
+                    }
+                ];
+            }
+        } else if (STKindChecker.isLocalVarDecl(node) && node.typeData.isEndpoint) {
+            modifications = [
+                {
+                    startLine: linkLocation.startPosition.line,
+                    startColumn: linkLocation.startPosition.offset,
+                    endLine: linkLocation.endPosition.line,
+                    endColumn: linkLocation.endPosition.offset,
+                    type: "DELETE"
+                }
+            ];
+        }
+
+        if (modifications.length) {
+            const updatedST: STResponse = (await langClient.stModify({
+                astModifications: modifications,
+                documentIdentifier: {
+                    uri: Uri.file(linkLocation.filePath).toString(),
+                }
+            })) as STResponse;
+
+            if (updatedST.parseSuccess && updatedST.source) {
+                await updateSourceFile(langClient, linkLocation.filePath, updatedST.source).then(() => {
+                    userFeedback = SUCCESSFUL_LINK_DELETION;
+                });
+            }
+        }
+    }
+    showActionableMessage(userFeedback, linkLocation);
+}
+
+function showActionableMessage(message: string, location: Location) {
+    const action = 'Go to source';
+    window.showInformationMessage(message, action).then((selection) => {
+        if (action === selection) {
+            go2source(location);
+        }
+    });
+}
+
+export async function editDisplayLabel(langClient: any, annotation: Annotation): Promise<boolean> {
+    const stObject = {
+        position: {
+            startLine: annotation.elementLocation.startPosition.line,
+            startColumn: annotation.elementLocation.startPosition.offset,
+            endLine: annotation.elementLocation.endPosition.line,
+            endColumn: annotation.elementLocation.endPosition.offset
+        }
+    };
+
+    const displayAnnotation: string = `
+        @display {
+            label: "${annotation.label}",
+            id: "${annotation.id}"
+        }
+    `;
+
+    const response: STResponse = await updateSyntaxTree(
+        langClient, annotation.elementLocation.filePath, stObject, displayAnnotation, undefined, true) as STResponse;
+    if (response.parseSuccess && response.source) {
+        return updateSourceFile(langClient, annotation.elementLocation.filePath, response.source);
+    }
+    window.showErrorMessage('Architecture View: Failed to update display annotation.');
+    return false;
+}

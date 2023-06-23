@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content.
- */
+ * Copyright (c) 2021, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 import {
     ANALYZE_TYPE, DiagramEditorLangClientInterface,
@@ -101,6 +101,25 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
 
     await addRealtimeData();
     setSyntaxTree(syntaxTree);
+}
+
+export async function addPerformanceDataNew(st: any, file: string, lc: DiagramEditorLangClientInterface,
+                                            showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
+                                            getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) =>
+        Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>,
+                                            setSyntaxTree: any) {
+    if (!st || !file || !lc) {
+        return;
+    }
+
+    syntaxTree = { ...st };
+    langClient = lc;
+    filePath = file;
+    showPerformanceGraph = showPerf;
+    getDataFromChoreo = getPerfDataFromChoreo;
+
+    await addRealtimeData();
+    return syntaxTree;
 }
 
 async function addRealtimeData() {

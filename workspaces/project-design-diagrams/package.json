@@ -1,6 +1,6 @@
 {
   "name": "@wso2-enterprise/project-design-diagrams",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Generates the design diagrams for Ballerina projects.",
   "files": [
     "lib"
@@ -36,7 +36,6 @@
     "@types/node": "^18.11.19",
     "@types/vscode-webview": "^1.57.0",
     "@wso2-enterprise/syntax-tree": "workspace:*",
-    "@wso2-enterprise/design-diagram-commons": "workspace:*",
     "closest": "^0.0.1",
     "dagre": "^0.8.5",
     "file-loader": "^5.0.2",

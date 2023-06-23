@@ -22,7 +22,6 @@
 		"@projectstorm/react-diagrams-routing": "^6.7.4",
 		"@types/lodash": "^4.14.189",
 		"@types/node": "^18.11.19",
-		"@wso2-enterprise/design-diagram-commons": "workspace:*",
 		"closest": "^0.0.1",
 		"dagre": "^0.8.5",
 		"file-loader": "^5.0.2",
