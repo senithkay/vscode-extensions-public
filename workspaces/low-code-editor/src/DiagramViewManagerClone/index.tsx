@@ -22,6 +22,7 @@ import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
 import { getConstructBodyString } from "../Diagram/visitors/util";
 import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
+import { addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
 import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
@@ -37,6 +38,9 @@ import { DiagramView } from "./views/DiagramView";
 import { FailedToIdentifyMessageOverlay } from "./views/FailedToIdentifyMessage";
 
 const undoRedoManager = new UndoRedoManager();
+
+const debounceTime: number = 5000;
+let lastPerfUpdate = 0;
 
 export function DiagramViewManager(props: EditorProps) {
     const {
@@ -132,7 +136,12 @@ export function DiagramViewManager(props: EditorProps) {
 
                 if (file.endsWith(".bal")) {
                     const generatedST = await getSyntaxTree(file, langClient);
-                    const visitedST = await getLowcodeST(generatedST, file, langClient, experimentalEnabled);
+                    let visitedST = await getLowcodeST(generatedST, file, langClient, experimentalEnabled);
+                    const currentTime: number = Date.now();
+                    if (currentTime - lastPerfUpdate > debounceTime) {
+                        visitedST = await addPerformanceDataNew(visitedST, file, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
+                        lastPerfUpdate = currentTime;
+                    }
                     const content = await getFileContent(file);
                     const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                     const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
