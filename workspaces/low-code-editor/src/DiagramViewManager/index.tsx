@@ -29,6 +29,7 @@ import {
     getLowcodeST,
     getSyntaxTree
 } from "../DiagramGenerator/generatorUtil";
+import { addPerformanceData, addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
 import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { OverviewDiagram } from "../OverviewDiagram";
@@ -42,6 +43,9 @@ import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { extractFilePath, getDiagramProviderProps, getSTNodeForReference, pathIncludesIn } from "./utils";
 import { addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
+
+const debounceTime: number = 5000;
+let lastPerfUpdate = 0;
 
 /**
  * Handles the rendering of the Diagram views(lowcode, datamapper, service etc.)
@@ -455,5 +459,15 @@ export function DiagramViewManager(props: EditorProps) {
             </MuiThemeProvider>
         </div>
     )
+
+
+    async function addPerfData(filePath: string) {
+        const currentTime: number = Date.now();
+        const langClient = await langClientPromise;
+        if (currentTime - lastPerfUpdate > debounceTime) {
+            await addPerformanceData(focusedST, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
+            lastPerfUpdate = currentTime;
+        }
+    }
 }
 
