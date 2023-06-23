@@ -42,7 +42,6 @@ import { NavigationBar } from "./NavigationBar";
 import { useGeneratorStyles } from './style';
 import { theme } from "./theme";
 import { extractFilePath, getDiagramProviderProps, getSTNodeForReference, pathIncludesIn } from "./utils";
-import { addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
 
 const debounceTime: number = 5000;
 let lastPerfUpdate = 0;

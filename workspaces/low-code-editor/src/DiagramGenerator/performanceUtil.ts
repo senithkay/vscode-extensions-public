@@ -85,10 +85,10 @@ interface SequenceDiagramData {
  * @param showMsg Show alerts in vscode side
  */
 export async function addPerformanceData(st: any, file: string, lc: DiagramEditorLangClientInterface,
-    showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
-    getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) =>
+                                         showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
+                                         getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) =>
         Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>,
-    setSyntaxTree: any): Promise<void> {
+                                         setSyntaxTree: any): Promise<void> {
     if (!st || !file || !lc) {
         return;
     }
@@ -104,10 +104,10 @@ export async function addPerformanceData(st: any, file: string, lc: DiagramEdito
 }
 
 export async function addPerformanceDataNew(st: any, file: string, lc: DiagramEditorLangClientInterface,
-    showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
-    getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) =>
+                                            showPerf: (request: PerformanceGraphRequest) => Promise<boolean>,
+                                            getPerfDataFromChoreo: (data: any, analyzeType: ANALYZE_TYPE) =>
         Promise<PerformanceAnalyzerRealtimeResponse | PerformanceAnalyzerAdvancedResponse | undefined>,
-    setSyntaxTree: any) {
+                                            setSyntaxTree: any) {
     if (!st || !file || !lc) {
         return;
     }

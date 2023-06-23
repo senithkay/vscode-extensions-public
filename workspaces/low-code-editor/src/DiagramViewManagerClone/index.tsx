@@ -21,6 +21,7 @@ import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
 import { UIDGenerationVisitor } from "../Diagram/visitors/uid-generation-visitor";
 import { getConstructBodyString } from "../Diagram/visitors/util";
 import { getLowcodeST, getSyntaxTree } from "../DiagramGenerator/generatorUtil";
+import { addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
 import { EditorProps, WorkspaceFolder } from "../DiagramGenerator/vscode/Diagram";
 import messages from '../lang/en.json';
 import { TextPreLoader } from "../PreLoader/TextPreLoader";
@@ -33,7 +34,6 @@ import { theme } from './theme';
 import { getDiagramProviderProps } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
-import { addPerformanceDataNew } from "../DiagramGenerator/performanceUtil";
 
 const debounceTime: number = 5000;
 let lastPerfUpdate = 0;
