@@ -47,8 +47,6 @@ import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeade
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
 import { isArraysSupported, isDMSupported } from "./utils";
 
-let selectionStateVar: any;
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
@@ -154,29 +152,23 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
     switch (action.type) {
         case ViewOption.EXPAND: {
             const previousST = state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
-            selectionStateVar = { ...state, selectedST: action.payload.selectedST, prevST: previousST }
-            return selectionStateVar;
+            return { ...state, selectedST: action.payload.selectedST, prevST: previousST };
         }
         case ViewOption.COLLAPSE: {
             const prevSelection = state.prevST.pop();
-            selectionStateVar = { ...state, selectedST: prevSelection, prevST: [...state.prevST] }
-            return selectionStateVar;
+            return { ...state, selectedST: prevSelection, prevST: [...state.prevST] };
         }
         case ViewOption.NAVIGATE: {
             const targetST = state.prevST[action.index];
-            selectionStateVar = { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] }
-            return selectionStateVar;
+            return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
         }
         case ViewOption.RESET: {
-            selectionStateVar = { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED }
-            return selectionStateVar;
+            return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED };
         }
         case ViewOption.INITIALIZE: {
-            selectionStateVar = { selectedST: action.payload.selectedST, prevST: action.payload.prevST, state: DMState.INITIALIZED }
-            return selectionStateVar;
+            return { selectedST: action.payload.selectedST, prevST: action.payload.prevST, state: DMState.INITIALIZED };
         }
         default: {
-            selectionStateVar = state;
             return state;
         }
     }
@@ -209,7 +201,7 @@ function DataMapperC(props: DataMapperProps) {
     const [currentEditableField, setCurrentEditableField] = useState<ExpressionInfo>(null);
     const [isStmtEditorCanceled, setIsStmtEditorCanceled] = useState(false);
     const [showDMOverlay, setShowDMOverlay] = useState(false);
-    const [selection, dispatchSelection] = useReducer(selectionReducer, selectionStateVar || {
+    const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: { stNode: fnST, fieldPath: fnST && fnST.functionName.value },
         prevST: [],
         state: DMState.NOT_INITIALIZED,
@@ -244,7 +236,6 @@ function DataMapperC(props: DataMapperProps) {
         setConfigPanelOpen(false);
         if (showConfigPanel) {
             // Close data mapper when having incomplete fnST
-            selectionStateVar = undefined;
             onClose();
         }
     }
@@ -419,7 +410,6 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         if (selection.state === DMState.ST_NOT_FOUND) {
-            selectionStateVar = undefined;
             onClose();
         }
     }, [selection.state])
