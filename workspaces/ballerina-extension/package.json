@@ -395,6 +395,11 @@
                 "category": "Ballerina"
             },
             {
+                "command": "ballerina.project.config.create",
+                "title": "Create Config.toml",
+                "category": "Ballerina"
+            },
+            {
                 "command": "ballerina.notebook.restartNotebook",
                 "title": "Restart Notebook",
                 "icon": {

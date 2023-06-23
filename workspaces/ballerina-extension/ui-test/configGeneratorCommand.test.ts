@@ -11,7 +11,7 @@ import { expect } from 'chai';
 import { existsSync, readFileSync, unlinkSync } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, EditorView, TextEditor, VSBrowser, WebDriver, WebView, Window } from 'vscode-extension-tester';
+import { By, EditorView, Key, TextEditor, VSBrowser, WebDriver, Window } from 'vscode-extension-tester';
 import { DIAGRAM_LOADING_TIME } from './constants';
 import { areVariablesIncludedInString, getDiagramExplorer, wait } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
@@ -45,7 +45,7 @@ const expectedConfigs = [
     'authConfig'
 ];
 
-describe('VSCode Config Generation UI Tests', () => {
+describe('VSCode Config Creation Using Command UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
@@ -67,39 +67,18 @@ describe('VSCode Config Generation UI Tests', () => {
         await wait(10000);
     });
 
-    it('Click on run anyway button to just ignore the config generation', async () => {
-        // Open the popup message
-        const editorView = new ExtendedEditorView(new EditorView());
-        expect(await editorView.getAction("Run")).is.not.undefined;
-        (await editorView.getAction("Run"))!.click();
-        await wait(5000);
-        // Find the information message boxes
-        const infoNotifications = await driver.findElements(By.linkText('Run Anyway'));
-        // Iterate over the information message boxes
-        for (const infoNotification of infoNotifications) {
-            await infoNotification.click();
-        }
+    it('Open command palette to select config create command', async () => {
+        // Send keyboard shortcut to open the command palette
+        await driver.actions().sendKeys(Key.F1).perform();
 
-        await wait(5000);
-        // Check if the terminal is open
-        const terminal = await browser.driver.findElement(By.className('xterm'));
-        expect(await terminal.isDisplayed()).to.be.true;
-
-    });
-
-    it('Click on run button to generate the config file', async () => {
-        const editorView = new ExtendedEditorView(new EditorView());
-        expect(await editorView.getAction("Run")).is.not.undefined;
-        (await editorView.getAction("Run"))!.click();
         await wait(3000);
 
-        // Find the information message boxes
-        const infoNotifications = await driver.findElements(By.linkText('Create Config.toml'));
-        // Iterate over the information message boxes
-        for (const infoNotification of infoNotifications) {
-            await infoNotification.click();
-        }
+        // Simulate entering the search query in the command palette
+        const searchQuery = 'Create Config.toml';
+        await driver.actions().sendKeys(searchQuery, Key.ENTER).perform();
+
         await wait(5000);
+
         // Check if the config file has been generated
         expect(existsSync(configFilePath)).to.be.true;
 
@@ -110,4 +89,5 @@ describe('VSCode Config Generation UI Tests', () => {
         expect(areVariablesIncludedInString(expectedConfigs, generatedConfigContent)).to.true;
 
     });
+
 });
