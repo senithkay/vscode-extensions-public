@@ -11,7 +11,7 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeDropdown, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { FilteredCredentialData, GHAppAuthStatus, Repo, UserRepo } from "@wso2-enterprise/choreo-client/lib/github/types";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
@@ -140,13 +140,24 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
         onRepoSelect(selectedRepo?.org, e.target.value);
     };
 
+    const refetch = async () => {
+        setBBStatus({ status: 'install-inprogress' });
+        const userRepos = await useGetRepoData(selectedCred.id || '');
+        setBBStatus({ status: 'installed' });
+        if (userRepos) {
+            setRepoDetails(userRepos);
+        }
+    }
+
     let loaderMessage = "Loading repositories...";
     const showLoader = bbStatus.status === "install-inprogress";
-    const onSelection = bbStatus.status === "auth-inprogress"
+    const onSelection = bbStatus.status === "auth-inprogress";
+    const showRefreshButton = !onSelection && !showLoader && selectedCred.id;
 
     return (
         <>
             <GhRepoSelectorActions>
+                {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
                 {showLoader && loaderMessage}
                 {showLoader && <VSCodeProgressRing />} 
             </GhRepoSelectorActions>

@@ -20,6 +20,7 @@ import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { RequiredFormInput } from "../Commons/RequiredInput";
+import { ProjectTypeCard } from "./ProjectTypeCard";
 import { CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT } from "@wso2-enterprise/choreo-core";
 import { FilteredCredentialData, GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
 
@@ -46,6 +47,23 @@ const GhRepoSelectorActions = styled.div`
     display  : flex;
     flex-direction: row;
     gap: 10px;
+`;
+
+const CardContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+`;
+
+const SubContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 20px;
 `;
 
 export function ProjectWizard() {
@@ -102,7 +120,7 @@ export function ProjectWizard() {
                     await webviewAPI.setProjectProvider(createdProject.id, gitProvider);
                 }
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-                    eventName: CREATE_PROJECT_SUCCESS_EVENT, 
+                    eventName: CREATE_PROJECT_SUCCESS_EVENT,
                     properties: {
                         name: createdProject?.name,
                     }
@@ -113,7 +131,7 @@ export function ProjectWizard() {
                 webviewAPI.closeWebView();
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-                    eventName: CREATE_PROJECT_FAILURE_EVENT, 
+                    eventName: CREATE_PROJECT_FAILURE_EVENT,
                     properties: {
                         name: projectName,
                         cause: error.message + " " + error.cause
@@ -125,7 +143,7 @@ export function ProjectWizard() {
         setCreationInProgress(false);
     };
 
-    const handleRepoSelect = (org?: string, repo?: string) => { 
+    const handleRepoSelect = (org?: string, repo?: string) => {
         setSelectedGHOrgName(org || "");
         setSelectedGHRepo(repo || "");
     };
@@ -135,18 +153,18 @@ export function ProjectWizard() {
         if (selectedGHOrgName && selectedGHRepo) {
             if (gitProvider === GitProvider.GITHUB) {
                 ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedGHOrgName}/${selectedGHRepo}`);
-            } else if(gitProvider === GitProvider.BITBUCKET) {
+            } else if (gitProvider === GitProvider.BITBUCKET) {
                 ChoreoWebViewAPI.getInstance().openExternal(`http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}`);
             }
         }
     };
 
-    const changeGitProvider = () => {
-        if (gitProvider === GitProvider.GITHUB) {
-            setGitProvider(GitProvider.BITBUCKET);
+    const changeGitProvider = (type: GitProvider) => {
+        if (type === GitProvider.GITHUB) {
+            setGitProvider(type);
         } else {
             setSelectedCredential({ id: '', name: '' });
-            setGitProvider(GitProvider.GITHUB);
+            setGitProvider(type);
         }
     }
 
@@ -158,13 +176,13 @@ export function ProjectWizard() {
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
                     <h2>New Choreo Project</h2>
-                    
+
                     <VSCodeTextField
                         disabled={true}
                         value={selectedOrg?.name || "loading..."}
                         title="To change the Organization, Go to `Account` view."
                     >
-                        Organization 
+                        Organization
                     </VSCodeTextField>
                     <VSCodeTextField
                         autofocus
@@ -193,16 +211,34 @@ export function ProjectWizard() {
                         Initialize a mono repo
                     </VSCodeCheckbox>
                     {initMonoRepo &&
-                        (<div>
-                            Git Provider: {gitProvider}&nbsp;&nbsp;&nbsp;&nbsp;
-                            <VSCodeLink onClick={changeGitProvider}>Change to {gitProvider === GitProvider.GITHUB ? GitProvider.BITBUCKET : GitProvider.GITHUB}</VSCodeLink>
-                        </div>)
+                        (
+                            <SubContainer>
+                                <CardContainer>
+                                    <ProjectTypeCard
+                                        type={GitProvider.GITHUB}
+                                        label="GitHub"
+                                        currentType={gitProvider}
+                                        onChange={changeGitProvider}
+                                    />
+                                    <ProjectTypeCard
+                                        type={GitProvider.BITBUCKET}
+                                        label="BitBucket"
+                                        currentType={gitProvider}
+                                        onChange={changeGitProvider}
+                                    />
+                                </CardContainer>
+                            </SubContainer>
+                        )
                     }
                     {initMonoRepo && selectedOrg !== undefined &&
                         (<>
                             {gitProvider === GitProvider.GITHUB && <GithubRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} />}
-                            {gitProvider === GitProvider.BITBUCKET && <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential}/>}
-                            {gitProvider === GitProvider.BITBUCKET && <BitbucketRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} selectedCred={selectedCredential} />}
+                            {gitProvider === GitProvider.BITBUCKET && 
+                                <>
+                                    <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />
+                                    <BitbucketRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} selectedCred={selectedCredential} />
+                                </>
+                            }
                         </>)
                     }
                     {initMonoRepo && isBareRepo &&
@@ -211,10 +247,10 @@ export function ProjectWizard() {
                             <GhRepoSelectorActions>
                                 <VSCodeLink onClick={handleRepoInit}>
                                     Initialize
-                                </VSCodeLink> 
+                                </VSCodeLink>
                                 <VSCodeLink onClick={handleCreateProject}>
                                     Recheck & Create Project
-                                </VSCodeLink>    
+                                </VSCodeLink>
                             </GhRepoSelectorActions>
                         </>)
                     }
@@ -228,14 +264,14 @@ export function ProjectWizard() {
 
                         <VSCodeButton
                             appearance="secondary"
-                            onClick={() => { 
+                            onClick={() => {
                                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
                                     eventName: CREATE_COMPONENT_CANCEL_EVENT
                                 });
                                 ChoreoWebViewAPI.getInstance().closeWebView();
                             }}
                         >
-                                Cancel
+                            Cancel
                         </VSCodeButton>
                         <VSCodeButton
                             appearance="primary"
@@ -243,7 +279,7 @@ export function ProjectWizard() {
                             disabled={creationInProgress || !isValid}
                             id='create-project-btn'
                         >
-                                Create
+                            Create
                         </VSCodeButton>
                         {creationInProgress && <VSCodeProgressRing />}
                     </ActionContainer>
