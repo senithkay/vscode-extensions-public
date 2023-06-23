@@ -16,7 +16,7 @@ export function getProjectsByOrgIdQuery(orgId: number) {
     return gql`
         query {
             projects(orgId: ${orgId}) {
-                id, orgId, name, version, createdDate, handler, region,
+                id, orgId, name, version, createdDate, handler, region, description
             }
         }
     `;

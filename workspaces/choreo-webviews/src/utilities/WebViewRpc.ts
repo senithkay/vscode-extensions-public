@@ -71,6 +71,7 @@ import {
     getLocalComponentDirMetaDataRequest,
     getLocalComponentDirMetaDataRes,
     CreateNonBalLocalComponentFromExistingSource,
+    GetEnrichedComponent,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -126,6 +127,10 @@ export class ChoreoWebViewAPI {
 
     public async getEnrichedComponents(projectId: string): Promise<Component[]> {
         return this._messenger.sendRequest(GetEnrichedComponents, HOST_EXTENSION, projectId);
+    }
+
+    public async getEnrichedComponent(component: Component): Promise<Component> {
+        return this._messenger.sendRequest(GetEnrichedComponent, HOST_EXTENSION, component);
     }
 
     public async deleteComponent(params: {component: Component; projectId: string}): Promise<Component | null> {

@@ -21,6 +21,8 @@ import { ProjectOverview } from "./ProjectOverview/ProjectOverview";
 import { ChoreoArchitectureView } from "./ChoreoArchitectureView/ArchitectureView";
 import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
 import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
+import { ProjectView } from "./ActivityBar/ProjectView";
+import { AccountView } from "./ActivityBar/AccountView";
 
 export const Main: React.FC<any> = styled.main`
   display: flex;
@@ -47,7 +49,11 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
             case "ProjectCreateForm":
                 return <ProjectWizard />;
             case "ComponentCreateForm":
-                return <ComponentWizard componentCreateMode={componentCreateMode}/>;
+                return <ComponentWizard componentCreateMode={componentCreateMode} />;
+            case "ActivityBarProjectView":
+                return <ProjectView />;
+            case "ActivityBarAccountView":
+                return <AccountView />;
             case "ProjectOverview":
                 return (
                     <ProjectOverview
@@ -66,7 +72,7 @@ function ChoreoWebview(props: ChoreoWebviewProps) {
             <Main>
                 {type === 'ChoreoArchitectureView' ?
                     <ChoreoArchitectureView projectId={projectId} orgName={orgName} /> :
-                    <ChoreoWebViewContext.Provider value={usePopulateContext()}>
+                    <ChoreoWebViewContext.Provider value={usePopulateContext({ choreoUrl })}>
                         {switchViews()}
                     </ChoreoWebViewContext.Provider>
                 }

@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import { IChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 
-export function usePopulateContext(): IChoreoWebViewContext {
+export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewContext {
 
     const [loginStatusPending, setLoginStatusPending] = useState(true);
     const [loginStatus, setLoginStatus] = useState<ChoreoLoginStatus>("Initializing");
@@ -28,14 +28,25 @@ export function usePopulateContext(): IChoreoWebViewContext {
 
     useEffect(() => {
       const rpcInstance = ChoreoWebViewAPI.getInstance();
+      const getChoreoProject = async () => {
+        try {
+          if (isChoreoProject && loginStatus === "LoggedIn") {
+            const choreoProject = await rpcInstance.getChoreoProject();
+            setChoreoProject(choreoProject);
+          }
+        } catch (err: any) {
+          setError(err);    
+        }
+      }
+      getChoreoProject();
+    }, [isChoreoProject, loginStatus])
+
+    useEffect(() => {
+      const rpcInstance = ChoreoWebViewAPI.getInstance();
       const checkIsChoreoProject = async () => {
         try {
           const isChoreoProject = await rpcInstance.isChoreoProject();
           setIsChoreoProject(isChoreoProject);
-          if (isChoreoProject) {
-            const choreoProject = await rpcInstance.getChoreoProject();
-            setChoreoProject(choreoProject);
-          }
         } catch (err: any) {
           setError(err);
         }
@@ -89,6 +100,7 @@ export function usePopulateContext(): IChoreoWebViewContext {
         userOrgs,
         error,
         isChoreoProject,
-        choreoProject
+        choreoProject,
+        choreoUrl: props.choreoUrl,
     };
 }

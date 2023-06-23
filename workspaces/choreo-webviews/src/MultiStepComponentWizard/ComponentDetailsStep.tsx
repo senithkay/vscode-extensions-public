@@ -39,8 +39,8 @@ function sanitizeFolderName(folderName: string): string {
     // Remove any leading or trailing spaces
     const trimmed = sanitized.trim();
 
-    // Replace any consecutive spaces with a single space
-    const final = trimmed.replace(/\s+/g, ' ');
+    // Replace any consecutive spaces with a dash
+    const final = trimmed.replace(/\s+/g, '-');
 
     return final;
 }

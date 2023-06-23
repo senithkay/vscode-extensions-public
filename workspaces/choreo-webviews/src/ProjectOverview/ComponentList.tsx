@@ -60,7 +60,7 @@ const DeploymentStatusMapping = {
     [DeploymentStatus.InProgress]: 'In-progress',
 };
 
-const mapBuildStatus = (
+export const mapBuildStatus = (
     status: string,
     conclusion: string | null,
 ): { text: string; color: string; } => {

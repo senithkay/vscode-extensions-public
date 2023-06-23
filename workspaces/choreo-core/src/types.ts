@@ -46,6 +46,7 @@ export interface Project {
     orgId: string;
     region: string;
     version: string;
+    description: string;
 }
 
 export interface ComponentCount {

@@ -75,6 +75,12 @@
         "icon": "$(add)"
       },
       {
+        "command": "wso2.choreo.project.open",
+        "title": "Open Choreo Project",
+        "category": "Choreo",
+        "icon": "$(project)"
+      },
+      {
         "command": "wso2.choreo.architecture.view",
         "title": "View Choreo Project Architecture",
         "category": "Choreo"
@@ -99,7 +105,7 @@
       "activitybar": [
         {
           "id": "wso2-choreo",
-          "title": "WSO2 Choreo",
+          "title": "Choreo",
           "icon": "resources/icons/choreo-2.svg"
         }
       ]
@@ -107,40 +113,23 @@
     "views": {
       "wso2-choreo": [
         {
-          "id": "choreo-projects",
-          "name": "Projects"
+          "id": "choreo.activity.project",
+          "name": "Project",
+          "type": "webview"
         },
         {
-          "id": "choreo-account",
-          "name": "Account"
+          "id": "choreo.activity.account",
+          "name": "Account",
+          "type": "webview"
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "choreo-projects",
-        "contents": "Sign in to retrieve projects.\n[Sign In](command:wso2.choreo.sign.in)",
-        "when": "choreoLoginStatus == LoggedOut"
-      }
-    ],
     "menus": {
       "view/title": [
         {
-          "command": "wso2.choreo.project.create",
-          "when": "view == choreo-projects",
+          "command": "wso2.choreo.project.open",
+          "when": "view == choreo.activity.project",
           "group": "navigation"
-        },
-        {
-          "command": "wso2.choreo.projects.tree.refresh",
-          "when": "view == choreo-projects",
-          "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "wso2.choreo.org.setAsSelected",
-          "when": "view == choreo-account && viewItem == choreo.org",
-          "group": "inline"
         }
       ],
       "commandPalette": [

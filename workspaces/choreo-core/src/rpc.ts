@@ -51,6 +51,7 @@ export const GetComponents: RequestType<string, Component[]> = { method: 'getCom
 export const GetDeletedComponents: RequestType<string, PushedComponent[]> = { method: 'getDeletedComponents' };
 export const RemoveDeletedComponents: RequestType<{projectId: string, components: PushedComponent[]}, void> = { method: 'removeDeletedComponents' };
 export const GetEnrichedComponents: RequestType<string, Component[]> = { method: 'getEnrichedComponents' };
+export const GetEnrichedComponent: RequestType<Component, Component> = { method: 'getEnrichedComponent' };
 export const DeleteComponent: RequestType<{projectId: string, component: Component}, Component | null> = { method: 'deleteComponent' };
 export const PullComponent: RequestType<{projectId: string, componentId: string}, void> = { method: 'pullComponent' };
 export const GetProjectLocation: RequestType<string, string | undefined> = { method: 'getProjectLocation' };

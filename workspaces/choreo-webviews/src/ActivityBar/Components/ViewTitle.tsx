@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- * 
+ *
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -11,25 +11,13 @@
  *  associated services.
  */
 import React from "react";
-import { ChoreoLoginStatus, Organization, Project } from "@wso2-enterprise/choreo-core";
+import styled from "@emotion/styled";
 
-export interface IChoreoWebViewContext {
-    loginStatus: ChoreoLoginStatus;
-    loginStatusPending: boolean;
-    fetchingOrgInfo: boolean;
-    selectedOrg?: Organization;
-    userOrgs?: Organization[];
-    error?: Error;
-    isChoreoProject?: boolean;
-    choreoProject?: Project;
-    choreoUrl: string;
-}
+const Title = styled.div`
+    font-size: 14px;
+    font-weight: 700;
+`;
 
-const defaultContext: IChoreoWebViewContext = {
-    loginStatus: "Initializing",
-    loginStatusPending: true,
-    fetchingOrgInfo: true,
-    choreoUrl: "",
-};
-
-export const ChoreoWebViewContext = React.createContext(defaultContext);
+export const ViewTitle: React.FC = (props) => (
+    <Title>{props.children}</Title>
+);
