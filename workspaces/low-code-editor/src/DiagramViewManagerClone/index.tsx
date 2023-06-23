@@ -121,6 +121,7 @@ export function DiagramViewManager(props: EditorProps) {
     }, [focusedST]);
 
     useEffect(() => {
+        console.log("projectPaths >>>", updatedTimeStamp);
         if (history.length > 0) {
             (async () => {
                 setIsLoading(true);
@@ -242,9 +243,9 @@ export function DiagramViewManager(props: EditorProps) {
     }
 
     const showOverviewMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
-        && history[history.length - 1].position === undefined && !isLoading;
+        && history[history.length - 1].position === undefined;
     const showSTMode: boolean = history.length > 0 && history[history.length - 1].file !== undefined
-        && history[history.length - 1].position !== undefined && !!focusedST && !isLoading;
+        && history[history.length - 1].position !== undefined && focusedST !== undefined;
 
 
     const diagramProps = getDiagramProviderProps(

@@ -154,29 +154,23 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
     switch (action.type) {
         case ViewOption.EXPAND: {
             const previousST = state.prevST.length ? [...state.prevST, state.selectedST] : [state.selectedST];
-            selectionStateVar = { ...state, selectedST: action.payload.selectedST, prevST: previousST }
-            return selectionStateVar;
+            return { ...state, selectedST: action.payload.selectedST, prevST: previousST }
         }
         case ViewOption.COLLAPSE: {
             const prevSelection = state.prevST.pop();
-            selectionStateVar = { ...state, selectedST: prevSelection, prevST: [...state.prevST] }
-            return selectionStateVar;
+            return { ...state, selectedST: prevSelection, prevST: [...state.prevST] }
         }
         case ViewOption.NAVIGATE: {
             const targetST = state.prevST[action.index];
-            selectionStateVar = { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] }
-            return selectionStateVar;
+            return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] }
         }
         case ViewOption.RESET: {
-            selectionStateVar = { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED }
-            return selectionStateVar;
+            return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED }
         }
         case ViewOption.INITIALIZE: {
-            selectionStateVar = { selectedST: action.payload.selectedST, prevST: action.payload.prevST, state: DMState.INITIALIZED }
-            return selectionStateVar;
+            return { selectedST: action.payload.selectedST, prevST: action.payload.prevST, state: DMState.INITIALIZED }
         }
         default: {
-            selectionStateVar = state;
             return state;
         }
     }
