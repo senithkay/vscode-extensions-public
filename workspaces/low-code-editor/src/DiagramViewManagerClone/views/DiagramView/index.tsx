@@ -31,7 +31,7 @@ export function DiagramView(props: DiagramViewProps) {
         props: { syntaxTree, fullST, ballerinaVersion, currentFile },
         api: { openArchitectureView },
     } = useDiagramContext();
-    const { projectComponents,isLoading } = props;
+    const { projectComponents, isLoading } = props;
 
     let viewComponent: React.ReactElement;
 

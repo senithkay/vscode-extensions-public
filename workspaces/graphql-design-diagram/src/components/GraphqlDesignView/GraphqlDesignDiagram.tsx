@@ -69,7 +69,6 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
     const [selectedDiagramNode, setSelectedDiagramNode] = useState<string>(undefined);
 
     useEffect(() => {
-        console.log('fetching model >>>');
         if (fullST) {
             (async () => {
                 await getGraphqlDesignModel();

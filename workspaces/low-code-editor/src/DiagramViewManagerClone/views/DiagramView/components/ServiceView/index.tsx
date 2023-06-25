@@ -35,8 +35,6 @@ export function ServiceView(props: ServiceViewProps) {
     const { history, historyClearAndPopulateWith } = useHistoryContext();
     const [listnerType, setListenerType] = useState<string>();
 
-    console.log('syntaxTree >>>', syntaxTree);
-
     useEffect(() => {
         (async () => {
             let listenerSignature: string;
