@@ -70,7 +70,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+        getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
@@ -214,8 +214,9 @@ export function getDiagramProviderProps(
                     const fileToModify = filePath ? filePath : focusFile;
                     return props.updateFileContent(fileToModify, content, skipForceSave);
                 },
-                renameSymbol: (workspaceEdits: WorkspaceEdit) => {
-                    const response = props.renameSymbol(workspaceEdits);
+                renameSymbol: async (workspaceEdits: WorkspaceEdit) => {
+                    console.log("Rename symbol called >>>");
+                    const response = await props.renameSymbol(workspaceEdits);
                     setUpdateTimestamp(new Date().getTime().toString());
                     return response;
                 },

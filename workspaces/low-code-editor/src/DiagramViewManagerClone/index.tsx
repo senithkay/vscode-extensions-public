@@ -71,7 +71,7 @@ export function DiagramViewManager(props: EditorProps) {
     const [focusedST, setFocusedST] = useState<STNode>();
     const [completeST, setCompleteST] = useState<STNode>();
     const [currentFileContent, setCurrentFileContent] = useState<string>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoadingST, setIsLoadingST] = useState<boolean>(false);
 
     useEffect(() => {
         (async () => {
@@ -95,7 +95,6 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         if (history.length > 0) {
             (async () => {
-                setIsLoading(true);
                 const { file, position, uid } = history[history.length - 1];
                 const langClient = await langClientPromise;
                 const componentResponse = await langClient.getBallerinaProjectComponents({
@@ -107,6 +106,7 @@ export function DiagramViewManager(props: EditorProps) {
                 });
 
                 if (file.endsWith(".bal")) {
+                    setIsLoadingST(true);
                     const generatedST = await getSyntaxTree(file, langClient);
                     let visitedST = await getLowcodeST(generatedST, file, langClient, experimentalEnabled);
                     const currentTime: number = Date.now();
@@ -181,6 +181,7 @@ export function DiagramViewManager(props: EditorProps) {
                     setCurrentFileContent(content);
                     setLowCodeResourcesVersion(resourceVersion);
                     setLowCodeEnvInstance(envInstance);
+                    setIsLoadingST(false);
                 } else {
                     setFocusedST(undefined);
                     setCompleteST(undefined);
@@ -188,7 +189,6 @@ export function DiagramViewManager(props: EditorProps) {
                 }
 
                 setProjectComponents(componentResponse);
-                setIsLoading(false);
             })();
         }
     }, [history[history.length - 1], updatedTimeStamp]);
@@ -257,7 +257,7 @@ export function DiagramViewManager(props: EditorProps) {
                             />
                             {!showOverviewMode && !showSTMode && <TextPreLoader position={'absolute'} />}
                             {showOverviewMode && <ComponentListView lastUpdatedAt={updatedTimeStamp} projectComponents={projectComponents} />}
-                            {showSTMode && <DiagramView projectComponents={projectComponents} />}
+                            {showSTMode && <DiagramView projectComponents={projectComponents} isLoading={isLoadingST} />}
                             <div id={'canvas-overlay'} className={"overlayContainer"} />
                         </ViewManagerProvider>
                     </HistoryProvider>

@@ -31,6 +31,7 @@ import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerat
 import { graphQLOverlayStyles } from "./style";
 import { GraphqlUnsupportedVersionOverlay } from "./UnsupportedVersionOverlay";
 import { isGraphqlVisualizerSupported } from "./utils/ls-util";
+import { isPathEqual } from "../../../DiagramViewManagerClone/utils";
 
 export interface GraphqlDesignOverlayProps {
     model?: STNode;
@@ -131,8 +132,10 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
 
     // This will re-fetch the ST when user has added a new component to a file other than the active file
     useEffect(() => {
-        if (formConfig?.filePath &&
-            currentFile.path !== formConfig.filePath && formConfig?.configOverlayFormStatus?.formName === "ServiceClassResource") {
+        console.log("useEffect >>>");
+        if (formConfig?.filePath
+            && !isPathEqual(currentFile.path, formConfig.filePath)
+            && formConfig?.configOverlayFormStatus?.formName === "ServiceClassResource") {
             (async () => {
                 const langClientPromise: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
                 const syntaxTree: STNode = await getSyntaxTree(formConfig.filePath, langClientPromise);
@@ -142,39 +145,39 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 });
             })();
         }
-    }, [fullST]);
+    }, [lowcodeST]);
 
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
             {isVisualizerSupported ? (
-                    <>
-                        {!isLoadingST ?
-                            <GraphqlDesignDiagram
-                                model={model}
-                                targetPosition={targetPosition}
-                                langClientPromise={
-                                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-                                }
-                                filePath={currentFile.path}
-                                currentFile={currentFile}
-                                ballerinaVersion={ballerinaVersion}
-                                syntaxTree={lowcodeST}
-                                functionPanel={renderFunctionForm}
-                                servicePanel={renderServicePanel}
-                                operationDesignView={handleDesignOperationClick}
-                                recordEditor={renderRecordEditor}
-                                onDelete={handleDeleteBtnClick}
-                                fullST={fullST}
-                                goToSource={goToSource}
-                            /> : (
-                                <TextPreLoader position="absolute" text="Loading..." />
-                            )
-                        }
-                        {enableFormGenerator &&
+                <>
+                    {!isLoadingST ?
+                        <GraphqlDesignDiagram
+                            model={model}
+                            targetPosition={targetPosition}
+                            langClientPromise={
+                                getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                            }
+                            filePath={currentFile.path}
+                            currentFile={currentFile}
+                            ballerinaVersion={ballerinaVersion}
+                            syntaxTree={lowcodeST}
+                            functionPanel={renderFunctionForm}
+                            servicePanel={renderServicePanel}
+                            operationDesignView={handleDesignOperationClick}
+                            recordEditor={renderRecordEditor}
+                            onDelete={handleDeleteBtnClick}
+                            fullST={fullST}
+                            goToSource={goToSource}
+                        /> : (
+                            <TextPreLoader position="absolute" text="Loading..." />
+                        )
+                    }
+                    {enableFormGenerator &&
                         <FormGenerator {...formConfig} />
-                        }
-                    </>
-                ) :
+                    }
+                </>
+            ) :
                 <GraphqlUnsupportedVersionOverlay />
             }
         </div>
