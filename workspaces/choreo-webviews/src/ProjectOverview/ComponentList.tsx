@@ -247,7 +247,7 @@ export function ComponentList(props: ComponentListProps) {
                     }
                 
                     const providerBaseUrl = `${repoUrl}/${repo.organizationApp}/${repo.nameApp}`;
-                    let repoLink = `${providerBaseUrl}/${branchSeparator}/${repo.branchApp}${repo.appSubPath ? `/${repo.appSubPath}` : ''}`;
+                    const repoLink = `${providerBaseUrl}/${branchSeparator}/${repo.branchApp}${repo.appSubPath ? `/${repo.appSubPath}` : ''}`;
 
                     const deploymentStatus: DeploymentStatus =
                         (component.deployments?.dev

@@ -92,9 +92,9 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
     useEffect(() => {
         if (repoDetails.length > 0) {
             const allOrgs: string[] = [];
-            let allRepos: string[] = [];
+            const allRepos: string[] = [];
             let isSelectedRepoAvailable = false;
-            let currentOrg = selectedRepo?.org || repoDetails?.[0]?.orgName || '';
+            const currentOrg = selectedRepo?.org || repoDetails?.[0]?.orgName || '';
             let currentRepo = '';
 
             if (selectedRepo?.org) {
@@ -153,7 +153,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
         }
     }
 
-    let loaderMessage = "Loading repositories...";
+    const loaderMessage = "Loading repositories...";
     const showLoader = bbStatus.status === "install-inprogress";
     const onSelection = bbStatus.status === "auth-inprogress";
     const showRefreshButton = !onSelection && !showLoader && selectedCred.id;

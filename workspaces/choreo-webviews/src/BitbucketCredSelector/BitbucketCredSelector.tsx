@@ -75,7 +75,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
                         credId = credential.id;
                     };
                 }
-            );
+            )
 
             onCredSelect({ id: credId, name: credName });
             setBitbucketCredentialId(credId);

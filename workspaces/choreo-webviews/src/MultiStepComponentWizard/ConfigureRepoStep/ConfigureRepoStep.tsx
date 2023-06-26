@@ -86,7 +86,6 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
 
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
     const [isCloneInProgress, setIsCloneInProgress] = useState<boolean>(false);
-    // const [gitProvider, setGitProvider] = useState(GitProvider.GITHUB);
     const [credentials, setCredentials] = useState<FilteredCredentialData[]>([]);
     const [selectedCredential, setSelectedCredential] = useState<FilteredCredentialData>({ id: '', name: '' });
 

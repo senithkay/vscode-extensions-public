@@ -140,31 +140,6 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         }
     }
 
-    async getCredentialById(org_uuid: string, credentialId: string) {
-        const query = gql`
-            query {
-                commonCredential(orgUuid: "${org_uuid}", credentialId: "${credentialId}") {
-                    id,
-                    name,
-                    type,
-                    createdAt,
-                    organizationUuid,
-                    referenceToken,
-                }
-            }
-        `;
-
-        try {
-            const client = await this._getClient();
-            const data = await client.request(query);
-            return data;
-        } catch (error) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            this._onGHAppAuthCallback.fire({ status: 'error', error: (error as any).message });
-            throw new Error("Error while fetching credentials. ", { cause: error });
-        }
-    }
-
     async getAuthorizedRepositories(): Promise<GithubOrgnization[]> {
         const query = gql`
             query {
