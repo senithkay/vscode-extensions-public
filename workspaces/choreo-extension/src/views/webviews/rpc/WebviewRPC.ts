@@ -54,7 +54,8 @@ import {
     GetLocalComponentDirMetaData,
     getLocalComponentDirMetaDataRequest,
     setProjectProvider,
-    getProjectProvider
+    getProjectProvider,
+    getConsoleUrl
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -246,6 +247,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(isChoreoProject, () => {
         return ext.api.isChoreoProject();
+    });
+
+    messenger.onRequest(getConsoleUrl, () => {
+        return ProjectRegistry.getInstance().getConsoleUrl();
     });
 
     messenger.onRequest(isSubpathAvailable, (params: SubpathAvailableRequest) => {

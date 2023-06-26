@@ -13,7 +13,7 @@
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { CredentialData, FilteredCredentialData, GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
@@ -42,29 +42,30 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
     const { org, selectedCred, onCredSelect } = props;
 
     const { setBitbucketCredentialId } = useContext(ChoreoWebViewContext);
-    const [credentials, setCredentials] = useState<FilteredCredentialData[]>([]);
-    const { isLoading: isFetchingCredentials, data: gitCredentialsData } = useQuery({
-        queryKey: [org],
-        queryFn: async () => ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org.uuid)
-    });
-
-    useEffect(() => {
-        const credentialNameArr: FilteredCredentialData[] = [];
-        if (gitCredentialsData && gitCredentialsData.length > 0) {
-            gitCredentialsData?.forEach(
-                (cred: CredentialData) => {
-                    if (cred.type === GitProvider.BITBUCKET) {
-                        const i: FilteredCredentialData = {
-                            id: cred.id,
-                            name: cred.name
-                        };
-                        credentialNameArr.push(i);
+    const { isLoading: isFetchingCredentials, data: credentials } = useQuery({
+        queryKey: [org.uuid],
+        queryFn: async () => {
+            const gitCredentialsData = await ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org.uuid);
+            return gitCredentialsData;
+        },
+        select: (gitCredentialsData) => {
+            const credentialNameArr: FilteredCredentialData[] = [];
+            if (gitCredentialsData && gitCredentialsData.length > 0) {
+                gitCredentialsData?.forEach(
+                    (cred: CredentialData) => {
+                        if (cred.type === GitProvider.BITBUCKET) {
+                            const i: FilteredCredentialData = {
+                                id: cred.id,
+                                name: cred.name
+                            };
+                            credentialNameArr.push(i);
+                        }
                     }
-                }
-            );
-            setCredentials(credentialNameArr);
+                );
+            }
+            return credentialNameArr;
         }
-    }, [gitCredentialsData]);
+    });
 
     const handleBitbucketDropdownChange = (credName: string) => {
         let credId = '';
@@ -84,7 +85,8 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
 
     const handleConfigureNewCred = async () => {
         // open add credentials page in browser with vscode open external
-        ChoreoWebViewAPI.getInstance().openExternal(`https://console.choreo.dev/`);
+        const consoleUrl = await ChoreoWebViewAPI.getInstance().getConsoleUrl();
+        ChoreoWebViewAPI.getInstance().openExternal(`${consoleUrl}/organizations/${org.handle}/settings/credentials`);
     };
 
     return (

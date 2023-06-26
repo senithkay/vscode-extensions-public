@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { componentManagementClient, projectClient, subscriptionClient } from "../auth/auth";
+import { componentManagementClient, getConsoleUrl, projectClient, subscriptionClient } from "../auth/auth";
 import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
@@ -642,6 +642,10 @@ export class ProjectRegistry {
             }
         });
 
+    }
+
+    getConsoleUrl() {
+        return getConsoleUrl();
     }
 
     async fetchComponentsFromCache(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[] | undefined> {

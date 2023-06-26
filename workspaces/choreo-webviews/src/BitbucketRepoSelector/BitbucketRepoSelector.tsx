@@ -13,6 +13,7 @@
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import { FilteredCredentialData, GHAppAuthStatus, Repo, UserRepo } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
@@ -74,20 +75,21 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
         }
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (selectedCred.id) {
-                setBBStatus({status: 'install-inprogress'});
-                const userRepos = await useGetRepoData(selectedCred.id || '');
-                setBBStatus({status: 'installed'});
-                if (userRepos) {
-                    setRepoDetails(userRepos);
-                }
+    useQuery({
+        queryKey: [selectedCred.id],
+        queryFn: async () => {
+            setBBStatus({ status: 'install-inprogress' });
+            const userRepos = await useGetRepoData(selectedCred.id || '');
+            setBBStatus({ status: 'installed' });
+            return userRepos;
+        },
+        enabled: !!selectedCred.id,
+        onSuccess: (data) => {
+            if (data) {
+                setRepoDetails(data);
             }
-        };
-
-        fetchData();
-    }, [selectedCred]);
+        }
+    });
 
     useEffect(() => {
         if (repoDetails.length > 0) {

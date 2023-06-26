@@ -74,6 +74,7 @@ import {
     GetEnrichedComponent,
     setProjectProvider,
     getProjectProvider,
+    getConsoleUrl,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -189,6 +190,10 @@ export class ChoreoWebViewAPI {
 
     public async isChoreoProject(): Promise<boolean> {
         return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async getConsoleUrl(): Promise<string> {
+        return this._messenger.sendRequest(getConsoleUrl, HOST_EXTENSION, undefined);
     }
 
     public async isSubpathAvailable(params: SubpathAvailableRequest): Promise<boolean> {

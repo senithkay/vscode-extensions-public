@@ -69,6 +69,7 @@ export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoPr
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const GetLocalComponentDirMetaData: RequestType<getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes> = { method: 'getLocalComponentDirMetaData' };
 export const getChoreoProject: RequestType<void, Project> = { method: 'getChoreoProject' };
+export const getConsoleUrl: RequestType<void, string> = { method: 'getConsoleUrl' };
 export const PushLocalComponentsToChoreo: RequestType<string, void> = { method: 'pushLocalComponentsToChoreo' };
 export const PushLocalComponentToChoreo: RequestType<{projectId: string; componentName: string }, void> = { method: 'pushLocalComponentToChoreo' };
 export const OpenArchitectureView: RequestType<string, void> = { method: 'openArchitectureView' };
