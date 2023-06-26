@@ -217,7 +217,7 @@ export async function chooseUserOrg(isExistingSession?: boolean): Promise<Organi
             getLogger().debug("Successfully retrived user info.");
             return selectedOrg;
         } catch (error: any) {
-            if (error.cause.response?.status === 404) {
+            if (error.cause?.response?.status === 404) {
                 getLogger().warn("User not found. Prompting to open signup page.");
                 promptToOpenSignupPage();
                 return;

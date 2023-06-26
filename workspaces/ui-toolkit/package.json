@@ -1,0 +1,37 @@
+{
+  "name": "@wso2-enterprise/ui-toolkit",
+  "version": "1.0.0",
+  "description": "Common ui-toolkit for other components",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "typings": "lib/index",
+  "scripts": {
+    "build": "tsc --pretty"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "@vscode/webview-ui-toolkit": "^1.2.0",
+    "@emotion/styled": "^11.10.5",
+    "@wso2-enterprise/ballerina-low-code-edtior-commons": "workspace:*",
+    "@wso2-enterprise/syntax-tree": "workspace:*",
+    "classnames": "^2.2.6"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "17.0.14"
+  },
+  "author": "wso2",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wso2-enterprise/ballerina-plugin-vscode.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}

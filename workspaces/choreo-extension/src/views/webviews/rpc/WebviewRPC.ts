@@ -48,7 +48,11 @@ import {
     SendTelemetryExceptionNotification,
     SendTelemetryExceptionParams,
     SendProjectTelemetryEventNotification,
+    CreateNonBalLocalComponent,
+    CreateNonBalLocalComponentFromExistingSource,
     GetEnrichedComponent,
+    GetLocalComponentDirMetaData,
+    getLocalComponentDirMetaDataRequest,
     setProjectProvider,
     getProjectProvider
 } from "@wso2-enterprise/choreo-core";
@@ -339,6 +343,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
             getLogger().error(error.message);
             return [];
         }
+    });
+
+    messenger.onRequest(GetLocalComponentDirMetaData, (params: getLocalComponentDirMetaDataRequest) => {
+        return ProjectRegistry.getInstance().getLocalComponentDirMetaData(params);
     });
 
     messenger.onNotification(SendTelemetryEventNotification, (event: SendTelemetryEventParams) => {

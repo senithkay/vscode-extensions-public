@@ -11,15 +11,18 @@
  *  associated services.
  */
 import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
-import { ChoreoComponentType, ComponentAccessibility } from "@wso2-enterprise/choreo-core";
+import { ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentAccessibility, ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 
 
 export interface ComponentWizardState {
-    mode: "fromScratch" | "fromExisting";
+    mode: ComponentCreateMode; // instead of boolean, use this type everywhere
     name: string;
     description: string;
     type: ChoreoComponentType;
+    serviceType: ChoreoServiceType;
+    implementationType: ChoreoImplementationType;
     accessibility: ComponentAccessibility;
+    port?: string;
     repository: {
         isCloned?: boolean;
         isBareRepo?: boolean;
@@ -29,9 +32,17 @@ export interface ComponentWizardState {
         subPath?: string;
         dockerContext?: string;
         dockerFile?: string;
+        openApiFilePath?: string;
         gitProvider?: GitProvider;
         credentialID?: string;
     };
+    webAppConfig?: {
+        dockerContext?: string;
+        webAppType?: string;
+        webAppBuildCommand?: string;
+        webAppPackageManagerVersion?: string;
+        webAppOutputDirectory?: string;
+    },
     trigger?: {
         id: string;
         services?: string[];

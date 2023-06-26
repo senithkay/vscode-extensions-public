@@ -55,6 +55,17 @@ export function getComponentsByProjectIdQuery(orgHandle: string, projectId: stri
                         dockerContext,
                         dockerfilePath,
                         oasFilePath,
+                    },
+                    byocWebAppBuildConfig {
+                        id,
+                        containerId,
+                        componentId,
+                        repositoryId,
+                        dockerContext,
+                        webAppType,
+                        buildCommand,
+                        packageManagerVersion,
+                        outputDirectory,
                     }
                 }, 
                 apiVersions { 
@@ -241,6 +252,17 @@ export function getComponentsWithCellDiagramQuery(orgHandle: string, projectId: 
                         dockerContext,
                         dockerfilePath,
                         oasFilePath,
+                    },
+                    byocWebAppBuildConfig {
+                        id,
+                        containerId,
+                        componentId,
+                        repositoryId,
+                        dockerContext,
+                        webAppType,
+                        buildCommand,
+                        packageManagerVersion,
+                        outputDirectory,
                     }
                 }, 
                 apiVersions { 

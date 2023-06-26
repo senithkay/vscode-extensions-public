@@ -23,6 +23,7 @@ import { GithubRepoBranchSelector } from "./GithubRepoBranchSelector";
 import { RepoStructureConfig } from "./RepoStructureConfig";
 import { useQuery } from "@tanstack/react-query";
 import { ProjectTypeCard } from "../../ProjectWizard/ProjectTypeCard";
+import { ChoreoComponentType, ChoreoImplementationType } from "@wso2-enterprise/choreo-core";
 
 const StepContainer = styled.div`
     display: flex;
@@ -81,7 +82,7 @@ const SubContainer = styled.div`
 `;
 
 export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState>>) => {
-    const { formData, onFormDataChange } = props;
+    const { formData, onFormDataChange, stepValidationErrors } = props;
 
     const [ghStatus, setGHStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
     const [isCloneInProgress, setIsCloneInProgress] = useState<boolean>(false);
@@ -473,24 +474,20 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
                 )
             }
 
-            {
-                selectedRepoString && !isFetchingRepos && formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
-                    <GithubRepoBranchSelector
-                        formData={formData}
-                        onFormDataChange={onFormDataChange}
-                    />
-                )
-            }
-            {
-                formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
-                    <RepoStructureConfig
-                        formData={formData}
-                        onFormDataChange={onFormDataChange}
-                    />
-                )
-            }
-        </StepContainer >
-
+            {selectedRepoString && !isFetchingRepos && formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
+                <GithubRepoBranchSelector
+                    formData={formData}
+                    onFormDataChange={onFormDataChange}
+                />
+            )}
+            {formData?.repository?.isCloned && !formData?.repository?.isBareRepo && (
+                <RepoStructureConfig
+                    formData={formData}
+                    onFormDataChange={onFormDataChange}
+                    formErrors={stepValidationErrors}
+                />
+            )}
+        </StepContainer>
     );
 };
 
@@ -517,6 +514,88 @@ export const ConfigureRepoStep: Step<Partial<ComponentWizardState>> = {
             message: 'A branch must be selected to continue.',
             rule: async (_value: any, formData) => {
                 return formData?.repository?.branch !== undefined;
+            }
+        },
+
+        // web app config related validations
+        {
+
+            field: "webAppConfig",
+            message: "Package manager version is invalid",
+            rule: async (value, formData) => {
+                if (
+                    formData.type === ChoreoComponentType.WebApplication &&
+                    [
+                        ChoreoImplementationType.React,
+                        ChoreoImplementationType.Angular,
+                        ChoreoImplementationType.Vue,
+                    ].includes(formData.implementationType)
+                ) {
+                    const nodeRegex = new RegExp(/^(?=.*\d)\d+(\.\d+)*(?:-[a-zA-Z0-9]+)?$/)
+                    return nodeRegex.test(value?.webAppPackageManagerVersion)
+                }
+                return true;
+            },
+        },
+        {
+            field: "webAppConfig",
+            message: "Build command is required",
+            rule: async (value, formData) => {
+                if (
+                    formData.type === ChoreoComponentType.WebApplication &&
+                    [
+                        ChoreoImplementationType.React,
+                        ChoreoImplementationType.Angular,
+                        ChoreoImplementationType.Vue,
+                    ].includes(formData.implementationType)
+                ) {
+                    return value?.webAppBuildCommand?.length > 0
+                }
+                return true;
+            },
+        },
+        {
+
+            field: "webAppConfig",
+            message: "Build output directory is required",
+            rule: async (value, formData) => {
+                if (
+                    formData.type === ChoreoComponentType.WebApplication &&
+                    [
+                        ChoreoImplementationType.React,
+                        ChoreoImplementationType.Angular,
+                        ChoreoImplementationType.Vue,
+                    ].includes(formData.implementationType)
+                ) {
+                    return value?.webAppOutputDirectory?.length > 0
+                }
+                return true;
+            },
+        },
+        {
+            field: 'port',
+            message: 'Port is required',
+            rule: async (value, formData) => {
+                if (
+                    formData.type === ChoreoComponentType.WebApplication &&
+                    formData.implementationType === ChoreoImplementationType.Docker
+                ) {
+                    return value !== undefined && value !== '';                
+                }
+                return true;
+            }
+        },
+        {
+            field: 'port',
+            message: 'Port should be a number',
+            rule: async (value: any, formData) => {
+                if (
+                    formData.type === ChoreoComponentType.WebApplication &&
+                    formData.implementationType === ChoreoImplementationType.Docker
+                ) {
+                    return value !== undefined && !isNaN(value)
+                }
+                return true;
             }
         },
     ]

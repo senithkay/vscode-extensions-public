@@ -193,6 +193,18 @@ export interface BuildStatus {
     sourceCommitId?: string;
 }
 
+export interface WeAppBuildConfig {
+    id: string;
+    containerId: string;
+    componentId: string;
+    repositoryId: string;
+    dockerContext: string;
+    webAppType: string;
+    buildCommand: string;
+    packageManagerVersion: string;
+    outputDirectory: string;
+}
+
 export interface Repository {
     nameApp: string;
     nameConfig: string;
@@ -213,7 +225,8 @@ export interface Repository {
         isMainContainer: string;
         oasFilePath: string;
         repositoryId: string;
-    }
+    };
+    byocWebAppBuildConfig?: WeAppBuildConfig;
 }
 
 export interface Metadata {
@@ -266,13 +279,44 @@ export interface WorkspaceConfig {
         }
     }
 }
+export enum ComponentDisplayType {
+    RestApi = 'restAPI',
+    ManualTrigger = 'manualTrigger',
+    ScheduledTask = 'scheduledTask',
+    Webhook = 'webhook',
+    Websocket = 'webSocket',
+    Proxy = 'proxy',
+    ByocCronjob = 'byocCronjob',
+    ByocJob = 'byocJob',
+    GraphQL = 'graphql',
+    ByocWebApp = 'byocWebApp',
+    ByocWebAppDockerLess = 'byocWebAppsDockerfileLess',
+    ByocRestApi = 'byocRestApi',
+    ByocWebhook = 'byocWebhook',
+    MiRestApi = 'miRestApi',
+    MiEventHandler = 'miEventHandler',
+    Service = 'ballerinaService',
+    ByocService = 'byocService',
+    MiApiService = 'miApiService',
+}
+
+export interface ComponentWizardWebAppConfig {
+    dockerContext?: string;
+    webAppType?: string;
+    webAppBuildCommand?: string;
+    webAppPackageManagerVersion?: string;
+    webAppOutputDirectory?: string;
+    srcGitRepoUrl?: string,
+    srcGitRepoBranch?: string,
+}
+
 export interface WorkspaceComponentMetadata {
     org: {
         id: number;
         handle: string;
     };
     displayName: string;
-    displayType: ChoreoComponentType;
+    displayType: ComponentDisplayType;
     description: string;
     projectId: string;
     accessibility: ComponentAccessibility;
@@ -289,27 +333,32 @@ export interface WorkspaceComponentMetadata {
         dockerContext: string;
         srcGitRepoUrl: string;
         srcGitRepoBranch: string;
-    }
+    },
+    byocWebAppsConfig?: ComponentWizardWebAppConfig;
+    port?: number;
+}
+
+export enum ChoreoImplementationType {
+    Ballerina = "Ballerina",
+    Docker = "Docker",
+    React = 'React',
+    Angular = 'Angular',
+    Vue = 'Vuejs',
+    StaticFiles = 'StaticFiles',
+}
+
+export enum ChoreoServiceType {
+    RestApi = "REST",
+    GraphQL = "GraphQL",
+    GRPC = "GRPC"
 }
 
 export enum ChoreoComponentType {
-    RestApi = 'restAPI',
-    ManualTrigger = 'manualTrigger',
+    Service = 'service',
     ScheduledTask = 'scheduledTask',
+    ManualTrigger = 'manualTrigger',
     Webhook = 'webhook',
-    Websocket = 'webSocket',
-    Proxy = 'proxy',
-    ByocMicroservice = 'byocMicroservice',
-    ByocCronjob = 'byocCronjob',
-    ByocJob = 'byocJob',
-    GraphQL = 'graphql',
-    ByocWebApp = 'byocWebApp',
-    ByocRestApi = 'byocRestApi',
-    ByocWebhook = 'byocWebhook',
-    MiRestApi = 'miRestApi',
-    MiEventHandler = 'miEventHandler',
-    Service = 'ballerinaService',
-    ByocService = 'byocService',
+    WebApplication = 'webApplication'
 }
 
 export interface ChoreoComponentCreationParams {
@@ -317,10 +366,13 @@ export interface ChoreoComponentCreationParams {
     projectId: string;
     org: Organization;
     description: string;
-    displayType: ChoreoComponentType;
+    displayType: ComponentDisplayType;
     accessibility: ComponentAccessibility;
     repositoryInfo: RepositoryDetails|BYOCRepositoryDetails;
     trigger?: TriggerDetails;
+    port?: number;
+    serviceType?: ChoreoServiceType;
+    webAppConfig?: ComponentWizardWebAppConfig
 }
 
 export interface TriggerDetails {
@@ -341,6 +393,8 @@ export interface RepositoryDetails {
 export interface BYOCRepositoryDetails extends RepositoryDetails {
     dockerFile: string;
     dockerContext: string;
+    templateSubPath?: string;
+    openApiFilePath?: string;
 }
 
 export interface ProjectDeleteResponse {
@@ -357,6 +411,28 @@ export interface SubscriptionResponse {
     }[];
 }
 
+export interface getLocalComponentDirMetaDataRequest {
+    projectId: string;
+    orgName: string;
+    repoName: string;
+    subPath: string;
+    dockerFilePath?: string;
+    dockerContextPath?: string;
+    openApiFilePath?: string;
+}
+
+export interface getLocalComponentDirMetaDataRes {
+    isRepoPathAvailable: boolean;
+    isBareRepo: boolean;
+    isSubPathValid: boolean;
+    isSubPathEmpty: boolean;
+    hasBallerinaTomlInPath: boolean;
+    hasBallerinaTomlInRoot: boolean;
+    hasEndpointsYaml: boolean;
+    dockerFilePathValid: boolean;
+    isDockerContextPathValid: boolean;
+}
+
 export enum DeploymentStatus {
     NotDeployed = 'NOT_DEPLOYED',
     Active = 'ACTIVE',
@@ -370,3 +446,5 @@ export enum Status {
     UnavailableLocally= "NOT_AVAILABLE_LOCALLY",
     ChoreoAndLocal= "CHOREO_AND_LOCAL"
 }
+
+export type ComponentCreateMode = "fromScratch" | "fromExisting";

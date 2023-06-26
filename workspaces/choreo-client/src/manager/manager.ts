@@ -12,8 +12,8 @@
  */
 
 import {
-    ChoreoComponentCreationParams, ChoreoComponentType, Component, IProjectManager,
-    Project, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams, PushedComponent
+    ChoreoComponentCreationParams, Component, IProjectManager,
+    Project, WorkspaceConfig, WorkspaceComponentMetadata, IsRepoClonedRequestParams, RepoCloneRequestParams, PushedComponent, ComponentDisplayType
 } from "@wso2-enterprise/choreo-core";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import path, { basename, dirname, join } from "path";
@@ -38,7 +38,7 @@ export class ChoreoProjectManager implements IProjectManager {
         return true;
     }
 
-    async createLocalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
+    async createLocalBalComponentFromExistingSource(componentDetails: ChoreoComponentCreationParams): Promise<string | boolean> {
         if (workspace.workspaceFile) {
             return await addToWorkspace(workspace.workspaceFile.fsPath, componentDetails);
         } else {
@@ -59,7 +59,7 @@ export class ChoreoProjectManager implements IProjectManager {
             const resp: CmdResponse = await createBallerinaPackage(basename(pkgPath), dirname(pkgPath), displayType);
             if (!resp.error) {
                 processTomlFiles(pkgPath, org.name);
-                if (displayType === ChoreoComponentType.Webhook && trigger && trigger.id) {
+                if (displayType === ComponentDisplayType.Webhook && trigger && trigger.id) {
                     const webhookTemplate: string = await buildWebhookTemplate(pkgPath, trigger, await this.getBalVersion());
                     if (webhookTemplate) {
                         writeWebhookTemplate(pkgPath, webhookTemplate);
@@ -68,9 +68,7 @@ export class ChoreoProjectManager implements IProjectManager {
                         throw new Error("Error: Could not create Webhook template.");
                     }
                 }
-                if (displayType === ChoreoComponentType.GraphQL
-                    || displayType === ChoreoComponentType.Service
-                    || displayType === ChoreoComponentType.Proxy) {
+                if (displayType === ComponentDisplayType.Service) {
                     addDisplayAnnotation(pkgPath, displayType);
                 }
                 return await addToWorkspace(workspaceFilePath, args);
@@ -111,7 +109,7 @@ export class ChoreoProjectManager implements IProjectManager {
                 components.push({
                     name: folder.metadata.displayName,
                     description: folder.metadata.description,
-                    displayType: folder.metadata.displayType,
+                    displayType: folder.metadata.displayType.toString(),
                     orgHandler: folder.metadata.org.handle,
                     projectId: folder.metadata.projectId,
                     accessibility: folder.metadata.accessibility,
@@ -129,7 +127,10 @@ export class ChoreoProjectManager implements IProjectManager {
                         nameConfig: "",
                         organizationApp: folder.metadata.repository.orgApp,
                         organizationConfig:"",
-                        appSubPath: folder.metadata?.byocConfig?.dockerContext || folder.metadata?.repository?.appSubPath,
+                        appSubPath: folder.metadata?.byocConfig?.dockerContext 
+                            || folder.metadata?.repository?.appSubPath 
+                            || folder.metadata?.byocWebAppsConfig?.dockerContext
+                            || folder.metadata?.byocWebAppsConfig?.webAppOutputDirectory,
                         gitProvider: folder.metadata.repository.gitProvider,
                         bitbucketCredentialId: folder.metadata.repository.bitbucketCredentialId
                     },
@@ -211,5 +212,9 @@ export class ChoreoProjectManager implements IProjectManager {
             }
         }
         return this.balVersion;
+    }
+
+    async addToWorkspace(workspaceFilePath: string, args: ChoreoComponentCreationParams): Promise<boolean> {
+        return addToWorkspace(workspaceFilePath, args);
     }
 }
