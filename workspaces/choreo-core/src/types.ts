@@ -385,7 +385,6 @@ export interface RepositoryDetails {
     repo: string;
     branch: string;
     subPath: string;
-    credentialID: string;
     gitProvider: string;
     bitbucketCredentialId: string;
 }
