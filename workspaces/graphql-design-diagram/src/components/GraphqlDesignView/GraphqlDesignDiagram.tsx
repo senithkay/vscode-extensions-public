@@ -115,9 +115,9 @@ export function GraphqlDesignDiagram(props: GraphqlDesignDiagramProps) {
             </GraphqlDiagramContext>
             {modelData?.isIncompleteModel && <GraphqlUnsupportedOverlay />}
             {!modelData?.designModel &&
-            <Container className="dotted-background">
-                <TextPreLoader position="absolute" text="Fetching data..." />
-            </Container>
+                <Container className="dotted-background">
+                    <TextPreLoader position="absolute" text="Fetching data..." />
+                </Container>
             }
         </>
     );

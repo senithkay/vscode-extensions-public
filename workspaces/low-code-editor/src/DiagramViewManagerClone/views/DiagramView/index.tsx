@@ -22,6 +22,7 @@ import { ServiceView } from "./components/ServiceView";
 
 interface DiagramViewProps {
     projectComponents: BallerinaProjectComponents;
+    isLoading: boolean;
 }
 
 export function DiagramView(props: DiagramViewProps) {
@@ -30,13 +31,12 @@ export function DiagramView(props: DiagramViewProps) {
         props: { syntaxTree, fullST, ballerinaVersion, currentFile },
         api: { openArchitectureView },
     } = useDiagramContext();
-    const { projectComponents } = props;
+    const { projectComponents, isLoading } = props;
 
     let viewComponent: React.ReactElement;
 
-
     if (STKindChecker.isServiceDeclaration(syntaxTree)) {
-        viewComponent = <ServiceView />;
+        viewComponent = <ServiceView isLoading={isLoading} />;
     } else if (currentFile && currentFile.content && STKindChecker.isFunctionDefinition(syntaxTree)
         && STKindChecker.isExpressionFunctionBody(syntaxTree.functionBody)) {
 

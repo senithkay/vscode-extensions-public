@@ -20,10 +20,10 @@ import { useHistoryContext } from "../../../../context/history";
 import { getSTNodeForReference } from "../../../../utils";
 
 interface ServiceViewProps {
-    a: string;
+    isLoading: boolean;
 }
 
-export function ServiceView() {
+export function ServiceView(props: ServiceViewProps) {
     const {
         api: {
             ls: { getDiagramEditorLangClient },
@@ -31,6 +31,7 @@ export function ServiceView() {
         },
         props: { syntaxTree, ballerinaVersion, currentFile },
     } = useDiagramContext();
+    const { isLoading } = props;
     const { history, historyClearAndPopulateWith } = useHistoryContext();
     const [listnerType, setListenerType] = useState<string>();
 
@@ -99,7 +100,7 @@ export function ServiceView() {
                     ballerinaVersion={ballerinaVersion}
                     onCancel={handleOnCancel}
                     goToSource={handleGoToSource}
-                    isLoadingST={false}
+                    isLoadingST={isLoading}
                 />
             );
         } else if (signature && signature === "$CompilationError$") {

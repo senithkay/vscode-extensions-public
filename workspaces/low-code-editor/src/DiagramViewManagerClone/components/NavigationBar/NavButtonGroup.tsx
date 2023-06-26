@@ -22,17 +22,14 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
     const { currentProjectPath } = props;
     const { history, historyPop, historyClearAndPopulateWith } = useHistoryContext();
 
-    const buttonsEnabled = history.length > 1;
-
     const handleBackButtonClick = () => {
-        if (buttonsEnabled) {
+        if (history.length > 1) {
             historyPop();
         }
     }
 
     const handleHomeButtonClick = () => {
-
-        if (buttonsEnabled) {
+        if (history.length > 0) {
             historyClearAndPopulateWith({
                 file: extractFilePath(currentProjectPath)
             });
@@ -43,14 +40,14 @@ export function NavButtonGroup(props: NavButtonGroupProps) {
         <>
             <div
                 className="btn-container"
-                aria-disabled={!buttonsEnabled}
+                aria-disabled={!(history.length > 1)}
                 onClick={handleBackButtonClick}
             >
-                <ArrowBack className={!buttonsEnabled ? 'is-disabled' : ''} />
+                <ArrowBack className={!(history.length > 1) ? 'is-disabled' : ''} />
             </div>
             <div
                 className="btn-container"
-                aria-disabled={!buttonsEnabled}
+                aria-disabled={!(history.length > 0)}
                 onClick={handleHomeButtonClick}
             >
                 <HomeOutlined />
