@@ -29,7 +29,7 @@ import { Context } from "../../../Contexts/Diagram";
 import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
 import { extractFilePath, isPathEqual } from "../../../DiagramViewManagerClone/utils";
 import { RecordEditor } from "../FormComponents/ConfigForms";
-import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
+import { DiagramOverlayContainer } from "../Portals/Overlay";
 
 import { dataMapperStyles } from "./style";
 
@@ -62,38 +62,32 @@ export function DataMapperOverlay(props: DataMapperProps) {
 
     const { history, historyPush, historyUpdateCurrentEntry } = useHistoryContext();
 
-    // const [functionST, setFunctionST] =
-    //     React.useState<FunctionDefinition>(undefined);
+    const [functionST, setFunctionST] =
+        React.useState<FunctionDefinition>(undefined);
     const [newFnName, setNewFnName] = React.useState("");
-
-    // useEffect(() => {
-    //     (async () => {
-    //         if (isMounted.current) {
-    //             if (newFnName !== "") {
-    //                 handleFunctionST(newFnName).then();
-    //             } else if (model && STKindChecker.isFunctionDefinition(model)) {
-    //                 handleFunctionST(model.functionName.value).then();
-    //             } else if (!!functionST) {
-    //                 handleFunctionST(functionST.functionName.value).then();
-    //             }
-    //         } else {
-    //             isMounted.current = true;
-    //         }
-    //     })();
-    // }, [currentFile.content]);
-    //
-    // useEffect(() => {
-    //     if (model && STKindChecker.isFunctionDefinition(model)) {
-    //         setFunctionST(model);
-    //     }
-    // }, [model]);
-    //
+    const isMounted = useRef(false);
 
     useEffect(() => {
-        if (newFnName && newFnName !== "") {
-            handleFunctionST(newFnName).then();
+        (async () => {
+            if (isMounted.current) {
+                if (newFnName !== "") {
+                    handleFunctionST(newFnName).then();
+                } else if (model && STKindChecker.isFunctionDefinition(model)) {
+                    handleFunctionST(model.functionName.value).then();
+                } else if (!!functionST) {
+                    handleFunctionST(functionST.functionName.value).then();
+                }
+            } else {
+                isMounted.current = true;
+            }
+        })();
+    }, [currentFile.content]);
+
+    useEffect(() => {
+        if (model && STKindChecker.isFunctionDefinition(model)) {
+            setFunctionST(model);
         }
-    }, [newFnName]);
+    }, [model]);
 
     const handleFunctionST = async (funcName: string) => {
         const langClient: DiagramEditorLangClientInterface =
@@ -116,6 +110,7 @@ export function DataMapperOverlay(props: DataMapperProps) {
             }
             return;
         }
+        setFunctionST(undefined);
     };
 
     const onSave = (fnName: string) => {
@@ -147,30 +142,32 @@ export function DataMapperOverlay(props: DataMapperProps) {
     }
 
     return (
-        <div className={dataMapperClasses.dataMapperContainer}>
-            <DataMapper
-                library={library}
-                targetPosition={targetPosition}
-                fnST={model as FunctionDefinition}
-                langClientPromise={
-                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-                }
-                filePath={currentFile.path}
-                currentFile={currentFile}
-                openedViaPlus={openedViaPlus}
-                stSymbolInfo={stSymbolInfo}
-                ballerinaVersion={ballerinaVersion}
-                applyModifications={modifyDiagram}
-                updateFileContent={updateFileContent}
-                goToSource={gotoSource}
-                onClose={onClose}
-                onSave={onSave}
-                importStatements={importStatements}
-                recordPanel={renderRecordPanel}
-                syntaxTree={fullST}
-                updateActiveFile={updateActiveFile}
-                updateSelectedComponent={handleInternalNavigation}
-            />
-        </div>
+        <DiagramOverlayContainer>
+            <div className={dataMapperClasses.dataMapperContainer}>
+                <DataMapper
+                    library={library}
+                    targetPosition={targetPosition}
+                    fnST={functionST}
+                    langClientPromise={
+                        getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                    }
+                    filePath={currentFile.path}
+                    currentFile={currentFile}
+                    openedViaPlus={openedViaPlus}
+                    stSymbolInfo={stSymbolInfo}
+                    ballerinaVersion={ballerinaVersion}
+                    applyModifications={modifyDiagram}
+                    updateFileContent={updateFileContent}
+                    goToSource={gotoSource}
+                    onClose={onClose}
+                    onSave={onSave}
+                    importStatements={importStatements}
+                    recordPanel={renderRecordPanel}
+                    syntaxTree={fullST}
+                    updateActiveFile={updateActiveFile}
+                    updateSelectedComponent={handleInternalNavigation}
+                />
+            </div>
+        </DiagramOverlayContainer>
     );
 }
