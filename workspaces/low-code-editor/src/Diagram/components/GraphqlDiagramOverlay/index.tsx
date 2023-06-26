@@ -144,7 +144,7 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
                 });
             })();
         }
-    }, [lowcodeST]);
+    }, [fullST]);
 
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>

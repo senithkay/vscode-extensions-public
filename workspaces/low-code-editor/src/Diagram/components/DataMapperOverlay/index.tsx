@@ -27,7 +27,7 @@ import { Uri } from "monaco-editor";
 
 import { Context } from "../../../Contexts/Diagram";
 import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
-import { extractFilePath } from "../../../DiagramViewManagerClone/utils";
+import { extractFilePath, isPathEqual } from "../../../DiagramViewManagerClone/utils";
 import { RecordEditor } from "../FormComponents/ConfigForms";
 import { DiagramOverlay, DiagramOverlayContainer } from "../Portals/Overlay";
 
@@ -65,7 +65,6 @@ export function DataMapperOverlay(props: DataMapperProps) {
     // const [functionST, setFunctionST] =
     //     React.useState<FunctionDefinition>(undefined);
     const [newFnName, setNewFnName] = React.useState("");
-    const isMounted = useRef(false);
 
     // useEffect(() => {
     //     (async () => {
@@ -110,11 +109,13 @@ export function DataMapperOverlay(props: DataMapperProps) {
                 STKindChecker.isFunctionDefinition(mem)
             ) as FunctionDefinition[];
             const st = fns.find((mem) => mem.functionName.value === funcName);
-            historyPush({ file: currentFile.path, position: st.position, fromDataMapper: true, dataMapperDepth: 0 });
-            // setFunctionST(st);
+            if (isPathEqual(history[history.length - 1].file, currentFile.path) && history[history.length - 1].name === funcName) {
+                historyUpdateCurrentEntry({ ...history[history.length - 1], position: st.position })
+            } else {
+                historyPush({ file: currentFile.path, position: st.position, fromDataMapper: true, dataMapperDepth: 0 });
+            }
             return;
         }
-        // setFunctionST(undefined);
     };
 
     const onSave = (fnName: string) => {
