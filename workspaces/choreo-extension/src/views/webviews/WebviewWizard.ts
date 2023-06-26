@@ -13,6 +13,7 @@
 import * as vscode from "vscode";
 import { WebViewPanelRpc } from "./rpc/WebviewRPC";
 import { getUri } from "./utils";
+import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 
 export enum WizardTypes {
   projectCreation = "ProjectCreateForm",
@@ -25,10 +26,10 @@ export class WebviewWizard {
   private _disposables: vscode.Disposable[] = [];
   private _rpcHandler: WebViewPanelRpc;
 
-  constructor(extensionUri: vscode.Uri, type: WizardTypes) {
+  constructor(extensionUri: vscode.Uri, type: WizardTypes, mode?: ComponentCreateMode) {
     this._panel = WebviewWizard.createWebview(type);
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, type);
+    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri, type, mode);
     this._rpcHandler = new WebViewPanelRpc(this._panel);
   }
 
@@ -46,7 +47,7 @@ export class WebviewWizard {
     return this._panel;
   }
 
-  private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, wizardType: WizardTypes) {
+  private _getWebviewContent(webview: vscode.Webview, extensionUri: vscode.Uri, wizardType: WizardTypes, mode?: ComponentCreateMode) {
     // The JS file from the React build output
     const scriptUri = getUri(webview, extensionUri, [
       "resources",
@@ -73,7 +74,16 @@ export class WebviewWizard {
             </body>
             <script>
               function render() {
-                choreoWebviews.renderChoreoWebViews(document.getElementById("root"), "${wizardType.toString()}");
+                choreoWebviews.renderChoreoWebViews(
+                  document.getElementById("root"), 
+                  "${wizardType.toString()}",
+                  "", 
+                  "", 
+                  0,  
+                  "" , 
+                  "",
+                  "${mode}"
+                );
               }
               render();
             </script>

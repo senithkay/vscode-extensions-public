@@ -11,13 +11,13 @@
  *  associated services.
  */
 
-import { Component, ComponentCount, Environment, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { componentManagementClient, projectClient, subscriptionClient } from "../auth/auth";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
-import { existsSync, rmdirSync } from 'fs';
+import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
 import { AxiosResponse } from 'axios';
-import { dirname, join } from "path";
+import { dirname, isAbsolute, join, relative } from "path";
 import * as vscode from 'vscode';
 import { ChoreoProjectManager } from "@wso2-enterprise/choreo-client/lib/manager";
 import { initGit, } from "../git/main";
@@ -124,6 +124,106 @@ export class ProjectRegistry {
         }
 
         return true;
+    }
+
+    async createNonBalLocalComponent(args: ChoreoComponentCreationParams): Promise<void> {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        if (projectLocation) {
+            await window.withProgress({
+                title: `Initializing ${args.name} component`,
+                location: ProgressLocation.Notification,
+                cancellable: false
+            }, async () => {
+                this.addDockerFile(args);
+                if(args.displayType === ComponentDisplayType.ByocService && args.serviceType){
+                    this.addEndpointsYaml(args);
+                }
+                await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
+                window.showInformationMessage('Component created successfully');
+            });
+        } else {
+            throw new Error("Error: Could not detect a project workspace.");
+        }
+    }
+
+    addDockerFile = (args: ChoreoComponentCreationParams) => {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        const { org, repo, dockerContext } = args.repositoryInfo as BYOCRepositoryDetails;
+        if(projectLocation){
+            const projectDir = dirname(projectLocation);
+            let basePath = join(projectDir, "repos", org, repo);
+            if(dockerContext){
+                basePath = join(basePath, dockerContext);
+            }
+            if(!existsSync(basePath)){
+                mkdirSync(basePath);
+            }
+            const dockerFilePath = join(basePath, 'Dockerfile');
+            if(!existsSync(dockerFilePath)){
+                writeFileSync(dockerFilePath,'');
+            }
+        }
+        
+    };
+
+    addEndpointsYaml = async (args: ChoreoComponentCreationParams) => {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        const { org, repo, dockerContext, openApiFilePath } = args.repositoryInfo as BYOCRepositoryDetails;
+        if(projectLocation){
+            const projectDir = dirname(projectLocation);
+            let basePath = join(projectDir, "repos", org, repo);
+            if(dockerContext){
+                basePath = join(basePath, dockerContext);
+            }
+            const schemaFilePath = openApiFilePath && dockerContext ? relative(dockerContext, openApiFilePath) : openApiFilePath || 'openapi.yaml';
+            const endpointsYamlPath = join(basePath, '.choreo', 'endpoints.yaml');
+    
+            if (!existsSync(endpointsYamlPath)) { 
+                let endpointsYamlContent = readFileSync(join(ext.context.extensionPath, "/templates/endpoints-template.yaml")).toString();
+                endpointsYamlContent = endpointsYamlContent.replace('ENDPOINT_NAME',args.name);
+                endpointsYamlContent = endpointsYamlContent.replace('PORT',args.port ? args.port.toString() : '3000');
+                endpointsYamlContent = endpointsYamlContent.replace('TYPE',args.serviceType? args.serviceType?.toString() : "REST");
+                endpointsYamlContent = endpointsYamlContent.replace('NETWORK_VISIBILITY',args.accessibility === 'external' ? 'Public' : 'Project');
+    
+                if(args.serviceType === ChoreoServiceType.RestApi){
+                    endpointsYamlContent = endpointsYamlContent.replace('SCHEMA_PATH',schemaFilePath);
+    
+                    const openApiPath = join(basePath, schemaFilePath);
+                    if (!existsSync(openApiPath)) {
+                        cpSync(join(ext.context.extensionPath, "/templates/openapi-template.yaml"),  join(basePath,schemaFilePath));
+                    }
+                }else{
+                    endpointsYamlContent = endpointsYamlContent.replace('schemaFilePath: SCHEMA_PATH', '# schemaFilePath: endpoints.yaml');
+                }
+    
+                const choreoDirPath = dirname(endpointsYamlPath);
+                if(!existsSync(choreoDirPath)){
+                    mkdirSync(choreoDirPath);
+                }
+                writeFileSync(endpointsYamlPath, endpointsYamlContent);
+            }
+        }
+        
+    };
+
+    async createNonBalLocalComponentFromExistingSource(args: ChoreoComponentCreationParams): Promise<void> {
+        const projectLocation = this.getProjectLocation(args.projectId);
+        if (workspace.workspaceFile && projectLocation) {
+            await window.withProgress({
+                title: `Initializing ${args.name} component`,
+                location: ProgressLocation.Notification,
+                cancellable: false
+            }, async () => {
+                if(args.displayType === ComponentDisplayType.ByocService && args.serviceType){
+                    this.addEndpointsYaml(args);
+                }
+
+                await (new ChoreoProjectManager()).addToWorkspace(projectLocation, args);
+                window.showInformationMessage('Component created successfully');
+            });
+        } else {
+            throw new Error("Error: Could not detect a project workspace.");
+        }
     }
 
     async getComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
@@ -277,6 +377,13 @@ export class ProjectRegistry {
             if (component.repository?.appSubPath) {
                 const { organizationApp, nameApp, appSubPath } = component.repository;
                 isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, appSubPath);
+            } else if (component.repository?.byocWebAppBuildConfig) {
+                const { organizationApp, nameApp } = component.repository;
+                if (component.repository?.byocWebAppBuildConfig?.dockerContext) {
+                    isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, component.repository?.byocWebAppBuildConfig?.dockerContext);
+                } else if (component.repository?.byocWebAppBuildConfig?.outputDirectory) {
+                    isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, component.repository?.byocWebAppBuildConfig?.outputDirectory);
+                }
             } else if (component.repository?.byocBuildConfig) {
                 const { organizationApp, nameApp } = component.repository;
                 isRemoteOnly = this.isSubpathAvailable(projectId, organizationApp, nameApp, component.repository?.byocBuildConfig?.dockerContext);
@@ -315,7 +422,10 @@ export class ProjectRegistry {
                         const componentMetadata = localComponentMeta?.find(item => item.displayName === component.name);
                         if (componentMetadata) {
                             const { orgApp, nameApp } = componentMetadata.repository;
-                            const subPath = componentMetadata.repository?.appSubPath || componentMetadata.byocConfig?.dockerContext;
+                            const subPath = componentMetadata.repository?.appSubPath 
+                                || componentMetadata.byocConfig?.dockerContext
+                                || componentMetadata.byocWebAppsConfig?.dockerContext
+                                || componentMetadata.byocWebAppsConfig?.webAppOutputDirectory;
                             if (subPath) {
                                 const repoPath = join(dirname(projectLocation), "repos", orgApp, nameApp, subPath);
                                 if (existsSync(repoPath)) {
@@ -328,7 +438,10 @@ export class ProjectRegistry {
                     }
                 } else if (!component?.isRemoteOnly && component?.repository) {
                     const { organizationApp, nameApp } = component.repository;
-                    const subPath = component.repository.appSubPath || component.repository.byocBuildConfig?.dockerContext;
+                    const subPath = component.repository.appSubPath 
+                        || component.repository.byocBuildConfig?.dockerContext 
+                        || component.repository.byocWebAppBuildConfig?.dockerContext
+                        || component.repository.byocWebAppBuildConfig?.outputDirectory;
                     if (projectLocation && subPath) {
                         const repoPath = join(dirname(projectLocation), "repos", organizationApp, nameApp, subPath);
                         if (existsSync(repoPath)) {
@@ -493,7 +606,7 @@ export class ProjectRegistry {
                     }
                     _progress.report({ message: `Uploading the ${componentMetadata.displayName} component from your local machine.` });
                     try {
-                        if (componentMetadata.displayType.startsWith("byoc")) {
+                        if (componentMetadata.displayType.toString().startsWith("byoc")) {
                             await this._createByoComponent(componentMetadata);
                         } else {
                             await this._createComponent(componentMetadata);
@@ -532,7 +645,7 @@ export class ProjectRegistry {
         const componentRequest: CreateComponentParams = {
             name: makeURLSafe(componentMetadata.displayName),
             displayName: componentMetadata.displayName,
-            displayType: componentMetadata.displayType,
+            displayType: componentMetadata.displayType.toString(),
             description: componentMetadata.description,
             orgId: componentMetadata.org.id,
             orgHandle: componentMetadata.org.handle,
@@ -547,24 +660,31 @@ export class ProjectRegistry {
     }
 
     private async _createByoComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
-        if (componentMetadata.byocConfig === undefined) {
+        if (componentMetadata.byocConfig === undefined && componentMetadata.byocWebAppsConfig === undefined) {
             throw new Error("BYOC config is undefined");
         }
         const componentRequest: CreateByocComponentParams = {
             name: makeURLSafe(componentMetadata.displayName),
             displayName: componentMetadata.displayName,
-            componentType: componentMetadata.displayType,
+            componentType: componentMetadata.displayType.toString(),
             description: componentMetadata.description,
             orgId: componentMetadata.org.id,
             orgHandler: componentMetadata.org.handle,
             projectId: componentMetadata.projectId,
             accessibility: componentMetadata.accessibility,
-            byocConfig: componentMetadata.byocConfig,
             labels: "",
             oasFilePath: "",
-            port: 8090, // Check if this is mandoatory
         };
-        await executeWithTaskRetryPrompt(() => projectClient.createByocComponent(componentRequest));
+        if(componentMetadata.displayType.toString() === ComponentDisplayType.ByocWebAppDockerLess && componentMetadata.byocWebAppsConfig){
+            componentRequest.byocWebAppsConfig = componentMetadata.byocWebAppsConfig;
+            await executeWithTaskRetryPrompt(() => projectClient.createWebAppByocComponent(componentRequest));
+        } else if (componentMetadata.byocConfig) {
+            componentRequest.byocConfig = componentMetadata.byocConfig;
+            if (componentMetadata.port) {
+                componentRequest.port = componentMetadata.port;
+            }
+            await executeWithTaskRetryPrompt(() => projectClient.createByocComponent(componentRequest));
+        }
     }
 
     async pushLocalComponentToChoreo(projectId: string, componentName: string): Promise<void> {
@@ -575,7 +695,7 @@ export class ProjectRegistry {
             const componentMetadata = localComponentMeta?.find(component => component.displayName === componentName);
             if (componentMetadata) {
                 try {
-                    if (componentMetadata.displayType.startsWith("byoc")) {
+                    if (componentMetadata.displayType.toString().startsWith("byoc")) {
                         await this._createByoComponent(componentMetadata);
                     } else {
                         await this._createComponent(componentMetadata);
@@ -633,6 +753,78 @@ export class ProjectRegistry {
         }
         // TODO Handle subpath check for non cloned repos
         return true;
+    }
+
+    public getLocalComponentDirMetaData(params: getLocalComponentDirMetaDataRequest): getLocalComponentDirMetaDataRes {
+        // instead of calling getRepoMetadata api and checking remote directory is valid
+        // this will check those values from local directory
+
+        const {projectId, orgName, repoName, subPath, dockerContextPath, dockerFilePath, openApiFilePath} = params;
+    
+        const projectLocation = this.getProjectLocation(projectId);
+        if(!projectLocation){
+            throw new Error('Project location is not found in order to get local component metadata');
+        }
+
+        const repoPath = join(dirname(projectLocation), "repos", orgName, repoName);
+        const isRepoPathAvailable = existsSync(repoPath);
+        const isBareRepo = readdirSync(repoPath).length === 0;
+
+        let isSubPathValid = false;
+        if(subPath){
+            isSubPathValid = existsSync(join(repoPath, subPath));
+        }
+
+        let isSubPathEmpty = true;
+        if(isSubPathValid){
+            const subFolderFiles = readdirSync(join(repoPath, subPath));
+            isSubPathEmpty = subFolderFiles.filter(file=>{
+                const filePath = join(repoPath, subPath, file);
+                const fileStats = statSync(filePath);
+                return fileStats.isFile() && !file.startsWith('.');
+            }).length === 0;
+        }
+
+        let hasBallerinaTomlInPath = false;
+        if(subPath && isSubPathValid) {
+            hasBallerinaTomlInPath = existsSync(join(repoPath, subPath, 'Ballerina.toml'));
+        } else{
+            hasBallerinaTomlInPath = existsSync(join(repoPath, 'Ballerina.toml'));
+        }
+
+        let hasBallerinaTomlInRoot = existsSync(join(repoPath, 'Ballerina.toml'));
+
+        let hasEndpointsYaml = false;
+        let endpointsYamlPath = join(repoPath, '.choreo', 'endpoints.yaml');
+        if(dockerContextPath){
+            endpointsYamlPath = join(repoPath, dockerContextPath, '.choreo', 'endpoints.yaml');
+        }
+        hasEndpointsYaml = existsSync(endpointsYamlPath);
+
+        let dockerFilePathValid = false;
+        if (dockerFilePath) {
+            dockerFilePathValid = existsSync(join(repoPath, dockerFilePath));
+        }
+
+        let isDockerContextPathValid = false;
+        if (dockerFilePath) {
+            const dockerFileFullPath = join(repoPath, dockerFilePath);
+            let dockerContextFullPath = dockerContextPath ? join(repoPath, dockerContextPath) :repoPath;
+            const relativePath = relative(dockerContextFullPath, dockerFileFullPath);
+            isDockerContextPathValid = !relativePath.startsWith('..') && !isAbsolute(relativePath);
+        }
+
+        return {
+            isBareRepo,
+            isRepoPathAvailable,
+            isSubPathValid,
+            isSubPathEmpty,
+            hasBallerinaTomlInPath,
+            hasBallerinaTomlInRoot,
+            hasEndpointsYaml,
+            dockerFilePathValid,
+            isDockerContextPathValid
+        };
     }
 
     private _removeLocation(projectId: string) {

@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { commands } from "vscode";
+import { QuickPickItem, QuickPickOptions, commands, window } from "vscode";
 import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId, choreoProjectOverviewCloseCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
@@ -30,11 +30,29 @@ export function activateWizards() {
         projectWizard.getWebview()?.reveal();
     });
 
-    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, () => {
-        if (!componentWizard || !componentWizard.getWebview()) {
-            componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation);
-        }
-        componentWizard.getWebview()?.reveal();
+    const createComponentCmd = commands.registerCommand(createNewComponentCmdId, async () => {
+
+        const options: QuickPickOptions = {
+			canPickMany: false,
+			ignoreFocusOut: true,
+			title: "Create a new Choreo Component",
+		};
+		const items:QuickPickItem[] = [{
+            label: "$(add) From scratch",
+            picked: true,
+            detail:  "Create a new Choreo component from scratch",
+        }, {
+            label: "$(add) From existing",
+            detail: "Create a new Choreo component from your existing code"
+        }];
+		const selected = await window.showQuickPick(items, options);
+
+        if(selected){
+            if (!componentWizard || !componentWizard.getWebview()) {
+                componentWizard = new WebviewWizard(ext.context.extensionUri, WizardTypes.componentCreation, selected.label === "$(add) From scratch" ? 'fromScratch' : 'fromExisting');
+            }
+            componentWizard.getWebview()?.reveal();
+        }      
     });
 
     ext.context.subscriptions.push(createProjectCmd, createComponentCmd);

@@ -72,7 +72,10 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
 
 export function getCreateBYOCComponentMutation(params: CreateByocComponentParams) {
     const { name, displayName, componentType, description, orgId, orgHandler, projectId,
-        accessibility, byocConfig } = params;
+        accessibility, byocConfig, port } = params;
+    if(!byocConfig){
+        throw new Error('byocConfig not found')
+    }
     const { dockerfilePath, dockerContext, srcGitRepoUrl, srcGitRepoBranch } = byocConfig;
     return gql`mutation
         { createByocComponent(component: {  
@@ -84,7 +87,7 @@ export function getCreateBYOCComponentMutation(params: CreateByocComponentParams
                 projectId: "${projectId}",  
                 labels: "", 
                 componentType: "${componentType}", 
-                port: 8090,
+                port: ${port ?? 8090},
                 oasFilePath: "",
                 accessibility: "${accessibility}",
                 byocConfig: {
@@ -99,3 +102,44 @@ export function getCreateBYOCComponentMutation(params: CreateByocComponentParams
     `;
 }
 
+export function getCreateWebAppBYOCComponentMutation(params: CreateByocComponentParams) {
+    const { name, displayName, componentType, description, orgId, orgHandler, projectId,
+        accessibility, byocWebAppsConfig } = params;
+    if(!byocWebAppsConfig){
+        throw new Error('byocWebAppsConfig not found');
+    }
+    const { 
+        dockerContext, 
+        srcGitRepoUrl, 
+        srcGitRepoBranch, 
+        webAppBuildCommand, 
+        webAppOutputDirectory, 
+        webAppPackageManagerVersion, 
+        webAppType 
+    } = byocWebAppsConfig;
+    return gql`mutation
+        { createByocComponent(component: {  
+                name: "${name}", 
+                displayName: "${displayName}",        
+                description: "${description}", 
+                orgId: ${orgId},  
+                orgHandler: "${orgHandler}",
+                projectId: "${projectId}",  
+                labels: "", 
+                componentType: "${componentType}", 
+                oasFilePath: "",
+                accessibility: "${accessibility}",
+                byocWebAppsConfig: {
+                    dockerContext: "${dockerContext}",
+                    srcGitRepoUrl: "${srcGitRepoUrl}",
+                    srcGitRepoBranch: "${srcGitRepoBranch}",
+                    webAppType: "${webAppType}"
+                    webAppBuildCommand: "${webAppBuildCommand}"
+                    webAppPackageManagerVersion: "${webAppPackageManagerVersion}"
+                    webAppOutputDirectory: "${webAppOutputDirectory}"
+                }
+            })
+            {  id, organizationId, projectId, handle }
+        }
+    `;
+}

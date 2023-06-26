@@ -10,12 +10,12 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useEffect } from "react";
+import React, { useMemo } from "react";
 import styled from "@emotion/styled";
 
 import { cx } from "@emotion/css";
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { ErrorBanner, ErrorIcon } from "../../Commons/ErrorBanner";
 import { RequiredFormInput } from "../../Commons/RequiredInput";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
@@ -23,6 +23,7 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import debounce from "lodash.debounce";
 import { RepoFileOpenDialogInput } from "../ShowOpenDialogInput/RepoFileOpenDialogInput";
+import { useQuery } from "@tanstack/react-query";
 
 const StepContainer = styled.div`
     display: flex;
@@ -40,10 +41,20 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
 
     const { repository } = props.formData;
 
-    const [dockerFileError, setDockerFileError] = useState<string>("");
-    const [isValidationInProgress, setIsValidationInProgress] = useState<boolean>(false);
-
     const { choreoProject } = useContext(ChoreoWebViewContext);
+
+    const { data: localDirectorMetaData, isFetching: fetchingDirectoryMetadata } = useQuery(
+        ["getLocalComponentDirMetaData", choreoProject, repository],
+        () =>
+            ChoreoWebViewAPI.getInstance().getLocalComponentDirMetaData({
+                orgName: repository?.org,
+                repoName: repository?.repo,
+                projectId: choreoProject.id,
+                subPath: repository?.subPath,
+                dockerFilePath: repository?.dockerFile,
+                dockerContextPath: repository?.dockerContext
+            }),
+    );
 
     const setDockerFile = (fName: string) => {
         props.onFormDataChange(prevFormData => ({
@@ -65,39 +76,20 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
         }));
     }
 
-    const validate = async () => {
-        setDockerFileError("");
-        setIsValidationInProgress(true);
-        if (repository?.org && repository?.repo && repository?.branch && choreoProject) {
-            const projClient = ChoreoWebViewAPI.getInstance().getProjectClient();
-            const repoMetaData = await projClient.getRepoMetadata({
-                organization: repository?.org,
-                repo:   repository?.repo,
-                branch: repository?.branch,
-                path: '',
-                dockerfile: repository?.dockerFile,
-                dockerContextPath: repository?.dockerContext,
-                openApiPath: '',
-                componentId: ''
-            });
-            if (!repoMetaData.isDockerfilePathValid) {
-                setDockerFileError("There isn't such a Dockerfile in the repository");
-            } else if (repoMetaData.isDockerfilePathValid && !repoMetaData.isDockerContextPathValid) {
-                setDockerFileError("Provide a valid path for docker context.")
-            } else {
-                setDockerFileError("");
+    const dockerFileError = useMemo(() => {
+        if(localDirectorMetaData){
+            if (!localDirectorMetaData.dockerFilePathValid) {
+                return "There isn't such a Dockerfile in the repository";
             }
-        } else {
-            setDockerFileError("");
+            if (localDirectorMetaData.dockerFilePathValid && !localDirectorMetaData.isDockerContextPathValid) {
+                return "Provide a valid path for docker context.";
+            }
         }
-        setIsValidationInProgress(false);
-    }
+    }, [repository, localDirectorMetaData]);
 
-    const debouncedValidate = debounce(validate, 500);
 
-    useEffect(() => {
-        debouncedValidate();
-    }, [repository?.dockerFile, repository?.dockerContext])
+    const debouncedSetDockerFile = debounce(setDockerFile, 500);
+    const debouncedSetDockerContext = debounce(setDockerFileCtx, 500);
     
     return (
         <div>
@@ -113,7 +105,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
                         label="Browse"
                         repo={`${repository?.org}/${repository?.repo}`}
                         path={repository?.dockerFile}
-                        onOpen={setDockerFile}
+                        onOpen={debouncedSetDockerFile}
                         canSelectFiles={true}
                         canSelectFolders={false}
                         canSelectMany={false}
@@ -132,7 +124,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
                         label="Browse"
                         repo={`${repository?.org}/${repository?.repo}`}
                         path={repository?.dockerContext}
-                        onOpen={setDockerFileCtx}
+                        onOpen={debouncedSetDockerContext}
                         canSelectFiles={false}
                         canSelectFolders={true}
                         canSelectMany={false}
@@ -142,7 +134,7 @@ export const BYOCRepoConfig = (props: BYOCRepoConfigProps) => {
 
                 </VSCodeTextField>
             </StepContainer>
-            {isValidationInProgress && <div style={{ marginTop: "5px" }}>validating paths...</div>}
+            {fetchingDirectoryMetadata && <div style={{ marginTop: "5px" }}>validating paths...</div>}
             {dockerFileError && <ErrorBanner errorMsg={dockerFileError} />}
         </div>
     );

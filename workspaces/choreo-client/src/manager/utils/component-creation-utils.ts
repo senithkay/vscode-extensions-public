@@ -13,7 +13,7 @@
 
 import child_process from "child_process";
 import { log } from "console";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ComponentDisplayType, WorkspaceComponentMetadata, WorkspaceConfig } from "@wso2-enterprise/choreo-core";
 import { basename, dirname, join } from "path";
 import { existsSync, mkdirSync, readFile, unlink, writeFile } from "fs";
 import { randomUUID } from "crypto";
@@ -52,20 +52,20 @@ export function getAnnotatedContent(content: string, packageName: string, servic
     return content.replace(preText, processedText);
 }
 
-export function getBalCommandSuffix(componentType: ChoreoComponentType): string {
+export function getBalCommandSuffix(componentType: ComponentDisplayType): string {
     switch (componentType) {
-        case ChoreoComponentType.GraphQL:
+        case ComponentDisplayType.GraphQL:
             return GRAPHQL_SERVICE_TEMPLATE_SUFFIX;
-        case ChoreoComponentType.Service:
-        case ChoreoComponentType.Proxy:
-        case ChoreoComponentType.Webhook:
+        case ComponentDisplayType.Service:
+        case ComponentDisplayType.Proxy:
+        case ComponentDisplayType.Webhook:
             return DEFAULT_SERVICE_TEMPLATE_SUFFIX;
         default:
             return '';
     }
 }
 
-export function createBallerinaPackage(pkgName: string, pkgRoot: string, componentType: ChoreoComponentType)
+export function createBallerinaPackage(pkgName: string, pkgRoot: string, componentType: ComponentDisplayType)
     : Promise<CommandResponse> {
     if (!existsSync(pkgRoot)) {
         mkdirSync(pkgRoot, { recursive: true });
@@ -104,9 +104,9 @@ export function processTomlFiles(pkgPath: string, orgName: string) {
     });
 }
 
-export function addDisplayAnnotation(pkgPath: string, type: ChoreoComponentType) {
+export function addDisplayAnnotation(pkgPath: string, type: ComponentDisplayType) {
     const serviceId = `${basename(pkgPath)}-${randomUUID()}`;
-    const serviceFileName = type === ChoreoComponentType.GraphQL ? 'sample.bal' : 'service.bal';
+    const serviceFileName = type === ComponentDisplayType.GraphQL ? 'sample.bal' : 'service.bal';
     const serviceFilePath = join(pkgPath, serviceFileName);
     readFile(serviceFilePath, 'utf-8', (err, contents) => {
         if (err) {
@@ -124,7 +124,7 @@ export function addDisplayAnnotation(pkgPath: string, type: ChoreoComponentType)
 
 export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentCreationParams): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        const { org, repositoryInfo, name, displayType, description, projectId, accessibility } = args;
+        const { org, repositoryInfo, name, displayType, description, projectId, accessibility, webAppConfig, port } = args;
 
         readFile(workspaceFilePath, 'utf-8', function (err, contents) {
             if (err) {
@@ -149,17 +149,33 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                 }
             };
             let componentPath = join('repos', repositoryInfo.org, repositoryInfo.repo);
-            
-            if (args.displayType.startsWith("byoc")) {
+            if (args.displayType.toString().startsWith("byoc")) {
                 const repoInfo = args.repositoryInfo as BYOCRepositoryDetails;
-                metadata.byocConfig = {
-                    dockerfilePath: repoInfo.dockerFile,
-                    dockerContext: repoInfo.dockerContext,
-                    srcGitRepoBranch: repoInfo.branch,
-                    srcGitRepoUrl: `https://github.com/${repoInfo.org}/${repoInfo.repo}`,
+                if (args.displayType === ComponentDisplayType.ByocWebAppDockerLess) {
+                    metadata.byocWebAppsConfig = {
+                        ...webAppConfig,
+                        srcGitRepoBranch: repoInfo.branch,
+                        srcGitRepoUrl: `https://github.com/${repoInfo.org}/${repoInfo.repo}`,
+                    }
+                } else {
+                    metadata.byocConfig = {
+                        dockerfilePath: repoInfo.dockerFile,
+                        dockerContext: repoInfo.dockerContext,
+                        srcGitRepoBranch: repoInfo.branch,
+                        srcGitRepoUrl: `https://github.com/${repoInfo.org}/${repoInfo.repo}`,
+                    }
                 }
+
+                if (port) {
+                    metadata.port = port;
+                }
+
                 if (repoInfo.dockerContext) {
                     componentPath = join(componentPath, repoInfo.dockerContext);
+                } else if (webAppConfig?.dockerContext) {
+                    componentPath = join(componentPath, webAppConfig.dockerContext);
+                } else if (webAppConfig?.webAppOutputDirectory) {
+                    componentPath = join(componentPath, webAppConfig.webAppOutputDirectory);
                 } else {
                     componentPath = dirname(join(componentPath, repoInfo.dockerFile))
                 }

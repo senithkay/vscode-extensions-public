@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import { Project, Component, Repository, Deployment, BuildStatus } from "@wso2-enterprise/choreo-core";
+import { Project, Component, Repository, Deployment, BuildStatus, ComponentWizardWebAppConfig } from "@wso2-enterprise/choreo-core";
 
 export interface CreateProjectParams {
     name: string;
@@ -51,14 +51,15 @@ export interface CreateByocComponentParams {
     accessibility: string;
     labels: string;
     componentType: string;
-    port: number;
+    port?: number;
     oasFilePath: string;
-    byocConfig: {
+    byocConfig?: {
         dockerfilePath: string;
         dockerContext: string;
         srcGitRepoUrl: string;
         srcGitRepoBranch: string;
-    }
+    },
+    byocWebAppsConfig?: ComponentWizardWebAppConfig
 }
 
 export interface GetProjectEnvParams {

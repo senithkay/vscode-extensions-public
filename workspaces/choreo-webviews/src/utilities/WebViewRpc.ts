@@ -65,6 +65,12 @@ import {
     SendTelemetryExceptionParams,
     SendTelemetryExceptionNotification,
     SendProjectTelemetryEventNotification,
+    CreateNonBalLocalComponent,
+    ChoreoComponentCreationParams,
+    GetLocalComponentDirMetaData,
+    getLocalComponentDirMetaDataRequest,
+    getLocalComponentDirMetaDataRes,
+    CreateNonBalLocalComponentFromExistingSource,
     GetEnrichedComponent,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
@@ -179,8 +185,20 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(isSubpathAvailable, HOST_EXTENSION, params);
     }
 
+    public async getLocalComponentDirMetaData(params: getLocalComponentDirMetaDataRequest): Promise<getLocalComponentDirMetaDataRes> {
+        return this._messenger.sendRequest(GetLocalComponentDirMetaData, HOST_EXTENSION, params);
+    }
+
     public async checkProjectDeleted(projectId: string): Promise<void> {
         return this._messenger.sendRequest(CheckProjectDeleted, HOST_EXTENSION, projectId);
+    }
+
+    public async createNonBalComponent(params: ChoreoComponentCreationParams): Promise<void> {
+        return this._messenger.sendRequest(CreateNonBalLocalComponent, HOST_EXTENSION, params);
+    }
+
+    public async createNonBalLocalComponentFromExistingSource(params: ChoreoComponentCreationParams): Promise<void> {
+        return this._messenger.sendRequest(CreateNonBalLocalComponentFromExistingSource, HOST_EXTENSION, params);
     }
 
     public async getChoreoProject(): Promise<Project | undefined> {

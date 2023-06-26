@@ -20,6 +20,7 @@ import { ProjectWizard } from "./ProjectWizard/ProjectWizard";
 import { ProjectOverview } from "./ProjectOverview/ProjectOverview";
 import { ChoreoArchitectureView } from "./ChoreoArchitectureView/ArchitectureView";
 import { ChoreoWebviewQueryClientProvider } from "./utilities/query/query";
+import { ComponentCreateMode } from "@wso2-enterprise/choreo-core";
 import { ProjectView } from "./ActivityBar/ProjectView";
 import { AccountView } from "./ActivityBar/AccountView";
 
@@ -37,17 +38,18 @@ interface ChoreoWebviewProps {
     componentLimit?: number;
     choreoUrl?: string;
     billingUrl?: string;
+    componentCreateMode?: ComponentCreateMode;
 }
 
 function ChoreoWebview(props: ChoreoWebviewProps) {
-    const { type, orgName, projectId, billingUrl, choreoUrl, componentLimit } = props;
+    const { type, orgName, projectId, billingUrl, choreoUrl, componentLimit, componentCreateMode } = props;
 
     const switchViews = () => {
         switch (type) {
             case "ProjectCreateForm":
                 return <ProjectWizard />;
             case "ComponentCreateForm":
-                return <ComponentWizard />;
+                return <ComponentWizard componentCreateMode={componentCreateMode} />;
             case "ActivityBarProjectView":
                 return <ProjectView />;
             case "ActivityBarAccountView":
