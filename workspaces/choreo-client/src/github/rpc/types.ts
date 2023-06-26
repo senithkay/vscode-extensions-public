@@ -22,6 +22,6 @@ export const GetAuthorizedRepositoriesRequest: RequestType<void, GithubOrgnizati
 export const FireGHAppAuthCallbackRequest: NotificationType<GHAppAuthStatus> = { method: 'ghapp/fireGHAppAuthCallback' };
 export const GetRepoBranchesRequest: RequestType<{orgName: string, repoName: string, bitbucketCredentialId: string}, string[]> = { method: 'ghapp/getRepoBranches' };
 export const GetCredentialsRequest: RequestType<string, CredentialData[]> = { method: 'ghapp/getCredentials' };
-export const GetUserBitBucketReposRequest: RequestType<string, UserRepo[]> = { method: 'ghapp/getUserBitBucketRepos' };
+export const GetUserReposRequest: RequestType<string, UserRepo[]> = { method: 'ghapp/getUserRepos' };
 
 export const OnGithubAppAuthCallbackNotification: NotificationType<GHAppAuthStatus> = { method: 'ghapp/onGHAppAuthCallback' };

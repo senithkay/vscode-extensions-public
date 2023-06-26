@@ -18,7 +18,6 @@ import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
-import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import { ProjectTypeCard } from "./ProjectTypeCard";
 import { CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT } from "@wso2-enterprise/choreo-core";
@@ -230,15 +229,10 @@ export function ProjectWizard() {
                             </SubContainer>
                         )
                     }
-                    {initMonoRepo && selectedOrg !== undefined &&
+                    {initMonoRepo &&
                         (<>
                             {gitProvider === GitProvider.GITHUB && <GithubRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} />}
-                            {gitProvider === GitProvider.BITBUCKET && 
-                                <>
-                                    <BitbucketCredSelector org={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} />
-                                    <BitbucketRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} selectedCred={selectedCredential} />
-                                </>
-                            }
+                            {gitProvider === GitProvider.BITBUCKET && <BitbucketRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} userOrg={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} /> }
                         </>)
                     }
                     {initMonoRepo && isBareRepo &&

@@ -15,6 +15,8 @@ import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@v
 import { FilteredCredentialData, GHAppAuthStatus, Repo, UserRepo } from "@wso2-enterprise/choreo-client/lib/github/types";
 import React, { useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
+import { BitbucketCredSelector } from "../BitbucketCredSelector/BitbucketCredSelector";
+import { Organization } from "@wso2-enterprise/choreo-core";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
@@ -44,17 +46,19 @@ const GhRepoSelectorActions = styled.div`
 `;
 
 export interface GithubRepoSelectorProps {
+    userOrg: Organization;
+    selectedCred: FilteredCredentialData;
+    onCredSelect: (cred: FilteredCredentialData) => void;
     selectedRepo?: {
         org: string;
         repo: string;
     };
     onRepoSelect: (org?: string, repo?: string) => void;
-    selectedCred: FilteredCredentialData;
 }
 
 export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
 
-    const { selectedRepo, onRepoSelect, selectedCred } = props;
+    const { userOrg, selectedRepo, onRepoSelect, selectedCred, onCredSelect } = props;
     const [bbStatus, setBBStatus] = useState<GHAppAuthStatus>({ status: "not-authorized" });
     const [repoDetails, setRepoDetails] = useState<UserRepo[]>([]);
     const [bborgs, setBBorgs] = useState<string[]>([]);
@@ -63,7 +67,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
     const useGetRepoData = async (selectedCred: string) => {
         const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
         try {
-            return await ghClient.getUserBitBucketRepos(selectedCred);
+            return await ghClient.getUserRepos(selectedCred);
         } catch (error: any) {
             ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. ");
             throw error;
@@ -156,6 +160,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
 
     return (
         <>
+            <BitbucketCredSelector org={userOrg} selectedCred={selectedCred} onCredSelect={onCredSelect} />
             <GhRepoSelectorActions>
                 {showRefreshButton && <VSCodeLink onClick={() => refetch()}>Refresh Repositories</VSCodeLink>}
                 {showLoader && loaderMessage}

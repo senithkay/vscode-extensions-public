@@ -187,7 +187,7 @@ export class ChoreoGithubAppClient implements IChoreoGithubAppClient {
         }
     }
 
-    async getUserBitBucketRepos(bitbucketCredentialId: string) {
+    async getUserRepos(bitbucketCredentialId: string) {
         const query = gql`
             query {
                 userRepos(secretRef :"${bitbucketCredentialId}") {

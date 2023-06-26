@@ -31,7 +31,7 @@ export interface IChoreoGithubAppClient {
     onGHAppAuthCallback: Event<GHAppAuthStatus>;
     fireGHAppAuthCallback(status: GHAppAuthStatus): void;
     getCredentials(org_uuid: string): Promise<CredentialData[]>;
-    getUserBitBucketRepos(bitbucketCredentialId: string): Promise<UserRepo[]>;
+    getUserRepos(bitbucketCredentialId: string): Promise<UserRepo[]>;
 }
 
 export type GHAppAuthStatus = {

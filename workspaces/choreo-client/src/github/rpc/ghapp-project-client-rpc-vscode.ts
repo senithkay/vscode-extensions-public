@@ -13,7 +13,7 @@
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from "vscode-messenger-common";
 import { IChoreoGithubAppClient } from "../types";
-import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest, GetRepoBranchesRequest, GetStatusRquest, CheckStatusRquest, GetCredentialsRequest, GetUserBitBucketReposRequest } from "./types";
+import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest, GetRepoBranchesRequest, GetStatusRquest, CheckStatusRquest, GetCredentialsRequest, GetUserReposRequest } from "./types";
 
 export function registerChoreoGithubRPCHandlers(messenger: Messenger, githubAppClient: IChoreoGithubAppClient ) {
    messenger.onRequest(CheckStatusRquest, () => githubAppClient.checkAuthStatus());
@@ -25,6 +25,6 @@ export function registerChoreoGithubRPCHandlers(messenger: Messenger, githubAppC
    messenger.onRequest(TriggerAuthFlowRequest, () => githubAppClient.triggerAuthFlow());
    messenger.onRequest(TriggerInstallFlowRequest, () => githubAppClient.triggerInstallFlow());
    messenger.onRequest(GetCredentialsRequest, (org_uuid) => githubAppClient.getCredentials(org_uuid));
-   messenger.onRequest(GetUserBitBucketReposRequest, (bitbucketCredentialId) => githubAppClient.getUserBitBucketRepos(bitbucketCredentialId));
+   messenger.onRequest(GetUserReposRequest, (bitbucketCredentialId) => githubAppClient.getUserRepos(bitbucketCredentialId));
    githubAppClient.onGHAppAuthCallback((params) => messenger.sendNotification(OnGithubAppAuthCallbackNotification, BROADCAST ,params));
 }

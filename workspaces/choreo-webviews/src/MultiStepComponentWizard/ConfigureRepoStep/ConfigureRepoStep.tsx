@@ -142,7 +142,7 @@ export const ConfigureRepoStepC = (props: StepProps<Partial<ComponentWizardState
         queryFn: async () => {
             const ghClient = ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient();
             try {
-                return ghClient.getUserBitBucketRepos(selectedCredential.id);
+                return ghClient.getUserRepos(selectedCredential.id);
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching repositories. Please authorize with GitHub.");
                 throw error;

@@ -50,7 +50,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
 
     useEffect(() => {
         const credentialNameArr: FilteredCredentialData[] = [];
-        if (gitCredentialsData.length > 0) {
+        if (gitCredentialsData && gitCredentialsData.length > 0) {
             gitCredentialsData?.forEach(
                 (cred: CredentialData) => {
                     if (cred.type === GitProvider.BITBUCKET) {
