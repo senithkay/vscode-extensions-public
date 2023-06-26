@@ -1,11 +1,12 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
+import { NodeModel } from "@projectstorm/react-diagrams";
 import {
 	AnydataType,
 	keywords,
@@ -37,7 +38,8 @@ import {
 	SpecificField,
 	STKindChecker,
 	STNode,
-	traversNode
+	traversNode,
+	TypeCastExpression
 } from "@wso2-enterprise/syntax-tree";
 
 import { useDMSearchStore, useDMStore } from "../../../store/store";
@@ -59,6 +61,7 @@ import { LinkConnectorNode } from "../Node/LinkConnector";
 import { ListConstructorNode } from "../Node/ListConstructor";
 import { ModuleVariable, ModuleVariableNode } from "../Node/ModuleVariable";
 import { PrimitiveTypeNode } from "../Node/PrimitiveType";
+import { UnionTypeNode } from "../Node/UnionType";
 import { IntermediatePortModel, RecordFieldPortModel } from "../Port";
 import { InputNodeFindingVisitor } from "../visitors/InputNodeFindingVisitor";
 import { ModuleVariablesFindingVisitor } from "../visitors/ModuleVariablesFindingVisitor";
@@ -70,10 +73,12 @@ import {
 	MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX,
 	MODULE_VARIABLE_SOURCE_PORT_PREFIX,
 	PRIMITIVE_TYPE_TARGET_PORT_PREFIX,
+	UNION_TYPE_TARGET_PORT_PREFIX,
 } from "./constants";
 import { FnDefInfo, FunctionDefinitionStore } from "./fn-definition-store";
 import { getModification } from "./modifications";
 import { TypeDescriptorStore } from "./type-descriptor-store";
+import { resolveUnionType } from "./union-type-utils";
 
 export function getFieldNames(expr: FieldAccess | OptionalFieldAccess) {
 	const fieldNames: { name: string, isOptional: boolean }[] = [];
@@ -140,9 +145,13 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		const exprPosition = (targetPort.editableRecordField.value as QueryExpression)
 			.selectClause.expression.position as NodePosition;
 		return updateValueExprSource(rhs, exprPosition, applyModifications);
+	} else if (isMappedToRootUnionType(targetPort)) {
+		const exprPosition = (targetPort.getParent() as UnionTypeNode).innermostExpr.position as NodePosition;
+		return updateValueExprSource(rhs, exprPosition, applyModifications);
 	}
 
-	lhs = getBalRecFieldName(targetPort.field.name);
+	const targetFieldName = getFieldNameFromOutputPort(targetPort);
+	lhs = getBalRecFieldName(targetFieldName);
 
 	// Inserting a new specific field
 	let mappingConstruct;
@@ -151,18 +160,20 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 	let fromFieldIdx = -1;
 
 	while (parent != null && parent.parentModel) {
-		if (parent.field?.name
+		const parentFieldName = getFieldNameFromOutputPort(parent);
+		if (parentFieldName
 			&& !(parent.field.typeName === PrimitiveBalType.Record
 				&& ([PrimitiveBalType.Array, PrimitiveBalType.Union].includes(parent.parentModel.field.typeName as PrimitiveBalType))
 				&& !parent.isWithinSelectClause)
 		) {
-			parentFieldNames.push(getBalRecFieldName(parent.field.name));
+			parentFieldNames.push(getBalRecFieldName(parentFieldName));
 		}
 		parent = parent.parentModel;
 	}
 
-	if (targetNode instanceof MappingConstructorNode) {
-		const targetExpr = targetNode.value.expression;
+	if (targetNode instanceof MappingConstructorNode
+		|| (targetNode instanceof UnionTypeNode && targetNode.resolvedType.typeName === PrimitiveBalType.Record)) {
+		const targetExpr = targetNode.innermostExpr;
 		if (STKindChecker.isMappingConstructor(targetExpr)) {
 			mappingConstruct = targetExpr;
 		} else if (STKindChecker.isLetExpression(targetExpr)) {
@@ -171,8 +182,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 				mappingConstruct = exprBody;
 			}
 		}
-	} else if (targetNode instanceof ListConstructorNode) {
-		const targetExpr = targetNode.value.expression;
+	} else if (targetNode instanceof ListConstructorNode
+		|| (targetNode instanceof UnionTypeNode && targetNode.resolvedType.typeName === PrimitiveBalType.Array)) {
+		const targetExpr = targetNode.innermostExpr;
 		if (STKindChecker.isListConstructor(targetExpr) && fieldIndexes !== undefined && !!fieldIndexes.length) {
 			mappingConstruct = getNextMappingConstructor(targetExpr);
 		} else if (STKindChecker.isLetExpression(targetExpr)
@@ -202,11 +214,12 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 												applyModifications);
 				}
 
-				if (STKindChecker.isMappingConstructor(valueExpr)) {
-					mappingConstruct = valueExpr;
-				} else if (STKindChecker.isListConstructor(valueExpr)
+				const innerExpr = getInnermostExpressionBody(valueExpr);
+				if (STKindChecker.isMappingConstructor(innerExpr)) {
+					mappingConstruct = innerExpr;
+				} else if (STKindChecker.isListConstructor(innerExpr)
 					&& fieldIndexes !== undefined && !!fieldIndexes.length) {
-					mappingConstruct = getNextMappingConstructor(valueExpr);
+					mappingConstruct = getNextMappingConstructor(innerExpr);
 				}
 
 				if (i === fieldNames.length - 1) {
@@ -258,7 +271,7 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			startColumn: targetPosition.endColumn
 		}
 	} else if (targetNode instanceof MappingConstructorNode) {
-		targetPosition = targetNode.value.expression.position as NodePosition;
+		targetPosition = targetNode.innermostExpr.position as NodePosition;
 		source = `{${getLinebreak()}${source}}`;
 	}
 
@@ -273,10 +286,11 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 
 	function getNextMappingConstructor(listConstructor: ListConstructor): MappingConstructor {
 		const targetExpr = listConstructor.expressions[fieldIndexes.pop() * 2];
-		if (STKindChecker.isMappingConstructor(targetExpr)) {
-			return targetExpr;
-		} else if (STKindChecker.isListConstructor(targetExpr)) {
-			return getNextMappingConstructor(targetExpr);
+		const innerExpr = getInnermostExpressionBody(targetExpr);
+		if (STKindChecker.isMappingConstructor(innerExpr)) {
+			return innerExpr;
+		} else if (STKindChecker.isListConstructor(innerExpr)) {
+			return getNextMappingConstructor(innerExpr);
 		}
 	}
 
@@ -295,7 +309,8 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 
 	while (nextField && nextField.parentType) {
 		const fieldName = getFieldName(nextField);
-		if (fieldName && !(nextField.hasValue() && STKindChecker.isMappingConstructor(nextField.value))) {
+		const innerExpr = nextField.hasValue() && getInnermostExpressionBody(nextField.value);
+		if (fieldName && !(innerExpr && STKindChecker.isMappingConstructor(innerExpr))) {
 			parentFields.push(getBalRecFieldName(fieldName));
 		}
 
@@ -307,17 +322,18 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 					rootField.colon.position as NodePosition, applyModifications);
 			}
 
-			if (STKindChecker.isMappingConstructor(rootField.valueExpr)) {
-				const specificField = getSpecificField(rootField.valueExpr, fieldName);
+			const rootInnerExpr = getInnermostExpressionBody(rootField.valueExpr);
+			if (STKindChecker.isMappingConstructor(rootInnerExpr)) {
+				const specificField = getSpecificField(rootInnerExpr, fieldName);
 				if (specificField && !specificField.valueExpr.source) {
 					return createValueExprSource(fieldName, newValue, parentFields, 1,
 						specificField.colon.position as NodePosition, applyModifications);
 				}
 				source = createSpecificField(parentFields.reverse());
-				targetMappingConstructor = rootField.valueExpr;
-			} else if (STKindChecker.isListConstructor(rootField.valueExpr)
-				&& STKindChecker.isMappingConstructor(rootField.valueExpr.expressions[0])) {
-				for (const expr of rootField.valueExpr.expressions) {
+				targetMappingConstructor = rootInnerExpr;
+			} else if (STKindChecker.isListConstructor(rootInnerExpr)
+				&& STKindChecker.isMappingConstructor(rootInnerExpr.expressions[0])) {
+				for (const expr of rootInnerExpr.expressions) {
 					if (STKindChecker.isMappingConstructor(expr)
 						&& isPositionsEquals(expr.position as NodePosition, mappingConstruct.position as NodePosition)) {
 						const specificField = getSpecificField(expr, fieldName);
@@ -340,7 +356,7 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 		const specificField = STKindChecker.isMappingConstructor(targetMappingConstructor)
 			&& getSpecificField(targetMappingConstructor, getFieldName(field));
 		if (specificField && !specificField.valueExpr.source) {
-			return createValueExprSource(field.type.name, newValue, parentFields, 1,
+			return createValueExprSource(field.originalType.name, newValue, parentFields, 1,
 				specificField.colon.position as NodePosition, applyModifications);
 		}
 		source = createSpecificField(parentFields.reverse());
@@ -353,7 +369,12 @@ export async function createSourceForUserInput(field: EditableRecordField, mappi
 			targetPosition = targetMappingConstructor.fields[targetMappingConstructor.fields.length - 1].position as NodePosition;
 			source = `,${source}`;
 		} else {
-			targetPosition = targetMappingConstructor.openBrace.position as NodePosition;
+			const openBracePosition = targetMappingConstructor.openBrace.position as NodePosition;
+			const closeBracePosition = targetMappingConstructor.closeBrace.position as NodePosition;
+			targetPosition = openBracePosition;
+			if (openBracePosition.startLine === closeBracePosition.endLine) {
+				source = `${getLinebreak()}${source}`;
+			}
 		}
 		targetPosition = {
 			...targetPosition,
@@ -435,6 +456,38 @@ export function modifySpecificFieldSource(link: DataMapperLinkModel) {
 		}
 	}
 
+}
+
+export function replaceSpecificFieldValue(link: DataMapperLinkModel) {
+	const modifications: STModification[] = [];
+	const sourcePort = link.getSourcePort();
+	const rhs = sourcePort && sourcePort instanceof RecordFieldPortModel ? sourcePort.fieldFQN : undefined;
+
+	if (link.getTargetPort() && rhs) {
+		const targetPort = link.getTargetPort() as RecordFieldPortModel;
+		const targetNode = targetPort.getNode();
+		const editableRecordField = targetPort.editableRecordField;
+		let targetPosition: NodePosition;
+		if (editableRecordField?.value) {
+			let expr = editableRecordField.value;
+			if (STKindChecker.isSpecificField(expr)) {
+				expr = expr.valueExpr;
+			}
+			const innerExpr = getInnermostExpressionBody(expr);
+			targetPosition = innerExpr.position as NodePosition;
+		}
+		if (targetPosition) {
+			modifications.push({
+				type: "INSERT",
+				config: {
+					"STATEMENT": rhs,
+				},
+				...targetPosition
+			});
+
+			void (targetNode as DataMapperNodeModel).context.applyModifications(modifications)
+		}
+	}
 }
 
 export function findNodeByValueNode(value: STNode,
@@ -644,31 +697,27 @@ export function getInputPortsForExpr(node: RequiredParamNode
 }
 
 export function getOutputPortForField(fields: STNode[],
-                                      node: MappingConstructorNode | PrimitiveTypeNode | ListConstructorNode)
-	: [RecordFieldPortModel, RecordFieldPortModel] {
+                                      editableRecordField: EditableRecordField,
+                                      portPrefix: string,
+                                      getPort: (portId: string) => RecordFieldPortModel,
+                                      listConstructorRootName?: string): [RecordFieldPortModel, RecordFieldPortModel] {
+	let portIdBuffer = `${portPrefix}${listConstructorRootName ? `.${getBalRecFieldName(listConstructorRootName)}` : ''}`;
+	let nextTypeNode: EditableRecordField = editableRecordField;
 
-	let nextTypeNode: EditableRecordField = node.recordField;
-	let portIdBuffer: string = '';
-
-	if (node instanceof MappingConstructorNode) {
-		portIdBuffer = `${MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX}`;
-	} else if (node instanceof ListConstructorNode) {
-		portIdBuffer = `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${getBalRecFieldName(node.rootName)}`;
-	} else {
-		portIdBuffer = PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
-	}
 	for (let i = 0; i < fields.length; i++) {
 		const field = fields[i];
 		const next = i + 1 < fields.length && fields[i + 1];
 		const nextPosition: NodePosition = next ? next.position : field.position;
 		if (STKindChecker.isSpecificField(field) && STKindChecker.isSpecificField(nextTypeNode.value)) {
 			const isLastField = i === fields.length - 1;
+			const innerExprOfNextTypeNode = getInnermostExpressionBody(nextTypeNode.value.valueExpr);
+			const innerExprOfFieldValue = getInnermostExpressionBody(field?.valueExpr);
 			const targetPosition: NodePosition = isLastField
 				? nextTypeNode.value.position
-				: field?.valueExpr && nextTypeNode.value.valueExpr.position;
+				: field?.valueExpr && innerExprOfNextTypeNode.position;
 			if (isPositionsEquals(targetPosition, nextPosition)
 				&& field.valueExpr
-				&& !STKindChecker.isMappingConstructor(field.valueExpr))
+				&& !STKindChecker.isMappingConstructor(innerExprOfFieldValue))
 			{
 				portIdBuffer = `${portIdBuffer}.${getBalRecFieldName(field.fieldName.value)}`;
 			}
@@ -680,18 +729,20 @@ export function getOutputPortForField(fields: STNode[],
 			}
 		} else {
 			if (nextTypeNode.childrenTypes) {
-				const fieldIndex = nextTypeNode.childrenTypes.findIndex(
-					(recF) => recF?.value && isPositionsEquals(nextPosition, recF.value.position as NodePosition));
+				const fieldIndex = nextTypeNode.childrenTypes.findIndex(recF => {
+					const innerExpr = recF?.value && getInnermostExpressionBody(recF.value);
+					return innerExpr && isPositionsEquals(nextPosition, innerExpr.position as NodePosition);
+				});
 				if (fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${getBalRecFieldName(nextTypeNode.type.name)}` : ''}`;
+					portIdBuffer = `${portIdBuffer}${nextTypeNode.originalType?.name ? `.${getBalRecFieldName(nextTypeNode.originalType.name)}` : ''}`;
 					nextTypeNode = nextTypeNode.childrenTypes[fieldIndex];
 				} else if (isPositionsEquals(nextPosition, nextTypeNode?.value.position)) {
-					portIdBuffer = `${portIdBuffer}${nextTypeNode.type?.name ? `.${getBalRecFieldName(nextTypeNode.type.name)}` : ''}`;
+					portIdBuffer = `${portIdBuffer}${nextTypeNode.originalType?.name ? `.${getBalRecFieldName(nextTypeNode.originalType.name)}` : ''}`;
 				}
 			} else if (nextTypeNode.elements) {
 				const [nextField, fieldIndex] = getNextField(nextTypeNode.elements, nextPosition);
 				if (nextField && fieldIndex !== -1) {
-					portIdBuffer = `${portIdBuffer}.${getBalRecFieldName(nextField.type?.name) || ''}`;
+					portIdBuffer = `${portIdBuffer}.${getBalRecFieldName(nextField.originalType?.name) || ''}`;
 				}
 			}
 		}
@@ -708,7 +759,7 @@ export function getOutputPortForField(fields: STNode[],
 		return [undefined, undefined];
 	}
 	const portId = `${portIdBuffer}.IN`;
-	const port = (node.getPort(portId) as RecordFieldPortModel);
+	const port = getPort(portId);
 	let mappedPort = port;
 	while (mappedPort && mappedPort.hidden) {
 		mappedPort = mappedPort.parentModel;
@@ -726,199 +777,13 @@ export function getLinebreak(){
 function getNextField(nextTypeMemberNodes: ArrayElement[],
                       nextFieldPosition: NodePosition): [EditableRecordField, number] {
 	const fieldIndex = nextTypeMemberNodes.findIndex((node) => {
-		return node.member?.value && isPositionsEquals(nextFieldPosition, node.member.value.position as NodePosition);
+		const innerExpr = node.member?.value && getInnermostExpressionBody(node.member.value);
+		return innerExpr && isPositionsEquals(nextFieldPosition, innerExpr.position as NodePosition);
 	});
 	if (fieldIndex !== -1) {
 		return [nextTypeMemberNodes[fieldIndex].member, fieldIndex];
 	}
 	return [undefined, undefined];
-}
-
-export function enrichAndProcessType(typeToBeProcessed: Type, node: STNode,
-                                     selectedST: STNode): [EditableRecordField, Type] {
-	let type = {...typeToBeProcessed};
-	let valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
-	const [updatedType, isUpdated] = addMissingTypes(valueEnrichedType);
-	if (isUpdated) {
-		type = updatedType;
-		valueEnrichedType = getEnrichedRecordType(type, node, selectedST);
-	}
-	return [valueEnrichedType, type];
-}
-
-export function getEnrichedRecordType(type: Type,
-                                      node: STNode,
-                                      selectedST: STNode,
-                                      parentType?: EditableRecordField,
-                                      childrenTypes?: EditableRecordField[]): EditableRecordField {
-	let editableRecordField: EditableRecordField = null;
-	let fields: Type[] = null;
-	let valueNode: STNode;
-	let nextNode: STNode;
-
-	if (parentType) {
-		if (node && STKindChecker.isMappingConstructor(node)) {
-			const specificField: SpecificField = node.fields.find((val) =>
-				STKindChecker.isSpecificField(val) && type?.name && val.fieldName.value === getBalRecFieldName(type.name)
-			) as SpecificField;
-			if (specificField) {
-				valueNode = specificField;
-				nextNode = specificField?.valueExpr ? specificField.valueExpr : undefined;
-			} else if (parentType && parentType.type.typeName === PrimitiveBalType.Array) {
-				valueNode = node;
-				nextNode = valueNode;
-			}
-		} else if (node && STKindChecker.isListConstructor(node)) {
-			const mappingConstructors = node.expressions.filter((val) =>
-				STKindChecker.isMappingConstructor(val)
-			) as MappingConstructor[];
-			if (mappingConstructors.length > 0) {
-				for (const expr of mappingConstructors) {
-					valueNode = expr.fields.find((val) =>
-						STKindChecker.isSpecificField(val) && val.fieldName.value === getBalRecFieldName(type?.name)
-					);
-				}
-				if (!valueNode) {
-					valueNode = node;
-					nextNode = valueNode;
-				}
-			} else {
-				valueNode = node;
-				nextNode = valueNode;
-			}
-		} else if (node && STKindChecker.isFunctionDefinition(selectedST)
-			&& STKindChecker.isExpressionFunctionBody(selectedST.functionBody)
-			&& isPositionsEquals(selectedST.functionBody.expression.position as NodePosition,
-								node.position as NodePosition))
-		{
-			nextNode = undefined;
-		} else {
-			valueNode = node;
-		}
-	} else {
-		valueNode = node;
-		if (STKindChecker.isLetExpression(node)) {
-			nextNode = getExprBodyFromLetExpression(node);
-		} else if (
-			STKindChecker.isQueryExpression(node) &&
-			STKindChecker.isMappingConstructor(node.selectClause.expression)
-		) {
-			nextNode = node.selectClause.expression;
-		} else {
-			nextNode = node;
-		}
-	}
-
-	editableRecordField = new EditableRecordField(type, valueNode, parentType);
-
-	if (type.typeName === PrimitiveBalType.Record) {
-		fields = type.fields;
-		const children = [...childrenTypes ? childrenTypes : []];
-		if (fields && !!fields.length) {
-			fields.map((field) => {
-				const childType = getEnrichedRecordType(field, nextNode, selectedST, editableRecordField, childrenTypes);
-				children.push(childType);
-			});
-		}
-		editableRecordField.childrenTypes = children;
-	} else if (type.typeName === PrimitiveBalType.Array && type?.memberType) {
-		if (nextNode) {
-			if (STKindChecker.isQueryExpression(nextNode)) {
-				const selectClauseExpr = nextNode.selectClause.expression;
-				if (STKindChecker.isMappingConstructor(selectClauseExpr)) {
-					const childType = getEnrichedRecordType(type.memberType, selectClauseExpr,
-						selectedST, editableRecordField, childrenTypes);
-					editableRecordField.elements = [{
-						member: childType,
-						elementNode: nextNode
-					}];
-				} else if (STKindChecker.isListConstructor(selectClauseExpr)) {
-					editableRecordField.elements = getEnrichedArrayType(type.memberType, selectClauseExpr,
-						selectedST, editableRecordField, undefined, true);
-				} else {
-					editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, selectClauseExpr,
-						selectedST, editableRecordField);
-				}
-			} else if (STKindChecker.isMappingConstructor(nextNode)) {
-				if (type.memberType.typeName === PrimitiveBalType.Record) {
-					const childType = getEnrichedRecordType(type.memberType, nextNode,
-						selectedST, editableRecordField, childrenTypes);
-					editableRecordField.elements = [{
-						member: childType,
-						elementNode: nextNode
-					}];
-				}
-			} else if (STKindChecker.isListConstructor(nextNode)) {
-				editableRecordField.elements = getEnrichedArrayType(type.memberType, nextNode,
-					selectedST, editableRecordField);
-			} else {
-				editableRecordField.elements = getEnrichedPrimitiveType(type.memberType, nextNode,
-					selectedST, editableRecordField);
-			}
-		} else {
-			if (type.memberType.typeName === PrimitiveBalType.Record) {
-				const members: ArrayElement[] = [];
-				const childType = getEnrichedRecordType(type.memberType, undefined,
-					selectedST, parentType, childrenTypes);
-				members.push({
-					member: childType,
-					elementNode: undefined
-				});
-				editableRecordField.elements = members;
-			}
-		}
-	}
-
-	return editableRecordField;
-}
-
-export function getEnrichedPrimitiveType(field: Type,
-                                         node: STNode,
-                                         selectedST: STNode,
-                                         parentType?: EditableRecordField,
-                                         childrenTypes?: EditableRecordField[]) {
-	const members: ArrayElement[] = [];
-
-	const childType = getEnrichedRecordType(field, node, selectedST, parentType, childrenTypes);
-
-	if (childType) {
-		members.push({
-			member: childType,
-			elementNode: node
-		});
-	}
-
-	return members;
-}
-
-export function getEnrichedArrayType(field: Type,
-                                     node: ListConstructor,
-                                     selectedST: STNode,
-                                     parentType?: EditableRecordField,
-                                     childrenTypes?: EditableRecordField[],
-                                     isSelectClauseExpr?: boolean) {
-	const members: ArrayElement[] = [];
-
-	if (isSelectClauseExpr && field.typeName === PrimitiveBalType.Array) {
-		return getEnrichedPrimitiveType(field, node, selectedST, parentType, childrenTypes);
-	}
-
-	node.expressions.forEach((expr) => {
-		if (!STKindChecker.isCommaToken(expr)) {
-			if (field) {
-				const childType = getEnrichedRecordType(field, expr, selectedST, parentType, childrenTypes);
-
-				if (childType) {
-					members.push({
-						member: childType,
-						elementNode: expr
-					});
-				}
-			}
-		}
-	});
-
-	return members;
 }
 
 export function getBalRecFieldName(fieldName: string) {
@@ -965,9 +830,10 @@ export function getTypeName(field: Type): string {
 
 		return field?.typeInfo?.name || 'record';
 	} else if (field.typeName === PrimitiveBalType.Array && field?.memberType) {
-		return `${getTypeName(field.memberType)}[]`;
+		const typeName = `${getTypeName(field.memberType)}`;
+		return field.memberType.typeName === PrimitiveBalType.Union ? `(${typeName})[]` : `${typeName}[]`;
 	} else if (field.typeName === PrimitiveBalType.Union) {
-		return field.members?.map(item => getTypeName(item)).join(' | ');
+		return field.members?.map(item => getTypeName(item)).join('|');
 	}
 	return field.typeName;
 }
@@ -1029,7 +895,7 @@ export function getModuleVariables(node: STNode, symbolInfo: STSymbolInfo) {
 }
 
 export function getFieldName(field: EditableRecordField) {
-	return field.type?.name ? getBalRecFieldName(field.type.name) : '';
+	return field.originalType?.name ? getBalRecFieldName(field.originalType.name) : '';
 }
 
 export function getFieldLabel(fieldId: string) {
@@ -1116,77 +982,11 @@ export function getExprBodyFromLetExpression(letExpr: LetExpression): STNode {
 	return letExpr.expression;
 }
 
-export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type {
-	let type: Type;
-	if (STKindChecker.isMappingConstructor(node)) {
-		type = {
-			typeName: PrimitiveBalType.Record,
-			name: fieldName ? fieldName : null,
-			fields: (node.fields.filter(field => STKindChecker.isSpecificField(field)) as SpecificField[]).map(field => {
-				return constructTypeFromSTNode(field);
-			}),
-			originalTypeName: AnydataType
-		}
-	} else if (STKindChecker.isListConstructor(node)) {
-		type = {
-			typeName: PrimitiveBalType.Array,
-			name: fieldName ? fieldName : null,
-			originalTypeName: AnydataType
-		}
-		if (node.expressions.length > 0) {
-			type.memberType = constructTypeFromSTNode(node.expressions[0]);
-		}
-	} else if (STKindChecker.isQueryExpression(node)) {
-		type = {
-			typeName: PrimitiveBalType.Array,
-			name: fieldName ? fieldName : null,
-			memberType: constructTypeFromSTNode(node.selectClause.expression)
-		}
-	} else if (STKindChecker.isSpecificField(node)) {
-		const valueExpr = node.valueExpr;
-		if (!STKindChecker.isMappingConstructor(valueExpr)
-			&& !STKindChecker.isListConstructor(valueExpr)
-			&& !STKindChecker.isQueryExpression(valueExpr))
-		{
-			type = {
-				typeName: AnydataType,
-				name: node.fieldName.value
-			}
-		} else {
-			return constructTypeFromSTNode(node.valueExpr, node.fieldName.value);
-		}
-	} else {
-		type = {
-			typeName: AnydataType
-		}
+export function getExprBodyFromTypeCastExpression(typeCastExpression: TypeCastExpression): STNode {
+	if (STKindChecker.isTypeCastExpression(typeCastExpression.expression)) {
+		return getExprBodyFromTypeCastExpression(typeCastExpression.expression);
 	}
-
-	return type;
-}
-
-export function addMissingTypes(field: EditableRecordField): [Type, boolean] {
-	let type = { ...field.type };
-	const value = field.value;
-	let hasTypeUpdated = false;
-
-	if (type.typeName === AnydataType && value) {
-		type = constructTypeFromSTNode(value, type?.name);
-		hasTypeUpdated = true;
-	} else if (type.typeName === PrimitiveBalType.Record) {
-		type.fields = field.childrenTypes.map((child) => {
-			const [updatedType, isUpdated] = addMissingTypes(child);
-			hasTypeUpdated = hasTypeUpdated || isUpdated;
-			return updatedType;
-		});
-	} else if (type.typeName === PrimitiveBalType.Array) {
-		if (field?.elements && field.elements.length > 0) {
-			const [updatedType, isUpdated] = addMissingTypes(field.elements[0].member);
-			hasTypeUpdated = hasTypeUpdated || isUpdated;
-			type.memberType = updatedType;
-		}
-	}
-
-	return [type, hasTypeUpdated];
+	return typeCastExpression.expression;
 }
 
 export function getPrevOutputType(prevSTNodes: DMNode[], ballerinaVersion: string): Type {
@@ -1251,6 +1051,14 @@ export function getMethodCallElements(methodCall: MethodCall): string[] {
 	}
 
 	return elements;
+}
+
+export function isDefaultValue(field: Type, value: string): boolean {
+	if (value === '()'){
+		return true;
+	}
+	const defaultValue = getDefaultValue(field?.typeName);
+	return defaultValue === value?.trim();
 }
 
 function hasNoMatchFoundInArray(elements: ArrayElement[], searchValue: string): boolean {
@@ -1343,6 +1151,76 @@ export function getFilteredMappings(mappings: FieldAccessToSpecificFied[], searc
 	});
 }
 
+export function getInnermostExpressionBody(expr: STNode): STNode {
+	let innerExpr =	expr;
+	if (innerExpr && STKindChecker.isLetExpression(innerExpr)) {
+		innerExpr = getExprBodyFromLetExpression(innerExpr);
+	}
+	if (innerExpr && STKindChecker.isTypeCastExpression(innerExpr)) {
+		innerExpr = getExprBodyFromTypeCastExpression(innerExpr);
+	}
+	return innerExpr;
+}
+
+export function getInnermostMemberTypeFromArrayType(arrayType: Type): Type {
+	let memberType = arrayType.memberType;
+	while (memberType.typeName === PrimitiveBalType.Array) {
+		memberType = memberType.memberType;
+	}
+	return memberType;
+}
+
+export function getTargetPortPrefix(node: NodeModel): string {
+	switch (true) {
+		case node instanceof MappingConstructorNode:
+			return MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+		case node instanceof ListConstructorNode:
+			return LIST_CONSTRUCTOR_TARGET_PORT_PREFIX;
+		case node instanceof PrimitiveTypeNode:
+			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+		case node instanceof UnionTypeNode:
+			const unionTypeNode = node as UnionTypeNode;
+			const resolvedType = unionTypeNode.resolvedType;
+			if (unionTypeNode.shouldRenderUnionType()) {
+				return UNION_TYPE_TARGET_PORT_PREFIX;
+			} else if (resolvedType && resolvedType.typeName === PrimitiveBalType.Record) {
+				return MAPPING_CONSTRUCTOR_TARGET_PORT_PREFIX;
+			} else if (resolvedType && resolvedType.typeName === PrimitiveBalType.Array) {
+				return LIST_CONSTRUCTOR_TARGET_PORT_PREFIX;
+			} else {
+				return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+			}
+		default:
+			return PRIMITIVE_TYPE_TARGET_PORT_PREFIX;
+	}
+}
+
+export function getDiagnosticsPosition(outPortField: EditableRecordField, mapping: FieldAccessToSpecificFied): NodePosition {
+	const {type, value: outPortFieldValue} = outPortField;
+	const {value: mappedValue, otherVal} = mapping;
+	let diagnosticsPosition: NodePosition = (otherVal.position || mappedValue.position) as NodePosition;
+	if (type.typeName === PrimitiveBalType.Union && !type?.resolvedUnionType && outPortFieldValue) {
+		diagnosticsPosition = outPortFieldValue.position;
+	}
+	return diagnosticsPosition;
+}
+
+export function isRepresentFnBody(queryParentNode: STNode, fnBody: ExpressionFunctionBody) {
+	const isExprFnBody = STKindChecker.isExpressionFunctionBody(queryParentNode);
+	const isQueryParentNodeFnBody = isExprFnBody && isPositionsEquals(queryParentNode.position, fnBody.position);
+	if (isQueryParentNodeFnBody) {
+		return true;
+	}
+	let nextNode: STNode = fnBody.expression;
+	while (STKindChecker.isTypeCastExpression(nextNode) || STKindChecker.isLetExpression(nextNode)) {
+		if (isPositionsEquals(queryParentNode.position, nextNode.position)) {
+			return true;
+		}
+		nextNode = nextNode.expression;
+	}
+	return false;
+}
+
 function isMappedToPrimitiveTypePort(targetPort: RecordFieldPortModel): boolean {
 	return !isArrayOrRecord(targetPort.field)
 		&& targetPort?.editableRecordField?.value
@@ -1364,6 +1242,12 @@ function isMappedToRootMappingConstructor(targetPort: RecordFieldPortModel): boo
 		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value);
 }
 
+function isMappedToRootUnionType(targetPort: RecordFieldPortModel): boolean {
+	return !targetPort.parentModel
+		&& targetPort.field.typeName === PrimitiveBalType.Union
+		&& !targetPort?.editableRecordField;
+}
+
 function isMappedToExprFuncBody(targetPort: RecordFieldPortModel, selectedSTNode: STNode): boolean {
 	const exprPosition: NodePosition = STKindChecker.isFunctionDefinition(selectedSTNode)
 		&& STKindChecker.isExpressionFunctionBody(selectedSTNode.functionBody)
@@ -1378,7 +1262,7 @@ function isMappedToMappingConstructorWithinArray(targetPort: RecordFieldPortMode
 	return targetPort.index !== undefined
 		&& targetPort.field.typeName === PrimitiveBalType.Record
 		&& targetPort.editableRecordField?.value
-		&& STKindChecker.isMappingConstructor(targetPort.editableRecordField.value);
+		&& STKindChecker.isMappingConstructor(getInnermostExpressionBody(targetPort.editableRecordField.value));
 }
 
 function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel): boolean {
@@ -1389,6 +1273,14 @@ function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel)
 		&& (STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression)
 			|| STKindChecker.isMappingConstructor(targetPort.editableRecordField.value.selectClause.expression)
 		);
+}
+
+function getFieldNameFromOutputPort(outputPort: RecordFieldPortModel): string {
+	let fieldName = outputPort.field?.name;
+	if (outputPort?.editableRecordField?.originalType) {
+		fieldName = outputPort.editableRecordField.originalType?.name;
+	}
+	return fieldName;
 }
 
 export const getOptionalRecordField = (field: Type): Type | undefined => {

@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 // tslint:disable: jsx-no-multiline-js jsx-wrap-multiline
 import React, { useContext, useEffect, useState } from "react";
@@ -23,7 +23,8 @@ import {
 
 import { Context, useDiagramContext } from "../../../Contexts/Diagram";
 import { getSyntaxTree } from "../../../DiagramGenerator/generatorUtil";
-import { useHistoryContext } from "../../../DiagramViewManager/context/history";
+import { useHistoryContext } from "../../../DiagramViewManagerClone/context/history";
+import { isPathEqual } from "../../../DiagramViewManagerClone/utils";
 import { ComponentViewInfo } from "../../../OverviewDiagram/util";
 import { removeStatement } from "../../utils";
 import { FormGenerator, FormGeneratorProps } from "../FormComponents/FormGenerator";
@@ -131,8 +132,9 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
 
     // This will re-fetch the ST when user has added a new component to a file other than the active file
     useEffect(() => {
-        if (formConfig?.filePath &&
-            currentFile.path !== formConfig.filePath && formConfig?.configOverlayFormStatus?.formName === "ServiceClassResource") {
+        if (formConfig?.filePath
+            && !isPathEqual(currentFile.path, formConfig.filePath)
+            && formConfig?.configOverlayFormStatus?.formName === "ServiceClassResource") {
             (async () => {
                 const langClientPromise: DiagramEditorLangClientInterface = await getDiagramEditorLangClient();
                 const syntaxTree: STNode = await getSyntaxTree(formConfig.filePath, langClientPromise);
@@ -147,34 +149,34 @@ export function GraphqlDiagramOverlay(props: GraphqlDesignOverlayProps) {
     return (
         <div className={graphQLStyleClasses.graphqlDesignViewContainer}>
             {isVisualizerSupported ? (
-                    <>
-                        {!isLoadingST ?
-                            <GraphqlDesignDiagram
-                                model={model}
-                                targetPosition={targetPosition}
-                                langClientPromise={
-                                    getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
-                                }
-                                filePath={currentFile.path}
-                                currentFile={currentFile}
-                                ballerinaVersion={ballerinaVersion}
-                                syntaxTree={lowcodeST}
-                                functionPanel={renderFunctionForm}
-                                servicePanel={renderServicePanel}
-                                operationDesignView={handleDesignOperationClick}
-                                recordEditor={renderRecordEditor}
-                                onDelete={handleDeleteBtnClick}
-                                fullST={fullST}
-                                goToSource={goToSource}
-                            /> : (
-                                <TextPreLoader position="absolute" text="Loading..." />
-                            )
-                        }
-                        {enableFormGenerator &&
+                <>
+                    {!isLoadingST ?
+                        <GraphqlDesignDiagram
+                            model={model}
+                            targetPosition={targetPosition}
+                            langClientPromise={
+                                getDiagramEditorLangClient() as unknown as Promise<IBallerinaLangClient>
+                            }
+                            filePath={currentFile.path}
+                            currentFile={currentFile}
+                            ballerinaVersion={ballerinaVersion}
+                            syntaxTree={lowcodeST}
+                            functionPanel={renderFunctionForm}
+                            servicePanel={renderServicePanel}
+                            operationDesignView={handleDesignOperationClick}
+                            recordEditor={renderRecordEditor}
+                            onDelete={handleDeleteBtnClick}
+                            fullST={fullST}
+                            goToSource={goToSource}
+                        /> : (
+                            <TextPreLoader position="absolute" text="Loading..." />
+                        )
+                    }
+                    {enableFormGenerator &&
                         <FormGenerator {...formConfig} />
-                        }
-                    </>
-                ) :
+                    }
+                </>
+            ) :
                 <GraphqlUnsupportedVersionOverlay />
             }
         </div>

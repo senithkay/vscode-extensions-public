@@ -1,17 +1,24 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import { LinkModel, LinkModelGenerics, PortModel, PortModelGenerics } from "@projectstorm/react-diagrams";
 import { Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
+import { STKindChecker } from "@wso2-enterprise/syntax-tree";
 
 import { DataMapperLinkModel } from "../../Link";
 import { EditableRecordField } from "../../Mappings/EditableRecordField";
-import { createSourceForMapping, modifySpecificFieldSource } from "../../utils/dm-utils";
+import {
+	createSourceForMapping,
+	getInnermostExpressionBody,
+	isDefaultValue,
+	modifySpecificFieldSource,
+	replaceSpecificFieldValue
+} from "../../utils/dm-utils";
 import { IntermediatePortModel } from "../IntermediatePort";
 
 export interface RecordFieldNodeModelGenerics {
@@ -45,6 +52,7 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		this.linkedPorts = [];
 	}
 
+
 	createLinkModel(): LinkModel {
 		const lm = new DataMapperLinkModel();
 		lm.registerListener({
@@ -52,10 +60,16 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 				// lm.addLabel(evt.port.getName() + " = " + lm.getTargetPort().getName());
 			},
 			targetPortChanged: (async () => {
-				if (Object.keys(lm.getTargetPort().links).length === 1){
-					lm.addLabel(await createSourceForMapping(lm));
-				} else {
+				const targetPortHasLinks = Object.values(lm.getTargetPort().links)
+					?.some(link => (link as DataMapperLinkModel)?.isActualLink);
+				const hasDefaultValue = this.isContainDefaultValue(lm);
+
+				if (hasDefaultValue) {
+					replaceSpecificFieldValue(lm);
+				} else if (targetPortHasLinks) {
 					modifySpecificFieldSource(lm);
+				} else {
+					lm.addLabel(await createSourceForMapping(lm));
 				}
 			})
 		});
@@ -93,5 +107,21 @@ export class RecordFieldPortModel extends PortModel<PortModelGenerics & RecordFi
 		}
 		return this.portType !== port.portType && !isLinkExists
 				&& ((port instanceof IntermediatePortModel) || (!port.isDisabled()));
+	}
+
+	isContainDefaultValue(lm: DataMapperLinkModel): boolean {
+		const editableRecordField = (lm.getTargetPort() as RecordFieldPortModel).editableRecordField;
+
+		if (editableRecordField?.value) {
+			let expr = editableRecordField.value;
+			if (STKindChecker.isSpecificField(expr)) {
+				expr = expr.valueExpr;
+			}
+			const innerExpr = getInnermostExpressionBody(expr);
+			const value: string = innerExpr?.value || innerExpr?.source;
+			return isDefaultValue(editableRecordField.type, value);
+		}
+
+		return false;
 	}
 }

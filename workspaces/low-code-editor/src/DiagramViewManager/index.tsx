@@ -190,7 +190,11 @@ export function DiagramViewManager(props: EditorProps) {
                 const langClient = await langClientPromise;
                 const generatedST = await getSyntaxTree(filePath, langClient);
                 let visitedST = await getLowcodeST(generatedST, filePath, langClient, experimentalEnabled);
-                visitedST = await addPerformanceDataNew(visitedST, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
+                const currentTime: number = Date.now();
+                if (currentTime - lastPerfUpdate > debounceTime) {
+                    visitedST = await addPerformanceDataNew(visitedST, filePath, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
+                    lastPerfUpdate = currentTime;
+                }
                 const content = await getFileContent(filePath);
                 const resourceVersion = await getEnv("BALLERINA_LOW_CODE_RESOURCES_VERSION");
                 const envInstance = await getEnv("VSCODE_CHOREO_SENTRY_ENV");
@@ -425,7 +429,7 @@ export function DiagramViewManager(props: EditorProps) {
         updateSelectedComponent,
         navigateUptoParent,
         setUpdatedTimeStamp
-    )
+    );
 
     return (
         <div>

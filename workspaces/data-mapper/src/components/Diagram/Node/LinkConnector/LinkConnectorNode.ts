@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import { PrimitiveBalType, STModification } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     FieldAccess,
@@ -31,7 +31,8 @@ import {
     getDefaultValue,
     getInputNodeExpr,
     getInputPortsForExpr,
-    getOutputPortForField
+    getOutputPortForField,
+    getTargetPortPrefix
 } from "../../utils/dm-utils";
 import { FnDefInfo } from "../../utils/fn-definition-store";
 import { filterDiagnostics } from "../../utils/ls-utils";
@@ -40,6 +41,7 @@ import { DataMapperNodeModel } from "../commons/DataMapperNode";
 import { ListConstructorNode } from "../ListConstructor";
 import { MappingConstructorNode } from "../MappingConstructor";
 import { PrimitiveTypeNode } from "../PrimitiveType";
+import { UnionTypeNode } from "../UnionType";
 
 export const LINK_CONNECTOR_NODE_TYPE = "link-connector-node";
 
@@ -101,24 +103,33 @@ export class LinkConnectorNode extends DataMapperNodeModel {
             this.getModel().getNodes().map((node) => {
                 if (node instanceof MappingConstructorNode
                     || node instanceof PrimitiveTypeNode
-                    || node instanceof ListConstructorNode)
+                    || node instanceof ListConstructorNode
+                    || node instanceof UnionTypeNode)
                 {
+                    const targetPortPrefix = getTargetPortPrefix(node);
                     if (STKindChecker.isFunctionDefinition(this.parentNode)
                         || STKindChecker.isQueryExpression(this.parentNode)
                         || STKindChecker.isBracedExpression(this.parentNode))
                     {
-                        if (node instanceof PrimitiveTypeNode) {
+                        if (!(node instanceof MappingConstructorNode)) {
+                            const typeName = targetPortPrefix === PRIMITIVE_TYPE_TARGET_PORT_PREFIX
+                                ? node.recordField.type.typeName
+                                : targetPortPrefix === LIST_CONSTRUCTOR_TARGET_PORT_PREFIX
+                                    ? (node as ListConstructorNode | UnionTypeNode).rootName
+                                    : undefined;
                             this.targetPort = node.getPort(
-                                `${PRIMITIVE_TYPE_TARGET_PORT_PREFIX}.${node.recordField.type.typeName}.IN`
-                            ) as RecordFieldPortModel;
-                        } else if (node instanceof ListConstructorNode) {
-                            this.targetPort = node.getPort(
-                                `${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${node.rootName}.IN`
+                                `${targetPortPrefix}${typeName ? `.${typeName}` : ''}.IN`
                             ) as RecordFieldPortModel;
                         }
                         this.targetMappedPort = this.targetPort;
                     } else {
-                        [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields, node);
+                        const rootName = targetPortPrefix === LIST_CONSTRUCTOR_TARGET_PORT_PREFIX
+                            ? (node as ListConstructorNode | UnionTypeNode).rootName
+                            : undefined;
+                        [this.targetPort, this.targetMappedPort] = getOutputPortForField(this.fields,
+                            node.recordField, targetPortPrefix,
+                            (portId: string) =>  node.getPort(portId) as RecordFieldPortModel,
+                            rootName);
                     }
                     if (this.targetMappedPort?.portName !== this.targetPort?.portName) {
                         this.hidden = true;

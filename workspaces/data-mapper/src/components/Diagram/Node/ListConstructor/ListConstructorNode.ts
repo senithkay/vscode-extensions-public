@@ -1,19 +1,17 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 import { Point } from "@projectstorm/geometry";
 import { STModification } from "@wso2-enterprise/ballerina-languageclient";
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import {
     ExpressionFunctionBody,
     IdentifierToken,
-    ListConstructor,
-    NodePosition,
     QueryExpression,
     SelectClause,
     STKindChecker,
@@ -30,12 +28,12 @@ import { FieldAccessToSpecificFied } from "../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import { LIST_CONSTRUCTOR_TARGET_PORT_PREFIX } from "../../utils/constants";
 import {
-    enrichAndProcessType,
     getBalRecFieldName,
     getDefaultValue,
-    getExprBodyFromLetExpression,
+    getDiagnosticsPosition,
     getFilteredMappings,
     getFilteredUnionOutputTypes,
+    getInnermostExpressionBody,
     getInputNodeExpr,
     getInputPortsForExpr,
     getOutputPortForField,
@@ -45,6 +43,7 @@ import {
     hasNoMatchFound
 } from "../../utils/dm-utils";
 import { filterDiagnostics } from "../../utils/ls-utils";
+import { enrichAndProcessType } from "../../utils/type-utils";
 import { LinkDeletingVisitor } from "../../visitors/LinkDeletingVistior";
 import { DataMapperNodeModel, TypeDescriptor } from "../commons/DataMapperNode";
 
@@ -56,6 +55,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
     public typeName: string;
     public rootName: string;
     public hasNoMatchingFields: boolean;
+    public innermostExpr: STNode;
     public x: number;
     public y: number;
 
@@ -68,6 +68,10 @@ export class ListConstructorNode extends DataMapperNodeModel {
         super(
             context,
             LIST_CONSTRUCTOR_NODE_TYPE
+        );
+        this.innermostExpr = getInnermostExpressionBody(this.queryExpr
+            ? this.queryExpr.selectClause.expression
+            : this.value.expression
         );
     }
 
@@ -88,7 +92,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
                     this.typeDef = acceptedMembers[0];
                 }
             }
-            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.queryExpr || this.value.expression,
+            const [valueEnrichedType, type] = enrichAndProcessType(this.typeDef, this.innermostExpr,
                 this.context.selection.selectedST.stNode);
             this.typeDef = type;
             this.hasNoMatchingFields = hasNoMatchFound(originalTypeDef, valueEnrichedType);
@@ -136,9 +140,7 @@ export class ListConstructorNode extends DataMapperNodeModel {
             }
             let outPort: RecordFieldPortModel;
             let mappedOutPort: RecordFieldPortModel;
-            const body = STKindChecker.isLetExpression(this.recordField.value)
-                ? getExprBodyFromLetExpression(this.recordField.value)
-                : this.recordField.value;
+            const body = getInnermostExpressionBody(this.recordField.value);
             if (this.recordField.type.typeName === PrimitiveBalType.Array
                 && this.recordField?.value
                 && !STKindChecker.isListConstructor(body)
@@ -146,12 +148,16 @@ export class ListConstructorNode extends DataMapperNodeModel {
                 outPort = this.getPort(`${LIST_CONSTRUCTOR_TARGET_PORT_PREFIX}.${this.rootName}.IN`) as RecordFieldPortModel;
                 mappedOutPort = outPort;
             } else {
-                [outPort, mappedOutPort] = getOutputPortForField(fields, this);
+                [outPort, mappedOutPort] = getOutputPortForField(fields,
+                    this.recordField,
+                    LIST_CONSTRUCTOR_TARGET_PORT_PREFIX,
+                    (portId: string) =>  this.getPort(portId) as RecordFieldPortModel,
+                    this.rootName);
             }
-            const diagnostics = filterDiagnostics(
-                this.context.diagnostics, (otherVal.position || value.position) as NodePosition);
-            const lm = new DataMapperLinkModel(value, diagnostics, true);
             if (inPort && mappedOutPort) {
+                const diagnostics = filterDiagnostics(this.context.diagnostics,
+                    getDiagnosticsPosition(mappedOutPort.editableRecordField, mapping));
+                const lm = new DataMapperLinkModel(value, diagnostics, true);
                 lm.addLabel(new ExpressionLabelModel({
                     value: otherVal?.source || value.source,
                     valueNode: otherVal || value,
@@ -161,12 +167,13 @@ export class ListConstructorNode extends DataMapperNodeModel {
                         ? field.valueExpr
                         : field,
                     editorLabel: STKindChecker.isSpecificField(field)
-                        ? field.fieldName.value
+                        ? field.fieldName.value as string
                         : `${outPort.fieldFQN.split('.').pop()}[${outPort.index}]`,
                     deleteLink: () => this.deleteField(field, true)
                 }));
                 lm.setTargetPort(mappedOutPort);
                 lm.setSourcePort(inPort);
+                inPort.addLinkedPort(mappedOutPort);
                 lm.registerListener({
                     selectionChanged(event) {
                         if (event.isSelected) {
@@ -206,7 +213,6 @@ export class ListConstructorNode extends DataMapperNodeModel {
 
         await this.context.applyModifications(modifications);
     }
-
 
     public updatePosition() {
         this.setPosition(this.position.x, this.position.y);

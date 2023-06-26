@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: no-empty-interface
 import { DiagramModel, NodeModel, NodeModelGenerics } from '@projectstorm/react-diagrams';
 import { PrimitiveBalType, Type } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
@@ -53,9 +53,9 @@ import { FieldAccessToSpecificFied } from '../../Mappings/FieldAccessToSpecificF
 import { RecordFieldPortModel } from "../../Port";
 import {
 	getBalRecFieldName,
-	getExprBodyFromLetExpression,
 	getFieldName,
 	getFnDefForFnCall,
+	getInnermostExpressionBody,
 	getInputNodes,
 	getOptionalRecordField,
 	isComplexExpression
@@ -203,10 +203,11 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 					}
 				});
 			} else if (STKindChecker.isSpecificField(val) && val.valueExpr) {
-				const isMappingConstructor = STKindChecker.isMappingConstructor(val.valueExpr);
-				const isListConstructor = STKindChecker.isListConstructor(val.valueExpr);
+				const expr = getInnermostExpressionBody(val.valueExpr);
+				const isMappingConstructor = STKindChecker.isMappingConstructor(expr);
+				const isListConstructor = STKindChecker.isListConstructor(expr);
 				if (isMappingConstructor || isListConstructor) {
-					foundMappings = [...foundMappings, ...this.genMappings(val.valueExpr, [...currentFields, val])];
+					foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
 				} else {
 					foundMappings.push(this.getOtherMappings(val, currentFields));
 				}
@@ -216,8 +217,8 @@ export abstract class DataMapperNodeModel extends NodeModel<NodeModelGenerics & 
 						foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields, val])];
 					}
 				})
-			} else if (STKindChecker.isLetExpression(val)) {
-				const expr = getExprBodyFromLetExpression(val);
+			} else if (STKindChecker.isLetExpression(val) || STKindChecker.isTypeCastExpression(val)) {
+				const expr = getInnermostExpressionBody(val);
 				foundMappings = [...foundMappings, ...this.genMappings(expr, [...currentFields])];
 			} else {
 				foundMappings.push(this.getOtherMappings(val, currentFields));

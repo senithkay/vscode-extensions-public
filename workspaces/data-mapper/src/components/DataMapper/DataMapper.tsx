@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 // tslint:disable: jsx-no-multiline-js
 import React, { useEffect, useMemo, useReducer, useState } from "react";
 
@@ -102,6 +102,7 @@ export interface DataMapperProps {
     stSymbolInfo?: STSymbolInfo
     applyModifications: (modifications: STModification[]) => Promise<void>;
     updateFileContent: (content: string, skipForceSave?: boolean) => Promise<boolean>;
+    goToSource: (position: { startLine: number, startColumn: number }, filePath?: string) => void;
     onSave: (fnName: string) => void;
     onClose: () => void;
     library: {
@@ -161,7 +162,7 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
             const targetST = state.prevST[action.index];
             return { ...state, selectedST: targetST, prevST: [...state.prevST.slice(0, action.index)] };
         }
-        case ViewOption.RESET:  {
+        case ViewOption.RESET: {
             return { selectedST: { stNode: undefined, fieldPath: undefined }, prevST: [], state: state.selectedST?.stNode ? DMState.ST_NOT_FOUND : DMState.INITIALIZED };
         }
         case ViewOption.INITIALIZE: {
@@ -174,8 +175,6 @@ const selectionReducer = (state: SelectionState, action: { type: ViewOption, pay
 };
 
 function DataMapperC(props: DataMapperProps) {
-
-
     const {
         fnST,
         targetPosition,
@@ -187,6 +186,7 @@ function DataMapperC(props: DataMapperProps) {
         stSymbolInfo,
         applyModifications,
         updateFileContent,
+        goToSource,
         library,
         onClose,
         onSave,
@@ -194,7 +194,7 @@ function DataMapperC(props: DataMapperProps) {
         recordPanel,
         syntaxTree,
         updateActiveFile,
-        updateSelectedComponent
+        updateSelectedComponent,
     } = props;
 
     const [isConfigPanelOpen, setConfigPanelOpen] = useState(false);
@@ -204,7 +204,7 @@ function DataMapperC(props: DataMapperProps) {
     const [selection, dispatchSelection] = useReducer(selectionReducer, {
         selectedST: { stNode: fnST, fieldPath: fnST && fnST.functionName.value },
         prevST: [],
-        state: DMState.NOT_INITIALIZED
+        state: DMState.NOT_INITIALIZED,
     });
     const [collapsedFields, setCollapsedFields] = React.useState<string[]>([]);
     const [inputs, setInputs] = useState<DataMapperInputParam[]>();
@@ -328,6 +328,7 @@ function DataMapperC(props: DataMapperProps) {
                     stSymbolInfo,
                     handleSelectedST,
                     applyModifications,
+                    goToSource,
                     diagnostics,
                     enableStatementEditor,
                     collapsedFields,

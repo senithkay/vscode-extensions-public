@@ -1,14 +1,14 @@
 /**
- * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
- *
- * This software is the property of WSO2 LLC. and its suppliers, if any.
- * Dissemination of any information or reproduction of any material contained
- * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
- * You may not alter or remove any copyright or other notice from copies of this content."
- */
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com). All Rights Reserved.
+ *
+ * This software is the property of WSO2 LLC. and its suppliers, if any.
+ * Dissemination of any information or reproduction of any material contained
+ * herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+ * You may not alter or remove any copyright or other notice from copies of this content.
+ */
 
 // tslint:disable: jsx-no-multiline-js jsx-no-lambda jsx-wrap-multiline
-import React, { useContext } from "react";
+import React from "react";
 
 import { ListItemIcon, ListItemText, MenuItem } from "@material-ui/core";
 import {
@@ -16,7 +16,7 @@ import {
 } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
 import { NodePosition, STKindChecker, STNode } from "@wso2-enterprise/syntax-tree";
 
-import { DiagramContext } from "../DiagramContext/GraphqlDiagramContext";
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { FunctionType, Position } from "../resources/model";
 
 import { useStyles } from "./styles";
@@ -30,7 +30,7 @@ interface NodeMenuItemProps {
 
 export function NodeMenuItem(props: NodeMenuItemProps) {
     const { position, model, functionType, currentST } = props;
-    const { functionPanel } = useContext(DiagramContext);
+    const { functionPanel } = useGraphQlContext();
 
     const menuStyles = useStyles();
 
