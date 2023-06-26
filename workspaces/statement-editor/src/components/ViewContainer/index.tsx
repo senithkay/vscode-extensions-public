@@ -147,7 +147,7 @@ export function ViewContainer(props: ViewContainerProps) {
             ]);
 
             if (STKindChecker.isTypeDefinition(statementModel)) {
-                return statementModel.typeName.value;
+                return statementModel.source;
             }
         }
     };
