@@ -19,6 +19,7 @@ import React, { useCallback } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ContextMenu, MenuItem } from "../Commons/ContextMenu";
 import { useMutation } from "@tanstack/react-query";
+import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
 
 export interface ComponentListProps {
     components?: Component[];
@@ -114,7 +115,8 @@ export function ComponentList(props: ComponentListProps) {
                     const isCloned = await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().isRepoCloned({
                         repository: `${repository.organizationApp}/${repository.nameApp}`,
                         workspaceFilePath: projectPath,
-                        branch: branchName
+                        branch: branchName,
+                        gitProvider: repository.gitProvider
                     })
                     if (isCloned) {
                         await ChoreoWebViewAPI.getInstance().pullComponent({ componentId, projectId })
@@ -122,7 +124,8 @@ export function ComponentList(props: ComponentListProps) {
                         await ChoreoWebViewAPI.getInstance().getChoreoProjectManager().cloneRepo({
                             repository: `${repository.organizationApp}/${repository.nameApp}`,
                             workspaceFilePath: projectPath,
-                            branch: branchName
+                            branch: branchName,
+                            gitProvider: repository.gitProvider
                         });
                     }
                 } else {
@@ -225,14 +228,26 @@ export function ComponentList(props: ComponentListProps) {
                             organizationApp: "-",
                             organizationConfig: "-",
                             isUserManage: false,
+                            gitProvider: GitProvider.GITHUB,
+                            bitbucketCredentialId: ''
                         };
 
                     const componentBaseUrl = `${choreoUrl}/organizations/${orgName}/projects/${projectId}/components/${component.handler}`;
                     const componentOverviewLink = `${componentBaseUrl}/overview`;
                     const componentDeployLink = `${componentBaseUrl}/deploy`;
-                    const gitHubBaseUrl = `https://github.com/${repo.organizationApp}/${repo.nameApp}`;
-                    const repoLink = `${gitHubBaseUrl}/tree/${repo.branchApp}${repo.appSubPath ? `/${repo.appSubPath}` : ''}`;
 
+                    const bitbucketUrl = `https://bitbucket.org`;
+                    let repoUrl = `https://github.com`;
+                    let branchSeparator = `tree`;
+                    switch (repo.gitProvider) {
+                        case GitProvider.BITBUCKET:
+                            repoUrl = bitbucketUrl;
+                            branchSeparator = `src`;
+                            break;
+                    }
+                
+                    const providerBaseUrl = `${repoUrl}/${repo.organizationApp}/${repo.nameApp}`;
+                    let repoLink = `${providerBaseUrl}/${branchSeparator}/${repo.branchApp}${repo.appSubPath ? `/${repo.appSubPath}` : ''}`;
 
                     const deploymentStatus: DeploymentStatus =
                         (component.deployments?.dev
@@ -283,9 +298,9 @@ export function ComponentList(props: ComponentListProps) {
                                         </VSCodeLink>
                                         &nbsp;|&nbsp;
                                         <VSCodeLink
-                                            href={`${gitHubBaseUrl}/commit/${component.buildStatus?.sourceCommitId}`}
+                                            href={`${providerBaseUrl}/commit/${component.buildStatus?.sourceCommitId}`}
                                             style={{ color: `var(${buildStatusMappedValue.color})` }}
-                                            title="Open commit in remote GitHub repository"
+                                            title={`Open commit in remote ${repo.gitProvider} repository`}
                                         >
                                             {`#${component.buildStatus?.sourceCommitId.substring(0, 9)}`}
                                         </VSCodeLink>

@@ -39,6 +39,7 @@ export interface CreateComponentParams {
     repositorySubPath: string;
     repositoryType: string;
     repositoryBranch: string;
+    bitbucketCredentialId: string;
 }
 
 export interface CreateByocComponentParams {

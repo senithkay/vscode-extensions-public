@@ -147,6 +147,7 @@ export function addToWorkspace(workspaceFilePath: string, args: ChoreoComponentC
                     nameApp: repositoryInfo.repo,
                     branchApp: repositoryInfo.branch,
                     gitProvider: repositoryInfo.gitProvider,
+                    bitbucketCredentialId: repositoryInfo.bitbucketCredentialId,
                 }
             };
             let componentPath = join('repos', repositoryInfo.org, repositoryInfo.repo);

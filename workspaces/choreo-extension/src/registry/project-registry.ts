@@ -25,6 +25,7 @@ import { getLogger } from "../logger/logger";
 import { ProgressLocation, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
 import { makeURLSafe } from "../utils";
+import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
@@ -543,7 +544,15 @@ export class ProjectRegistry {
     }
 
     private async _createComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
-        const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+        const { appSubPath, branchApp, nameApp, orgApp, gitProvider, bitbucketCredentialId } = componentMetadata.repository;
+        // set srcgitRepoUrl depending on the git provider
+        let srcGitRepoUrl = `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`;
+        switch (gitProvider) {
+            case GitProvider.BITBUCKET:
+                srcGitRepoUrl = `https://bitbucket.org/${orgApp}/${nameApp}/src/${branchApp}/${appSubPath}`;
+                break;
+        }
+
         const componentRequest: CreateComponentParams = {
             name: makeURLSafe(componentMetadata.displayName),
             displayName: componentMetadata.displayName,
@@ -553,10 +562,11 @@ export class ProjectRegistry {
             orgHandle: componentMetadata.org.handle,
             projectId: componentMetadata.projectId,
             accessibility: componentMetadata.accessibility,
-            srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+            srcGitRepoUrl: srcGitRepoUrl,
             repositorySubPath: appSubPath,
             repositoryType: "UserManagedNonEmpty",
-            repositoryBranch: branchApp
+            repositoryBranch: branchApp,
+            bitbucketCredentialId: bitbucketCredentialId
         };
         await executeWithTaskRetryPrompt(() => projectClient.createComponent(componentRequest));
     }

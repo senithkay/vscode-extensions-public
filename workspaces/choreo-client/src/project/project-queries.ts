@@ -45,6 +45,7 @@ export function getComponentsByProjectIdQuery(orgHandle: string, projectId: stri
                     organizationConfig,
                     isUserManage,
                     appSubPath,
+                    gitProvider,
                     byocBuildConfig {
                         id,
                         isMainContainer,

@@ -47,7 +47,8 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             branch,
             subPath,
             credentialID,
-            gitProvider
+            gitProvider,
+            bitbucketCredentialId: credentialID ?? ''
         }
     };
 

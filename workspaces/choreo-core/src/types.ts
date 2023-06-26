@@ -202,6 +202,8 @@ export interface Repository {
     organizationConfig: string;
     isUserManage: boolean;
     appSubPath?: string;
+    gitProvider: string;
+    bitbucketCredentialId: string;
     byocBuildConfig?: {
         componentId: string;
         containerId: string;
@@ -280,6 +282,7 @@ export interface WorkspaceComponentMetadata {
         branchApp: string;
         appSubPath: string;
         gitProvider: string;
+        bitbucketCredentialId: string;
     };
     byocConfig?: {
         dockerfilePath: string;
@@ -332,6 +335,7 @@ export interface RepositoryDetails {
     subPath: string;
     credentialID: string;
     gitProvider: string;
+    bitbucketCredentialId: string;
 }
 
 export interface BYOCRepositoryDetails extends RepositoryDetails {
