@@ -204,7 +204,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetLocalComponentDirMetaData, HOST_EXTENSION, params);
     }
 
-    public async checkProjectDeleted(projectId: string): Promise<void> {
+    public async checkProjectDeleted(projectId: string): Promise<boolean> {
         return this._messenger.sendRequest(CheckProjectDeleted, HOST_EXTENSION, projectId);
     }
 

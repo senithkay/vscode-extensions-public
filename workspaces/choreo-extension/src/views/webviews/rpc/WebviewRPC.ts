@@ -122,6 +122,7 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                     }
                 });
         }
+        return true;
     });
 
     messenger.onRequest(GetDeletedComponents, async (projectId: string) => {

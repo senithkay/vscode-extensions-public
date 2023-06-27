@@ -64,7 +64,7 @@ export const setProjectProvider: RequestType<{ projId: string, gitProvider: stri
 export const getProjectProvider: RequestType<string, string> = { method: 'getProjectProvider' };
 export const setPreferredProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setPreferredProjectRepository' };
 export const getPreferredProjectRepository: RequestType<string, string> = { method: 'getPreferredProjectRepository' };
-export const CheckProjectDeleted: RequestType<string, void> = { method: 'CheckProjectDeleted' };
+export const CheckProjectDeleted: RequestType<string, boolean> = { method: 'CheckProjectDeleted' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };
 export const GetLocalComponentDirMetaData: RequestType<getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes> = { method: 'getLocalComponentDirMetaData' };
