@@ -89,6 +89,8 @@ jobs:
             file=$(ls choreo*.vsix)
             fileName=${file#*-}
             version=choreo-${fileName%.*}  
+          elif [[ "${{ github.event.inputs.packages }}" == "true" ]]; then
+            version=packages-$(date +%Y%m%d%H%M)
           fi
           echo "version=$version" >> $GITHUB_OUTPUT
 
