@@ -90,7 +90,7 @@ export const ComponentRow = (props: { component: Component }) => {
             <VSCodeButton
                 appearance="icon"
                 onClick={openComponentUrl}
-                title={"Open in console"}
+                title={"Open in Choreo Console"}
                 id="open-in-console-btn"
                 style={{ marginLeft: "auto" }}
                 disabled={component?.local}

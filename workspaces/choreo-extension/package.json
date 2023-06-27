@@ -76,13 +76,13 @@
       },
       {
         "command": "wso2.choreo.project.open",
-        "title": "Open Choreo Project",
+        "title": "Change Choreo Project",
         "category": "Choreo",
-        "icon": "$(project)"
+        "icon": "$(folder-opened)"
       },
       {
         "command": "wso2.choreo.project.open.external",
-        "title": "Open Choreo Project in Console",
+        "title": "Open Project in Choreo Console",
         "category": "Choreo",
         "icon": "$(link-external)"
       },
@@ -132,11 +132,6 @@
     },
     "menus": {
       "view/title": [
-        {
-          "command": "wso2.choreo.project.open.external",
-          "when": "view == choreo.activity.project",
-          "group": "navigation"
-        },
         {
           "command": "wso2.choreo.project.open",
           "when": "view == choreo.activity.project",

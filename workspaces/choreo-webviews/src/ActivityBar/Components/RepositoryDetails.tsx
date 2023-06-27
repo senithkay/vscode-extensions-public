@@ -13,13 +13,12 @@
 import React, { useCallback } from "react";
 import styled from "@emotion/styled";
 import { Component, OPEN_SOURCE_CONTROL_VIEW_EVENT } from "@wso2-enterprise/choreo-core";
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { Codicon } from "../../Codicon/Codicon";
+import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 const Container = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 `;
 
 export const RepositoryDetails: React.FC<{ enrichedComponent: Component }> = (props) => {
@@ -35,15 +34,15 @@ export const RepositoryDetails: React.FC<{ enrichedComponent: Component }> = (pr
     
     return (
         <Container>
-            {!dirtyRepo && (<div>Repo in sync</div>)}
+            <div>Repo:&nbsp;</div>
+            {!dirtyRepo && (<div>In sync</div>)}
             {dirtyRepo && (
-                <VSCodeButton
-                    appearance="icon"
+                <VSCodeLink
                     onClick={openSourceControl}
                     title="Open source control view & sync changes"
                 >
-                    <Codicon name="source-control" /> &nbsp; Commit & Push
-                </VSCodeButton>
+                    Commit & Push
+                </VSCodeLink>
             )}
         </Container>
     );

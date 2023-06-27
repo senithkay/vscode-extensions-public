@@ -11,10 +11,12 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useContext } from "react";
 import { ArchiViewButton } from "./ArchitectureViewButton";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ViewTitle } from "./ViewTitle";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
+import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 
 const Container = styled.div`
     margin-top: 10px;
@@ -28,12 +30,22 @@ const Body = styled.div`
 `;
 
 export const ProjectActionsCard: React.FC = () => {
+
+    const { choreoUrl, selectedOrg, choreoProject } = useContext(ChoreoWebViewContext);
+
+    const projectURL = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${choreoProject?.id}`;
+
+    const openProjectInChoreoConsole = () => {
+        ChoreoWebViewAPI.getInstance().openExternal(projectURL);
+    }
+    
     return (
         <Container>
-            <ViewTitle>Views</ViewTitle>
+            <ViewTitle>Actions</ViewTitle>
             <Body>
                 <ArchiViewButton />
                 <VSCodeLink>Cell View</VSCodeLink>
+                <VSCodeLink onClick={openProjectInChoreoConsole}>Open in Choreo Console</VSCodeLink>
             </Body>
         </Container>
     );

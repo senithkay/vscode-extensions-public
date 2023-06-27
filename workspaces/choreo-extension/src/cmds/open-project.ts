@@ -51,10 +51,10 @@ export async function openChoreoProject() {
     });
     quickPicks.push({
         kind: vscode.QuickPickItemKind.Separator,
-        label: '+',
+        label: '',
     });
     quickPicks.push({
-        label: 'Create new',
+        label: '$(add) Create new',
         detail: 'Create and open a new Choreo project',
     });
 
@@ -103,10 +103,10 @@ export async function openChoreoProject() {
             // Project is not cloned yet, clone the project and open it
             // show a quick pick to ask user whether to clone the project or not
             const cloneSelection = await vscode.window.showQuickPick([
-                {  label: 'Yes', description: 'Clone and open the project' },
-                {  label: 'No', description: 'Do not clone the project' },
+                {  label: 'Select folder to clone the project' },
+                {  label: 'Cancel' },
             ], { title: 'The project is not cloned yet. Do you want to clone and open it?' });
-            if (cloneSelection?.label === 'Yes') {
+            if (cloneSelection?.label === 'Select folder to clone the project') {
                 cloneProject(selectedProject);
             }
         }

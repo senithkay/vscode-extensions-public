@@ -25,7 +25,7 @@ import { ViewTitle } from "./ViewTitle";
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    margin-top: 10px;
+    margin-top: 20px;
 `;
 
 const Body = styled.div`
@@ -68,6 +68,7 @@ export const ComponentsCard = () => {
                     onClick={handleCreateComponentClick}
                     title="Add Component"
                     id="add-component-btn"
+                    style={{ marginLeft: "auto" }}
                 >
                     <Codicon name="plus" />
                 </VSCodeButton>
@@ -78,6 +79,13 @@ export const ComponentsCard = () => {
                     id="refresh-components-btn"
                 >
                     <Codicon name="refresh" />
+                </VSCodeButton>
+                <VSCodeButton
+                    appearance="icon"
+                    title="Collapse all components"
+                    id="collapse-components-btn"
+                >
+                    <Codicon name="expand-all" />
                 </VSCodeButton>
             </Header>
             <Body>

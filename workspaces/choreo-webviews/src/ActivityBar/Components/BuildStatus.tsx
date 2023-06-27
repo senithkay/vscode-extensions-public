@@ -20,7 +20,7 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 
 const Container = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 `;
 
 export const BuildStatus: React.FC<{ enrichedComponent: Component }> = (props) => {
@@ -40,14 +40,16 @@ export const BuildStatus: React.FC<{ enrichedComponent: Component }> = (props) =
 
     return (
         <Container>
-            <div>Build Status</div>
+            <div>Build Status:&nbsp;</div>
             {buildStatusMappedValue && (
-                <VSCodeLink
-                    onClick={openBuildInfoInConsole}
-                    style={{ color: buildStatusMappedValue.color }}
-                >
-                    {buildStatusMappedValue.text}
-                </VSCodeLink>
+                <>
+                    <VSCodeLink
+                        onClick={openBuildInfoInConsole}
+                        style={{ color: buildStatusMappedValue.color }}
+                    >
+                        {buildStatusMappedValue.text}
+                    </VSCodeLink>
+                </>
             )}
             {!buildStatusMappedValue && <div>N/A</div>}
         </Container>
