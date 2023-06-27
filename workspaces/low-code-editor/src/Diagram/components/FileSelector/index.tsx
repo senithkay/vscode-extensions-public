@@ -9,10 +9,11 @@
 
 import React from "react";
 
+import { Button } from "@material-ui/core";
 import { FileUploadIcon } from "@wso2-enterprise/ballerina-low-code-edtior-commons";
-import { LinePrimaryButton } from "@wso2-enterprise/ballerina-low-code-edtior-ui-components";
 
 import "../../style.scss";
+import { useStyles } from "../FormComponents/DynamicConnectorForm/style";
 
 export interface FileSelectorProps {
     label: string;
@@ -21,6 +22,7 @@ export interface FileSelectorProps {
 }
 
 export function FileSelector(props: FileSelectorProps) {
+    const classes = useStyles();
 
     const { extension, label, onReadFile } = props;
 
@@ -52,9 +54,14 @@ export function FileSelector(props: FileSelectorProps) {
                 onChange={showFile}
                 ref={hiddenFileInput}
             />
-            <div style={{cursor: "pointer"}}>
-                <FileUploadIcon onClick={handleClick}/>
-            </div>
+            <Button
+                onClick={handleClick}
+                variant="text"
+                startIcon={<FileUploadIcon />}
+                className={classes.jsonUpload}
+            >
+                {'Upload JSON File'}
+            </Button>
         </div>
     )
 
