@@ -15,6 +15,7 @@ import { BallerinaProjectComponents, ComponentViewInfo, FileListEntry, KeyboardN
 import { NodePosition, STKindChecker, STNode, traversNode } from "@wso2-enterprise/syntax-tree";
 
 import { Provider as ViewManagerProvider } from "../Contexts/Diagram";
+import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import { FindConstructByIndexVisitor } from "../Diagram/visitors/find-construct-by-index-visitor";
 import { FindConstructByNameVisitor } from "../Diagram/visitors/find-construct-by-name-visitor";
 import { FindNodeByUidVisitor } from "../Diagram/visitors/find-node-by-uid";
@@ -34,7 +35,6 @@ import { theme } from './theme';
 import { extractFilePath, getDiagramProviderProps } from "./utils";
 import { ComponentListView } from "./views";
 import { DiagramView } from "./views/DiagramView";
-import { UndoRedoManager } from "../Diagram/components/FormComponents/UndoRedoManager";
 import { FailedToIdentifyMessageOverlay } from "./views/FailedToIdentifyView";
 
 const debounceTime: number = 5000;
@@ -81,9 +81,7 @@ export function DiagramViewManager(props: EditorProps) {
     useEffect(() => {
         const mouseTrapClient = KeyboardNavigationManager.getClient();
         mouseTrapClient.bindNewKey(['command+z', 'ctrl+z'], async () => {
-            console.log(">>> undo");
             const lastsource = undoRedoManager.undo();
-            console.log(">>> undo lastsource", lastsource);
             if (lastsource) {
                 props.updateFileContent(history[history.length - 1].file, lastsource);
                 setUpdatedTimeStamp(new Date().getTime().toString());
@@ -91,9 +89,7 @@ export function DiagramViewManager(props: EditorProps) {
         });
 
         mouseTrapClient.bindNewKey(['command+shift+z', 'ctrl+y'], async () => {
-            console.log(">>> redo");
             const lastsource = undoRedoManager.redo();
-            console.log(">>> redo lastsource", lastsource);
             if (lastsource) {
                 props.updateFileContent(history[history.length - 1].file, lastsource);
                 setUpdatedTimeStamp(new Date().getTime().toString());
