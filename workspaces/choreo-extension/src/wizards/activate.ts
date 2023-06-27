@@ -105,5 +105,5 @@ export function activateWizards() {
     ext.context.subscriptions.push(choreoArchitectureView);
 
     commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
-	commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);
+    commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);
 }
