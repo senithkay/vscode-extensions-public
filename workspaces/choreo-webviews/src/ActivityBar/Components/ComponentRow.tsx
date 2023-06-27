@@ -57,7 +57,7 @@ export const ComponentRow = (props: { component: Component }) => {
     }
 
     // component URL
-    const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.name}/projects/${component.projectId}/components/${component.handler}`;
+    const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
     const openComponentUrl = () => {
         ChoreoWebViewAPI.getInstance().openExternal(componentBaseUrl);
     }

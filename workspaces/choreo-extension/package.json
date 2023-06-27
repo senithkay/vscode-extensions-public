@@ -81,6 +81,12 @@
         "icon": "$(project)"
       },
       {
+        "command": "wso2.choreo.project.open.external",
+        "title": "Open Choreo Project in Console",
+        "category": "Choreo",
+        "icon": "$(link-external)"
+      },
+      {
         "command": "wso2.choreo.architecture.view",
         "title": "View Choreo Project Architecture",
         "category": "Choreo"
@@ -126,6 +132,11 @@
     },
     "menus": {
       "view/title": [
+        {
+          "command": "wso2.choreo.project.open.external",
+          "when": "view == choreo.activity.project",
+          "group": "navigation"
+        },
         {
           "command": "wso2.choreo.project.open",
           "when": "view == choreo.activity.project",

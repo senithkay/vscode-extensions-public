@@ -44,7 +44,7 @@ import { activateTelemetry } from './telemetry/telemetry';
 import { sendProjectTelemetryEvent, sendTelemetryEvent } from './telemetry/utils';
 import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT, Organization, REFRESH_PROJECTS_EVENT, SWITCH_ORGANIZATION_EVENT } from '@wso2-enterprise/choreo-core';
 import { activateActivityBarWebViews } from './views/webviews/ActivityBar/activate';
-import { activateOpenProjectCmd } from './cmds/open-project';
+import { activateCmds } from './cmds';
 
 export function activateBallerinaExtension() {
 	const ext = extensions.getExtension("wso2.ballerina");
@@ -72,7 +72,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	setupGithubAuthStatusCheck();
 	getLogger().debug("Choreo Extension activated");
 	registerPreInitHandlers();
-	activateOpenProjectCmd(context);
+	activateCmds(context);
 	activateActivityBarWebViews(context);
 	return ext.api;
 }
