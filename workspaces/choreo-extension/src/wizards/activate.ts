@@ -11,13 +11,14 @@
  *  associated services.
  */
 import { QuickPickItem, QuickPickOptions, commands, window } from "vscode";
-import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId, choreoProjectOverviewCloseCmdId } from "../constants";
+import { createNewComponentCmdId, createNewProjectCmdId, choreoProjectOverview, choreoArchitectureViewCmdId, choreoProjectOverviewCloseCmdId, cloneAllComponentsCmdId, cloneRepoToCurrentProjectWorkspaceCmdId } from "../constants";
 import { ext } from "../extensionVariables";
 import { WebviewWizard, WizardTypes } from "../views/webviews/WebviewWizard";
 import { ProjectOverview } from "../views/webviews/ProjectOverview";
 import { OPEN_READ_ONLY_PROJECT_OVERVIEW_PAGE, Organization, Project } from "@wso2-enterprise/choreo-core";
 import { ChoreoArchitectureView } from "../views/webviews/ChoreoArchitectureView";
 import { sendTelemetryEvent } from "../telemetry/utils";
+import { cloneProject, cloneRepoToCurrentProjectWorkspace } from "../cmds/clone";
 
 let projectWizard: WebviewWizard;
 let componentWizard: WebviewWizard;
@@ -102,4 +103,7 @@ export function activateWizards() {
     });
 
     ext.context.subscriptions.push(choreoArchitectureView);
+
+    commands.registerCommand(cloneAllComponentsCmdId, cloneProject);
+    commands.registerCommand(cloneRepoToCurrentProjectWorkspaceCmdId, cloneRepoToCurrentProjectWorkspace);
 }
