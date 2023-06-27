@@ -30,6 +30,7 @@ import {
 import { EditorProps, PALETTE_COMMANDS } from "../../DiagramGenerator/vscode/Diagram";
 import { ComponentViewInfo } from "../../OverviewDiagram/util";
 import { LowCodeEditorProps, MESSAGE_TYPE } from "../../types";
+import { UndoRedoManager } from "../../Diagram/components/FormComponents/UndoRedoManager";
 
 export async function getSTNodeForReference(
     file: string,
@@ -61,6 +62,7 @@ export function getDiagramProviderProps(
     lowCodeResourcesVersion: any,
     balVersion: string,
     props: EditorProps,
+    undoRedoManager: UndoRedoManager,
     setFocusedST: React.Dispatch<React.SetStateAction<STNode>>,
     setCompleteST: React.Dispatch<React.SetStateAction<STNode>>,
     setFileContent: (content: string) => void,
@@ -70,7 +72,7 @@ export function getDiagramProviderProps(
     setUpdateTimestamp: (timestamp: string) => void
 ): LowCodeEditorProps {
     const { langClientPromise, resolveMissingDependency, runCommand, experimentalEnabled,
-            getLibrariesData, getLibrariesList, getLibraryData } = props;
+        getLibrariesData, getLibrariesList, getLibraryData } = props;
 
 
     async function showTryitView(serviceName: string) {
@@ -130,6 +132,7 @@ export function getDiagramProviderProps(
                             uri
                         }
                     });
+                    undoRedoManager.addModification(currentFileContent);
                     let visitedST: STNode;
                     if (parseSuccess) {
                         setUpdateTimestamp(new Date().getTime().toString());
