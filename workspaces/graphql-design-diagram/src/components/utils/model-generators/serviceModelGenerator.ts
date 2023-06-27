@@ -12,6 +12,7 @@ import { DiagramModel } from "@projectstorm/react-diagrams";
 import { GraphqlBaseLinkModel } from "../../Link/BaseLink/GraphqlBaseLinkModel";
 import { DefaultLinkModel } from "../../Link/DefaultLink/DefaultLinkModel";
 import { GraphqlServiceLinkModel } from "../../Link/GraphqlServiceLink/GraphqlServiceLinkModel";
+import { NodeCategory, NodeType } from "../../NodeFilter";
 import { GraphqlDesignNode } from "../../Nodes/BaseNode/GraphqlDesignNode";
 import { EnumNodeModel } from "../../Nodes/EnumNode/EnumNodeModel";
 import { GraphqlServiceNodeModel, GRAPHQL_SERVICE_NODE } from "../../Nodes/GraphqlServiceNode/GraphqlServiceNodeModel";
@@ -39,19 +40,23 @@ import {
 } from "../../resources/model";
 import { OperationTypes } from "../../TypeFilter";
 
+import { filteredModelGenerator } from "./filteredModelGenerator";
+
 
 // all nodes in the diagram
 let diagramNodes: Map<string, GraphqlDesignNode>;
 // all links in the diagram
 let nodeLinks: GraphqlBaseLinkModel[];
 
-export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes): DiagramModel {
+export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes, filteredNode: NodeType): DiagramModel {
     diagramNodes = new Map<string, GraphqlDesignNode>();
     nodeLinks = [];
 
-
-    if (typeFilter !== OperationTypes.All_Operations) {
+    if (filteredNode && filteredNode.type !== NodeCategory.GRAPHQL_SERVICE) {
+        filteredModelGenerator(graphqlModel, filteredNode);
+    } else if (typeFilter !== OperationTypes.All_Operations) {
         filteredModelMapper(graphqlModel, typeFilter);
+        removeUnlinkedModels();
     } else {
         // generate the graphql service node
         graphqlServiceModelMapper(graphqlModel.graphqlService);
@@ -83,10 +88,9 @@ export function graphqlModelGenerator(graphqlModel: GraphqlDesignModel, typeFilt
         }
 
         generateLinks(graphqlModel);
+        removeUnlinkedModels();
 
     }
-
-    removeUnlinkedModels();
 
     const model = new DiagramModel();
     model.addAll(...Array.from(diagramNodes.values()), ...nodeLinks);
@@ -120,6 +124,28 @@ function filteredModelMapper(graphqlModel: GraphqlDesignModel, typeFilter: Opera
 
     generateLinksForFilteredNodes(updatedModel);
 
+}
+
+export function generateDiagramNodesForFilteredNodes(updatedModel: GraphqlDesignModel) {
+    if (updatedModel.enums) {
+        enumModelMapper(updatedModel.enums);
+    }
+    if (updatedModel.records) {
+        recordModelMapper(updatedModel.records);
+    }
+    if (updatedModel.serviceClasses) {
+        serviceClassModelMapper(updatedModel.serviceClasses);
+    }
+    if (updatedModel.unions) {
+        unionModelMapper(updatedModel.unions);
+    }
+    if (updatedModel.interfaces) {
+        interfaceModelMapper(updatedModel.interfaces);
+    }
+    if (updatedModel.hierarchicalResources) {
+        hierarchicalResourceModelMapper(updatedModel.hierarchicalResources);
+    }
+    return updatedModel;
 }
 
 function updatedGraphqlModel(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes): GraphqlDesignModel {
@@ -180,6 +206,53 @@ function updatedGraphqlModel(graphqlModel: GraphqlDesignModel, typeFilter: Opera
     return updatedModel;
 }
 
+export function createFilteredNodeModel(updatedNodeList: string[], graphqlModel: GraphqlDesignModel, updatedModel: GraphqlDesignModel){
+    // iterate with the current model and obtain only the ones with the updatedNodeList
+    const unionMap = new Map<string, UnionComponent>();
+    const enumMap = new Map<string, EnumComponent>();
+    const recordMap = new Map<string, RecordComponent>();
+    const serviceClassMap = new Map<string, ServiceClassComponent>();
+    const interfaceMap = new Map<string, InterfaceComponent>();
+    const hierarchicalResourceMap = new Map<string, HierarchicalResourceComponent>();
+
+    updatedNodeList.forEach((type) => {
+        if (Object.keys(graphqlModel.records).includes(type)) {
+            if (!recordMap.has(type)) {
+                recordMap.set(type, new Map(Object.entries(graphqlModel.records)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.serviceClasses).includes(type)) {
+            if (!serviceClassMap.has(type)) {
+                serviceClassMap.set(type, new Map(Object.entries(graphqlModel.serviceClasses)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.unions).includes(type)) {
+            if (!unionMap.has(type)) {
+                unionMap.set(type, new Map(Object.entries(graphqlModel.unions)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.enums).includes(type)) {
+            if (!enumMap.has(type)) {
+                enumMap.set(type, new Map(Object.entries(graphqlModel.enums)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.interfaces).includes(type)) {
+            if (!interfaceMap.has(type)) {
+                interfaceMap.set(type, new Map(Object.entries(graphqlModel.interfaces)).get(type));
+            }
+        } else if (Object.keys(graphqlModel.hierarchicalResources).includes(type)) {
+            if (!hierarchicalResourceMap.has(type)) {
+                hierarchicalResourceMap.set(type, new Map(Object.entries(graphqlModel.hierarchicalResources)).get(type));
+            }
+        }
+    });
+
+    updatedModel.unions = unionMap;
+    updatedModel.enums = enumMap;
+    updatedModel.records = recordMap;
+    updatedModel.serviceClasses = serviceClassMap;
+    updatedModel.interfaces = interfaceMap;
+    updatedModel.hierarchicalResources = hierarchicalResourceMap;
+
+    return updatedModel;
+}
+
 function getTypesOfRootNodeFunctions(updatedModel: GraphqlDesignModel) {
     const typeList: string[] = [];
     for (const functions of [updatedModel.graphqlService.resourceFunctions, updatedModel.graphqlService.remoteFunctions]) {
@@ -194,7 +267,7 @@ function getTypesOfRootNodeFunctions(updatedModel: GraphqlDesignModel) {
     return typeList;
 }
 
-function getRelatedNodes(graphqlModel: GraphqlDesignModel, typeList: string[]) {
+export function getRelatedNodes(graphqlModel: GraphqlDesignModel, typeList: string[]) {
     typeList.forEach((type) => {
         if (Object.keys(graphqlModel.records).includes(type)) {
             Object.values(graphqlModel.records).forEach((record: RecordComponent) => {
@@ -391,6 +464,24 @@ function generateLinks(graphqlModel: GraphqlDesignModel) {
 function generateLinksForFilteredNodes(graphqlModel: GraphqlDesignModel) {
     generateLinksForGraphqlService(graphqlModel.graphqlService);
 
+    if (graphqlModel.unions) {
+        generateLinksForUnions(graphqlModel.unions);
+    }
+    if (graphqlModel.interfaces) {
+        generateLinksForInterfaces(graphqlModel.interfaces);
+    }
+    if (graphqlModel.records) {
+        generateLinksForRecords(graphqlModel.records);
+    }
+    if (graphqlModel.serviceClasses) {
+        generateLinksForServiceClasses(graphqlModel.serviceClasses);
+    }
+    if (graphqlModel.hierarchicalResources) {
+        generateLinksForHierarchicalResources(graphqlModel.hierarchicalResources);
+    }
+}
+
+export function generateLinksForSupportingNodes(graphqlModel: GraphqlDesignModel) {
     if (graphqlModel.unions) {
         generateLinksForUnions(graphqlModel.unions);
     }
