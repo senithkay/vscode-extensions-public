@@ -169,7 +169,7 @@ export function ProjectWizard() {
         }
     }
 
-    const isValid: boolean = projectName.length > 0 && !!selectedGHOrgName && !!selectedGHRepo ;
+    const isValid: boolean = projectName.length > 0 && (!initMonoRepo || (!!selectedGHOrgName && !!selectedGHRepo)) ;
 
     return (
         <>
