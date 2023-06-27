@@ -162,12 +162,14 @@ export function ProjectWizard() {
         if (type === GitProvider.GITHUB) {
             setGitProvider(type);
         } else {
+            setSelectedGHOrgName('');
+            setSelectedGHRepo('');
             setSelectedCredential({ id: '', name: '' });
             setGitProvider(type);
         }
     }
 
-    const isValid: boolean = projectName.length > 0;
+    const isValid: boolean = projectName.length > 0 && !!selectedGHOrgName && !!selectedGHRepo ;
 
     return (
         <>
