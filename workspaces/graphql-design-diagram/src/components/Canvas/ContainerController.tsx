@@ -30,7 +30,7 @@ const ControlPanel: React.FC<any> = styled.div`
   flex-direction: column;
   gap: 5px;
   justify-content: space-between;
-  position: absolute;
+  position: fixed;
   right: 15px;
   width: 32px;
   height: fit-content;
