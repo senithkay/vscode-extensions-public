@@ -14,7 +14,6 @@ import React from "react";
 
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { useEffect } from "react";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ComponentWizardState } from "../types";
 import { useQuery } from "@tanstack/react-query";
