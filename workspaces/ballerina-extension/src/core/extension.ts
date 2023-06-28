@@ -27,7 +27,7 @@ import { AssertionError } from "assert";
 import {
     BALLERINA_HOME, ENABLE_ALL_CODELENS, ENABLE_TELEMETRY, ENABLE_SEMANTIC_HIGHLIGHTING, OVERRIDE_BALLERINA_HOME,
     BALLERINA_LOW_CODE_MODE, ENABLE_PERFORMANCE_FORECAST, ENABLE_DEBUG_LOG, ENABLE_BALLERINA_LS_DEBUG,
-    ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST
+    ENABLE_EXPERIMENTAL_FEATURES, ENABLE_NOTEBOOK_DEBUG, ENABLE_RUN_FAST, ENABLE_INLAY_HINTS
 }
     from "./preferences";
 import TelemetryReporter from "vscode-extension-telemetry";
@@ -140,6 +140,7 @@ export class BallerinaExtension {
             revealOutputChannelOn: RevealOutputChannelOn.Never,
             initializationOptions: {
                 "enableSemanticHighlighting": <string>workspace.getConfiguration().get(ENABLE_SEMANTIC_HIGHLIGHTING),
+                "enableInlayHints": <string>workspace.getConfiguration().get(ENABLE_INLAY_HINTS),
                 "supportBalaScheme": "true",
                 "supportRenamePopup": "true",
                 "supportQuickPick": "true",
