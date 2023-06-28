@@ -62,18 +62,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.api = new ChoreoExtensionApi();
 	setupEvents();
 	activateWizards();
-	await activateAuth();
-	ext.isPluginStartup = false;
-	activateBallerinaExtension();
+	activateAuth();
+	activateCmds(context);
+	activateActivityBarWebViews(context);
 	activateURIHandlers();
-	showChoreoProjectOverview();
 	activateStatusBarItem();
 	activateRegistry();
 	setupGithubAuthStatusCheck();
-	getLogger().debug("Choreo Extension activated");
 	registerPreInitHandlers();
-	activateCmds(context);
-	activateActivityBarWebViews(context);
+	activateBallerinaExtension();
+	ext.isPluginStartup = false;
+	getLogger().debug("Choreo Extension activated");
 	return ext.api;
 }
 
@@ -138,7 +137,7 @@ export async function showChoreoProjectOverview() {
 					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
 				}
 			} catch (error: any) {
-				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, { cause: error?.message })
+				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, { cause: error?.message });
 				getLogger().error("Error while loading Choreo project overview. " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
 				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
 			}
@@ -238,7 +237,7 @@ function setupEvents() {
 }
 
 function registerPreInitHandlers(): any {
-	const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
+	const CONFIG_CHANGED: string = "Choreo extension configuration changed. Please restart vscode for changes to take effect.";
 	// We need to restart VSCode if we change plugin configurations.
 	workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
 		if (params.affectsConfiguration("Advanced.ChoreoEnvironment")) {

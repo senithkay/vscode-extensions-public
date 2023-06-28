@@ -35,7 +35,9 @@ export const choreoAIConfig = new ChoreoAIConfig();
 
 export const tokenStore = new KeyChainTokenStorage();
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const ChoreoEnvironment = workspace.getConfiguration().get("Advanced.ChoreoEnvironment");
+
 let authConfig: ChoreoAuthConfigParams;
 
 switch (ChoreoEnvironment) {
@@ -280,7 +282,6 @@ export async function signin(isExistingSession?: boolean) {
     await exchangeVSCodeToken(choreoTokenInfo?.accessToken, selectedOrg.handle);
     ext.api.selectedOrg = selectedOrg;
     ext.api.status = STATUS_LOGGED_IN;
-    showChoreoProjectOverview();
 }
 
 export async function signOut() {
