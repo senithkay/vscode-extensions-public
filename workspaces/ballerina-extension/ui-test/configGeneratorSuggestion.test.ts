@@ -11,7 +11,7 @@ import { expect } from 'chai';
 import { existsSync, readFileSync, writeFile } from 'fs';
 import { before, describe, it } from 'mocha';
 import { join } from 'path';
-import { By, EditorView, TextEditor, VSBrowser, WebDriver, WebView } from 'vscode-extension-tester';
+import { By, EditorView, Key, TextEditor, VSBrowser, WebDriver, WebView } from 'vscode-extension-tester';
 import { DIAGRAM_LOADING_TIME } from './constants';
 import { areVariablesIncludedInString, getDiagramExplorer, wait } from './util';
 import { ExtendedEditorView } from './utils/ExtendedEditorView';
@@ -25,14 +25,12 @@ const expectedConfigs = [
 ];
 
 
-describe('VSCode Config Generation Edit UI Tests', () => {
+describe('VSCode Config Suggestions UI Tests', () => {
     const PROJECT_ROOT = join(__dirname, '..', '..', 'ui-test', 'data');
     let browser: VSBrowser;
     let driver: WebDriver;
 
     const configFilePath = `${PROJECT_ROOT}/configServicePackageEdit/Config.toml`;
-    const expectedConfigFilePath = `${PROJECT_ROOT}/configServicePackageEdit/expected-config.toml`;
-
 
     const configContent = `# Configuration file for "configServiceProject"
     # How to use see:
@@ -42,8 +40,8 @@ describe('VSCode Config Generation Edit UI Tests', () => {
     
     url = ""	# Type of STRING
     
-    [authConfig]	# Type of OBJECT
     # For more information refer https://lib.ballerina.io/ballerina/http/
+    [authConfig]	# Type of OBJECT
     `;
 
     before(async () => {
@@ -54,27 +52,42 @@ describe('VSCode Config Generation Edit UI Tests', () => {
                 console.log('Config file updated successfully!');
             }
         });
+
+        await wait(2000);
         browser = VSBrowser.instance;
+
         driver = browser.driver;
         // Close all open tabs
         await new EditorView().closeAllEditors();
 
-        await browser.openResources(PROJECT_ROOT, `${PROJECT_ROOT}/configServicePackageEdit/service.bal`);
+        await browser.openResources(configFilePath);
     });
 
-    it('Click on run button to add configs to the file', async () => {
-        const editorView = new ExtendedEditorView(new EditorView());
-        expect(await editorView.getAction("Run")).is.not.undefined;
-        (await editorView.getAction("Run"))!.click();
-        await wait(5000);
+    it('Click on suggestion to add configs to the file', async () => {
 
-        // Find the information message boxes
-        const infoNotifications = await driver.findElements(By.linkText('Add to config'));
-        // Iterate over the information message boxes
+        const editor = new TextEditor();
+        const line = await editor.getNumberOfLines();
+        // Click on the end of the file
+        await editor.moveCursor(line, 1);
+        await wait(2000);
+
+        await editor.typeText(Key.ENTER);
+        await wait(2000);
+
+        await editor.toggleContentAssist(true);
+        await wait(2000);
+
+        // Find the completion values
+        const infoNotifications = await driver.findElements(By.linkText('isAdmin'));
+        // Iterate over the completion values
         for (const infoNotification of infoNotifications) {
             await infoNotification.click();
         }
-        await wait(5000);
+
+        await editor.save();
+
+        // Wait for the suggestion to be applied
+        await wait(2000);
 
         // Read the updated config file and expected config file
         const generatedConfigContent = readFileSync(configFilePath, 'utf8').replace(/\s/g, '');
