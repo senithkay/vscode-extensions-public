@@ -67,7 +67,7 @@ export async function openChoreoProject() {
     });
 
     // show project creation wizard if user selects the last item
-    if (selection?.label === 'Create new') {
+    if (selection?.label === '$(add) Create new') {
         vscode.commands.executeCommand(createNewProjectCmdId);
         return;
     }

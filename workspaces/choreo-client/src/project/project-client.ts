@@ -12,7 +12,7 @@
  */
 import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployment, BuildStatus, ProjectDeleteResponse } from "@wso2-enterprise/choreo-core";
-import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams } from "./types";
+import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams } from "./types";
 import {
     getBitBucketRepoMetadataQuery,
     getComponentBuildStatus,
@@ -240,18 +240,6 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
                 });
         } catch (err) {
             throw new Error(API_CALL_ERROR, { cause: err });
-        }
-    }
-
-    async isComponentInRepo(params: RepoParams): Promise<boolean> {
-        const { orgApp, repoApp, branchApp, subPath } = params;
-        const query = getRepoMetadataQuery(orgApp, repoApp, branchApp, subPath);
-        try {
-            const client = await this._getClient();
-            const data = await client.request(query);
-            return data.repoMetadata.isSubPathValid;
-        } catch (error) {
-            throw new Error("Error while executing " + query, { cause: error, });
         }
     }
 

@@ -12,14 +12,13 @@
  */
 
 import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeButton, VSCodeTag, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
-import { Component, DeploymentStatus, OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT, OPEN_GITHUB_REPO_PAGE_EVENT, PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Repository } from "@wso2-enterprise/choreo-core";
+import { Component, DeploymentStatus, GitProvider, OPEN_CONSOLE_COMPONENT_OVERVIEW_PAGE_EVENT, OPEN_GITHUB_REPO_PAGE_EVENT, PULL_REMOTE_COMPONENT_FROM_OVERVIEW_PAGE_EVENT, Repository } from "@wso2-enterprise/choreo-core";
 import { Codicon } from "../Codicon/Codicon";
 import styled from "@emotion/styled";
 import React, { useCallback } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { ContextMenu, MenuItem } from "../Commons/ContextMenu";
 import { useMutation } from "@tanstack/react-query";
-import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
 
 export interface ComponentListProps {
     components?: Component[];
@@ -353,7 +352,7 @@ export function ComponentList(props: ComponentListProps) {
                                         <Codicon name="cloud-download" /> &nbsp; Pull Component
                                     </VSCodeButton>
                                 )}
-                                {component.local && !hasDirtyLocalRepo && component.isInRemoteRepo && (
+                                {component.local && !hasDirtyLocalRepo && (
                                     <VSCodeButton
                                         appearance="icon"
                                         onClick={() => handlePushComponentClick(component.name)}

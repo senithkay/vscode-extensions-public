@@ -60,9 +60,9 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
     const { org, repo, branch, credentialID } = formData?.repository || {};
     const repoId = `${org}/${repo}`;
 
-    const {isLoading: updatingBranchList, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery({
-        queryKey: [`branchData-${repoId}`], 
-        queryFn: async () => {
+    const {isLoading: updatingBranchList, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery(
+        ['branchData',repoId, org, repo], 
+        async () => {
             try {
                 return ChoreoWebViewAPI.getInstance()
                 .getChoreoGithubAppClient()
@@ -71,18 +71,20 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching branches. Please authorize with GitHub.");
                 throw error;
             }
+        },
+        { 
+            enabled: !!org && !!repo,
+            onSuccess: (repoBranches) => {
+                if (repoBranches) {
+                    const defaultBranch = getDefaultBranch(repoBranches, branch);
+                    onFormDataChange((prevFormData) => ({
+                        ...prevFormData,
+                        repository: { ...prevFormData.repository, branch: defaultBranch }
+                    }));
+                }
+            }
         }
-    });
-
-    useEffect(() => {
-        if (repoBranches) {
-            const defaultBranch = getDefaultBranch(repoBranches, branch);
-            onFormDataChange((prevFormData) => ({
-                ...prevFormData,
-                repository: { ...prevFormData.repository, branch: defaultBranch }
-            }));
-        }
-    }, [repoBranches]);
+    );
 
     const handleBranchChange = (event: any) => {
         onFormDataChange(prevFormData => ({ ...prevFormData, repository: { ...prevFormData.repository, branch: event.target.value } }));
@@ -109,7 +111,7 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
                     </BranchListContainer>
                 </>
             )}
-            {updatingBranchList && <span>Updating branch list...</span>}
+            {updatingBranchList && org && repo && <span>Updating branch list...</span>}
         </GhRepoBranhSelectorContainer>
     );
 }

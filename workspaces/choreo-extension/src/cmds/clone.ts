@@ -14,7 +14,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import * as os from 'os';
 import path = require('path');
 import { commands, ProgressLocation, Uri, window } from 'vscode';
-import { CLONE_NEW_REPO_TO_PROJECT_CANCEL_EVENT, CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT, CLONE_NEW_REPO_TO_PROJECT_START_EVENT, CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT, CLONE_PROJECT_CANCEL_EVENT, CLONE_PROJECT_FAILURE_EVENT, CLONE_PROJECT_START_EVENT, CLONE_PROJECT_SUCCESS_EVENT, Component, Project, RepoCloneRequestParams, Repository, WorkspaceConfig, WorkspaceItem, getChoreoProject } from '@wso2-enterprise/choreo-core';
+import { CLONE_NEW_REPO_TO_PROJECT_CANCEL_EVENT, CLONE_NEW_REPO_TO_PROJECT_FAILURE_EVENT, CLONE_NEW_REPO_TO_PROJECT_START_EVENT, CLONE_NEW_REPO_TO_PROJECT_SUCCESS_EVENT, CLONE_PROJECT_CANCEL_EVENT, CLONE_PROJECT_FAILURE_EVENT, CLONE_PROJECT_START_EVENT, CLONE_PROJECT_SUCCESS_EVENT, Component, GitProvider, Project, RepoCloneRequestParams, Repository, WorkspaceConfig, WorkspaceItem, getChoreoProject } from '@wso2-enterprise/choreo-core';
 import { ext } from '../extensionVariables';
 import { projectClient } from "./../auth/auth";
 import { ProjectRegistry } from '../registry/project-registry';
@@ -23,7 +23,6 @@ import { execSync } from 'child_process';
 import { initGit } from '../git/main';
 import { executeWithTaskRetryPrompt } from '../retry';
 import { sendProjectTelemetryEvent, sendTelemetryEvent } from '../telemetry/utils';
-import { GitProvider } from '@wso2-enterprise/choreo-client/lib/github';
 
 export function checkSSHAccessToGitHub() {
     try {
@@ -240,7 +239,6 @@ export const cloneProject = async (project: Project) => {
                 // Get Mono Repo if configured
                 const monoRepo = ProjectRegistry.getInstance().getProjectRepository(project.id);
                 if (monoRepo) {
-                    gitProvider = ProjectRegistry.getInstance().getProjectProvider(project.id);
                     getLogger().debug("Mono Repo configured for project: " + project.name + " at " + monoRepo);
                 }
 
@@ -255,7 +253,8 @@ export const cloneProject = async (project: Project) => {
                 progress.report({ message: "Generating workspace file for the project: " + projectName });
                 const folders = generateWorkspaceItems(userManagedComponents);
 
-                const workspaceFilePath = await createProjectWorkspaceFile(projectName, id, selectedOrg.id, projectDir, folders, monoRepo, gitProvider);
+                const repo = monoRepo?.orgName && monoRepo?.repoName ? `${monoRepo?.orgName}/${monoRepo?.repoName}` : '';
+                const workspaceFilePath = await createProjectWorkspaceFile(projectName, id, selectedOrg.id, projectDir, folders,repo , gitProvider);
                 getLogger().debug("Workspace file created at " + workspaceFilePath);
                 
                 let currentCloneIndex = 0;
@@ -270,12 +269,11 @@ export const cloneProject = async (project: Project) => {
 
                 // Clone project mono repo if not already cloned
                 if (monoRepo) {
-                    const monoRepoSplit = monoRepo.split("/");
-                    if (monoRepoSplit.length === 2 && !existsSync(path.join(projectDir, "repos", monoRepoSplit[0], monoRepoSplit[1]))) {
-                        const parentDir = path.join(projectDir, "repos", monoRepoSplit[0]);
-                        getLogger().info("Cloning " + monoRepoSplit[0] + "/" + monoRepoSplit[1] + " to " + parentDir);
-                        const repoPath = await cloneRepositoryWithProgress(monoRepoSplit[0], monoRepoSplit[1], parentDir, gitProvider);
-                        getLogger().debug("Cloned " + monoRepoSplit[0] + "/" + monoRepoSplit[1] + " to " + repoPath);
+                    if (!existsSync(path.join(projectDir, "repos", monoRepo.orgName, monoRepo.repoName))) {
+                        const parentDir = path.join(projectDir, "repos", monoRepo.orgName);
+                        getLogger().info("Cloning " + monoRepo.orgName + "/" + monoRepo.repoName + " to " + parentDir);
+                        const repoPath = await cloneRepositoryWithProgress(monoRepo.orgName, monoRepo.repoName, parentDir, gitProvider);
+                        getLogger().debug("Cloned " + monoRepo.orgName + "/" + monoRepo.repoName + " to " + repoPath);
                     }
                 }
                 getLogger().debug("Cloning completed for project: " + project.name);

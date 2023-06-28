@@ -98,7 +98,6 @@ export interface Component {
     hasUnPushedLocalCommits?: boolean;
     hasDirtyLocalRepo?: boolean;
     isRemoteOnly?: boolean;
-    isInRemoteRepo?: boolean;
     deployments?: Deployments;
     buildStatus?: BuildStatus;
 }
@@ -447,3 +446,15 @@ export enum Status {
 }
 
 export type ComponentCreateMode = "fromScratch" | "fromExisting";
+
+export enum GitProvider {
+    GITHUB = 'github',
+    BITBUCKET = 'bitbucket',
+}
+
+export interface GitRepo {
+    provider: GitProvider;
+    orgName: string;
+    repoName: string;
+    bitbucketCredentialId?: string;
+}
