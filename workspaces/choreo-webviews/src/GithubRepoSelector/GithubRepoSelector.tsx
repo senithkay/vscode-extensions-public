@@ -11,12 +11,13 @@
  *  associated services.
  */
 import styled from "@emotion/styled";
-import { VSCodeProgressRing, VSCodeLink, VSCodeDropdown, VSCodeOption } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { GHAppAuthStatus } from "@wso2-enterprise/choreo-client/lib/github/types";
 import React, { useContext, useEffect, useState } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
+import { AutoComplete } from "@wso2-enterprise/ui-toolkit";
 
 const GhRepoSelectorContainer = styled.div`
     display  : flex;
@@ -102,8 +103,8 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().triggerInstallFlow();
     };
 
-    const handleGhOrgChange = (e: any) => {
-        const org = filteredOrgs.find(org => org.orgName === e.target.value);
+    const handleGhOrgChange = (value: string) => {
+        const org = filteredOrgs.find(org => org.orgName === value);
         if (org && org.repositories.length > 0) {
             onRepoSelect(org.orgName, org.repositories[0]?.name);
         } else {
@@ -111,8 +112,8 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         }
     };
 
-    const handleGhRepoChange = (e: any) => {
-        onRepoSelect(selectedOrg?.orgName, e.target.value);
+    const handleGhRepoChange = (value: string) => {
+        onRepoSelect(selectedOrg?.orgName, value);
     };
 
     const showRefreshButton = ghStatus.status === "authorized" || ghStatus.status === "installed";
@@ -125,6 +126,16 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
     } else if (ghStatus.status === "install-inprogress") {
         loaderMessage = "Installing Github App...";
     }
+
+    const repos = selectedOrg && selectedOrg.repositories.sort((a, b) => {
+        // Vscode test-runner can't seem to scroll and find the necessary repo
+        // Therefore sorting and showing the test repo at the very top of the list
+        if (a.name.includes("vscode")) return -1;
+        if (b.name.includes("vscode")) return 1;
+        return 0;
+    }).map((repo) => (repo.name)) || [];
+    const orgs = filteredOrgs?.map(org => org.orgName) || [];
+
     return (
         <>
             <GhRepoSelectorActions>
@@ -139,37 +150,11 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Organization</label>
-                        <VSCodeDropdown id="org-drop-down" value={selectedRepo?.org} onChange={handleGhOrgChange}>
-                            {filteredOrgs.map((org) => (
-                                <VSCodeOption
-                                    key={org.orgName}
-                                    value={org.orgName}
-                                    id={`org-item-${org.orgName}`}
-                                >
-                                    {org.orgName}
-                                </VSCodeOption>
-                            ))}
-                        </VSCodeDropdown>
+                        <AutoComplete items={orgs} notItemsFoundMessage={"No Organizations found"} selectedItem={selectedRepo?.org} onChange={handleGhOrgChange}></AutoComplete>
                     </GhRepoSelectorOrgContainer>
                     <GhRepoSelectorRepoContainer>
                         <label htmlFor="repo-drop-down">Repository</label>
-                        <VSCodeDropdown id="repo-drop-down" value={selectedRepo?.repo} onChange={handleGhRepoChange}>
-                            {selectedOrg && selectedOrg.repositories.sort((a, b) => {
-                                // Vscode test-runner can't seem to scroll and find the necessary repo
-                                // Therefore sorting and showing the test repo at the very top of the list
-                                if (a.name.includes("vscode")) return -1;
-                                if (b.name.includes("vscode")) return 1;
-                                return 0;
-                            }).map((repo) => (
-                                <VSCodeOption
-                                    key={repo.name}
-                                    value={repo.name}
-                                    id={`repo-item-${repo.name}`}
-                                >
-                                    {repo.name}
-                                </VSCodeOption>
-                            ))}
-                        </VSCodeDropdown>
+                        <AutoComplete items={repos} notItemsFoundMessage={"No Repositories found"} selectedItem={selectedRepo?.repo} onChange={handleGhRepoChange}></AutoComplete>
                     </GhRepoSelectorRepoContainer>
                 </GhRepoSelectorContainer>
             )}
