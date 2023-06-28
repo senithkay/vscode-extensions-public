@@ -9,20 +9,29 @@
 
 import { NodeType } from "../../NodeFilter";
 import { GraphqlDesignModel } from "../../resources/model";
+import { OperationTypes } from "../../TypeFilter";
 
 import {
     createFilteredNodeModel,
-    generateDiagramNodesForFilteredNodes, generateLinksForSupportingNodes,
-    getRelatedNodes
+    generateDiagramNodesForFilteredNodes, generateLinksForFilteredNodes, generateLinksForSupportingNodes,
+    getRelatedNodes, graphqlServiceModelMapper, updatedGraphqlModel
 } from "./serviceModelGenerator";
 
-export function filteredModelGenerator(graphqlModel: GraphqlDesignModel, filteredNode: NodeType) {
+export function diagramGeneratorForNodeFiltering(graphqlModel: GraphqlDesignModel, filteredNode: NodeType) {
     const selectedNodeInteractions = getRelatedNodes(graphqlModel, [filteredNode.name]);
     let updatedModel: GraphqlDesignModel = { ...graphqlModel };
     updatedModel.graphqlService = null;
     updatedModel = createFilteredNodeModel(selectedNodeInteractions, graphqlModel, updatedModel)
     const updatedNodes = generateDiagramNodesForFilteredNodes(updatedModel);
     generateLinksForSupportingNodes(updatedNodes);
+}
+
+export function diagramGeneratorForOperationTypeFiltering(graphqlModel: GraphqlDesignModel, typeFilter: OperationTypes) {
+    let updatedModel: GraphqlDesignModel = updatedGraphqlModel(graphqlModel, typeFilter);
+    // generate the graphql service node for filtered model
+    graphqlServiceModelMapper(updatedModel.graphqlService);
+    updatedModel = generateDiagramNodesForFilteredNodes(updatedModel);
+    generateLinksForFilteredNodes(updatedModel);
 }
 
 
