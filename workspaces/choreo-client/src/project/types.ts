@@ -39,6 +39,7 @@ export interface CreateComponentParams {
     repositorySubPath: string;
     repositoryType: string;
     repositoryBranch: string;
+    bitbucketCredentialId: string;
 }
 
 export interface CreateByocComponentParams {
@@ -147,6 +148,7 @@ export interface GitHubRepoValidationResponse {
     dockerContextPath?: string;
     openApiPath?: string;
     componentId?: string;
+    credentialId?: string;
   }
 
 export interface IChoreoProjectClient {

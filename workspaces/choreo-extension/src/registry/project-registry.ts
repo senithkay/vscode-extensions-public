@@ -11,7 +11,7 @@
  *  associated services.
  */
 
-import { componentManagementClient, projectClient, subscriptionClient } from "../auth/auth";
+import { componentManagementClient, getConsoleUrl, projectClient, subscriptionClient } from "../auth/auth";
 import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
@@ -25,11 +25,13 @@ import { getLogger } from "../logger/logger";
 import { ProgressLocation, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
 import { makeURLSafe } from "../utils";
+import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
 const PROJECT_REPOSITORIES = "project-repositories";
 const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories";
+const PROJECT_PROVIDERS = "project-providers";
 
 
 export class ProjectRegistry {
@@ -565,6 +567,20 @@ export class ProjectRegistry {
         return projectRepositories ? projectRepositories[projectId] : undefined;
     }
 
+    setProjectProvider(projectId: string, gitProvider: string) {
+        let projectProviders: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_PROVIDERS);
+        if (projectProviders === undefined) {
+            projectProviders = {};
+        }
+        projectProviders[projectId] = gitProvider;
+        ext.context.globalState.update(PROJECT_PROVIDERS, projectProviders);
+    }
+
+    getProjectProvider(projectId: string): string | undefined {
+        const projectProviders: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_PROVIDERS);
+        return projectProviders ? projectProviders[projectId] : undefined;
+    }
+
     setPreferredProjectRepository(projectId: string, repository: string) {
         let projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
         if (projectRepositories === undefined) {
@@ -628,6 +644,10 @@ export class ProjectRegistry {
 
     }
 
+    getConsoleUrl() {
+        return getConsoleUrl();
+    }
+
     async fetchComponentsFromCache(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[] | undefined> {
         try {
             if (!this._dataComponents.get(projectId)?.length) {
@@ -641,7 +661,15 @@ export class ProjectRegistry {
     }
 
     private async _createComponent(componentMetadata: WorkspaceComponentMetadata): Promise<void> {
-        const { appSubPath, branchApp, nameApp, orgApp } = componentMetadata.repository;
+        const { appSubPath, branchApp, nameApp, orgApp, gitProvider, bitbucketCredentialId } = componentMetadata.repository;
+        // set srcgitRepoUrl depending on the git provider
+        let srcGitRepoUrl = `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`;
+        switch (gitProvider) {
+            case GitProvider.BITBUCKET:
+                srcGitRepoUrl = `https://bitbucket.org/${orgApp}/${nameApp}/src/${branchApp}/${appSubPath}`;
+                break;
+        }
+
         const componentRequest: CreateComponentParams = {
             name: makeURLSafe(componentMetadata.displayName),
             displayName: componentMetadata.displayName,
@@ -651,10 +679,11 @@ export class ProjectRegistry {
             orgHandle: componentMetadata.org.handle,
             projectId: componentMetadata.projectId,
             accessibility: componentMetadata.accessibility,
-            srcGitRepoUrl: `https://github.com/${orgApp}/${nameApp}/tree/${branchApp}/${appSubPath}`,
+            srcGitRepoUrl: srcGitRepoUrl,
             repositorySubPath: appSubPath,
             repositoryType: "UserManagedNonEmpty",
-            repositoryBranch: branchApp
+            repositoryBranch: branchApp,
+            bitbucketCredentialId: bitbucketCredentialId
         };
         await executeWithTaskRetryPrompt(() => projectClient.createComponent(componentRequest));
     }

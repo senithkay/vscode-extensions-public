@@ -52,6 +52,7 @@ export interface IsRepoClonedRequestParams {
     repository: string;
     branch: string;
     workspaceFilePath: string;
+    gitProvider?: string;
 }
 
 export type RepoCloneRequestParams = IsRepoClonedRequestParams;

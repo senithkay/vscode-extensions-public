@@ -12,6 +12,7 @@
  */
 import React, { useContext, useEffect, useState } from "react";
 
+import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
 import { WizardState } from "../Commons/MultiStepWizard/types";
 import { Wizard } from "../Commons/MultiStepWizard/Wizard";
 import { TriggerConfigStep } from "./WebhookTriggerSelectorStep/WebhookTriggerSelector";
@@ -28,12 +29,14 @@ import { ConfigureRepoStep } from './ConfigureRepoStep/ConfigureRepoStep'
 import { useQuery } from "@tanstack/react-query";
 import { EndpointConfigStep } from './EndpointConfigStep';
 
+
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
     try {
-        const { mode, name, type, serviceType, implementationType, repository: { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath }, description, accessibility, trigger, port } = formData;
+        const { mode, name, type, serviceType, implementationType, repository: { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath, credentialID, gitProvider }, description, accessibility, trigger, port } = formData;
 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
         const selectedOrg = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
+        const bitbucketCredentialId = credentialID ? credentialID : '';
 
         let selectedDisplayType: ComponentDisplayType;
         if(type === ChoreoComponentType.WebApplication){
@@ -83,7 +86,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             accessibility,
             trigger,
             description: description ?? '',
-            repositoryInfo: { org, repo, branch, subPath, },
+            repositoryInfo: { org, repo, branch, subPath, gitProvider, bitbucketCredentialId },
             serviceType: type === ChoreoComponentType.Service ? serviceType : undefined,
         };
 
@@ -161,6 +164,8 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
                 openApiFilePath: '',
                 isBareRepo: false,
                 isCloned: false,
+                gitProvider: GitProvider.GITHUB,
+                credentialID: ''
             },
             port: '3000',
             webAppConfig: {
