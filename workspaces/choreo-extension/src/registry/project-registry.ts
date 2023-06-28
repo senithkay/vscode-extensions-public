@@ -311,13 +311,14 @@ export class ProjectRegistry {
     private async isComponentInRepo(component: Component): Promise<boolean> {
         let isInRemoteRepo = true;
         if (component.local && component.repository) {
-            const { appSubPath, branchApp, nameApp, organizationApp } = component.repository;
+            const { appSubPath, branchApp, nameApp, organizationApp, bitbucketCredentialId } = component.repository;
             try {
                 isInRemoteRepo = await executeWithTaskRetryPrompt(() => projectClient.isComponentInRepo({
                     branchApp: branchApp,
                     orgApp: organizationApp,
                     repoApp: nameApp,
-                    subPath: appSubPath || ""
+                    subPath: appSubPath || "",
+                    credentialId: bitbucketCredentialId
                 }));
             } catch (error: any) {
                 getLogger().error(`Failed to check isComponentInRepo for ${component.name}. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));

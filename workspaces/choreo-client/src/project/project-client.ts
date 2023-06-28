@@ -14,7 +14,7 @@ import { GraphQLClient } from 'graphql-request';
 import { Component, Project, Repository, Environment, Deployment, BuildStatus, ProjectDeleteResponse } from "@wso2-enterprise/choreo-core";
 import { CreateComponentParams, CreateProjectParams, GetDiagramModelParams, GetComponentsParams, GetProjectsParams, IChoreoProjectClient, LinkRepoMutationParams, RepoParams, DeleteComponentParams, GitHubRepoValidationRequestParams, GetComponentDeploymentStatusParams, GitHubRepoValidationResponse, CreateByocComponentParams, GetProjectEnvParams, GetComponentBuildStatusParams, DeleteProjectParams } from "./types";
 import {
-    getBitBucketRepoMetadataQuery,
+    getRepoMetadataQuery,
     getComponentBuildStatus,
     getComponentDeploymentQuery,
     getComponentEnvsQuery,
@@ -22,7 +22,6 @@ import {
     getComponentsWithCellDiagramQuery,
     getDeleteComponentQuery,
     getProjectsByOrgIdQuery,
-    getRepoMetadataQuery,
 } from './project-queries';
 import { getCreateProjectMutation, getCreateComponentMutation, getCreateBYOCComponentMutation as getCreateByocComponentMutation, deleteProjectMutation, getCreateWebAppBYOCComponentMutation } from './project-mutations';
 import { IReadOnlyTokenStorage } from '../auth';
@@ -244,8 +243,9 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
     }
 
     async isComponentInRepo(params: RepoParams): Promise<boolean> {
-        const { orgApp, repoApp, branchApp, subPath } = params;
-        const query = getRepoMetadataQuery(orgApp, repoApp, branchApp, subPath);
+        const { orgApp, repoApp, branchApp, subPath, credentialId } = params;
+        
+        const query = getRepoMetadataQuery(orgApp, repoApp, branchApp, credentialId, subPath);
         try {
             const client = await this._getClient();
             const data = await client.request(query);
@@ -257,12 +257,7 @@ export class ChoreoProjectClient implements IChoreoProjectClient {
 
     async getRepoMetadata(params: GitHubRepoValidationRequestParams): Promise<GitHubRepoValidationResponse> {
         const { organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId, credentialId } = params;
-        let query;
-        if (credentialId) {
-            query = getBitBucketRepoMetadataQuery(organization, repo, branch, credentialId, path, dockerfile, dockerContextPath, openApiPath, componentId);
-        } else {
-            query = getRepoMetadataQuery(organization, repo, branch, path, dockerfile, dockerContextPath, openApiPath, componentId);
-        }
+        const query = getRepoMetadataQuery(organization, repo, branch, credentialId, path, dockerfile, dockerContextPath, openApiPath, componentId);
         
         try {
             const client = await this._getClient();

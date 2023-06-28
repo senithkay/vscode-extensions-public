@@ -79,6 +79,7 @@ export interface RepoParams {
     repoApp: string;
     branchApp: string;
     subPath: string;
+    credentialId: string;
 }
 
 export interface ComponentMutationParams {
@@ -148,7 +149,7 @@ export interface GitHubRepoValidationResponse {
     dockerContextPath?: string;
     openApiPath?: string;
     componentId?: string;
-    credentialId?: string;
+    credentialId: string;
   }
 
 export interface IChoreoProjectClient {
