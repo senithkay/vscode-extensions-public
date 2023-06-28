@@ -44,87 +44,79 @@ export function generateExistingValues(tomlContent: object, orgName: string, pac
 
 export async function getConfigCompletions(ballerinaExtInstance: BallerinaExtension, filePath: string, document: TextDocument, position: Position): Promise<CompletionItem[]> {
     const suggestions: CompletionItem[] = [];
+    const isConfigToml = document.fileName.includes("Config.toml");
 
-    if (document.fileName.includes("Config.toml")) {
-        const currentProject: BallerinaProject | undefined = await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
-        const newValues: ConfigProperty[] = [];
-        ballerinaExtInstance.getDocumentContext().setCurrentProject(currentProject);
+    if (!isConfigToml) {
+        return suggestions;
+    }
 
-        try {
-            const response = await ballerinaExtInstance.langClient?.getBallerinaProjectConfigSchema({
-                documentIdentifier: {
-                    uri: Uri.file(filePath).toString()
-                }
-            });
+    const currentProject: BallerinaProject | undefined = await getCurrentBallerinaProjectFromContext(ballerinaExtInstance);
+    const newValues: ConfigProperty[] = [];
+    ballerinaExtInstance.getDocumentContext().setCurrentProject(currentProject);
 
-            const data = response as PackageConfigSchemaResponse;
-            const configSchema = data.configSchema;
-            const props: object = configSchema.properties;
-            const firstKey = Object.keys(props)[0];
-            const orgName = props[firstKey].properties;
-            const packageName = currentProject.packageName;
-            const configs: Property = orgName[packageName];
-
-            const tomlContent = document.getText();
-            const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), orgName, packageName);
-            const obj = existingConfigs['[object Object]'][packageName];
-
-            if (Object.keys(obj).length > 0 || tomlContent.length > 0) {
-                findPropertyValues(configs, newValues, obj, tomlContent, true);
-            } else {
-                findPropertyValues(configs, newValues);
+    try {
+        const response = await ballerinaExtInstance.langClient?.getBallerinaProjectConfigSchema({
+            documentIdentifier: {
+                uri: Uri.file(filePath).toString()
             }
+        });
 
-            newValues.forEach(obj => {
-                if (obj.required) {
-                    let comment = { value: `# ${typeOfComment} ${obj.type && obj.type.toUpperCase() || "STRING"}` };
-                    let newConfigValue = getConfigValue(obj.name, obj.property, comment);
-                    let notAnyOf = true;
+        const data = response as PackageConfigSchemaResponse;
+        const configSchema = data.configSchema;
+        const props: object = configSchema.properties;
+        const firstKey = Object.keys(props)[0];
+        const orgName = props[firstKey].properties;
+        const packageName = currentProject.packageName;
+        const configs: Property = orgName[packageName];
 
-                    if (document.lineCount > 1) {
-                        const unionConfig = document.lineAt(position.line - 1).text;
-                        if (Constants.ANY_OF in obj.property && document.getText().includes(obj.name)) {
-                            notAnyOf = false;
-                            if (unionConfig.includes(obj.name)) {
-                                suggestions.length = 0;
-                                const anyOfData: any = obj.property.anyOf;
-                                anyOfData.forEach((value: Property) => {
-                                    newConfigValue = getConfigValue(obj.name, value, comment);
-                                    // Split the string into an array of lines
-                                    const lines = newConfigValue.split('\n');
-                                    // Remove the first line by using slice() to get all lines except the first
-                                    const remainingLines = lines.slice(1);
-                                    // Join the remaining lines back into a string
-                                    const modifiedString = remainingLines.join('\n');
-                                    suggestions.push(
-                                        {
-                                            label: value.name,
-                                            insertText: modifiedString,
-                                            kind: CompletionItemKind.Field
-                                        }
-                                    );
-                                })
-                            }
-                        }
-                    }
+        const tomlContent = document.getText();
+        const existingConfigs: object = generateExistingValues(parseTomlToConfig(tomlContent), orgName, packageName);
+        const obj = existingConfigs['[object Object]'][packageName];
+        const objKeysLength = Object.keys(obj).length;
+        const tomlContentLength = tomlContent.length;
 
-                    if (notAnyOf) {
-                        suggestions.push(
-                            {
-                                label: obj.name,
-                                insertText: newConfigValue + comment.value,
-                                kind: CompletionItemKind.Field
-                            }
-                        );
-                    }
-
-
-                }
-            })
-        } catch (error) {
-            console.error('Error while fetching config schema', error);
+        if (objKeysLength > 0 || tomlContentLength > 0) {
+            findPropertyValues(configs, newValues, obj, tomlContent, true);
+        } else {
+            findPropertyValues(configs, newValues);
         }
 
+        newValues.forEach(obj => {
+            if (obj.required) {
+                let comment = { value: `# ${typeOfComment} ${obj.type && obj.type.toUpperCase() || "STRING"}` };
+                let newConfigValue = getConfigValue(obj.name, obj.property, comment);
+                let notAnyOf = true;
+
+                if (tomlContentLength > 1 && Constants.ANY_OF in obj.property && tomlContent.includes(obj.name)) {
+                    const unionConfig = document.lineAt(position.line - 1).text;
+                    notAnyOf = false;
+                    if (unionConfig.includes(obj.name)) {
+                        suggestions.length = 0;
+                        const anyOfData: any = obj.property.anyOf;
+                        anyOfData.forEach((value: Property) => {
+                            newConfigValue = getConfigValue(obj.name, value, comment);
+                            const lines = newConfigValue.split('\n').slice(1);
+                            const modifiedString = lines.join('\n');
+                            suggestions.push({
+                                label: value.name,
+                                insertText: modifiedString,
+                                kind: CompletionItemKind.Field
+                            });
+                        });
+                    }
+                }
+
+                if (notAnyOf) {
+                    suggestions.push({
+                        label: obj.name,
+                        insertText: newConfigValue + comment.value,
+                        kind: CompletionItemKind.Field
+                    });
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error while fetching config schema', error);
     }
 
     return suggestions;
