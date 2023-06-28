@@ -17,6 +17,7 @@ import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { ViewTitle } from "./ViewTitle";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
+import { useSelectedOrg } from "../../hooks/use-selected-org";
 
 const Container = styled.div`
     margin-top: 10px;
@@ -31,7 +32,8 @@ const Body = styled.div`
 
 export const ProjectActionsCard: React.FC = () => {
 
-    const { choreoUrl, selectedOrg, choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoUrl, choreoProject } = useContext(ChoreoWebViewContext);
+    const { selectedOrg } = useSelectedOrg();
 
     const projectURL = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${choreoProject?.id}`;
 

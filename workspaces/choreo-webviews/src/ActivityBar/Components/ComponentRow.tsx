@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import styled from "@emotion/styled";
 import { Component } from "@wso2-enterprise/choreo-core";
 import { VSCodeButton, VSCodeTag } from "@vscode/webview-ui-toolkit/react";
@@ -19,6 +19,7 @@ import { ComponentDetails } from "./ComponentDetails";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { RepositoryLink } from "./RepositoryLink"
+import { useSelectedOrg } from "../../hooks/use-selected-org";
 
 const Container = styled.div`
     display: flex;
@@ -49,7 +50,9 @@ const ComponentName = styled.span`
 
 export const ComponentRow = (props: { component: Component }) => {
     const { component } = props;
-    const { selectedOrg, choreoUrl } = useContext(ChoreoWebViewContext);
+    const { choreoUrl } = useContext(ChoreoWebViewContext);
+    const { selectedOrg } = useSelectedOrg();
+
     const [expanded, setExpanded] = React.useState(false);
 
     const handleExpandClick = () => {
@@ -58,10 +61,10 @@ export const ComponentRow = (props: { component: Component }) => {
 
     // component URL
     const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${component.projectId}/components/${component.handler}`;
-    const openComponentUrl = () => {
+    const openComponentUrl = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openExternal(componentBaseUrl);
-    }
-    
+    }, [componentBaseUrl]);
+
     return (<Container>
         <Header>
             <VSCodeButton

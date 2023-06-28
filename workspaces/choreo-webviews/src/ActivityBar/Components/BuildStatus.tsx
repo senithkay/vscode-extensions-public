@@ -17,6 +17,7 @@ import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 import { mapBuildStatus } from "../../ProjectOverview/ComponentList";
 import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react";
+import { useSelectedOrg } from "../../hooks/use-selected-org";
 
 const Container = styled.div`
     display: flex;
@@ -25,16 +26,16 @@ const Container = styled.div`
 
 export const BuildStatus: React.FC<{ enrichedComponent: Component }> = (props) => {
     const { enrichedComponent: { buildStatus, handler } } = props;
-    const { choreoUrl, selectedOrg, choreoProject } = useContext(ChoreoWebViewContext);
+    const { choreoUrl, choreoProject } = useContext(ChoreoWebViewContext);
+    const { selectedOrg } = useSelectedOrg();
 
-    const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg.name}/projects/${choreoProject?.id}/components/${handler}`;
-    // const componentOverviewLink = `${componentBaseUrl}/overview`;
+    const componentBaseUrl = `${choreoUrl}/organizations/${selectedOrg?.handle}/projects/${choreoProject?.id}/components/${handler}`;
     const componentDeployLink = `${componentBaseUrl}/deploy`;
 
     
     const openBuildInfoInConsole = useCallback(() => {
         ChoreoWebViewAPI.getInstance().openExternal(componentDeployLink)
-    }, []);
+    }, [componentBaseUrl]);
 
     const buildStatusMappedValue = buildStatus && mapBuildStatus(buildStatus?.status, buildStatus?.conclusion as string);
 
