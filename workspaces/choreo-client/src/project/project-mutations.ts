@@ -42,7 +42,7 @@ export function deleteProjectMutation(params: DeleteProjectParams) {
 
 export function getCreateComponentMutation(params: CreateComponentParams) {
     const { name, displayName, displayType, description, orgId, orgHandle, projectId,
-        accessibility, srcGitRepoUrl, repositorySubPath, repositoryBranch } = params;
+        accessibility, srcGitRepoUrl, repositorySubPath, repositoryBranch, bitbucketCredentialId } = params;
     return gql`mutation
         { createComponent(component: {  
             name: "${name}",  
@@ -64,7 +64,8 @@ export function getCreateComponentMutation(params: CreateComponentParams) {
             repositorySubPath: "${repositorySubPath}", 
             repositoryType: "UserManagedNonEmpty",
             repositoryBranch: "${repositoryBranch}",
-            enableCellDiagram: true,})
+            enableCellDiagram: true,
+            secretRef: "${bitbucketCredentialId}"})
             {  id, orgId, projectId, handler }
         }
     `;

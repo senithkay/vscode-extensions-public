@@ -57,7 +57,7 @@ export interface GithubRepoBranchSelectorProps {
 
 export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
     const { formData, onFormDataChange } = props;
-    const { org, repo, branch } = formData?.repository || {};
+    const { org, repo, branch, credentialID } = formData?.repository || {};
     const repoId = `${org}/${repo}`;
 
     const {isLoading: updatingBranchList, data: repoBranches, refetch, isRefetching: isRefetchingBranches } = useQuery({
@@ -66,7 +66,7 @@ export function GithubRepoBranchSelector(props: GithubRepoBranchSelectorProps) {
             try {
                 return ChoreoWebViewAPI.getInstance()
                 .getChoreoGithubAppClient()
-                .getRepoBranches(org, repo);
+                .getRepoBranches(org, repo, credentialID);
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().showErrorMsg("Error while fetching branches. Please authorize with GitHub.");
                 throw error;

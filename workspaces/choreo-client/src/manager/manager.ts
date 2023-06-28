@@ -130,7 +130,9 @@ export class ChoreoProjectManager implements IProjectManager {
                         appSubPath: folder.metadata?.byocConfig?.dockerContext 
                             || folder.metadata?.repository?.appSubPath 
                             || folder.metadata?.byocWebAppsConfig?.dockerContext
-                            || folder.metadata?.byocWebAppsConfig?.webAppOutputDirectory
+                            || folder.metadata?.byocWebAppsConfig?.webAppOutputDirectory,
+                        gitProvider: folder.metadata.repository.gitProvider,
+                        bitbucketCredentialId: folder.metadata.repository.bitbucketCredentialId
                     },
                     apiVersions: []
                 });

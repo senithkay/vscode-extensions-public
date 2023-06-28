@@ -23,6 +23,7 @@ import { execSync } from 'child_process';
 import { initGit } from '../git/main';
 import { executeWithTaskRetryPrompt } from '../retry';
 import { sendProjectTelemetryEvent, sendTelemetryEvent } from '../telemetry/utils';
+import { GitProvider } from '@wso2-enterprise/choreo-client/lib/github';
 
 export function checkSSHAccessToGitHub() {
     try {
@@ -40,7 +41,7 @@ export function checkSSHAccessToGitHub() {
 
 export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneRequestParams) => {
     sendProjectTelemetryEvent(CLONE_NEW_REPO_TO_PROJECT_START_EVENT);
-    const { repository, branch, workspaceFilePath } = params;
+    const { repository, branch, workspaceFilePath, gitProvider } = params;
     let success = false;
     await window.withProgress({
         title: `Cloning ${repository} repository to Choreo project workspace.`,
@@ -75,7 +76,11 @@ export const cloneRepoToCurrentProjectWorkspace = async (params: RepoCloneReques
         }
         const git = await initGit(ext.context);
         if (git) {
-            await executeWithTaskRetryPrompt(() => git.clone(`https://github.com/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken));        
+            if (gitProvider === GitProvider.BITBUCKET) {
+                await executeWithTaskRetryPrompt(() => git.clone(`https://bitbucket.org/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken));        
+            } else {
+                await executeWithTaskRetryPrompt(() => git.clone(`https://github.com/${repository}.git`, { recursive: true, ref: branch, parentPath: path.dirname(repoPath), progress }, cancellationToken));   
+            }
             getLogger().debug("Cloned repository: " + repository + " to " + repoPath);
             success = true;
         } else {
@@ -115,7 +120,7 @@ export async function createProjectDir(parentDir: string, project: Project): Pro
     return projectDir;
 }
 
-export async function cloneRepositoryWithProgress(orgName: string, repoName: string, parentPath: string, ref?: string) {
+export async function cloneRepositoryWithProgress(orgName: string, repoName: string, parentPath: string, gitProvider?: string, ref?: string) {
     return await window.withProgress({
         title: `Cloning ${orgName}/${repoName} repository to Choreo project workspace.`,
         location: ProgressLocation.Notification,
@@ -123,14 +128,18 @@ export async function cloneRepositoryWithProgress(orgName: string, repoName: str
     }, async (progress, cancellationToken) => {
         const git = await initGit(ext.context);
         if (git) {
-            return await executeWithTaskRetryPrompt(() => git.clone(`https://github.com/${orgName}/${repoName}.git`, { recursive: true, ref, parentPath, progress }, cancellationToken));        
+            if (gitProvider === GitProvider.BITBUCKET) {
+                return await executeWithTaskRetryPrompt(() => git.clone(`https://bitbucket.org/${orgName}/${repoName}.git`, { recursive: true, ref, parentPath, progress }, cancellationToken));        
+            } else {
+                return await executeWithTaskRetryPrompt(() => git.clone(`https://github.com/${orgName}/${repoName}.git`, { recursive: true, ref, parentPath, progress }, cancellationToken));        
+            }
         } else {
             throw new Error("Git was not initialized."); 
         }
     });
 }
 
-export async function createProjectWorkspaceFile(projectName: string, projectID: string, orgId: number, projectDir: string, items: WorkspaceItem[], monoRepo?: string ) {
+export async function createProjectWorkspaceFile(projectName: string, projectID: string, orgId: number, projectDir: string, items: WorkspaceItem[], monoRepo?: string, gitProvider?: string ) {
     const workspaceFile: WorkspaceConfig = {
         folders: [
             {
@@ -143,7 +152,8 @@ export async function createProjectWorkspaceFile(projectName: string, projectID:
             choreo: {
                 projectID,
                 orgId: orgId,
-                monoRepo
+                monoRepo,
+                gitProvider
             }
         }
     };
@@ -226,9 +236,11 @@ export const cloneProject = async (project: Project) => {
 
                 getLogger().debug("folder path to clone project: " + projectName + " is " + projectDir);
 
+                let gitProvider;
                 // Get Mono Repo if configured
                 const monoRepo = ProjectRegistry.getInstance().getProjectRepository(project.id);
                 if (monoRepo) {
+                    gitProvider = ProjectRegistry.getInstance().getProjectProvider(project.id);
                     getLogger().debug("Mono Repo configured for project: " + project.name + " at " + monoRepo);
                 }
 
@@ -243,7 +255,7 @@ export const cloneProject = async (project: Project) => {
                 progress.report({ message: "Generating workspace file for the project: " + projectName });
                 const folders = generateWorkspaceItems(userManagedComponents);
 
-                const workspaceFilePath = await createProjectWorkspaceFile(projectName, id, selectedOrg.id, projectDir, folders, monoRepo);
+                const workspaceFilePath = await createProjectWorkspaceFile(projectName, id, selectedOrg.id, projectDir, folders, monoRepo, gitProvider);
                 getLogger().debug("Workspace file created at " + workspaceFilePath);
                 
                 let currentCloneIndex = 0;
@@ -251,7 +263,7 @@ export const cloneProject = async (project: Project) => {
                     const { organizationApp, nameApp, branchApp } = userManagedReposWithoutDuplicates[currentCloneIndex];
                     const repoOrgPath = path.join(projectDir, "repos", organizationApp);
                     getLogger().info("Cloning " + organizationApp + "/" + nameApp + " to " + repoOrgPath);
-                    const repoPath = await cloneRepositoryWithProgress(organizationApp, nameApp, repoOrgPath, branchApp);
+                    const repoPath = await cloneRepositoryWithProgress(organizationApp, nameApp, repoOrgPath, gitProvider, branchApp);
                     getLogger().debug("Cloned " + organizationApp + "/" + nameApp + " to " + repoPath);
                     currentCloneIndex = currentCloneIndex + 1;
                 }
@@ -262,7 +274,7 @@ export const cloneProject = async (project: Project) => {
                     if (monoRepoSplit.length === 2 && !existsSync(path.join(projectDir, "repos", monoRepoSplit[0], monoRepoSplit[1]))) {
                         const parentDir = path.join(projectDir, "repos", monoRepoSplit[0]);
                         getLogger().info("Cloning " + monoRepoSplit[0] + "/" + monoRepoSplit[1] + " to " + parentDir);
-                        const repoPath = await cloneRepositoryWithProgress(monoRepoSplit[0], monoRepoSplit[1], parentDir);
+                        const repoPath = await cloneRepositoryWithProgress(monoRepoSplit[0], monoRepoSplit[1], parentDir, gitProvider);
                         getLogger().debug("Cloned " + monoRepoSplit[0] + "/" + monoRepoSplit[1] + " to " + repoPath);
                     }
                 }

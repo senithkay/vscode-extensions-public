@@ -72,6 +72,9 @@ import {
     getLocalComponentDirMetaDataRes,
     CreateNonBalLocalComponentFromExistingSource,
     GetEnrichedComponent,
+    setProjectProvider,
+    getProjectProvider,
+    getConsoleUrl,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -169,6 +172,14 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(getProjectRepository, HOST_EXTENSION, projId);
     }
 
+    public async setProjectProvider(projId: string, gitProvider: string): Promise<void> {
+        return this._messenger.sendRequest(setProjectProvider, HOST_EXTENSION, { projId, gitProvider });
+    }
+
+    public async getProjectProvider(projId: string): Promise<string> {
+        return this._messenger.sendRequest(getProjectProvider, HOST_EXTENSION, projId);
+    }
+
     public async setPreferredProjectRepository(projId: string, repo: string): Promise<void> {
         return this._messenger.sendRequest(setPreferredProjectRepository, HOST_EXTENSION, { projId, repo });
     }
@@ -181,6 +192,10 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
     }
 
+    public async getConsoleUrl(): Promise<string> {
+        return this._messenger.sendRequest(getConsoleUrl, HOST_EXTENSION, undefined);
+    }
+
     public async isSubpathAvailable(params: SubpathAvailableRequest): Promise<boolean> {
         return this._messenger.sendRequest(isSubpathAvailable, HOST_EXTENSION, params);
     }
@@ -189,7 +204,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetLocalComponentDirMetaData, HOST_EXTENSION, params);
     }
 
-    public async checkProjectDeleted(projectId: string): Promise<void> {
+    public async checkProjectDeleted(projectId: string): Promise<boolean> {
         return this._messenger.sendRequest(CheckProjectDeleted, HOST_EXTENSION, projectId);
     }
 

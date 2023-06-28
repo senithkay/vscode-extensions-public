@@ -214,6 +214,8 @@ export interface Repository {
     organizationConfig: string;
     isUserManage: boolean;
     appSubPath?: string;
+    gitProvider: string;
+    bitbucketCredentialId: string;
     byocBuildConfig?: {
         componentId: string;
         containerId: string;
@@ -273,6 +275,7 @@ export interface WorkspaceConfig {
             projectID: string;
             orgId: number;
             monoRepo?: string;
+            gitProvider?: string;
         }
     }
 }
@@ -322,6 +325,8 @@ export interface WorkspaceComponentMetadata {
         nameApp: string;
         branchApp: string;
         appSubPath: string;
+        gitProvider: string;
+        bitbucketCredentialId: string;
     };
     byocConfig?: {
         dockerfilePath: string;
@@ -380,6 +385,8 @@ export interface RepositoryDetails {
     repo: string;
     branch: string;
     subPath: string;
+    gitProvider: string;
+    bitbucketCredentialId: string;
 }
 
 export interface BYOCRepositoryDetails extends RepositoryDetails {
