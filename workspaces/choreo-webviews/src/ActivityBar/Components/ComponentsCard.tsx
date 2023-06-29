@@ -85,7 +85,7 @@ export const ComponentsCard = () => {
                     title="Collapse all components"
                     id="collapse-components-btn"
                 >
-                    <Codicon name="expand-all" />
+                    <Codicon name="collapse-all" />
                 </VSCodeButton>
             </Header>
             <Body>

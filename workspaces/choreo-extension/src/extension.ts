@@ -72,6 +72,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	registerPreInitHandlers();
 	activateBallerinaExtension();
 	ext.isPluginStartup = false;
+	openChoreoActivity();
 	getLogger().debug("Choreo Extension activated");
 	return ext.api;
 }
@@ -83,6 +84,29 @@ function setupGithubAuthStatusCheck() {
 }
 
 let isChoreoProjectBeingOpened: boolean = false;
+
+// This function is called when the extension is activated.
+// it will check if the opened project is a Choreo project.
+// if so, it will check if the project is being opened for the first time
+// using a vscode global state variable which is set when the project is opened.
+// if the project is being opened for the first time, it will activate the Choreo Project view in the sidebar.
+async function openChoreoActivity() {
+	const isChoreoProject = ext.api.isChoreoProject();
+	if (isChoreoProject) {
+		// check if the project is being opened for the first time
+		const openedProjects: string[] = ext.context.globalState.get("openedProjects") || [];
+		const choreoProjectId = ext.api.getChoreoProjectId();
+		if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
+			// activate the Choreo Project view in the sidebar
+			vscode.commands.executeCommand("choreo.activity.project.focus");
+			// open architecture view
+			commands.executeCommand("ballerina.view.architectureView");
+			// add the project id to the opened projects list
+			openedProjects.push(choreoProjectId);
+			await ext.context.globalState.update("openedProjects", openedProjects);
+		}
+	}
+}
 
 export async function showChoreoProjectOverview() {
 	getLogger().debug("Show Choreo Project Overview if a Choreo project is opened.");

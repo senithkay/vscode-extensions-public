@@ -51,7 +51,7 @@ export async function openChoreoProject() {
         quickPickInstance.hide();
         const selection = quickPickInstance.selectedItems[0];
         // show project creation wizard if user selects the last item
-        if (selection?.label === 'Create new') {
+        if (selection?.label.includes('Create new')) {
             vscode.commands.executeCommand(createNewProjectCmdId);
             return;
         }
