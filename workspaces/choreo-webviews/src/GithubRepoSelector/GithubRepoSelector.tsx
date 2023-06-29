@@ -51,6 +51,11 @@ const SmallProgressRing = styled(VSCodeProgressRing)`
     width: calc(var(--design-unit) * 4px);
 `;
 
+export interface Item {
+    value: string;
+    id: number;
+}
+
 export interface GithubRepoSelectorProps {
     selectedRepo?: {
         org: string;
@@ -127,14 +132,14 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
         loaderMessage = "Installing Github App...";
     }
 
-    const repos = selectedOrg && selectedOrg.repositories.sort((a, b) => {
+    const repos: Item[] = selectedOrg && selectedOrg.repositories.sort((a, b) => {
         // Vscode test-runner can't seem to scroll and find the necessary repo
         // Therefore sorting and showing the test repo at the very top of the list
         if (a.name.includes("vscode")) return -1;
         if (b.name.includes("vscode")) return 1;
         return 0;
-    }).map((repo) => (repo.name)) || [];
-    const orgs = filteredOrgs?.map(org => org.orgName) || [];
+    }).map((repo, index) => ({value: repo.name, id: index})) || [];
+    const orgs: Item[] = filteredOrgs?.map((org, index) => ({value: org.orgName, id: index})) || [];
 
     return (
         <>

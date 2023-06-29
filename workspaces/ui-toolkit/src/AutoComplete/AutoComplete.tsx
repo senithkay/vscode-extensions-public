@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import { Combobox, Transition } from '@headlessui/react'
 import styled from "@emotion/styled";
 import { css, cx } from "@emotion/css";
@@ -53,7 +53,8 @@ const ComboboxOption: React.FC<any> = styled.div`
     padding-left: 5px;
     padding-right: 5px;
     color: var(--vscode-editor-foreground);
-    background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' : 'var(--vscode-editor-background)')}; /* Use "bg-white" class equivalent */;
+    background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
+            'var(--vscode-editor-background)')};
     list-style: none;
     margin-left: -40px; // List here adds a default padding of 40px
 `;
@@ -108,20 +109,23 @@ export const NothingFound = styled.div`
     background-color: var(--vscode-editor-background);
 `;
 
+export interface Item {
+    value: string;
+    id: number;
+}
+
 export interface AutoCompleteProps {
-    items: string[];
+    items: Item[];
     notItemsFoundMessage?: string;
     selectedItem?: string;
-    onChange: (item: string) => void;
+    onChange: (item: string, index?: number) => void;
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
     const { selectedItem, items, notItemsFoundMessage, onChange } = props;
-    const [selected, setSelected] = useState(selectedItem);
     const [query, setQuery] = useState('');
 
     const handleChange = (item: string) => {
-        setSelected(item);
         onChange(item);
     };
 
@@ -130,25 +134,21 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
         query === ''
             ? items
             : items.filter((item) =>
-                item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
+                item.value.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
             )
-
-    useEffect(() => {
-        setSelected(selectedItem);
-    }, [selectedItem]);
 
     return (
         <div>
-            <Combobox value={selected} onChange={handleChange}>
+            <Combobox value={selectedItem} onChange={handleChange}>
                 <div>
                     <div>
                         <Combobox.Input
-                            displayValue={(item: any) => item}
+                            displayValue={(item: string) => item}
                             onChange={(event) => setQuery(event.target.value)}
                             className= {SearchableInput}
                         />
                         <Combobox.Button className={ComboboxButtonContainer}>
-                            <i className={`codicon codicon-chevron-down ${cx(DropdownIcon)}`} />
+                            <i className={`codicon codicon-chevron-down ${DropdownIcon}`} />
                         </Combobox.Button>
                     </div>
                     <Transition
@@ -162,14 +162,15 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                                         {notItemsFoundMessage || 'Nothing found'}.
                                     </NothingFound>
                                 ) : (
-                                    filteredResults.map((item: string) => {
+                                    filteredResults.map((item: Item) => {
                                         return (
                                             <ComboboxOption>
                                                 <Combobox.Option
-                                                    className={({ active }) => active ? cx(OptionContainer) : cx(ActiveOptionContainer)}
-                                                    value={item}
+                                                    className={({ active }) => active ?
+                                                        OptionContainer : ActiveOptionContainer}
+                                                    value={item.value}
                                                 >
-                                                    {item}
+                                                    {item.value}
                                                 </Combobox.Option>
                                             </ComboboxOption>
                                         );
