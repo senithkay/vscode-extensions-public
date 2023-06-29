@@ -13,12 +13,12 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Component } from "@wso2-enterprise/choreo-core";
-// import { ChoreoWebViewContext } from "../../context/choreo-web-view-ctx";
 import { useEnrichComponent } from "../../hooks/use-enrich-component";
 import { ProgressIndicator } from "./ProgressIndicator";
 import { DeploymentStatusText } from "./DeploymentStatusText";
 import { RepositoryDetails } from "./RepositoryDetails";
 import { BuildStatus } from "./BuildStatus";
+import { SkeletonLoader } from "./SkeletonLoader";
 
 const Container = styled.div`
     display: flex;
@@ -30,15 +30,12 @@ const Container = styled.div`
     padding: 10px;
 `;
 
+
 export const ComponentDetails = (props: { component: Component}) => {
     const { enrichedComponent, isLoadingComponent, isRefetchingComponent } = useEnrichComponent(props.component);
 
-    if (isLoadingComponent || isRefetchingComponent || !enrichedComponent) {
-        return <ProgressIndicator />;
-    }
-
     return (<Container>
-        {(isLoadingComponent || isRefetchingComponent) && <ProgressIndicator />}
+        {isRefetchingComponent && <ProgressIndicator />}
         {enrichedComponent && (
             <>
                 <DeploymentStatusText enrichedComponent={enrichedComponent} />
@@ -46,5 +43,6 @@ export const ComponentDetails = (props: { component: Component}) => {
                 <BuildStatus enrichedComponent={enrichedComponent} />
             </>
         )}
+        {isLoadingComponent && <SkeletonLoader lineCount={3} />}
     </Container>)
 };
