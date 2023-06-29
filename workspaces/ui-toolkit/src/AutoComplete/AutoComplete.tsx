@@ -28,6 +28,11 @@ const DropdownContainer = styled.div`
     color: var(--vscode-editor-foreground);
     outline: none;
     border: 1px solid var(--vscode-list-dropBackground);
+    padding-top: 3px;
+    padding-bottom: 5px;
+    ul {
+        margin: 0;
+    }
 `;
 
 const ComboboxButtonContainer = cx(css`
@@ -45,6 +50,8 @@ const ComboboxOption: React.FC<any> = styled.div`
     cursor: default;
     user-select: none;
     padding-top: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
     color: var(--vscode-editor-foreground);
     background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' : 'var(--vscode-editor-background)')}; /* Use "bg-white" class equivalent */;
     list-style: none;
@@ -55,14 +62,22 @@ export const OptionContainer = cx(css`
     color: var(--vscode-editor-foreground);
     background-color: var(--vscode-editor-selectionBackground);
     list-style-type: none;
-    padding-left: 8px
+    padding-left: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 `);
 
 export const ActiveOptionContainer = cx(css`
     color: var(--vscode-editor-foreground);
     background-color: var(--vscode-editor-background);
     list-style-type: none;
-    padding-left: 8px
+    padding-left: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
 `);
 
 export const DropdownIcon = cx(css`
