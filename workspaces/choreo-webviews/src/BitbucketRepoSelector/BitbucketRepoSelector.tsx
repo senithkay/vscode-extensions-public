@@ -187,13 +187,7 @@ export function BitbucketRepoSelector(props: GithubRepoSelectorProps) {
                     <GhRepoSelectorRepoContainer>
                         <label htmlFor="repo-drop-down">Repository</label>
                         <VSCodeDropdown id="repo-drop-down" value={selectedRepo?.repo} onChange={handleGhRepoChange}>
-                            {bbrepos && bbrepos.sort((a, b) => {
-                                // Vscode test-runner can't seem to scroll and find the necessary repo
-                                // Therefore sorting and showing the test repo at the very top of the list
-                                if (a.includes("vscode")) return -1;
-                                if (b.includes("vscode")) return 1;
-                                return 0;
-                            }).map((repo) => (
+                            {bbrepos?.map((repo) => (
                                 <VSCodeOption
                                     key={repo}
                                     value={repo}

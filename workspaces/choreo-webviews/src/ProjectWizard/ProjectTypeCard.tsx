@@ -14,7 +14,7 @@ import React from "react";
 import cn from "classnames";
 
 import styled from "@emotion/styled";
-import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { GitProvider } from "@wso2-enterprise/choreo-core";
 
 
 const TypeCardContainer = styled.div`

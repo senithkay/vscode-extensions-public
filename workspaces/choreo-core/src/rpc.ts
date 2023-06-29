@@ -12,7 +12,7 @@
  */
 import { RequestType, NotificationType } from 'vscode-messenger-common';
 import { GetComponentModelResponse } from '@wso2-enterprise/ballerina-languageclient';
-import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes } from './types';
+import { Organization, ChoreoLoginStatus, Project, Component, PushedComponent, ComponentCount, ChoreoComponentCreationParams, getLocalComponentDirMetaDataRequest, getLocalComponentDirMetaDataRes, GitRepo } from './types';
 
 export interface SubpathAvailableRequest {
       subpath: string;
@@ -58,12 +58,10 @@ export const GetProjectLocation: RequestType<string, string | undefined> = { met
 export const OpenExternal: RequestType<string, void> = { method: 'openExternal' };
 export const OpenChoreoProject: RequestType<string, void> = { method: 'openChoreoProject' };
 export const CloneChoreoProject: RequestType<string, void> = { method: 'cloneChoreoProject' };
-export const setProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setProjectRepository' };
-export const getProjectRepository: RequestType<string, string> = { method: 'getProjectRepository' };
-export const setProjectProvider: RequestType<{ projId: string, gitProvider: string }, void> = { method: 'setProjectProvider' };
-export const getProjectProvider: RequestType<string, string> = { method: 'getProjectProvider' };
-export const setPreferredProjectRepository: RequestType<{ projId: string, repo: string }, void> = { method: 'setPreferredProjectRepository' };
-export const getPreferredProjectRepository: RequestType<string, string> = { method: 'getPreferredProjectRepository' };
+export const setProjectRepository: RequestType<{ projId: string, repo: GitRepo }, void> = { method: 'setProjectRepository' };
+export const getProjectRepository: RequestType<string, GitRepo> = { method: 'getProjectRepository' };
+export const setPreferredProjectRepository: RequestType<{ projId: string, repo: GitRepo }, void> = { method: 'setPreferredProjectRepository' };
+export const getPreferredProjectRepository: RequestType<string, GitRepo> = { method: 'getPreferredProjectRepository' };
 export const CheckProjectDeleted: RequestType<string, boolean> = { method: 'CheckProjectDeleted' };
 export const isChoreoProject: RequestType<void, boolean> = { method: 'isChoreoProject' };
 export const isSubpathAvailable: RequestType<SubpathAvailableRequest, boolean> = { method: 'isSubpathAvailable' };

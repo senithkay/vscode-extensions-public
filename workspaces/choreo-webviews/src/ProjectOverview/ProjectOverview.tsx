@@ -333,7 +333,7 @@ export function ProjectOverview(props: ProjectOverviewProps) {
             (component) => component.local
         );
         return localOnlyComponents.reduce((count, component) => {
-            if (!component.hasDirtyLocalRepo && !component.hasUnPushedLocalCommits && component.isInRemoteRepo) {
+            if (!component.hasDirtyLocalRepo && !component.hasUnPushedLocalCommits) {
                 return count + 1;
             }
             return count;

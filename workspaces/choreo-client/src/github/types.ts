@@ -10,6 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { Event } from "vscode";
 
 export interface GHAppConfig {
@@ -62,11 +63,6 @@ export interface CredentialData {
 export interface FilteredCredentialData {
     id: string;
     name: string;
-}
-
-export enum GitProvider {
-    GITHUB = 'github',
-    BITBUCKET = 'bitbucket',
 }
 
 export interface Repo {

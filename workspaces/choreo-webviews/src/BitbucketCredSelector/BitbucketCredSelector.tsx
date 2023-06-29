@@ -12,12 +12,12 @@
  */
 import styled from "@emotion/styled";
 import { VSCodeDropdown, VSCodeLink, VSCodeOption, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
-import { CredentialData, FilteredCredentialData, GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { CredentialData, FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 import React, { useContext } from "react";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { useQuery } from "@tanstack/react-query";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
-import { Organization } from "@wso2-enterprise/choreo-core";
+import { GitProvider, Organization } from "@wso2-enterprise/choreo-core";
 
 const BranchListContainer = styled.div`
     display: flex;
@@ -43,7 +43,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
 
     const { setBitbucketCredentialId } = useContext(ChoreoWebViewContext);
     const { isLoading: isFetchingCredentials, data: credentials } = useQuery({
-        queryKey: [org.uuid],
+        queryKey: ['git-bitbucket-credentials', org.uuid],
         queryFn: async () => {
             const gitCredentialsData = await ChoreoWebViewAPI.getInstance().getChoreoGithubAppClient().getCredentials(org.uuid);
             return gitCredentialsData;
@@ -74,7 +74,7 @@ export function BitbucketCredSelector(props: BitbucketCredSelectorProps) {
                 (credential: FilteredCredentialData) => {
                     if (credential.name === credName) {
                         credId = credential.id;
-                    };
+                    }
                 }
             )
 

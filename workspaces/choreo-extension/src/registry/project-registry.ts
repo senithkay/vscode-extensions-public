@@ -12,7 +12,7 @@
  */
 
 import { componentManagementClient, getConsoleUrl, projectClient, subscriptionClient } from "../auth/auth";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType } from "@wso2-enterprise/choreo-core";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, Component, ComponentCount, Environment, getLocalComponentDirMetaDataRes, getLocalComponentDirMetaDataRequest, Organization, Project, PushedComponent, serializeError, WorkspaceComponentMetadata, ChoreoServiceType, ComponentDisplayType, GitRepo, GitProvider } from "@wso2-enterprise/choreo-core";
 import { ext } from "../extensionVariables";
 import { existsSync, rmdirSync, cpSync, rmSync, readdir, copyFile, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'fs';
 import { CreateByocComponentParams, CreateComponentParams } from "@wso2-enterprise/choreo-client";
@@ -25,13 +25,11 @@ import { getLogger } from "../logger/logger";
 import { ProgressLocation, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { executeWithTaskRetryPrompt } from "../retry";
 import { makeURLSafe } from "../utils";
-import { GitProvider } from "@wso2-enterprise/choreo-client/lib/github";
 
 // Key to store the project locations in the global state
 const PROJECT_LOCATIONS = "project-locations";
-const PROJECT_REPOSITORIES = "project-repositories";
-const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories";
-const PROJECT_PROVIDERS = "project-providers";
+const PROJECT_REPOSITORIES = "project-repositories-v2";
+const PREFERRED_PROJECT_REPOSITORIES = "preferred-project-repositories-v2";
 
 
 export class ProjectRegistry {
@@ -248,7 +246,6 @@ export class ProjectRegistry {
                     hasUnPushedLocalCommits: matchingComponent?.hasUnPushedLocalCommits,
                     hasDirtyLocalRepo: matchingComponent?.hasDirtyLocalRepo,
                     isRemoteOnly: matchingComponent?.isRemoteOnly,
-                    isInRemoteRepo: matchingComponent?.isInRemoteRepo,
                     deployments: matchingComponent?.deployments,
                     buildStatus: matchingComponent?.buildStatus,
                 };
@@ -308,26 +305,6 @@ export class ProjectRegistry {
         vscode.window.showInformationMessage(successMsg);
     }
 
-    private async isComponentInRepo(component: Component): Promise<boolean> {
-        let isInRemoteRepo = true;
-        if (component.local && component.repository) {
-            const { appSubPath, branchApp, nameApp, organizationApp, bitbucketCredentialId } = component.repository;
-            try {
-                isInRemoteRepo = await executeWithTaskRetryPrompt(() => projectClient.isComponentInRepo({
-                    branchApp: branchApp,
-                    orgApp: organizationApp,
-                    repoApp: nameApp,
-                    subPath: appSubPath || "",
-                    credentialId: bitbucketCredentialId
-                }));
-            } catch (error: any) {
-                getLogger().error(`Failed to check isComponentInRepo for ${component.name}. ` + error?.message  + (error?.cause ? "\nCause: " + error.cause.message : ""));
-                isInRemoteRepo = false;
-            }
-        }
-        return isInRemoteRepo;
-    }
-
     async getEnrichedComponents(projectId: string, orgHandle: string, orgUuid: string): Promise<Component[]> {
         try {
             const componentsCache = this._dataComponents.get(projectId) || [];
@@ -360,7 +337,7 @@ export class ProjectRegistry {
         }
         const devEnv = envData?.find((env: Environment) => env.name === 'Development');
         const selectedVersion = component.apiVersions?.find(item => item.latest);
-        const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, isInRemoteRepo, buildStatus] = await Promise.all([
+        const [hasUnPushedLocalCommits, hasDirtyLocalRepo, devDeployment, buildStatus] = await Promise.all([
             isActive && this.hasUnPushedLocalCommit(projectId, component),
             isActive && this.hasDirtyLocalRepo(projectId, component),
             !component.local && selectedVersion && devEnv && executeWithTaskRetryPrompt(() => projectClient.getComponentDeploymentStatus({
@@ -371,7 +348,6 @@ export class ProjectRegistry {
                 projId: projectId,
                 versionId: selectedVersion.id
             })),
-            component.local && isActive && this.isComponentInRepo(component),
             !component.local && selectedVersion && executeWithTaskRetryPrompt(() => projectClient.getComponentBuildStatus({ componentId: component.id, versionId: selectedVersion.id }))
         ]);
 
@@ -398,7 +374,6 @@ export class ProjectRegistry {
             hasUnPushedLocalCommits,
             hasDirtyLocalRepo,
             isRemoteOnly,
-            isInRemoteRepo,
             deployments: { dev: devDeployment },
             buildStatus
         } as Component;
@@ -554,46 +529,33 @@ export class ProjectRegistry {
         return undefined;
     }
 
-    setProjectRepository(projectId: string, repository: string) {
-        let projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
+    setProjectRepository(projectId: string, repo: GitRepo) {
+        let projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
         if (projectRepositories === undefined) {
             projectRepositories = {};
         }
-        projectRepositories[projectId] = repository;
+        projectRepositories[projectId] = repo;
         ext.context.globalState.update(PROJECT_REPOSITORIES, projectRepositories);
     }
 
-    getProjectRepository(projectId: string): string | undefined {
-        const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
-        return projectRepositories ? projectRepositories[projectId] : undefined;
+    getProjectRepository(projectId: string): GitRepo | undefined {
+        const projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PROJECT_REPOSITORIES);
+        const repo = projectRepositories?.[projectId];
+        return repo;
     }
 
-    setProjectProvider(projectId: string, gitProvider: string) {
-        let projectProviders: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_PROVIDERS);
-        if (projectProviders === undefined) {
-            projectProviders = {};
-        }
-        projectProviders[projectId] = gitProvider;
-        ext.context.globalState.update(PROJECT_PROVIDERS, projectProviders);
-    }
-
-    getProjectProvider(projectId: string): string | undefined {
-        const projectProviders: Record<string, string> | undefined = ext.context.globalState.get(PROJECT_PROVIDERS);
-        return projectProviders ? projectProviders[projectId] : undefined;
-    }
-
-    setPreferredProjectRepository(projectId: string, repository: string) {
-        let projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
+    setPreferredProjectRepository(projectId: string, repo: GitRepo) {
+        let projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
         if (projectRepositories === undefined) {
             projectRepositories = {};
         }
-        projectRepositories[projectId] = repository;
+        projectRepositories[projectId] = repo;
         ext.context.globalState.update(PREFERRED_PROJECT_REPOSITORIES, projectRepositories);
     }
 
-    getPreferredProjectRepository(projectId: string): string | undefined {
-        const projectRepositories: Record<string, string> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
-        let preferredRepository: string | undefined = projectRepositories ? projectRepositories[projectId] : undefined;
+    getPreferredProjectRepository(projectId: string): GitRepo | undefined {
+        const projectRepositories: Record<string, GitRepo> | undefined = ext.context.globalState.get(PREFERRED_PROJECT_REPOSITORIES);
+        let preferredRepository: GitRepo | undefined = projectRepositories ? projectRepositories[projectId] : undefined;
         if (preferredRepository === undefined) {
             preferredRepository = this.getProjectRepository(projectId);
         }

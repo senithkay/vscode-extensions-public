@@ -20,8 +20,8 @@ import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
 import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
 import { RequiredFormInput } from "../Commons/RequiredInput";
 import { ProjectTypeCard } from "./ProjectTypeCard";
-import { CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT } from "@wso2-enterprise/choreo-core";
-import { FilteredCredentialData, GitProvider } from "@wso2-enterprise/choreo-client/lib/github/types";
+import { CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
+import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -115,8 +115,11 @@ export function ProjectWizard() {
                     orgHandle: selectedOrg.handle
                 });
                 if (initMonoRepo) {
-                    await webviewAPI.setProjectRepository(createdProject.id, `${selectedGHOrgName}/${selectedGHRepo}`);
-                    await webviewAPI.setProjectProvider(createdProject.id, gitProvider);
+                    const repoDetails: GitRepo = { provider: gitProvider, orgName: selectedGHOrgName, repoName: selectedGHRepo };
+                    if (gitProvider === GitProvider.BITBUCKET) {
+                        repoDetails.bitbucketCredentialId = selectedCredential?.id
+                    }
+                    await webviewAPI.setProjectRepository(createdProject.id, repoDetails);
                 }
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
                     eventName: CREATE_PROJECT_SUCCESS_EVENT,
