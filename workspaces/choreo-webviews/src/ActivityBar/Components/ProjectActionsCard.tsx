@@ -48,6 +48,7 @@ export const ProjectActionsCard: React.FC = () => {
                 <ArchiViewButton />
                 <VSCodeLink>Cell View</VSCodeLink>
                 <VSCodeLink onClick={openProjectInChoreoConsole}>Open in Choreo Console</VSCodeLink>
+                <VSCodeLink>Push to Choreo</VSCodeLink>
             </Body>
         </Container>
     );

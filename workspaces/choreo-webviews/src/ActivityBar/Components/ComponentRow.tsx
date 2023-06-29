@@ -32,19 +32,21 @@ const Header = styled.div`
     flex-direction: row;
     gap: 2px;
     margin: 5px;
+    align-items: center;
 `;
 // Body div will lay the items vertically
 const Body = styled.div`
     display: flex;
     flex-direction: column;
     gap: 5px;
-    margin-top: 15px;
-    position: relative;
+    margin-left: 18px;
+    margin-bottom: 10px;
 `;
 
 const ComponentName = styled.span`
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
+    font-weight: 600;
 `;
 
 

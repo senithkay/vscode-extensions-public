@@ -30,7 +30,6 @@ const Container = styled.div`
 
 const Body = styled.div`
     display: flex;
-    position: relative;
     flex-direction: column;
     gap: 0;
     margin-top: 15px;
@@ -88,8 +87,8 @@ export const ComponentsCard = () => {
                     <Codicon name="collapse-all" />
                 </VSCodeButton>
             </Header>
+            {(isLoadingComponents || isRefetchingComponents) && <ProgressIndicator />}
             <Body>
-                {(isLoadingComponents || isRefetchingComponents) && <ProgressIndicator />}
                 {components && components.map((component, index) => 
                     (<>
                         <ComponentRow component={component} />

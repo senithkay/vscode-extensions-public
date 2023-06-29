@@ -33,7 +33,8 @@ export const ProjectView = () => {
     const { choreoProject, loginStatus, isChoreoProject } = useContext(ChoreoWebViewContext);
     return (
         <Container>
-            {loginStatus !== "LoggedIn" && <SignIn />}
+            {loginStatus !== "LoggedIn" && <ProgressIndicator />}
+            {loginStatus === "LoggedOut" && <SignIn />}
             {choreoProject && <ProjectActionsCard />}
             {choreoProject && <ComponentsCard />}
             {!isChoreoProject && loginStatus == "LoggedIn" && <WelcomeMessage />}

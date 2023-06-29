@@ -14,8 +14,10 @@ import React from "react";
 import styled from "@emotion/styled";
 
 const Title = styled.div`
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: bold;
+    // capitalize
+    text-transform: uppercase;
 `;
 
 export const ViewTitle: React.FC = (props) => (
