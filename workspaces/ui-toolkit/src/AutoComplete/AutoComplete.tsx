@@ -19,21 +19,36 @@ export interface ComboboxOptionProps {
     active?: boolean;
 }
 
-const DropdownContainer = styled.div`
+export interface DropdownContainerProps {
+    widthOffset?: number;
+}
+
+const DropdownContainer:React.FC<any> = styled.div`
     position: absolute;
-    max-height: 80px;
-    width: calc(var(--input-min-width) + 108px);
+    max-height: 100px;
+    width: ${(props: DropdownContainerProps) => `calc(var(--input-min-width) + ${props.widthOffset}px)`};
     overflow: auto;
     background-color: var(--vscode-editor-background);
     color: var(--vscode-editor-foreground);
     outline: none;
     border: 1px solid var(--vscode-list-dropBackground);
-    padding-top: 3px;
+    padding-top: 5px;
     padding-bottom: 5px;
     ul {
         margin: 0;
+        padding: 0;
     }
 `;
+
+const ComboboxButtonContainerActive = cx(css`
+    position: absolute;
+    padding-right: 5px;
+    background-color: var(--vscode-input-background);
+    border-right: 1px solid var(--vscode-focusBorder);
+    border-bottom: 1px solid var(--vscode-focusBorder);
+    border-top: 1px solid var(--vscode-focusBorder);
+    border-left: 0 solid var(--vscode-focusBorder);
+`);
 
 const ComboboxButtonContainer = cx(css`
     position: absolute;
@@ -49,21 +64,17 @@ const ComboboxOption: React.FC<any> = styled.div`
     position: relative;
     cursor: default;
     user-select: none;
-    padding-top: 2px;
-    padding-left: 5px;
-    padding-right: 5px;
     color: var(--vscode-editor-foreground);
     background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
             'var(--vscode-editor-background)')};
     list-style: none;
-    margin-left: -40px; // List here adds a default padding of 40px
 `;
 
 export const OptionContainer = cx(css`
     color: var(--vscode-editor-foreground);
     background-color: var(--vscode-editor-selectionBackground);
+    padding: 3px 5px 3px 5px;
     list-style-type: none;
-    padding-left: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -74,7 +85,7 @@ export const ActiveOptionContainer = cx(css`
     color: var(--vscode-editor-foreground);
     background-color: var(--vscode-editor-background);
     list-style-type: none;
-    padding-left: 5px;
+    padding: 3px 5px 3px 5px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -95,9 +106,16 @@ export const SearchableInput = cx(css`
     height: 25px;
     width: 170px;
     padding-left: 8px;
-    border: 1px solid var(--vscode-dropdown-border);
+    border-left: 1px solid var(--vscode-dropdown-border);
+    border-bottom: 1px solid var(--vscode-dropdown-border);
+    border-top: 1px solid var(--vscode-dropdown-border);
+    border-right: 0 solid var(--vscode-dropdown-border);
     &:focus {
-      outline: 1px solid var(--vscode-focusBorder);
+      outline: none;
+      border-left: 1px solid var(--vscode-focusBorder);
+      border-bottom: 1px solid var(--vscode-focusBorder);
+      border-top: 1px solid var(--vscode-focusBorder);
+      border-right: 0 solid var(--vscode-focusBorder);
     }
 `);
 
@@ -105,6 +123,7 @@ export const NothingFound = styled.div`
     position: relative;
     cursor: default;
     user-select: none;
+    padding-left: 8px;
     color: var(--vscode-editor-foreground);
     background-color: var(--vscode-editor-background);
 `;
@@ -118,24 +137,31 @@ export interface AutoCompleteProps {
     items: Item[];
     notItemsFoundMessage?: string;
     selectedItem?: string;
+    widthOffset?: number;
     onChange: (item: string, index?: number) => void;
 }
 
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
-    const { selectedItem, items, notItemsFoundMessage, onChange } = props;
+    const { selectedItem, items, notItemsFoundMessage, widthOffset = 108 , onChange } = props;
     const [query, setQuery] = useState('');
+    const [textFiledFocused, setTextFiledFocused] = useState(false);
 
     const handleChange = (item: string) => {
         onChange(item);
     };
-
+    const handleTextFileFocused = () => {
+        setTextFiledFocused(true);
+    };
+    const handleTextFileOutFocused = () => {
+        setTextFiledFocused(false);
+    };
 
     const filteredResults =
         query === ''
             ? items
             : items.filter((item) =>
                 item.value.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
-            )
+            );
 
     return (
         <div>
@@ -146,8 +172,10 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                             displayValue={(item: string) => item}
                             onChange={(event) => setQuery(event.target.value)}
                             className= {SearchableInput}
+                            onBlur={handleTextFileOutFocused}
+                            onFocus={handleTextFileFocused}
                         />
-                        <Combobox.Button className={ComboboxButtonContainer}>
+                        <Combobox.Button className={textFiledFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}>
                             <i className={`codicon codicon-chevron-down ${DropdownIcon}`} />
                         </Combobox.Button>
                     </div>
@@ -155,11 +183,11 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                         as={Fragment}
                         afterLeave={() => setQuery('')}
                     >
-                        <DropdownContainer>
+                        <DropdownContainer widthOffset={widthOffset}>
                             <Combobox.Options>
                                 {filteredResults.length === 0 && query !== '' ? (
                                     <NothingFound>
-                                        {notItemsFoundMessage || 'Nothing found'}.
+                                        {notItemsFoundMessage || 'No options'}
                                     </NothingFound>
                                 ) : (
                                     filteredResults.map((item: Item) => {

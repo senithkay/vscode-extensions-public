@@ -155,11 +155,11 @@ export function GithubRepoSelector(props: GithubRepoSelectorProps) {
                 <GhRepoSelectorContainer>
                     <GhRepoSelectorOrgContainer>
                         <label htmlFor="org-drop-down">Organization</label>
-                        <AutoComplete items={orgs} notItemsFoundMessage={"No Organizations found"} selectedItem={selectedRepo?.org} onChange={handleGhOrgChange}></AutoComplete>
+                        <AutoComplete items={orgs} selectedItem={selectedRepo?.org} onChange={handleGhOrgChange}></AutoComplete>
                     </GhRepoSelectorOrgContainer>
                     <GhRepoSelectorRepoContainer>
                         <label htmlFor="repo-drop-down">Repository</label>
-                        <AutoComplete items={repos} notItemsFoundMessage={"No Repositories found"} selectedItem={selectedRepo?.repo} onChange={handleGhRepoChange}></AutoComplete>
+                        <AutoComplete items={repos} selectedItem={selectedRepo?.repo} onChange={handleGhRepoChange}></AutoComplete>
                     </GhRepoSelectorRepoContainer>
                 </GhRepoSelectorContainer>
             )}
