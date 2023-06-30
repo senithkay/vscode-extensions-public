@@ -11,8 +11,8 @@ import React, { useEffect, useState } from "react";
 import { DiagramModel } from '@projectstorm/react-diagrams';
 
 import { GraphqlDiagramCanvasWidget } from "../Canvas/GraphqlDiagramCanvasWidget";
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { GraphqlHeader } from "../GraphqlHeader";
-import { NodeType } from "../NodeFilter";
 import { GraphqlDesignModel } from "../resources/model";
 import { OperationTypes } from "../TypeFilter";
 import { graphqlModelGenerator } from "../utils/model-generators/serviceModelGenerator";
@@ -25,7 +25,7 @@ export function GraphqlDiagramContainer(props: GraphqlDiagramContainerProps) {
     const { designModel } = props;
     const [graphqlServiceModel, setGraphqlServiceModel] = useState<DiagramModel>(undefined);
     const [operationType, setOperationType] = useState<OperationTypes>(OperationTypes.All_Operations);
-    const [filteredNode, setFilteredNode] = useState<NodeType>(undefined);
+    const { filteredNode } = useGraphQlContext();
 
     useEffect(() => {
         setGraphqlServiceModel(graphqlModelGenerator(designModel, operationType, filteredNode));
@@ -35,17 +35,11 @@ export function GraphqlDiagramContainer(props: GraphqlDiagramContainerProps) {
         setOperationType(type);
     }
 
-    const updateNodeFiltering = (node: NodeType) => {
-        setFilteredNode(node);
-    }
-
     const modelRenderer = (
         <>
             <GraphqlHeader
                 updateFilter={updateFilter}
-                updateNodeFiltering={updateNodeFiltering}
                 designModel={designModel}
-                selectedNode={filteredNode}
             />
             <GraphqlDiagramCanvasWidget model={graphqlServiceModel} />
         </>

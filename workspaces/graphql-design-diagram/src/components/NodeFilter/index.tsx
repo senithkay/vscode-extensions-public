@@ -7,10 +7,14 @@
  * You may not alter or remove any copyright or other notice from copies of this content.
  */
 
+// tslint:disable: jsx-no-multiline-js jsx-no-lambda
 import React from "react";
 
-import { Box, FormControl, InputLabel, MenuItem } from "@material-ui/core";
-import Select from "@material-ui/core/Select";
+import { Autocomplete, TextField } from "@mui/material";
+
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
+
+import { useStyles } from "./styles";
 
 export enum NodeCategory {
     GRAPHQL_SERVICE = "graphqlService",
@@ -28,39 +32,37 @@ export interface NodeType {
 
 interface NodeFilterProps {
     nodeList: NodeType[];
-    updateNodeFiltering: (node: NodeType) => void;
 }
+
 export function NodeFilter(props: NodeFilterProps) {
-    const { nodeList, updateNodeFiltering } = props;
-    const [selectedNode, setSelectedNode] = React.useState<NodeType>(null);
+    const { nodeList } = props;
+    const { setFilteredNode, filteredNode } = useGraphQlContext();
+    const filterStyles = useStyles();
 
-    const menuItems = nodeList && nodeList.map((node) => (
-        <MenuItem key={node.name} value={node.name}>
-            {node.name}
-        </MenuItem>
-    ));
-
-    const updateNode = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const selectedValue = event.target.value as string;
-        const selectedNodeType = nodeList.find((node) => node.name === selectedValue) || null;
-        setSelectedNode(selectedNodeType);
-        updateNodeFiltering(selectedNodeType);
+    const updateNode = (newValue: NodeType) => {
+        if (newValue) {
+            setFilteredNode(newValue);
+        }
     }
 
     return (
-        <Box>
-            <FormControl style={{margin: "10px", width: "130px"}} variant="outlined">
-                <InputLabel id="node-filter-select-label" >Node</InputLabel>
-                <Select
-                    id="node-filter-select"
-                    value={selectedNode ? selectedNode.name : (nodeList ? nodeList[0].name : "")}
-                    label="Node"
-                    onChange={updateNode}
-                    SelectDisplayProps={{ style: { padding: '10px' } }}
-                >
-                    {nodeList && menuItems}
-                </Select>
-            </FormControl>
-        </Box>
+        <>
+            {
+                nodeList && (
+                    <Autocomplete
+                        id="node-filter-select"
+                        options={nodeList}
+                        defaultValue={filteredNode ? filteredNode : nodeList[0]}
+                        value={filteredNode ? filteredNode : nodeList[0]}
+                        onChange={(_, newValue: NodeType) => updateNode(newValue)}
+                        getOptionLabel={(option) => option.name}
+                        size="small"
+                        renderInput={(params) =>
+                            <TextField {...params} size="small" label="Type" variant="outlined" className={filterStyles.autoComplete} />}
+                        className={filterStyles.autoComplete}
+                    />
+                )
+            }
+        </>
     );
 }

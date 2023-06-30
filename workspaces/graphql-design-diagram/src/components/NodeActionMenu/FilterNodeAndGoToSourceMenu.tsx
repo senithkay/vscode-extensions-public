@@ -17,13 +17,16 @@ import Tooltip from "@mui/material/Tooltip";
 import { Position } from "../resources/model";
 
 import { GoToSourceMenuItem } from "./GoToSourceMenuItem";
+import { NodeType } from "../NodeFilter";
+import { FocusToNodeMenuItem } from "./FocusToNodeMenuItem";
 
 interface GoToSourceNodeMenuProps {
     location: Position;
+    nodeType: NodeType;
 }
 
-export function GoToSourceNodeMenu(props: GoToSourceNodeMenuProps) {
-    const { location } = props;
+export function FocusToNodeAndSourceMenu(props: GoToSourceNodeMenuProps) {
+    const { location, nodeType } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
@@ -38,6 +41,7 @@ export function GoToSourceNodeMenu(props: GoToSourceNodeMenuProps) {
                         <Paper style={{ maxWidth: "100%" }}>
                             <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
                                 <GoToSourceMenuItem location={location} />
+                                <FocusToNodeMenuItem nodeType={nodeType} />
                             </MenuList>
                         </Paper>
                     </div>
