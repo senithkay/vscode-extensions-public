@@ -15,24 +15,20 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from "@mui/material/Tooltip";
 
 import { NodeType } from "../NodeFilter";
-import { Position } from "../resources/model";
 
 import { FilterNodeMenuItem } from "./FilterNodeMenuItem";
-import { GoToSourceMenuItem } from "./GoToSourceMenuItem";
 
-interface GoToSourceNodeMenuProps {
-    location: Position;
+interface FilterNodeMenuProps {
     nodeType: NodeType;
 }
 
-export function FilterNodeAndGoToSourceMenu(props: GoToSourceNodeMenuProps) {
-    const { location, nodeType } = props;
+export function FilterNodeMenu(props: FilterNodeMenuProps) {
+    const { nodeType } = props;
 
     const [showTooltip, setTooltipStatus] = useState<boolean>(false);
 
     return (
         <>
-            {location?.filePath && location?.startLine && location?.endLine &&
             <Tooltip
                 open={showTooltip}
                 onClose={() => setTooltipStatus(false)}
@@ -40,7 +36,6 @@ export function FilterNodeAndGoToSourceMenu(props: GoToSourceNodeMenuProps) {
                     <div onClick={() => setTooltipStatus(false)}>
                         <Paper style={{ maxWidth: "100%" }}>
                             <MenuList style={{ paddingTop: "0px", paddingBottom: "0px" }}>
-                                <GoToSourceMenuItem location={location} />
                                 <FilterNodeMenuItem nodeType={nodeType} />
                             </MenuList>
                         </Paper>
@@ -86,7 +81,6 @@ export function FilterNodeAndGoToSourceMenu(props: GoToSourceNodeMenuProps) {
                     }}
                 />
             </Tooltip>
-            }
         </>
     );
 }

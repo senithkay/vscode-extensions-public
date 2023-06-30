@@ -22,13 +22,16 @@ import { useStyles } from "../../../NodeActionMenu/styles";
 import { Colors, Position } from "../../../resources/model";
 import { getParentSTNodeFromRange } from "../../../utils/common-util";
 import { getSyntaxTree } from "../../../utils/ls-util";
+import { FilterNodeMenuItem } from "../../../NodeActionMenu/FilterNodeMenuItem";
+import { NodeCategory } from "../../../NodeFilter";
 
 interface RecordHeaderMenuProps {
     location: Position;
+    nodeName: string;
 }
 
 export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
-    const { location } = props;
+    const { location, nodeName } = props;
     const classes = useStyles();
 
     const { recordEditor, langClientPromise, fullST, currentFile } = useGraphQlContext();
@@ -76,6 +79,7 @@ export function RecordHeaderMenu(props: RecordHeaderMenuProps) {
                                 </MenuItem>
                                 <Divider />
                                 <GoToSourceMenuItem location={location} />
+                                <FilterNodeMenuItem nodeType={{name: nodeName, type: NodeCategory.RECORD}}/>
                             </MenuList>
                         </Paper>
                     </div>

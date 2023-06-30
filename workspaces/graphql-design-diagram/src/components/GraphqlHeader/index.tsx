@@ -15,17 +15,19 @@ import { NodeCategory, NodeFilter, NodeType } from "../NodeFilter";
 import { GraphqlDesignModel } from "../resources/model";
 import { OperationTypes, TypeFilter } from "../TypeFilter";
 import { getNodeListOfModel } from "../utils/common-util";
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 
 interface GraphqlHeaderProps {
     updateFilter: (type: OperationTypes) => void;
-    updateNodeFiltering: (node: NodeType) => void;
+    // updateNodeFiltering: (node: NodeType) => void;
     designModel: GraphqlDesignModel;
-    selectedNode?: NodeType;
+    // selectedNode?: NodeType;
 }
 
 export function GraphqlHeader(props: GraphqlHeaderProps) {
-    const { updateFilter, updateNodeFiltering, designModel, selectedNode } = props;
+    const { updateFilter, designModel } = props;
     const [nodeList, setNodeList] = React.useState<NodeType[]>(undefined);
+    const { filteredNode } = useGraphQlContext();
 
 
     useEffect(() => {
@@ -36,8 +38,8 @@ export function GraphqlHeader(props: GraphqlHeaderProps) {
         <HeaderContainer>
             <Title> GraphQL Designer </Title>
             <FilterBar>
-                <NodeFilter updateNodeFiltering={updateNodeFiltering} nodeList={nodeList} />
-                <TypeFilter updateFilter={updateFilter} isFilterDisabled={selectedNode ? (selectedNode.type !== NodeCategory.GRAPHQL_SERVICE) : false} />
+                <NodeFilter nodeList={nodeList} />
+                <TypeFilter updateFilter={updateFilter} isFilterDisabled={filteredNode ? (filteredNode.type !== NodeCategory.GRAPHQL_SERVICE) : false} />
             </FilterBar>
         </HeaderContainer>
     );

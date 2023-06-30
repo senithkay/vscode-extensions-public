@@ -19,13 +19,16 @@ import { FunctionType, Position } from "../../../../resources/model";
 
 import { AddFunctionWidget } from "./AddFunctionWidget";
 import { useStyles } from "./styles";
+import { FilterNodeMenuItem } from "../../../../NodeActionMenu/FilterNodeMenuItem";
+import { NodeCategory } from "../../../../NodeFilter";
 
 interface ServiceSubheaderProps {
     location: Position;
+    nodeName: string;
 }
 
 export function ServiceSubheader(props: ServiceSubheaderProps) {
-    const { location } = props;
+    const { location, nodeName } = props;
     const { servicePanel } = useGraphQlContext();
     const classes = useStyles();
 
@@ -47,6 +50,7 @@ export function ServiceSubheader(props: ServiceSubheaderProps) {
                     <>
                         <Divider />
                         <GoToSourceMenuItem location={location} />
+                        <FilterNodeMenuItem nodeType={{name: nodeName, type: NodeCategory.GRAPHQL_SERVICE}} />
                     </>
                     }
                 </MenuList>
