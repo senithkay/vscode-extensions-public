@@ -62,13 +62,8 @@ export const SearchableInput = cx(css`
     }
 `);
 
-export interface Item {
-    value: string;
-    id: number;
-}
-
 export interface AutoCompleteProps {
-    items: Item[];
+    items: string[];
     notItemsFoundMessage?: string;
     selectedItem?: string;
     widthOffset?: number;
@@ -92,11 +87,12 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
         inputRef.current?.select();
         // This is to open the dropdown when the text field is focused.
         // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
-        document.getElementById(`autocomplete-dropdown-button-${items[0].value}`)?.click();
+        document.getElementById(`autocomplete-dropdown-button-${items[0]}`)?.click();
         document.getElementById(selectedItem)?.focus();
     };
     const handleTextFieldOutFocused = () => {
         setIsTextFieldFocused(false);
+        setIsUpButton(false);
     };
     const handleComboButtonClick = () => {
         setIsUpButton(!isUpButton);
@@ -109,7 +105,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
         query === ''
             ? items
             : items.filter((item) =>
-                item.value.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
+                item.toLowerCase().replace(/\s+/g, '').includes(query.toLowerCase().replace(/\s+/g, ''))
             );
 
     return (
@@ -127,7 +123,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                             onClick={handleTextFieldClick}
                         />
                         <Combobox.Button
-                            id={`autocomplete-dropdown-button-${items[0].value}`}
+                            id={`autocomplete-dropdown-button-${items[0]}`}
                             className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
                             onClick={handleComboButtonClick}
                         >

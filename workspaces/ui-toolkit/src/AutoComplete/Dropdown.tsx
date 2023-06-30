@@ -88,7 +88,7 @@ export interface Item {
 
 export interface DropdownProps {
     query: string;
-    filteredResults: Item[];
+    filteredResults: string[];
     notItemsFoundMessage?: string;
     widthOffset?: number;
     onQueryChange: (query: string) => void;
@@ -112,17 +112,16 @@ export function Dropdown(props: DropdownProps) {
                             {notItemsFoundMessage || 'No options'}
                         </NothingFound>
                     ) : (
-                        filteredResults.map((item: Item) => {
+                        filteredResults.map((item: string) => {
                             return (
                                 <ComboboxOption>
                                     <Combobox.Option
                                         className={({ active }) => active ?
                                             OptionContainer : ActiveOptionContainer}
-                                        value={item.value}
-                                        key={item.id}
-                                        id={item.value}
+                                        value={item}
+                                        key={item}
                                     >
-                                        {item.value}
+                                        {item}
                                     </Combobox.Option>
                                 </ComboboxOption>
                             );
