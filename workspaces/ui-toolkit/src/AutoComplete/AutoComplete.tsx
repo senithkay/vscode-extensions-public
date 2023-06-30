@@ -10,35 +10,10 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { Fragment, useState } from 'react'
-import { Combobox, Transition } from '@headlessui/react'
-import styled from "@emotion/styled";
+import React, { useState } from 'react'
+import { Combobox } from '@headlessui/react'
 import { css, cx } from "@emotion/css";
-
-export interface ComboboxOptionProps {
-    active?: boolean;
-}
-
-export interface DropdownContainerProps {
-    widthOffset?: number;
-}
-
-const DropdownContainer:React.FC<any> = styled.div`
-    position: absolute;
-    max-height: 100px;
-    width: ${(props: DropdownContainerProps) => `calc(var(--input-min-width) + ${props.widthOffset}px)`};
-    overflow: auto;
-    background-color: var(--vscode-editor-background);
-    color: var(--vscode-editor-foreground);
-    outline: none;
-    border: 1px solid var(--vscode-list-dropBackground);
-    padding-top: 5px;
-    padding-bottom: 5px;
-    ul {
-        margin: 0;
-        padding: 0;
-    }
-`;
+import { Dropdown } from "./Dropdown";
 
 const ComboboxButtonContainerActive = cx(css`
     position: absolute;
@@ -58,38 +33,6 @@ const ComboboxButtonContainer = cx(css`
     border-bottom: 1px solid var(--vscode-dropdown-border);
     border-top: 1px solid var(--vscode-dropdown-border);
     border-left: 0 solid var(--vscode-dropdown-border);
-`);
-
-const ComboboxOption: React.FC<any> = styled.div`
-    position: relative;
-    cursor: default;
-    user-select: none;
-    color: var(--vscode-editor-foreground);
-    background-color: ${(props: ComboboxOptionProps) => (props.active ? 'var(--vscode-editor-selectionBackground)' :
-            'var(--vscode-editor-background)')};
-    list-style: none;
-`;
-
-export const OptionContainer = cx(css`
-    color: var(--vscode-editor-foreground);
-    background-color: var(--vscode-editor-selectionBackground);
-    padding: 3px 5px 3px 5px;
-    list-style-type: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 100%;
-`);
-
-export const ActiveOptionContainer = cx(css`
-    color: var(--vscode-editor-foreground);
-    background-color: var(--vscode-editor-background);
-    list-style-type: none;
-    padding: 3px 5px 3px 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 100%;
 `);
 
 export const DropdownIcon = cx(css`
@@ -119,15 +62,6 @@ export const SearchableInput = cx(css`
     }
 `);
 
-export const NothingFound = styled.div`
-    position: relative;
-    cursor: default;
-    user-select: none;
-    padding-left: 8px;
-    color: var(--vscode-editor-foreground);
-    background-color: var(--vscode-editor-background);
-`;
-
 export interface Item {
     value: string;
     id: number;
@@ -155,6 +89,9 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
     const handleTextFileOutFocused = () => {
         setTextFiledFocused(false);
     };
+    const handleQueryChange = (query: string) => {
+        setQuery(query);
+    };
 
     const filteredResults =
         query === ''
@@ -170,7 +107,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                     <div>
                         <Combobox.Input
                             displayValue={(item: string) => item}
-                            onChange={(event) => setQuery(event.target.value)}
+                            onChange={(event) => handleChange(event.target.value)}
                             className= {SearchableInput}
                             onBlur={handleTextFileOutFocused}
                             onFocus={handleTextFileFocused}
@@ -179,34 +116,13 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                             <i className={`codicon codicon-chevron-down ${DropdownIcon}`} />
                         </Combobox.Button>
                     </div>
-                    <Transition
-                        as={Fragment}
-                        afterLeave={() => setQuery('')}
-                    >
-                        <DropdownContainer widthOffset={widthOffset}>
-                            <Combobox.Options>
-                                {filteredResults.length === 0 && query !== '' ? (
-                                    <NothingFound>
-                                        {notItemsFoundMessage || 'No options'}
-                                    </NothingFound>
-                                ) : (
-                                    filteredResults.map((item: Item) => {
-                                        return (
-                                            <ComboboxOption>
-                                                <Combobox.Option
-                                                    className={({ active }) => active ?
-                                                        OptionContainer : ActiveOptionContainer}
-                                                    value={item.value}
-                                                >
-                                                    {item.value}
-                                                </Combobox.Option>
-                                            </ComboboxOption>
-                                        );
-                                    })
-                                )}
-                            </Combobox.Options>
-                        </DropdownContainer>
-                    </Transition>
+                    <Dropdown
+                        query={query}
+                        notItemsFoundMessage={notItemsFoundMessage}
+                        widthOffset={widthOffset}
+                        filteredResults={filteredResults}
+                        onQueryChange={handleQueryChange}
+                    />
                 </div>
             </Combobox>
         </div>
