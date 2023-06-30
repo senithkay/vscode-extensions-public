@@ -42,7 +42,6 @@ import { OperationTypes } from "../../TypeFilter";
 
 import { diagramGeneratorForNodeFiltering, diagramGeneratorForOperationTypeFiltering } from "./filteredModelGenerator";
 
-
 // all nodes in the diagram
 let diagramNodes: Map<string, GraphqlDesignNode>;
 // all links in the diagram

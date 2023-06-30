@@ -11,17 +11,15 @@ import React, { useEffect } from "react";
 
 import styled from "@emotion/styled";
 
+import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 import { NodeCategory, NodeFilter, NodeType } from "../NodeFilter";
 import { GraphqlDesignModel } from "../resources/model";
 import { OperationTypes, TypeFilter } from "../TypeFilter";
 import { getNodeListOfModel } from "../utils/common-util";
-import { useGraphQlContext } from "../DiagramContext/GraphqlDiagramContext";
 
 interface GraphqlHeaderProps {
     updateFilter: (type: OperationTypes) => void;
-    // updateNodeFiltering: (node: NodeType) => void;
     designModel: GraphqlDesignModel;
-    // selectedNode?: NodeType;
 }
 
 export function GraphqlHeader(props: GraphqlHeaderProps) {
@@ -39,7 +37,10 @@ export function GraphqlHeader(props: GraphqlHeaderProps) {
             <Title> GraphQL Designer </Title>
             <FilterBar>
                 <NodeFilter nodeList={nodeList} />
-                <TypeFilter updateFilter={updateFilter} isFilterDisabled={filteredNode ? (filteredNode.type !== NodeCategory.GRAPHQL_SERVICE) : false} />
+                <TypeFilter
+                    updateFilter={updateFilter}
+                    isFilterDisabled={filteredNode ? (filteredNode.type !== NodeCategory.GRAPHQL_SERVICE) : false}
+                />
             </FilterBar>
         </HeaderContainer>
     );

@@ -33,5 +33,3 @@ export function diagramGeneratorForOperationTypeFiltering(graphqlModel: GraphqlD
     updatedModel = generateDiagramNodesForFilteredNodes(updatedModel);
     generateLinksForFilteredNodes(updatedModel);
 }
-
-
