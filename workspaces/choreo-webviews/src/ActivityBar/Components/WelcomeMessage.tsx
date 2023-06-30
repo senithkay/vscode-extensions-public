@@ -41,15 +41,14 @@ export const WelcomeMessage = () => {
 
     return (
         <Container>
-            <div>You have not opened a Choreo project in current workspace.</div>
+            <div>You do not have a Choreo project in current workspace.</div>
             <WideVSCodeButton
                 appearance="primary"
                 onClick={openChoreoProject}
             >
                 Open a Choreo Project
             </WideVSCodeButton>
-            <div>Opening a Choreo project will close your current workspace.</div>
-            <div>Please save your current unsaved work before opening.</div>
+            <div>You can open the Project in a new window or in current window.</div>
             <div>You can also create a new Choreo Project by clicking the button below.</div>
             <WideVSCodeButton
                 appearance="primary"

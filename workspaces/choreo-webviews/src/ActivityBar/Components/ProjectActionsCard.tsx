@@ -28,6 +28,7 @@ const Body = styled.div`
     flex-direction: column;
     gap: 5px;
     margin-top: 15px;
+    margin-left: 10px;
 `;
 
 export const ProjectActionsCard: React.FC = () => {

@@ -130,6 +130,13 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "explorer",
+        "contents": "[Open a Choreo project](command:wso2.choreo.project.open), or create a new Choreo project by clicking the button below.\n[Create Choreo Project](command:wso2.choreo.project.create)",
+        "when": "workspaceFolderCount == 0"
+      }
+    ],
     "menus": {
       "view/title": [
         {
