@@ -10,6 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
+import { GitProvider } from "@wso2-enterprise/choreo-core";
 import { Event } from "vscode";
 
 export interface GHAppConfig {
@@ -27,9 +28,11 @@ export interface IChoreoGithubAppClient {
     obatainAccessToken(authCode: string): Promise<void>;
     triggerInstallFlow(): Promise<boolean>;
     getAuthorizedRepositories(): Promise<GithubOrgnization[]>;
-    getRepoBranches(orgName: string, repoName: string): Promise<string[]>;
+    getRepoBranches(orgName: string, repoName: string, bitbucketCredentialId: string): Promise<string[]>;
     onGHAppAuthCallback: Event<GHAppAuthStatus>;
     fireGHAppAuthCallback(status: GHAppAuthStatus): void;
+    getCredentials(org_uuid: string): Promise<CredentialData[]>;
+    getUserRepos(bitbucketCredentialId: string): Promise<UserRepo[]>;
 }
 
 export type GHAppAuthStatus = {
@@ -46,4 +49,27 @@ export interface GithubRepository {
 export interface GithubOrgnization {
     orgName: string;
     repositories: GithubRepository[];
+}
+
+export interface CredentialData {
+    id: string;
+    createdAt: Date;
+    name: string;
+    organizationUuid: string;
+    type: GitProvider;
+    reference_token: string;
+}
+
+export interface FilteredCredentialData {
+    id: string;
+    name: string;
+}
+
+export interface Repo {
+    name: string;
+}
+
+export interface UserRepo {
+    orgName: string;
+    repositories: Repo[];
 }

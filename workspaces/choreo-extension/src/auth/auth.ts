@@ -270,6 +270,10 @@ export async function exchangeOrgAccessTokens( orgHandle: string) {
     }
 }
 
+export function getConsoleUrl() {
+    return choreoAuthConfig.getConsoleUrl();
+}
+
 export async function signin(isExistingSession?: boolean) {
     const selectedOrg = await chooseUserOrg(isExistingSession);
     const choreoTokenInfo = await getChoreoToken("choreo.token");

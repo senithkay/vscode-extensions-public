@@ -45,6 +45,7 @@ export function getComponentsByProjectIdQuery(orgHandle: string, projectId: stri
                     organizationConfig,
                     isUserManage,
                     appSubPath,
+                    gitProvider,
                     byocBuildConfig {
                         id,
                         isMainContainer,
@@ -176,10 +177,11 @@ export function getDeleteComponentQuery(orgHandler: string, componentId: string,
     `;
 }
 
-export function getRepoMetadataQuery(organizationName: string, repoName: string, branch: string, subPath?: string, dockerFilePath = "", dockerContextPath = "", openAPIPath = "", componentId = "") {
+
+export function getRepoMetadataQuery(organizationName: string, repoName: string, branch: string, credentialId: string, subPath?: string, dockerFilePath = "", dockerContextPath = "", openAPIPath = "", componentId = "") {
     return gql`
         query {
-            repoMetadata (organizationName: "${organizationName}", repoName: "${repoName}", branch: "${branch}", subPath: "${subPath}", dockerFilePath: "${dockerFilePath}", dockerContextPath: "${dockerContextPath}", openAPIPath: "${openAPIPath}", componentId: "${componentId}") {
+            repoMetadata (organizationName: "${organizationName}", repoName: "${repoName}", branch: "${branch}", subPath: "${subPath}", dockerFilePath: "${dockerFilePath}", dockerContextPath: "${dockerContextPath}", openAPIPath: "${openAPIPath}", componentId: "${componentId}", secretRef: "${credentialId}") {
                  isBareRepo,
                  isSubPathEmpty
                  isSubPathValid

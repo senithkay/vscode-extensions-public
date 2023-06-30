@@ -17,8 +17,11 @@ import { SignIn } from "../SignIn/SignIn";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { GithubRepoSelector } from "../GithubRepoSelector/GithubRepoSelector";
+import { BitbucketRepoSelector } from "../BitbucketRepoSelector/BitbucketRepoSelector";
 import { RequiredFormInput } from "../Commons/RequiredInput";
-import { CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT } from "@wso2-enterprise/choreo-core";
+import { ProjectTypeCard } from "./ProjectTypeCard";
+import { CREATE_COMPONENT_CANCEL_EVENT, CREATE_PROJECT_FAILURE_EVENT, CREATE_PROJECT_START_EVENT, CREATE_PROJECT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
+import { FilteredCredentialData } from "@wso2-enterprise/choreo-client/lib/github/types";
 
 const WizardContainer = styled.div`
     width: 100%;
@@ -45,6 +48,23 @@ const GhRepoSelectorActions = styled.div`
     gap: 10px;
 `;
 
+const CardContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+`;
+
+const SubContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-content: space-between;
+    gap: 20px;
+`;
+
 export function ProjectWizard() {
 
     const { loginStatus, loginStatusPending, selectedOrg, error } = useContext(ChoreoWebViewContext);
@@ -57,6 +77,8 @@ export function ProjectWizard() {
     const [selectedGHOrgName, setSelectedGHOrgName] = useState("");
     const [selectedGHRepo, setSelectedGHRepo] = useState("");
     const [isBareRepo, setIsBareRepo] = useState(false);
+    const [gitProvider, setGitProvider] = useState(GitProvider.GITHUB);
+    const [selectedCredential, setSelectedCredential] = useState<FilteredCredentialData>({ id: '', name: '' });
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
@@ -78,7 +100,8 @@ export function ProjectWizard() {
                 const repoMetaData = await projectClient.getRepoMetadata({
                     repo: selectedGHRepo,
                     organization: selectedGHOrgName,
-                    branch: "main"
+                    branch: "main",
+                    credentialId: selectedCredential.id
                 });
                 if (repoMetaData?.isBareRepo) {
                     setIsBareRepo(true);
@@ -92,10 +115,14 @@ export function ProjectWizard() {
                     orgHandle: selectedOrg.handle
                 });
                 if (initMonoRepo) {
-                    await webviewAPI.setProjectRepository(createdProject.id, `${selectedGHOrgName}/${selectedGHRepo}`);
+                    const repoDetails: GitRepo = { provider: gitProvider, orgName: selectedGHOrgName, repoName: selectedGHRepo };
+                    if (gitProvider === GitProvider.BITBUCKET) {
+                        repoDetails.bitbucketCredentialId = selectedCredential?.id
+                    }
+                    await webviewAPI.setProjectRepository(createdProject.id, repoDetails);
                 }
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-                    eventName: CREATE_PROJECT_SUCCESS_EVENT, 
+                    eventName: CREATE_PROJECT_SUCCESS_EVENT,
                     properties: {
                         name: createdProject?.name,
                     }
@@ -106,7 +133,7 @@ export function ProjectWizard() {
                 webviewAPI.closeWebView();
             } catch (error: any) {
                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
-                    eventName: CREATE_PROJECT_FAILURE_EVENT, 
+                    eventName: CREATE_PROJECT_FAILURE_EVENT,
                     properties: {
                         name: projectName,
                         cause: error.message + " " + error.cause
@@ -118,7 +145,7 @@ export function ProjectWizard() {
         setCreationInProgress(false);
     };
 
-    const handleRepoSelect = (org?: string, repo?: string) => { 
+    const handleRepoSelect = (org?: string, repo?: string) => {
         setSelectedGHOrgName(org || "");
         setSelectedGHRepo(repo || "");
     };
@@ -126,11 +153,26 @@ export function ProjectWizard() {
     const handleRepoInit = async () => {
         // open github repo in browser with vscode open external
         if (selectedGHOrgName && selectedGHRepo) {
-            ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedGHOrgName}/${selectedGHRepo}`);
+            if (gitProvider === GitProvider.GITHUB) {
+                ChoreoWebViewAPI.getInstance().openExternal(`http://github.com/${selectedGHOrgName}/${selectedGHRepo}`);
+            } else if (gitProvider === GitProvider.BITBUCKET) {
+                ChoreoWebViewAPI.getInstance().openExternal(`http://bitbucket.org/${selectedGHOrgName}/${selectedGHRepo}`);
+            }
         }
     };
 
-    const isValid: boolean = projectName.length > 0;
+    const changeGitProvider = (type: GitProvider) => {
+        if (type === GitProvider.GITHUB) {
+            setGitProvider(type);
+        } else {
+            setSelectedGHOrgName('');
+            setSelectedGHRepo('');
+            setSelectedCredential({ id: '', name: '' });
+            setGitProvider(type);
+        }
+    }
+
+    const isValid: boolean = projectName.length > 0 && (!initMonoRepo || (!!selectedGHOrgName && !!selectedGHRepo)) ;
 
     return (
         <>
@@ -138,13 +180,13 @@ export function ProjectWizard() {
             {!loginStatusPending && loginStatus === "LoggedIn" && (
                 <WizardContainer>
                     <h2>New Choreo Project</h2>
-                    
+
                     <VSCodeTextField
                         disabled={true}
                         value={selectedOrg?.name || "loading..."}
                         title="To change the Organization, Go to `Account` view."
                     >
-                        Organization 
+                        Organization
                     </VSCodeTextField>
                     <VSCodeTextField
                         autofocus
@@ -172,17 +214,42 @@ export function ProjectWizard() {
                     >
                         Initialize a mono repo
                     </VSCodeCheckbox>
-                    {initMonoRepo && <GithubRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} />}
+                    {initMonoRepo &&
+                        (
+                            <SubContainer>
+                                <CardContainer>
+                                    <ProjectTypeCard
+                                        type={GitProvider.GITHUB}
+                                        label="GitHub"
+                                        currentType={gitProvider}
+                                        onChange={changeGitProvider}
+                                    />
+                                    <ProjectTypeCard
+                                        type={GitProvider.BITBUCKET}
+                                        label="BitBucket"
+                                        currentType={gitProvider}
+                                        onChange={changeGitProvider}
+                                    />
+                                </CardContainer>
+                            </SubContainer>
+                        )
+                    }
+                    {initMonoRepo &&
+                        (<>
+                            {gitProvider === GitProvider.GITHUB && <GithubRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} />}
+                            {gitProvider === GitProvider.BITBUCKET && <BitbucketRepoSelector selectedRepo={{ org: selectedGHOrgName, repo: selectedGHRepo }} onRepoSelect={handleRepoSelect} userOrg={selectedOrg} selectedCred={selectedCredential} onCredSelect={setSelectedCredential} /> }
+                        </>)
+                    }
                     {initMonoRepo && isBareRepo &&
                         (<>
                             Repository is not initialized. Please initialize the repository before cloning can continue.
                             <GhRepoSelectorActions>
                                 <VSCodeLink onClick={handleRepoInit}>
                                     Initialize
-                                </VSCodeLink> 
+                                </VSCodeLink>
                                 <VSCodeLink onClick={handleCreateProject}>
                                     Recheck & Create Project
-                                </VSCodeLink>    
+                                </VSCodeLink>
                             </GhRepoSelectorActions>
                         </>)
                     }
@@ -196,14 +263,14 @@ export function ProjectWizard() {
 
                         <VSCodeButton
                             appearance="secondary"
-                            onClick={() => { 
+                            onClick={() => {
                                 ChoreoWebViewAPI.getInstance().sendTelemetryEvent({
                                     eventName: CREATE_COMPONENT_CANCEL_EVENT
                                 });
                                 ChoreoWebViewAPI.getInstance().closeWebView();
                             }}
                         >
-                                Cancel
+                            Cancel
                         </VSCodeButton>
                         <VSCodeButton
                             appearance="primary"
@@ -211,7 +278,7 @@ export function ProjectWizard() {
                             disabled={creationInProgress || !isValid}
                             id='create-project-btn'
                         >
-                                Create
+                            Create
                         </VSCodeButton>
                         {creationInProgress && <VSCodeProgressRing />}
                     </ActionContainer>

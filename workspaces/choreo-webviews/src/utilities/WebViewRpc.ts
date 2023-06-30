@@ -72,6 +72,8 @@ import {
     getLocalComponentDirMetaDataRes,
     CreateNonBalLocalComponentFromExistingSource,
     GetEnrichedComponent,
+    getConsoleUrl,
+    GitRepo,
 } from "@wso2-enterprise/choreo-core";
 import { GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { IChoreoProjectClient } from "@wso2-enterprise/choreo-client/lib/project/types";
@@ -161,24 +163,28 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(IsBareRepoRequest, HOST_EXTENSION, params);
     }
 
-    public async setProjectRepository(projId: string, repo: string): Promise<void> {
+    public async setProjectRepository(projId: string, repo: GitRepo): Promise<void> {
         return this._messenger.sendRequest(setProjectRepository, HOST_EXTENSION, { projId, repo });
     }
 
-    public async getProjectRepository(projId: string): Promise<string> {
+    public async getProjectRepository(projId: string): Promise<GitRepo> {
         return this._messenger.sendRequest(getProjectRepository, HOST_EXTENSION, projId);
     }
 
-    public async setPreferredProjectRepository(projId: string, repo: string): Promise<void> {
+    public async setPreferredProjectRepository(projId: string, repo: GitRepo): Promise<void> {
         return this._messenger.sendRequest(setPreferredProjectRepository, HOST_EXTENSION, { projId, repo });
     }
 
-    public async getPreferredProjectRepository(projId: string): Promise<string> {
+    public async getPreferredProjectRepository(projId: string): Promise<GitRepo> {
         return this._messenger.sendRequest(getPreferredProjectRepository, HOST_EXTENSION, projId);
     }
 
     public async isChoreoProject(): Promise<boolean> {
         return this._messenger.sendRequest(isChoreoProject, HOST_EXTENSION, undefined);
+    }
+
+    public async getConsoleUrl(): Promise<string> {
+        return this._messenger.sendRequest(getConsoleUrl, HOST_EXTENSION, undefined);
     }
 
     public async isSubpathAvailable(params: SubpathAvailableRequest): Promise<boolean> {
@@ -189,7 +195,7 @@ export class ChoreoWebViewAPI {
         return this._messenger.sendRequest(GetLocalComponentDirMetaData, HOST_EXTENSION, params);
     }
 
-    public async checkProjectDeleted(projectId: string): Promise<void> {
+    public async checkProjectDeleted(projectId: string): Promise<boolean> {
         return this._messenger.sendRequest(CheckProjectDeleted, HOST_EXTENSION, projectId);
     }
 

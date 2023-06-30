@@ -13,16 +13,18 @@
 import { Messenger } from "vscode-messenger";
 import { BROADCAST } from "vscode-messenger-common";
 import { IChoreoGithubAppClient } from "../types";
-import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest, GetRepoBranchesRequest, GetStatusRquest, CheckStatusRquest } from "./types";
+import { FireGHAppAuthCallbackRequest, GetAuthorizedRepositoriesRequest, TriggerAuthFlowRequest, TriggerInstallFlowRequest, OnGithubAppAuthCallbackNotification, ObtainAccessTokenRequest, GetRepoBranchesRequest, GetStatusRquest, CheckStatusRquest, GetCredentialsRequest, GetUserReposRequest } from "./types";
 
 export function registerChoreoGithubRPCHandlers(messenger: Messenger, githubAppClient: IChoreoGithubAppClient ) {
    messenger.onRequest(CheckStatusRquest, () => githubAppClient.checkAuthStatus());
    messenger.onRequest(GetStatusRquest, () => githubAppClient.status);
    messenger.onNotification(FireGHAppAuthCallbackRequest, (params) => githubAppClient.fireGHAppAuthCallback(params));
    messenger.onRequest(GetAuthorizedRepositoriesRequest, () => githubAppClient.getAuthorizedRepositories());
-   messenger.onRequest(GetRepoBranchesRequest, (params) => githubAppClient.getRepoBranches(params.orgName, params.repoName));
+   messenger.onRequest(GetRepoBranchesRequest, (params) => githubAppClient.getRepoBranches(params.orgName, params.repoName, params.bitbucketCredentialId));
    messenger.onRequest(ObtainAccessTokenRequest, (authCode) => githubAppClient.obatainAccessToken(authCode));
    messenger.onRequest(TriggerAuthFlowRequest, () => githubAppClient.triggerAuthFlow());
    messenger.onRequest(TriggerInstallFlowRequest, () => githubAppClient.triggerInstallFlow());
+   messenger.onRequest(GetCredentialsRequest, (org_uuid) => githubAppClient.getCredentials(org_uuid));
+   messenger.onRequest(GetUserReposRequest, (bitbucketCredentialId) => githubAppClient.getUserRepos(bitbucketCredentialId));
    githubAppClient.onGHAppAuthCallback((params) => messenger.sendNotification(OnGithubAppAuthCallbackNotification, BROADCAST ,params));
 }

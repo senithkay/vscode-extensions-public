@@ -52,7 +52,9 @@ import {
     CreateNonBalLocalComponentFromExistingSource,
     GetEnrichedComponent,
     GetLocalComponentDirMetaData,
-    getLocalComponentDirMetaDataRequest
+    getLocalComponentDirMetaDataRequest,
+    getConsoleUrl,
+    ChoreoComponentCreationParams
 } from "@wso2-enterprise/choreo-core";
 import { ComponentModel, CMDiagnostics as ComponentModelDiagnostics, GetComponentModelResponse } from "@wso2-enterprise/ballerina-languageclient";
 import { registerChoreoProjectRPCHandlers } from "@wso2-enterprise/choreo-client";
@@ -119,12 +121,21 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
                     }
                 });
         }
+        return true;
     });
 
     messenger.onRequest(GetDeletedComponents, async (projectId: string) => {
         if (ext.api.selectedOrg) {
             return ProjectRegistry.getInstance().getDeletedComponents(projectId, ext.api.selectedOrg.handle, ext.api.selectedOrg.uuid);
         }
+    });
+
+    messenger.onRequest(CreateNonBalLocalComponent, async (params: ChoreoComponentCreationParams) => {
+        return ProjectRegistry.getInstance().createNonBalLocalComponent(params);
+    });
+
+    messenger.onRequest(CreateNonBalLocalComponentFromExistingSource, async (params: ChoreoComponentCreationParams) => {
+        return ProjectRegistry.getInstance().createNonBalLocalComponentFromExistingSource(params);
     });
 
     messenger.onRequest(RemoveDeletedComponents, async (params: { projectId: string, components: PushedComponent[] }) => {
@@ -236,6 +247,10 @@ export function registerWebviewRPCHandlers(messenger: Messenger, view: WebviewPa
 
     messenger.onRequest(isChoreoProject, () => {
         return ext.api.isChoreoProject();
+    });
+
+    messenger.onRequest(getConsoleUrl, () => {
+        return ProjectRegistry.getInstance().getConsoleUrl();
     });
 
     messenger.onRequest(isSubpathAvailable, (params: SubpathAvailableRequest) => {

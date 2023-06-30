@@ -20,7 +20,7 @@ import { ComponentDetailsStep } from "./ComponentDetailsStep";
 import { ComponentWizardState } from "./types";
 import { ComponentTypeStep } from "./ComponentTypeStep";
 import { ServiceTypeStep } from "./ServiceTypeStep";
-import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentCreateMode, ComponentDisplayType, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT } from "@wso2-enterprise/choreo-core";
+import { BYOCRepositoryDetails, ChoreoComponentCreationParams, ChoreoComponentType, ChoreoImplementationType, ChoreoServiceType, ComponentCreateMode, ComponentDisplayType, CREATE_COMPONENT_CANCEL_EVENT, CREATE_COMPONENT_FAILURE_EVENT, CREATE_COMPONENT_START_EVENT, CREATE_COMPONENT_SUCCESS_EVENT, GitProvider, GitRepo } from "@wso2-enterprise/choreo-core";
 import { ChoreoWebViewContext } from "../context/choreo-web-view-ctx";
 import { ChoreoWebViewAPI } from "../utilities/WebViewRpc";
 import { SignIn } from "../SignIn/SignIn";
@@ -28,12 +28,15 @@ import { ConfigureRepoStep } from './ConfigureRepoStep/ConfigureRepoStep'
 import { useQuery } from "@tanstack/react-query";
 import { EndpointConfigStep } from './EndpointConfigStep';
 
+
 const handleComponentCreation = async (formData: Partial<ComponentWizardState>) => {
     try {
-        const { mode, name, type, serviceType, implementationType, repository: { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath }, description, accessibility, trigger, port } = formData;
+        const { mode, name, type, serviceType, implementationType, repository, description, accessibility, trigger, port } = formData;
+        const { org, repo, branch, subPath, dockerContext, dockerFile, openApiFilePath, credentialID, gitProvider, isMonoRepo } = repository;
 
         const choreoProject = await ChoreoWebViewAPI.getInstance().getChoreoProject();
         const selectedOrg = await ChoreoWebViewAPI.getInstance().getCurrentOrg();
+        const bitbucketCredentialId = credentialID ? credentialID : '';
 
         let selectedDisplayType: ComponentDisplayType;
         if(type === ChoreoComponentType.WebApplication){
@@ -83,7 +86,7 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
             accessibility,
             trigger,
             description: description ?? '',
-            repositoryInfo: { org, repo, branch, subPath, },
+            repositoryInfo: { org, repo, branch, subPath, gitProvider, bitbucketCredentialId },
             serviceType: type === ChoreoComponentType.Service ? serviceType : undefined,
         };
 
@@ -135,6 +138,14 @@ const handleComponentCreation = async (formData: Partial<ComponentWizardState>) 
                 properties: { type: formData?.type?.toString(), mode: formData?.mode }
             });
         }
+
+        if (!isMonoRepo) {
+            const repoDetails: GitRepo = { provider: gitProvider, orgName: org, repoName: repo };
+            if (gitProvider === GitProvider.BITBUCKET) {
+                repoDetails.bitbucketCredentialId = credentialID
+            }
+            await ChoreoWebViewAPI.getInstance().setPreferredProjectRepository(choreoProject?.id, repoDetails);
+        }
     } catch (err: any) {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({
             eventName: CREATE_COMPONENT_FAILURE_EVENT,
@@ -161,6 +172,12 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
                 openApiFilePath: '',
                 isBareRepo: false,
                 isCloned: false,
+                gitProvider: GitProvider.GITHUB,
+                credentialID: '',
+                repo: '',
+                org: '',
+                branch: '',
+                isMonoRepo: undefined
             },
             port: '3000',
             webAppConfig: {
@@ -179,6 +196,44 @@ export const ComponentWizard: React.FC<{ componentCreateMode?: ComponentCreateMo
 
     const { loginStatus, choreoProject } = useContext(ChoreoWebViewContext);
     const [state, setState] = useState(initialState);
+    
+
+    const updateGitData = (repoData: GitRepo, isMonoRepo = false) => {
+        setState({
+            ...state,
+            formData: {
+                ...state.formData,
+                repository: {
+                    ...state.formData.repository,
+                    gitProvider: repoData.provider,
+                    org: repoData.orgName,
+                    repo: repoData.repoName,
+                    credentialID: repoData.bitbucketCredentialId || '',
+                    isMonoRepo
+                }
+            }
+        })
+    }
+
+    // todo: Remove once mono repo details are coming from the API
+    useQuery(
+        ["getProjectRepository", choreoProject?.id, state.formData?.repository?.isMonoRepo],
+        async () => {
+            const webViewApi = ChoreoWebViewAPI.getInstance();
+            const repoData = await webViewApi.getProjectRepository(choreoProject?.id);
+            if (repoData) {
+                updateGitData(repoData, true);
+            } else {
+                const preferredRepoData = await webViewApi.getPreferredProjectRepository(choreoProject?.id);
+                if (preferredRepoData) {
+                    updateGitData(preferredRepoData);
+                }
+            }
+        },
+        {
+            enabled: state.formData?.repository?.isMonoRepo === undefined
+        }
+    );
 
     useEffect(() => {
         ChoreoWebViewAPI.getInstance().sendProjectTelemetryEvent({

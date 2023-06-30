@@ -177,7 +177,7 @@ export function getGitExtensionAPI() {
 	return gitExtension.getAPI(1);
 }
 
-
+// TODO: remove following function
 function createProjectTreeView() {
 	getLogger().debug("Creating Choreo Projects Tree View");
 	const choreoResourcesProvider = new ProjectsTreeProvider();
@@ -202,7 +202,7 @@ function createProjectTreeView() {
 	return treeView;
 }
 
-
+// TODO: remove following
 function createAccountTreeView() {
 	getLogger().debug("Creating Choreo Account Tree View");
 	const accountTreeProvider = new AccountTreeProvider();

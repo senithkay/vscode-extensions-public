@@ -42,6 +42,7 @@ export interface IChoreoExtensionAPI {
     getChoreoProject(): Promise<Project | undefined>;
     enrichChoreoMetadata(model: Map<string, ComponentModel>): Promise<Map<string, ComponentModel> | undefined>;
     deleteComponent(projectId: string, componentPath: string): Promise<void>;
+    getConsoleUrl(): Promise<string>;
 }
 
 export class ChoreoExtensionApi {
@@ -180,6 +181,10 @@ export class ChoreoExtensionApi {
                 return ProjectRegistry.getInstance().getProject(projectID, orgId);
             }
         }
+    }
+
+    public async getConsoleUrl(): Promise<string> {
+        return ProjectRegistry.getInstance().getConsoleUrl();
     }
 
     public async getProject(projectId: string, orgId: number): Promise<Project | undefined> {
