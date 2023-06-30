@@ -120,6 +120,7 @@ export function Dropdown(props: DropdownProps) {
                                             OptionContainer : ActiveOptionContainer}
                                         value={item.value}
                                         key={item.id}
+                                        id={item.value}
                                     >
                                         {item.value}
                                     </Combobox.Option>

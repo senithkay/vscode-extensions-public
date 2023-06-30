@@ -10,7 +10,7 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Combobox } from '@headlessui/react'
 import { css, cx } from "@emotion/css";
 import { Dropdown } from "./Dropdown";
@@ -78,16 +78,28 @@ export interface AutoCompleteProps {
 export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompleteProps) => {
     const { selectedItem, items, notItemsFoundMessage, widthOffset = 108 , onChange } = props;
     const [query, setQuery] = useState('');
-    const [textFiledFocused, setTextFiledFocused] = useState(false);
+    const [isTextFieldFocused, setIsTextFieldFocused] = useState(false);
+    const [isUpButton, setIsUpButton] = useState(false);
+    const inputRef = useRef(null);
 
     const handleChange = (item: string) => {
         onChange(item);
     };
-    const handleTextFileFocused = () => {
-        setTextFiledFocused(true);
+    const handleTextFieldFocused = () => {
+        setIsTextFieldFocused(true);
     };
-    const handleTextFileOutFocused = () => {
-        setTextFiledFocused(false);
+    const handleTextFieldClick = () => {
+        inputRef.current?.select();
+        // This is to open the dropdown when the text field is focused.
+        // This is a hacky way to do it since the Combobox component does not have a prop to open the dropdown.
+        document.getElementById(`autocomplete-dropdown-button-${items[0].value}`)?.click();
+        document.getElementById(selectedItem)?.focus();
+    };
+    const handleTextFieldOutFocused = () => {
+        setIsTextFieldFocused(false);
+    };
+    const handleComboButtonClick = () => {
+        setIsUpButton(!isUpButton);
     };
     const handleQueryChange = (query: string) => {
         setQuery(query);
@@ -106,14 +118,25 @@ export const AutoComplete: React.FC<AutoCompleteProps> = (props: AutoCompletePro
                 <div>
                     <div>
                         <Combobox.Input
+                            ref={inputRef}
                             displayValue={(item: string) => item}
-                            onChange={(event) => handleChange(event.target.value)}
+                            onChange={(event) => handleQueryChange(event.target.value)}
                             className= {SearchableInput}
-                            onBlur={handleTextFileOutFocused}
-                            onFocus={handleTextFileFocused}
+                            onBlur={handleTextFieldOutFocused}
+                            onFocus={handleTextFieldFocused}
+                            onClick={handleTextFieldClick}
                         />
-                        <Combobox.Button className={textFiledFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}>
-                            <i className={`codicon codicon-chevron-down ${DropdownIcon}`} />
+                        <Combobox.Button
+                            id={`autocomplete-dropdown-button-${items[0].value}`}
+                            className={isTextFieldFocused ? ComboboxButtonContainerActive : ComboboxButtonContainer}
+                            onClick={handleComboButtonClick}
+                        >
+                            {isUpButton ? (
+                                <i className={`codicon codicon-chevron-up ${DropdownIcon}`} onClick={handleComboButtonClick}/>
+                            ): (
+                                <i className={`codicon codicon-chevron-down ${DropdownIcon}`} onClick={handleComboButtonClick}/>
+                            )}
+
                         </Combobox.Button>
                     </div>
                     <Dropdown
