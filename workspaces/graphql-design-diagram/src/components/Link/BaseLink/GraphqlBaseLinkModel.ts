@@ -146,8 +146,8 @@ export class GraphqlBaseLinkModel extends DefaultLinkModel {
         const targetPort: Point = this.getTargetPort().getPosition();
 
         if (this.getTargetPort().getOptions().alignment === PortModelAlignment.RIGHT) {
-            points = `${targetPort.x + 2} ${targetPort.y}, ${targetPort.x + 12} ${targetPort.y + 8},
-				${targetPort.x + 12} ${targetPort.y - 8}`;
+            points = `${targetPort.x + 8} ${targetPort.y}, ${targetPort.x + 16} ${targetPort.y + 8},
+				${targetPort.x + 16} ${targetPort.y - 8}`;
         } else if (this.getTargetPort().getOptions().alignment === PortModelAlignment.LEFT) {
             points = `${targetPort.x - 2} ${targetPort.y}, ${targetPort.x - 12} ${targetPort.y + 8},
 				${targetPort.x - 12} ${targetPort.y - 8}`;
