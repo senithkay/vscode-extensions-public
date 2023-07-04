@@ -10,7 +10,6 @@
 import { activateTestRunner } from "./cmds/test";
 import { activateBuildCommand } from "./cmds/build";
 import { activateCloudCommand } from "./cmds/cloud";
-import { activateRunCommand } from "./cmds/run-fast";
 import { activateRunCmdCommand } from "./cmds/run";
 import { activateDocCommand } from "./cmds/doc";
 import { activateAddCommand } from "./cmds/add";
@@ -31,9 +30,6 @@ export function activate() {
 
     // activate ballerina pack command
     activatePackCommand();
-
-    // activate ballerina run command
-    activateRunCommand();
 
     // activate ballerina run command in config
     activateConfigRunCommand();
