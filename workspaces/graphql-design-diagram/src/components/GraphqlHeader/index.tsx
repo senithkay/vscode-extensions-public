@@ -24,13 +24,8 @@ interface GraphqlHeaderProps {
 
 export function GraphqlHeader(props: GraphqlHeaderProps) {
     const { updateFilter, designModel } = props;
-    const [nodeList, setNodeList] = React.useState<NodeType[]>(undefined);
     const { filteredNode } = useGraphQlContext();
-
-
-    useEffect(() => {
-        setNodeList(getNodeListOfModel(designModel));
-    }, [designModel]);
+    const nodeList = getNodeListOfModel(designModel);
 
     return (
         <HeaderContainer>
