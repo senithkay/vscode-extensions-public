@@ -113,14 +113,17 @@ function addMissingPackageData(tomlFiles: string[], retrievedModel: GetComponent
         const pkg: TomlPackageData = workspacePkgs.get(pkgId);
         const pkgServices: { [key: string]: Service } = {};
         pkgServices[pkgId] = {
-            serviceId: pkgId,
+            serviceId: {
+                id: pkgId,
+                label: pkg.name
+            },
             serviceType: undefined,
             annotation: {
                 id: pkgId,
                 label: pkg.name
             },
             path: "",
-            dependencies: [],
+            dependencyIDs: [],
             remoteFunctions: [],
             resources: [],
             isNoData: true
@@ -129,7 +132,8 @@ function addMissingPackageData(tomlFiles: string[], retrievedModel: GetComponent
             packageId: pkg,
             hasCompilationErrors: true,
             services: pkgServices as any,
-            entities: new Map()
+            entities: new Map(),
+            dependencies: []
         };
     });
 

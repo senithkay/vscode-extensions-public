@@ -35,7 +35,7 @@ export function ServiceHeadWidget(props: ServiceHeadProps) {
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const [showSupportTooltip, setShowSupportTooltip] = useState<boolean>(false);
 
-    const displayName: string = node.nodeObject.annotation?.label || node.nodeObject.path || node.nodeObject.serviceId;
+    const displayName: string = node.nodeObject.annotation?.label || node.nodeObject.path || node.nodeObject.serviceId.id;
 
     useEffect(() => {
         headPorts.current.push(node.getPortFromID(`left-${node.getID()}`));
