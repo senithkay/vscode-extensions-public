@@ -8,6 +8,7 @@ export interface ComponentModel {
     diagnostics?: CMDiagnostics[];
     functionEntryPoint?: CMEntryPoint;
     hasCompilationErrors: boolean;
+    dependencies: CMDependency[];
 }
 
 export interface CMDiagnostics {
@@ -22,6 +23,11 @@ export interface CMPackageID {
     version: string
 }
 
+export interface CMEntryPointID {
+    id: string;
+    label: string;
+}
+
 export interface CMLocation {
     filePath: string;
     startPosition: LinePosition;
@@ -34,6 +40,7 @@ interface CMNode {
 }
 
 interface CMFunctionNode extends CMNode {
+    functionID: CMEntryPointID;
     interactions: CMInteraction[];
     parameters: CMParameter[];
     returns: string[];
@@ -48,11 +55,11 @@ export interface CMEntryPoint extends CMFunctionNode {
 export interface CMService extends CMNode {
     annotation: CMAnnotation;
     path: string;
-    serviceId: string;
-    dependencies: CMDependency[];
+    serviceId: CMEntryPointID;
     remoteFunctions: CMRemoteFunction[];
     resources: CMResourceFunction[];
     serviceType: string;
+    dependencyIDs: CMEntryPointID[];
     deploymentMetadata?: CMDeploymentMetadata;
     isNoData?: boolean;
     dataInProgress?: boolean;
@@ -65,7 +72,7 @@ export interface CMAnnotation extends CMNode {
 
 export interface CMDependency extends CMNode {
     connectorType: string;
-    serviceId: string;
+    entryPointID: CMEntryPointID;
     serviceLabel?: string;
 }
 

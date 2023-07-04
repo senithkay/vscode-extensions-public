@@ -11,7 +11,7 @@ import { DiagramModel } from '@projectstorm/react-diagrams';
 import { v4 as uuid, validate as validateUUID } from 'uuid';
 import {
     ComponentModel, CMDependency as Dependency, CMLocation as Location, CMInteraction as Interaction,
-    CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service
+    CMRemoteFunction as RemoteFunction, CMResourceFunction as ResourceFunction, CMService as Service, CMDependency
 } from '@wso2-enterprise/ballerina-languageclient';
 import { Level, ServiceModels, ServiceTypes } from '../../resources';
 import { EntryNodeModel, ExtServiceNodeModel, ServiceLinkModel, ServiceNodeModel, ServicePortModel } from '../../components/service-interaction';
@@ -91,26 +91,26 @@ function generateNodes(projectComponents: Map<string, ComponentModel>, projectPa
             const services: Map<string, Service> = new Map(Object.entries(packageModel.services));
             services.forEach((service) => {
                 if (!service.serviceId) {
-                    service.serviceId = uuid();
-                    service.annotation = { ...service.annotation, id: service.serviceId };
+                    service.serviceId.id = uuid();
+                    service.annotation = { ...service.annotation, id: service.serviceId.id };
                 }
 
                 if (!service.path && (!service.annotation.label || validateUUID(service.annotation.label))
                     && validateUUID(service.annotation.id)) {
-                    service.annotation.label = generateLabels(packageModel.packageId.name, service.serviceId);
+                    service.annotation.label = generateLabels(packageModel.packageId.name, service.serviceId.id);
                 }
 
                 // create the L1 service nodes
                 const l1Node = new ServiceNodeModel(service, Level.ONE, packageModel.version);
-                l1Nodes.set(service.serviceId, l1Node);
+                l1Nodes.set(service.serviceId.id, l1Node);
 
                 // create the cell diagram nodes
                 const cellNode = new ServiceNodeModel(service, Level.ONE, packageModel.version, extractGateways(service));
-                cellNodes.set(service.serviceId, cellNode);
+                cellNodes.set(service.serviceId.id, cellNode);
 
                 // create the L2 service nodes
                 const l2Node = new ServiceNodeModel(service, Level.TWO, packageModel.version);
-                l2Nodes.set(service.serviceId, l2Node);
+                l2Nodes.set(service.serviceId.id, l2Node);
             });
 
             if (packageModel.functionEntryPoint) {
@@ -132,17 +132,21 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
     projectPackages.forEach((shouldRender, packageName) => {
         if (shouldRender && projectComponents.has(packageName)) {
             const services: Map<string, Service> = new Map(Object.entries(projectComponents.get(packageName).services));
+            const dependencies: CMDependency[] = projectComponents.get(packageName).dependencies;
 
             services.forEach((service) => {
-                let l1SourceNode: ServiceNodeModel = l1Nodes.get(service.serviceId);
-                let l2SourceNode: ServiceNodeModel = l2Nodes.get(service.serviceId);
-                let cellSourceNode: ServiceNodeModel = cellNodes.get(service.serviceId);
+                let l1SourceNode: ServiceNodeModel = l1Nodes.get(service.serviceId.id);
+                let l2SourceNode: ServiceNodeModel = l2Nodes.get(service.serviceId.id);
+                let cellSourceNode: ServiceNodeModel = cellNodes.get(service.serviceId.id);
                 if (l1SourceNode && l2SourceNode && cellSourceNode) {
                     mapInteractions(l1SourceNode, l2SourceNode, cellSourceNode, service.resources);
                     mapInteractions(l1SourceNode, l2SourceNode, cellSourceNode, service.remoteFunctions);
 
-                    if (service.dependencies) {
-                        mapDependencies(l1SourceNode, l2SourceNode, cellSourceNode, service.dependencies);
+                    if (service.dependencyIDs.length > 0) {
+                        const dependencyIDs = service.dependencyIDs.map(d => d.id);
+                        const serviceDependencies: CMDependency[] = dependencies.filter(dependency =>
+                            dependencyIDs.includes(dependency.entryPointID.id));
+                        mapDependencies(l1SourceNode, l2SourceNode, cellSourceNode, serviceDependencies);
                     }
                 }
             });
@@ -161,10 +165,10 @@ function generateLinks(projectComponents: Map<string, ComponentModel>, projectPa
 
 function mapDependencies(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels, cellSourceNode: ServiceNodeModels, dependencies: Dependency[]) {
     dependencies?.forEach((dependency) => {
-        if (dependency.serviceId && l1Nodes.has(dependency.serviceId) && l2Nodes.has(dependency.serviceId) && cellNodes.has(dependency.serviceId)) {
-            let linkID: string = `${l1Source.getID()}-${dependency.serviceId}`;
+        if (dependency.entryPointID && l1Nodes.has(dependency.entryPointID.id) && l2Nodes.has(dependency.entryPointID.id) && cellNodes.has(dependency.entryPointID.id)) {
+            let linkID: string = `${l1Source.getID()}-${dependency.entryPointID.id}`;
             if (!l1Links.has(linkID)) {
-                const l1TargetNode: ServiceNodeModel = l1Nodes.get(dependency.serviceId);
+                const l1TargetNode: ServiceNodeModel = l1Nodes.get(dependency.entryPointID.id);
                 if (l1TargetNode) {
                     let link: ServiceLinkModel = setLinkPorts(l1Source, l1TargetNode, dependency.elementLocation);
                     if (link) {
@@ -172,7 +176,7 @@ function mapDependencies(l1Source: ServiceNodeModels, l2Source: ServiceNodeModel
                     }
                 }
 
-                const cellTargetNode: ServiceNodeModel = cellNodes.get(dependency.serviceId);
+                const cellTargetNode: ServiceNodeModel = cellNodes.get(dependency.entryPointID.id);
                 if (cellTargetNode) {
                     let cellLink: ServiceLinkModel = setLinkPorts(cellSourceNode, cellTargetNode, dependency.elementLocation);
                     if (cellLink) {
@@ -181,14 +185,14 @@ function mapDependencies(l1Source: ServiceNodeModels, l2Source: ServiceNodeModel
                 }
             }
 
-            const l2TargetNode: ServiceNodeModel = l2Nodes.get(dependency.serviceId);
+            const l2TargetNode: ServiceNodeModel = l2Nodes.get(dependency.entryPointID.id);
             if (l2TargetNode) {
                 let link: ServiceLinkModel = setLinkPorts(l2Source, l2TargetNode, dependency.elementLocation);
                 if (link) {
                     l2Links.push(link);
                 }
             }
-        } else if (dependency.serviceId || dependency.connectorType) {
+        } else if (dependency.entryPointID.id || dependency.connectorType) {
             mapExtServices(l1Source, l2Source, cellSourceNode, dependency);
         }
     })
@@ -290,7 +294,7 @@ function setLinkPorts(sourceNode: ServiceNodeModels, targetNode: ServiceNodeMode
 
 function mapExtServices(l1Source: ServiceNodeModels, l2Source: ServiceNodeModels, cellSource: ServiceNodeModels,
     interaction: Interaction | Dependency, callingFunction?: ResourceFunction | RemoteFunction) {
-    const identifier: string = ('resourceId' in interaction ? interaction.resourceId.serviceId : interaction.serviceId)
+    const identifier: string = ('resourceId' in interaction ? interaction.resourceId.serviceId : interaction.entryPointID.id)
         || interaction.connectorType;
     const label: string = getExternalNodeLabel(interaction);
 

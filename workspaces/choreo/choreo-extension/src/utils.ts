@@ -91,7 +91,10 @@ export function enrichConsoleDeploymentData(pkgServices: Map<string, Service>, a
 export function mergeNonClonedProjectData(component: Component): ComponentModel {
     const pkgServices: { [key: string]: Service } = {};
     pkgServices[component.id] = {
-        serviceId: component.displayName,
+        serviceId: {
+            id: component.displayName,
+            label: component.displayName,
+        },
         serviceType: component.displayType,
         annotation: {
             id: component.id,
@@ -108,7 +111,7 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
             }
         },
         path: "",
-        dependencies: [],
+        dependencyIDs: [],
         remoteFunctions: [],
         resources: [],
         isNoData: true
@@ -117,6 +120,7 @@ export function mergeNonClonedProjectData(component: Component): ComponentModel 
         packageId: { name: component.name, org: component.orgHandler, version: component.version },
         services: pkgServices as any,
         entities: new Map(),
+        dependencies: [],
         hasCompilationErrors: false
     };
 }
