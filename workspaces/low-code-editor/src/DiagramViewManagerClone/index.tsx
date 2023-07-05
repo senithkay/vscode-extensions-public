@@ -109,6 +109,7 @@ export function DiagramViewManager(props: EditorProps) {
                     setIsLoadingST(true);
                     const generatedST = await getSyntaxTree(file, langClient);
                     let visitedST = await getLowcodeST(generatedST, file, langClient, experimentalEnabled);
+                    console.log('visited st >>>', visitedST);
                     const currentTime: number = Date.now();
                     if (currentTime - lastPerfUpdate > debounceTime) {
                         visitedST = await addPerformanceDataNew(visitedST, file, langClient, props.showPerformanceGraph, props.getPerfDataFromChoreo, setFocusedST);
