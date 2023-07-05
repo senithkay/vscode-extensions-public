@@ -226,7 +226,7 @@ export function constructTypeFromSTNode(node: STNode, fieldName?: string): Type 
         type = {
             typeName: PrimitiveBalType.Array,
             name: fieldName ? fieldName : null,
-            memberType: constructTypeFromSTNode(node.selectClause.expression)
+            memberType: constructTypeFromSTNode((node?.selectClause || node?.resultClause).expression)
         }
     } else if (STKindChecker.isSpecificField(node)) {
         const valueExpr = node.valueExpr;
@@ -297,10 +297,12 @@ function getValueNodeAndNextNodeForParentType(node: STNode,
 
 function getNextNodeForNoParentType(node: STNode): STNode {
     const innerExpr = getInnermostExpressionBody(node);
-    return STKindChecker.isQueryExpression(innerExpr)
-    && STKindChecker.isMappingConstructor(innerExpr.selectClause.expression)
-        ? innerExpr.selectClause.expression
-        : node;
+
+    if (STKindChecker.isQueryExpression(innerExpr)) {
+        const selectClause = innerExpr?.selectClause || innerExpr?.resultClause;
+        return STKindChecker.isMappingConstructor(selectClause.expression) ? selectClause.expression : node;
+    }
+    return node;
 }
 
 function addChildrenTypes(type: Type,

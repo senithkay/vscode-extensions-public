@@ -138,7 +138,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 		if (STKindChecker.isLetExpression(targetPort.editableRecordField.value)) {
 			targetExpr = getExprBodyFromLetExpression(targetPort.editableRecordField.value);
 		} else if (STKindChecker.isQueryExpression(targetPort.editableRecordField.value)) {
-			targetExpr = targetPort.editableRecordField.value?.selectClause.expression;
+			const selectClause = targetPort.editableRecordField.value?.selectClause
+				|| targetPort.editableRecordField.value?.resultClause;
+			targetExpr = selectClause.expression;
 		} else {
 			targetExpr = targetPort.editableRecordField.value;
 		}
@@ -148,8 +150,9 @@ export async function createSourceForMapping(link: DataMapperLinkModel) {
 			return updateValueExprSource(rhs, valuePosition, applyModifications);
 		}
 	} else if (isMappedToSelectClauseExprConstructor(targetPort)) {
-		const exprPosition = (targetPort.editableRecordField.value as QueryExpression)
-			.selectClause.expression.position as NodePosition;
+		const queryExpr = targetPort.editableRecordField.value as QueryExpression;
+		const selectClause = queryExpr?.selectClause || queryExpr?.resultClause;
+		const exprPosition = selectClause.expression.position as NodePosition;
 		return updateValueExprSource(rhs, exprPosition, applyModifications);
 	} else if (isMappedToRootUnionType(targetPort)) {
 		const exprPosition = (targetPort.getParent() as UnionTypeNode).innermostExpr.position as NodePosition;
@@ -1293,13 +1296,18 @@ function isMappedToMappingConstructorWithinArray(targetPort: RecordFieldPortMode
 }
 
 function isMappedToSelectClauseExprConstructor(targetPort: RecordFieldPortModel): boolean {
-	return !targetPort.parentModel
+	const queryExpr = !targetPort.parentModel
 		&& targetPort.field.typeName === PrimitiveBalType.Array
 		&& targetPort?.editableRecordField?.value
 		&& STKindChecker.isQueryExpression(targetPort.editableRecordField.value)
-		&& (STKindChecker.isListConstructor(targetPort.editableRecordField.value.selectClause.expression)
-			|| STKindChecker.isMappingConstructor(targetPort.editableRecordField.value.selectClause.expression)
-		);
+		&& targetPort.editableRecordField.value;
+	if (queryExpr) {
+		const selectClause = queryExpr?.selectClause || queryExpr?.resultClause;
+		return selectClause
+			&& (STKindChecker.isListConstructor(selectClause.expression)
+				|| STKindChecker.isMappingConstructor(selectClause.expression));
+	}
+	return false;
 }
 
 function getFieldNameFromOutputPort(outputPort: RecordFieldPortModel): string {

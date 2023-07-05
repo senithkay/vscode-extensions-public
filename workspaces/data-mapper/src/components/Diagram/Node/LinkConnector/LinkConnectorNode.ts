@@ -255,7 +255,8 @@ export class LinkConnectorNode extends DataMapperNodeModel {
         {
             let deletePosition = this.valueNode.position;
             if (STKindChecker.isQueryExpression(this.valueNode)) {
-                deletePosition = this.valueNode.selectClause.expression?.position;
+                const selectClause = this.valueNode?.selectClause || this.valueNode?.resultClause;
+                deletePosition = selectClause.expression?.position;
             }
             // Fallback to the default value if the target is a primitive type element
             modifications = [{

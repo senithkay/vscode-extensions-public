@@ -295,12 +295,18 @@ function DataMapperC(props: DataMapperProps) {
         if (fnST) {
             const defaultSt = { stNode: fnST, fieldPath: fnST.functionName.value };
             if (selection.selectedST) {
-                traversNode(fnST, new ViewStateSetupVisitor());
-                const selectedSTFindingVisitor = new SelectedSTFindingVisitor([...selection.prevST, selection.selectedST]);
-                traversNode(fnST, selectedSTFindingVisitor);
-                const { selectedST, prevST } = selectedSTFindingVisitor.getST();
+                try {
+                    traversNode(fnST, new ViewStateSetupVisitor());
+                    const selectedSTFindingVisitor = new SelectedSTFindingVisitor([...selection.prevST, selection.selectedST]);
+                    traversNode(fnST, selectedSTFindingVisitor);
+                    const { selectedST, prevST } = selectedSTFindingVisitor.getST();
 
-                dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST, selectedST: selectedST || defaultSt } });
+                    dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST, selectedST: selectedST || defaultSt } });
+                } catch (e) {
+                    setHasInternalError(true);
+                    // tslint:disable-next-line:no-console
+                    console.error(e);
+                }
             } else {
                 dispatchSelection({ type: ViewOption.INITIALIZE, payload: { prevST: [], selectedST: defaultSt } });
             }
@@ -378,6 +384,8 @@ function DataMapperC(props: DataMapperProps) {
                 }
             } catch (e) {
                 setHasInternalError(true);
+                // tslint:disable-next-line:no-console
+                console.error(e);
             }
 
         } else {
