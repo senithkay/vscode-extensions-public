@@ -10,8 +10,18 @@ import * as React from "react";
 
 import ErrorScreen from "./Error";
 
-export class DataMapperErrorBoundaryC extends React.Component<{}, { hasError: boolean }> {
+export interface DataMapperErrorBoundaryProps {
+    hasError: boolean;
+}
+
+export class DataMapperErrorBoundaryC extends React.Component<DataMapperErrorBoundaryProps, { hasError: boolean }> {
     state = { hasError: false }
+
+    static getDerivedStateFromProps(props: DataMapperErrorBoundaryProps) {
+        return {
+            hasError: props.hasError
+        };
+    }
 
     static getDerivedStateFromError() {
       return { hasError: true };

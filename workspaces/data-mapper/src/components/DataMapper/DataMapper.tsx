@@ -229,6 +229,7 @@ function DataMapperC(props: DataMapperProps) {
     const [dmContext, setDmContext] = useState<DataMapperContext>();
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
     const [shouldRestoreTypes, setShouldRestoreTypes] = useState(true);
+    const [hasInternalError, setHasInternalError] = useState(false);
     const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
 
     const typeStore = TypeDescriptorStore.getInstance();
@@ -368,12 +369,17 @@ function DataMapperC(props: DataMapperProps) {
 
     useEffect(() => {
         if (dmContext && selection?.selectedST?.stNode) {
-            const nodeInitVisitor = new NodeInitVisitor(dmContext, selection)
-            traversNode(selection.selectedST.stNode, nodeInitVisitor);
-            const nodes = nodeInitVisitor.getNodes();
-            if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
-                setDmNodes(nodes);
+            const nodeInitVisitor = new NodeInitVisitor(dmContext, selection);
+            try {
+                traversNode(selection.selectedST.stNode, nodeInitVisitor);
+                const nodes = nodeInitVisitor.getNodes();
+                if (hasIONodesPresent(nodes) && typeStoreStatus === TypeStoreStatus.Loaded) {
+                    setDmNodes(nodes);
+                }
+            } catch (e) {
+                setHasInternalError(true);
             }
+
         } else {
             setDmNodes([]);
         }
@@ -464,7 +470,7 @@ function DataMapperC(props: DataMapperProps) {
     }
 
     return (
-        <DataMapperErrorBoundary>
+        <DataMapperErrorBoundary hasError={hasInternalError}>
             <LSClientContext.Provider value={langClientPromise}>
                 <CurrentFileContext.Provider value={currentFile}>
                     {selection.state === DMState.INITIALIZED && (
