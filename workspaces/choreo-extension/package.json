@@ -76,9 +76,15 @@
       },
       {
         "command": "wso2.choreo.project.open",
-        "title": "Open Choreo Project",
+        "title": "Change Choreo Project",
         "category": "Choreo",
-        "icon": "$(project)"
+        "icon": "$(arrow-swap)"
+      },
+      {
+        "command": "wso2.choreo.project.open.external",
+        "title": "Open Project in Choreo Console",
+        "category": "Choreo",
+        "icon": "$(link-external)"
       },
       {
         "command": "wso2.choreo.architecture.view",
@@ -124,6 +130,13 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "explorer",
+        "contents": "[Open a Choreo project](command:wso2.choreo.project.open), or create a new Choreo project by clicking the button below.\n[Create Choreo Project](command:wso2.choreo.project.create)",
+        "when": "workspaceFolderCount == 0"
+      }
+    ],
     "menus": {
       "view/title": [
         {

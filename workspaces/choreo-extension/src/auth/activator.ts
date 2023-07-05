@@ -13,14 +13,14 @@
 import { ProgressLocation, commands, window } from "vscode";
 import { getChoreoToken, initiateInbuiltAuth as openAuthURL, signOut, tokenStore, signin } from "./auth";
 import { ext } from '../extensionVariables';
-import { STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId } from '../constants';
+import { STATUS_INITIALIZING, STATUS_LOGGED_OUT, STATUS_LOGGING_IN, choreoSignInCmdId, choreoSignInWithApimTokenCmdId, choreoSignOutCmdId } from '../constants';
 import { getLogger } from '../logger/logger';
 import { sendTelemetryEvent } from '../telemetry/utils';
 import { SIGN_IN_CANCEL_EVENT, SIGN_IN_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_FAILURE_EVENT, SIGN_IN_FROM_EXISITING_SESSION_START_EVENT, SIGN_IN_FROM_EXISITING_SESSION_SUCCESS_EVENT, SIGN_IN_START_EVENT, SIGN_OUT_FAILURE_EVENT, SIGN_OUT_START_EVENT, SIGN_OUT_SUCCESS_EVENT } from '@wso2-enterprise/choreo-core';
 import * as vscode from 'vscode';
 
 export async function activateAuth() {
-    ext.api.status = STATUS_LOGGED_OUT;
+    ext.api.status = STATUS_INITIALIZING;
     await initFromExistingChoreoSession();
 
     commands.registerCommand(choreoSignInCmdId, async () => {

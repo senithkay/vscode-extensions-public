@@ -146,7 +146,7 @@ export class ChoreoExtensionApi {
         }
     }
 
-    public async isChoreoProject(): Promise<boolean> {
+    public isChoreoProject(): boolean {
         const workspaceFile = workspace.workspaceFile;
         if (workspaceFile && existsSync(workspaceFile.fsPath)) {
             const workspaceFilePath = workspaceFile.fsPath;
@@ -155,6 +155,17 @@ export class ChoreoExtensionApi {
             return workspaceConfig && workspaceConfig.metadata?.choreo?.projectID !== undefined;
         }
         return false;
+    }
+
+    public getChoreoProjectId(): string|undefined {
+        const workspaceFile = workspace.workspaceFile;
+        if (workspaceFile && this.isChoreoProject()) {
+            const workspaceFilePath = workspaceFile.fsPath;
+            const workspaceFileContent = readFileSync(workspaceFilePath, 'utf8');
+            const workspaceConfig = JSON.parse(workspaceFileContent) as WorkspaceConfig;
+            const projectID = workspaceConfig.metadata?.choreo?.projectID;
+            return projectID;
+        }
     }
 
     public async getChoreoProject(): Promise<Project | undefined> {

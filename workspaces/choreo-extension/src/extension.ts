@@ -44,7 +44,7 @@ import { activateTelemetry } from './telemetry/telemetry';
 import { sendProjectTelemetryEvent, sendTelemetryEvent } from './telemetry/utils';
 import { OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_CANCEL_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_START_EVENT, OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_SUCCESS_EVENT, Organization, REFRESH_PROJECTS_EVENT, SWITCH_ORGANIZATION_EVENT } from '@wso2-enterprise/choreo-core';
 import { activateActivityBarWebViews } from './views/webviews/ActivityBar/activate';
-import { activateOpenProjectCmd } from './cmds/open-project';
+import { activateCmds } from './cmds';
 
 export function activateBallerinaExtension() {
 	const ext = extensions.getExtension("wso2.ballerina");
@@ -62,18 +62,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	ext.api = new ChoreoExtensionApi();
 	setupEvents();
 	activateWizards();
-	await activateAuth();
-	ext.isPluginStartup = false;
-	activateBallerinaExtension();
+	activateAuth();
+	activateCmds(context);
+	activateActivityBarWebViews(context);
 	activateURIHandlers();
-	showChoreoProjectOverview();
 	activateStatusBarItem();
 	activateRegistry();
 	setupGithubAuthStatusCheck();
-	getLogger().debug("Choreo Extension activated");
 	registerPreInitHandlers();
-	activateOpenProjectCmd(context);
-	activateActivityBarWebViews(context);
+	activateBallerinaExtension();
+	ext.isPluginStartup = false;
+	openChoreoActivity();
+	getLogger().debug("Choreo Extension activated");
 	return ext.api;
 }
 
@@ -84,6 +84,29 @@ function setupGithubAuthStatusCheck() {
 }
 
 let isChoreoProjectBeingOpened: boolean = false;
+
+// This function is called when the extension is activated.
+// it will check if the opened project is a Choreo project.
+// if so, it will check if the project is being opened for the first time
+// using a vscode global state variable which is set when the project is opened.
+// if the project is being opened for the first time, it will activate the Choreo Project view in the sidebar.
+async function openChoreoActivity() {
+	const isChoreoProject = ext.api.isChoreoProject();
+	if (isChoreoProject) {
+		// check if the project is being opened for the first time
+		const openedProjects: string[] = ext.context.globalState.get("openedProjects") || [];
+		const choreoProjectId = ext.api.getChoreoProjectId();
+		if (choreoProjectId && !openedProjects.includes(choreoProjectId)) {
+			// activate the Choreo Project view in the sidebar
+			vscode.commands.executeCommand("choreo.activity.project.focus");
+			// open architecture view
+			commands.executeCommand("ballerina.view.architectureView");
+			// add the project id to the opened projects list
+			openedProjects.push(choreoProjectId);
+			await ext.context.globalState.update("openedProjects", openedProjects);
+		}
+	}
+}
 
 export async function showChoreoProjectOverview() {
 	getLogger().debug("Show Choreo Project Overview if a Choreo project is opened.");
@@ -138,7 +161,7 @@ export async function showChoreoProjectOverview() {
 					vscode.commands.executeCommand("wso2.choreo.project.overview", project);
 				}
 			} catch (error: any) {
-				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, { cause: error?.message })
+				sendProjectTelemetryEvent(OPEN_WORKSPACE_PROJECT_OVERVIEW_PAGE_FAILURE_EVENT, { cause: error?.message });
 				getLogger().error("Error while loading Choreo project overview. " + error.message + (error?.cause ? "\nCause: " + error.cause.message : ""));
 				window.showErrorMessage("Error while loading Choreo project overview. " + error.message);
 			}
@@ -238,7 +261,7 @@ function setupEvents() {
 }
 
 function registerPreInitHandlers(): any {
-	const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
+	const CONFIG_CHANGED: string = "Choreo extension configuration changed. Please restart vscode for changes to take effect.";
 	// We need to restart VSCode if we change plugin configurations.
 	workspace.onDidChangeConfiguration((params: ConfigurationChangeEvent) => {
 		if (params.affectsConfiguration("Advanced.ChoreoEnvironment")) {

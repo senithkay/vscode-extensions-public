@@ -16,7 +16,7 @@ import { Component, DeploymentStatus } from "@wso2-enterprise/choreo-core";
 
 const Container = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 `;
 
 
@@ -52,8 +52,9 @@ export const DeploymentStatusText: React.FC<{ enrichedComponent: Component }> = 
             break;
     }
     return (
-        <Container style={{ color: `var(${deploymentStatusColor})` }}>
-            <span>Deployment: </span><span>{local ? 'N/A' : DeploymentStatusMapping[deploymentStatus]}</span>
+        <Container>
+            <div>Deployment:&nbsp;</div>
+            <div style={{ color: `var(${deploymentStatusColor})` }}>{local ? 'N/A' : DeploymentStatusMapping[deploymentStatus]}</div>
         </Container>
     );
 };

@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
- *
+ * 
  *  This software is the property of WSO2 LLC. and its suppliers, if any.
  *  Dissemination of any information or reproduction of any material contained
  *  herein is strictly forbidden, unless permitted by WSO2 in accordance with
@@ -10,16 +10,11 @@
  *  entered into with WSO2 governing the purchase of this software and any
  *  associated services.
  */
-import React from "react";
-import styled from "@emotion/styled";
+import { ExtensionContext } from "vscode";
+import { activateOpenProjectCmd } from "./open-project";
+import { activateOpenInConsoleCmd } from "./open-in-console";
 
-const Title = styled.div`
-    font-size: 11px;
-    font-weight: bold;
-    // capitalize
-    text-transform: uppercase;
-`;
-
-export const ViewTitle: React.FC = (props) => (
-    <Title>{props.children}</Title>
-);
+export function activateCmds(context: ExtensionContext) {
+    activateOpenProjectCmd(context);
+    activateOpenInConsoleCmd(context);
+}
