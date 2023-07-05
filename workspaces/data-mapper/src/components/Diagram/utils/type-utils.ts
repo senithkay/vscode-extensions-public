@@ -327,6 +327,8 @@ function addEnrichedArrayElements(nextNode: STNode,
     const innerExpr = getInnermostExpressionBody(nextNode);
 
     if (STKindChecker.isQueryExpression(innerExpr)) {
+        // const resultClause = innerExpr?.selectClause || innerExpr?.resultClause;
+        // const selectClauseExpr = resultClause.expression;
         const selectClauseExpr = innerExpr.selectClause.expression;
 
         if (STKindChecker.isMappingConstructor(selectClauseExpr)) {

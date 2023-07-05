@@ -42,6 +42,8 @@ import { DataMapperInputParam, DataMapperOutputParam, TypeNature } from "./Confi
 import { getFnNameFromST, getFnSignatureFromST, getInputsFromST, getOutputTypeFromST } from "./ConfigPanel/utils";
 import { CurrentFileContext } from "./Context/current-file-context";
 import { LSClientContext } from "./Context/ls-client-context";
+import { DataMapperError, ErrorNodeKind } from "./Error/DataMapperError";
+import { DataMapperErrorBoundary } from "./ErrorBoundary";
 import { DataMapperHeader } from "./Header/DataMapperHeader";
 import { UnsupportedDataMapperHeader } from "./Header/UnsupportedDataMapperHeader";
 import { LocalVarConfigPanel } from "./LocalVarConfigPanel/LocalVarConfigPanel";
@@ -82,7 +84,17 @@ const useStyles = makeStyles((theme: Theme) =>
         dmUnsupportedMessage: {
             zIndex: 1,
             position: 'absolute'
-        }
+        },
+        errorBanner: {
+            borderColor: '#FF0000'
+        },
+        errorMessage: {
+            zIndex: 1,
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+        },
     }),
 );
 
@@ -217,6 +229,7 @@ function DataMapperC(props: DataMapperProps) {
     const [dmContext, setDmContext] = useState<DataMapperContext>();
     const [dmNodes, setDmNodes] = useState<DataMapperNodeModel[]>();
     const [shouldRestoreTypes, setShouldRestoreTypes] = useState(true);
+    const [errorKind, setErrorKind] = useState<ErrorNodeKind>();
 
     const typeStore = TypeDescriptorStore.getInstance();
     const typeStoreStatus = typeStore.getStatus();
@@ -430,6 +443,10 @@ function DataMapperC(props: DataMapperProps) {
         resetSearchStore();
     }, [fnName]);
 
+    const handleErrors = (kind: ErrorNodeKind) => {
+        setErrorKind(kind);
+    };
+
     const cPanelProps = {
         fnST,
         targetPosition,
@@ -447,60 +464,74 @@ function DataMapperC(props: DataMapperProps) {
     }
 
     return (
-        <LSClientContext.Provider value={langClientPromise}>
-            <CurrentFileContext.Provider value={currentFile}>
-                {selection.state === DMState.INITIALIZED && (
-                    <div className={classes.root}>
-                        {(!!showDMOverlay || showLocalVarConfigPanel) &&
-                            <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
-                        }
-                        {fnST && (
-                            <DataMapperHeader
-                                selection={selection}
-                                dmSupported={dMSupported}
-                                changeSelection={handleSelectedST}
-                                onConfigOpen={onConfigOpen}
+        <DataMapperErrorBoundary>
+            <LSClientContext.Provider value={langClientPromise}>
+                <CurrentFileContext.Provider value={currentFile}>
+                    {selection.state === DMState.INITIALIZED && (
+                        <div className={classes.root}>
+                            {(!!showDMOverlay || showLocalVarConfigPanel) &&
+                                <div className={dMSupported ? classes.overlay : classes.dmUnsupportedOverlay} />
+                            }
+                            {fnST && (
+                                <DataMapperHeader
+                                    selection={selection}
+                                    dmSupported={dMSupported}
+                                    changeSelection={handleSelectedST}
+                                    onConfigOpen={onConfigOpen}
+                                />
+                            )}
+                            {!dMSupported && (
+                                <>
+                                    {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
+                                    <div className={classes.dmUnsupportedMessage}>
+                                        <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"} />
+                                    </div>
+                                </>
+                            )}
+                            {errorKind && (
+                                <>
+                                    <div className={classes.overlay} />
+                                    <div className={classes.errorMessage}>
+                                        <WarningBanner
+                                            message={<DataMapperError errorNodeKind={errorKind} />}
+                                            className={classes.errorBanner}
+                                        />
+                                    </div>
+                                </>
+                            )}
+                            <DataMapperDiagram
+                                nodes={dmNodes}
+                                onError={handleErrors}
                             />
-                        )}
-                        {!dMSupported && (
-                            <>
-                                {!fnST && (<UnsupportedDataMapperHeader onClose={onClose} />)}
-                                <div className={classes.dmUnsupportedMessage}>
-                                    <WarningBanner message={dmUnsupportedMessage} testId={"warning-message"} />
-                                </div>
-                            </>
-                        )}
-                        <DataMapperDiagram
-                            nodes={dmNodes}
-                        />
-                        {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
-                        {!!currentEditableField && dMSupported && (
-                            <StatementEditorComponent
-                                expressionInfo={currentEditableField}
-                                langClientPromise={langClientPromise}
-                                applyModifications={applyModifications}
-                                updateFileContent={updateFileContent}
-                                currentFile={currentFile}
-                                library={library}
-                                onCancel={cancelStatementEditor}
-                                onClose={closeStatementEditor}
-                                importStatements={importStatements}
-                            />
-                        )}
-                        {showLocalVarConfigPanel && (
-                            <LocalVarConfigPanel
-                                handleLocalVarConfigPanel={handleLocalVarConfigPanel}
-                                applyModifications={applyModifications}
-                                enableStatementEditor={enableStatementEditor}
-                                fnDef={selection.selectedST.stNode}
-                                langClientPromise={langClientPromise}
-                                filePath={filePath}
-                            />
-                        )}
-                    </div>
-                )}
-            </CurrentFileContext.Provider>
-        </LSClientContext.Provider>
+                            {(showConfigPanel || isConfigPanelOpen) && dMSupported && <DataMapperConfigPanel {...cPanelProps} />}
+                            {!!currentEditableField && dMSupported && (
+                                <StatementEditorComponent
+                                    expressionInfo={currentEditableField}
+                                    langClientPromise={langClientPromise}
+                                    applyModifications={applyModifications}
+                                    updateFileContent={updateFileContent}
+                                    currentFile={currentFile}
+                                    library={library}
+                                    onCancel={cancelStatementEditor}
+                                    onClose={closeStatementEditor}
+                                    importStatements={importStatements}
+                                />
+                            )}
+                            {showLocalVarConfigPanel && (
+                                <LocalVarConfigPanel
+                                    handleLocalVarConfigPanel={handleLocalVarConfigPanel}
+                                    applyModifications={applyModifications}
+                                    enableStatementEditor={enableStatementEditor}
+                                    fnDef={selection.selectedST.stNode}
+                                    langClientPromise={langClientPromise}
+                                    filePath={filePath}
+                                />
+                            )}
+                        </div>
+                    )}
+                </CurrentFileContext.Provider>
+            </LSClientContext.Provider>
+        </DataMapperErrorBoundary>
     )
 }
 

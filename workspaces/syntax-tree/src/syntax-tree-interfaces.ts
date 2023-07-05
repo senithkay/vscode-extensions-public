@@ -2929,6 +2929,7 @@ export interface VisibleEndpoint {
     queryConstructType?: QueryConstructType;
     queryPipeline: QueryPipeline;
     selectClause: SelectClause;
+    resultClause?: SelectClause;
   }
   
   export interface QueryPipeline extends STNode {
