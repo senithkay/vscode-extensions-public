@@ -89,7 +89,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
     }
 
     if (activeDoc.uri.scheme !== NOTEBOOK_CELL_SCHEME) {
-        if (ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
+        if (activeDoc.fileName.endsWith('.bal') && ballerinaExtInstance.langClient && isSupportedVersion(ballerinaExtInstance, VERSION.BETA, 1)) {
             await ballerinaExtInstance.langClient.getBallerinaProject({
                 documentIdentifier: {
                     uri: activeDoc.uri.toString()
@@ -107,7 +107,7 @@ async function getModifiedConfigs(config: DebugConfiguration) {
                 log(`Language server failed to respond with the error message, ${error.message}, while debugging.`);
                 sendTelemetryException(ballerinaExtInstance, error, CMP_DEBUGGER);
             });
-        } else if (!activeDoc.fileName.endsWith('.bal')) {
+        } else {
             ballerinaExtInstance.showMessageInvalidFile();
             return Promise.reject();
         }
