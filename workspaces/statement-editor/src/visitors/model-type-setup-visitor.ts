@@ -46,7 +46,7 @@ class ModelTypeSetupVisitor implements Visitor {
             (node.viewState as StatementEditorViewState).modelType = ModelType.METHOD_CALL;
         } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.FIELD_ACCESS) {
             (node.viewState as StatementEditorViewState).modelType = ModelType.FIELD_ACCESS;
-        }  else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.SPECIFIC_FIELD_NAME) {
+        } else if (parent && (parent.viewState as StatementEditorViewState).modelType === ModelType.SPECIFIC_FIELD_NAME) {
             (node.viewState as StatementEditorViewState).modelType = ModelType.SPECIFIC_FIELD_NAME;
         }
     }
@@ -136,7 +136,11 @@ class ModelTypeSetupVisitor implements Visitor {
 
     public beginVisitQueryExpression(node: QueryExpression) {
         (node.queryPipeline.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
-        (node.selectClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        if (node.selectClause) {
+            (node.selectClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        } else if ((node as any).resultClause) {
+            ((node as any).resultClause.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
+        }
         if (node?.queryConstructType) {
             (node.queryConstructType.viewState as StatementEditorViewState).modelType = ModelType.QUERY_EXPRESSION;
         }
@@ -151,7 +155,7 @@ class ModelTypeSetupVisitor implements Visitor {
     }
 
     public beginVisitOrderKey(node: OrderKey) {
-        if (node?.orderDirection){
+        if (node?.orderDirection) {
             (node.orderDirection.viewState as StatementEditorViewState).modelType = ModelType.ORDER_DIRECTION_KEYWORDS;
         }
     }
