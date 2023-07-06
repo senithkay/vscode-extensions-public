@@ -23,8 +23,6 @@ export interface IChoreoWebViewContext {
     isChoreoProject?: boolean;
     choreoProject?: Project;
     choreoUrl: string;
-    bitbucketCredentialId: string;
-    setBitbucketCredentialId: (bitbucketCredentialId: string) => void;
 
 }
 
@@ -33,8 +31,6 @@ const defaultContext: IChoreoWebViewContext = {
     loginStatusPending: true,
     fetchingOrgInfo: true,
     choreoUrl: "",
-    bitbucketCredentialId: '',
-    setBitbucketCredentialId: () => {},
 };
 
 export const ChoreoWebViewContext = React.createContext(defaultContext);

@@ -25,7 +25,6 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
     const [error, setError] = useState<Error | undefined>(undefined);
     const [isChoreoProject, setIsChoreoProject] = useState<boolean | undefined>(undefined);
     const [choreoProject, setChoreoProject] = useState<Project | undefined>(undefined);
-    const [bitbucketCredentialId, setBitbucketCredentialId] = useState<string>('');
 
     useEffect(() => {
       const rpcInstance = ChoreoWebViewAPI.getInstance();
@@ -103,7 +102,5 @@ export function usePopulateContext(props: { choreoUrl: string}): IChoreoWebViewC
         isChoreoProject,
         choreoProject,
         choreoUrl: props.choreoUrl,
-        bitbucketCredentialId,
-        setBitbucketCredentialId,
     };
 }
