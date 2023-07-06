@@ -18,6 +18,7 @@ const Title = styled.div`
     font-weight: bold;
     // capitalize
     text-transform: uppercase;
+    color: var(--vscode-descriptionForeground)
 `;
 
 export const ViewTitle: React.FC = (props) => (

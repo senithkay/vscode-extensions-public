@@ -13,7 +13,7 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import { ChoreoWebViewAPI } from "./../../utilities/WebViewRpc";
+import { ChoreoWebViewAPI } from "../../utilities/WebViewRpc";
 
 const Container = styled.div`
     display: flex;
@@ -29,32 +29,31 @@ const WideVSCodeButton = styled(VSCodeButton)`
     margin: 15px;
 `;
 
-export const WelcomeMessage = () => {
+export const NoComponentsMessage = () => {
     
-    const openChoreoProject = () => {
-        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.open");
+    const createFromScratch = () => {
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.component.create", "fromScratch");
     }
 
-    const createChoreoProject = () => {
-        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.project.create");
+    const createFromExisting = () => {
+        ChoreoWebViewAPI.getInstance().triggerCmd("wso2.choreo.component.create", "fromExisting");
     }
 
     return (
         <Container>
-            <div>You do not have a Choreo project in current workspace.</div>
+            <div>You do not have any components.</div>
             <WideVSCodeButton
                 appearance="primary"
-                onClick={openChoreoProject}
+                onClick={createFromScratch}
             >
-                Open a Choreo Project
+                Create from sctratch
             </WideVSCodeButton>
-            <div>You can open the Project in a new window or in current window.</div>
-            <div>You can also create a new Choreo Project by clicking the button below.</div>
+            <div>You can also create a new Component from existing source.</div>
             <WideVSCodeButton
                 appearance="primary"
-                onClick={createChoreoProject}
+                onClick={createFromExisting}
             >
-                Create Choreo Project
+                Create from existing source
             </WideVSCodeButton>
         </Container>
     );

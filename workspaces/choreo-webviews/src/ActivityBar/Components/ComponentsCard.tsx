@@ -21,6 +21,7 @@ import { Codicon } from "../../Codicon/Codicon";
 import { useGetComponents } from "../../hooks/use-get-components";
 import { ProgressIndicator } from "./ProgressIndicator";
 import { ViewTitle } from "./ViewTitle";
+import { NoComponentsMessage } from "./NoComponentsMessage";
 
 const Container = styled.div`
     display: flex;
@@ -40,6 +41,10 @@ const Header = styled.div`
     flex-direction: row;
     gap: 2px;
     align-items: center;
+`;
+
+const CodeIconWithMargin = styled(Codicon)`
+    margin-right: 3px;
 `;
 
 export const ComponentsCard = () => {
@@ -69,7 +74,7 @@ export const ComponentsCard = () => {
                     id="add-component-btn"
                     style={{ marginLeft: "auto" }}
                 >
-                    <Codicon name="plus" />
+                    <CodeIconWithMargin name="plus" />
                 </VSCodeButton>
                 <VSCodeButton
                     appearance="icon"
@@ -77,14 +82,14 @@ export const ComponentsCard = () => {
                     title="Refresh Component List"
                     id="refresh-components-btn"
                 >
-                    <Codicon name="refresh" />
+                    <CodeIconWithMargin name="refresh" />
                 </VSCodeButton>
                 <VSCodeButton
                     appearance="icon"
                     title="Collapse all components"
                     id="collapse-components-btn"
                 >
-                    <Codicon name="collapse-all" />
+                    <CodeIconWithMargin name="collapse-all" />
                 </VSCodeButton>
             </Header>
             {(isLoadingComponents || isRefetchingComponents) && <ProgressIndicator />}
@@ -95,7 +100,7 @@ export const ComponentsCard = () => {
                         {index !== components.length - 1 && <VSCodeDivider />}
                     </>)
                 )}
-                {!isLoadingComponents && components && components.length === 0 && <div>No Components</div>}
+                {!isLoadingComponents && components && components.length === 0 && <NoComponentsMessage />}
                 {componentLoadError && <div>{componentLoadError}</div>}
             </Body>
         </Container> 

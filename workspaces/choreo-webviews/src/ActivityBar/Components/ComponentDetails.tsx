@@ -18,7 +18,6 @@ import { ProgressIndicator } from "./ProgressIndicator";
 import { DeploymentStatusText } from "./DeploymentStatusText";
 import { RepositoryDetails } from "./RepositoryDetails";
 import { BuildStatus } from "./BuildStatus";
-import { SkeletonLoader } from "./SkeletonLoader";
 
 const Container = styled.div`
     display: flex;
@@ -35,7 +34,7 @@ export const ComponentDetails = (props: { component: Component}) => {
     const { enrichedComponent, isLoadingComponent, isRefetchingComponent } = useEnrichComponent(props.component);
 
     return (<Container>
-        {isRefetchingComponent && <ProgressIndicator />}
+        {(isLoadingComponent || isRefetchingComponent) && <ProgressIndicator />}
         {enrichedComponent && (
             <>
                 <DeploymentStatusText enrichedComponent={enrichedComponent} />
@@ -43,6 +42,5 @@ export const ComponentDetails = (props: { component: Component}) => {
                 <BuildStatus enrichedComponent={enrichedComponent} />
             </>
         )}
-        {isLoadingComponent && <SkeletonLoader lineCount={3} />}
     </Container>)
 };
